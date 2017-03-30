@@ -27,7 +27,12 @@ import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.script.*;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -36,10 +41,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -139,7 +149,20 @@ public abstract class TemplateEngine<C> {
             throw new IllegalArgumentException("null template");
         }
         String result = execute(template, parameters);
-        return Arrays.asList(result.split(LINE_SEPARATOR));
+        List<String> lines = new ArrayList<>();
+        String currentLine = "";
+        for (int i = 0; i < result.length(); i++) {
+            char c = result.charAt(i);
+            if (c != '\n') {
+                currentLine += c;
+                if (currentLine.charAt(currentLine.length() - 1) == '\r') {
+                    currentLine = currentLine.substring(0, currentLine.length() - 1);
+                }
+                lines.add(currentLine);
+                currentLine = "";
+            }
+        }
+        return lines;//Arrays.asList(result.split(LINE_SEPARATOR));
     }
 
     /**

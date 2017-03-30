@@ -231,8 +231,8 @@ public class CrsGeoCodingTest {
                      "  PROJECTION[\"Sinusoidal\"], \n" +
                      "  PARAMETER[\"central_meridian\", 0.0], \n" +
                      "  PARAMETER[\"scale_factor\", 1.0], \n" +
-                     "  PARAMETER[\"false_easting\", 0.0], \n" +
-                     "  PARAMETER[\"false_northing\", 0.0], \n" +
+                     "  PARAMETER[\"false_easting\", 1000.0], \n" +
+                     "  PARAMETER[\"false_northing\", 500000.0], \n" +
                      "  UNIT[\"m\", 1.0], \n" +
                      "  AXIS[\"x\", EAST], \n" +
                      "  AXIS[\"y\", NORTH]]";
@@ -266,9 +266,9 @@ public class CrsGeoCodingTest {
 
         for (int i = 0; i < numPixels; i++) {
             assertEquals(latPixels_1[i], latPixels_2[i], 1e-8);
-            assertEquals(latPixels_1[i], latPixels_3[i], 1e-8);
+            assertEquals(latPixels_1[i], latPixels_3[i], 1e-6);
             assertEquals(lonPixels_1[i], lonPixels_2[i], 1e-8);
-            assertEquals(lonPixels_1[i], lonPixels_3[i], 1e-8);
+            assertEquals(lonPixels_1[i], lonPixels_3[i], 1e-6);
         }
     }
 

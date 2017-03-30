@@ -18,14 +18,23 @@ public class SystemDependentVariable extends SystemVariable {
     private volatile Map<OSFamily, String> values;
     @XStreamOmitField
     private OSFamily currentOS;
-    String windows;
-    String linux;
-    String macosx;
+    private String windows;
+    private String linux;
+    private String macosx;
     private boolean isTransient;
 
-    public SystemDependentVariable() {
-        super();
-        initialize();
+    private SystemDependentVariable(String key, String value, Map<OSFamily, String> values, OSFamily currentOS,
+                                   String windows, String linux, String macosx, boolean isTransient) {
+        super(key, value);
+        this.values = new HashMap<>();
+        if (values != null) {
+            this.values.putAll(values);
+        }
+        this.currentOS = currentOS;
+        this.windows = windows;
+        this.linux = linux;
+        this.macosx = macosx;
+        this.isTransient = isTransient;
     }
 
     public SystemDependentVariable(String key, String value) {
@@ -61,14 +70,8 @@ public class SystemDependentVariable extends SystemVariable {
 
     @Override
     public SystemVariable createCopy() {
-        SystemDependentVariable copy = new SystemDependentVariable();
-        copy.setKey(this.getKey());
-        copy.setShared(this.isShared());
-        copy.setValue(this.getValue());
-        copy.setWindows(this.getWindows());
-        copy.setLinux(this.getLinux());
-        copy.setMacosx(this.getMacosx());
-        return copy;
+        return new SystemDependentVariable(this.key, this.value, this.values, this.currentOS,
+                                           this.windows, this.linux, this.macosx, this.isTransient);
     }
 
     /**
@@ -115,6 +118,10 @@ public class SystemDependentVariable extends SystemVariable {
 
     public void setTransient(boolean value) { this.isTransient = value; }
 
+    public String getCurrentOSValue(){
+        return values.get(currentOS);
+    }
+
     private void initialize() {
         values = new HashMap<>();
         try {
@@ -139,9 +146,5 @@ public class SystemDependentVariable extends SystemVariable {
             }
         });
         values.put(currentOS, resolve());
-    }
-
-    public String getCurrentOSValue(){
-        return values.get(currentOS);
     }
 }

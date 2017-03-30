@@ -301,15 +301,15 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         for (int y = y1; y < y2; ++y) {
             final float yp = y + 0.5f;
             for (int x = x1; x < x2; ++x) {
-                srcPixels[pos++] = yp;
                 srcPixels[pos++] = x + 0.5f;
+                srcPixels[pos++] = yp;
             }
         }
         try {
             imageToGeo.transform(srcPixels, 0, latLonPixels, 0, numPixels);
             for (int i = 0; i < numPixels; i++) {
-                latPixels[i] = latLonPixels[2 * i];
-                lonPixels[i] = latLonPixels[(2 * i) + 1];
+                lonPixels[i] = latLonPixels[2 * i];
+                latPixels[i] = latLonPixels[(2 * i) + 1];
             }
         } catch (TransformException e) {
             getPixelsOneByOne(x1, y1, w, h, latPixels, lonPixels);
@@ -327,15 +327,15 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         for (int y = y1; y < y2; ++y) {
             final float yp = y + 0.5f;
             for (int x = x1; x < x2; ++x) {
-                srcPixels[pos++] = yp;
                 srcPixels[pos++] = x + 0.5f;
+                srcPixels[pos++] = yp;
             }
         }
         try {
             imageToGeo.transform(srcPixels, 0, latLonPixels, 0, numPixels);
             for (int i = 0; i < numPixels; i++) {
-                latPixels[i] = latLonPixels[2 * i];
-                lonPixels[i] = latLonPixels[(2 * i) + 1];
+                lonPixels[i] = latLonPixels[2 * i];
+                latPixels[i] = latLonPixels[(2 * i) + 1];
             }
         } catch (TransformException e) {
             getPixelsOneByOne(x1, y1, w, h, latPixels, lonPixels);

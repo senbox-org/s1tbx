@@ -30,7 +30,7 @@ public class SystemVariable {
     String value;
     boolean isShared;
 
-    SystemVariable() {
+    private SystemVariable() {
         this.key = "";
         this.value = "";
         this.isShared = false;
@@ -44,7 +44,6 @@ public class SystemVariable {
 
     /**
      * Gets the name of the system variable.
-     * @return
      */
     public String getKey() {
         return key;
@@ -52,7 +51,6 @@ public class SystemVariable {
 
     /**
      * Sets the name of the system variable.
-     * @param key
      */
     public void setKey(String key) {
         this.key = key;
@@ -60,7 +58,6 @@ public class SystemVariable {
 
     /**
      * Gets the value of the system variable
-     * @return
      */
     public String getValue() {
         return resolve();
@@ -68,7 +65,6 @@ public class SystemVariable {
 
     /**
      * Sets the value of the system variable
-     * @param value
      */
     public void setValue(String value) {
         this.value = value;
@@ -101,11 +97,17 @@ public class SystemVariable {
     }
 
     protected String resolve() {
+        // first: STA shared variables
+        if (this.value == null || this.value.isEmpty()) {
+            this.value = ToolAdapterIO.getVariableValue(this.key, null, this.isShared);
+        }
+        // second: system-wide variables
         if (this.value == null || this.value.isEmpty()) {
             this.value = System.getenv(this.key);
         }
-        if (this.value == null) {
-            this.value = ToolAdapterIO.getVariableValue(this.key, null, this.isShared);
+        // third: java-specific variables
+        if (this.value == null || this.value.isEmpty()) {
+            this.value = System.getProperty(this.key);
         }
         return this.value;
     }

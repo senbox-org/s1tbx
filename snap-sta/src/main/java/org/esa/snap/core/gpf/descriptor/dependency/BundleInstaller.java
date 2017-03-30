@@ -33,8 +33,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,11 +82,12 @@ public class BundleInstaller implements AutoCloseable {
         if (bundle == null) {
             return false;
         }
-        File targetLocation = bundle.getTargetLocation();
-        String entryPoint = bundle.getEntryPoint();
-        return (targetLocation != null && entryPoint != null &&
+        //File targetLocation = bundle.getTargetLocation();
+        //String entryPoint = bundle.getEntryPoint();
+        return getLocalSourcePath(bundle) != null || bundle.getDownloadURL() != null;
+        /*return (targetLocation != null && entryPoint != null &&
                 targetLocation.exists() && Files.exists(baseModulePath.resolve(entryPoint))) ||
-                bundle.getDownloadURL() != null;
+                bundle.getDownloadURL() != null;*/
     }
 
     /**
@@ -187,6 +188,22 @@ public class BundleInstaller implements AutoCloseable {
         return bundle != null && bundle.isInstalled();
     }
 
+    private static Path getLocalSourcePath(Bundle bundle) {
+        Path bundlePath = null;
+        if (bundle != null) {
+            File source = bundle.getSource();
+            if (source != null && source.exists()) {
+                bundlePath = source.toPath();
+            } else {
+                String entryPoint = bundle.getEntryPoint();
+                if (entryPoint != null && Files.exists(baseModulePath.resolve(entryPoint))) {
+                    bundlePath = baseModulePath.resolve(entryPoint);
+                }
+            }
+        }
+        return bundlePath;
+    }
+
     private void copy(Path source, Bundle bundle) throws IOException {
         File targetLocation = bundle.getTargetLocation();
         if (targetLocation == null) {
@@ -234,7 +251,10 @@ public class BundleInstaller implements AutoCloseable {
             arguments.add(exePath.toString());
             String args = bundle.getArguments();
             if (args != null) {
-                Collections.addAll(arguments, args.split(" "));
+                StringTokenizer tokenizer = new StringTokenizer(args, " ");
+                while (tokenizer.hasMoreTokens()) {
+                    arguments.add(tokenizer.nextToken());
+                }
             }
             ProcessExecutor executor = new ProcessExecutor();
             exit = executor.execute(arguments);
