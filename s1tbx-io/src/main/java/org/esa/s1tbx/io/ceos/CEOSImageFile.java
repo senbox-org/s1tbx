@@ -136,7 +136,7 @@ public abstract class CEOSImageFile {
         imageFDR.assignMetadataTo(imgDescElem);
         rootElem.addElement(imgDescElem);
 
-        if (imageRecords[0] != null) {
+        if (imageRecords.length > 0 && imageRecords[0] != null) {
             final MetadataElement imgRecElem = new MetadataElement("Image Record ");
             imageRecords[0].assignMetadataTo(imgRecElem);
             imgDescElem.addElement(imgRecElem);
