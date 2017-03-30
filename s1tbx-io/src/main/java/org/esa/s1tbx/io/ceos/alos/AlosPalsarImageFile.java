@@ -47,10 +47,12 @@ public class AlosPalsarImageFile extends CEOSImageFile {
         imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
         binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
         imageRecords = new BinaryRecord[imageFDR.getAttributeInt("Number of lines per data set")];
-        imageRecords[0] = createNewImageRecord(0);
+        if(imageRecords.length > 0) {
+            imageRecords[0] = createNewImageRecord(0);
 
-        _imageRecordLength = imageRecords[0].getRecordLength();
-        startPosImageRecords = imageRecords[0].getStartPos();
+            _imageRecordLength = imageRecords[0].getRecordLength();
+            startPosImageRecords = imageRecords[0].getStartPos();
+        }
         imageHeaderLength = imageFDR.getAttributeInt("Number of bytes of prefix data per record");
     }
 

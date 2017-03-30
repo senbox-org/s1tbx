@@ -77,9 +77,11 @@ public class CoherenceOpUI extends BaseOperatorUI {
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
+    private final JCheckBox externalDEMApplyEGMCheckBox = new JCheckBox("Apply Earth Gravitational Model");
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
     private final JComboBox<String> tileExtensionPercent = new JComboBox<>(new String[]{"20", "40", "60", "80", "100", "150", "200"});
     private Double extNoDataValue = 0.0;
+    private Boolean externalDEMApplyEGM = true;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -142,8 +144,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
             }
         });
         externalDEMFile.setColumns(30);
-        final String demItem = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
-        enableExternalDEM(demItem.equals(externalDEMStr));
+        enableExternalDEM(((String) demName.getSelectedItem()).startsWith(externalDEMStr));
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -153,6 +154,12 @@ public class CoherenceOpUI extends BaseOperatorUI {
                     extNoDataValue = OperatorUIUtils.getNoDataValue(file);
                 }
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
+            }
+        });
+
+        externalDEMApplyEGMCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                externalDEMApplyEGM = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -194,7 +201,11 @@ public class CoherenceOpUI extends BaseOperatorUI {
         final String demNameParam = (String) paramMap.get("demName");
         if (demNameParam != null) {
             ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
-            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+            if(descriptor != null) {
+                demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+            } else {
+                demName.setSelectedItem(demNameParam);
+            }
         }
 
         final File extFile = (File)paramMap.get("externalDEMFile");
@@ -203,6 +214,12 @@ public class CoherenceOpUI extends BaseOperatorUI {
             extNoDataValue =  (Double)paramMap.get("externalDEMNoDataValue");
             if(extNoDataValue != null && !textAreaKeyListener.isChangedByUser()) {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
+            }
+
+            paramVal = (Boolean) paramMap.get("externalDEMApplyEGM");
+            if (paramVal != null) {
+                externalDEMApplyEGM = paramVal;
+                externalDEMApplyEGMCheckBox.setSelected(externalDEMApplyEGM);
             }
         }
 
@@ -247,11 +264,13 @@ public class CoherenceOpUI extends BaseOperatorUI {
         paramMap.put("subtractTopographicPhase", subtractTopographicPhase);
         if (subtractTopographicPhase) {
 //          paramMap.put("orbitDegree", Integer.parseInt(orbitDegree.getText()));
+            final String properDEMName = (DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
             paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
-            final String extFileStr = externalDEMFile.getText();
-            if(!extFileStr.isEmpty()) {
+            if(properDEMName.equals(externalDEMStr)) {
+                final String extFileStr = externalDEMFile.getText();
                 paramMap.put("externalDEMFile", new File(extFileStr));
                 paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
+                paramMap.put("externalDEMApplyEGM", externalDEMApplyEGM);
             }
             paramMap.put("tileExtensionPercent", tileExtensionPercent.getSelectedItem());
         }
@@ -295,12 +314,12 @@ public class CoherenceOpUI extends BaseOperatorUI {
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
         gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, externalDEMFileLabel, externalDEMFile);
-        gbc.gridx = 2;
-        contentPane.add(externalDEMBrowseButton, gbc);
+        DialogUtils.addInnerPanel(contentPane, gbc, externalDEMFileLabel, externalDEMFile, externalDEMBrowseButton);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, externalDEMNoDataValueLabel, externalDEMNoDataValue);
         gbc.gridy++;
+        gbc.gridx = 1;
+        contentPane.add(externalDEMApplyEGMCheckBox, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = gbc.gridy + 10;
@@ -369,7 +388,11 @@ public class CoherenceOpUI extends BaseOperatorUI {
     private void enableExternalDEM(boolean flag) {
         DialogUtils.enableComponents(externalDEMFileLabel, externalDEMFile, flag);
         DialogUtils.enableComponents(externalDEMNoDataValueLabel, externalDEMNoDataValue, flag);
+        if(!flag) {
+            externalDEMFile.setText("");
+        }
         externalDEMBrowseButton.setVisible(flag);
+        externalDEMApplyEGMCheckBox.setVisible(flag);
     }
 
     private void enableSubtractFlatEarthPhaseParameters(boolean flag) {

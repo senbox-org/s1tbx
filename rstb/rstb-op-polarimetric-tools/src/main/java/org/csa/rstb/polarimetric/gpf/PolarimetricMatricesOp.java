@@ -196,7 +196,11 @@ public final class PolarimetricMatricesOp extends Operator {
             if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
                     sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
                     sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV) {
-                throw new OperatorException("C2 cannot be generated for this product");
+                if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+                    throw new OperatorException("Dual-pol product is expected for C2. Use BandSelect to select polarizations");
+                } else {
+                    throw new OperatorException("Dual-pol polarimetric product is expected for C2");
+                }
             }
         } else {
             if (sourceProductType != PolBandUtils.MATRIX.FULL) {
