@@ -382,7 +382,7 @@ public class SystemUtils {
     }
 
     /**
-     * Initialize third party libraries of BEAM.
+     * Initialize third party libraries of SNAP.
      *
      * @param cls The most useful class loader.
      * @since BEAM 4.8
