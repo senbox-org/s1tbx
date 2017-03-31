@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 public class AatsrAuxProductFile extends ProductFile {
     private static final String PARSE_SPH_ERR_MSG = "Failed to parse main header parameter '%s': %s";
-//    private static final String BROWSE_DAY_COLOUR_LUT_GADS = "Browse Day Colour LUT GADS";
 
     public AatsrAuxProductFile(File file, ImageInputStream dataInputStream) throws IOException {
         super(file, dataInputStream);
@@ -86,7 +85,6 @@ public class AatsrAuxProductFile extends ProductFile {
     @Override
     public String getGADSName() {
         return null;
-//        return BROWSE_DAY_COLOUR_LUT_GADS;
     }
 
     @Override

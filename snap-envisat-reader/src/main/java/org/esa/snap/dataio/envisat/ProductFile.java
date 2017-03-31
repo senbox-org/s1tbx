@@ -1065,6 +1065,8 @@ public abstract class ProductFile {
             }
         } else if (productTypeUC.startsWith("DOR")) {
             productFile = new DorisOrbitProductFile(file, dataInputStream);
+        } else if (productTypeUC.startsWith("AUX")) {
+            productFile = new AuxProductFile(file, dataInputStream);
         }
 
         if (productFile == null) {

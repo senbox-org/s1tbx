@@ -1,0 +1,3 @@
+AUX_LSM_AX_LSM_SURF_001_DEG|Auxiliary Land/Sea Mask Surf 0.01 Degree|*
+
+surf_flag |UChar |*|1|14|*|0.01 Degree flag  |1|
