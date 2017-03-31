@@ -280,7 +280,7 @@ public class BandLineReader {
                 sMaxX = _bandInfo.getWidth() - 1 - sourceMinX;
             }
 
-            readDataFieldSegment(sourceY, sMinX, sMaxX);
+            readDataFieldSegment(mappedMdsrIndex, sMinX, sMaxX);
 
             ensureBandLineDecoder().computeLine(
                     getPixelDataField().getElems(),
