@@ -280,7 +280,8 @@ public class BandLineReader {
                 sMaxX = _bandInfo.getWidth() - 1 - sourceMinX;
             }
 
-            readDataFieldSegment(mappedMdsrIndex, sMinX, sMaxX);
+            // sourceY is mapped again later when reading the record
+            readDataFieldSegment(sourceY, sMinX, sMaxX);
 
             ensureBandLineDecoder().computeLine(
                     getPixelDataField().getElems(),
@@ -307,8 +308,7 @@ public class BandLineReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     public synchronized void readLineRecord(int sourceY) throws IOException {
-        getPixelDataReader().readRecord(sourceY,
-                                        getPixelDataRecord());
+        getPixelDataReader().readRecord(sourceY, getPixelDataRecord());
     }
 
 
