@@ -110,8 +110,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     public final static String CLASSIFIER_USER_INFO_FILE_EXTENSION = ".xml";
     public final static String CLASSIFIER_ROOT_FOLDER = "classifiers";
 
-    private final static int minPowerSetSize = 2;
-    private final static int maxPowerSetSize = 5;
     private double topClassifierPercent = 0;
     private String topClassifierName;
     private FeatureInfo[] topFeatureInfoList;
@@ -135,6 +133,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         private String[] featureBands;
         private final boolean evaluateClassifier;
         private final boolean evaluateFeaturePowerSet;
+        private final int minPowerSetSize;
+        private final int maxPowerSetSize;
 
         public ClassifierParams(final String classifierType, final String productSuffix, final Product[] sourceProducts,
                                 final int numTrainSamples, final double minClassValue,
@@ -146,7 +146,9 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                                 final String[] featureBands,
                                 final String labelSource,
                                 final boolean evaluateClassifier,
-                                final boolean evaluateFeaturePowerSet) {
+                                final boolean evaluateFeaturePowerSet,
+                                final int minPowerSetSize,
+                                final int maxPowerSetSize) {
             this.classifierType = classifierType;
             this.productSuffix = productSuffix;
             this.sourceProducts = sourceProducts;
@@ -163,6 +165,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             this.labelSource = labelSource;
             this.evaluateClassifier = evaluateClassifier;
             this.evaluateFeaturePowerSet = evaluateFeaturePowerSet;
+            this.minPowerSetSize = minPowerSetSize;
+            this.maxPowerSetSize = maxPowerSetSize;
         }
     }
 
@@ -741,7 +745,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         try {
             // get the power set of all features
             final PowerSet<FeatureInfo> featurePowerSet = new PowerSet<>(ImmutableSet.copyOf(Arrays.asList(completeFeatureInfoList)),
-                    minPowerSetSize, maxPowerSetSize);
+                    params.minPowerSetSize, params.maxPowerSetSize);
 
             List<Set<FeatureInfo>> featureSetList = new ArrayList<>();
             for (Set<FeatureInfo> featureSet : featurePowerSet) {
