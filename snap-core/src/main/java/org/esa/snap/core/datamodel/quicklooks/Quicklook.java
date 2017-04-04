@@ -196,13 +196,17 @@ public class Quicklook extends ProductNode implements Thumbnail {
                             if(quicklookBands == null) {
                                 quicklookBands = qlGen.findQuicklookBands(product);
                             }
-                            image = qlGen.createQuickLookImage(product, quicklookBands, pm);
+                            if(quicklookBands != null) {
+                                image = qlGen.createQuickLookImage(product, quicklookBands, pm);
+                            }
                         } else {
                             throw new IOException("Quicklook: product not set");
                         }
                     }
-                    saveQuicklook(image);
-                    notifyImageUpdated();
+                    if(image != null) {
+                        saveQuicklook(image);
+                        notifyImageUpdated();
+                    }
                 } catch (Throwable e) {
                     SystemUtils.LOG.severe("Quicklook: Unable to generate quicklook: " + e.getMessage());
                 }
