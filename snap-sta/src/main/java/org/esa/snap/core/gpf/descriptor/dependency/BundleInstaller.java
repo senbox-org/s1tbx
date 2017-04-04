@@ -19,6 +19,7 @@
 package org.esa.snap.core.gpf.descriptor.dependency;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.gpf.descriptor.OSFamily;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.operators.tooladapter.ProcessExecutor;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
@@ -33,8 +34,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,6 +53,7 @@ public class BundleInstaller implements AutoCloseable {
     private static final int BUFFER_SIZE = 262144;
     private static Logger logger = Logger.getLogger(BundleInstaller.class.getName());
     private static final Path baseModulePath;
+    private static final OSFamily currentOS;
 
     private final ExecutorService executor;
     private ToolAdapterOperatorDescriptor descriptor;
@@ -60,6 +62,7 @@ public class BundleInstaller implements AutoCloseable {
     private int taskCount;
 
     static {
+        currentOS = Bundle.getCurrentOS();
         baseModulePath =  SystemUtils.getApplicationDataDir().toPath().resolve("modules").resolve("lib");
     }
 
@@ -74,20 +77,12 @@ public class BundleInstaller implements AutoCloseable {
     }
 
     /**
-     * Checks if the bundle file (archive or installer) is present.
+     * Checks if a bundle file (archive or installer) is present.
      *
      * @param bundle    The bundle to be checked
      */
     public static boolean isBundleFileAvailable(Bundle bundle) {
-        if (bundle == null) {
-            return false;
-        }
-        //File targetLocation = bundle.getTargetLocation();
-        //String entryPoint = bundle.getEntryPoint();
-        return getLocalSourcePath(bundle) != null || bundle.getDownloadURL() != null;
-        /*return (targetLocation != null && entryPoint != null &&
-                targetLocation.exists() && Files.exists(baseModulePath.resolve(entryPoint))) ||
-                bundle.getDownloadURL() != null;*/
+        return bundle != null && (getLocalSourcePath(bundle) != null || bundle.getDownloadURL() != null);
     }
 
     /**
@@ -114,67 +109,71 @@ public class BundleInstaller implements AutoCloseable {
      * @param async If <code>true</code>, installation will be done on a separate thread.
      */
     public void install(boolean async) {
-        final Bundle descriptorBundle = this.descriptor.getBundle();
-        Path sourcePath = baseModulePath.resolve(descriptorBundle.getEntryPoint());
-        if (!Files.exists(sourcePath)) {
-            File source = descriptorBundle.getSource();
-            if (source != null) {
-                sourcePath = descriptorBundle.getSource().toPath();
+        Bundle descriptorBundle = this.descriptor.getBundle(currentOS);
+        if (descriptorBundle != null) {
+            Path sourcePath = baseModulePath.resolve(descriptorBundle.getEntryPoint());
+            if (!Files.exists(sourcePath)) {
+                File source = descriptorBundle.getSource();
+                if (source != null) {
+                    sourcePath = descriptorBundle.getSource().toPath();
+                }
             }
-        }
-        Callable<Void> action;
-        MethodReference<Path, Bundle> firstStep = null;
-        if (!descriptorBundle.isLocal()) {
-            firstStep = this::download;
-            taskCount++;
-        }
-        switch (descriptorBundle.getBundleType()) {
-            case ZIP:
-                try {
-                    MethodReference<Path, Bundle> secondStep = this::uncompress;
-                    if (firstStep != null) {
-                        firstStep = MethodReference.from(firstStep.andThen(secondStep));
-                    } else {
-                        firstStep = secondStep;
+            Callable<Void> action;
+            MethodReference<Path, Bundle> firstStep = null;
+            if (!descriptorBundle.isLocal()) {
+                firstStep = this::download;
+                taskCount++;
+            }
+            switch (descriptorBundle.getBundleType()) {
+                case ZIP:
+                    try {
+                        MethodReference<Path, Bundle> secondStep = this::uncompress;
+                        if (firstStep != null) {
+                            firstStep = MethodReference.from(firstStep.andThen(secondStep));
+                        } else {
+                            firstStep = secondStep;
+                        }
+                        taskCount++;
+                        action = new Action(sourcePath, descriptorBundle, firstStep);
+                        if (this.progressMonitor != null) {
+                            this.progressMonitor.beginTask("Installing bundle", 100);
+                        }
+                        if (async) {
+                            executor.submit(action);
+                        } else {
+                            action.call();
+                        }
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
                     }
-                    taskCount++;
-                    action = new Action(sourcePath, descriptorBundle, firstStep);
-                    if (this.progressMonitor != null) {
-                        this.progressMonitor.beginTask("Installing bundle", 100);
+                    ;
+                    break;
+                case INSTALLER:
+                    try {
+                        MethodReference<Path, Bundle> secondStep = this::install;
+                        if (firstStep != null) {
+                            firstStep = MethodReference.from(firstStep.andThen(secondStep));
+                        } else {
+                            firstStep = secondStep;
+                        }
+                        taskCount++;
+                        action = new Action(sourcePath, descriptorBundle, firstStep);
+                        if (this.progressMonitor != null) {
+                            this.progressMonitor.beginTask("Installing bundle", 100);
+                        }
+                        if (async) {
+                            executor.submit(action);
+                        } else {
+                            action.call();
+                        }
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
                     }
-                    if (async) {
-                        executor.submit(action);
-                    } else {
-                        action.call();
-                    }
-                } catch (Exception e) {
-                    logger.warning(e.getMessage());
-                };
-                break;
-            case INSTALLER:
-                try {
-                    MethodReference<Path, Bundle> secondStep = this::install;
-                    if (firstStep != null) {
-                        firstStep = MethodReference.from(firstStep.andThen(secondStep));
-                    } else {
-                        firstStep = secondStep;
-                    }
-                    taskCount++;
-                    action = new Action(sourcePath, descriptorBundle, firstStep);
-                    if (this.progressMonitor != null) {
-                        this.progressMonitor.beginTask("Installing bundle", 100);
-                    }
-                    if (async) {
-                        executor.submit(action);
-                    } else {
-                        action.call();
-                    }
-                } catch (Exception e) {
-                    logger.warning(e.getMessage());
-                };
-                break;
-            default:
-                break;
+                    ;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -184,7 +183,7 @@ public class BundleInstaller implements AutoCloseable {
     }
 
     private boolean isInstalled() {
-        Bundle bundle = this.descriptor.getBundle();
+        Bundle bundle = this.descriptor.getBundle(currentOS);
         return bundle != null && bundle.isInstalled();
     }
 
@@ -205,11 +204,11 @@ public class BundleInstaller implements AutoCloseable {
     }
 
     private void copy(Path source, Bundle bundle) throws IOException {
-        File targetLocation = bundle.getTargetLocation();
+        String targetLocation = bundle.getTargetLocation();
         if (targetLocation == null) {
             throw new IOException("No target defined");
         }
-        Path targetPath = targetLocation.toPath();
+        Path targetPath = descriptor.resolveVariables(targetLocation).toPath();
         if (!Files.exists(targetPath)) {
             Files.createDirectories(targetPath);
         }
@@ -225,17 +224,19 @@ public class BundleInstaller implements AutoCloseable {
     }
 
     private void uncompress(Path source, Bundle bundle) throws IOException {
-        File targetLocation = bundle.getTargetLocation();
+        String targetLocation = bundle.getTargetLocation();
         if (targetLocation == null) {
             throw new IOException("No target defined");
         }
-        ToolAdapterIO.unzip(source, targetLocation.toPath(), this.progressMonitor, taskCount);
+        ToolAdapterIO.unzip(source,
+                            descriptor.resolveVariables(targetLocation).toPath(),
+                            this.progressMonitor, taskCount);
         Files.deleteIfExists(source);
     }
 
     private void install(Path source, Bundle bundle) throws IOException {
         int exit;
-        File targetLocation = bundle.getTargetLocation();
+        String targetLocation = bundle.getTargetLocation();
         if (targetLocation == null) {
             throw new IOException("No target defined");
         }
@@ -245,16 +246,14 @@ public class BundleInstaller implements AutoCloseable {
             }
             copy(source, bundle);
             this.progressMonitor.worked(50 / taskCount);
-            final Path exePath = targetLocation.toPath().resolve(bundle.getEntryPoint());
+            final Path exePath = descriptor.resolveVariables(targetLocation).toPath()
+                    .resolve(bundle.getEntryPoint());
             ToolAdapterIO.fixPermissions(exePath);
             List<String> arguments = new ArrayList<>();
             arguments.add(exePath.toString());
-            String args = bundle.getArguments();
+            String[] args = bundle.getCommandLineArguments();
             if (args != null) {
-                StringTokenizer tokenizer = new StringTokenizer(args, " ");
-                while (tokenizer.hasMoreTokens()) {
-                    arguments.add(tokenizer.nextToken());
-                }
+                Collections.addAll(arguments, args);
             }
             ProcessExecutor executor = new ProcessExecutor();
             exit = executor.execute(arguments);

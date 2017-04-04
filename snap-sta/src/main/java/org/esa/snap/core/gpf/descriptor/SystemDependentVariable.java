@@ -26,15 +26,17 @@ public class SystemDependentVariable extends SystemVariable {
     private SystemDependentVariable(String key, String value, Map<OSFamily, String> values, OSFamily currentOS,
                                    String windows, String linux, String macosx, boolean isTransient) {
         super(key, value);
-        this.values = new HashMap<>();
-        if (values != null) {
-            this.values.putAll(values);
-        }
         this.currentOS = currentOS;
         this.windows = windows;
         this.linux = linux;
         this.macosx = macosx;
         this.isTransient = isTransient;
+        if (values == null) {
+            initialize();
+        } else {
+            this.values = new HashMap<>();
+            this.values.putAll(values);
+        }
     }
 
     public SystemDependentVariable(String key, String value) {

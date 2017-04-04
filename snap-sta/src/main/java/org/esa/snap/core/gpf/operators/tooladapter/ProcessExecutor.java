@@ -92,6 +92,9 @@ public class ProcessExecutor {
                     Thread.yield();
                 }
             }
+            while (process.isAlive()) {
+                Thread.yield();
+            }
             ret = process.exitValue();
         } finally {
             if (process != null) {

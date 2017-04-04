@@ -33,9 +33,10 @@ import org.esa.snap.core.gpf.descriptor.SystemVariable;
 import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.template.FileTemplate;
+import org.esa.snap.core.gpf.descriptor.template.Template;
 import org.esa.snap.core.gpf.descriptor.template.TemplateContext;
 import org.esa.snap.core.gpf.descriptor.template.TemplateException;
-import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
@@ -182,6 +183,7 @@ public class ToolAdapterOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         Date currentTime = new Date();
+        int ret = -1;
         try {
             if (descriptor == null) {
                 descriptor = ((ToolAdapterOperatorDescriptor) getSpi().getOperatorDescriptor());
@@ -201,8 +203,7 @@ public class ToolAdapterOp extends Operator {
                 beforeExecute();
             }
             if (!isStopped) {
-                int ret = execute();
-                if (ret != 0) {
+                if ((ret = execute()) != 0) {
                     this.consumer.consumeOutput(String.format("Process exited with value %d", ret));
                 }
             }
@@ -213,9 +214,10 @@ public class ToolAdapterOp extends Operator {
         } finally {
             try {
                 if (!wasCancelled) {
-                    postExecute();
+                    isInitialised = (postExecute() == 0);
+                } else {
+                    isInitialised = true;
                 }
-                isInitialised = true;
             } finally {
                 if (this.progressMonitor != null) {
                     this.progressMonitor.done();
@@ -345,7 +347,7 @@ public class ToolAdapterOp extends Operator {
      *
      * @throws OperatorException in case of an error
      */
-    private void postExecute() throws OperatorException {
+    private int postExecute() throws OperatorException {
         for(ToolParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
             if(parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_AFTER_MASK)){
                 try {
@@ -356,12 +358,13 @@ public class ToolAdapterOp extends Operator {
             }
         }
         reportProgress("Trying to open the new product");
-        File input = descriptor.resolveVariables((File) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
+        File input = descriptor.resolveVariables((String) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         if (input == null) {
             input = descriptor.resolveVariables((File) this.lastPostContext.getValue(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         }
         this.lastPostContext = null;
         if (input != null) {
+            getLogger().fine(String.format("Target product: %s", input.getAbsolutePath()));
             try {
                 intermediateProductFiles.stream().filter(intermediateProductFile -> intermediateProductFile != null && intermediateProductFile.exists())
                                                  .filter(intermediateProductFile -> !(intermediateProductFile.canWrite() && intermediateProductFile.delete()))
@@ -369,7 +372,11 @@ public class ToolAdapterOp extends Operator {
                 if (input.isDirectory()) {
                     input = selectCandidateRasterFile(input);
                 }
-                getLogger().info(String.format("Trying to open %s", input.getAbsolutePath()));
+                if (!input.exists()) {
+                    getLogger().warning("Tool may not have produced an output");
+                    return -1;
+                }
+                getLogger().fine(String.format("Trying to open %s", input.getAbsolutePath()));
                 Product target;
                 try {
                     target = ProductIO.readProduct(input);
@@ -394,6 +401,7 @@ public class ToolAdapterOp extends Operator {
         if (this.consumer != null && this.consumer instanceof DefaultOutputConsumer) {
             ((DefaultOutputConsumer) this.consumer).close();
         }
+        return 0;
     }
 
     /**
@@ -424,7 +432,7 @@ public class ToolAdapterOp extends Operator {
      */
     private List<String> getCommandLineTokens() throws OperatorException {
         final List<String> tokens = new ArrayList<>();
-        TemplateFile template = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplate();
+        FileTemplate template = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplate();
         if (template != null) {
             tokens.add(descriptor.resolveVariables(descriptor.getMainToolFileLocation()).getAbsolutePath());
             try {
@@ -522,10 +530,18 @@ public class ToolAdapterOp extends Operator {
                 DateFormat.DEFAULT,
                 Locale.ENGLISH).format(new Date()).replace(":", separatorChar);
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
-        String newFileName = parameter.getTemplate().getFileName() + "_result_" + dateFormatted;
-        ToolAdapterIO.saveFileContent(new File(descriptor.resolveVariables(descriptor.getWorkingDir()), newFileName), result);
+        Template template = parameter.getTemplate();
+        String newFileName;
+        File parameterOutputFile = parameter.getOutputFile();
+        if (parameterOutputFile != null) {
+            newFileName = parameterOutputFile.getName();
+        } else {
+            newFileName = template.getName() + "_result_" + dateFormatted;
+        }
+        File writeLocation = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), newFileName);
+        ToolAdapterIO.saveFileContent(writeLocation, result);
         this.lastPostContext = parameter.getLastContext();
-        return newFileName;
+        return parameterOutputFile == null ? newFileName : writeLocation.toString();
     }
 
     private File selectCandidateRasterFile(File folder) {
@@ -535,7 +551,7 @@ public class ToolAdapterOp extends Operator {
         if (numFiles >= 0) {
             candidates.sort(Comparator.comparingLong(File::length));
             rasterFile = candidates.get(numFiles);
-            getLogger().info(rasterFile.getName() + " was selected as raster file");
+            getLogger().fine(rasterFile.getName() + " was selected as raster file");
         }
         return rasterFile;
     }

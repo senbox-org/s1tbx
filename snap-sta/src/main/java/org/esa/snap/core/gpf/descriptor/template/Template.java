@@ -16,16 +16,26 @@
  *
  */
 
-package org.esa.snap.core.gpf.descriptor;
+package org.esa.snap.core.gpf.descriptor.template;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
- * @author kraftek
- * @date 3/9/2017
+ * @author Cosmin Cara
  */
-public enum OSFamily {
-    windows,
-    linux,
-    macosx,
-    all,
-    unsupported
+public interface Template {
+
+    String getName();
+    void setName(String value);
+    void associateWith(TemplateEngine engine) throws TemplateException;
+    String getContents() throws IOException;
+    void setContents(String text, boolean shouldParse) throws TemplateException;
+    TemplateType getType();
+    void setType(TemplateType value);
+    boolean isInMemory();
+    Template copy() throws IOException;
+    void save() throws IOException;
+    File getPath();
+
 }

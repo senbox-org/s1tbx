@@ -32,8 +32,8 @@ public abstract class VariableResolver {
         this.descriptor = operatorDescriptor;
     }
 
-    public abstract String resolve(String input);
-    public abstract File resolve(File input);
+    public abstract String resolveString(String input);
+    public abstract File resolve(String input);
     protected void setNextResolver(VariableResolver resolver) {
         this.nextResolver = resolver;
     }
@@ -57,7 +57,7 @@ public abstract class VariableResolver {
         }
 
         @Override
-        public String resolve(String input) {
+        public String resolveString(String input) {
             String resolved = input;
             if (input != null) {
                 Map<String, String> lookupVars = this.descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
@@ -65,17 +65,20 @@ public abstract class VariableResolver {
                     resolved = resolved.replace("$" + key, lookupVars.get(key));
                 }
                 if (nextResolver != null && isValidFileName(resolved)) {
-                    resolved = nextResolver.resolve(resolved);
+                    resolved = nextResolver.resolveString(resolved);
                 }
             }
             return resolved;
         }
 
         @Override
-        public File resolve(File input) {
-            File resolved = input;
-            if (input != null && !input.exists()) {
-                String expandedValue = input.getPath();
+        public File resolve(String input) {
+            if (input == null) {
+                return null;
+            }
+            File resolved = new File(input);
+            if (!resolved.exists()) {
+                String expandedValue = resolved.getPath();
                 Map<String, String> lookupVars = this.descriptor.getVariables()
                         .stream().collect(Collectors.toMap(SystemVariable::getKey,
                                                            systemVariable -> systemVariable.getValue() == null ? "" :
@@ -88,10 +91,10 @@ public abstract class VariableResolver {
                 }
                 resolved = new File(expandedValue);
                 if (nextResolver != null && !resolved.exists()) {
-                    resolved = nextResolver.resolve(resolved);
+                    resolved = nextResolver.resolve(resolved.toString());
                 }
             }
-            return resolved == null ? input : resolved;
+            return resolved;
         }
     }
 
@@ -109,10 +112,10 @@ public abstract class VariableResolver {
         }
 
         @Override
-        public String resolve(String input) {
+        public String resolveString(String input) {
             String resolved = input;
             if (resolved != null) {
-                File resolvedFile = resolve(new File(input));
+                File resolvedFile = resolve(input);
                 if (resolvedFile != null) {
                     resolved = resolvedFile.getAbsolutePath();
                 }
@@ -121,23 +124,24 @@ public abstract class VariableResolver {
         }
 
         @Override
-        public File resolve(File input) {
-            File resolved = null;
-            if (input != null && !input.exists()) {
+        public File resolve(String input) {
+            if (input == null) {
+                return null;
+            }
+            File resolved = new File(input);
+            if (!resolved.exists()) {
                 for (String sysPath : systemPath) {
-                    File current = new File(sysPath, input.getPath());
+                    File current = new File(sysPath, resolved.getPath());
                     if (current.exists()) {
                         resolved = current;
                         break;
                     }
                 }
-                if (resolved == null && nextResolver != null) {
+                if (nextResolver != null) {
                     resolved = nextResolver.resolve(input);
                 }
-            } else {
-                resolved = input;
             }
-            return resolved == null ? input : resolved;
+            return resolved;
         }
     }
 }

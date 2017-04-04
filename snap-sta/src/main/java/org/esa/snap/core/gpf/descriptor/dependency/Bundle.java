@@ -1,9 +1,38 @@
+/*
+ *
+ *  * Copyright (C) 2016 CS ROMANIA
+ *  *
+ *  * This program is free software; you can redistribute it and/or modify it
+ *  * under the terms of the GNU General Public License as published by the Free
+ *  * Software Foundation; either version 3 of the License, or (at your option)
+ *  * any later version.
+ *  * This program is distributed in the hope that it will be useful, but WITHOUT
+ *  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ *  * more details.
+ *  *
+ *  * You should have received a copy of the GNU General Public License along
+ *  *  with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
 package org.esa.snap.core.gpf.descriptor.dependency;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.esa.snap.core.gpf.descriptor.OSFamily;
+import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.template.MemoryTemplate;
+import org.esa.snap.core.gpf.descriptor.template.Template;
+import org.esa.snap.core.gpf.descriptor.template.TemplateEngine;
+import org.esa.snap.core.gpf.descriptor.template.TemplateException;
+import org.esa.snap.core.gpf.descriptor.template.TemplateType;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterOp;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
@@ -12,6 +41,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Descriptor class for a dependency bundle.
@@ -28,29 +59,68 @@ import java.nio.file.Paths;
 @XStreamAlias("dependencyBundle")
 public class Bundle {
 
+    @XStreamOmitField
+    private ToolAdapterOperatorDescriptor parent;
     private BundleType bundleType;
     private BundleLocation bundleLocation;
-    private String windowsURL;
-    private String linuxURL;
-    private String macosxURL;
+    private String downloadURL;
     @XStreamOmitField
     private File source;
-    private String arguments;
-    private File targetLocation;
+    private TemplateParameterDescriptor templateparameter;
+    private String targetLocation;
     private String entryPoint;
     private String updateVariable;
     @XStreamOmitField
-    private OSFamily currentOS;
+    private OSFamily operatingSystem;
+
+    private static Bundle initializeBundle(OSFamily osFamily) {
+        Bundle bundle = new Bundle(new ToolAdapterOperatorDescriptor("bundle", ToolAdapterOp.class),
+                        BundleType.NONE,
+                        SystemUtils.getAuxDataPath().toString());
+        bundle.setOS(osFamily);
+        return bundle;
+    }
+
+    public static OSFamily getCurrentOS() {
+        return Enum.valueOf(OSFamily.class, ToolAdapterIO.getOsFamily());
+    }
 
     public Bundle() {
         this.bundleType = BundleType.NONE;
-        setCurrentOS();
+        this.bundleLocation = BundleLocation.REMOTE;
+        initializeBundle(OSFamily.windows);
+        initializeBundle(OSFamily.linux);
+        initializeBundle(OSFamily.macosx);
     }
 
-    public Bundle(BundleType bundleType, File targetLocation) {
+    public Bundle(ToolAdapterOperatorDescriptor descriptor, BundleType bundleType, String targetLocation) {
+        this.bundleType = BundleType.NONE;
+        this.parent = descriptor;
+        this.bundleLocation = BundleLocation.REMOTE;
         setBundleType(bundleType);
         setTargetLocation(targetLocation);
-        setCurrentOS();
+        this.operatingSystem = Bundle.getCurrentOS();
+    }
+
+    public Bundle(Bundle original) {
+        this.parent = original.parent;
+        this.bundleType = original.bundleType;
+        this.bundleLocation = original.bundleLocation;
+        this.downloadURL = original.downloadURL;
+        this.source = original.source;
+        this.templateparameter = original.templateparameter;
+        this.targetLocation = original.targetLocation != null ?
+                original.targetLocation.toString().replace("\\", "/") :
+                null;
+        this.entryPoint = original.entryPoint;
+        this.updateVariable = original.updateVariable;
+        this.operatingSystem = original.operatingSystem;
+    }
+
+    public ToolAdapterOperatorDescriptor getParent() { return this.parent; }
+
+    public void setParent(ToolAdapterOperatorDescriptor descriptor) {
+        this.parent = descriptor;
     }
 
     /**
@@ -66,6 +136,9 @@ public class Bundle {
      */
     public void setBundleType(BundleType bundleType) {
         this.bundleType = bundleType;
+        if (this.bundleType != BundleType.NONE) {
+            initArgumentsParameter();
+        }
     }
 
     /**
@@ -98,74 +171,31 @@ public class Bundle {
      * Returns the target location of the bundle (i.e. the location where the bundle is supposed to be
      * either extracted or installed).
      */
-    public File getTargetLocation() {
+    public String getTargetLocation() {
         return this.targetLocation;
     }
     /**
      * Sets the target location of the bundle (i.e. the location where the bundle is supposed to be
      * either extracted or installed).
      */
-    public void setTargetLocation(File targetLocation) {
+    public void setTargetLocation(String targetLocation) {
         checkEmpty(targetLocation, "targetLocation");
         this.targetLocation = targetLocation;
+        if (this.targetLocation != null) {
+            setEntryPoint(Paths.get(this.targetLocation).getFileName().toString());
+        }
     }
     /**
      * Returns the download URL for this bundle.
      */
-    public String getDownloadURL() {
-        switch (getCurrentOS()) {
-            case windows:
-                return this.windowsURL;
-            case linux:
-                return this.linuxURL;
-            case macosx:
-                return this.macosxURL;
-            default:
-                throw new IllegalArgumentException("OS not supported");
-        }
-    }
+    public String getDownloadURL() { return this.downloadURL; }
     /**
-     * Sets the download URL for this bundle and for the specified operating system family.
+     * Sets the download URL for this bundle.
      */
-    public void setDownloadURL(OSFamily osFamily, String url) {
-        switch (osFamily) {
-            case windows:
-                this.windowsURL = url;
-                break;
-            case linux:
-                this.linuxURL = url;
-                break;
-            case macosx:
-                this.macosxURL = url;
-                break;
-            case unsupported:
-            default:
-                throw new IllegalArgumentException("OS not supported");
-        }
-    }
-
-    /**
-     * Sets the URL for the bundle Windows distribution
-     */
-    public void setWindowsURL(String url) {
-        this.windowsURL = url;
+    public void setDownloadURL(String url) {
+        this.downloadURL = url;
         setEntryPoint(lastSegmentFromUrl(url));
     }
-    /**
-     * Sets the URL for the bundle Linux distribution
-     */
-    public void setLinuxURL(String url) {
-        this.linuxURL = url;
-        setEntryPoint(lastSegmentFromUrl(url));
-    }
-    /**
-     * Sets the URL for the bundle MacOSX distribution
-     */
-    public void setMacosxURL(String url) {
-        this.macosxURL = url;
-        setEntryPoint(lastSegmentFromUrl(url));
-    }
-
     /**
      * Checks if the bundle location is local or remote.
      */
@@ -180,8 +210,9 @@ public class Bundle {
         boolean installed = false;
         if (this.bundleType != BundleType.NONE) {
             try {
-                if (this.targetLocation != null && this.entryPoint != null) {
-                    Path path = this.targetLocation.toPath().resolve(FileUtils.getFilenameWithoutExtension(this.entryPoint));
+                if (this.targetLocation != null && this.entryPoint != null && this.parent != null) {
+                    Path path = this.parent.resolveVariables(this.targetLocation).toPath()
+                                    .resolve(FileUtils.getFilenameWithoutExtension(this.entryPoint));
                     installed = Files.exists(path) && Files.list(path).count() > 0;
                 }
             } catch (IOException ignored) { }
@@ -203,15 +234,16 @@ public class Bundle {
     /**
      * Returns the command line arguments for an installer, if any
      */
-    public String getArguments() {
-        return this.arguments;
+    public TemplateParameterDescriptor getArgumentsParameter() {
+        initArgumentsParameter();
+        return this.templateparameter;
     }
 
     /**
      * Sets the command line arguments for an installer
      */
-    public void setArguments(String value) {
-        this.arguments = value;
+    public void setArgumentsParameter(TemplateParameterDescriptor value) {
+        this.templateparameter = value;
     }
 
     /**
@@ -225,25 +257,62 @@ public class Bundle {
      */
     public void setUpdateVariable(String name) { this.updateVariable = name; }
 
+    public OSFamily getOS() { return operatingSystem; }
+
+    public void setOS(OSFamily operatingSystem) { this.operatingSystem = operatingSystem; }
+
+    public String getCommandLine() {
+        String cmdLine = null;
+        if (this.templateparameter != null && this.parent != null) {
+            try {
+                TemplateEngine templateEngine = this.parent.getTemplateEngine();
+                this.templateparameter.setTemplateEngine(templateEngine);
+                Map<String, Object> params = new HashMap<String, Object>() {{
+                    put("targetLocation", targetLocation);
+                }};
+                cmdLine = templateEngine.execute(this.templateparameter.getTemplate(), params);
+            } catch (TemplateException e) {
+                SystemUtils.LOG.warning(e.getMessage());
+            }
+        }
+        return cmdLine == null || "null".equals(cmdLine) ? "" : cmdLine;
+    }
+
+    String[] getCommandLineArguments() {
+        String[] args = null;
+        String output = getCommandLine();
+        if (!StringUtils.isNullOrEmpty(output)) {
+            args = output.split(" ");
+        }
+        return args;
+    }
+
+    private void initArgumentsParameter() {
+        if (this.templateparameter == null || this.templateparameter.getName() == null) {
+            this.templateparameter = new TemplateParameterDescriptor("arguments", File.class);
+            this.templateparameter.setParameterType(ToolAdapterConstants.TEMPLATE_PARAM_MASK);
+            Template template = new MemoryTemplate(TemplateType.VELOCITY);
+            this.templateparameter.setOutputFile(new File(template.getName()));
+            ToolParameterDescriptor parameterDescriptor = new ToolParameterDescriptor("targetLocation", File.class);
+            parameterDescriptor.setDefaultValue(String.valueOf(this.targetLocation));
+            this.templateparameter.addParameterDescriptor(parameterDescriptor);
+            if (this.parent != null) {
+                try {
+                    TemplateEngine templateEngine = this.parent.getTemplateEngine();
+                    template.associateWith(templateEngine);
+                    this.templateparameter.setTemplateEngine(templateEngine);
+                    this.templateparameter.setTemplate(template);
+                } catch (TemplateException e) {
+                    SystemUtils.LOG.warning(e.getMessage());
+                }
+            }
+        }
+    }
+
     private String lastSegmentFromUrl(String url) {
         URI uri = URI.create(url);
         Path urlPath = Paths.get(uri.getPath());
         return urlPath.getFileName().toString();
-    }
-
-    private OSFamily getCurrentOS() {
-        if (currentOS == null) {
-            setCurrentOS();
-        }
-        return currentOS;
-    }
-
-    private void setCurrentOS() {
-        try {
-            currentOS = Enum.valueOf(OSFamily.class, ToolAdapterIO.getOsFamily());
-        } catch (IllegalArgumentException ignored) {
-            currentOS = OSFamily.unsupported;
-        }
     }
 
     private void checkEmpty(Object value, String property) {

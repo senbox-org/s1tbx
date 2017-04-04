@@ -18,7 +18,7 @@ package org.esa.snap.core.gpf.operators.tooladapter;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
-import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
+import org.esa.snap.core.gpf.descriptor.template.FileTemplate;
 
 /**
  * The SPI class for ToolAdapterOp.
@@ -27,7 +27,7 @@ import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
  */
 public class ToolAdapterOpSpi extends OperatorSpi {
 
-    private TemplateFile template;
+    private FileTemplate template;
 
     /**
      * Default constructor.
@@ -46,5 +46,5 @@ public class ToolAdapterOpSpi extends OperatorSpi {
         this.template = ((ToolAdapterOperatorDescriptor) operatorDescriptor).getTemplate();
     }
 
-    public TemplateFile getTemplate() { return this.template; }
+    public FileTemplate getTemplate() { return this.template; }
 }
