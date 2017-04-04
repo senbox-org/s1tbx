@@ -1233,8 +1233,9 @@ public abstract class ProductFile {
      * @throws java.io.IOException if an I/O error occurs
      */
     private void readGADS() throws IOException {
-        if (getGADSName() != null && isValidDatasetName(getGADSName())) {
-            gads = getRecordReader(getGADSName()).readRecord();
+        String gadsName = getGADSName();
+        if (gadsName != null && isValidDatasetName(gadsName)) {
+            gads = getRecordReader(gadsName).readRecord();
         } else {
             gads = null;
         }
