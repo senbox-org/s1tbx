@@ -1,6 +1,7 @@
 ATS_INS_AX_GP|Master Unpacking Definition Table |*
 #
-aux_id        |UChar  |-         |1 |5 |*|auxiliary item identifier  |
-wd_num_aux    |UShort |-         |2 |1 |*|word number in packet containing auxiliary item |
-mask          |SShort |-         |2 |1 |*|mask to extract auxiliary item from word  |
-shft_norm     |UShort |-         |2 |1 |*|shift to normalise  |
+aux_tot       |SLong  |-         |4 |1  |*|Total number of auxiliary data items in MUDT        |
+aux_val_tot   |SLong  |-         |4 |1  |*|Total number of sets of auxiliary limits data items |
+n_conv        |SLong  |-         |4 |1  |*|Total number of auxiliary items for conversion  |
+n_surv_tot    |SLong  |-         |4 |1  |*|Total number of surveillance limit specifications  |
+spare         |UChar  |-         |1 |12 |*|Spare  |
