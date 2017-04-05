@@ -15,10 +15,10 @@ public abstract class VariableResolver {
 
     private static Map<ToolAdapterOperatorDescriptor, VariableResolver> resolverMap = new HashMap<>();
 
-    protected VariableResolver nextResolver;
+    VariableResolver nextResolver;
     protected ToolAdapterOperatorDescriptor descriptor;
 
-    public static VariableResolver newInstance(ToolAdapterOperatorDescriptor descriptor) {
+    static VariableResolver newInstance(ToolAdapterOperatorDescriptor descriptor) {
         if (!resolverMap.containsKey(descriptor)) {
             VariableResolver simpleResolver = new SimpleVariableResolver(descriptor);
             VariableResolver systemPathResolver = new SystemPathVariableResolver(descriptor);
@@ -34,17 +34,30 @@ public abstract class VariableResolver {
 
     public abstract String resolveString(String input);
     public abstract File resolve(String input);
-    protected void setNextResolver(VariableResolver resolver) {
+    private void setNextResolver(VariableResolver resolver) {
         this.nextResolver = resolver;
     }
-    protected boolean isValidFileName(String fileName) {
+    boolean isValidFileName(String fileName) {
         File f = new File(fileName);
         try {
+            //noinspection ResultOfMethodCallIgnored
             f.getCanonicalPath();
             return true;
         } catch (IOException e) {
             return false;
         }
+    }
+
+    String recursiveResolve(String input) {
+        int maxLevels = 3;
+        Map<String, String> lookupVars = this.descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
+        while (input.contains("$") && maxLevels > 0) {
+            for (String key : lookupVars.keySet()) {
+                input = input.replace("$" + key, lookupVars.get(key));
+            }
+            maxLevels--;
+        }
+        return input;
     }
 
     /**
@@ -60,10 +73,7 @@ public abstract class VariableResolver {
         public String resolveString(String input) {
             String resolved = input;
             if (input != null) {
-                Map<String, String> lookupVars = this.descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
-                for (String key : lookupVars.keySet()) {
-                    resolved = resolved.replace("$" + key, lookupVars.get(key));
-                }
+                resolved = recursiveResolve(resolved);
                 if (nextResolver != null && isValidFileName(resolved)) {
                     resolved = nextResolver.resolveString(resolved);
                 }
@@ -78,17 +88,7 @@ public abstract class VariableResolver {
             }
             File resolved = new File(input);
             if (!resolved.exists()) {
-                String expandedValue = resolved.getPath();
-                Map<String, String> lookupVars = this.descriptor.getVariables()
-                        .stream().collect(Collectors.toMap(SystemVariable::getKey,
-                                                           systemVariable -> systemVariable.getValue() == null ? "" :
-                                                                   systemVariable.getValue()));
-                for (String key : lookupVars.keySet()) {
-                    String value = lookupVars.get(key);
-                    if (value != null && !value.isEmpty()) {
-                        expandedValue = expandedValue.replace("$" + key, value);
-                    }
-                }
+                String expandedValue = recursiveResolve(resolved.getPath());
                 resolved = new File(expandedValue);
                 if (nextResolver != null && !resolved.exists()) {
                     resolved = nextResolver.resolve(resolved.toString());
