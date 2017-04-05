@@ -44,17 +44,21 @@ import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -102,6 +106,8 @@ public class ToolAdapterOp extends Operator {
 
     private ProcessExecutor executor;
 
+    private Set<String> filesToDelete;
+
     /**
      * Constructor.
      */
@@ -113,6 +119,7 @@ public class ToolAdapterOp extends Operator {
         Logger logger = getLogger();
         Velocity.init();
         intermediateProductFiles = new ArrayList<>();
+        filesToDelete = new HashSet<>();
         logger.addHandler(new Handler() {
             @Override
             public void publish(LogRecord record) {
@@ -222,6 +229,13 @@ public class ToolAdapterOp extends Operator {
                 if (this.progressMonitor != null) {
                     this.progressMonitor.done();
                 }
+                for (String fileName : filesToDelete) {
+                    try {
+                        Files.deleteIfExists(Paths.get(fileName));
+                    } catch (IOException e) {
+                        getLogger().fine(e.getMessage());
+                    }
+                }
             }
         }
     }
@@ -260,7 +274,7 @@ public class ToolAdapterOp extends Operator {
         descriptor.getToolParameterDescriptors().stream().filter(parameter -> parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_BEFORE_MASK))
                 .forEach(parameter -> {
                     try {
-                        transformTemplateParameter((TemplateParameterDescriptor) parameter);
+                        filesToDelete.add(transformTemplateParameter((TemplateParameterDescriptor) parameter));
                     } catch (IOException | TemplateException e) {
                         getLogger().severe(String.format("Error processing template before execution for parameter [%s]", parameter.getName()));
                     }
@@ -351,7 +365,7 @@ public class ToolAdapterOp extends Operator {
         for(ToolParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
             if(parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_AFTER_MASK)){
                 try {
-                    transformTemplateParameter((TemplateParameterDescriptor) parameter);
+                    filesToDelete.add(transformTemplateParameter((TemplateParameterDescriptor) parameter));
                 } catch (IOException | TemplateException e) {
                     throw new OperatorException("Error processing template after execution for parameter: '" + parameter.getName() + "'");
                 }
@@ -461,6 +475,7 @@ public class ToolAdapterOp extends Operator {
                 try {
                     String transformedFile = transformTemplateParameter((TemplateParameterDescriptor) paramDescriptor);
                     parameters.put(paramName, transformedFile);
+                    filesToDelete.add(transformedFile);
                 } catch (IOException | TemplateException ex) {
                     throw new OperatorException("Error on transforming template for parameter '" + paramDescriptor.getName());
                 }

@@ -126,27 +126,15 @@ public class SystemDependentVariable extends SystemVariable {
 
     private void initialize() {
         values = new HashMap<>();
+        values.put(OSFamily.windows, windows == null ? "" : windows);
+        values.put(OSFamily.linux, linux == null ? "" : linux);
+        values.put(OSFamily.macosx, macosx == null ? "" : macosx);
+        values.put(OSFamily.unsupported, "");
         try {
             currentOS = Enum.valueOf(OSFamily.class, ToolAdapterIO.getOsFamily());
         } catch (IllegalArgumentException ignored) {
             currentOS = OSFamily.unsupported;
         }
-        values.keySet().stream().filter(key -> key != currentOS).forEach(key -> {
-            switch (key) {
-                case windows:
-                    values.put(key, windows == null ? "" : windows);
-                    break;
-                case linux:
-                    values.put(key, linux == null ? "" : linux);
-                    break;
-                case macosx:
-                    values.put(key, macosx == null ? "" : macosx);
-                    break;
-                case unsupported:
-                    values.put(key, "");
-                    break;
-            }
-        });
-        values.put(currentOS, resolve());
+        //values.put(currentOS, resolve());
     }
 }

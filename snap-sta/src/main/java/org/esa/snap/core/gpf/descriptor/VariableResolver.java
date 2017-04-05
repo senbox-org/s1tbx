@@ -50,7 +50,11 @@ public abstract class VariableResolver {
 
     String recursiveResolve(String input) {
         int maxLevels = 3;
-        Map<String, String> lookupVars = this.descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
+        Map<String, String> lookupVars = this.descriptor.getVariables()
+                .stream()
+                .collect(Collectors.toMap(SystemVariable::getKey,
+                                          (systemVariable) -> systemVariable.getValue() != null ?
+                                                  systemVariable.getValue() : ""));
         while (input.contains("$") && maxLevels > 0) {
             for (String key : lookupVars.keySet()) {
                 input = input.replace("$" + key, lookupVars.get(key));
