@@ -17,7 +17,12 @@ package org.esa.snap.core.gpf.descriptor;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import org.esa.snap.core.gpf.descriptor.template.*;
+import org.esa.snap.core.gpf.descriptor.template.FileTemplate;
+import org.esa.snap.core.gpf.descriptor.template.Template;
+import org.esa.snap.core.gpf.descriptor.template.TemplateContext;
+import org.esa.snap.core.gpf.descriptor.template.TemplateEngine;
+import org.esa.snap.core.gpf.descriptor.template.TemplateException;
+import org.esa.snap.core.gpf.descriptor.template.TemplateType;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 
 import java.io.File;
@@ -38,7 +43,8 @@ import java.util.stream.Collectors;
 public class TemplateParameterDescriptor extends ToolParameterDescriptor {
     @XStreamAlias("parameters")
     private List<ToolParameterDescriptor> parameterDescriptors = new ArrayList<>();
-    private TemplateFile template;
+    private Template template;
+    @XStreamAlias("outputFile")
     private File outputFile;
     @XStreamOmitField
     private TemplateEngine engine;
@@ -66,7 +72,7 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
         super(object);
         setParameterType(ToolAdapterConstants.TEMPLATE_PARAM_MASK);
         this.parameterDescriptors = new ArrayList<>();
-        this.template = new TemplateFile(TemplateType.VELOCITY);
+        this.template = new FileTemplate(TemplateType.VELOCITY);
     }
 
     /**
@@ -86,7 +92,7 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
                     this.template.associateWith(this.engine);
                 }
             } catch (IOException | TemplateException ex) {
-                this.template = new TemplateFile();
+                this.template = new FileTemplate();
                 try {
                     this.template.setContents("Error: " + ex.getMessage(), false);
                     if (this.engine != null) {
@@ -97,6 +103,7 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
                 }
             }
         }
+        this.outputFile = object.outputFile;
     }
 
     /**
@@ -150,7 +157,7 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
      * @param template              The template object
      * @throws TemplateException
      */
-    public void setTemplate(TemplateFile template) throws TemplateException {
+    public void setTemplate(Template template) throws TemplateException {
         this.template = template;
         this.template.associateWith(engine);
     }
@@ -159,17 +166,17 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
      * Returns the template of this object. If it has none, a new template will be created
      * and returned.
      */
-    public TemplateFile getTemplate() {
+    public Template getTemplate() {
         if (this.template == null) {
             if (engine != null) {
-                this.template = new TemplateFile(engine.getType());
+                this.template = new FileTemplate(engine.getType());
                 try {
                     this.template.associateWith(engine);
                 } catch (TemplateException e) {
                     e.printStackTrace();
                 }
             } else {
-                this.template = new TemplateFile(TemplateType.VELOCITY);
+                this.template = new FileTemplate(TemplateType.VELOCITY);
             }
 
         }

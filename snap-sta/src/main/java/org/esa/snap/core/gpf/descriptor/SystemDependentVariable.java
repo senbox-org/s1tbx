@@ -26,15 +26,17 @@ public class SystemDependentVariable extends SystemVariable {
     private SystemDependentVariable(String key, String value, Map<OSFamily, String> values, OSFamily currentOS,
                                    String windows, String linux, String macosx, boolean isTransient) {
         super(key, value);
-        this.values = new HashMap<>();
-        if (values != null) {
-            this.values.putAll(values);
-        }
         this.currentOS = currentOS;
         this.windows = windows;
         this.linux = linux;
         this.macosx = macosx;
         this.isTransient = isTransient;
+        if (values == null) {
+            initialize();
+        } else {
+            this.values = new HashMap<>();
+            this.values.putAll(values);
+        }
     }
 
     public SystemDependentVariable(String key, String value) {
@@ -124,27 +126,15 @@ public class SystemDependentVariable extends SystemVariable {
 
     private void initialize() {
         values = new HashMap<>();
+        values.put(OSFamily.windows, windows == null ? "" : windows);
+        values.put(OSFamily.linux, linux == null ? "" : linux);
+        values.put(OSFamily.macosx, macosx == null ? "" : macosx);
+        values.put(OSFamily.unsupported, "");
         try {
             currentOS = Enum.valueOf(OSFamily.class, ToolAdapterIO.getOsFamily());
         } catch (IllegalArgumentException ignored) {
             currentOS = OSFamily.unsupported;
         }
-        values.keySet().stream().filter(key -> key != currentOS).forEach(key -> {
-            switch (key) {
-                case windows:
-                    values.put(key, windows == null ? "" : windows);
-                    break;
-                case linux:
-                    values.put(key, linux == null ? "" : linux);
-                    break;
-                case macosx:
-                    values.put(key, macosx == null ? "" : macosx);
-                    break;
-                case unsupported:
-                    values.put(key, "");
-                    break;
-            }
-        });
-        values.put(currentOS, resolve());
+        //values.put(currentOS, resolve());
     }
 }
