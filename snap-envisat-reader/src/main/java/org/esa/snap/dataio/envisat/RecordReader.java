@@ -194,7 +194,7 @@ public class RecordReader {
      *                             if the index is out of bounds
      */
     public void readFieldSegment(int sourceY, long fieldOffset, int dataFieldSampleSize, int minX, int maxX, Field field) throws IOException {
-        if (_dsd.getDatasetType() == 'M') {
+        if (_dsd.getDatasetType() == 'M' || _dsd.getDatasetType() == 'A') {
             sourceY = _productFile.getMappedMDSRIndex(sourceY);
         }
         final long pos = _dsd.getDatasetOffset() + 
