@@ -15,6 +15,7 @@
  */
 package org.esa.snap.engine_utilities.download.opendata;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.apache.olingo.odata2.api.commons.HttpStatusCodes;
 import org.esa.snap.core.util.SystemUtils;
 
@@ -56,12 +57,14 @@ class HTTPDownloader {
         return connection.getInputStream();
     }
 
-    public static EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, String fileName, long completeFileSize, String contentType,
-                                                               String outputFolder, String user, String password) throws IOException {
+    public static EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, String fileName,
+                                                                      long completeFileSize,  String contentType,
+                                                                      File outputFolder, String user, String password,
+                                                                      ProgressMonitor pm) throws IOException {
 
-        final String outputFileNamePath = outputFolder + fileName;
+        final File outFile = new File(outputFolder, fileName);
 
-        final DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outputFileNamePath, completeFileSize);
+        final DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outFile, completeFileSize);
 
         HttpURLConnection connection = null;
         FileOutputStream fos = null;
@@ -78,7 +81,6 @@ class HTTPDownloader {
 
             connection.setRequestProperty(HTTP_HEADER_ACCEPT, contentType);
 
-            File outFile = new File(outputFileNamePath);
             byte[] data = null;
             int bytesread = 0;
             int bytesBuffered = 0;
@@ -86,6 +88,9 @@ class HTTPDownloader {
             if (outFile.exists()) {
 
                 downloadedFileSize = outFile.length();
+
+                int mbLength = (int)((completeFileSize - downloadedFileSize)/1024);
+                pm.beginTask("Downloading", mbLength);
 
                 if (downloadedFileSize < completeFileSize) {
                     SystemUtils.LOG.info("Incomplete download. Resuming.");
@@ -105,7 +110,7 @@ class HTTPDownloader {
                     if (contentLength < 1) contentLength = completeFileSize;
 
 
-                    randomAccessfile = new RandomAccessFile(outputFileNamePath, "rw");
+                    randomAccessfile = new RandomAccessFile(outFile, "rw");
                     randomAccessfile.seek(downloadedFileSize);
 
                     in = connection.getInputStream();
@@ -121,14 +126,18 @@ class HTTPDownloader {
 
                         randomAccessfile.write(data, 0, bytesread);
                         downloadedFileSize += bytesread;
-                        printDownloadedProgress(completeFileSize, downloadedFileSize);
+                        //printDownloadedProgress(completeFileSize, downloadedFileSize);
+                        pm.worked((int)(downloadedFileSize/1024));
                     }
                 } else {
                     SystemUtils.LOG.warning("File already downloaded.");
                 }
             } else {
 
-                SystemUtils.LOG.info("Starting download.");
+                int mbLength = (int)(completeFileSize/1024);
+                pm.beginTask("Downloading", mbLength);
+
+                SystemUtils.LOG.info("Starting download to " + outFile.getAbsolutePath());
                 connection.connect();
                 try {
                     checkStatus(connection);
@@ -139,7 +148,7 @@ class HTTPDownloader {
                 }
 
                 in = connection.getInputStream();
-                fos = new FileOutputStream(outputFileNamePath);
+                fos = new FileOutputStream(outFile);
                 bout = new BufferedOutputStream(fos, BUFFER_SIZE);
                 data = new byte[BUFFER_SIZE];
 
@@ -148,11 +157,12 @@ class HTTPDownloader {
                     bytesBuffered += bytesread;
                     downloadedFileSize += bytesread;
 
-                    printDownloadedProgress(completeFileSize, downloadedFileSize);
+                    //printDownloadedProgress(completeFileSize, downloadedFileSize);
 
                     if (bytesBuffered > MB) { //flush after 1MB
                         bytesBuffered = 0;
                         bout.flush();
+                        pm.worked((int)(downloadedFileSize/1024));
                     }
                 }
             }
@@ -160,6 +170,7 @@ class HTTPDownloader {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            pm.done();
 
             if (bout != null) {
                 try {
@@ -205,12 +216,11 @@ class HTTPDownloader {
             }
         }
 
-        return new EntryFileProperty(outputFileNamePath, bytesToHex(md5CheksumFromFilePath(outputFileNamePath)), null, downloadedFileSize);
+        return new EntryFileProperty(outFile.getAbsolutePath(), bytesToHex(md5CheksumFromFilePath(outFile)), null, downloadedFileSize);
     }
 
-    private static byte[] md5CheksumFromFilePath(String source){
+    private static byte[] md5CheksumFromFilePath(final File fSource){
 
-        final File fSource = new File(source);
         byte[] byteArrayChecksum = null;
         InputStream is = null;
         try {
@@ -357,14 +367,14 @@ class HTTPDownloader {
 
     private static class DownloaderThreadChecker extends Thread {
 
-        private String outputFileNamePath = null;
-        private long len = -1l;
+        private final File outputFileNamePath;
+        private final long len;
         private boolean forceStop = false;
-        ExtractorStatus status;
+        private ExtractorStatus status;
 
         private static final int THREAD_SLEEP = 60000;
 
-        DownloaderThreadChecker(final String outputFileNamePath, final long len){
+        DownloaderThreadChecker(final File outputFileNamePath, final long len){
             this.outputFileNamePath = outputFileNamePath;
             this.len = len;
         }

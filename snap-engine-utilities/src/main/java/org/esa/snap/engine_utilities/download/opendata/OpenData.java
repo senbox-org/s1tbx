@@ -15,6 +15,7 @@
  */
 package org.esa.snap.engine_utilities.download.opendata;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.apache.olingo.odata2.api.edm.Edm;
 import org.apache.olingo.odata2.api.edm.EdmEntityContainer;
 import org.apache.olingo.odata2.api.ep.EntityProvider;
@@ -24,6 +25,7 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Credentials;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -70,7 +72,7 @@ public class OpenData {
         return readEntry(odataRoot, APPLICATION_XML, "Products", id, "?");
     }
 
-    public void getManifest(final String id, final Entry entry, final String outputFolder) throws IOException {
+    public void getManifest(final String id, final Entry entry, final File outputFolder, final ProgressMonitor pm) throws IOException {
 
         int tries = 1;
         HTTPDownloader.EntryFileProperty entryFp = null;
@@ -83,7 +85,9 @@ public class OpenData {
 
             entryFp = downloader.getEntryFilePropertyFromUrlString(downloadURL,
                                                                    entry.fileName, entry.contentLength, entry.contentType,
-                                                                   outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
+                                                                   outputFolder,
+                                                                   credentialInfo.getUser(), credentialInfo.getPassword(),
+                                                                   pm);
 
             if (entryFp != null && entryFp.getSize() == entry.contentLength) {
                 break;
@@ -114,7 +118,7 @@ public class OpenData {
         }
     }
 
-    public void getProduct(final String id, final Entry entry, final String outputFolder) throws IOException {
+    public void getProduct(final String id, final Entry entry, final File outputFolder, final ProgressMonitor pm) throws IOException {
 
         int tries = 1;
         HTTPDownloader.EntryFileProperty entryFp = null;
@@ -124,7 +128,9 @@ public class OpenData {
 
             entryFp = downloader.getEntryFilePropertyFromUrlString(downloadURL,
                                                                    entry.fileName, entry.contentLength, entry.contentType,
-                                                                   outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
+                                                                   outputFolder,
+                                                                   credentialInfo.getUser(), credentialInfo.getPassword(),
+                                                                   pm);
 
             if (entryFp != null && entryFp.getSize() == entry.contentLength) {
                 break;
