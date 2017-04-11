@@ -48,7 +48,7 @@ public class FindSlicesActionExt implements ProductLibraryActionExt {
         button.setEnabled(selections.length == 1);
     }
 
-    public void performAction() {
+    public void performAction(final com.bc.ceres.core.ProgressMonitor pm) {
         final ProductEntry entry = actionHandler.getSelectedProductEntries()[0];
         int dataTakeId = entry.getMetadata().getAttributeInt(AbstractMetadata.data_take_id, AbstractMetadata.NO_METADATA);
         if(dataTakeId != AbstractMetadata.NO_METADATA) {

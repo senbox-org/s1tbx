@@ -48,7 +48,7 @@ public class InSARStackOverviewActionExt implements ProductLibraryActionExt {
         button.setEnabled(selections.length > 1);
     }
 
-    public void performAction() {
+    public void performAction(final com.bc.ceres.core.ProgressMonitor pm) {
         final InSARStackOverviewDialog dialog = new InSARStackOverviewDialog();
         dialog.setInputProductList(actionHandler.getSelectedProductEntries());
         dialog.show();
