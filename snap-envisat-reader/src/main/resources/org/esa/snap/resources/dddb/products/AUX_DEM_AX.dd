@@ -1,0 +1,6 @@
+AUX_DEM_AX|Digital Elevation Model|
+#
+MPH                       |@/records/MPH.dd                                    |1247                            |Main Product Header
+SPH                       |@/records/SPH.dd       	                           |*                               |AATSR Browse LUT Data SPH
+DSD                       |@/records/DSD.dd                                    |*                               |Data Set Descriptor array
+GADS                      |@/record/auxiliary/AUX_DEM_AX_GADS.dd               |*                               |AUX_DEM_AX General GADS
