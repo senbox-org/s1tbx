@@ -32,7 +32,7 @@ public class CopernicusQueryBuilder {
     private static final String SEARCH_ROOT = "/apihub/search?q=";
 
     //private static final String DATE = "( beginPosition:[2016-01-25T00:00:00.000Z TO 2016-01-25T23:59:59.999Z] AND endPosition:[2016-01-25T00:00:00.000Z TO 2016-01-25T23:59:59.999Z] )";
-    private static final String FOOTPRINT = "( footprint:\"Intersects(POLYGON((-74.24323771090575 -34.81331346157173,-31.2668365052604 -34.81331346157173,-31.2668365052604 5.647318588641241,-74.24323771090575 5.647318588641241,-74.24323771090575 -34.81331346157173)))\" )";
+    //private static final String FOOTPRINT = "( footprint:\"Intersects(POLYGON((-74.24323771090575 -34.81331346157173,-31.2668365052604 -34.81331346157173,-31.2668365052604 5.647318588641241,-74.24323771090575 5.647318588641241,-74.24323771090575 -34.81331346157173)))\" )";
 
     //private static final String searchURL = COPERNICUS_HOST + SEARCH_ROOT + "( " + FOOTPRINT + " AND " + DATE + " AND (platformname:Sentinel-1 AND producttype:GRD)";
 

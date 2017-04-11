@@ -67,6 +67,7 @@ public class ProductEntry {
     private double azimuth_spacing;
     private long lastModified;
     private String fileFormat;
+    private String refID;
 
     private MetadataElement absRoot = null;
 
@@ -166,6 +167,7 @@ public class ProductEntry {
         this.name = productResult.name;
         this.mission = productResult.mission;
         this.firstLineTime = productResult.utc;
+        this.refID = productResult.id;
     }
 
     public void dispose() {
@@ -383,6 +385,10 @@ public class ProductEntry {
 
     public int getId() {
         return id;
+    }
+
+    public String getRefID() {
+        return refID;
     }
 
     public MetadataElement getMetadata() {

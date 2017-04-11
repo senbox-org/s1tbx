@@ -55,9 +55,9 @@ public class OpenSearch {
         try {
             client = new AbderaClient(new Abdera());
             client.usePreemptiveAuthentication(true);
-            client.setConnectionTimeout(3000);
-            client.setConnectionManagerTimeout(9000);
-            client.setSocketTimeout(6000);
+            client.setConnectionTimeout(20000);
+            client.setConnectionManagerTimeout(20000);
+            client.setSocketTimeout(20000);
             client.setMaxConnectionsPerHost(2);
 
             final Credentials.CredentialInfo credentialInfo = getCredentialInfo();
