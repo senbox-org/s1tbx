@@ -32,12 +32,18 @@ public class AuxProductFile extends ProductFile {
 
     @Override
     public int getSceneRasterWidth() {
-        return 360;
+        if("AUX_LSM_AX".equals(getProductType())){
+            return 360;
+        }
+        return 0;
     }
 
     @Override
     public int getSceneRasterHeight() {
-        return 180;
+        if("AUX_LSM_AX".equals(getProductType())){
+            return 180;
+        }
+        return 0;
     }
 
     @Override
@@ -63,11 +69,6 @@ public class AuxProductFile extends ProductFile {
     @Override
     public boolean storesPixelsInChronologicalOrder() {
         return false;
-    }
-
-    @Override
-    int getMappedMDSRIndex(int lineIndex) {
-        return 179 - lineIndex;
     }
 
     @Override
