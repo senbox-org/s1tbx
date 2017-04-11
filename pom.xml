@@ -25,7 +25,7 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>5.0.4</snap.version>
+        <snap.version>5.0.5-SNAPSHOT</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
