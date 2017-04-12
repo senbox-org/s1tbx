@@ -390,7 +390,19 @@ public class ResamplingOp extends Operator {
                 targetProduct.addBand(targetBand);
             } else {
                 if (isVirtualBand) {
-                    targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) sourceBand, sourceBand.getName());
+
+                    final VirtualBand virtBand = new VirtualBand(sourceBand.getName(),
+                                                                 sourceBand.getDataType(),
+                                                                 referenceWidth,
+                                                                 referenceHeight,
+                                                                 ((VirtualBand) sourceBand).getExpression());
+                    virtBand.setUnit(sourceBand.getUnit());
+                    virtBand.setDescription(sourceBand.getDescription());
+                    virtBand.setNoDataValue(sourceBand.getNoDataValue());
+                    virtBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
+                    virtBand.setOwner(targetProduct);
+                    targetProduct.addBand(virtBand);
+                    targetBand = virtBand;
                 } else {
                     targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
                     targetBand.setSourceImage(adjustImageToModelTransform(sourceBand.getSourceImage(), targetMultiLevelModel));
