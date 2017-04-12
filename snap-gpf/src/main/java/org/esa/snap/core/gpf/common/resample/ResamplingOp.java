@@ -390,7 +390,7 @@ public class ResamplingOp extends Operator {
                 targetProduct.addBand(targetBand);
             } else {
                 if (isVirtualBand) {
-                    targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) sourceBand, sourceBand.getName());
+                    targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) sourceBand, sourceBand.getName(), true);
                 } else {
                     targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
                     targetBand.setSourceImage(adjustImageToModelTransform(sourceBand.getSourceImage(), targetMultiLevelModel));

@@ -975,27 +975,45 @@ public class ProductUtils {
 
     /**
      * Copies a virtual band and keeps it as a virtual band
+     * The size of the {@code srcBand} is preserved .
      *
-     * @param product the source product.
+     * @param target the target product to copy the virtual band to.
      * @param srcBand the virtual band to copy.
      * @param name    the name of the new band.
      * @return the copy of the band.
      */
-    public static VirtualBand copyVirtualBand(final Product product, final VirtualBand srcBand, final String name) {
+    public static VirtualBand copyVirtualBand(final Product target, final VirtualBand srcBand, final String name) {
+        return copyVirtualBand(target, srcBand, name, false);
+    }
+
+    /**
+     * Copies a virtual band and keeps it as a virtual band
+     * Depending on the parameter {@code adaptToSceneRasterSize} the size will either
+     * preserve the size of the {@code srcBand} or adapt the size of the target product.
+     *
+     * @param target the target product to copy the virtual band to.
+     * @param srcBand the virtual band to copy.
+     * @param name    the name of the new band.
+     * @param adaptToSceneRasterSize if {@code true} the band will have the scene raster size of the target product,
+     *                               otherwise the size of the {@code srcBand} will be preserved
+     * @return the copy of the band.
+     */
+    public static VirtualBand copyVirtualBand(final Product target, final VirtualBand srcBand, final String name, boolean adaptToSceneRasterSize) {
 
         final VirtualBand virtBand = new VirtualBand(name,
                                                      srcBand.getDataType(),
-                                                     srcBand.getRasterWidth(),
-                                                     srcBand.getRasterHeight(),
+                                                     adaptToSceneRasterSize ? target.getSceneRasterWidth() : srcBand.getRasterWidth(),
+                                                     adaptToSceneRasterSize ? target.getSceneRasterHeight() : srcBand.getRasterHeight(),
                                                      srcBand.getExpression());
         virtBand.setUnit(srcBand.getUnit());
         virtBand.setDescription(srcBand.getDescription());
         virtBand.setNoDataValue(srcBand.getNoDataValue());
         virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
-        virtBand.setOwner(product);
-        product.addBand(virtBand);
+        virtBand.setOwner(target);
+        target.addBand(virtBand);
         return virtBand;
     }
+
 
     /**
      * Copies the named band from the source product to the target product.
