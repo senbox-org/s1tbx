@@ -1,5 +1,5 @@
-import sys
 import snappy
+import sys
 from snappy import ProductIO
 
 if len(sys.argv) != 2:
@@ -15,6 +15,7 @@ Color = jpy.get_type('java.awt.Color')
 ColorPoint = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef$Point')
 ColorPaletteDef = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef')
 ImageInfo = jpy.get_type('org.esa.snap.core.datamodel.ImageInfo')
+ImageLegend = jpy.get_type('org.esa.snap.core.datamodel.ImageLegend')
 ImageManager = jpy.get_type('org.esa.snap.core.image.ImageManager')
 JAI = jpy.get_type('javax.media.jai.JAI')
 
@@ -22,10 +23,7 @@ JAI = jpy.get_type('javax.media.jai.JAI')
 System = jpy.get_type('java.lang.System')
 System.setProperty('com.sun.media.jai.disableMediaLib', 'true')
 
-def write_image(band, points, filename, format):
-    cpd = ColorPaletteDef(points)
-    ii = ImageInfo(cpd)
-    band.setImageInfo(ii)
+def write_image(band, filename, format):
     im = ImageManager.getInstance().createColoredBandImage([band], band.getImageInfo(), 0)
     JAI.create("filestore", im, filename, format)
 
@@ -36,5 +34,26 @@ band = product.getBand('radiance_13')
 points = [ColorPoint(0.0, Color.YELLOW), 
           ColorPoint(50.0, Color.RED), 
           ColorPoint(100.0, Color.BLUE)]
+cpd = ColorPaletteDef(points)
+ii = ImageInfo(cpd)
+band.setImageInfo(ii)
 
-write_image(band, points, 'snappy_write_image.png', 'PNG')
+image_format = 'PNG'
+write_image(band, 'snappy_write_image.png', image_format)
+
+legend = ImageLegend(band.getImageInfo(), band)
+legend.setHeaderText(band.getName())
+
+#legend.setOrientation(ImageLegend.HORIZONTAL) # or ImageLegend.VERTICAL
+#legend.setFont(legend.getFont().deriveFont(14))
+#legend.setBackgroundColor(Color.CYAN)
+#legend.setForegroundColor(Color.ORANGE);
+#legend.setBackgroundTransparency(0.7);
+#legend.setBackgroundTransparencyEnabled(True);
+#legend.setAntialiasing(True);
+
+legend_image = legend.createImage()
+JAI.create("filestore", legend_image, 'snappy_write_image_legend.png', image_format)
+
+
+
