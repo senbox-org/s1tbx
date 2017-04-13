@@ -1,6 +1,6 @@
 import snappy
 import sys
-from snappy import ProductIO
+from snappy import (ProductIO, ProductUtils, ProgressMonitor)
 
 if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0])
@@ -25,6 +25,11 @@ System.setProperty('com.sun.media.jai.disableMediaLib', 'true')
 
 def write_image(band, filename, format):
     im = ImageManager.getInstance().createColoredBandImage([band], band.getImageInfo(), 0)
+    JAI.create("filestore", im, filename, format)
+
+def write_rgb_image(bands, filename, format):
+    image_info = ProductUtils.createImageInfo(bands, True, ProgressMonitor.NULL)
+    im = ImageManager.getInstance().createColoredBandImage(bands, image_info, 0)
     JAI.create("filestore", im, filename, format)
 
 product = ProductIO.readProduct(file)
@@ -54,6 +59,12 @@ legend.setHeaderText(band.getName())
 
 legend_image = legend.createImage()
 JAI.create("filestore", legend_image, 'snappy_write_image_legend.png', image_format)
+
+red = product.getBand('radiance_13')
+green = product.getBand('radiance_5')
+blue = product.getBand('radiance_1')
+write_rgb_image([red, green, blue], 'snappy_write_image_rgb.png', image_format)
+
 
 
 
