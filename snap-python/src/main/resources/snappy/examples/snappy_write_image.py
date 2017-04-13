@@ -18,6 +18,8 @@ ImageInfo = jpy.get_type('org.esa.snap.core.datamodel.ImageInfo')
 ImageLegend = jpy.get_type('org.esa.snap.core.datamodel.ImageLegend')
 ImageManager = jpy.get_type('org.esa.snap.core.image.ImageManager')
 JAI = jpy.get_type('javax.media.jai.JAI')
+RenderedImage = jpy.get_type('java.awt.image.RenderedImage')
+
 
 # Disable JAI native MediaLib extensions 
 System = jpy.get_type('java.lang.System')
@@ -58,7 +60,11 @@ legend.setHeaderText(band.getName())
 #legend.setAntialiasing(True);
 
 legend_image = legend.createImage()
-JAI.create("filestore", legend_image, 'snappy_write_image_legend.png', image_format)
+
+# This cast is need because otherwise jpy can't evaluate which method to call
+# This is considered as an issue of jpy (https://github.com/bcdev/jpy/issues/89)
+rendered_legend_image = jpy.cast(legend_image, RenderedImage)
+JAI.create("filestore", rendered_legend_image, 'snappy_write_image_legend.png', image_format)
 
 red = product.getBand('radiance_13')
 green = product.getBand('radiance_5')
