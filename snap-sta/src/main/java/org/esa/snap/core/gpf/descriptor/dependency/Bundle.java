@@ -268,7 +268,7 @@ public class Bundle {
                 TemplateEngine templateEngine = this.parent.getTemplateEngine();
                 this.templateparameter.setTemplateEngine(templateEngine);
                 Map<String, Object> params = new HashMap<String, Object>() {{
-                    put("targetLocation", targetLocation);
+                    put("targetLocation", Bundle.this.parent.resolveVariables(targetLocation));
                 }};
                 cmdLine = templateEngine.execute(this.templateparameter.getTemplate(), params);
             } catch (TemplateException e) {
@@ -282,7 +282,11 @@ public class Bundle {
         String[] args = null;
         String output = getCommandLine();
         if (!StringUtils.isNullOrEmpty(output)) {
-            args = output.split(" ");
+            args = output.replace("\r","")
+                    .replace("\t","").split("\n");
+            for (int i = 0; i < args.length; i++) {
+                args[i] = args[i].trim();
+            }
         }
         return args;
     }
