@@ -68,7 +68,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
     }
 
     public boolean partialQuery(final DBQuery dbQuery) throws Exception {
-        return false;
+        return true;
     }
 
     public boolean fullQuery(final DBQuery dbQuery, final ProgressMonitor pm) throws Exception {

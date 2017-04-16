@@ -48,6 +48,7 @@ public class OpenSearch {
     private String searchURL;
 
     private final static int numRows = 100;
+    private final static int TIMEOUT = 60000;
 
     public OpenSearch(final String host) throws IOException {
         this.host = host;
@@ -55,9 +56,9 @@ public class OpenSearch {
         try {
             client = new AbderaClient(new Abdera());
             client.usePreemptiveAuthentication(true);
-            client.setConnectionTimeout(20000);
-            client.setConnectionManagerTimeout(20000);
-            client.setSocketTimeout(20000);
+            client.setConnectionTimeout(TIMEOUT);
+            client.setConnectionManagerTimeout(TIMEOUT);
+            client.setSocketTimeout(TIMEOUT);
             client.setMaxConnectionsPerHost(2);
 
             final Credentials.CredentialInfo credentialInfo = getCredentialInfo();
