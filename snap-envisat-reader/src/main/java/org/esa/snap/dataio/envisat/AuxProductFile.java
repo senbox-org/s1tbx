@@ -100,7 +100,6 @@ public class AuxProductFile extends ProductFile {
         return new float[0];
     }
 
-<<<<<<< HEAD
     @Override
     int getMappedMDSRIndex(int lineIndex) {
         if ("AUX_LSM_AX".equals(getProductType())) {
@@ -109,8 +108,6 @@ public class AuxProductFile extends ProductFile {
             return super.getMappedMDSRIndex(lineIndex);
         }
     }
-=======
->>>>>>> origin/SNAP-716
 
     @Override
     protected void addCustomMetadata(Product product) throws IOException {
