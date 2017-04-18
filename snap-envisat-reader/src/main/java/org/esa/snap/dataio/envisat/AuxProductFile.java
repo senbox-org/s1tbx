@@ -32,7 +32,7 @@ public class AuxProductFile extends ProductFile {
 
     @Override
     public int getSceneRasterWidth() {
-        if ("AUX_LSM_AX".equals(getProductType())) {
+        if("AUX_LSM_AX".equals(getProductType())){
             return 360;
         }
         return 0;
@@ -40,7 +40,7 @@ public class AuxProductFile extends ProductFile {
 
     @Override
     public int getSceneRasterHeight() {
-        if ("AUX_LSM_AX".equals(getProductType())) {
+        if("AUX_LSM_AX".equals(getProductType())){
             return 180;
         }
         return 0;
@@ -100,6 +100,7 @@ public class AuxProductFile extends ProductFile {
         return new float[0];
     }
 
+<<<<<<< HEAD
     @Override
     int getMappedMDSRIndex(int lineIndex) {
         if ("AUX_LSM_AX".equals(getProductType())) {
@@ -108,6 +109,8 @@ public class AuxProductFile extends ProductFile {
             return super.getMappedMDSRIndex(lineIndex);
         }
     }
+=======
+>>>>>>> origin/SNAP-716
 
     @Override
     protected void addCustomMetadata(Product product) throws IOException {
