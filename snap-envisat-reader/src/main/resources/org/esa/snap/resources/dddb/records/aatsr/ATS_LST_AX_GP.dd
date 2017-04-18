@@ -1,0 +1,7 @@
+ATS_LST_AX_GP|General Parameter
+#
+d_water_vapour_factor_for_lst |Float  |- |4|1|*|D: Water vapour factor for LST retrieval                       |1|
+m_angle_factor_for_lst        |SShort |- |2|1|*|M: Angle factor for LST retrieval                              |2|
+n_class_num_veg_classes       |SShort |- |2|1|*|N_CLASS: Number of veg. classes for LST                        |3|
+spare                         |SShort |- |2|6|*|Spare                                                          |4|
+

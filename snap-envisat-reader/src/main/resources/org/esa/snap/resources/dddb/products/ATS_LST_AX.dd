@@ -1,0 +1,11 @@
+ATS_LST_AX|LST retrieval coefficients data|
+#
+MPH                        |@/records/MPH.dd                      |1247                          |Main Product Header
+SPH                        |@/records/SPH.dd       				  |*                             |AATSR Browse LUT Data SPH
+DSD                        |@/records/DSD.dd                      |*                             |Data Set Descriptor array
+General Parameters         |@/records/aatsr/ATS_LST_AX_GP.dd	  |CONFIG INFO                   |General Parameters
+Surface Vegetation Class   |@/records/aatsr/ATS_LST_AX_SVC.dd     |VEG_CLASS_INDEX               |Surface Vegetation Class
+Vegetation Fraction        |@/records/aatsr/ATS_LST_AX_VF.dd	  |VEG_FRACTION                  |Vegetation Fraction
+Climatology Data           |@/records/aatsr/ATS_LST_AX_CD.dd	  |CLIMATOLOGY                   |Climatology Data
+Topographic Variance Flags |@/records/aatsr/ATS_LST_AX_TVF.dd	  |TOPOGRAPHIC_VAR               |Topographic Variance Flags
+LST Retrieval Coefficients |@/records/aatsr/ATS_LST_AX_LRC.dd	  |LST_RETRIEVAL_COEFF           |Land Surface Temperature Retrieval Coefficients
