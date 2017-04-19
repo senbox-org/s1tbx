@@ -11,6 +11,8 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.imageio.stream.ImageInputStream;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -32,18 +34,26 @@ public class AuxProductFile extends ProductFile {
 
     @Override
     public int getSceneRasterWidth() {
-        if("AUX_LSM_AX".equals(getProductType())){
-            return 360;
+        switch (getProductType()) {
+            case "AUX_LSM_AX":
+                return 360;
+            case "AUX_DEM_AX":
+                return 2160;
+            default:
+                return 0;
         }
-        return 0;
     }
 
     @Override
     public int getSceneRasterHeight() {
-        if("AUX_LSM_AX".equals(getProductType())){
-            return 180;
+        switch (getProductType()) {
+            case "AUX_LSM_AX":
+                return 180;
+            case "AUX_DEM_AX":
+                return 4320;
+            default:
+                return 0;
         }
-        return 0;
     }
 
     @Override
@@ -104,7 +114,7 @@ public class AuxProductFile extends ProductFile {
     int getMappedMDSRIndex(int lineIndex) {
         if ("AUX_LSM_AX".equals(getProductType())) {
             return (getSceneRasterHeight() - 1) - lineIndex;
-        }else {
+        } else {
             return super.getMappedMDSRIndex(lineIndex);
         }
     }
@@ -112,10 +122,31 @@ public class AuxProductFile extends ProductFile {
     @Override
     protected void addCustomMetadata(Product product) throws IOException {
         try {
-            product.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 360, 180, -180, 90, 1.0, 1.0));
+            int width = getSceneRasterWidth();
+            int height = getSceneRasterHeight();
+            switch (getProductType()) {
+                case "AUX_LSM_AX":
+                    product.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 1.0, 1.0));
+                    break;
+                case "AUX_DEM_AX":
+                    product.setSceneGeoCoding(creatDemGeoCoding(width, height));
+                    break;
+            }
         } catch (FactoryException | TransformException e) {
             SystemUtils.LOG.log(Level.SEVERE, String.format("Could not create GeoCoding for product '%s'", product.getName()), e);
         }
+    }
+
+    static CrsGeoCoding creatDemGeoCoding(int width, int height) throws FactoryException, TransformException {
+        AffineTransform i2m = new AffineTransform();
+        i2m.rotate(Math.toRadians(90));
+        final int easting = 180;
+        final int northing = -90;
+        i2m.translate(northing, easting);
+        double sizeX = 360.0 / height;
+        double sizeY = 180.0 / width;
+        i2m.scale(sizeX, -sizeY);
+        return new CrsGeoCoding(DefaultGeographicCRS.WGS84, new Rectangle(width, height), i2m);
     }
 
     @Override

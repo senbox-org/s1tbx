@@ -358,6 +358,8 @@ public class BandLineReader {
                 lineDecoder = new ShortToShortBandDecoder();
             } else if (srcDataType == ProductData.TYPE_INT32 || srcDataType == ProductData.TYPE_UINT32) {
                 lineDecoder = new IntToIntBandDecoder();
+            } else if (srcDataType == ProductData.TYPE_FLOAT32) {
+                lineDecoder = new FloatToFloatBandDecoder();
             } else {
                 assert false;
             }
@@ -411,6 +413,19 @@ public class BandLineReader {
             final short[] shorts2 = (short[]) rasterArray;
             for (int sourceX = sourceMinX; sourceX <= sourceMaxX; sourceX += sourceStepX) {
                 shorts2[rasterPos] = shorts1[sourceX];
+                rasterPos += rasterIncr;
+            }
+        }
+    }
+
+    static class FloatToFloatBandDecoder implements BandLineDecoder {
+
+        public void computeLine(Object sourceArray, int sourceMinX, int sourceMaxX, int sourceStepX,
+                                Object rasterArray, int rasterPos, int rasterIncr) {
+            final float[] floats1 = (float[]) sourceArray;
+            final float[] floats2 = (float[]) rasterArray;
+            for (int sourceX = sourceMinX; sourceX <= sourceMaxX; sourceX += sourceStepX) {
+                floats2[rasterPos] = floats1[sourceX];
                 rasterPos += rasterIncr;
             }
         }
