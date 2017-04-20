@@ -250,13 +250,26 @@ public class BundleInstaller implements AutoCloseable {
                     .resolve(bundle.getEntryPoint());
             ToolAdapterIO.fixPermissions(exePath);
             List<String> arguments = new ArrayList<>();
+            ProcessExecutor executor = new ProcessExecutor();
             arguments.add(exePath.toString());
             String[] args = bundle.getCommandLineArguments();
             if (args != null) {
                 Collections.addAll(arguments, args);
             }
-            ProcessExecutor executor = new ProcessExecutor();
-            exit = executor.execute(arguments);
+            switch (Bundle.getCurrentOS()) {
+                case linux:
+                case macosx:
+                    exit = executeAsBinary(arguments);
+                    if (exit != 0) {
+                        // on Linux chances are that the installer is a makeself archive which needs to be run via bash
+                        exit = executeAsUnixScript(arguments);
+                    }
+                    break;
+                case windows:
+                default:
+                    exit = executeAsBinary(arguments);
+                    break;
+            }
             this.progressMonitor.worked(50 / taskCount);
             Files.deleteIfExists(exePath);
         } catch (Exception ex) {
@@ -266,6 +279,32 @@ public class BundleInstaller implements AutoCloseable {
         if (exit != 0) {
             throw new RuntimeException(String.format("Not successfully installed [exit code = %s]", exit));
         }
+    }
+
+    private int executeAsUnixScript(List<String> arguments) {
+        int exit = -1;
+        try {
+            ProcessExecutor executor = new ProcessExecutor();
+            List<String> newArgs = new ArrayList<>();
+            newArgs.add("/bin/bash");
+            newArgs.add("-c");
+            newArgs.add(String.join(" ", arguments));
+            exit = executor.execute(newArgs);
+        } catch (IOException ioex) {
+            logger.warning(ioex.getMessage());
+        }
+        return exit;
+    }
+
+    private int executeAsBinary(List<String> arguments) {
+        int exit = -1;
+        try {
+            ProcessExecutor executor = new ProcessExecutor();
+            exit = executor.execute(arguments);
+        } catch (IOException ioex) {
+            logger.warning(ioex.getMessage());
+        }
+        return exit;
     }
 
     private Path download(String remoteUrl, Path targetFile) throws IOException {
