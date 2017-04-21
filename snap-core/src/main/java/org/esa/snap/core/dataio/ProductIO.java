@@ -403,7 +403,8 @@ public class ProductIO {
             ioException = e;
         } finally {
             try {
-                product.closeProductWriter();
+                productWriter.flush();
+                productWriter.close();
             } catch (IOException e) {
                 if (ioException == null) {
                     ioException = e;
