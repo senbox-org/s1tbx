@@ -21,6 +21,7 @@ package org.esa.snap.core.gpf.descriptor.dependency;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.gpf.descriptor.OSFamily;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.operators.tooladapter.DefaultOutputConsumer;
 import org.esa.snap.core.gpf.operators.tooladapter.ProcessExecutor;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.core.util.SystemUtils;
@@ -212,7 +213,10 @@ public class BundleInstaller implements AutoCloseable {
         if (!Files.exists(targetPath)) {
             Files.createDirectories(targetPath);
         }
-        Files.copy(source, targetPath.resolve(source.getFileName()));
+        Path targetFile = targetPath.resolve(source.getFileName());
+        if (!Files.exists(targetFile)) {
+            Files.copy(source, targetFile);
+        }
     }
 
     private Path download(Path target, Bundle bundle) throws IOException {
@@ -220,7 +224,11 @@ public class BundleInstaller implements AutoCloseable {
         if (remoteURL == null || remoteURL.isEmpty()) {
             throw new IOException("No remote URL");
         }
-        return download(remoteURL, target);
+        Path downloaded = download(remoteURL, target);
+        if (this.progressMonitor != null) {
+            this.progressMonitor.worked(50);
+        }
+        return downloaded;
     }
 
     private void uncompress(Path source, Bundle bundle) throws IOException {
@@ -245,32 +253,38 @@ public class BundleInstaller implements AutoCloseable {
                 this.progressMonitor.setSubTaskName("Installing...");
             }
             copy(source, bundle);
-            this.progressMonitor.worked(50 / taskCount);
+            if (this.progressMonitor != null) {
+                this.progressMonitor.worked(50 + 50 / taskCount);
+            }
             final Path exePath = descriptor.resolveVariables(targetLocation).toPath()
                     .resolve(bundle.getEntryPoint());
             ToolAdapterIO.fixPermissions(exePath);
             List<String> arguments = new ArrayList<>();
-            ProcessExecutor executor = new ProcessExecutor();
             arguments.add(exePath.toString());
             String[] args = bundle.getCommandLineArguments();
             if (args != null) {
                 Collections.addAll(arguments, args);
             }
+            ProcessExecutor executor = new ProcessExecutor();
+            executor.setConsumer(new DefaultOutputConsumer());
+            executor.setWorkingDirectory(exePath.getParent().toFile());
             switch (Bundle.getCurrentOS()) {
                 case linux:
                 case macosx:
-                    exit = executeAsBinary(arguments);
+                    exit = executeAsBinary(executor, arguments);
                     if (exit != 0) {
                         // on Linux chances are that the installer is a makeself archive which needs to be run via bash
-                        exit = executeAsUnixScript(arguments);
+                        exit = executeAsUnixScript(executor, arguments);
                     }
                     break;
                 case windows:
                 default:
-                    exit = executeAsBinary(arguments);
+                    exit = executeAsBinary(executor, arguments);
                     break;
             }
-            this.progressMonitor.worked(50 / taskCount);
+            if (this.progressMonitor != null) {
+                this.progressMonitor.worked(100);
+            }
             Files.deleteIfExists(exePath);
         } catch (Exception ex) {
             logger.severe(ex.getMessage());
@@ -281,10 +295,9 @@ public class BundleInstaller implements AutoCloseable {
         }
     }
 
-    private int executeAsUnixScript(List<String> arguments) {
+    private int executeAsUnixScript(ProcessExecutor executor, List<String> arguments) {
         int exit = -1;
         try {
-            ProcessExecutor executor = new ProcessExecutor();
             List<String> newArgs = new ArrayList<>();
             newArgs.add("/bin/bash");
             newArgs.add("-c");
@@ -296,10 +309,9 @@ public class BundleInstaller implements AutoCloseable {
         return exit;
     }
 
-    private int executeAsBinary(List<String> arguments) {
+    private int executeAsBinary(ProcessExecutor executor, List<String> arguments) {
         int exit = -1;
         try {
-            ProcessExecutor executor = new ProcessExecutor();
             exit = executor.execute(arguments);
         } catch (IOException ioex) {
             logger.warning(ioex.getMessage());
@@ -316,7 +328,8 @@ public class BundleInstaller implements AutoCloseable {
         connection.setConnectTimeout(TIMEOUT);
         connection.setReadTimeout(TIMEOUT);
         long length = connection.getContentLengthLong();
-        double divisor = (double) length * (double) (100 / taskCount);
+        double taskWeight = (double) (100 / taskCount);
+        double worked = 0.0;
         Path tmpFile;
         if (!Files.exists(targetFile) || length != Files.size(targetFile)) {
             Files.deleteIfExists(targetFile);
@@ -333,8 +346,10 @@ public class BundleInstaller implements AutoCloseable {
                         outputStream.write(buffer, 0 ,read);
                         totalRead += read;
                         if (this.progressMonitor != null) {
-                            this.progressMonitor.worked((int) (totalRead / divisor));
+                            worked = (double) totalRead / (double) length * taskWeight;
+                            this.progressMonitor.worked((int) worked);
                         }
+                        Thread.yield();
                     }
                     outputStream.flush();
                 }
