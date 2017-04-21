@@ -169,15 +169,15 @@ class CommandLineTool implements GraphProcessingObserver {
         commandLineContext.print("Edit .snap/etc/snap.properties or gpt -c ${cachesize-in-GB}G -q ${parallelism} \n");
     }
 
-    private String fromBytes(long bytes) {
+    static String fromBytes(long bytes) {
         if(bytes > CommandLineArgs.G) {
-            return Math.round(bytes / CommandLineArgs.G) + " GB";
+            return String.format("%.1f GB",(double)bytes / CommandLineArgs.G);
         } else if(bytes > CommandLineArgs.M) {
-            return Math.round(bytes / CommandLineArgs.M) + " MB";
+            return String.format("%.1f MB",(double)bytes / CommandLineArgs.M);
         } else if(bytes > CommandLineArgs.K) {
-            return Math.round(bytes / CommandLineArgs.K) + " KB";
+            return String.format("%.1f KB",(double)bytes / CommandLineArgs.K);
         }
-        return bytes + " B";
+        return String.format("%d B", bytes);
     }
 
     private void run() throws Exception {
