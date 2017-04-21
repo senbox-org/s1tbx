@@ -162,6 +162,8 @@ public class FileTemplate implements Template {
         if (templateType == null) {
             if (fileName != null) {
                 templateType = getTypeByExtension(FileUtils.getExtension(fileName));
+            } else {
+                templateType = TemplateType.VELOCITY;
             }
         }
         return templateType;
