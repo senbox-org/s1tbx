@@ -92,6 +92,12 @@
 	  <squarePixel>true</squarePixel>
       <cohWinAz>2</cohWinAz>
       <cohWinRg>10</cohWinRg>
+	  <subtractTopographicPhase>false</subtractTopographicPhase>
+      <demName>SRTM 3Sec</demName>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <externalDEMApplyEGM/>
+      <tileExtensionPercent>100</tileExtensionPercent>
     </parameters>
   </node>
   <node id="TOPSAR-Deburst">
