@@ -225,6 +225,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
         xStream.alias("parameter", DefaultParameterDescriptor.class);
         xStream.aliasField("parameters", DefaultOperatorDescriptor.class, "parameterDescriptors");
         xStream.registerLocalConverter(DefaultParameterDescriptor.class, "dataType", new ParameterTypeConverter());
+        xStream.registerLocalConverter(DefaultParameterDescriptor.class, "valueSet", new DefaultParameterDescriptor.ValueSetConverter());
 
         xStream.alias("targetProduct", DefaultTargetProductDescriptor.class);
         xStream.aliasField("targetProduct", DefaultOperatorDescriptor.class, "targetProductDescriptor");

@@ -305,6 +305,28 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
         return parameterDescriptors.toArray(new ParameterDescriptor[parameterDescriptors.size()]);
     }
 
+    public static class ValueSetConverter implements com.thoughtworks.xstream.converters.Converter {
+        public boolean canConvert(Class aClass) {
+            return String[].class.equals(aClass);
+        }
+
+        @Override
+        public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+            DefaultParameterDescriptor headerParameter = (DefaultParameterDescriptor) source;
+            writer.addAttribute("valueSet", StringUtils.arrayToString(headerParameter.getValueSet(), ","));
+        }
+
+        @Override
+        public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+
+            final String valueSetString = reader.getValue();
+            if (valueSetString != null) {
+               return StringUtils.toStringArray(valueSetString, ",");
+            }
+            return null;
+        }
+    }
+
     public static class XStreamConverter implements com.thoughtworks.xstream.converters.Converter {
 
         public boolean canConvert(Class aClass) {
