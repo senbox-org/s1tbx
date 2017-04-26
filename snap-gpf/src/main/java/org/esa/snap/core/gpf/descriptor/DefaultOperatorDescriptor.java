@@ -4,7 +4,11 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.converters.ClassConverter;
 import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -225,7 +229,7 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
         xStream.alias("parameter", DefaultParameterDescriptor.class);
         xStream.aliasField("parameters", DefaultOperatorDescriptor.class, "parameterDescriptors");
         xStream.registerLocalConverter(DefaultParameterDescriptor.class, "dataType", new ParameterTypeConverter());
-        xStream.registerLocalConverter(DefaultParameterDescriptor.class, "valueSet", new DefaultParameterDescriptor.ValueSetConverter());
+        xStream.registerLocalConverter(DefaultParameterDescriptor.class, "valueSet", new ValueSetConverter());
 
         xStream.alias("targetProduct", DefaultTargetProductDescriptor.class);
         xStream.aliasField("targetProduct", DefaultOperatorDescriptor.class, "targetProductDescriptor");
@@ -269,6 +273,29 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
         @Override
         public String toString(Object obj) {
             return converter.format((Class) obj);
+        }
+    }
+
+    private static class ValueSetConverter implements com.thoughtworks.xstream.converters.Converter {
+
+        public boolean canConvert(Class aClass) {
+            return String[].class.equals(aClass);
+        }
+
+        @Override
+        public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+            DefaultParameterDescriptor headerParameter = (DefaultParameterDescriptor) source;
+            writer.addAttribute("valueSet", StringUtils.arrayToString(headerParameter.getValueSet(), ","));
+        }
+
+        @Override
+        public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+
+            final String valueSetString = reader.getValue();
+            if (valueSetString != null) {
+                return StringUtils.toStringArray(valueSetString, ",");
+            }
+            return null;
         }
     }
 }
