@@ -30,14 +30,13 @@ public class PyOperatorDescriptor_FromXmlTest {
         ParameterDescriptor[] paramDescriptors = opDescriptor.getParameterDescriptors();
         assertEquals(4, paramDescriptors.length);
 
-        // for some reason the value-set is not read SNAP-730 (mp / 20170328)
-//        ParameterDescriptor algorithmDescriptor = paramDescriptors[0];
-//        assertEquals("algorithm", algorithmDescriptor.getName());
-//        assertEquals("Algorithm", algorithmDescriptor.getLabel());
-//        assertEquals("Algorithm to be used", algorithmDescriptor.getDescription());
-//        assertEquals(String.class, algorithmDescriptor.getDataType());
-//        assertEquals("split", algorithmDescriptor.getDefaultValue());
-//        assertArrayEquals(new String[]{"split", "mono"}, algorithmDescriptor.getValueSet());
+        ParameterDescriptor algorithmDescriptor = paramDescriptors[0];
+        assertEquals("algorithm", algorithmDescriptor.getName());
+        assertEquals("Algorithm", algorithmDescriptor.getLabel());
+        assertEquals("Algorithm to be used", algorithmDescriptor.getDescription());
+        assertEquals(String.class, algorithmDescriptor.getDataType());
+        assertEquals("split", algorithmDescriptor.getDefaultValue());
+        assertArrayEquals(new String[]{"split", "mono"}, algorithmDescriptor.getValueSet());
 
         ParameterDescriptor rangeDescriptor = paramDescriptors[3];
         assertEquals("range", rangeDescriptor.getName());

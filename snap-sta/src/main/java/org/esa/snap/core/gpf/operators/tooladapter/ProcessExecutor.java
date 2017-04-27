@@ -18,11 +18,7 @@
 
 package org.esa.snap.core.gpf.operators.tooladapter;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -45,6 +41,10 @@ public class ProcessExecutor {
         if (consumer != null) {
             this.consumer.setLogger(this.logger);
         }
+    }
+
+    public void setWorkingDirectory(File directory) {
+        this.workingDirectory = directory;
     }
 
     public int execute(List<String> arguments) throws IOException {

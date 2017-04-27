@@ -23,10 +23,20 @@
             </xsl:choose>
         </xsl:element>
         <xsl:element name="template">
+            <xsl:attribute name="type">file</xsl:attribute>
             <xsl:element name="file">
                 <xsl:value-of select="."/>
             </xsl:element>
         </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="template">
+        <xsl:if test="not(@type)">
+            <xsl:attribute name="type">file</xsl:attribute>
+            <xsl:element name="file">
+                <xsl:value-of select="."/>
+            </xsl:element>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="org.esa.snap.core.gpf.descriptor.DefaultSourceProductDescriptor">

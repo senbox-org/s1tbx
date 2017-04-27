@@ -20,6 +20,7 @@ import org.esa.snap.core.dataio.ProductIOPlugInManager;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.descriptor.SystemVariable;
 import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
@@ -323,6 +324,10 @@ public class ToolAdapterIO {
         logger.info("Initializing external tool adapters");
         List<File> modules = new ArrayList<>();
         Set<Path> modulesPath = getClusterModulesPaths();
+        for (Path clusterPath : modulesPath) {
+            final Preferences preferences = Config.instance(clusterPath.getFileName().toString()).preferences();
+            SystemVariable.addLookupReference(preferences::get);
+        }
         modulesPath.add(getAdaptersPath());
         for (Path path : modulesPath) {
             logger.fine("Scanning for external tools adapters: " + path.toAbsolutePath().toString());

@@ -16,7 +16,14 @@
 package org.esa.snap.core.gpf.descriptor;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import org.esa.snap.core.gpf.operators.tooladapter.LookupReference;
+import org.esa.snap.core.gpf.operators.tooladapter.LookupWithDefaultReference;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
+import org.esa.snap.runtime.Config;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * This class encapsulates an environment (or system) variable
@@ -26,6 +33,25 @@ import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
  */
 @XStreamAlias("variable")
 public class SystemVariable {
+    private static final List<LookupReference> lookupReferences;
+
+    static {
+        lookupReferences =  new ArrayList<>();
+        addLookupReference(System::getenv);
+        addLookupReference(System::getProperty);
+        final Preferences preferences = Config.instance("s2tbx").preferences();
+        addLookupReference(preferences::get);
+    }
+
+    public static void addLookupReference(LookupReference reference) {
+        lookupReferences.add(reference);
+    }
+
+    public static void addLookupReference(LookupWithDefaultReference reference) {
+        lookupReferences.add(reference);
+    }
+
+
     String key;
     String value;
     boolean isShared;
@@ -101,13 +127,13 @@ public class SystemVariable {
         if (this.value == null || this.value.isEmpty()) {
             this.value = ToolAdapterIO.getVariableValue(this.key, null, this.isShared);
         }
-        // second: system-wide variables
-        if (this.value == null || this.value.isEmpty()) {
-            this.value = System.getenv(this.key);
-        }
-        // third: java-specific variables
-        if (this.value == null || this.value.isEmpty()) {
-            this.value = System.getProperty(this.key);
+        // second: registered lookups
+        for (LookupReference reference : lookupReferences) {
+            if (this.value == null || this.value.isEmpty()) {
+                this.value = reference.apply(this.key);
+            } else {
+                break;
+            }
         }
         return this.value;
     }
