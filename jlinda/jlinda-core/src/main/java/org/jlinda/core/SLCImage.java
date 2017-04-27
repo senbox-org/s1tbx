@@ -412,6 +412,7 @@ public final class SLCImage {
 
     public void setOriginalWindow(final Window window) {
         this.originalWindow = window;
+        this.approxRadarCentreOriginal = new Point(originalWindow.pixels() / 2, originalWindow.lines() / 2);
     }
     public double getPRF() {
         return PRF;
@@ -431,6 +432,15 @@ public final class SLCImage {
 
     public void settRange1(double tRange1) {
         this.tRange1 = tRange1;
+    }
+
+    public void settAzi1(double tAzi1) {this.tAzi1 = tAzi1;}
+
+    public void setApproxGeoCentreOriginal(GeoPoint approxGeoCentreOriginal) {
+        this.approxGeoCentreOriginal.lat = approxGeoCentreOriginal.lat;
+        this.approxGeoCentreOriginal.lon = approxGeoCentreOriginal.lon;
+        this.approxXYZCentreOriginal = Ellipsoid.ell2xyz(Math.toRadians(approxGeoCentreOriginal.lat),
+                Math.toRadians(approxGeoCentreOriginal.lon), 0.0);
     }
 
     public double getRangeBandwidth() {
@@ -615,6 +625,45 @@ public final class SLCImage {
 
     public double computeRangeResolution(Point sarPixel) {
         return computeRangeResolution(sarPixel.x);
+    }
+
+    public SLCImage clone() {
+        SLCImage meta = new SLCImage();
+
+        meta.abstractedMetadata = this.abstractedMetadata;
+        meta.sensor = this.sensor;
+        meta.mission = this.mission;
+        meta.orbitNumber = this.orbitNumber;
+        meta.radar_wavelength = this.radar_wavelength;
+        meta.PRF = this.PRF;
+        meta.mjd = this.mjd;
+        meta.tAzi1 = this.tAzi1;
+        meta.lineTimeInterval = this.lineTimeInterval;
+        meta.rangeBandwidth = this.rangeBandwidth;
+        meta.azimuthBandwidth = this.azimuthBandwidth;
+        meta.rsr2x = this.rsr2x;
+        meta.tRange1 = this.tRange1;
+        meta.approxRadarCentreOriginal.x = this.approxRadarCentreOriginal.x;
+        meta.approxRadarCentreOriginal.y = this.approxRadarCentreOriginal.y;
+        meta.approxGeoCentreOriginal.lat = this.approxGeoCentreOriginal.lat;
+        meta.approxGeoCentreOriginal.lon = this.approxGeoCentreOriginal.lon;
+        meta.approxXYZCentreOriginal.x = this.approxXYZCentreOriginal.x;
+        meta.approxXYZCentreOriginal.y = this.approxXYZCentreOriginal.y;
+        meta.approxXYZCentreOriginal.z = this.approxXYZCentreOriginal.z;
+        meta.currentWindow = new Window(currentWindow);
+        meta.tAzi_original = this.tAzi_original;
+        meta.doppler.f_DC_a0 = this.doppler.f_DC_a0;
+        meta.doppler.f_DC_a1 = this.doppler.f_DC_a1;
+        meta.doppler.f_DC_a2 = this.doppler.f_DC_a2;
+        meta.doppler.f_DC_const_bool = this.doppler.f_DC_const_bool;
+        meta.doppler.f_DC_const = this.doppler.f_DC_const;
+        meta.mlAz = this.mlAz;
+        meta.mlRg = this.mlRg;
+        meta.nearRangeOnLeft = this.nearRangeOnLeft;
+        meta.isBiStaticStack = this.isBiStaticStack;
+        meta.sceneCentreAzimuthTime = this.sceneCentreAzimuthTime;
+
+        return meta;
     }
 
     public class SlaveWindow {
