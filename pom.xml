@@ -642,7 +642,7 @@
 
             <dependency>
                 <groupId>com.jidesoft</groupId>
-                <artifactId>jide-common</artifactId>
+                <artifactId>jide-oss</artifactId>
                 <version>${jide.version}</version>
             </dependency>
 
