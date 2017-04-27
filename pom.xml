@@ -669,12 +669,12 @@
             <!-- JFreeChart Libraries ############################################# -->
 
             <dependency>
-                <groupId>jfree</groupId>
+                <groupId>org.jfree</groupId>
                 <artifactId>jfreechart</artifactId>
                 <version>1.0.14</version>
             </dependency>
             <dependency>
-                <groupId>jfree</groupId>
+                <groupId>org.jfree</groupId>
                 <artifactId>jcommon</artifactId>
                 <version>1.0.17</version>
             </dependency>
