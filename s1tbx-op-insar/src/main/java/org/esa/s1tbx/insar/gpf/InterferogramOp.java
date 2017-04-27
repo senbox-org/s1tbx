@@ -52,9 +52,8 @@ import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
 import org.jblas.Solve;
-import org.jlinda.core.Orbit;
+import org.jlinda.core.*;
 import org.jlinda.core.Point;
-import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
@@ -603,8 +602,8 @@ public class InterferogramOp extends Operator {
         final Orbit masterOrbit = new Orbit(masterOSV, orbitDegree);
         final Orbit slaveOrbit = new Orbit(slaveOSV, orbitDegree);
 
-        long minLine = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
-        long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
+        long minLine = 0;
+        long maxLine = subSwath[subSwathIndex - 1].linesPerBurst - 1;
         long minPixel = 0;
         long maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
 
@@ -731,8 +730,7 @@ public class InterferogramOp extends Operator {
 
         final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * Constants.secondsInDay;
 
-        return firstLineTime + (line - burstIndex * subSwath[subSwathIndex - 1].linesPerBurst) *
-                subSwath[subSwathIndex - 1].azimuthTimeInterval;
+        return firstLineTime + line * subSwath[subSwathIndex - 1].azimuthTimeInterval;
     }
 
     private synchronized void estimateFlatEarth() throws Exception {
@@ -1122,7 +1120,7 @@ public class InterferogramOp extends Operator {
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
                 //System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
-                computePartialTile(subSwathIndex, burstIndex, partialTileRectangle, targetTileMap);
+                computePartialTile(subSwathIndex, burstIndex, firstLineIdx, partialTileRectangle, targetTileMap);
             }
 
         } catch (Throwable e) {
@@ -1132,7 +1130,8 @@ public class InterferogramOp extends Operator {
         }
     }
 
-    private void computePartialTile(final int subSwathIndex, final int burstIndex, Rectangle targetRectangle,
+    private void computePartialTile(final int subSwathIndex, final int burstIndex,
+                                    final int firstLineIdx, final Rectangle targetRectangle,
                                     final Map<Band, Tile> targetTileMap) throws Exception {
 
         try {
@@ -1143,12 +1142,15 @@ public class InterferogramOp extends Operator {
             final int x0 = targetRectangle.x;
             final int xN = x0 + targetRectangle.width - 1;
 
-            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yN, x0, xN);
+            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0 - firstLineIdx, yN - firstLineIdx, x0, xN);
+            final SLCImage mstMeta = targetMap.values().iterator().next().sourceMaster.metaData.clone();
+            updateMstMetaData(burstIndex, mstMeta);
+            final Orbit mstOrbit = targetMap.values().iterator().next().sourceMaster.orbit;
 
             DemTile demTile = null;
             if (subtractTopographicPhase) {
-                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, targetMap, dem, demNoDataValue,
-                        demSamplingLat, demSamplingLon, tileExtensionPercent);
+                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, mstMeta, mstOrbit, dem,
+                        demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
 
                 if (demTile == null) {
                     throw new OperatorException("The selected DEM has no overlap with the image or is invalid.");
@@ -1167,22 +1169,25 @@ public class InterferogramOp extends Operator {
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
             final org.jlinda.core.Window cohTileWindow = new org.jlinda.core.Window(
-                    cohy0, cohy0 + cohh - 1, cohx0, cohx0 + cohw - 1);
+                    cohy0 - firstLineIdx, cohy0 + cohh - 1 - firstLineIdx, cohx0, cohx0 + cohw - 1);
 
             DemTile cohDemTile = null;
             if (subtractTopographicPhase) {
-                cohDemTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(cohTileWindow, targetMap, dem, demNoDataValue,
-                        demSamplingLat, demSamplingLon, tileExtensionPercent);
+                cohDemTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(cohTileWindow, mstMeta, mstOrbit, dem,
+                        demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
             }
 
-            final int minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
-            final int maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
+            final int minLine = 0;
+            final int maxLine = subSwath[subSwathIndex - 1].linesPerBurst - 1;
             final int minPixel = 0;
             final int maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
 
             for (String ifgKey : targetMap.keySet()) {
 
                 final ProductContainer product = targetMap.get(ifgKey);
+                final SLCImage slvMeta = product.sourceSlave.metaData.clone();
+                updateSlvMetaData(product, burstIndex, slvMeta);
+                final Orbit slvOrbit = product.sourceSlave.orbit;
 
                 /// check out results from master ///
                 final Tile mstTileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle, border);
@@ -1197,7 +1202,7 @@ public class InterferogramOp extends Operator {
                 final String polynomialName = product.sourceSlave.name + '_' + (subSwathIndex - 1) + '_' + burstIndex;
                 if (subtractFlatEarthPhase) {
                     final DoubleMatrix flatEarthPhase = computeFlatEarthPhase(
-                            x0, xN, dataMaster.columns, y0, yN, dataMaster.rows,
+                            x0, xN, dataMaster.columns, y0 - firstLineIdx, yN - firstLineIdx, dataMaster.rows,
                             minPixel, maxPixel, minLine, maxLine, polynomialName);
 
                     final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
@@ -1212,7 +1217,7 @@ public class InterferogramOp extends Operator {
 
                 if (subtractTopographicPhase) {
                     TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                            product, tileWindow, demTile, false);
+                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -1243,7 +1248,7 @@ public class InterferogramOp extends Operator {
 
                     if (subtractFlatEarthPhase) {
                         final DoubleMatrix flatEarthPhase = computeFlatEarthPhase(
-                                cohx0, cohx0 + cohw - 1, cohw, cohy0, cohy0 + cohh - 1, cohh,
+                                cohx0, cohx0 + cohw - 1, cohw, cohy0 - firstLineIdx, cohy0 + cohh - 1 - firstLineIdx, cohh,
                                 minPixel, maxPixel, minLine, maxLine, polynomialName);
 
                         final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
@@ -1254,7 +1259,7 @@ public class InterferogramOp extends Operator {
 
                     if (subtractTopographicPhase) {
                         TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                                product, cohTileWindow, cohDemTile, false);
+                                mstMeta, mstOrbit, slvMeta, slvOrbit, cohTileWindow, cohDemTile, false);
 
                         final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                                 MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -1278,6 +1283,57 @@ public class InterferogramOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private void updateMstMetaData(final int burstIndex, final SLCImage mstMeta) {
+
+        final double burstFirstLineTimeMJD = subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] /
+                Constants.secondsInDay;
+
+        final double burstFirstLineTimeSecondsOfDay = (burstFirstLineTimeMJD - (int)burstFirstLineTimeMJD) *
+                Constants.secondsInDay;
+
+        mstMeta.settAzi1(burstFirstLineTimeSecondsOfDay);
+
+        mstMeta.setCurrentWindow(new Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+
+        mstMeta.setOriginalWindow(new Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+
+        mstMeta.setApproxGeoCentreOriginal(getApproxGeoCentre(subSwathIndex, burstIndex));
+    }
+
+    private void updateSlvMetaData(final ProductContainer product, final int burstIndex, final SLCImage slvMeta) {
+
+        final double slvBurstFirstLineTimeMJD = slvMeta.getMjd() - product.sourceMaster.metaData.getMjd() +
+                subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] / Constants.secondsInDay;
+
+        final double slvBurstFirstLineTimeSecondsOfDay = (slvBurstFirstLineTimeMJD - (int)slvBurstFirstLineTimeMJD) *
+                Constants.secondsInDay;
+
+        slvMeta.settAzi1(slvBurstFirstLineTimeSecondsOfDay);
+
+        slvMeta.setCurrentWindow(new Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+
+        slvMeta.setOriginalWindow(new Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+    }
+
+    private GeoPoint getApproxGeoCentre(final int subSwathIndex, final int burstIndex) {
+
+        final int cols = subSwath[subSwathIndex - 1].latitude[0].length;
+
+        double lat = 0.0, lon = 0.0;
+        for (int r = burstIndex; r <= burstIndex + 1; r++) {
+            for (int c = 0; c < cols; c++) {
+                lat += subSwath[subSwathIndex - 1].latitude[r][c];
+                lon += subSwath[subSwathIndex - 1].longitude[r][c];
+            }
+        }
+
+        return new GeoPoint(lat / (2*cols), lon / (2*cols));
     }
 
     public static DoubleMatrix normalizeDoubleMatrix(DoubleMatrix matrix, final double min, final double max) {
