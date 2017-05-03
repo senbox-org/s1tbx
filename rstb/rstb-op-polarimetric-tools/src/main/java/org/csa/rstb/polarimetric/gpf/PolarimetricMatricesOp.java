@@ -64,6 +64,7 @@ public final class PolarimetricMatricesOp extends Operator {
     private final Map<Band, MatrixElem> matrixBandMap = new HashMap<>(8);
 
     private PolBandUtils.MATRIX matrixType = PolBandUtils.MATRIX.C3;
+    private PolBandUtils.MATRIX sourceProductType = null;
 
     public static final String C2 = "C2";
     public static final String C3 = "C3"; // set to public because unit tests need to use it
@@ -104,10 +105,12 @@ public final class PolarimetricMatricesOp extends Operator {
             validator.checkIfSARProduct();
             validator.checkIfTOPSARBurstProduct(false);
             validator.checkIfSLC();
+
+            sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
+
             checkSourceProductType();
 
-            srcBandList = PolBandUtils.getSourceBands(sourceProduct,
-                    PolBandUtils.getSourceProductType(sourceProduct));
+            srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
             createTargetProduct();
 
@@ -185,8 +188,6 @@ public final class PolarimetricMatricesOp extends Operator {
 
     private void checkSourceProductType() {
 
-        final PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
-
         if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
             // This check will catch products with a single pol.
             throw new OperatorException("Input should be a polarimetric product");
@@ -203,7 +204,31 @@ public final class PolarimetricMatricesOp extends Operator {
                 }
             }
         } else {
-            if (sourceProductType != PolBandUtils.MATRIX.FULL) {
+            if (sourceProductType == PolBandUtils.MATRIX.T4) {
+                if (matrix.equals(T4)) {
+                    throw new OperatorException("The source product is already in T4 format, no conversion is needed");
+                }
+            } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+                if (matrix.equals(C4)) {
+                    throw new OperatorException("The source product is already in C4 format, no conversion is needed");
+                }
+            } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+                if (matrix.equals(T4)) {
+                    throw new OperatorException("Cannot convert source product from T3 format to T4 format");
+                } else if (matrix.equals(C4)) {
+                    throw new OperatorException("Cannot convert source product from T3 format to C4 format");
+                } else if (matrix.equals(T3)) {
+                    throw new OperatorException("The source product is already in T3 format, no conversion is needed");
+                }
+            } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+                if (matrix.equals(T4)) {
+                    throw new OperatorException("Cannot convert source product from C3 format to T4 format");
+                } else if (matrix.equals(C4)) {
+                    throw new OperatorException("Cannot convert source product from C3 format to C4 format");
+                } else if (matrix.equals(C3)) {
+                    throw new OperatorException("The source product is already in C3 format, no conversion is needed");
+                }
+            } else if (sourceProductType != PolBandUtils.MATRIX.FULL) {
                 throw new OperatorException("Full-pol polarimetric product is expected");
             }
         }
@@ -283,8 +308,6 @@ public final class PolarimetricMatricesOp extends Operator {
 
         final double[] kr = new double[2];
         final double[] ki = new double[2];
-        final double[][] Sr = new double[2][2];
-        final double[][] Si = new double[2][2];
 
         int matrixDim;
         if (matrixType.equals(PolBandUtils.MATRIX.C2)) {
@@ -331,15 +354,14 @@ public final class PolarimetricMatricesOp extends Operator {
                             DualPolOpUtils.getScatterVector(srcIdx, dataBuffers, kr, ki);
                             DualPolOpUtils.computeCovarianceMatrixC2(kr, ki, tempRe, tempIm);
                         } else {
-                            PolOpUtils.getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
                             if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
-                                PolOpUtils.computeCovarianceMatrixC3(Sr, Si, tempRe, tempIm);
+                                PolOpUtils.getCovarianceMatrixC3(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
-                                PolOpUtils.computeCovarianceMatrixC4(Sr, Si, tempRe, tempIm);
+                                PolOpUtils.getCovarianceMatrixC4(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             } else if (matrixType.equals(PolBandUtils.MATRIX.T3)) {
-                                PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempRe, tempIm);
+                                PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             } else if (matrixType.equals(PolBandUtils.MATRIX.T4)) {
-                                PolOpUtils.computeCoherencyMatrixT4(Sr, Si, tempRe, tempIm);
+                                PolOpUtils.getCoherencyMatrixT4(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             }
                         }
 
