@@ -623,7 +623,7 @@ public class LeeSigma implements SpeckleFilter {
                     trgIdx = trgIndex.getIndex(x);
                     srcIdx = srcIndex.getIndex(x);
 
-                    PolOpUtils.getT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
+                    PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
 
                     if (isPointTarget[yy][xx]) {
                         saveT3(Tr, Ti, trgIdx, targetDataBuffers);
@@ -733,7 +733,7 @@ public class LeeSigma implements SpeckleFilter {
             srcIndex.calculateStride(y);
             for (int x = sx0; x < maxX; x++) {
                 final int index = srcIndex.getIndex(x);
-                PolOpUtils.getT3(index, sourceProductType, sourceDataBuffers, Tr, Ti);
+                PolOpUtils.getCoherencyMatrixT3(index, sourceProductType, sourceDataBuffers, Tr, Ti);
                 t11[k] = Tr[0][0];
                 t22[k] = Tr[1][1];
                 t33[k] = Tr[2][2];
@@ -783,7 +783,7 @@ public class LeeSigma implements SpeckleFilter {
                 xx = x - halfWindowSize + i;
                 if (yy >= sy0 && yy <= sy0 + sh - 1 && xx >= sx0 && xx <= sx0 + sw - 1) {
                     final int srcIdx = srcIndex.getIndex(xx);
-                    PolOpUtils.getT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
+                    PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
                     windowPixelT3[j][i] = new T3(xx, yy, Tr, Ti);
                 }
             }
