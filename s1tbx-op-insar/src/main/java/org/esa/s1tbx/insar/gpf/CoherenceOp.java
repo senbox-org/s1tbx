@@ -23,6 +23,7 @@ import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -32,6 +33,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
@@ -46,11 +48,10 @@ import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
-import org.jlinda.core.Orbit;
+import org.jlinda.core.*;
 import org.jlinda.core.Point;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
-import org.jlinda.core.SLCImage;
 import org.jlinda.core.utils.PolyUtils;
 import org.jlinda.core.utils.SarUtils;
 import org.jlinda.nest.utils.BandUtilsDoris;
@@ -60,6 +61,7 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
 import java.awt.*;
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -133,6 +135,9 @@ public class CoherenceOp extends Operator {
 
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
+
+    @Parameter(label = "External DEM Apply EGM", defaultValue = "true")
+    private Boolean externalDEMApplyEGM = true;
 
     @Parameter(label = "Tile Extension [%]",
             description = "Define extension of tile for DEM simulation (optimization parameter).",
@@ -212,7 +217,6 @@ public class CoherenceOp extends Operator {
             if (isComplex && subtractFlatEarthPhase) {
                 if (isTOPSARBurstProduct) {
                     getMstApproxSceneCentreXYZ();
-                    getSlvApproxSceneCentreAzimuthTime();
                     constructFlatEarthPolynomialsForTOPSARProduct();
                 } else {
                     constructFlatEarthPolynomials();
@@ -328,8 +332,6 @@ public class CoherenceOp extends Operator {
 
     private void constructTargetMetadata() {
 
-        // this means there is only one slave! but still do it in the loop
-        // loop through masters
         for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
@@ -340,7 +342,7 @@ public class CoherenceOp extends Operator {
                 if ((master.polarisation == null && slave.polarisation == null) ||
                         (master.polarisation != null && master.polarisation.equals(slave.polarisation))) {
                     // generate name for product bands
-                    String productName = keyMaster + '_' + keySlave;
+                    final String productName = keyMaster + '_' + keySlave;
 
                     final ProductContainer product = new ProductContainer(productName, master, slave, false);
 
@@ -468,14 +470,6 @@ public class CoherenceOp extends Operator {
         }
     }
 
-    private void getSlvApproxSceneCentreAzimuthTime() throws Exception {
-
-        final double firstLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
-        final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * Constants.secondsInDay;
-        final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
-        final double lastLineTime = (lastLineTimeInDays - (int) lastLineTimeInDays) * Constants.secondsInDay;
-    }
-
     private void constructFlatEarthPolynomialsForTOPSARProduct() throws Exception {
 
         for (String keyMaster : masterMap.keySet()) {
@@ -522,33 +516,22 @@ public class CoherenceOp extends Operator {
 
     private void defineDEM() throws IOException {
 
-        Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
-        final ElevationModelRegistry elevationModelRegistry;
-        final ElevationModelDescriptor demDescriptor;
+        String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
         if (externalDEMFile == null) {
-            elevationModelRegistry = ElevationModelRegistry.getInstance();
-            demDescriptor = elevationModelRegistry.getDescriptor(demName);
+            dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
+            demNoDataValue = dem.getDescriptor().getNoDataValue();
+            demSamplingLat = dem.getDescriptor().getTileWidthInDegrees() * (1.0f /
+                    dem.getDescriptor().getTileWidth()) * org.jlinda.core.Constants.DTOR;
 
-            if (demDescriptor == null) {
-                throw new OperatorException("The DEM '" + demName + "' is not supported.");
-            }
-
-            dem = demDescriptor.createDem(resampling);
-            if (dem == null) {
-                throw new OperatorException("The DEM '" + demName + "' has not been installed.");
-            }
-
-            demNoDataValue = demDescriptor.getNoDataValue();
-            demSamplingLat = demDescriptor.getTileWidthInDegrees() * (1.0f / demDescriptor.getTileWidth()) *
-                    org.jlinda.core.Constants.DTOR;
             demSamplingLon = demSamplingLat;
 
         } else {
 
-            dem = new FileElevationModel(externalDEMFile, resampling.getName(), externalDEMNoDataValue);
-            demName = externalDEMFile.getPath();
+            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+            ((FileElevationModel) dem).applyEarthGravitionalModel(externalDEMApplyEGM);
             demNoDataValue = externalDEMNoDataValue;
+            demName = externalDEMFile.getName();
 
             try {
                 demSamplingLat =
@@ -582,8 +565,7 @@ public class CoherenceOp extends Operator {
         } else if (!isComplex) {
             computeTileForDetectedProduct(targetTileMap, targetRectangle, pm);
         } else {
-            computeTileForNormalProduct(
-                    targetTileMap, targetRectangle, 0, sourceImageWidth - 1, 0, sourceImageHeight - 1, "", pm);
+            computeTileForNormalProduct(targetTileMap, targetRectangle, pm);
         }
     }
 
@@ -690,9 +672,7 @@ public class CoherenceOp extends Operator {
     }
 
     private void computeTileForNormalProduct(
-            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle,
-            final int minPixel, final int maxPixel, final int minLine, final int maxLine, final String polyNameTag,
-            ProgressMonitor pm)
+            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
 
         try {
@@ -708,11 +688,10 @@ public class CoherenceOp extends Operator {
             final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
             final int cohw = targetRectangle.width + cohWinRg - 1;
             final int cohh = targetRectangle.height + cohWinAz - 1;
-            final int cohxN = cohx0 + cohw - 1;
-            final int cohyN = cohy0 + cohh - 1;
             final Rectangle extRect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
-            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(cohy0, cohyN, cohx0, cohxN);
+            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(
+                    cohy0, cohy0 + cohh - 1, cohx0, cohx0 + cohw - 1);
 
             DemTile demTile = null;
             if (subtractTopographicPhase) {
@@ -729,19 +708,18 @@ public class CoherenceOp extends Operator {
 
                 final ProductContainer product = targetMap.get(cohKey);
 
-                final Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, extRect, border);
-                final Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, extRect, border);
-                final ComplexDoubleMatrix dataMaster =
-                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealMaster, tileImagMaster);
+                final Tile mstTileReal = getSourceTile(product.sourceMaster.realBand, extRect, border);
+                final Tile mstTileImag = getSourceTile(product.sourceMaster.imagBand, extRect, border);
+                final ComplexDoubleMatrix dataMaster = TileUtilsDoris.pullComplexDoubleMatrix(mstTileReal, mstTileImag);
 
-                final Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, extRect, border);
-                final Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, extRect, border);
-                final ComplexDoubleMatrix dataSlave =
-                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
+                final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, extRect, border);
+                final Tile slvTileImag = getSourceTile(product.sourceSlave.imagBand, extRect, border);
+                final ComplexDoubleMatrix dataSlave = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal, slvTileImag);
 
                 if (subtractFlatEarthPhase) {
-                    final DoubleMatrix flatEarthPhase = computeFlatEarthPhase(cohx0, cohxN, cohw, cohy0, cohyN, cohh,
-                            minPixel, maxPixel, minLine, maxLine, product.sourceSlave.name + polyNameTag);
+                    final DoubleMatrix flatEarthPhase = computeFlatEarthPhase(
+                            cohx0, cohx0 + cohw - 1, cohw, cohy0, cohy0 + cohh - 1, cohh,
+                            0, sourceImageWidth - 1, 0, sourceImageHeight - 1, product.sourceSlave.name);
 
                     final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(flatEarthPhase), MatrixFunctions.sin(flatEarthPhase));
@@ -754,7 +732,7 @@ public class CoherenceOp extends Operator {
                 }
 
                 if (subtractTopographicPhase) {
-                    TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                    final TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
                             product, tileWindow, demTile, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
@@ -879,7 +857,7 @@ public class CoherenceOp extends Operator {
     }
 
     private void computeTileForTOPSARProduct(
-            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle, final ProgressMonitor pm)
             throws OperatorException {
 
         try {
@@ -907,14 +885,7 @@ public class CoherenceOp extends Operator {
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
                 //System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
-                final int minLine = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
-                final int maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
-                final int minPixel = 0;
-                final int maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
-                final String polyNameTag = "_" + (subSwathIndex - 1) + "_" + burstIndex;
-
-                computeTileForNormalProduct(
-                        targetTileMap, partialTileRectangle, minPixel, maxPixel, minLine, maxLine, polyNameTag, pm);
+                computePartialTile(subSwathIndex, burstIndex, firstLineIdx, partialTileRectangle, targetTileMap);
             }
 
         } catch (Throwable e) {
@@ -922,6 +893,164 @@ public class CoherenceOp extends Operator {
         } finally {
             pm.done();
         }
+    }
+
+    private void computePartialTile(final int subSwathIndex, final int burstIndex,
+                                    final int firstLineIdx, final Rectangle targetRectangle,
+                                    final Map<Band, Tile> targetTileMap) throws OperatorException {
+
+        try {
+            final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+
+            final int y0 = targetRectangle.y;
+            final int yN = y0 + targetRectangle.height - 1;
+            final int x0 = targetRectangle.x;
+            final int xN = x0 + targetRectangle.width - 1;
+
+            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
+            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int cohw = targetRectangle.width + cohWinRg - 1;
+            final int cohh = targetRectangle.height + cohWinAz - 1;
+            final Rectangle extRect = new Rectangle(cohx0, cohy0, cohw, cohh);
+
+            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(
+                    cohy0 - firstLineIdx, cohy0 + cohh - 1 - firstLineIdx, cohx0, cohx0 + cohw - 1);
+
+            final SLCImage mstMeta = targetMap.values().iterator().next().sourceMaster.metaData.clone();
+            updateMstMetaData(burstIndex, mstMeta);
+            final Orbit mstOrbit = targetMap.values().iterator().next().sourceMaster.orbit;
+
+            DemTile demTile = null;
+            if (subtractTopographicPhase) {
+                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, mstMeta, mstOrbit, dem,
+                        demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
+
+                if (demTile == null) {
+                    throw new OperatorException("The selected DEM has no overlap with the image or is invalid.");
+                }
+
+                if (demTile.getData().length < 3 || demTile.getData()[0].length < 3) {
+                    throw new OperatorException("The resolution of the selected DEM is too low, " +
+                            "please select DEM with higher resolution.");
+                }
+            }
+
+            final int minLine = 0;
+            final int maxLine = subSwath[subSwathIndex - 1].linesPerBurst - 1;
+            final int minPixel = 0;
+            final int maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
+
+            for (String cohKey : targetMap.keySet()) {
+
+                final ProductContainer product = targetMap.get(cohKey);
+                final SLCImage slvMeta = product.sourceSlave.metaData.clone();
+                updateSlvMetaData(product, burstIndex, slvMeta);
+                final Orbit slvOrbit = product.sourceSlave.orbit;
+
+                final Tile mstTileReal = getSourceTile(product.sourceMaster.realBand, extRect, border);
+                final Tile mstTileImag = getSourceTile(product.sourceMaster.imagBand, extRect, border);
+                final ComplexDoubleMatrix dataMaster = TileUtilsDoris.pullComplexDoubleMatrix(mstTileReal, mstTileImag);
+
+                final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, extRect, border);
+                final Tile slvTileImag = getSourceTile(product.sourceSlave.imagBand, extRect, border);
+                final ComplexDoubleMatrix dataSlave = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal, slvTileImag);
+
+                final String polynomialName = product.sourceSlave.name + '_' + (subSwathIndex - 1) + '_' + burstIndex;
+                if (subtractFlatEarthPhase) {
+                    final DoubleMatrix flatEarthPhase = computeFlatEarthPhase(
+                            cohx0, cohx0 + cohw - 1, cohw, cohy0 - firstLineIdx, cohy0 + cohh - 1 - firstLineIdx, cohh,
+                            minPixel, maxPixel, minLine, maxLine, polynomialName);
+
+                    final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
+                            MatrixFunctions.cos(flatEarthPhase), MatrixFunctions.sin(flatEarthPhase));
+
+                    dataSlave.muli(complexReferencePhase);
+
+                    if (OUTPUT_PHASE) {
+                        saveFlatEarthPhase(x0, xN, y0, yN, flatEarthPhase, product, targetTileMap);
+                    }
+                }
+
+                if (subtractTopographicPhase) {
+                    TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, false);
+
+                    final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
+                            MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
+                            MatrixFunctions.sin(new DoubleMatrix(topoPhase.demPhase)));
+
+                    dataSlave.muli(ComplexTopoPhase);
+
+                    if (OUTPUT_PHASE) {
+                        saveTopoPhase(x0, xN, y0, yN, topoPhase.demPhase, product, targetTileMap);
+                    }
+                }
+
+                for (int i = 0; i < dataMaster.length; i++) {
+                    double tmp = norm(dataMaster.get(i));
+                    dataMaster.put(i, dataMaster.get(i).mul(dataSlave.get(i).conj()));
+                    dataSlave.put(i, new ComplexDouble(norm(dataSlave.get(i)), tmp));
+                }
+
+                DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, cohWinAz, cohWinRg);
+
+                saveCoherence(cohMatrix, product, targetTileMap, targetRectangle);
+            }
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void updateMstMetaData(final int burstIndex, final SLCImage mstMeta) {
+
+        final double burstFirstLineTimeMJD = subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] /
+                Constants.secondsInDay;
+
+        final double burstFirstLineTimeSecondsOfDay = (burstFirstLineTimeMJD - (int)burstFirstLineTimeMJD) *
+                Constants.secondsInDay;
+
+        mstMeta.settAzi1(burstFirstLineTimeSecondsOfDay);
+
+        mstMeta.setCurrentWindow(new org.jlinda.core.Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+
+        mstMeta.setOriginalWindow(new org.jlinda.core.Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+
+        mstMeta.setApproxGeoCentreOriginal(getApproxGeoCentre(subSwathIndex, burstIndex));
+    }
+
+    private void updateSlvMetaData(final ProductContainer product, final int burstIndex, final SLCImage slvMeta) {
+
+        final double slvBurstFirstLineTimeMJD = slvMeta.getMjd() - product.sourceMaster.metaData.getMjd() +
+                subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] / Constants.secondsInDay;
+
+        final double slvBurstFirstLineTimeSecondsOfDay = (slvBurstFirstLineTimeMJD - (int)slvBurstFirstLineTimeMJD) *
+                Constants.secondsInDay;
+
+        slvMeta.settAzi1(slvBurstFirstLineTimeSecondsOfDay);
+
+        slvMeta.setCurrentWindow(new org.jlinda.core.Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+
+        slvMeta.setOriginalWindow(new org.jlinda.core.Window(0, subSwath[subSwathIndex - 1].linesPerBurst - 1,
+                0, subSwath[subSwathIndex - 1].samplesPerBurst - 1));
+    }
+
+    private GeoPoint getApproxGeoCentre(final int subSwathIndex, final int burstIndex) {
+
+        final int cols = subSwath[subSwathIndex - 1].latitude[0].length;
+
+        double lat = 0.0, lon = 0.0;
+        for (int r = burstIndex; r <= burstIndex + 1; r++) {
+            for (int c = 0; c < cols; c++) {
+                lat += subSwath[subSwathIndex - 1].latitude[r][c];
+                lon += subSwath[subSwathIndex - 1].longitude[r][c];
+            }
+        }
+
+        return new GeoPoint(lat / (2*cols), lon / (2*cols));
     }
 
     private static double norm(final ComplexDouble number) {

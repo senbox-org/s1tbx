@@ -53,7 +53,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
     //private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
-    private final JCheckBox reGridMethodCheckBox = new JCheckBox("Re-grid method (slower)");
+    private final JCheckBox reGridMethodCheckBox = new JCheckBox("Re-grid method");
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JTextField externalDEMFile = new JTextField("");
