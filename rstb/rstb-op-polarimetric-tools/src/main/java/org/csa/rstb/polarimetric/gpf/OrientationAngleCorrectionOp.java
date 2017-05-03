@@ -243,7 +243,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
                         if (sourceProductType == PolBandUtils.MATRIX.FULL) {
 
-                            PolOpUtils.getT3(srcIdx, sourceProductType, dataBuffers, T3r, T3i);
+                            PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, dataBuffers, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
