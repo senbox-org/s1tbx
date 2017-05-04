@@ -338,7 +338,8 @@ public class InterferogramOp extends Operator {
         }
         MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
-            metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
+            if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
+                metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
         }
     }
 
