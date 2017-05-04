@@ -613,8 +613,8 @@ public class OversamplingOp extends Operator {
         final int sw = (int) (targetTileRectangle.width / widthRatio + 0.5f);
         final int sh = (int) (targetTileRectangle.height / heightRatio + 0.5f);
 
-        final int swHalf = sw / 2;
-        final int shHalf = sh / 2;
+        final int swHalf = (int) ((double) sw / 2.0f + 0.5f);
+        final int shHalf = (int) ((double) sh / 2.0f + 0.5f);
         int sx0Ext = sx0, sy0Ext = sy0, swExt = sw, shExt = sh;
         if (sx0 - swHalf >= 0) {
             sx0Ext -= swHalf;
