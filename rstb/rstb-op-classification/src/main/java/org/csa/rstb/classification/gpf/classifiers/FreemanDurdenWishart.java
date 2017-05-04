@@ -428,7 +428,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                             srcIndex.calculateStride(y);
                             for (int x = x0; x < xMax; ++x) {
 
-                                PolOpUtils.getT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
+                                PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
 
                                 synchronized (clusterCounter) {
 

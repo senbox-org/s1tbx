@@ -329,7 +329,7 @@ public final class PolarimetricParametersOp extends Operator {
                                                                   sourceImageWidth, sourceImageHeight, sourceProductType,
                                                                   srcIndex, dataBuffers, Tr, Ti);
                             } else {
-                                PolOpUtils.getT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
+                                PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
                             }
 
                             param = computePolarimetricParameters(Tr, Ti);

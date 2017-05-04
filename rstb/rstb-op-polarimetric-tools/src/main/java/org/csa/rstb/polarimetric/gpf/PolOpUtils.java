@@ -1058,6 +1058,45 @@ public final class PolOpUtils {
     }
 
     /**
+     * Convert covariance matrix C4 to covariance matrix C3
+     *
+     * @param c4Re Real part of C4 matrix
+     * @param c4Im Imaginary part of C4 matrix
+     * @param c3Re Real part of C3 matrix
+     * @param c3Im Imaginary part of C3 matrix
+     */
+    public static void c4ToC3(final double[][] c4Re, final double[][] c4Im,
+                              final double[][] c3Re, final double[][] c3Im) {
+
+        c3Re[0][0] = c4Re[0][0];
+        c3Im[0][0] = c4Im[0][0];
+
+        c3Re[0][1] = (c4Re[0][1] + c4Re[0][2]) / sqrt2;
+        c3Im[0][1] = (c4Im[0][1] + c4Im[0][2]) / sqrt2;
+
+        c3Re[0][2] = c4Re[0][3];
+        c3Im[0][2] = c4Im[0][3];
+
+        c3Re[1][0] = (c4Re[1][0] + c4Re[2][0]) / sqrt2;
+        c3Im[1][0] = (c4Im[1][0] + c4Im[2][0]) / sqrt2;
+
+        c3Re[1][1] = (c4Re[1][1] + c4Re[2][1] + c4Re[1][2] + c4Re[2][2]) / 2.0;
+        c3Im[1][1] = (c4Im[1][1] + c4Im[2][1] + c4Im[1][2] + c4Im[2][2]) / 2.0;
+
+        c3Re[1][2] = (c4Re[1][3] + c4Re[2][3]) / sqrt2;
+        c3Im[1][2] = (c4Im[1][3] + c4Im[2][3]) / sqrt2;
+
+        c3Re[2][0] = c4Re[3][0];
+        c3Im[2][0] = c4Im[3][0];
+
+        c3Re[2][1] = (c4Re[3][1] + c4Re[3][2]) / sqrt2;
+        c3Im[2][1] = (c4Im[3][1] + c4Im[3][2]) / sqrt2;
+
+        c3Re[2][2] = c4Re[3][3];
+        c3Im[2][2] = c4Im[3][3];
+    }
+
+    /**
      * Get mean coherency matrix for given pixel.
      *
      * @param x                 X coordinate of the given pixel.
@@ -1226,8 +1265,187 @@ public final class PolOpUtils {
         }
     }
 
+    /**
+     * Get covariance matrix C4 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Cr                The real part of the covariance matrix C4.
+     * @param Ci                The imaginary part of the covariance matrix C4.
+     */
+    public static void getCovarianceMatrixC4(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Cr, final double[][] Ci) {
 
-    public static void getT3(final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCovarianceMatrixC4(tempSr, tempSi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+
+            getCoherencyMatrixT4(index, dataBuffers, tempTr, tempTi);
+            t4ToC4(tempTr, tempTi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            getCovarianceMatrixC4(index, dataBuffers, Cr, Ci);
+
+        }
+    }
+
+    /**
+     * Get coherency matrix T4 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Tr                The real part of the coherency matrix T4.
+     * @param Ti                The imaginary part of the coherency matrix T4.
+     */
+    public static void getCoherencyMatrixT4(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Tr, final double[][] Ti) {
+
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCoherencyMatrixT4(tempSr, tempSi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            getCoherencyMatrixT4(index, dataBuffers, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+
+            getCovarianceMatrixC4(index, dataBuffers, tempCr, tempCi);
+            c4ToT4(tempCr, tempCi, Tr, Ti);
+        }
+    }
+
+    /**
+     * Get covariance matrix C3 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Cr                The real part of the covariance matrix C3.
+     * @param Ci                The imaginary part of the covariance matrix C3.
+     */
+    public static void getCovarianceMatrixC3(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Cr, final double[][] Ci) {
+
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCovarianceMatrixC3(tempSr, tempSi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+
+            getCoherencyMatrixT4(index, dataBuffers, tempTr, tempTi);
+            t4ToC4(tempTr, tempTi, tempCr, tempCi);
+            c4ToC3(tempCr, tempCi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+
+            getCovarianceMatrixC4(index, dataBuffers, tempCr, tempCi);
+            c4ToC3(tempCr, tempCi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+            final double[][] tempTr = new double[3][3];
+            final double[][] tempTi = new double[3][3];
+
+            getCoherencyMatrixT3(index, dataBuffers, tempTr, tempTi);
+            t3ToC3(tempTr, tempTi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+
+            getCovarianceMatrixC3(index, dataBuffers, Cr, Ci);
+
+        }
+    }
+
+    /**
+     * Get coherency matrix T3 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Tr                The real part of the coherency matrix T3.
+     * @param Ti                The imaginary part of the coherency matrix T3.
+     */
+    public static void getCoherencyMatrixT3(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Tr, final double[][] Ti) {
+
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCoherencyMatrixT3(tempSr, tempSi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+
+            getCoherencyMatrixT4(index, dataBuffers, tempTr, tempTi);
+            t4ToT3(tempTr, tempTi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+
+            getCovarianceMatrixC4(index, dataBuffers, tempCr, tempCi);
+            c4ToT4(tempCr, tempCi, tempTr, tempTi);
+            t4ToT3(tempTr, tempTi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+            getCoherencyMatrixT3(index, dataBuffers, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+
+            final double[][] tempCr = new double[3][3];
+            final double[][] tempCi = new double[3][3];
+
+            getCovarianceMatrixC3(index, dataBuffers, tempCr, tempCi);
+            c3ToT3(tempCr, tempCi, Tr, Ti);
+        }
+    }
+
+    /*public static void getT3(final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
                              final double[][] Tr, final double[][] Ti) {
 
         if (sourceProductType == PolBandUtils.MATRIX.FULL) {
@@ -1248,7 +1466,7 @@ public final class PolOpUtils {
             getCovarianceMatrixC3(index, dataBuffers, Cr, Ci);
             c3ToT3(Cr, Ci, Tr, Ti);
         }
-    }
+    }*/
 
     /**
      * Perform eigenvalue decomposition for a given Hermitian matrix
