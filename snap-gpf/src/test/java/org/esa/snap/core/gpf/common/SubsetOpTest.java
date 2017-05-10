@@ -84,6 +84,21 @@ public class SubsetOpTest {
     }
 
     @Test
+    public void testFullSwathWithNoRegion() throws Exception {
+        final Product sp = createTestProduct(100, 100);
+
+        SubsetOp op = new SubsetOp();
+        op.setParameterDefaultValues();
+        op.setSourceProduct(sp);
+        op.setParameter("fullSwath", true);
+
+        Product targetProduct = op.getTargetProduct();
+        assertNotNull(targetProduct);
+        assertEquals(100, targetProduct.getSceneRasterWidth());
+        assertEquals(100, targetProduct.getSceneRasterHeight());
+    }
+
+    @Test
     public void testNonGeoMatchingRegionFails() throws Exception {
         final Product sp = createTestProduct(100, 100);
         // product's geo-location: mid-northern Germany, more or less
