@@ -132,7 +132,7 @@ public class OpenData {
                                                                    credentialInfo.getUser(), credentialInfo.getPassword(),
                                                                    pm);
 
-            if (entryFp != null && entryFp.getSize() == entry.contentLength) {
+            if ((entryFp != null && entryFp.getSize() == entry.contentLength) || pm.isCanceled()) {
                 break;
             } else {
 
@@ -142,7 +142,7 @@ public class OpenData {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if (tries > MAX_DOWNLOAD_TRIES && (entryFp == null || entryFp.getSize() != entry.contentLength)) {
+                if ((tries > MAX_DOWNLOAD_TRIES && (entryFp == null || entryFp.getSize() != entry.contentLength)) || pm.isCanceled()){
                     SystemUtils.LOG.info("Skiping...");
                     break;
                 }
@@ -150,8 +150,14 @@ public class OpenData {
             }
         }
 
+        if (pm.isCanceled()) {
+            SystemUtils.LOG.info("OpenData: Download is cancelled");
+            return;
+        }
+
         if (tries > MAX_DOWNLOAD_TRIES) {
             SystemUtils.LOG.warning("Resuming tries for file " + entry.fileName + " did not work.");
+            throw new IOException(entry.fileName);
         } else {
             if (entryFp.getMd5Checksum().equalsIgnoreCase(entry.hexChecksum)) {
                 SystemUtils.LOG.info("Filename: " + entry.fileName + " downloaded and checked " + entry.hexChecksum);
