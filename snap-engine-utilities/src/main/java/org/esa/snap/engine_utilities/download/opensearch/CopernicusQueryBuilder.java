@@ -28,8 +28,8 @@ public class CopernicusQueryBuilder {
     private final DBQuery dbQuery;
 
     private static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
-    //private static final String SEARCH_ROOT = "/dhus/search?q=";
-    private static final String SEARCH_ROOT = "/apihub/search?q=";
+    private static final String SEARCH_ROOT = "/dhus/search?q=";
+    //private static final String SEARCH_ROOT = "/apihub/search?q=";
 
     //private static final String DATE = "( beginPosition:[2016-01-25T00:00:00.000Z TO 2016-01-25T23:59:59.999Z] AND endPosition:[2016-01-25T00:00:00.000Z TO 2016-01-25T23:59:59.999Z] )";
     //private static final String FOOTPRINT = "( footprint:\"Intersects(POLYGON((-74.24323771090575 -34.81331346157173,-31.2668365052604 -34.81331346157173,-31.2668365052604 5.647318588641241,-74.24323771090575 5.647318588641241,-74.24323771090575 -34.81331346157173)))\" )";
@@ -41,11 +41,16 @@ public class CopernicusQueryBuilder {
         this.dbQuery = dbQuery;
     }
 
-    public String getSearchURL() {
+    public String getSearchURL() throws Exception {
         final StringBuilder str = new StringBuilder();
         str.append("( ");
 
-        str.append(getFootprint());
+        final String footprint = getFootprint();
+
+        if (footprint.isEmpty() || (footprint.lastIndexOf(',') == footprint.indexOf(','))) {
+            throw new Exception("No area is selected");
+        }
+        str.append(footprint);
         //str.append(FOOTPRINT);
         str.append(getDate());
 
