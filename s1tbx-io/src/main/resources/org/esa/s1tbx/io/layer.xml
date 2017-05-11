@@ -58,6 +58,15 @@
                 <attr name="helpId" stringvalue="importCosmoSkymed"/>
                 <attr name="ShortDescription" stringvalue="Open Cosmo-Skymed data product."/>
             </file>
+            <file name="org-esa-s1tbx-io-importKompsat5.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="Kompsat-5"/>
+                <attr name="formatName" stringvalue="Kompsat5"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importKompsat5"/>
+                <attr name="ShortDescription" stringvalue="Open Kompsat-5 data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importRadarsat2Product.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -186,6 +195,10 @@
                     <file name="org-esa-s1tbx-io-ceos-importJERSCEOSProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importJERSCEOSProduct.instance"/>
                         <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importKompsat5.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importKompsat5.instance"/>
+                        <attr name="position" intvalue="650"/>
                     </file>
                     <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importRadarsatProduct.instance"/>
