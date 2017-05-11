@@ -1552,7 +1552,11 @@ public class Product extends ProductNode {
     }
 
     private static boolean equalsLatLon(final GeoPos pos1, final GeoPos pos2, final float eps) {
-        return MathUtils.equalValues(pos1.lat, pos2.lat, eps) && MathUtils.equalValues(pos1.lon, pos2.lon, eps);
+        return equalsOrNaN(pos1.lat, pos2.lat, eps) && equalsOrNaN(pos1.lon, pos2.lon, eps);
+    }
+
+    private static boolean equalsOrNaN(double v1, double v2, float eps) {
+        return MathUtils.equalValues(v1, v2, eps) || (Double.isNaN(v1) && Double.isNaN(v2));
     }
 
     /**
