@@ -41,6 +41,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
     public static final String NAME = "ESA SciHub";
     public static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
     private static final String COPERNICUS_ODATA_ROOT = "https://scihub.copernicus.eu/dhus/odata/v1/";
+    //private static final String COPERNICUS_ODATA_ROOT = "https://scihub.copernicus.eu/apihub/odata/v1/";
 
     private static final String[] emptyStringList = new String[]{};
     private static final String[] COPERNICUS_MISSIONS = new String[]{"Sentinel-1", "Sentinel-2", "Sentinel-3"};
@@ -76,21 +77,34 @@ public class CopernicusProductQuery implements ProductQueryInterface {
         try {
             final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
             pm.worked(1);
+            if(pm.isCanceled()) {
+                return true;
+            }
 
             final CopernicusQueryBuilder queryBuilder = new CopernicusQueryBuilder(dbQuery);
             final OpenSearch.PageResult pageResult = openSearch.getPages(queryBuilder.getSearchURL());
             pm.worked(1);
+            if(pm.isCanceled()) {
+                return true;
+            }
 
             final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, SubProgressMonitor.create(pm, 7));
 
             final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_ROOT);
             pm.worked(1);
+            if(pm.isCanceled()) {
+                return true;
+            }
 
             final ProgressMonitor pm2 = SubProgressMonitor.create(pm, 10);
             pm2.beginTask("Retieving entry information...", productResults.length);
 
             final List<ProductEntry> resultList = new ArrayList<>();
             for (OpenSearch.ProductResult result : productResults) {
+                if(pm.isCanceled()) {
+                    break;
+                }
+
                 final ProductEntry productEntry = new ProductEntry(result);
 
                 final OpenData.Entry entry = openData.getEntryByID(result.id);
@@ -100,6 +114,10 @@ public class CopernicusProductQuery implements ProductQueryInterface {
                 pm2.worked(1);
             }
             pm2.done();
+
+            if(pm.isCanceled()) {
+                return true;
+            }
 
             productEntryList = resultList.toArray(new ProductEntry[resultList.size()]);
             pm.worked(1);
