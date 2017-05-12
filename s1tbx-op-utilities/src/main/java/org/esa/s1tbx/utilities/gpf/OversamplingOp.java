@@ -18,16 +18,7 @@ package org.esa.s1tbx.utilities.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.CrsGeoCoding;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -44,7 +35,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -389,6 +380,8 @@ public class OversamplingOp extends Operator {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
+        final int polsarData = abs.getAttributeInt(AbstractMetadata.polsarData);
+
         for (int i = 0; i < sourceBands.length; i++) {
 
             String unit = sourceBands[i].getUnit();
@@ -411,13 +404,17 @@ public class OversamplingOp extends Operator {
                 final Band targetBandQ = targetProduct.addBand(sourceBands[i + 1].getName(), ProductData.TYPE_FLOAT32);
                 targetBandQ.setUnit(nextUnit);
 
-                String suffix = OperatorUtils.getSuffixFromBandName(sourceBands[i].getName());
-                if (suffix == null) {
-                    suffix = "";
-                } else {
-                    suffix = '_' + suffix;
+                // don't create virtual intensity band if it is T3 etc.
+                if (polsarData == 0) {
+                    String suffix = OperatorUtils.getSuffixFromBandName(sourceBands[i].getName());
+                    if (suffix == null) {
+                        suffix = "";
+                    } else {
+                        suffix = '_' + suffix;
+                    }
+                    ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
                 }
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
+
                 i++;
             } else {
                 final String targetBandName = sourceBands[i].getName();
@@ -616,8 +613,8 @@ public class OversamplingOp extends Operator {
         final int sw = (int) (targetTileRectangle.width / widthRatio + 0.5f);
         final int sh = (int) (targetTileRectangle.height / heightRatio + 0.5f);
 
-        final int swHalf = sw / 2;
-        final int shHalf = sh / 2;
+        final int swHalf = (int) ((double) sw / 2.0f + 0.5f);
+        final int shHalf = (int) ((double) sh / 2.0f + 0.5f);
         int sx0Ext = sx0, sy0Ext = sy0, swExt = sw, shExt = sh;
         if (sx0 - swHalf >= 0) {
             sx0Ext -= swHalf;
@@ -647,6 +644,18 @@ public class OversamplingOp extends Operator {
 
         // System.out.println("x0 = " + targetTileRectangle.x + ", y0 = " + targetTileRectangle.y +
         //         ", w = " + targetTileRectangle.width + ", h = " + targetTileRectangle.height);
+
+        //System.out.println("sx0Ext = " + sx0Ext + " sy0Ext = " + sy0Ext + " swExt = " + swExt + " shExt = " + shExt);
+
+        if (sx0Ext + swExt > sourceImageWidth)  {
+            swExt = sourceImageWidth - sx0Ext;
+            //System.out.println("cropped sx0Ext = " + sx0Ext + " swExt = " + swExt);
+        }
+
+        if (sy0Ext + shExt > sourceImageHeight) {
+            shExt = sourceImageHeight - sy0Ext;
+            //System.out.println("cropped sy0Ext = " + sy0Ext + " shExt = " + shExt);
+        }
 
         return new Rectangle(sx0Ext, sy0Ext, swExt, shExt);
     }
