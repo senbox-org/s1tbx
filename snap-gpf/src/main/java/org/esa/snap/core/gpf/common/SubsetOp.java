@@ -205,9 +205,10 @@ public class SubsetOp extends Operator {
                 return;
             }
         }
-        if (fullSwath) {
+        if (fullSwath && region != null) {
             region = new Rectangle(0, region.y, sourceProduct.getSceneRasterWidth(), region.height);
         }
+        
         if (region != null && !region.isEmpty()) {
             if (region.width == 0 || region.x + region.width > sourceProduct.getSceneRasterWidth()) {
                 region.width = sourceProduct.getSceneRasterWidth() - region.x;
