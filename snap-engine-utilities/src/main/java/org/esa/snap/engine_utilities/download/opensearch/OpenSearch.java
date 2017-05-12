@@ -90,6 +90,7 @@ public class OpenSearch {
 
         pm.beginTask("Searching...", result.totalResults/numRows);
         for (int item = 0; item < result.totalResults; item += numRows) {
+            if (pm.isCanceled()) break;
             try {
                 final Feed feed = connect(searchURL, "&start=" + item + "&rows=" + numRows);
 
