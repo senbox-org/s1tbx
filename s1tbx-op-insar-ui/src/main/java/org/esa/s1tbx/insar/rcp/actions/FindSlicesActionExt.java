@@ -52,7 +52,7 @@ public class FindSlicesActionExt implements ProductLibraryActionExt {
         final ProductEntry entry = actionHandler.getSelectedProductEntries()[0];
         int dataTakeId = entry.getMetadata().getAttributeInt(AbstractMetadata.data_take_id, AbstractMetadata.NO_METADATA);
         if(dataTakeId != AbstractMetadata.NO_METADATA) {
-            actionHandler.findSlices(dataTakeId);
+            actionHandler.getToolView().findSlices(dataTakeId);
         }
     }
 }
