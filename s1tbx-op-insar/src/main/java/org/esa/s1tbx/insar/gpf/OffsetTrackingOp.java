@@ -191,6 +191,7 @@ public class OffsetTrackingOp extends Operator {
     private static final String ATTRIB_HEADING = "heading";
     private static final String ATTRIB_RANGE_SHIFT = "range_shift";
     private static final String ATTRIB_AZIMUTH_SHIFT = "azimuth_shift";
+    private static final String ATTRIB_STYLE_CSS = "style_css";
 
     /**
      * Default constructor. The graph processing framework
@@ -967,8 +968,9 @@ public class OffsetTrackingOp extends Operator {
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_HEADING, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_RANGE_SHIFT, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_AZIMUTH_SHIFT, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_STYLE_CSS, String.class));
 
-        return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
+        return VectorUtils.createFeatureType(targetProduct.getSceneGeoCoding(), VECTOR_NODE_NAME, attributeDescriptors);
     }
 
     private synchronized void AddVelocitiesAsVectors() {

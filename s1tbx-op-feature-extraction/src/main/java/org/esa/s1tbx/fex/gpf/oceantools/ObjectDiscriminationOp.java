@@ -18,12 +18,10 @@ package org.esa.s1tbx.fex.gpf.oceantools;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VectorDataNode;
@@ -46,6 +44,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.engine_utilities.util.VectorUtils;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.opengis.feature.simple.SimpleFeature;
@@ -111,6 +110,7 @@ public class ObjectDiscriminationOp extends Operator {
     public static final String ATTRIB_CORR_SHIP_LON = "Corr_ship_lon";
     public static final String ATTRIB_AIS_MMSI = "AIS_MMSI";
     public static final String ATTRIB_AIS_SHIP_NAME= "AIS_shipname";
+    public static final String ATTRIB_STYLE_CSS = "style_css";
 
     private static final String PRODUCT_SUFFIX = "_SHP";
 
@@ -402,8 +402,9 @@ public class ObjectDiscriminationOp extends Operator {
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_LON, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_WIDTH, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_LENGTH, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_STYLE_CSS, String.class));
 
-        return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
+        return VectorUtils.createFeatureType(targetProduct.getSceneGeoCoding(), VECTOR_NODE_NAME, attributeDescriptors);
     }
 
     private synchronized void AddShipRecordsAsVectors(final List<ShipRecord> clusterList) {
@@ -421,15 +422,16 @@ public class ObjectDiscriminationOp extends Operator {
 
             final String name = "target_" + StringUtils.padNum(c, 3, '0');
 
-            Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
-
-            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(shipFeatureType, name, p, STYLE_FORMAT);
-            feature.setAttribute(ATTRIB_DETECTED_X, rec.x);
-            feature.setAttribute(ATTRIB_DETECTED_Y, rec.y);
-            feature.setAttribute(ATTRIB_DETECTED_LAT, rec.lat);
-            feature.setAttribute(ATTRIB_DETECTED_LON, rec.lon);
-            feature.setAttribute(ATTRIB_DETECTED_WIDTH, rec.width);
-            feature.setAttribute(ATTRIB_DETECTED_LENGTH, rec.length);
+            final SimpleFeatureBuilder fb = new SimpleFeatureBuilder(shipFeatureType);
+            fb.add(geometryFactory.createPoint(new Coordinate(rec.x, rec.y)));
+            fb.add(rec.x);
+            fb.add(rec.y);
+            fb.add(rec.lat);
+            fb.add(rec.lon);
+            fb.add(rec.width);
+            fb.add(rec.length);
+            fb.add(STYLE_FORMAT);
+            final SimpleFeature feature =  fb.buildFeature(name);
 
             collection.add(feature);
             c++;
