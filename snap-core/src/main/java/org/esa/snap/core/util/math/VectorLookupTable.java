@@ -20,7 +20,6 @@ package org.esa.snap.core.util.math;
  * multilinear  interpolation for vector lookup  tables with an
  * arbitrary number of dimensions.
  * <p>
- * todo - thread safety
  * todo - method for degrading a table (see {@link LookupTable})
  *
  * @author Ralf Quast
@@ -45,13 +44,9 @@ public class VectorLookupTable {
      */
     private final int[] o;
     /**
-     * The lookup value arrays for the vertices bracketing the lookup point.
+     * the length of the lookup vector.
      */
-    private final double[][] v;
-    /**
-     * The normalized representation of the lookup point's coordinates.
-     */
-    private final FracIndex[] fracIndexes;
+    private final int vectorLength;
 
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
@@ -133,9 +128,10 @@ public class VectorLookupTable {
         if (length < 1) {
             throw new IllegalArgumentException("length < 1");
         }
+        vectorLength = length;
 
         LookupTable.ensureLegalArray(dimensions);
-        LookupTable.ensureLegalArray(values, length * LookupTable.getVertexCount(dimensions));
+        LookupTable.ensureLegalArray(values, vectorLength * LookupTable.getVertexCount(dimensions));
 
         this.values = values;
         this.dimensions = dimensions;
@@ -144,15 +140,13 @@ public class VectorLookupTable {
 
         strides = new int[n];
         // Compute strides
-        for (int i = n, stride = length; i-- > 0; stride *= dimensions[i].getCardinal()) {
+        for (int i = n, stride = vectorLength; i-- > 0; stride *= dimensions[i].getCardinal()) {
             strides[i] = stride;
         }
 
         o = new int[1 << n];
         LookupTable.computeVertexOffsets(strides, o);
 
-        v = new double[1 << n][length];
-        fracIndexes = FracIndex.createArray(n);
     }
 
     /**
@@ -195,33 +189,34 @@ public class VectorLookupTable {
      */
     public final double[] getValues(final double... coordinates) throws IllegalArgumentException {
         LookupTable.ensureLegalArray(coordinates, dimensions.length);
-
+        FracIndex[] fracIndices = FracIndex.createArray(dimensions.length);
         for (int i = 0; i < dimensions.length; ++i) {
-            LookupTable.computeFracIndex(dimensions[i], coordinates[i], fracIndexes[i]);
+            LookupTable.computeFracIndex(dimensions[i], coordinates[i], fracIndices[i]);
         }
 
-        return getValues(fracIndexes);
+        return getValues(fracIndices);
     }
 
-    double[] getValues(final FracIndex... fracIndexes) {
+    private double[] getValues(final FracIndex... fracIndexes) {
         int origin = 0;
         for (int i = 0; i < dimensions.length; ++i) {
             origin += fracIndexes[i].i * strides[i];
         }
-        for (int i = 0; i < v.length; ++i) {
-            values.copyTo(origin + o[i], v[i], 0, v[i].length);
+        double[][] outValues = new double[1 << dimensions.length][vectorLength];
+        for (int i = 0; i < outValues.length; ++i) {
+            values.copyTo(origin + o[i], outValues[i], 0, outValues[i].length);
         }
         for (int i = dimensions.length; i-- > 0;) {
             final int m = 1 << i;
             final double f = fracIndexes[i].f;
 
             for (int j = 0; j < m; ++j) {
-                for (int k = 0; k < v[j].length; ++k) {
-                    v[j][k] += f * (v[m + j][k] - v[j][k]);
+                for (int k = 0; k < outValues[j].length; ++k) {
+                    outValues[j][k] += f * (outValues[m + j][k] - outValues[j][k]);
                 }
             }
         }
 
-        return v[0];
+        return outValues[0];
     }
 }

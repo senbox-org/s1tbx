@@ -17,7 +17,15 @@ package org.esa.snap.core.util.math;
 
 import junit.framework.TestCase;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Tests for class {@link VectorLookupTable}.
@@ -37,9 +45,9 @@ public class VectorLookupTableTest extends TestCase {
         assertEquals(0.0, lut.getDimension(0).getMin(), 0.0);
         assertEquals(1.0, lut.getDimension(0).getMax(), 0.0);
 
-        assertTrue(Arrays.equals(new double[]{0.0, 2.0}, lut.getValues(0.0)));
-        assertTrue(Arrays.equals(new double[]{1.0, 3.0}, lut.getValues(1.0)));
-        assertTrue(Arrays.equals(new double[]{0.5, 2.5}, lut.getValues(0.5)));
+        assertArrayEquals(new double[]{0.0, 2.0}, lut.getValues(0.0), 1.0e-6);
+        assertArrayEquals(new double[]{1.0, 3.0}, lut.getValues(1.0), 1.0e-6);
+        assertArrayEquals(new double[]{0.5, 2.5}, lut.getValues(0.5), 1.0e-6);
     }
 
     public void testArrayInterpolation2D() {
@@ -54,14 +62,14 @@ public class VectorLookupTableTest extends TestCase {
         assertEquals(0.0, lut.getDimension(1).getMin(), 0.0);
         assertEquals(1.0, lut.getDimension(1).getMax(), 0.0);
 
-        assertTrue(Arrays.equals(new double[]{0.0, 4.0}, lut.getValues(0.0, 0.0)));
-        assertTrue(Arrays.equals(new double[]{1.0, 5.0}, lut.getValues(0.0, 1.0)));
-        assertTrue(Arrays.equals(new double[]{2.0, 6.0}, lut.getValues(1.0, 0.0)));
-        assertTrue(Arrays.equals(new double[]{3.0, 7.0}, lut.getValues(1.0, 1.0)));
+        assertArrayEquals(new double[]{0.0, 4.0}, lut.getValues(0.0, 0.0), 1.0e-6);
+        assertArrayEquals(new double[]{1.0, 5.0}, lut.getValues(0.0, 1.0), 1.0e-6);
+        assertArrayEquals(new double[]{2.0, 6.0}, lut.getValues(1.0, 0.0), 1.0e-6);
+        assertArrayEquals(new double[]{3.0, 7.0}, lut.getValues(1.0, 1.0), 1.0e-6);
 
-        assertTrue(Arrays.equals(new double[]{0.5, 4.5}, lut.getValues(0.0, 0.5)));
-        assertTrue(Arrays.equals(new double[]{1.5, 5.5}, lut.getValues(0.5, 0.5)));
-        assertTrue(Arrays.equals(new double[]{2.5, 6.5}, lut.getValues(1.0, 0.5)));
+        assertArrayEquals(new double[]{0.5, 4.5}, lut.getValues(0.0, 0.5), 1.0e-6);
+        assertArrayEquals(new double[]{1.5, 5.5}, lut.getValues(0.5, 0.5), 1.0e-6);
+        assertArrayEquals(new double[]{2.5, 6.5}, lut.getValues(1.0, 0.5), 1.0e-6);
     }
 
     public void testArrayInterpolationWithFloatValues() {
@@ -69,13 +77,81 @@ public class VectorLookupTableTest extends TestCase {
         final float[] values = new float[]{0, 4, 1, 5, 2, 6, 3, 7};
 
         final VectorLookupTable lut = new VectorLookupTable(2, values, dimensions);
-        assertTrue(Arrays.equals(new double[]{0.0, 4.0}, lut.getValues(0.0, 0.0)));
-        assertTrue(Arrays.equals(new double[]{1.0, 5.0}, lut.getValues(0.0, 1.0)));
-        assertTrue(Arrays.equals(new double[]{2.0, 6.0}, lut.getValues(1.0, 0.0)));
-        assertTrue(Arrays.equals(new double[]{3.0, 7.0}, lut.getValues(1.0, 1.0)));
+        assertArrayEquals(new double[]{0.0, 4.0}, lut.getValues(0.0, 0.0), 1.0e-6);
+        assertArrayEquals(new double[]{1.0, 5.0}, lut.getValues(0.0, 1.0), 1.0e-6);
+        assertArrayEquals(new double[]{2.0, 6.0}, lut.getValues(1.0, 0.0), 1.0e-6);
+        assertArrayEquals(new double[]{3.0, 7.0}, lut.getValues(1.0, 1.0), 1.0e-6);
 
-        assertTrue(Arrays.equals(new double[]{0.5, 4.5}, lut.getValues(0.0, 0.5)));
-        assertTrue(Arrays.equals(new double[]{1.5, 5.5}, lut.getValues(0.5, 0.5)));
-        assertTrue(Arrays.equals(new double[]{2.5, 6.5}, lut.getValues(1.0, 0.5)));
+        assertArrayEquals(new double[]{0.5, 4.5}, lut.getValues(0.0, 0.5), 1.0e-6);
+        assertArrayEquals(new double[]{1.5, 5.5}, lut.getValues(0.5, 0.5), 1.0e-6);
+        assertArrayEquals(new double[]{2.5, 6.5}, lut.getValues(1.0, 0.5), 1.0e-6);
     }
+
+    public void testThreadSafety() throws InterruptedException {
+        final float[][] dimensions = new float[][]{{0, 1}, {0, 1}};
+        final float[] values = new float[]{0, 4, 1, 5, 2, 6, 3, 7};
+
+        final VectorLookupTable lut = new VectorLookupTable(2, values, dimensions);
+        ArrayList<Runnable> runnables = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            runnables.add(new TestTask(lut));
+        }
+
+        assertConcurrent("VectorLookupTableTest", runnables, 3);
+    }
+
+    // method taken from https://github.com/junit-team/junit4/wiki/Multithreaded-code-and-concurrency
+    private static void assertConcurrent(final String message, final List<? extends Runnable> runnables, final int maxTimeoutSeconds) throws InterruptedException {
+        final int numThreads = runnables.size();
+        final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<Throwable>());
+        final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
+        try {
+            final CountDownLatch allExecutorThreadsReady = new CountDownLatch(numThreads);
+            final CountDownLatch afterInitBlocker = new CountDownLatch(1);
+            final CountDownLatch allDone = new CountDownLatch(numThreads);
+            for (final Runnable submittedTestRunnable : runnables) {
+                threadPool.submit(() -> {
+                    allExecutorThreadsReady.countDown();
+                    try {
+                        afterInitBlocker.await();
+                        submittedTestRunnable.run();
+                    } catch (final Throwable e) {
+                        exceptions.add(e);
+                    } finally {
+                        allDone.countDown();
+                    }
+                });
+            }
+            // wait until all threads are ready
+            assertTrue("Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent", allExecutorThreadsReady.await(runnables.size() * 10, TimeUnit.MILLISECONDS));
+            // start all test runners
+            afterInitBlocker.countDown();
+            assertTrue(message + " timeout! More than" + maxTimeoutSeconds + "seconds", allDone.await(maxTimeoutSeconds, TimeUnit.SECONDS));
+        } finally {
+            threadPool.shutdownNow();
+        }
+        assertTrue(message + "failed with exception(s)" + exceptions, exceptions.isEmpty());
+    }
+
+    private static class TestTask implements Runnable {
+
+        private final VectorLookupTable lut;
+
+        TestTask(VectorLookupTable lut) {
+            this.lut = lut;
+        }
+
+        @Override
+        public void run() {
+            assertArrayEquals(new double[]{0.0, 4.0}, lut.getValues(0.0, 0.0), 1.0e-6);
+            assertArrayEquals(new double[]{1.0, 5.0}, lut.getValues(0.0, 1.0), 1.0e-6);
+            assertArrayEquals(new double[]{2.0, 6.0}, lut.getValues(1.0, 0.0), 1.0e-6);
+            assertArrayEquals(new double[]{3.0, 7.0}, lut.getValues(1.0, 1.0), 1.0e-6);
+
+            assertArrayEquals(new double[]{0.5, 4.5}, lut.getValues(0.0, 0.5), 1.0e-6);
+            assertArrayEquals(new double[]{1.5, 5.5}, lut.getValues(0.5, 0.5), 1.0e-6);
+            assertArrayEquals(new double[]{2.5, 6.5}, lut.getValues(1.0, 0.5), 1.0e-6);
+        }
+    }
+
 }

@@ -35,6 +35,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
@@ -766,6 +767,15 @@ public class ProductUtilsTest {
         } catch (IllegalArgumentException iae) {
             assertEquals("dvfgzfj is not part of myProduct", iae.getMessage());
         }
+    }
+
+    @Test
+    public void testCopyVirtualBand() throws Exception {
+        Product target = new Product("N", "T", 100, 150);
+        VirtualBand vb = new VirtualBand("vb", ProductData.TYPE_FLOAT32, 40, 30, "1");
+        VirtualBand newVB = ProductUtils.copyVirtualBand(target, vb, "newVB");
+        assertEquals(40, newVB.getRasterWidth());
+        assertEquals(30, newVB.getRasterHeight());
     }
 
     public static class SGeoCoding implements GeoCoding {

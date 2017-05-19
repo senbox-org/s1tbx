@@ -178,7 +178,7 @@ public abstract class DoubleDataInterpolator implements Interpolator {
         }
 
         private boolean isValid(double v) {
-            return !Double.isNaN(v) && Math.abs(v - getNoDataValue()) > 1e-8;
+            return !Double.isNaN(v) && ((Double.isNaN(getNoDataValue()) || Math.abs(v - getNoDataValue()) > 1e-8));
         }
 
     }

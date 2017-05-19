@@ -975,13 +975,14 @@ public class ProductUtils {
 
     /**
      * Copies a virtual band and keeps it as a virtual band
+     * The size of the {@code srcBand} is preserved .
      *
-     * @param product the source product.
+     * @param target the target product to copy the virtual band to.
      * @param srcBand the virtual band to copy.
      * @param name    the name of the new band.
      * @return the copy of the band.
      */
-    public static VirtualBand copyVirtualBand(final Product product, final VirtualBand srcBand, final String name) {
+    public static VirtualBand copyVirtualBand(final Product target, final VirtualBand srcBand, final String name) {
 
         final VirtualBand virtBand = new VirtualBand(name,
                                                      srcBand.getDataType(),
@@ -992,8 +993,8 @@ public class ProductUtils {
         virtBand.setDescription(srcBand.getDescription());
         virtBand.setNoDataValue(srcBand.getNoDataValue());
         virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
-        virtBand.setOwner(product);
-        product.addBand(virtBand);
+        virtBand.setOwner(target);
+        target.addBand(virtBand);
         return virtBand;
     }
 
