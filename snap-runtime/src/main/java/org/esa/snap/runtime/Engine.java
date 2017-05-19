@@ -298,7 +298,6 @@ public class Engine {
             URL[] classpath = ((URLClassLoader) classLoader).getURLs();
             for (int i = 0; i < classpath.length; i++) {
                 logger.info(name + ".url[" + i + "] = " + classpath[i]);
-                System.out.println(name + ".url[" + i + "] = " + classpath[i]);
             }
         }
         if (classLoader.getParent() != null) {
