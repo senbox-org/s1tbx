@@ -3,7 +3,8 @@ The SENTINEL-1 Toolbox
 
 [![Build Status](https://travis-ci.org/senbox-org/s1tbx.svg?branch=master)](https://travis-ci.org/senbox-org/s1tbx) 
 
-#Building S1TBX from the source
+Building S1TBX from the source
+------------------------------
 
 1. Download and install the required build tools
 	* Install J2SE 1.8 JDK and set JAVA_HOME accordingly. 
@@ -38,6 +39,7 @@ The SENTINEL-1 Toolbox
    mvn clean install -Dmaven.test.skip=true
 	
 Setting up IntelliJ IDEA
+------------------------
 
 1. Create an empty project with the SNAP/ directory as project directory
 
@@ -59,7 +61,8 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
 	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
 	* **Use classpath of module:** snap-main
 
-#Contributing
+Contributing
+------------
 
     Fork it on github ( https://github.com/senbox-org/s1tbx/fork )
     Clone it locally (git clone https://github.com/senbox-org/s1tbx.git)
