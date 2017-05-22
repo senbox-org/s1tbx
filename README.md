@@ -2,6 +2,7 @@ The SENTINEL-1 Toolbox
 ======================
 
 [![Build Status](https://travis-ci.org/senbox-org/s1tbx.svg?branch=master)](https://travis-ci.org/senbox-org/s1tbx) 
+[![Coverity Scan Status](https://scan.coverity.com/projects/7248/badge.svg)](https://scan.coverity.com/projects/senbox-org-s1tbx)
 
 Building S1TBX from the source
 ------------------------------
