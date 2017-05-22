@@ -64,7 +64,7 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
 Contributing
 ------------
 
-    Fork it on github ( [https://github.com/senbox-org/s1tbx/fork](https://github.com/senbox-org/s1tbx/fork) )
+    Fork it on github ( https://github.com/senbox-org/s1tbx/fork )
     Clone it locally (git clone https://github.com/senbox-org/s1tbx.git)
     Create your feature branch (git checkout -b my-new-feature)
     Commit your changes (git commit -am 'Add some feature')
