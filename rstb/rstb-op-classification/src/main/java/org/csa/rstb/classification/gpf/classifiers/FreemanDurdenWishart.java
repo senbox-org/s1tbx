@@ -48,8 +48,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     private enum Categories {vol, dbl, suf, mix}
 
-    private byte[][] mask = null; // record for each pixel the category and cluster in the category it belongs to
-    // VOL: -128:-63, DBL: -64:-1, SURF: 0:63, MIXED: 64:127
+    private Categories[][] category = null; // pixel category index
+    private int[][] cluster = null; // pixel cluster index
 
     private final double mixedCategoryThreshold;
     private int maxClusterSize = 0;
@@ -157,7 +157,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             return;
         }
 
-        mask = new byte[srcHeight][srcWidth];
+        category = new Categories[srcHeight][srcWidth];
+        cluster = new int[srcHeight][srcWidth];
         final double[][] fdd = new double[srcHeight][srcWidth];
         final java.util.List<ClusterInfo> pvCenterList = new ArrayList<>(numInitialClusters);
         final java.util.List<ClusterInfo> pdCenterList = new ArrayList<>(numInitialClusters);
@@ -212,7 +213,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     /**
      * Create 30 initial clusters in each of the 3 categories (vol, dbl and surf).
-     * The pixels are first classified into 4 categories (vol, dbl, urf and mixed) based on its Freeman-Durder
+     * The pixels are first classified into 4 categories (vol, dbl, urf and mixed) based on its Freeman-Durden
      * decomposition result. Then pixels in each category (not include mixed) are grouped into 30 clusters based
      * on their power values.
      *
@@ -225,13 +226,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                        final Rectangle[] tileRectangles,
                                        final PolarimetricClassificationOp op) {
 
-        // Here mask[][] is used in recording the category index for each pixel with -128 for vol, -64 for dbl,
-        // 0 for surf and 64 for mixed. Later mask[][] will be used in recording for each pixel the cluster index
-        // in each category. [-128, -63] are for clusters in vol category, [-64, -1] are for clusters in dbl
-        // category and [0, 63] are for clusters in surf category.
-        //
-        // fdd[][] is used in recording the dominant power of the Freeman-Durden decomposition result for each
-        // pixel.
+        // Here fdd[][] is used in recording the dominant power of the Freeman-Durden decomposition result
+        // for each pixel.
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Creating Initial Clusters... ", tileRectangles.length);
@@ -283,24 +279,20 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                 synchronized (counter) {
 
                                     if (!Double.isNaN(data.pv) && !Double.isNaN(data.pd) && !Double.isNaN(data.ps)) {
-                                        Categories cat = getCategory(data.pv, data.pd, data.ps, mixedCategoryThreshold);
-                                        if (cat == Categories.vol) {
-                                            mask[y][x] = -128;
+                                        category[y][x] = getCategory(data.pv, data.pd, data.ps, mixedCategoryThreshold);
+                                        if (category[y][x] == Categories.vol) {
                                             fdd[y][x] = data.pv;
                                             pv[counter[0]] = data.pv;
                                             counter[0] += 1;
-                                        } else if (cat == Categories.dbl) {
-                                            mask[y][x] = -64;
+                                        } else if (category[y][x] == Categories.dbl) {
                                             fdd[y][x] = data.pd;
                                             pd[counter[1]] = data.pd;
                                             counter[1] += 1;
-                                        } else if (cat == Categories.suf) {
-                                            mask[y][x] = 0;
+                                        } else if (category[y][x] == Categories.suf) {
                                             fdd[y][x] = data.ps;
                                             ps[counter[2]] = data.ps;
                                             counter[2] += 1;
-                                        } else { // cat == Categories.mix
-                                            mask[y][x] = 64;
+                                        } else { // Categories.mix
                                             fdd[y][x] = (data.pv + data.pd + data.ps) / 3.0;
                                             counter[3] += 1;
                                         }
@@ -347,19 +339,15 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             psThreshold[i] = ps[(i + 1) * psClusterSize];
         }
 
-        // classify pixels into 30 clusters within each category, record number of pixels in each cluster
-        int clusterIdx = -1;
+        // classify pixels into clusters within each category, record number of pixels in each cluster
         for (int y = 0; y < srcHeight; y++) {
             for (int x = 0; x < srcWidth; x++) {
-                if (mask[y][x] == -128) {
-                    clusterIdx = computePixelClusterIdx(fdd[y][x], pvThreshold, numInitialClusters);
-                    mask[y][x] += clusterIdx;
-                } else if (mask[y][x] == -64) {
-                    clusterIdx = computePixelClusterIdx(fdd[y][x], pdThreshold, numInitialClusters);
-                    mask[y][x] += clusterIdx;
-                } else if (mask[y][x] == 0) {
-                    clusterIdx = computePixelClusterIdx(fdd[y][x], psThreshold, numInitialClusters);
-                    mask[y][x] += clusterIdx;
+                if (category[y][x] == Categories.vol) {
+                    cluster[y][x] = computePixelClusterIdx(fdd[y][x], pvThreshold, numInitialClusters);
+                } else if (category[y][x] == Categories.dbl) {
+                    cluster[y][x] = computePixelClusterIdx(fdd[y][x], pdThreshold, numInitialClusters);
+                } else if (category[y][x] == Categories.suf) {
+                    cluster[y][x] = computePixelClusterIdx(fdd[y][x], psThreshold, numInitialClusters);
                 }
             }
         }
@@ -403,8 +391,6 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                     final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                     final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
 
-                    final double[][] Sr = new double[2][2];
-                    final double[][] Si = new double[2][2];
                     final double[][] Tr = new double[3][3];
                     final double[][] Ti = new double[3][3];
 
@@ -432,19 +418,15 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
                                 synchronized (clusterCounter) {
 
-                                    int clusterIdx;
-                                    if (mask[y][x] < -64) { // pv
-                                        clusterIdx = mask[y][x] + 128;
-                                        computeSummationOfT3(clusterIdx + 1, Tr, Ti, pvSumRe, pvSumIm);
-                                        clusterCounter[0][clusterIdx]++;
-                                    } else if (mask[y][x] < 0) { // pd
-                                        clusterIdx = mask[y][x] + 64;
-                                        computeSummationOfT3(clusterIdx + 1, Tr, Ti, pdSumRe, pdSumIm);
-                                        clusterCounter[1][clusterIdx]++;
-                                    } else if (mask[y][x] < 64) { // ps
-                                        clusterIdx = mask[y][x];
-                                        computeSummationOfT3(clusterIdx + 1, Tr, Ti, psSumRe, psSumIm);
-                                        clusterCounter[2][clusterIdx]++;
+                                    if (category[y][x] == Categories.vol) { // pv
+                                        computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, pvSumRe, pvSumIm);
+                                        clusterCounter[0][cluster[y][x]]++;
+                                    } else if (category[y][x] == Categories.dbl) { // pd
+                                        computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, pdSumRe, pdSumIm);
+                                        clusterCounter[1][cluster[y][x]]++;
+                                    } else if (category[y][x] == Categories.suf) { // ps
+                                        computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, psSumRe, psSumIm);
+                                        clusterCounter[2][cluster[y][x]]++;
                                     }
                                 }
                             }
@@ -692,8 +674,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                     continue;
                 }
 
-                d = HAlphaWishart.computeWishartDistance(clusterCenterList.get(i).centerRe, clusterCenterList.get(i).centerIm,
-                        clusterCenterList.get(j));
+                d = HAlphaWishart.computeWishartDistance(
+                        clusterCenterList.get(i).centerRe, clusterCenterList.get(i).centerIm, clusterCenterList.get(j));
 
                 if (d < shortestDistance) {
                     shortestDistance = d;
@@ -825,51 +807,55 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                             x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
-                                    int clusterIdx;
                                     synchronized (clusterCounter) {
 
-                                        if (mask[y][x] < -64) { // pv
-                                            clusterIdx = findClosestCluster(Tr, Ti, pvCenterList);
-                                            computeSummationOfT3(clusterIdx + 1, Tr, Ti, pvSumRe, pvSumIm);
-                                            clusterCounter[0][clusterIdx] += 1;
-                                            mask[y][x] = (byte) (-128 + clusterIdx);
+                                        if (category[y][x] == Categories.vol) { // pv
+                                            cluster[y][x] = findClosestCluster(Tr, Ti, pvCenterList);
+                                            computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, pvSumRe, pvSumIm);
+                                            clusterCounter[0][cluster[y][x]] += 1;
 
-                                        } else if (mask[y][x] < 0) { // pd
-                                            clusterIdx = findClosestCluster(Tr, Ti, pdCenterList);
-                                            computeSummationOfT3(clusterIdx + 1, Tr, Ti, pdSumRe, pdSumIm);
-                                            clusterCounter[1][clusterIdx] += 1;
-                                            mask[y][x] = (byte) (-64 + clusterIdx);
+                                        } else if (category[y][x] == Categories.dbl) { // pd
+                                            cluster[y][x] = findClosestCluster(Tr, Ti, pdCenterList);
+                                            computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, pdSumRe, pdSumIm);
+                                            clusterCounter[1][cluster[y][x]] += 1;
 
-                                        } else if (mask[y][x] < 64) { // ps
-                                            clusterIdx = findClosestCluster(Tr, Ti, psCenterList);
-                                            computeSummationOfT3(clusterIdx + 1, Tr, Ti, psSumRe, psSumIm);
-                                            clusterCounter[2][clusterIdx] += 1;
-                                            mask[y][x] = (byte) clusterIdx;
+                                        } else if (category[y][x] == Categories.suf) { // ps
+                                            cluster[y][x] = findClosestCluster(Tr, Ti, psCenterList);
+                                            computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, psSumRe, psSumIm);
+                                            clusterCounter[2][cluster[y][x]] += 1;
 
                                         } else { // mixed
 
-                                            java.util.List<ClusterInfo> allCenterList = new ArrayList<>();
-                                            allCenterList.addAll(pvCenterList);
-                                            allCenterList.addAll(pdCenterList);
-                                            allCenterList.addAll(psCenterList);
-                                            clusterIdx = findClosestCluster(Tr, Ti, allCenterList);
+                                            final int nearestPvCluster = findClosestCluster(Tr, Ti, pvCenterList);
+                                            final int nearestPdCluster = findClosestCluster(Tr, Ti, pdCenterList);
+                                            final int nearestPsCluster = findClosestCluster(Tr, Ti, psCenterList);
 
-                                            if (clusterIdx >= pvNumClusters + pdNumClusters) { // ps
-                                                clusterIdx -= pvNumClusters + pdNumClusters;
-                                                computeSummationOfT3(clusterIdx + 1, Tr, Ti, psSumRe, psSumIm);
-                                                clusterCounter[2][clusterIdx] += 1;
-                                                mask[y][x] = (byte) clusterIdx;
+                                            final double dPv = HAlphaWishart.computeWishartDistance(
+                                                    Tr, Ti, pvCenterList.get(nearestPvCluster));
 
-                                            } else if (clusterIdx >= pvNumClusters) { // pd
-                                                clusterIdx -= pvNumClusters;
-                                                computeSummationOfT3(clusterIdx + 1, Tr, Ti, pdSumRe, pdSumIm);
-                                                clusterCounter[1][clusterIdx] += 1;
-                                                mask[y][x] = (byte) (-64 + clusterIdx);
+                                            final double dPd = HAlphaWishart.computeWishartDistance(
+                                                    Tr, Ti, pdCenterList.get(nearestPdCluster));
 
-                                            } else { // pv
-                                                computeSummationOfT3(clusterIdx + 1, Tr, Ti, pvSumRe, pvSumIm);
-                                                clusterCounter[0][clusterIdx] += 1;
-                                                mask[y][x] = (byte) (-128 + clusterIdx);
+                                            final double dPs = HAlphaWishart.computeWishartDistance(
+                                                    Tr, Ti, psCenterList.get(nearestPsCluster));
+
+                                            if (dPv <= dPd && dPv <= dPs) { // pv
+                                                cluster[y][x] = nearestPvCluster;
+                                                computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, pvSumRe, pvSumIm);
+                                                clusterCounter[0][cluster[y][x]] += 1;
+                                                category[y][x] = Categories.vol;
+
+                                            } else if (dPd <= dPv && dPd <= dPs) { // pd
+                                                cluster[y][x] = nearestPdCluster;
+                                                computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, pdSumRe, pdSumIm);
+                                                clusterCounter[1][cluster[y][x]] += 1;
+                                                category[y][x] = Categories.dbl;
+
+                                            } else { // ps
+                                                cluster[y][x] = nearestPsCluster;
+                                                computeSummationOfT3(cluster[y][x] + 1, Tr, Ti, psSumRe, psSumIm);
+                                                clusterCounter[2][cluster[y][x]] += 1;
+                                                category[y][x] = Categories.suf;
                                             }
                                         }
                                     }
@@ -919,18 +905,14 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             final double[] pdAvgClusterPower = new double[pdNumClusters];
             final double[] psAvgClusterPower = new double[psNumClusters];
 
-            int clusterIdx = -1;
             for (int y = 0; y < srcHeight; y++) {
                 for (int x = 0; x < srcWidth; x++) {
-                    if (mask[y][x] < -64) { // pv
-                        clusterIdx = mask[y][x] + 128;
-                        pvAvgClusterPower[clusterIdx] += fdd[y][x];
-                    } else if (mask[y][x] < 0) { // pd
-                        clusterIdx = mask[y][x] + 64;
-                        pdAvgClusterPower[clusterIdx] += fdd[y][x];
+                    if (category[y][x] == Categories.vol) { // pv
+                        pvAvgClusterPower[cluster[y][x]] += fdd[y][x];
+                    } else if (category[y][x] == Categories.dbl) { // pd
+                        pdAvgClusterPower[cluster[y][x]] += fdd[y][x];
                     } else { // ps
-                        clusterIdx = mask[y][x];
-                        psAvgClusterPower[clusterIdx] += fdd[y][x];
+                        psAvgClusterPower[cluster[y][x]] += fdd[y][x];
                     }
                 }
             }
@@ -1027,19 +1009,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     private int getOutputClusterIndex(final int x, final int y) {
 
-        // here we map the cluster indices for the 3 categories to the colour indices in the following range:
-        // ps [1,30], pv [31, 60] and pd [61,90]
-        /*
-        if (mask[y][x] < -64) { // pv
-            return mask[y][x] + 128;
-        } else if (mask[y][x] < 0) { // pd
-            return mask[y][x] + 64;
-        } else { // ps
-            return mask[y][x];
-        } */
-
-        return mask[y][x] < -64 ? pvColourIndexMap[mask[y][x] + 128] :
-                mask[y][x] < 0 ? pdColourIndexMap[mask[y][x] + 64] : psColourIndexMap[mask[y][x]];
+        return category[y][x] == Categories.vol ? pvColourIndexMap[cluster[y][x]] :
+                category[y][x] == Categories.dbl ? pdColourIndexMap[cluster[y][x]] :
+                        psColourIndexMap[cluster[y][x]];
     }
 
 }
