@@ -70,7 +70,7 @@ public class LUT {
 
     private void setUpLogger() {
 
-        logger.info("Start LUT [development code]");
+        //logger.info("Start LUT [development code]");
     }
 
     public static int getInterval() {
