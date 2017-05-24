@@ -394,7 +394,7 @@ public class SystemUtils {
         Logger logger = Logger.getLogger("org.geotools");
         logger.setUseParentHandlers(false);
 
-        // Must store EPSG database in BEAM home, otherwise it will be deleted from default temp location (Unix!, Windows?)
+        // Must store EPSG database in SNAP home, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
     }
