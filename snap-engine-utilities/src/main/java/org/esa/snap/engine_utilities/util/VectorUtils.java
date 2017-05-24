@@ -16,11 +16,8 @@
 package org.esa.snap.engine_utilities.util;
 
 import com.vividsolutions.jts.geom.Envelope;
-import org.esa.snap.core.datamodel.CrsGeoCoding;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.VectorDataNode;
@@ -28,7 +25,7 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.AttributeDescriptorImpl;
 import org.geotools.feature.type.AttributeTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -39,8 +36,7 @@ import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,26 +50,16 @@ public class VectorUtils {
         return new AttributeDescriptorImpl(newAttrType, newAttrName, 0, 1, true, " ");
     }
 
-    public static SimpleFeatureType createFeatureType(final Product product, final String vectorNodeName,
+    public static SimpleFeatureType createFeatureType(final GeoCoding geoCoding, final String vectorNodeName,
                                                final List<AttributeDescriptor> attributeDescriptors) {
-        final CoordinateReferenceSystem modelCrs = Product.findModelCRS(product.getSceneGeoCoding());
-        final SimpleFeatureType type = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
 
-        //copy original descriptors
-        for (AttributeDescriptor attributeDescriptor : type.getAttributeDescriptors()) {
-            if(!attributeDescriptors.contains(attributeDescriptor)) {
-                attributeDescriptors.add(attributeDescriptor);
-            }
-        }
+        final SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        ftb.setName(vectorNodeName);
+        ftb.add("geometry", Point.class, geoCoding.getImageCRS());
+        ftb.setDefaultGeometry("geometry");
+        ftb.addAll(attributeDescriptors);
 
-        return new SimpleFeatureTypeImpl(
-                new NameImpl(vectorNodeName),
-                attributeDescriptors,
-                type.getGeometryDescriptor(),
-                type.isAbstract(),
-                type.getRestrictions(),
-                type.getSuper(),
-                type.getDescription());
+        return ftb.buildFeatureType();
     }
 
     public static boolean hasFeatures(final VectorDataNode node) {

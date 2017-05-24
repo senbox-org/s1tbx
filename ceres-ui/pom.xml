@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>com.jidesoft</groupId>
-            <artifactId>jide-common</artifactId>
+            <artifactId>jide-oss</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

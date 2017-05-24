@@ -394,7 +394,7 @@ public class SystemUtils {
         Logger logger = Logger.getLogger("org.geotools");
         logger.setUseParentHandlers(false);
 
-        // Must store EPSG database in BEAM home, otherwise it will be deleted from default temp location (Unix!, Windows?)
+        // Must store EPSG database in SNAP home, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
     }
@@ -492,6 +492,24 @@ public class SystemUtils {
             return version;
         }
         return "[no version info, missing ${SNAP_HOME}/VERSION.txt]";
+    }
+
+    /**
+     * Empty all tiles from cache and garbage collect
+     */
+    public static void freeAllMemory() {
+        JAI.getDefaultInstance().getTileCache().flush();
+        JAI.getDefaultInstance().getTileCache().memoryControl();
+        System.gc();
+        System.gc();
+        System.gc();
+    }
+
+    /**
+     * tell tileCache that some old tiles can be removed
+     */
+    public static void tileCacheFreeOldTiles() {
+        JAI.getDefaultInstance().getTileCache().memoryControl();
     }
 
 

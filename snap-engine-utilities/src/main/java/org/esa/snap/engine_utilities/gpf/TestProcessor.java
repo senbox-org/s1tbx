@@ -29,7 +29,6 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.engine_utilities.util.MemUtils;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
@@ -225,7 +224,7 @@ public class TestProcessor {
                         SystemUtils.LOG.info(spi.getOperatorAlias() + " Processing [" + iterations + "] " + file.toString());
                         executeOperator(op);
 
-                        MemUtils.freeAllMemory();
+                        SystemUtils.freeAllMemory();
 
                         ++iterations;
                     } else {

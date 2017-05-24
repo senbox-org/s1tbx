@@ -24,7 +24,7 @@ import java.util.Calendar;
 /**
  * helps create queries for SciHub
  */
-public class CopernicusQueryBuilder {
+class CopernicusQueryBuilder {
     private final DBQuery dbQuery;
 
     private static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
@@ -37,11 +37,11 @@ public class CopernicusQueryBuilder {
     //private static final String searchURL = COPERNICUS_HOST + SEARCH_ROOT + "( " + FOOTPRINT + " AND " + DATE + " AND (platformname:Sentinel-1 AND producttype:GRD)";
 
 
-    public CopernicusQueryBuilder(final DBQuery dbQuery) {
+    CopernicusQueryBuilder(final DBQuery dbQuery) {
         this.dbQuery = dbQuery;
     }
 
-    public String getSearchURL() throws Exception {
+    String getSearchURL() throws Exception {
         final StringBuilder str = new StringBuilder();
         str.append("( ");
 
@@ -59,6 +59,9 @@ public class CopernicusQueryBuilder {
         str.append(getSensorMode());
         str.append(getProductName());
         str.append(getOrbitDirection());
+        str.append(getRelativeOrbit());
+        str.append(getPolarization());
+        str.append(getCloudCover());
 
         str.append(" )");
 
@@ -204,11 +207,9 @@ public class CopernicusQueryBuilder {
     private String getProductName() {
         final String name = dbQuery.getSelectedName();
         if (name != null && !name.isEmpty()) {
-            String str = " AND (" +
+            return " AND (" +
                     "filename:*" + name + "* " +
                     " )";
-
-            return str;
         }
         return "";
     }
@@ -216,11 +217,9 @@ public class CopernicusQueryBuilder {
     private String getSensorMode() {
         final String mode = dbQuery.getSelectedAcquisitionMode();
         if (mode != null && !mode.isEmpty() && !mode.equals(DBQuery.ALL_MODES)) {
-            String str = " AND (" +
+            return " AND (" +
                     "sensoroperationalmode:" + mode +
                     " )";
-
-            return str;
         }
         return "";
     }
@@ -228,11 +227,51 @@ public class CopernicusQueryBuilder {
     private String getOrbitDirection() {
         final String pass = dbQuery.getSelectedPass();
         if (pass != null && !pass.isEmpty() && !pass.equals(DBQuery.ALL_PASSES)) {
-            String str = " AND (" +
+            return " AND (" +
                     "orbitdirection:" + pass +
                     " )";
+        }
+        return "";
+    }
 
-            return str;
+    private String getRelativeOrbit() {
+        final String track = dbQuery.getSelectedTrack();
+        if (track != null && !track.isEmpty()) {
+            return " AND (" +
+                    "relativeorbitnumber:" + track +
+                    " )";
+        }
+        return "";
+    }
+
+    private String getPolarization() {
+        final String pol = dbQuery.getSelectedPolarization();
+        if (pol != null && !pol.isEmpty() && !pol.equals(DBQuery.ANY)) {
+            if(pol.equals(DBQuery.DUALPOL)) {
+                return " AND (" +
+                        "(polarisationmode:" + "HH HV) OR (polarisationmode:" + "VV VH) OR (polarisationmode:" + "HH VV)" +
+                        " )";
+            }
+            return " AND (" +
+                    "polarisationmode:" + covertPolization(pol) +
+                    " )";
+        }
+        return "";
+    }
+
+    private String covertPolization(String pol) {
+        if(pol.equals(DBQuery.QUADPOL)) {
+            return "HH HV VV VH";
+        }
+        return pol.replace('+', ' ');
+    }
+
+    private String getCloudCover() {
+        final String cloudCover = dbQuery.getSelectedCloudCover();
+        if (cloudCover != null && !cloudCover.isEmpty()) {
+            return " AND (" +
+                    "cloudcoverpercentage:" + cloudCover +
+                    " )";
         }
         return "";
     }

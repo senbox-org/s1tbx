@@ -69,6 +69,7 @@ public class DBQuery {
     private String selectedPass = "";
     private String selectedName = "";
     private String selectedTrack = "";
+    private String selectedCloudCover = "";
     private String selectedSampleType = "";
     private String selectedPolarization = ANY;
     private String selectedCalibration = ANY;
@@ -142,6 +143,16 @@ public class DBQuery {
 
     public String getSelectedTrack() {
         return selectedTrack;
+    }
+
+    public void setSelectedCloudCover(final String cloudCover) {
+        if (cloudCover != null) {
+            selectedCloudCover = cloudCover;
+        }
+    }
+
+    public String getSelectedCloudCover() {
+        return selectedCloudCover;
     }
 
     public void setSelectedSampleType(final String sampleType) {
