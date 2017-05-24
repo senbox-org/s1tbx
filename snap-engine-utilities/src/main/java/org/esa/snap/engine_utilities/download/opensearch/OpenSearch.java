@@ -47,8 +47,8 @@ public class OpenSearch {
     private final AbderaClient client;
     private String searchURL;
 
-    private final static int numRows = 100;
-    private final static int TIMEOUT = 60000;
+    private final static int numRows = 100; // 100 is maximum allowed by SciHub
+    private final static int TIMEOUT = 60000; // milliseconds
 
     public OpenSearch(final String host) throws IOException {
         this.host = host;
@@ -72,7 +72,9 @@ public class OpenSearch {
 
     public PageResult getPages(String searchURL) throws IOException {
         this.searchURL = searchURL;
-        final Feed feed = connect(searchURL, "&start=" + 0 + "&rows=" + numRows);
+        ClientResponse response[] = new ClientResponse[1];
+        final Feed feed = connect(searchURL, "&start=" + 0 + "&rows=" + numRows, response);
+        response[0].getInputStream().close();
         if (feed == null) {
             return null;
         }
@@ -85,14 +87,16 @@ public class OpenSearch {
         return result;
     }
 
-    public ProductResult[] getProductResults(final PageResult result, final ProgressMonitor pm) {
+    public ProductResult[] getProductResults(final PageResult result, final ProgressMonitor pm) throws Exception {
         final List<ProductResult> productResultList = new ArrayList<>();
+        boolean ok = true;
+        ClientResponse response[] = new ClientResponse[1];
 
         pm.beginTask("Searching...", result.totalResults/numRows);
         for (int item = 0; item < result.totalResults; item += numRows) {
             if (pm.isCanceled()) break;
             try {
-                final Feed feed = connect(searchURL, "&start=" + item + "&rows=" + numRows);
+                final Feed feed = connect(searchURL, "&start=" + item + "&rows=" + numRows, response);
 
                 //SystemUtils.LOG.info("Paging results: \t " + (item+1) + '/' + result.pages);
                 //dumpFeed(feed);
@@ -101,17 +105,25 @@ public class OpenSearch {
                 for (Entry entry : entries) {
                     productResultList.add(new ProductResult(entry));
                 }
+
+                response[0].getInputStream().close(); // close connection
+
             } catch (Exception e) {
-                SystemUtils.LOG.severe("Error retrieving product results " + e.getMessage());
+                ok = false;
+                SystemUtils.LOG.severe("item = " + item + " Error retrieving product results " + e.getMessage());
             }
             pm.worked(1);
         }
         pm.done();
 
-        return productResultList.toArray(new ProductResult[productResultList.size()]);
+        if (ok) {
+            return productResultList.toArray(new ProductResult[productResultList.size()]);
+        } else {
+            return null;
+        }
     }
 
-    private Feed connect(String searchURL, final String compl) throws IOException {
+    private Feed connect(String searchURL, final String compl, final ClientResponse[] response) throws IOException {
 
         if (compl != null) {
             searchURL = searchURL + ' ' + compl;
@@ -133,6 +145,7 @@ public class OpenSearch {
 
         if (resp.getType() == Response.ResponseType.SUCCESS) {
             Document<Feed> doc = resp.getDocument();
+            response[0] = resp;
             return doc.getRoot();
         } else {
             throw new IOException("Error in OpenSearch query: " + resp.getType() + " [" + resp.getStatus() + ']');
