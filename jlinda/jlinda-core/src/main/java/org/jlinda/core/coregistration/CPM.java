@@ -365,7 +365,7 @@ public class CPM implements PolynomialModel {
 
     private void estimateCPM() {
 
-        logger.info("Start EJML Estimation");
+        //logger.info("Start EJML Estimation");
 
         numIterations = 0;
         boolean estimationDone = false;
@@ -398,11 +398,12 @@ public class CPM implements PolynomialModel {
             stopWatch.setTag(codeBlockMessage);
             stopWatch.start();
 
-            logger.info("Start iteration: {}"+ numIterations);
+            //logger.info("Start iteration: {}"+ numIterations);
 
             /** Remove identified outlier from previous estimation */
             if (numIterations != 0) {
-                logger.info("Removing observation {}, idxList {},  from observation vector."+ index.getQuick(maxWSum_idx)+ maxWSum_idx);
+                //logger.info("Removing observation {}, idxList {},  from observation vector."+ index.getQuick(maxWSum_idx)+ maxWSum_idx);
+
                 index.removeAt(maxWSum_idx);
                 yMasterNorm.removeAt(maxWSum_idx);
                 xMasterNorm.removeAt(maxWSum_idx);
@@ -436,7 +437,7 @@ public class CPM implements PolynomialModel {
             // work with normalized values
             DenseMatrix64F A = new DenseMatrix64F(SystemOfEquations.constructDesignMatrix_loop(yMasterNorm.toArray(), xMasterNorm.toArray(), cpmDegree));
 
-            logger.info("TIME FOR SETUP of SYSTEM : {}"+ stopWatch.lap("setup"));
+            //logger.info("TIME FOR SETUP of SYSTEM : {}"+ stopWatch.lap("setup"));
 
             RowD1Matrix64F Qy_1; // vector
             double meanValue;
@@ -472,7 +473,7 @@ public class CPM implements PolynomialModel {
                     break;
             }
 
-            logger.info("TIME FOR SETUP of VC diag matrix: {}"+ stopWatch.lap("diag VC matrix"));
+            //logger.info("TIME FOR SETUP of VC diag matrix: {}"+ stopWatch.lap("diag VC matrix"));
 
             /** tempMatrix_1 matrices */
             final DenseMatrix64F yL_matrix = DenseMatrix64F.wrap(numObservations, 1, yOffset.toArray());
@@ -494,7 +495,7 @@ public class CPM implements PolynomialModel {
             CommonOps.multAddTransA(A, diagxmat(Qy_1, A), N);
             DenseMatrix64F Qx_hat = N.copy();
 
-            logger.info("TIME FOR SETUP of NORMAL MATRIX: {}"+ stopWatch.lap("Normal matrix"));
+            //logger.info("TIME FOR SETUP of NORMAL MATRIX: {}"+ stopWatch.lap("Normal matrix"));
 
             /** right hand sides */
             // azimuth
@@ -503,7 +504,7 @@ public class CPM implements PolynomialModel {
             // range
             rhsP = new DenseMatrix64F(numUnknowns, 1); // A_transpose.mmul(Qy_1_diag.mmul(yP_matrix));
             CommonOps.multAddTransA(1d, A, diagxmat(Qy_1, yP_matrix), rhsP);
-            logger.info("TIME FOR SETUP of RightHand Side: {}"+ stopWatch.lap("Right-hand-side"));
+            //logger.info("TIME FOR SETUP of RightHand Side: {}"+ stopWatch.lap("Right-hand-side"));
 
             LinearSolver<DenseMatrix64F> solver = LinearSolverFactory.leastSquares(100, 100);
             /** compute solution */
@@ -512,12 +513,12 @@ public class CPM implements PolynomialModel {
             }
             solver.solve(rhsL, rhsL);
             solver.solve(rhsP, rhsP);
-            logger.info("TIME FOR SOLVING of System: {}"+ stopWatch.lap("Solving System"));
+            //logger.info("TIME FOR SOLVING of System: {}"+ stopWatch.lap("Solving System"));
 
             /** inverting of Qx_hat for stability check */
             solver.invert(Qx_hat);
 
-            logger.info("TIME FOR INVERSION OF N: {}"+ stopWatch.lap("Inversion of N"));
+            //logger.info("TIME FOR INVERSION OF N: {}"+ stopWatch.lap("Inversion of N"));
 
             /** test inversion and check stability: max(abs([N*inv(N) - E)) ?= 0 */
             DenseMatrix64F tempMatrix_1 = new DenseMatrix64F(N.numRows, N.numCols);
@@ -530,12 +531,12 @@ public class CPM implements PolynomialModel {
             } else if (maxDeviation > .001) {
                 logger.warning("COREGPM: maximum deviation N*inv(N) from unity = {}. This is between 0.01 and 0.001"+ maxDeviation);
             }
-            logger.info("TIME FOR STABILITY CHECK: {}"+ stopWatch.lap("Stability Check"));
+            //logger.info("TIME FOR STABILITY CHECK: {}"+ stopWatch.lap("Stability Check"));
 
-            logger.info("Coeffs in Azimuth direction: {}"+ rhsL.toString());
-            logger.info("Coeffs in Range direction: {}"+ rhsP.toString());
-            logger.info("Max Deviation: {}"+ maxDeviation);
-            logger.info("System Quality: {}"+ solver.quality());
+            //logger.info("Coeffs in Azimuth direction: {}"+ rhsL.toString());
+            //logger.info("Coeffs in Range direction: {}"+ rhsP.toString());
+            //logger.info("Max Deviation: {}"+ maxDeviation);
+            //logger.info("System Quality: {}"+ solver.quality());
 
             /** some other stuff if the scale is okay */
             DenseMatrix64F Qe_hat = new DenseMatrix64F(numObservations, numObservations);
@@ -557,7 +558,7 @@ public class CPM implements PolynomialModel {
             CommonOps.mult(A, rhsP, yP_hat);
             CommonOps.sub(yP_matrix, yP_hat, eP_hat);
 
-            logger.info("TIME FOR DATA preparation for TESTING: {}"+ stopWatch.lap("Testing Setup"));
+            //logger.info("TIME FOR DATA preparation for TESTING: {}"+ stopWatch.lap("Testing Setup"));
 
             /** overal model test (variance factor) */
             double overAllModelTest_L = 0;
@@ -571,10 +572,10 @@ public class CPM implements PolynomialModel {
             overAllModelTest_L = (overAllModelTest_L / FastMath.pow(SIGMA_L, 2)) / (numObservations - numUnknowns);
             overAllModelTest_P = (overAllModelTest_P / FastMath.pow(SIGMA_P, 2)) / (numObservations - numUnknowns);
 
-            logger.info("Overall Model Test Lines: {}"+ overAllModelTest_L);
-            logger.info("Overall Model Test Pixels: {}"+ overAllModelTest_P);
+            //logger.info("Overall Model Test Lines: {}"+ overAllModelTest_L);
+            //logger.info("Overall Model Test Pixels: {}"+ overAllModelTest_P);
 
-            logger.info("TIME FOR OMT: {}"+ stopWatch.lap("OMT"));
+            //logger.info("TIME FOR OMT: {}"+ stopWatch.lap("OMT"));
 
             /** ---------------------- DATASNOPING ----------------------------------- **/
             /** Assumed Qy diag */
@@ -592,12 +593,12 @@ public class CPM implements PolynomialModel {
             // azimuth
             winL = absArgmax(wTest_L);
             double maxWinL = Math.abs(wTest_L.get(winL));
-            logger.info("maximum wtest statistic azimuth = {} for window number: {} "+ maxWinL+ index.getQuick(winL));
+            //logger.info("maximum wtest statistic azimuth = {} for window number: {} "+ maxWinL+ index.getQuick(winL));
 
             // range
             winP = absArgmax(wTest_P);
             double maxWinP = Math.abs(wTest_P.get(winP));
-            logger.info("maximum wtest statistic range = {} for window number: {} "+ maxWinP+ index.getQuick(winP));
+            //logger.info("maximum wtest statistic range = {} for window number: {} "+ maxWinP+ index.getQuick(winP));
 
             /** use summed wTest in Azimuth and Range direction for outlier detection */
             DenseMatrix64F wTestSum = new DenseMatrix64F(numObservations);
@@ -607,7 +608,7 @@ public class CPM implements PolynomialModel {
 
             maxWSum_idx = absArgmax(wTest_P);
             double maxWSum = wTest_P.get(winP);
-            logger.info("Detected outlier: summed sqr.wtest = {}; observation: {}"+ maxWSum+ index.getQuick(maxWSum_idx));
+            //logger.info("Detected outlier: summed sqr.wtest = {}; observation: {}"+ maxWSum+ index.getQuick(maxWSum_idx));
 
             /** Test if we are estimationDone yet */
             // check on number of observations
@@ -619,12 +620,12 @@ public class CPM implements PolynomialModel {
             // check on test k_alpha
             if (Math.max(maxWinL, maxWinP) <= criticalValue) {
                 // all tests accepted?
-                logger.info("All outlier tests accepted! (final solution computed)");
+                //logger.info("All outlier tests accepted! (final solution computed)");
                 estimationDone = true;
             }
 
             if (numIterations >= maxIterations) {
-                logger.info("max. number of iterations reached (exiting loop).");
+                //logger.info("max. number of iterations reached (exiting loop).");
                 estimationDone = true; // we reached max. (or no max_iter specified)
 
             }
@@ -645,8 +646,8 @@ public class CPM implements PolynomialModel {
 
             }
 
-            logger.info("TIME FOR wTestStatistics: {}"+ stopWatch.lap("WTEST"));
-            logger.info("Total Estimation TIME: {}"+ clock.getElapsedTime());
+            //logger.info("TIME FOR wTestStatistics: {}"+ stopWatch.lap("WTEST"));
+            //logger.info("Total Estimation TIME: {}"+ clock.getElapsedTime());
 
             numIterations++;// update counter here!
 
@@ -662,7 +663,7 @@ public class CPM implements PolynomialModel {
 
     public void wrapJaiWarpPolynomial() {
 
-        logger.info("Start JAI wrapper");
+        //logger.info("Start JAI wrapper");
 
         float[] xyMaster = new float[2 * numObservations];
         float[] xySlave = new float[2 * numObservations];
