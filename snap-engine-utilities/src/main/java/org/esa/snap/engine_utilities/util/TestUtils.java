@@ -25,6 +25,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.gpf.main.GPT;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -56,11 +57,7 @@ public class TestUtils {
             return;
 
         try {
-            JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
-            MemUtils.configureJaiTileCache();
-
-            //disable JAI media library
-            System.setProperty("com.sun.media.jai.disableMediaLib", "true");
+            SystemUtils.init3rdPartyLibs(GPT.class);
             testEnvironmentInitialized = true;
         } catch (Exception e) {
             e.printStackTrace();
