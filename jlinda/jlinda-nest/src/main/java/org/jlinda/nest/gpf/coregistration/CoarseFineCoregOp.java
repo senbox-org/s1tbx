@@ -47,7 +47,6 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
-import org.esa.snap.engine_utilities.util.MemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.Window;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
@@ -534,7 +533,7 @@ public class CoarseFineCoregOp extends Operator {
 
             gcpsComputedMap.put(slaveBand1, true);
 
-            MemUtils.tileCacheFreeOldTiles();
+            SystemUtils.tileCacheFreeOldTiles();
 
             status.done();
         } catch (Throwable e) {
