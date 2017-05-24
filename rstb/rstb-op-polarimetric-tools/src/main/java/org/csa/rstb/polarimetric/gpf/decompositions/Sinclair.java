@@ -185,4 +185,25 @@ public class Sinclair extends DecompositionBase implements Decomposition {
             }
         }
     }
+
+    public static RGB getSinclairDecomposition(final double[][] Cr, final double[][] Ci) {
+
+        final double r = Cr[2][2];
+        final double g = 0.5 * Cr[1][1];
+        final double b = Cr[0][0];
+
+        return new RGB(r, g, b);
+    }
+
+    public static class RGB {
+        public final double r;
+        public final double g;
+        public final double b;
+
+        public RGB(final double r, final double g, final double b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+    }
 }
