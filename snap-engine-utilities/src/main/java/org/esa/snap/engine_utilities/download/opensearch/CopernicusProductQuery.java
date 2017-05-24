@@ -18,6 +18,7 @@ package org.esa.snap.engine_utilities.download.opensearch;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Credentials;
 import org.esa.snap.engine_utilities.db.DBQuery;
 import org.esa.snap.engine_utilities.db.ProductEntry;
@@ -89,18 +90,32 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             }
 
             final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, SubProgressMonitor.create(pm, 7));
+            if (productResults == null) {
+                throw new Exception("SciHub search failed");
+            }
 
             final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_ROOT);
+            SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: after openData");
             pm.worked(1);
             if(pm.isCanceled()) {
                 return true;
             }
 
             final ProgressMonitor pm2 = SubProgressMonitor.create(pm, 10);
-            pm2.beginTask("Retieving entry information...", productResults.length);
+            pm2.beginTask("Retrieving entry information...", productResults.length);
+            pm2.setSubTaskName("Retrieving entry information..."); // without this, the task name does hot show up
 
             final List<ProductEntry> resultList = new ArrayList<>();
+            int cnt = 0;
+            int pct = 1;
+            final int part = Math.max(50, (int) (((double) productResults.length / 100.0) + 0.5));
+            SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: part = " + part);
             for (OpenSearch.ProductResult result : productResults) {
+                if (cnt > pct * part) {
+                    SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: get entries " + cnt + " out of " + productResults.length + " done");
+                    pct++;
+                }
+                cnt++;
                 if(pm.isCanceled()) {
                     break;
                 }
@@ -113,6 +128,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
                 resultList.add(productEntry);
                 pm2.worked(1);
             }
+            SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: get entries " + cnt + " all of " + productResults.length + " done");
             pm2.done();
 
             if(pm.isCanceled()) {
