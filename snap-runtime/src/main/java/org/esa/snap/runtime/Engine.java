@@ -80,7 +80,7 @@ public class Engine {
      * <p>
      * The method simply calls {@link #start(boolean) start(true)}.
      * <p>
-     * It is recommended to call {@link #stop()} once the Engine is longer required by any client code.
+     * It is recommended to call {@link #stop()} once the Engine is no longer required by any client code.
      *
      * @return The runtime singleton instance.
      *
