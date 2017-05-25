@@ -99,8 +99,6 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
 
             final double[][] Cr = new double[3][3];
             final double[][] Ci = new double[3][3];
-            final double[][] Tr = new double[3][3];
-            final double[][] Ti = new double[3][3];
 
             if (!bandList.spanMinMaxSet) {
                 setSpanMinMax(op, bandList);
@@ -111,7 +109,7 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
             PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
 
-            double ratio, d, cR, cI, c0, s, pd, pv, ps, pc, span, k1, k2, k3;
+            double pd, pv, ps, pc;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
@@ -119,76 +117,12 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
                     PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
-                    PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
+                    final YDD data = getYamaguchiDecomposition(Cr, Ci);
 
-                    span = Tr[0][0] + Tr[1][1] + Tr[2][2];
-                    pc = 2 * Math.abs(Ti[1][2]);
-                    ratio = 10 * Math.log10(Cr[2][2] / Cr[0][0]);
-
-                    if (ratio <= -2) {
-                        k1 = 1.0 / 6.0;
-                        k2 = 7.0 / 30.0;
-                        k3 = 4.0 / 15.0;
-                    } else if (ratio > 2) {
-                        k1 = -1.0 / 6.0;
-                        k2 = 7.0 / 30.0;
-                        k3 = 4.0 / 15.0;
-                    } else { // -2 < ratio <= 2
-                        k1 = 0.0;
-                        k2 = 1.0 / 4.0;
-                        k3 = 1.0 / 4.0;
-                    }
-
-                    pv = (Tr[2][2] - 0.5 * pc) / k3;
-
-                    if (pv <= 0) { // Freeman-Durden 3 component decomposition
-                        pc = 0;
-                        final FreemanDurden.FDD data = FreemanDurden.getFreemanDurdenDecomposition(Cr, Ci);
-                        ps = data.ps;
-                        pd = data.pd;
-                        pv = data.pv;
-
-                    } else { // Yamaguchi 4 component decomposition
-
-                        s = Tr[0][0] - 0.5 * pv;
-                        d = Tr[1][1] - k2 * pv - 0.5 * pc;
-                        cR = Tr[0][1] - k1 * pv;
-                        cI = Ti[0][1];
-
-                        if (pv + pc < span) {
-
-                            c0 = Cr[0][2] - 0.5 * Cr[1][1] + 0.5 * pc;
-                            if (c0 < 0) {
-                                ps = s - (cR * cR + cI * cI) / d;
-                                pd = d + (cR * cR + cI * cI) / d;
-                            } else {
-                                ps = s + (cR * cR + cI * cI) / s;
-                                pd = d - (cR * cR + cI * cI) / s;
-                            }
-
-                            if (ps > 0 && pd < 0) {
-                                pd = 0;
-                                ps = span - pv - pc;
-                            } else if (ps < 0 && pd > 0) {
-                                ps = 0;
-                                pd = span - pv - pc;
-                            } else if (ps < 0 && pd < 0) {
-                                ps = 0;
-                                pd = 0;
-                                pv = span - pc;
-                            }
-
-                        } else {
-                            ps = 0.0;
-                            pd = 0.0;
-                            pv = span - pc;
-                        }
-                    }
-
-                    ps = scaleDb(ps, bandList.spanMin, bandList.spanMax);
-                    pd = scaleDb(pd, bandList.spanMin, bandList.spanMax);
-                    pv = scaleDb(pv, bandList.spanMin, bandList.spanMax);
-                    pc = scaleDb(pc, bandList.spanMin, bandList.spanMax);
+                    ps = scaleDb(data.ps, bandList.spanMin, bandList.spanMax);
+                    pd = scaleDb(data.pd, bandList.spanMin, bandList.spanMax);
+                    pv = scaleDb(data.pv, bandList.spanMin, bandList.spanMax);
+                    pc = scaleDb(data.pc, bandList.spanMin, bandList.spanMax);
 
                     // save Pd as red, Pv as green and Ps as blue
                     for (TargetInfo target : targetInfo) {
@@ -205,6 +139,96 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
                     }
                 }
             }
+        }
+    }
+
+    public static YDD getYamaguchiDecomposition(final double[][] Cr, final double[][] Ci) {
+
+        double ratio, d, cR, cI, c0, s, pd, pv, ps, pc, span, k1, k2, k3;
+
+        final double[][] Tr = new double[3][3];
+        final double[][] Ti = new double[3][3];
+
+        PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
+
+        span = Tr[0][0] + Tr[1][1] + Tr[2][2];
+        pc = 2 * Math.abs(Ti[1][2]);
+        ratio = 10 * Math.log10(Cr[2][2] / Cr[0][0]);
+
+        if (ratio <= -2) {
+            k1 = 1.0 / 6.0;
+            k2 = 7.0 / 30.0;
+            k3 = 4.0 / 15.0;
+        } else if (ratio > 2) {
+            k1 = -1.0 / 6.0;
+            k2 = 7.0 / 30.0;
+            k3 = 4.0 / 15.0;
+        } else { // -2 < ratio <= 2
+            k1 = 0.0;
+            k2 = 1.0 / 4.0;
+            k3 = 1.0 / 4.0;
+        }
+
+        pv = (Tr[2][2] - 0.5 * pc) / k3;
+
+        if (pv <= 0) { // Freeman-Durden 3 component decomposition
+            pc = 0;
+            final FreemanDurden.FDD data = FreemanDurden.getFreemanDurdenDecomposition(Cr, Ci);
+            ps = data.ps;
+            pd = data.pd;
+            pv = data.pv;
+
+        } else { // Yamaguchi 4 component decomposition
+
+            s = Tr[0][0] - 0.5 * pv;
+            d = Tr[1][1] - k2 * pv - 0.5 * pc;
+            cR = Tr[0][1] - k1 * pv;
+            cI = Ti[0][1];
+
+            if (pv + pc < span) {
+
+                c0 = Cr[0][2] - 0.5 * Cr[1][1] + 0.5 * pc;
+                if (c0 < 0) {
+                    ps = s - (cR * cR + cI * cI) / d;
+                    pd = d + (cR * cR + cI * cI) / d;
+                } else {
+                    ps = s + (cR * cR + cI * cI) / s;
+                    pd = d - (cR * cR + cI * cI) / s;
+                }
+
+                if (ps > 0 && pd < 0) {
+                    pd = 0;
+                    ps = span - pv - pc;
+                } else if (ps < 0 && pd > 0) {
+                    ps = 0;
+                    pd = span - pv - pc;
+                } else if (ps < 0 && pd < 0) {
+                    ps = 0;
+                    pd = 0;
+                    pv = span - pc;
+                }
+
+            } else {
+                ps = 0.0;
+                pd = 0.0;
+                pv = span - pc;
+            }
+        }
+
+        return new YDD(pv, pd, ps, pc);
+    }
+
+    public static class YDD {
+        public final double pv;
+        public final double pd;
+        public final double ps;
+        public final double pc;
+
+        public YDD(final double pv, final double pd, final double ps, final double pc) {
+            this.pd = pd;
+            this.ps = ps;
+            this.pv = pv;
+            this.pc = pc;
         }
     }
 }
