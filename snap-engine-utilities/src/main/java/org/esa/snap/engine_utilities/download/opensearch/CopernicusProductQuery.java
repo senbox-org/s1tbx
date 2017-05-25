@@ -84,6 +84,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
 
             final CopernicusQueryBuilder queryBuilder = new CopernicusQueryBuilder(dbQuery);
             final OpenSearch.PageResult pageResult = openSearch.getPages(queryBuilder.getSearchURL());
+            pm.setTaskName("Searching " + NAME + " (" + pageResult.totalResults + " entries)...");
             pm.worked(1);
             if(pm.isCanceled()) {
                 return true;
@@ -103,7 +104,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
 
             final ProgressMonitor pm2 = SubProgressMonitor.create(pm, 10);
             pm2.beginTask("Retrieving entry information...", productResults.length);
-            pm2.setSubTaskName("Retrieving entry information..."); // without this, the task name does hot show up
+            pm2.setSubTaskName("Retrieving entry information (" + productResults.length + " entries)..."); // without this, the task name does hot show up
 
             final List<ProductEntry> resultList = new ArrayList<>();
             int cnt = 0;
@@ -111,11 +112,14 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             final int part = Math.max(50, (int) (((double) productResults.length / 100.0) + 0.5));
             SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: part = " + part);
             for (OpenSearch.ProductResult result : productResults) {
-                if (cnt > pct * part) {
+                if  (pm.isCanceled()) {
+                    break;
+                }
+                if (cnt >= pct * part) {
                     SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: get entries " + cnt + " out of " + productResults.length + " done");
                     pct++;
                 }
-                cnt++;
+
                 if(pm.isCanceled()) {
                     break;
                 }
@@ -126,9 +130,12 @@ public class CopernicusProductQuery implements ProductQueryInterface {
                 productEntry.setGeoBoundary(entry.footprint);
 
                 resultList.add(productEntry);
+                cnt++;
                 pm2.worked(1);
             }
-            SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: get entries " + cnt + " all of " + productResults.length + " done");
+            if (cnt == productResults.length) {
+                SystemUtils.LOG.info("CopernicusProductQuery.fullQuery: get entries " + cnt + " all of " + productResults.length + " done");
+            }
             pm2.done();
 
             if(pm.isCanceled()) {
