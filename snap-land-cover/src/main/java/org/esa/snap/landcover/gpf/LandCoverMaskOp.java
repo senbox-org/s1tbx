@@ -105,7 +105,7 @@ public final class LandCoverMaskOp extends Operator {
      * Create target product.
      */
     private void createTargetProduct() {
-        ensureSingleRasterSize(sourceProduct);
+        //ensureSingleRasterSize(sourceProduct);
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),
@@ -128,8 +128,9 @@ public final class LandCoverMaskOp extends Operator {
             final String targetBandName = srcBand.getName() + "_masked";
             final Band targetBand = new Band(targetBandName,
                     srcBand.getDataType(),
-                    targetProduct.getSceneRasterWidth(),
-                    targetProduct.getSceneRasterHeight());
+                    srcBand.getRasterWidth(), //targetProduct.getSceneRasterWidth(),
+                    srcBand.getRasterHeight());//targetProduct.getSceneRasterHeight());
+
 
             targetBand.setUnit(srcBand.getUnit());
             targetBand.setNoDataValue(srcBand.getNoDataValue());
@@ -150,7 +151,7 @@ public final class LandCoverMaskOp extends Operator {
                 } else {
                     str.append(" || ");
                 }
-                str.append('\'' + landCoverBand + "'==" + c);
+                str.append('\'').append(landCoverBand).append("'==").append(c);
             }
             str.append(" ) ? '");
             str.append(srcBand.getName());
