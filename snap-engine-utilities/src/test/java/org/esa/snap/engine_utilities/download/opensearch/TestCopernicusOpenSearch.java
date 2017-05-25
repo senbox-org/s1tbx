@@ -41,26 +41,31 @@ public class TestCopernicusOpenSearch {
         final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
         final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
-        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, ProgressMonitor.NULL);
+        try {
+            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, ProgressMonitor.NULL);
 
-        SystemUtils.LOG.info("Retrieved "+ productResults.length +" Product Ids");
-        for(OpenSearch.ProductResult result : productResults) {
-            //System.out.println("id: " + result.id);
-        }
-
-        final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_ROOT);
-        for(OpenSearch.ProductResult result : productResults){
-            try {
-                OpenData.Entry entry = openData.getEntryByID(result.id);
-                SystemUtils.LOG.info(entry.fileName);
-
-                //openData.getManifest(result.id, entry, outputFolder);
-
-                //openData.getProduct(result.id, entry, outputFolder);
-
-            } catch (IOException e) {
-                throw e;
+            SystemUtils.LOG.info("Retrieved " + productResults.length + " Product Ids");
+            for (OpenSearch.ProductResult result : productResults) {
+                //System.out.println("id: " + result.id);
             }
+
+            final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_ROOT);
+            for (OpenSearch.ProductResult result : productResults) {
+                try {
+                    OpenData.Entry entry = openData.getEntryByID(result.id);
+                    SystemUtils.LOG.info(entry.fileName);
+
+                    //openData.getManifest(result.id, entry, outputFolder);
+
+                    //openData.getProduct(result.id, entry, outputFolder);
+
+                } catch (IOException e) {
+                    throw e;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("TestCopernicusOpenSearch.testConnect: caught exception:" + e.getMessage());
+            if (e instanceof IOException) throw new IOException(e.getMessage());
         }
     }
 }

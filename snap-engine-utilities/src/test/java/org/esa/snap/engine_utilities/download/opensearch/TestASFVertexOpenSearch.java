@@ -36,11 +36,16 @@ public class TestASFVertexOpenSearch {
         final OpenSearch openSearch = new OpenSearch(ASF_VERTEX_HOST);
         final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
-        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, ProgressMonitor.NULL);
+        try {
+            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, ProgressMonitor.NULL);
 
-        System.out.println("Retrieved Product Ids");
-        for(OpenSearch.ProductResult result : productResults) {
-            System.out.println("id: " + result.id);
+            System.out.println("Retrieved Product Ids");
+            for (OpenSearch.ProductResult result : productResults) {
+                System.out.println("id: " + result.id);
+            }
+        } catch (Exception e) {
+            System.out.println("TestASFVertexOpenSearch.testConnect: caught exception:" + e.getMessage());
+            if (e instanceof IOException) throw new IOException(e.getMessage());
         }
 
 //        final OpenData openData = new OpenData(ASF_VERTEX_HOST);
