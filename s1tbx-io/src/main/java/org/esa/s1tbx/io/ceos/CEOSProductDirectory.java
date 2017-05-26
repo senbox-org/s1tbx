@@ -446,7 +446,7 @@ public abstract class CEOSProductDirectory {
         addDopCoef(dopListElem, sceneRec, "Cross track Doppler frequency centroid quadratic term", 3);
     }
 
-    protected static void addDopCoef(final MetadataElement dopListElem, final BinaryRecord rec, final String tag, int cnt) {
+    private static void addDopCoef(final MetadataElement dopListElem, final BinaryRecord rec, final String tag, int cnt) {
         final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
         dopListElem.addElement(coefElem);
 
@@ -486,6 +486,14 @@ public abstract class CEOSProductDirectory {
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += "/";
         }
+	for (int i = 0; i < fileList.length; i++){
+	    String name = fileList[i].toUpperCase();
+	    if((name.startsWith("AL1_"))&&name.endsWith(".CEOS")) {
+		folder = fileList[i] + '/';
+		fileList = productDir.list(folder);
+		break;
+	    }
+	}
         for(String name : fileList) {
             name = name.toUpperCase();
             for (String prefix : prefixList) {

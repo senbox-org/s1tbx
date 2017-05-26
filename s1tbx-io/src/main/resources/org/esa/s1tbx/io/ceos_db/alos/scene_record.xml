@@ -118,7 +118,7 @@
 	<rec name="Cross track Doppler frequency rate constant term" type="5" num="16"/>
 	<rec name="Cross track Doppler frequency rate linear term" type="5" num="16"/>
 	<rec name="Cross track Doppler frequency rate quadratic term" type="5" num="16"/>
-	<rec name="skipBytes" type="0" num="16"/>
+	<rec name="RFI %power rejected" type="5" num="16"/>
 	<rec name="Line content indicator" type="1" num="8"/>
 	<rec name="Clutterlock applied flag" type="1" num="4"/>
 	<rec name="Autofocussing applied flag" type="1" num="4"/>
@@ -141,11 +141,22 @@
 	<rec name="Parameter table number of auto setting" type="2" num="4"/>
 	<rec name="Nominal offnadir angle" type="5" num="16"/>
 	<rec name="Antenna beam number" type="2" num="4"/>
-	<rec name="skipBytes" type="0" num="28"/>
+	<rec name="Faraday rotation angle" type="5" num="16"/>
+	<rec name="Faraday rotation method flag" type="2" num="2"/>
+        <rec name="Faraday correction applied flag" type="2" num="2"/>
+        <rec name="Crosstalk correction applied flag" type="2" num="2"/>
+        <rec name="Channel imbalance correction applied flag" type="2" num="2"/>
+        <rec name="Channel symmetrisation applied flag" type="2" num="2"/>	
+	<rec name="skipBytes" type="0" num="2"/>
 	<rec name="Incidence angle constant term" type="5" num="20"/>
 	<rec name="Incidence angle linear term" type="5" num="20"/>
 	<rec name="Incidence angle quadratic term" type="5" num="20"/>
 	<rec name="Incidence angle cubic term" type="5" num="20"/>
 	<rec name="Incidence angle fourth term" type="5" num="20"/>
 	<rec name="Incidence angle fifth term" type="5" num="20"/>
+        <rec name="skipBytes" type="0" num="8"/>
+        <rec name="Image range to slant constant term" type="5" num="20"/>
+        <rec name="Image range to slant linear term" type="5" num="20"/>
+        <rec name="Image range to slant quadratic term" type="5" num="20"/>
+        <rec name="Image range to slant cubic term" type="5" num="20"/>
 </ceos>
