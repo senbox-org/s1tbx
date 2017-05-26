@@ -118,7 +118,10 @@ public abstract class SARReader extends AbstractProductReader {
         return null;
     }
 
-    protected void addCommonSARMetadata(final Product product) {
+    protected void addCommonSARMetadata(final Product product) throws Exception {
+        if(product.getSceneGeoCoding() == null) {
+            return;
+        }
         GeoPos geoPos = product.getSceneGeoCoding().getGeoPos(
                 new PixelPos(product.getSceneRasterWidth() / 2, product.getSceneRasterHeight() / 2), null);
 
