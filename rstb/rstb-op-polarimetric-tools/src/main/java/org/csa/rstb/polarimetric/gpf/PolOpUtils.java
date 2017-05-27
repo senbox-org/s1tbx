@@ -1265,6 +1265,51 @@ public final class PolOpUtils {
         }
     }
 
+    public static void getMeanCovarianceMatrixC4(
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
+            final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,
+            final double[][] Cr, final double[][] Ci) {
+
+        final double[][] tempCr = new double[4][4];
+        final double[][] tempCi = new double[4][4];
+
+        final int xSt = Math.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
+        final int xEd = Math.min(x + halfWindowSizeX, sourceTiles[0].getMaxX());
+        final int ySt = Math.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
+        final int yEd = Math.min(y + halfWindowSizeY, sourceTiles[0].getMaxY());
+        final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
+
+        final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+
+        final Matrix CrMat = new Matrix(4, 4);
+        final Matrix CiMat = new Matrix(4, 4);
+
+        for (int yy = ySt; yy <= yEd; ++yy) {
+            srcIndex.calculateStride(yy);
+            for (int xx = xSt; xx <= xEd; ++xx) {
+                getCovarianceMatrixC4(srcIndex.getIndex(xx), sourceProductType, dataBuffers, tempCr, tempCi);
+                CrMat.plusEquals(new Matrix(tempCr));
+                CiMat.plusEquals(new Matrix(tempCi));
+            }
+        }
+
+        CrMat.timesEquals(1.0 / num);
+        CiMat.timesEquals(1.0 / num);
+        for (int i = 0; i < 4; i++) {
+            Cr[i][0] = CrMat.get(i, 0);
+            Ci[i][0] = CiMat.get(i, 0);
+
+            Cr[i][1] = CrMat.get(i, 1);
+            Ci[i][1] = CiMat.get(i, 1);
+
+            Cr[i][2] = CrMat.get(i, 2);
+            Ci[i][2] = CiMat.get(i, 2);
+
+            Cr[i][3] = CrMat.get(i, 3);
+            Ci[i][3] = CiMat.get(i, 3);
+        }
+    }
+
     /**
      * Get covariance matrix C4 for given pixel.
      *
