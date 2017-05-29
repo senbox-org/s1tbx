@@ -424,7 +424,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
             // If our product has no geo-coding yet, it is set to the current one, if any
             if (this.geoCoding != null) {
                 final Product product = getProduct();
-                if (product != null && product.getSceneGeoCoding() == null) {
+                if (product != null && product.getSceneGeoCoding() == null && product.getSceneRasterSize().equals(getRasterSize())) {
                     product.setSceneGeoCoding(this.geoCoding);
                 }
             }
