@@ -35,7 +35,8 @@ public abstract class DoubleDataAggregator implements Aggregator {
     static class Mean extends DoubleDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0,
+                              double wx1, double wy0, double wy1, int dstPos) {
             double vSum = 0.0;
             double wSum = 0.0;
             int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
@@ -104,7 +105,7 @@ public abstract class DoubleDataAggregator implements Aggregator {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
                     double v = getSrcData(srcIndexY + srcX);
                     if (!Double.isNaN(v) &&
-                            (Double.isNaN(getNoDataValue()) || (Math.abs(v - getNoDataValue()) > 1e-8) && v < minValue)) {
+                            (Double.isNaN(getNoDataValue()) || (Math.abs(v - getNoDataValue()) > 1e-8)) && v < minValue) {
                         minValue = v;
                     }
                 }
@@ -125,7 +126,7 @@ public abstract class DoubleDataAggregator implements Aggregator {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
                     double v = getSrcData(srcIndexY + srcX);
                     if (!Double.isNaN(v) &&
-                            (Double.isNaN(getNoDataValue()) || (Math.abs(v - getNoDataValue()) > 1e-8) && v > maxValue)) {
+                            (Double.isNaN(getNoDataValue()) || (Math.abs(v - getNoDataValue()) > 1e-8)) && v > maxValue) {
                         maxValue = v;
                     }
                 }
