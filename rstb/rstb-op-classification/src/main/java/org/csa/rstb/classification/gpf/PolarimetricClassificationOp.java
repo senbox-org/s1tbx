@@ -16,12 +16,8 @@
 package org.csa.rstb.classification.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.classification.gpf.classifiers.CloudePottier;
-import org.csa.rstb.classification.gpf.classifiers.CloudePottierC2;
-import org.csa.rstb.classification.gpf.classifiers.FreemanDurdenWishart;
-import org.csa.rstb.classification.gpf.classifiers.HAlphaWishart;
-import org.csa.rstb.classification.gpf.classifiers.HAlphaWishartC2;
-import org.csa.rstb.classification.gpf.classifiers.PolClassifier;
+import org.csa.rstb.classification.gpf.classifiers.*;
+import org.csa.rstb.polarimetric.gpf.PolarimetricDecompositionOp;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.IndexCoding;
@@ -65,7 +61,8 @@ public class PolarimetricClassificationOp extends Operator {
             UNSUPERVISED_CLOUDE_POTTIER_DUAL_POL_CLASSIFICATION,
             UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION,
             UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION,
-            UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION},
+            UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION,
+            UNSUPERVISED_GENERAL_WISHART_CLASSIFICATION},
             defaultValue = UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION, label = "Classification")
     protected String classification = UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION;
 
@@ -88,6 +85,18 @@ public class PolarimetricClassificationOp extends Operator {
             defaultValue = "0.5", label = "Threshold for Mixed Category")
     private double mixedCategoryThreshold = 0.5;
 
+    @Parameter(valueSet = {PolarimetricDecompositionOp.SINCLAIR_DECOMPOSITION,
+            PolarimetricDecompositionOp.PAULI_DECOMPOSITION,
+            PolarimetricDecompositionOp.FREEMAN_DURDEN_DECOMPOSITION,
+            PolarimetricDecompositionOp.GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION,
+            PolarimetricDecompositionOp.YAMAGUCHI_DECOMPOSITION,
+            PolarimetricDecompositionOp.VANZYL_DECOMPOSITION,
+            PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION,
+            PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION,
+            PolarimetricDecompositionOp.TOUZI_DECOMPOSITION},
+            defaultValue = PolarimetricDecompositionOp.SINCLAIR_DECOMPOSITION, label = "Decomposition")
+    private String decomposition = PolarimetricDecompositionOp.SINCLAIR_DECOMPOSITION;
+
     protected int sourceImageWidth = 0;
     protected int sourceImageHeight = 0;
     protected PolBandUtils.PolSourceBand[] srcBandList;
@@ -98,6 +107,7 @@ public class PolarimetricClassificationOp extends Operator {
     public static final String UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION = "H Alpha Wishart";
     public static final String UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION = "H Alpha Wishart Dual Pol";
     public static final String UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION = "Freeman-Durden Wishart";
+    public static final String UNSUPERVISED_GENERAL_WISHART_CLASSIFICATION = "General Wishart";
 
     protected PolBandUtils.MATRIX sourceProductType;
     protected PolClassifier classifier;
@@ -114,7 +124,8 @@ public class PolarimetricClassificationOp extends Operator {
                 s.equals(UNSUPERVISED_CLOUDE_POTTIER_DUAL_POL_CLASSIFICATION) ||
                 s.equals(UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION) ||
                 s.equals(UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION) ||
-                s.equals(UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION)) {
+                s.equals(UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION) ||
+                s.equals(UNSUPERVISED_GENERAL_WISHART_CLASSIFICATION)) {
             classification = s;
         } else {
             throw new OperatorException(s + " is an invalid classification name.");
@@ -148,7 +159,6 @@ public class PolarimetricClassificationOp extends Operator {
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
-            sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
@@ -168,23 +178,19 @@ public class PolarimetricClassificationOp extends Operator {
 
     private void checkSourceProductType(final PolBandUtils.MATRIX sourceProductType) {
 
-        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
-            // This check will catch products with a single pol.
-            throw new OperatorException("Input should be a polarimetric product");
-        }
-
         switch (classification) {
             case UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION:
             case UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION:
             case UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION:
-                if (PolBandUtils.isDualPol(sourceProductType)) {
-                    throw new OperatorException("Input product cannot be dual pol");
+            case UNSUPERVISED_GENERAL_WISHART_CLASSIFICATION:
+                if (!PolBandUtils.isQuadPol(sourceProductType) && !PolBandUtils.isFullPol(sourceProductType)) {
+                    throw new OperatorException("Quad pol source product expected");
                 }
                 break;
             case UNSUPERVISED_CLOUDE_POTTIER_DUAL_POL_CLASSIFICATION:
             case UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION:
-                if (PolBandUtils.isQuadPol(sourceProductType)) {
-                    throw new OperatorException("Input product cannot be quad pol");
+                if (!PolBandUtils.isDualPol(sourceProductType)) {
+                    throw new OperatorException("Dual pol source product is expected");
                 }
                 break;
             default:
@@ -216,6 +222,11 @@ public class PolarimetricClassificationOp extends Operator {
 
                 return new FreemanDurdenWishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
                         maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold, this);
+
+            case UNSUPERVISED_GENERAL_WISHART_CLASSIFICATION:
+
+                return new GeneralWishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
+                        maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold, decomposition, this);
         }
         throw new OperatorException(classification + " is an invalid classification name.");
     }
@@ -267,6 +278,15 @@ public class PolarimetricClassificationOp extends Operator {
     public void checkIfCancelled() {
         checkForCancellation();
     }
+
+    /*@Override
+    public synchronized void dispose() {
+        final IndexCoding indexCoding = classifier.createIndexCoding();
+        targetProduct.getIndexCodingGroup().add(indexCoding);
+        for (Band band:targetProduct.getBands()) {
+            band.setSampleCoding(indexCoding);
+        }
+    }*/
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
