@@ -21,6 +21,8 @@ import org.esa.snap.runtime.Config;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+
 /**
  * Created by lveci on 2/22/2017.
  */
@@ -34,7 +36,11 @@ public class Credentials {
 
     private static Credentials instance;
 
+    private StandardPBEStringEncryptor encryptor;
+
     private Credentials() {
+        encryptor = new StandardPBEStringEncryptor();
+        encryptor.setPassword("Mzg1YWFkNjY0MjA2MGY1ZTIyMThjYjFj");
     }
 
     public static Credentials instance() {
@@ -46,8 +52,7 @@ public class Credentials {
 
     public void put(final String host, final String user, final String password) {
         credentialsPreferences.put(PREFIX + host + USER, user);
-        credentialsPreferences.put(PREFIX + host + PASSWORD, password);
-
+        credentialsPreferences.put(PREFIX + host + PASSWORD, encryptor.encrypt(password));
         try {
             credentialsPreferences.flush();
         } catch (BackingStoreException e) {
@@ -57,9 +62,15 @@ public class Credentials {
 
     public CredentialInfo get(final String host) {
         final String user = credentialsPreferences.get(PREFIX + host + USER, null);
-        final String password = credentialsPreferences.get(PREFIX + host + PASSWORD, null);
-
+        final String encryptedPassword = credentialsPreferences.get(PREFIX + host + PASSWORD, null);
+        String password = null;
+        try {
+            password = encryptor.decrypt(encryptedPassword);
+        } catch (Exception e) {
+            SystemUtils.LOG.severe(e.getMessage());
+        }
         return user == null || password == null ? null : new CredentialInfo(user, password);
+
     }
 
     public static class CredentialInfo {
