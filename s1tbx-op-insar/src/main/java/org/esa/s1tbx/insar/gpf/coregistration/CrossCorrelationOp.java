@@ -275,7 +275,7 @@ public class CrossCorrelationOp extends Operator {
         String mstBandName = sourceProduct.getBandAt(0).getName();
 
         // find co-pol bands
-        masterBandNames = getMasterBandNames(sourceProduct);
+        masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
         for (String bandName : masterBandNames) {
             final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
             if (mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
@@ -295,17 +295,6 @@ public class CrossCorrelationOp extends Operator {
                 complexCoregistration = true;
             }
         }
-    }
-
-    private static String[] getMasterBandNames(final Product sourceProduct) {
-
-        final java.util.List<String> bandNames = new ArrayList<>();
-        for(String bandName : sourceProduct.getBandNames()) {
-            if(bandName.toLowerCase().contains("_mst")) {
-                bandNames.add(bandName);
-            }
-        }
-        return bandNames.toArray(new String[bandNames.size()]);
     }
 
     private static void addGCPGrid(final int width, final int height, final int numPins,
@@ -462,8 +451,6 @@ public class CrossCorrelationOp extends Operator {
             if (onlyGCPsOnLand && dem == null) {
                 createDEM();
             }
-
-            final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
             // select only one band per slave product
             final Map<String, Band> singleSlvBandMap = new HashMap<>();
