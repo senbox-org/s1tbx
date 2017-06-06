@@ -97,8 +97,12 @@ public class AlosPalsarImageFile extends CEOSImageFile {
 
     public String getPolarization() {
         if (imageFileName.startsWith("IMG-") && imageFileName.length() > 6) {
+
             String pol = imageFileName.substring(4, 6);
-            if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
+            String pol1 = imageFileName.substring(4, 9);
+            if (pol1.equals("HH+VV") || pol1.equals("HH-VV") || pol1.equals("HV+VH") || pol1.equals("HV-VH")) {
+                return pol1;
+            } else if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
                 return pol;
             } else if (imageRecords[0] != null) {
                 try {
