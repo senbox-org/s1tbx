@@ -197,7 +197,7 @@ def _configure_snappy(snap_home=None,
                              '# java_class_path: ./target/classes\n',
                              '# java_library_path: ./lib\n',
                              '# java_options: -Djava.awt.headless=false\n',
-                             '# java_max_mem: %s\n' % jvm_max_mem,
+                             'java_max_mem: %s\n' % jvm_max_mem,
                              '# debug: False\n'])
             logging.info("snappy configuration written to '" + snappy_ini_file + "'")
     else:
