@@ -1,10 +1,10 @@
-import sys
+import argparse
+import logging
 import os
 import os.path
 import platform
-import argparse
+import sys
 import zipfile
-import logging
 
 
 def _find_file(dir_path, regex):
@@ -20,6 +20,7 @@ def _find_file(dir_path, regex):
 def _configure_snappy(snap_home=None,
                       java_module=None,
                       java_home=None,
+                      jvm_max_mem=None,
                       req_arch=None,
                       req_java=False,
                       req_py=False,
@@ -30,6 +31,7 @@ def _configure_snappy(snap_home=None,
 
     :param snap_home: SNAP distribution directory.
     :param java_home: Java home directory. See also Java system property "java.home".
+    :param jvm_max_mem: The heap size of the JVM.
     :param req_arch:  Required JVM architecture (amd64, ia86, x86, etc). See Java system property "os.arch".
     :param req_java:  Fail, if configuration of jpy's Java API fails.
     :param req_py:    Fail, if configuration of jpy's Python API fails.
@@ -195,7 +197,7 @@ def _configure_snappy(snap_home=None,
                              '# java_class_path: ./target/classes\n',
                              '# java_library_path: ./lib\n',
                              '# java_options: -Djava.awt.headless=false\n',
-                             '# java_max_mem: 4G\n',
+                             '# java_max_mem: %s\n' % jvm_max_mem,
                              '# debug: False\n'])
             logging.info("snappy configuration written to '" + snappy_ini_file + "'")
     else:
@@ -229,6 +231,7 @@ def _main():
     parser.add_argument('--java_home', default=None,
                         help='Java JDK or JRE installation directory, '
                              'may be taken from Java system property "java.home"')
+    parser.add_argument('--jvm_max_mem', default='3G', help='size of the Java VM heap space')
     parser.add_argument("--log_file", action='store', default=None, help="file into which to write logging output")
     parser.add_argument("--log_level", action='store', default='INFO',
                         help="log level, possible values are: DEBUG, INFO, WARNING, ERROR")
@@ -255,6 +258,7 @@ def _main():
         ret_code = _configure_snappy(snap_home=args.snap_home,
                                      java_module=args.java_module,
                                      java_home=args.java_home,
+                                     jvm_max_mem=args.jvm_max_mem,
                                      req_arch=args.req_arch,
                                      req_java=args.req_java,
                                      req_py=args.req_py,
