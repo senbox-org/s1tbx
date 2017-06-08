@@ -290,9 +290,17 @@ public class OffsetTrackingOp extends Operator {
 
     private static Band getSourceBand(final Product sourceProduct, final String tag) {
 
-        for (Band band : sourceProduct.getBands()) {
-            if (band.getName().toLowerCase().contains(tag) &&
-                    (band.getUnit().contains(Unit.AMPLITUDE) || band.getUnit().contains(Unit.INTENSITY))) {
+        String[] bandNames;
+        if (tag.equals(StackUtils.MST)) {
+            bandNames = StackUtils.getMasterBandNames(sourceProduct);
+        } else {
+            final String[] slvProductNames = StackUtils.getSlaveProductNames(sourceProduct);
+            bandNames = StackUtils.getSlaveBandNames(sourceProduct, slvProductNames[0]);
+        }
+
+        for (String bandName : bandNames) {
+            final Band band = sourceProduct.getBand(bandName);
+            if (band.getUnit().contains(Unit.AMPLITUDE) || band.getUnit().contains(Unit.INTENSITY)) {
                 return band;
             }
         }
