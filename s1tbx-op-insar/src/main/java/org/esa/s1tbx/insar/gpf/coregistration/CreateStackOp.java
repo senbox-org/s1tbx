@@ -18,6 +18,7 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.Band;
@@ -119,7 +120,7 @@ public class CreateStackOp extends Operator {
     private String initialOffsetMethod = INITIAL_OFFSET_ORBIT;
 
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
-    private final Map<Product, int[]> slaveOffsettMap = new HashMap<>(10);
+    private final Map<Product, int[]> slaveOffsetMap = new HashMap<>(10);
 
     private boolean appendToMaster = false;
     private boolean productPixelSpacingChecked = false;
@@ -347,6 +348,8 @@ public class CreateStackOp extends Operator {
 
         final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
 
+        getBaselines();
+
         for (Product srcProduct : sourceProduct) {
             if (srcProduct == masterProduct)
                 continue;
@@ -358,6 +361,58 @@ public class CreateStackOp extends Operator {
                 inputAttrb.getData().setElems(attrib.getData().getElemString());
             }
         }
+    }
+
+    private void getBaselines() {
+        try {
+            final MetadataElement abstractedMetadata = AbstractMetadata.getAbstractedMetadata(targetProduct);
+            final MetadataElement baselinesElem = getBaselinesElem(abstractedMetadata);
+
+            final InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(sourceProduct);
+
+            for(InSARStackOverview.IfgStack stack : stackOverview) {
+                final InSARStackOverview.IfgPair[] slaves = stack.getMasterSlave();
+                System.out.println("======");
+                System.out.println("Master: " + slaves[0].getMasterMetadata().getMjd());
+
+                final MetadataElement masterElem = new MetadataElement(""+slaves[0].getMasterMetadata().getMjd());
+                baselinesElem.addElement(masterElem);
+
+                for (InSARStackOverview.IfgPair slave : slaves) {
+                    System.out.println("Slave: " + slave.getSlaveMetadata().getMjd() +
+                            " prep baseline: " + slave.getPerpendicularBaseline() +
+                            " temp baseline: " + slave.getTemporalBaseline());
+
+                    final MetadataElement slaveElem = new MetadataElement(""+slave.getMasterMetadata().getMjd());
+                    masterElem.addElement(slaveElem);
+
+                    addAttrib(slaveElem, "Prep Baseline", slave.getPerpendicularBaseline());
+                    addAttrib(slaveElem, "Temp Baseline", slave.getTemporalBaseline());
+                    addAttrib(slaveElem, "Modelled Coherence", slave.getCoherence());
+                    addAttrib(slaveElem, "Height of Ambiguity", slave.getHeightAmb());
+                    addAttrib(slaveElem, "Doppler Difference", slave.getDopplerDifference());
+                }
+                System.out.println();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addAttrib(final MetadataElement elem, final String tag, final double value) {
+        final MetadataAttribute attrib = new MetadataAttribute(tag, ProductData.TYPE_FLOAT64);
+        attrib.getData().setElemDouble(value);
+        elem.addAttribute(attrib);
+    }
+
+    public static MetadataElement getBaselinesElem(final MetadataElement abstractedMetadata) {
+        MetadataElement baselinesElem = abstractedMetadata.getElement("Baselines");
+        if (baselinesElem == null) {
+            baselinesElem = new MetadataElement("Baselines");
+            abstractedMetadata.addElement(baselinesElem);
+        }
+        return baselinesElem;
     }
 
     private void copySlaveMetadata() {
@@ -710,7 +765,7 @@ public class CreateStackOp extends Operator {
 
         for (final Product slvProd : sourceProduct) {
             if (slvProd == masterProduct && extent.equals(MASTER_EXTENT)) {
-                slaveOffsettMap.put(slvProd, new int[]{0, 0});
+                slaveOffsetMap.put(slvProd, new int[]{0, 0});
                 continue;
             }
 
@@ -793,7 +848,7 @@ public class CreateStackOp extends Operator {
 
                 if (slvProd == masterProduct) {
                     // if master is ref product put 0-es for offset
-                    slaveOffsettMap.put(slvProd, new int[]{0, 0});
+                    slaveOffsetMap.put(slvProd, new int[]{0, 0});
                     continue;
                 }
 
@@ -835,7 +890,7 @@ public class CreateStackOp extends Operator {
     }
 
     private void addOffset(final Product slvProd, final int offsetX, final int offsetY) {
-        slaveOffsettMap.put(slvProd, new int[]{offsetX, offsetY});
+        slaveOffsetMap.put(slvProd, new int[]{offsetX, offsetY});
     }
 
     @Override
@@ -862,7 +917,7 @@ public class CreateStackOp extends Operator {
                 final int maxX = tx0 + tw;
                 final int maxY = ty0 + th;
 
-                final int[] offset = slaveOffsettMap.get(srcProduct);
+                final int[] offset = slaveOffsetMap.get(srcProduct);
                 final int sx0 = Math.min(Math.max(0, tx0 + offset[0]), srcImageWidth - 1);
                 final int sy0 = Math.min(Math.max(0, ty0 + offset[1]), srcImageHeight - 1);
                 final int sw = Math.min(sx0 + tw - 1, srcImageWidth - 1) - sx0 + 1;
