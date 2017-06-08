@@ -194,10 +194,10 @@ def _configure_snappy(snap_home=None,
         with open(snappy_ini_file, 'w') as file:
             file.writelines(['[DEFAULT]\n',
                              'snap_home = %s\n' % snap_home,
+                             'java_max_mem: %s\n' % jvm_max_mem,
                              '# java_class_path: ./target/classes\n',
                              '# java_library_path: ./lib\n',
                              '# java_options: -Djava.awt.headless=false\n',
-                             'java_max_mem: %s\n' % jvm_max_mem,
                              '# debug: False\n'])
             logging.info("snappy configuration written to '" + snappy_ini_file + "'")
     else:
