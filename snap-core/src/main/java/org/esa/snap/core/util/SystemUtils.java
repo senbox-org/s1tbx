@@ -502,6 +502,24 @@ public class SystemUtils {
         return "[no version info, missing ${SNAP_HOME}/VERSION.txt]";
     }
 
+    /**
+     * Empty all tiles from cache and garbage collect
+     */
+    public static void freeAllMemory() {
+        JAI.getDefaultInstance().getTileCache().flush();
+        JAI.getDefaultInstance().getTileCache().memoryControl();
+        System.gc();
+        System.gc();
+        System.gc();
+    }
+
+    /**
+     * tell tileCache that some old tiles can be removed
+     */
+    public static void tileCacheFreeOldTiles() {
+        JAI.getDefaultInstance().getTileCache().memoryControl();
+    }
+
 
     /**
      * This class is used to hold an image while on the clipboard.

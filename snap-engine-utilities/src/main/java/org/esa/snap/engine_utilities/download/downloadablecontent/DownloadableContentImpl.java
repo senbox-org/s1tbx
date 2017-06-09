@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.engine_utilities.datamodel;
+package org.esa.snap.engine_utilities.download.downloadablecontent;
 
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.dataop.downloadable.FtpDownloader;

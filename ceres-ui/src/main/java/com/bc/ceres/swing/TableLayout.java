@@ -224,8 +224,8 @@ public class TableLayout implements LayoutManager2 {
     /////////////////////////////////////////////////////////////////////////
     // weighty
 
-    public void setTableWeightY(Double weightx) {
-        setValue("weighty", weightx);
+    public void setTableWeightY(Double weighty) {
+        setValue("weighty", weighty);
     }
 
     public void setRowWeightY(int row, Double weighty) {

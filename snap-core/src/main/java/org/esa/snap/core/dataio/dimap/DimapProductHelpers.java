@@ -244,6 +244,11 @@ public class DimapProductHelpers {
         final Element rootElem = dom.getRootElement();
         final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
         final List crsElems = rootElem.getChildren(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        final Element imageInterpretationElement = rootElem.getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
+        List bandInfoElems = null;
+        if(imageInterpretationElement != null) {
+            bandInfoElems = imageInterpretationElement.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
+        }
         final Datum datum = createDatum(dom);
         if (geoPosElems.size() > 0) {
             Map<String, GeoCoding> wktToCrsGeocodingMap = new HashMap<>();
@@ -257,6 +262,22 @@ public class DimapProductHelpers {
                 } else {
                     bandIndex = 0;
                 }
+                //Search corresponding bandInfo
+                Element bandInfoElem = null;
+                if(bandInfoElems != null) {
+                    for(Object object : bandInfoElems) {
+                        Element element = (Element) object;
+                        try {
+                            int index = Integer.parseInt(geoPosElem.getChildText(DimapProductConstants.TAG_BAND_INDEX));
+                            if (index == bandIndex) {
+                                bandInfoElem = element;
+                                break;
+                            }
+                        } catch (Exception e) {
+                            continue;
+                        }
+                    }
+                }
                 if (i < crsElems.size() && crsElems.get(i) != null &&
                         ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT) != null) {
                     final Element wktElement = ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT);
@@ -265,7 +286,7 @@ public class DimapProductHelpers {
                     if (wktToCrsGeocodingMap.containsKey(key)) {
                         geoCodings[bandIndex] = wktToCrsGeocodingMap.get(key);
                     } else {
-                        final GeoCoding crsGeoCoding = createCrsGeoCoding(product, geoPosElem, wktElement);
+                        final GeoCoding crsGeoCoding = createCrsGeoCoding(product, geoPosElem, wktElement, bandInfoElem);
                         geoCodings[bandIndex] = crsGeoCoding;
                         wktToCrsGeocodingMap.put(key, crsGeoCoding);
                     }
@@ -503,6 +524,56 @@ public class DimapProductHelpers {
                 final AffineTransform i2m = new AffineTransform(matrix);
                 Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
                                                       product.getSceneRasterHeight());
+                try {
+                    final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
+                    return geoCoding;
+                } catch (TransformException e) {
+                    Debug.trace(e);
+                }
+            }
+        } catch (FactoryException e) {
+            Debug.trace(e);
+        }
+        return null;
+    }
+
+    private static GeoCoding createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem, Element bandInfoElem) {
+        if(bandInfoElem == null) {
+            return createCrsGeoCoding(product, geoPositionElem, wktElem);
+        }
+        try {
+            final CoordinateReferenceSystem crs = CRS.parseWKT(wktElem.getTextTrim());
+            final Element i2mElem = geoPositionElem.getChild(
+                    DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM);
+            final Element widthElem = bandInfoElem.getChild(
+                    DimapProductConstants.TAG_BAND_RASTER_WIDTH);
+            final Element heightElem = bandInfoElem.getChild(
+                    DimapProductConstants.TAG_BAND_RASTER_HEIGHT);
+            int height = product.getSceneRasterHeight();
+            int width = product.getSceneRasterWidth();
+            if(heightElem != null) {
+                try {
+                    height = Integer.valueOf(heightElem.getText());
+                } catch (NumberFormatException e) {
+                    //do nothing, product height will be used
+                }
+            }
+            if(widthElem != null) {
+                try {
+                    width = Integer.valueOf(widthElem.getText());
+                } catch (NumberFormatException e) {
+                    //do nothing, product width will be used
+                }
+            }
+            if (i2mElem != null) {
+                final String[] parameters = StringUtils.csvToArray(i2mElem.getTextTrim());
+                double[] matrix = new double[parameters.length];
+                for (int i = 0; i < matrix.length; i++) {
+                    matrix[i] = Double.valueOf(parameters[i]);
+                }
+                final AffineTransform i2m = new AffineTransform(matrix);
+                Rectangle imageBounds = new Rectangle(width,
+                                                      height);
                 try {
                     final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
                     return geoCoding;

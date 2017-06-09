@@ -17,9 +17,9 @@ package org.esa.snap.core.dataio;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ServiceLoader;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -190,8 +190,8 @@ public class ProductIOPlugInManager {
         readerPlugIns = serviceRegistryManager.getServiceRegistry(ProductReaderPlugIn.class);
         writerPlugIns = serviceRegistryManager.getServiceRegistry(ProductWriterPlugIn.class);
 
-        SnapCoreActivator.loadServices(readerPlugIns);
-        SnapCoreActivator.loadServices(writerPlugIns);
+        ServiceLoader.loadServices(readerPlugIns);
+        ServiceLoader.loadServices(writerPlugIns);
     }
     
     // Initialization on demand holder idiom

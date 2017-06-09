@@ -15,10 +15,12 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIOPlugInManager;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.descriptor.SystemVariable;
 import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
@@ -30,11 +32,41 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.file.*;
+import java.nio.file.CopyOption;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -43,9 +75,12 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+
+import static org.apache.commons.lang.SystemUtils.IS_OS_UNIX;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -289,6 +324,10 @@ public class ToolAdapterIO {
         logger.info("Initializing external tool adapters");
         List<File> modules = new ArrayList<>();
         Set<Path> modulesPath = getClusterModulesPaths();
+        for (Path clusterPath : modulesPath) {
+            final Preferences preferences = Config.instance(clusterPath.getFileName().toString()).preferences();
+            SystemVariable.addLookupReference(preferences::get);
+        }
         modulesPath.add(getAdaptersPath());
         for (Path path : modulesPath) {
             logger.fine("Scanning for external tools adapters: " + path.toAbsolutePath().toString());
@@ -426,6 +465,44 @@ public class ToolAdapterIO {
                     return FileVisitResult.CONTINUE;
                 }
             });
+        }
+    }
+
+    /**
+     * Ensure that the given path has all the permissions set.
+     * This is especially useful for Linux/MacOsX executables.
+     *
+     * @param path  The path to fix permissions for.
+     */
+    public static void fixPermissions(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            Stream<Path> files = Files.list(path);
+            files.forEach(p -> {
+                try {
+                    fixPermissions(p);
+                } catch (IOException e) {
+                    SystemUtils.LOG.severe("OpenJPEG configuration error: failed to fix permissions on " + path);
+                }
+            });
+        } else {
+            if (IS_OS_UNIX) {
+                Set<PosixFilePermission> permissions = new HashSet<>(Arrays.asList(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE,
+                        PosixFilePermission.OWNER_EXECUTE,
+                        PosixFilePermission.GROUP_READ,
+                        PosixFilePermission.GROUP_EXECUTE,
+                        PosixFilePermission.OTHERS_READ,
+                        PosixFilePermission.OTHERS_EXECUTE));
+                try {
+                    Files.setPosixFilePermissions(path, permissions);
+                } catch (IOException e) {
+                    // can't set the permissions for this file, eg. the file was installed as root
+                    // send a warning message, user will have to do that by hand.
+                    SystemUtils.LOG.severe("Can't set execution permissions for executable " + path.toString() +
+                            ". If required, please ask an authorised user to make the file executable.");
+                }
+            }
         }
     }
 
@@ -585,7 +662,13 @@ public class ToolAdapterIO {
         zipStream.closeEntry();
     }
 
-    public static void unzip(Path sourceFile, Path destination) throws IOException {
+    /**
+     * Uncompress the source zip file into the destination path.
+     *
+     * @param sourceFile    The zip file
+     * @param destination   The destination directory
+     */
+    public static void unzip(Path sourceFile, Path destination, ProgressMonitor progressMonitor, int totalTasks) throws IOException {
         if (sourceFile == null || destination == null) {
             throw new IllegalArgumentException("One of the arguments is null");
         }
@@ -595,6 +678,11 @@ public class ToolAdapterIO {
         byte[] buffer;
         try (ZipFile zipFile = new ZipFile(sourceFile.toFile())) {
             ZipEntry entry;
+            progressMonitor.setSubTaskName(String.format("Extracting %s...", zipFile.getName()));
+            int size = zipFile.size();
+            int workUnits = 100 / totalTasks;
+            int count = 0;
+            int progress;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 entry = entries.nextElement();
@@ -615,6 +703,8 @@ public class ToolAdapterIO {
                         }
                     }
                 }
+                progress = 100 - workUnits + (int) ((double)count++ / (double)size * (double)workUnits);
+                progressMonitor.worked(progress);
             }
         }
     }

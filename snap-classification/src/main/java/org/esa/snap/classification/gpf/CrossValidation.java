@@ -15,11 +15,7 @@ import java.util.Random;
 
 /**
  * Implementation of the cross-validation evaluation technique.
- * 
- * 
- * 
- * 
- * @version %SVN.VERSION%
+ *
  * 
  * @author Thomas Abeel
  * 
@@ -27,9 +23,21 @@ import java.util.Random;
 public class CrossValidation {
 
     private Classifier classifier;
+    private double rmseSum ;
+    private int rmseTotal;
+    private double biasSum1;
+    private double biasSum2;
 
     public CrossValidation(Classifier classifier) {
         this.classifier = classifier;
+    }
+
+    public double getRMSE() {
+        return rmseTotal == 0 ? 0 : Math.sqrt(rmseSum/rmseTotal);
+    }
+
+    public double getBias() {
+        return rmseTotal == 0 ? 0 : (biasSum1/rmseTotal) - (biasSum2/rmseTotal);
     }
 
     /**
@@ -51,6 +59,12 @@ public class CrossValidation {
         for (Object o : data.classes()) {
             out.put(o, new PerformanceMeasure());
         }
+
+        rmseSum = 0;
+        rmseTotal = 0;
+        biasSum1 = 0;
+        biasSum2 = 0;
+
         for (int i = 0; i < numFolds; i++) {
             Dataset validation = folds[i];
             Dataset training = new DefaultDataset();
@@ -64,6 +78,17 @@ public class CrossValidation {
 
             for (Instance instance : validation) {
                 Object prediction = classifier.classify(instance);
+                if(instance.classValue() instanceof Double) {
+                    Double observed = (Double)instance.classValue();
+                    Double predicted = (Double)prediction;
+
+                    double diff = observed - predicted;
+                    rmseSum += diff*diff;
+                    rmseTotal++;
+                    biasSum1 += predicted;
+                    biasSum2 += observed;
+                }
+
                 if (instance.classValue().equals(prediction)) {// prediction
                     // ==class
                     for (Object o : out.keySet()) {

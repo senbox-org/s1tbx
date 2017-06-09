@@ -184,6 +184,9 @@ public class QuicklookGenerator {
         if (bandList.size() > 1 && !bandList.get(0).getName().equals(quicklookBandName)) {
             return bandList.toArray(new Band[bandList.size()]);
         }
+        if(quicklookBandName == null) {
+            return null;
+        }
         return new Band[]{product.getBand(quicklookBandName)};
     }
 

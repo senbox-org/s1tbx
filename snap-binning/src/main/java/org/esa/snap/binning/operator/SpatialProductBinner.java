@@ -238,10 +238,12 @@ public class SpatialProductBinner {
 
     private static void addVariablesToProduct(VariableContext variableContext, Product product,
                                               Map<Product, List<Band>> addedVariableBands) {
+        final String validMaskExpression = variableContext.getValidMaskExpression();
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             String variableName = variableContext.getVariableName(i);
             String variableExpr = variableContext.getVariableExpression(i);
-            String validMaskExpression = variableContext.getValidMaskExpression();
+            String variableValidExpr = variableContext.getVariableValidExpression(i);
+
             if (variableExpr != null) {
                 VirtualBand band = new VirtualBand(variableName,
                                                    ProductData.TYPE_FLOAT32,
@@ -249,13 +251,15 @@ public class SpatialProductBinner {
                                                    product.getSceneRasterHeight(),
                                                    variableExpr);
 
-                try {
-                    validMaskExpression = BandArithmetic.getValidMaskExpression(variableExpr, product, validMaskExpression);
-                } catch (ParseException e) {
-                    throw new OperatorException("Failed to parse valid-mask expression: " + e.getMessage(), e);
+                if (StringUtils.isNullOrEmpty(variableValidExpr)) {
+                    try {
+                        variableValidExpr = BandArithmetic.getValidMaskExpression(variableExpr, product, validMaskExpression);
+                    } catch (ParseException e) {
+                        throw new OperatorException("Failed to parse valid-mask expression: " + e.getMessage(), e);
+                    }
                 }
-                if (StringUtils.isNotNullAndNotEmpty(validMaskExpression)) {
-                    band.setValidPixelExpression(validMaskExpression);
+                if (StringUtils.isNotNullAndNotEmpty(variableValidExpr) && !variableValidExpr.equals("true")) {
+                    band.setValidPixelExpression(variableValidExpr);
                 }
                 product.addBand(band);
                 if (!addedVariableBands.containsKey(product)) {

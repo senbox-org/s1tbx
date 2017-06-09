@@ -53,6 +53,7 @@ import org.esa.snap.core.util.geotiff.GeoCoding2GeoTIFFMetadata;
 import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.IndexValidator;
+import org.esa.snap.core.util.math.Range;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -82,6 +83,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -975,27 +977,45 @@ public class ProductUtils {
 
     /**
      * Copies a virtual band and keeps it as a virtual band
+     * The size of the {@code srcBand} is preserved .
      *
-     * @param product the source product.
+     * @param target  the target product to copy the virtual band to.
      * @param srcBand the virtual band to copy.
      * @param name    the name of the new band.
      * @return the copy of the band.
      */
-    public static VirtualBand copyVirtualBand(final Product product, final VirtualBand srcBand, final String name) {
+    public static VirtualBand copyVirtualBand(final Product target, final VirtualBand srcBand, final String name) {
+        return copyVirtualBand(target, srcBand, name, false);
+    }
+
+    /**
+     * Copies a virtual band and keeps it as a virtual band
+     * Depending on the parameter {@code adaptToSceneRasterSize} the size will either
+     * preserve the size of the {@code srcBand} or adapt the size of the target product.
+     *
+     * @param target                 the target product to copy the virtual band to.
+     * @param srcBand                the virtual band to copy.
+     * @param name                   the name of the new band.
+     * @param adaptToSceneRasterSize if {@code true} the band will have the scene raster size of the target product,
+     *                               otherwise the size of the {@code srcBand} will be preserved
+     * @return the copy of the band.
+     */
+    public static VirtualBand copyVirtualBand(final Product target, final VirtualBand srcBand, final String name, boolean adaptToSceneRasterSize) {
 
         final VirtualBand virtBand = new VirtualBand(name,
                                                      srcBand.getDataType(),
-                                                     srcBand.getRasterWidth(),
-                                                     srcBand.getRasterHeight(),
+                                                     adaptToSceneRasterSize ? target.getSceneRasterWidth() : srcBand.getRasterWidth(),
+                                                     adaptToSceneRasterSize ? target.getSceneRasterHeight() : srcBand.getRasterHeight(),
                                                      srcBand.getExpression());
         virtBand.setUnit(srcBand.getUnit());
         virtBand.setDescription(srcBand.getDescription());
         virtBand.setNoDataValue(srcBand.getNoDataValue());
         virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
-        virtBand.setOwner(product);
-        product.addBand(virtBand);
+        virtBand.setOwner(target);
+        target.addBand(virtBand);
         return virtBand;
     }
+
 
     /**
      * Copies the named band from the source product to the target product.
@@ -1597,11 +1617,9 @@ public class ProductUtils {
      * @param source the source product.
      * @param target the target product.
      * @throws NullPointerException if the source or the target product is {@code null}.
-     *
      * @see Product#getStartTime()
      * @see Product#getEndTime()
      * @see Product#getSceneTimeCoding()
-     *
      * @since SNAP 5.0
      */
     public static void copyTimeInformation(Product source, Product target) {
@@ -1657,27 +1675,76 @@ public class ProductUtils {
         return GeoCoding2GeoTIFFMetadata.createGeoTIFFMetadata(geoCoding, width, height);
     }
 
-    public static GeneralPath areaToPath(Area negativeArea, double deltaX) {
+    /**
+     * @deprecated since SNAP 6.0. Area can have multiple sub-paths. Better use {@link #areaToSubPaths(Area, double)}
+     */
+    @Deprecated
+    public static GeneralPath areaToPath(Area area, double deltaX) {
         final GeneralPath pixelPath = new GeneralPath(GeneralPath.WIND_NON_ZERO);
         final float[] floats = new float[6];
 // move to correct rectangle
         final AffineTransform transform = AffineTransform.getTranslateInstance(deltaX, 0.0);
-        final PathIterator iterator = negativeArea.getPathIterator(transform);
+        final PathIterator iterator = area.getPathIterator(transform);
 
         while (!iterator.isDone()) {
             final int segmentType = iterator.currentSegment(floats);
-            if (segmentType == PathIterator.SEG_LINETO) {
-                pixelPath.lineTo(floats[0], floats[1]);
-            } else if (segmentType == PathIterator.SEG_MOVETO) {
-                pixelPath.moveTo(floats[0], floats[1]);
-            } else if (segmentType == PathIterator.SEG_CLOSE) {
-                pixelPath.closePath();
-            } else {
-                throw new IllegalStateException("unhandled segment type in path iterator: " + segmentType);
+            switch (segmentType) {
+                case PathIterator.SEG_LINETO:
+                    pixelPath.lineTo(floats[0], floats[1]);
+                    break;
+                case PathIterator.SEG_MOVETO:
+                    pixelPath.moveTo(floats[0], floats[1]);
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    pixelPath.closePath();
+                    break;
+                default:
+                    throw new IllegalStateException("unhandled segment type in path iterator: " + segmentType);
             }
             iterator.next();
         }
         return pixelPath;
+    }
+
+    /**
+     * Turns an area into one or multiple paths.
+     *
+     * @param area   the area to convert
+     * @param deltaX the value is used to translate the x-cordinates
+     * @return the list of paths
+     */
+    public static List<GeneralPath> areaToSubPaths(Area area, double deltaX) {
+        List<GeneralPath> subPaths = new ArrayList<>();
+
+        final float[] floats = new float[6];
+// move to correct rectangle
+        final AffineTransform transform = AffineTransform.getTranslateInstance(deltaX, 0.0);
+        final PathIterator iterator = area.getPathIterator(transform);
+
+        GeneralPath pixelPath = null;
+        while (!iterator.isDone()) {
+            if (pixelPath == null) {
+                pixelPath = new GeneralPath(GeneralPath.WIND_NON_ZERO);
+            }
+            final int segmentType = iterator.currentSegment(floats);
+            switch (segmentType) {
+                case PathIterator.SEG_LINETO:
+                    pixelPath.lineTo(floats[0], floats[1]);
+                    break;
+                case PathIterator.SEG_MOVETO:
+                    pixelPath.moveTo(floats[0], floats[1]);
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    pixelPath.closePath();
+                    subPaths.add(pixelPath);
+                    pixelPath = null;
+                    break;
+                default:
+                    throw new IllegalStateException("unhandled segment type in path iterator: " + segmentType);
+            }
+            iterator.next();
+        }
+        return subPaths;
     }
 
     /**
@@ -2075,33 +2142,14 @@ public class ProductUtils {
     }
 
     public static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
-        final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
         final ArrayList<GeneralPath> pathList = new ArrayList<>(16);
 
         if (geoPoints.length > 1) {
-            double lon = geoPoints[0].getLon();
-            double minLon = lon;
-            double maxLon = lon;
+            final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
+            Range range = fillPath(geoPoints, path);
 
-            path.moveTo(lon, geoPoints[0].getLat());
-            for (int i = 1; i < geoPoints.length; i++) {
-                lon = geoPoints[i].getLon();
-                final double lat = geoPoints[i].getLat();
-                if (Double.isNaN(lon) || Double.isNaN(lat)) {
-                    continue;
-                }
-                if (lon < minLon) {
-                    minLon = lon;
-                }
-                if (lon > maxLon) {
-                    maxLon = lon;
-                }
-                path.lineTo(lon, lat);
-            }
-            path.closePath();
-
-            int runIndexMin = (int) Math.floor((minLon + 180) / 360);
-            int runIndexMax = (int) Math.floor((maxLon + 180) / 360);
+            int runIndexMin = (int) Math.floor((range.getMin() + 180) / 360);
+            int runIndexMax = (int) Math.floor((range.getMax() + 180) / 360);
 
             if (runIndexMin == 0 && runIndexMax == 0) {
                 // the path is completely within [-180, 180] longitude
@@ -2114,7 +2162,7 @@ public class ProductUtils {
                 final Area currentArea = new Area(new Rectangle2D.Double(k * 360.0 - 180.0, -90.0, 360.0, 180.0));
                 currentArea.intersect(pathArea);
                 if (!currentArea.isEmpty()) {
-                    pathList.add(areaToPath(currentArea, -k * 360.0));
+                    pathList.addAll(areaToSubPaths(currentArea, -k * 360.0));
                 }
             }
         }
@@ -2126,8 +2174,7 @@ public class ProductUtils {
      * if this doesn't provide time information or doesn't exist, the {@link Product#getStartTime()} and {@link Product#getEndTime()} are used.
      *
      * @param product the product to look up the time information from
-     * @param y the current y-location
-     *
+     * @param y       the current y-location
      * @return the scan time of the pixel or {@code null} if no time information could be found.
      */
     public static ProductData.UTC getScanLineTime(Product product, double y) {
@@ -2139,9 +2186,8 @@ public class ProductUtils {
      * if this doesn't provide time information the parent product is checked.
      *
      * @param node the node to look up the time information from
-     * @param x the current x-location
-     * @param y the current y-location
-     *
+     * @param x    the current x-location
+     * @param y    the current y-location
      * @return the scan time of the pixel or {@code null} if no time information could be found.
      */
     public static ProductData.UTC getPixelScanTime(RasterDataNode node, double x, double y) {
@@ -2157,13 +2203,12 @@ public class ProductUtils {
      * if this doesn't provide time information or doesn't exist, the {@link Product#getStartTime()} and {@link Product#getEndTime()} are used.
      *
      * @param product the product to look up the time information from
-     * @param x the current x-location
-     * @param y the current y-location
-     *
+     * @param x       the current x-location
+     * @param y       the current y-location
      * @return the scan time of the pixel or {@code null} if no time information could be found.
      */
     public static ProductData.UTC getPixelScanTime(Product product, double x, double y) {
-        if(product == null) {
+        if (product == null) {
             return null;
         }
         if (product.getSceneTimeCoding() != null) {
@@ -2316,6 +2361,37 @@ public class ProductUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * Fills the path with the given geo-points.
+     *
+     * @param geoPoints the points to add to the path
+     * @param path      the path
+     * @return the longitude value range
+     */
+    static Range fillPath(GeoPos[] geoPoints, GeneralPath path) {
+        double lon = geoPoints[0].getLon();
+
+        Range range = new Range(lon, lon);
+        path.moveTo(lon, geoPoints[0].getLat());
+
+        for (int i = 1; i < geoPoints.length; i++) {
+            lon = geoPoints[i].getLon();
+            final double lat = geoPoints[i].getLat();
+            if (Double.isNaN(lon) || Double.isNaN(lat)) {
+                continue;
+            }
+            if (lon < range.getMin()) {
+                range.setMin(lon);
+            }
+            if (lon > range.getMax()) {
+                range.setMax(lon);
+            }
+            path.lineTo(lon, lat);
+        }
+        path.closePath();
+        return range;
     }
 
 }

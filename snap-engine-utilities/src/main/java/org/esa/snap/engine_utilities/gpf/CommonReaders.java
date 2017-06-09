@@ -1,4 +1,4 @@
-package org.esa.snap.engine_utilities.db;
+package org.esa.snap.engine_utilities.gpf;
 
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductIOPlugInManager;
@@ -22,6 +22,7 @@ public class CommonReaders {
     private final static ProductReaderPlugIn S1ReadPlugIn = getReaderPlugIn("SENTINEL-1");
     private final static ProductReaderPlugIn GeoTiffReadPlugIn = getReaderPlugIn("GeoTIFF");
     private final static ProductReaderPlugIn ImageIOReadPlugIn = getReaderPlugIn("PNG");
+
     private static ProductReaderPlugIn getReaderPlugIn(final String format) {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         final Iterator<ProductReaderPlugIn> itr = registry.getReaderPlugIns(format);

@@ -54,7 +54,7 @@ public final class FillDEMHoleOp extends Operator {
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label = "Source Bands")
-    private String[] sourceBandNames;
+    private String[] sourceBands;
 
     @Parameter(label = "No Data Value", defaultValue = "0.0")
     private Double NoDataValue = 0.0;
@@ -120,11 +120,11 @@ public final class FillDEMHoleOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
-        if (!ProductUtils.areRastersEqualInSize(sourceBands)) {
+        final Band[] srcBands = OperatorUtils.getSourceBands(sourceProduct, sourceBands, false);
+        if (!ProductUtils.areRastersEqualInSize(srcBands)) {
             throw new OperatorException("Source bands must all be the same size");
         }
-        for (Band srcBand : sourceBands) {
+        for (Band srcBand : srcBands) {
             if (srcBand instanceof VirtualBand) {
                 ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {

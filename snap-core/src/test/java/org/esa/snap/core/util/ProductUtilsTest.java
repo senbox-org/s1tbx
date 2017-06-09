@@ -35,6 +35,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
@@ -792,6 +793,24 @@ public class ProductUtilsTest {
         assertEquals(2147483648L, ProductUtils.getGeophysicalSampleAsLong(uint32, 2, 0, 0));
         assertEquals(2147483648L, ProductUtils.getGeophysicalSampleAsLong(uint32, 3, 0, 0));
 
+    }
+
+    @Test
+    public void testCopyVirtualBand_preserveSize() throws Exception {
+        Product target = new Product("N", "T", 100, 150);
+        VirtualBand vb = new VirtualBand("vb", ProductData.TYPE_FLOAT32, 40, 30, "1");
+        VirtualBand newVB = ProductUtils.copyVirtualBand(target, vb, "newVB");
+        assertEquals(40, newVB.getRasterWidth());
+        assertEquals(30, newVB.getRasterHeight());
+    }
+
+    @Test
+    public void testCopyVirtualBand_adaptSize() throws Exception {
+        Product target = new Product("N", "T", 100, 150);
+        VirtualBand vb = new VirtualBand("vb", ProductData.TYPE_FLOAT32, 40, 30, "1");
+        VirtualBand newVB = ProductUtils.copyVirtualBand(target, vb, "newVB", true);
+        assertEquals(100, newVB.getRasterWidth());
+        assertEquals(150, newVB.getRasterHeight());
     }
 
     private Band createTestBand(int dataType, Object data) {

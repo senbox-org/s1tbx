@@ -63,12 +63,14 @@ public final class LandCoverMaskOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(description = "Land cover band",
-            rasterDataNodeType = Band.class, label = "Land Cover Band")
+    @Parameter(description = "Land cover band", label = "Land Cover Band")
     private String landCoverBand = null;
 
     @Parameter(description = "Land cover classes to include", label = "Valid land cover classes")
     private int[] validLandCoverClasses = null;
+
+    @Parameter(description = "Valid pixel expression", label = "Valid pixel expression")
+    private String validPixelExpression = null;
 
     @Parameter(description = "Add other bands unmasked", defaultValue = "false", label = "Include all other bands")
     private boolean includeOtherBands = false;
@@ -103,7 +105,7 @@ public final class LandCoverMaskOp extends Operator {
      * Create target product.
      */
     private void createTargetProduct() {
-        ensureSingleRasterSize(sourceProduct);
+        //ensureSingleRasterSize(sourceProduct);
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),
@@ -120,11 +122,15 @@ public final class LandCoverMaskOp extends Operator {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
         for (Band srcBand : sourceBands) {
+            if(srcBand.getName().startsWith("land_cover_")) {
+                continue;
+            }
             final String targetBandName = srcBand.getName() + "_masked";
             final Band targetBand = new Band(targetBandName,
                     srcBand.getDataType(),
-                    targetProduct.getSceneRasterWidth(),
-                    targetProduct.getSceneRasterHeight());
+                    srcBand.getRasterWidth(), //targetProduct.getSceneRasterWidth(),
+                    srcBand.getRasterHeight());//targetProduct.getSceneRasterHeight());
+
 
             targetBand.setUnit(srcBand.getUnit());
             targetBand.setNoDataValue(srcBand.getNoDataValue());
@@ -138,19 +144,21 @@ public final class LandCoverMaskOp extends Operator {
 
     private String createExpression(final Band srcBand) {
         final StringBuilder str = new StringBuilder("");
-        if (validLandCoverClasses != null) {
+        if (validLandCoverClasses != null && validLandCoverClasses.length > 0) {
             for (int c : validLandCoverClasses) {
                 if (str.length() == 0) {
                     str.append("( ");
                 } else {
                     str.append(" || ");
                 }
-                str.append('\'' + landCoverBand + "'==" + c);
+                str.append('\'').append(landCoverBand).append("'==").append(c);
             }
             str.append(" ) ? '");
             str.append(srcBand.getName());
             str.append("' : ");
             str.append(srcBand.getNoDataValue());
+        } else if(validPixelExpression != null && !validPixelExpression.isEmpty()){
+            return validPixelExpression;
         }
         return str.toString();
     }
@@ -172,6 +180,9 @@ public final class LandCoverMaskOp extends Operator {
             final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
 
             final String expression = expressionMap.get(targetBand);
+            if(expression == null || expression.isEmpty()) {
+                return;
+            }
             final Term term = createTerm(expression);
 
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);

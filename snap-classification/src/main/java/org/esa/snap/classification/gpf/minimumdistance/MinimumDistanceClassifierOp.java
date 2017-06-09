@@ -90,19 +90,33 @@ public class MinimumDistanceClassifierOp extends Operator {
     @Parameter(description = "Evaluate the power set of features", label = "Evaluate Feature Power Set", defaultValue = "false")
     private Boolean evaluateFeaturePowerSet;
 
-    private SupervisedClassifier classifier;
+    @Parameter(description = "Minimum size of the power set of features", label = "Min PowerSet Size", defaultValue = "2")
+    private Integer minPowerSetSize;
 
+    @Parameter(description = "Maximum size of the power set of features", label = "Max PowerSet Size", defaultValue = "7")
+    private Integer maxPowerSetSize;
+
+    private SupervisedClassifier classifier;
 
     @Override
     public void initialize() throws OperatorException {
         try {
+            // backwards compatibility in case parameter missing from graph
+            if(minPowerSetSize == null) {
+                minPowerSetSize = 2;
+            }
+            if(maxPowerSetSize == null) {
+                maxPowerSetSize = 7;
+            }
+
             classifier = new MinimumDistanceClassifier(
                     new BaseClassifier.ClassifierParams(CLASSIFIER_TYPE, PRODUCT_SUFFIX,
                                                         sourceProducts, numTrainSamples,
                                                         minClassValue, classValStepSize, classLevels,
                                                         savedClassifierName, doClassValQuantization, trainOnRaster,
                                                         trainingBands, trainingVectors, featureBands, labelSource,
-                                                        evaluateClassifier, evaluateFeaturePowerSet));
+                                                        evaluateClassifier, evaluateFeaturePowerSet,
+                                                        minPowerSetSize, maxPowerSetSize));
 
             classifier.initialize();
 

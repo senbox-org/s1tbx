@@ -18,7 +18,6 @@ package org.esa.snap.classification.gpf;
 import be.abeel.util.Pair;
 import com.bc.ceres.core.ProgressMonitor;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.thoughtworks.xstream.XStream;
 import net.sf.javaml.classification.Classifier;
 import net.sf.javaml.core.Dataset;
@@ -111,8 +110,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     public final static String CLASSIFIER_USER_INFO_FILE_EXTENSION = ".xml";
     public final static String CLASSIFIER_ROOT_FOLDER = "classifiers";
 
-    private final static int minPowerSetSize = 1;
-    private final static int maxPowerSetSize = 30;
     private double topClassifierPercent = 0;
     private String topClassifierName;
     private FeatureInfo[] topFeatureInfoList;
@@ -136,6 +133,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         private String[] featureBands;
         private final boolean evaluateClassifier;
         private final boolean evaluateFeaturePowerSet;
+        private final int minPowerSetSize;
+        private final int maxPowerSetSize;
 
         public ClassifierParams(final String classifierType, final String productSuffix, final Product[] sourceProducts,
                                 final int numTrainSamples, final double minClassValue,
@@ -147,7 +146,9 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                                 final String[] featureBands,
                                 final String labelSource,
                                 final boolean evaluateClassifier,
-                                final boolean evaluateFeaturePowerSet) {
+                                final boolean evaluateFeaturePowerSet,
+                                final int minPowerSetSize,
+                                final int maxPowerSetSize) {
             this.classifierType = classifierType;
             this.productSuffix = productSuffix;
             this.sourceProducts = sourceProducts;
@@ -164,6 +165,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             this.labelSource = labelSource;
             this.evaluateClassifier = evaluateClassifier;
             this.evaluateFeaturePowerSet = evaluateFeaturePowerSet;
+            this.minPowerSetSize = minPowerSetSize;
+            this.maxPowerSetSize = maxPowerSetSize;
         }
     }
 
@@ -346,7 +349,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
         ProductUtils.copyProductNodes(params.sourceProducts[0], targetProduct);
 
-        final int dataType = (params.trainOnRaster) ? ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
+        final int dataType = (params.trainOnRaster) ? trainingSetMaskBand.getDataType() : ProductData.TYPE_INT16;
         labelBand = new Band(
                 LabelBandName,
                 dataType,
@@ -355,7 +358,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
         final String unit = (params.trainOnRaster && trainingSetMaskBand != null ? trainingSetMaskBand.getUnit() : "discrete classes");
         labelBand.setUnit(unit);
-        final double noDataVal = params.trainOnRaster ? DOUBLE_NO_DATA_VALUE : INT_NO_DATA_VALUE;
+        final double noDataVal = params.trainOnRaster ? trainingSetMaskBand.getNoDataValue() : INT_NO_DATA_VALUE;
         labelBand.setNoDataValue(noDataVal);
         labelBand.setNoDataValueUsed(true);
         labelBand.setValidPixelExpression(ConfidenceBandName + " >= 0.5");
@@ -376,6 +379,12 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             final ProductNodeGroup<VectorDataNode> vectorDataGroup = targetProduct.getVectorDataGroup();
             for (String vector : params.trainingVectors) {
                 vectorDataGroup.remove(vectorDataGroup.get(createClassLabel(vector)));
+            }
+        } else {
+            IndexCoding indexCoding = trainingSetMaskBand.getIndexCoding();
+            if(indexCoding != null) {
+                IndexCoding icCopy = ProductUtils.copyIndexCoding(indexCoding, targetProduct);
+                labelBand.setSampleCoding(icCopy);
             }
         }
         targetProduct.addBand(labelBand);
@@ -735,11 +744,11 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
         try {
             // get the power set of all features
-            Set<Set<FeatureInfo>> featurePowerSet = Sets.powerSet(ImmutableSet.copyOf(Arrays.asList(completeFeatureInfoList)));
+            final PowerSet<FeatureInfo> featurePowerSet = new PowerSet<>(ImmutableSet.copyOf(Arrays.asList(completeFeatureInfoList)),
+                    params.minPowerSetSize, params.maxPowerSetSize);
+
             List<Set<FeatureInfo>> featureSetList = new ArrayList<>();
             for (Set<FeatureInfo> featureSet : featurePowerSet) {
-                if (featureSet.size() < minPowerSetSize || featureSet.size() > maxPowerSetSize)
-                    continue;
                 featureSetList.add(featureSet);
             }
             pm.beginTask("Evaluating feature power set", featureSetList.size());
@@ -755,12 +764,12 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 Classifier setClassifier = createMLClassifier(featureInfos);
 
                 // create subset of labeledInstances
-               // LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfos, allLabeledInstances);
+                LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfos, allLabeledInstances);
 
-                final LabeledInstances allLabeledInstances2 = getLabeledInstances(operator, params.numTrainSamples * 2,
-                                                                                  featureInfoList);
+                //final LabeledInstances allLabeledInstances2 = getLabeledInstances(operator, params.numTrainSamples * 2,
+                //                                                                 featureInfoList);
 
-                trainClassifier(setClassifier, getClassifierName() + '.' + cnt, allLabeledInstances2,
+                trainClassifier(setClassifier, getClassifierName() + '.' + cnt, subsetLabeledInstances,
                                 featureInfos, true);
                 ++cnt;
                 pm.worked(1);
@@ -1002,6 +1011,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                                                                                          params.sourceProducts[0].getSceneGeoCoding(),
                                                                                          polygonVectorDataNodes);
                 if (polygons.length == 0) {
+                    status.worked(1);
                     continue;
                 }
 

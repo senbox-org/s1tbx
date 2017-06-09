@@ -47,7 +47,7 @@ public final class AbstractMetadata {
 
     public static final String abstracted_metadata_version = "metadata_version";
     public static final String ABSTRACT_METADATA_ROOT = "Abstracted_Metadata";
-    private static final String ORIGINAL_PRODUCT_METADATA = "Original_Product_Metadata";
+    public static final String ORIGINAL_PRODUCT_METADATA = "Original_Product_Metadata";
     public static final String BAND_PREFIX = "Band_";
 
     /**

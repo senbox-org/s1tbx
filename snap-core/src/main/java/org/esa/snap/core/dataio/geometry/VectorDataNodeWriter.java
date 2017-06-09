@@ -17,7 +17,6 @@
 package org.esa.snap.core.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
-import com.thoughtworks.xstream.core.util.OrderRetainingMap;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.util.StringUtils;
@@ -32,6 +31,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,12 +49,9 @@ public class VectorDataNodeWriter {
     private static long id = System.nanoTime();
 
     public void write(VectorDataNode vectorDataNode, File file) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        try {
+        try (FileWriter writer = new FileWriter(file)) {
             writeNodeProperties(vectorDataNode, writer);
             writeFeatures(vectorDataNode.getFeatureCollection(), writer);
-        } finally {
-            writer.close();
         }
     }
 
@@ -71,7 +69,7 @@ public class VectorDataNodeWriter {
     }
 
     void writeNodeProperties(VectorDataNode vectorDataNode, Writer writer) throws IOException {
-        OrderRetainingMap properties = new OrderRetainingMap();
+        HashMap<String, String> properties = new LinkedHashMap<>();
         final Map<Object, Object> userData = vectorDataNode.getFeatureType().getUserData();
         final Set<Map.Entry<Object, Object>> entries = userData.entrySet();
         for (Map.Entry<Object, Object> entry : entries) {

@@ -221,6 +221,61 @@ public class CrsGeoCodingTest {
         assertSame(DefaultGeographicCRS.WGS84.getCoordinateSystem(), testedDefaultCrs.getCoordinateSystem());
     }
 
+    @Test
+    public void testGetPixels() throws FactoryException, TransformException {
+        int numPixels = 10000;
+        String wkt = "PROJCS[\"MODIS_Sinusoidal\", \n" +
+                     "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
+                     "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
+                     "      SPHEROID[\"Custom spheroid\", 6371007.181, 0.0]], \n" +
+                     "    PRIMEM[\"Greenwich\", 0.0], \n" +
+                     "    UNIT[\"degree\", 0.017453292519943295], \n" +
+                     "    AXIS[\"Longitude\", EAST], \n" +
+                     "    AXIS[\"Latitude\", NORTH]], \n" +
+                     "  PROJECTION[\"Sinusoidal\"], \n" +
+                     "  PARAMETER[\"central_meridian\", 0.0], \n" +
+                     "  PARAMETER[\"scale_factor\", 1.0], \n" +
+                     "  PARAMETER[\"false_easting\", 1000.0], \n" +
+                     "  PARAMETER[\"false_northing\", 500000.0], \n" +
+                     "  UNIT[\"m\", 1.0], \n" +
+                     "  AXIS[\"x\", EAST], \n" +
+                     "  AXIS[\"y\", NORTH]]";
+        CoordinateReferenceSystem testedCrs = CRS.parseWKT(wkt);
+        CrsGeoCoding geoCoding = new CrsGeoCoding(testedCrs, new Rectangle(100, 100, 100, 100), new AffineTransform());
+
+        double[] latPixels_1 = new double[numPixels];
+        double[] latPixels_2 = new double[numPixels];
+        double[] latPixels_3 = new double[numPixels];
+        double[] lonPixels_1 = new double[numPixels];
+        double[] lonPixels_2 = new double[numPixels];
+        double[] lonPixels_3 = new double[numPixels];
+
+        GeoPos geoPos = new GeoPos();
+        final PixelPos pixelPos = new PixelPos();
+        int entryCount = 0;
+        for (int y = 0; y < 100; y++) {
+            double yp = y + 0.5;
+            for (int x = 0; x < 100; x++) {
+                pixelPos.setLocation(x + 0.5, yp);
+                geoCoding.getGeoPos(pixelPos, geoPos);
+                latPixels_3[entryCount] = (float) geoPos.getLat();
+                lonPixels_3[entryCount] = (float) geoPos.getLon();
+                entryCount++;
+            }
+        }
+
+        geoCoding.getPixelsOneByOne(0, 0, 100, 100, latPixels_2, lonPixels_2);
+
+        geoCoding.getPixels(0, 0, 100, 100, latPixels_1, lonPixels_1);
+
+        for (int i = 0; i < numPixels; i++) {
+            assertEquals(latPixels_1[i], latPixels_2[i], 1e-8);
+            assertEquals(latPixels_1[i], latPixels_3[i], 1e-6);
+            assertEquals(lonPixels_1[i], lonPixels_2[i], 1e-8);
+            assertEquals(lonPixels_1[i], lonPixels_3[i], 1e-6);
+        }
+    }
+
     private void comparePixelPos(GeoCoding destGeoCoding, PixelPos pixelPos, PixelPos pixelPos1) {
         GeoPos srcPos = srcGeoCoding.getGeoPos(pixelPos, null);
         GeoPos destPos = destGeoCoding.getGeoPos(pixelPos1, null);

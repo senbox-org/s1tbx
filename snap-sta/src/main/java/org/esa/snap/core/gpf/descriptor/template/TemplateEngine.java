@@ -15,8 +15,8 @@
  */
 package org.esa.snap.core.gpf.descriptor.template;
 
-import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.runtime.parser.ParseException;
@@ -24,9 +24,29 @@ import org.apache.velocity.runtime.parser.node.SimpleNode;
 import org.esa.snap.core.gpf.descriptor.SystemVariable;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
+import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
-import javax.script.*;
-import java.io.*;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -58,7 +78,7 @@ public abstract class TemplateEngine<C> {
      * @param template  The template to parse
      * @throws TemplateException
      */
-    public abstract void parse(TemplateFile template) throws TemplateException;
+    public abstract void parse(Template template) throws TemplateException;
 
     /**
      * Processes the given template.
@@ -68,7 +88,7 @@ public abstract class TemplateEngine<C> {
      * @return              If everything ok, the transformed template
      * @throws TemplateException
      */
-    public abstract String execute(TemplateFile template, Map<String, Object> parameters) throws TemplateException;
+    public abstract String execute(Template template, Map<String, Object> parameters) throws TemplateException;
 
     /**
      * Returns the type of the template. Can be either TemplateType.VELOCITY or TemplateType.JAVASCRIPT
@@ -108,9 +128,11 @@ public abstract class TemplateEngine<C> {
         switch (templateType) {
             case JAVASCRIPT:
                 return new JavascriptEngine(descriptor, stateful);
+            case XSLT:
+                return new XsltEngine(descriptor, stateful);
             case VELOCITY:
             default:
-                return new VelocityEngine(descriptor, stateful);
+                return new ApacheVelocityEngine(descriptor, stateful);
         }
     }
 
@@ -122,7 +144,7 @@ public abstract class TemplateEngine<C> {
      * @return              A list of strings representing the lines of the processed template
      * @throws TemplateException
      */
-    public List<String> getLines(TemplateFile template, Map<String, Object> parameters) throws TemplateException {
+    public List<String> getLines(Template template, Map<String, Object> parameters) throws TemplateException {
         if (template == null) {
             throw new IllegalArgumentException("null template");
         }
@@ -144,14 +166,14 @@ public abstract class TemplateEngine<C> {
     /**
      * Implementation for Apache Velocity engine.
      */
-    static class VelocityEngine extends TemplateEngine<VelocityContext> {
+    static class ApacheVelocityEngine extends TemplateEngine<VelocityContext> {
 
         /**
          * Implementation wrapper for org.apache.velocity.VelocityContext
          */
         static class VelocityCtx extends TemplateContext<VelocityContext> {
 
-            public VelocityCtx(VelocityContext wrappedContext) {
+            VelocityCtx(VelocityContext wrappedContext) {
                 super(wrappedContext);
             }
 
@@ -163,7 +185,7 @@ public abstract class TemplateEngine<C> {
 
         private String macroTemplateContents;
 
-        VelocityEngine(ToolAdapterOperatorDescriptor descriptor, boolean stateful) {
+        ApacheVelocityEngine(ToolAdapterOperatorDescriptor descriptor, boolean stateful) {
             super(descriptor);
             if (stateful) {
                 context = new VelocityCtx(new VelocityContext());
@@ -184,19 +206,25 @@ public abstract class TemplateEngine<C> {
         }
 
         @Override
-        public void parse(TemplateFile template) throws TemplateException {
-            org.apache.velocity.app.VelocityEngine veloEngine = new org.apache.velocity.app.VelocityEngine();
-            File templateFile = template.getTemplatePath();
-            veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
+        public void parse(Template template) throws TemplateException {
+            VelocityEngine veloEngine = new VelocityEngine();
+            if (!template.isInMemory()) {
+                File templateFile = template.getPath();
+                veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
+            }
             List<SystemVariable> variables = operatorDescriptor.getVariables();
             for(SystemVariable variable : variables) {
-                veloEngine.addProperty(variable.getKey(), variable.getValue());
+                String variableValue = variable.getValue();
+                if (variableValue == null) {
+                    variableValue = "";
+                }
+                veloEngine.addProperty(variable.getKey(), variableValue);
             }
             veloEngine.init();
             boolean evalResult;
             try {
                 String contents = template.getContents();
-                evalResult = veloEngine.evaluate(new VelocityContext(), new StringWriter(), templateFile.getName(), contents);
+                evalResult = veloEngine.evaluate(new VelocityContext(), new StringWriter(), template.getName(), contents);
             } catch (Exception inner) {
                 throw new TemplateException(inner);
             }
@@ -206,20 +234,29 @@ public abstract class TemplateEngine<C> {
         }
 
         @Override
-        public String execute(TemplateFile template, Map<String, Object> parameters) throws TemplateException {
+        public String execute(Template template, Map<String, Object> parameters) throws TemplateException {
             try {
-                org.apache.velocity.app.VelocityEngine veloEngine = new org.apache.velocity.app.VelocityEngine();
+                VelocityEngine veloEngine = new VelocityEngine();
                 VelocityContext veloContext = context != null ? context.getContext() : new VelocityContext();
-                File templateFile = template.getTemplatePath();
-                veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
+                if (!template.isInMemory()) {
+                    File templateFile = template.getPath();
+                    if (templateFile.getParent() != null) {
+                        veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
+                    }
+                }
                 List<SystemVariable> variables = operatorDescriptor.getVariables();
                 for (SystemVariable variable : variables) {
-                    veloEngine.addProperty(variable.getKey(), variable.getValue());
-                    veloContext.put(variable.getKey(), variable.getValue());
+                    String variableValue = variable.getValue();
+                    if (variableValue == null) {
+                        variableValue = "";
+                    }
+                    veloEngine.addProperty(variable.getKey(), variableValue);
+                    veloContext.put(variable.getKey(), variableValue);
                 }
                 veloEngine.init();
                 //Template veloTemplate = veloEngine.getTemplate(templateFile.getName());
-                Template veloTemplate = createTemplate(veloEngine, templateFile); //veloEngine.getTemplate(templateFile.getName());
+                org.apache.velocity.Template veloTemplate = createTemplate(veloEngine, template);
+                        //veloEngine.getTemplate(templateFile.getName());
                 for (String key : parameters.keySet()) {
                     veloContext.put(key, parameters.get(key));
                 }
@@ -237,23 +274,26 @@ public abstract class TemplateEngine<C> {
             return TemplateType.VELOCITY;
         }
 
-        private Template createTemplate(org.apache.velocity.app.VelocityEngine engine, File templateFile) throws ParseException, IOException {
-            Template template;
+        private org.apache.velocity.Template createTemplate(org.apache.velocity.app.VelocityEngine engine, Template internalTemplate) throws ParseException, IOException {
+            org.apache.velocity.Template template;
             if (this.macroTemplateContents != null && !this.macroTemplateContents.isEmpty()) {
                 RuntimeServices runtimeServices = RuntimeSingleton.getRuntimeServices();
                 String veloTemplate = this.macroTemplateContents + "\n" +
-                        new String(Files.readAllBytes(templateFile.toPath()));
+                        (internalTemplate.isInMemory() ?
+                            internalTemplate.getContents() :
+                            new String(Files.readAllBytes(internalTemplate.getPath().toPath())));
                 StringReader reader = new StringReader(veloTemplate);
-                SimpleNode node = runtimeServices.parse(reader, templateFile.getName());
-                template = new Template();
+                SimpleNode node = runtimeServices.parse(reader, internalTemplate.getName());
+                template = new org.apache.velocity.Template();
                 template.setRuntimeServices(runtimeServices);
                 template.setData(node);
                 template.initDocument();
             } else {
-                template = engine.getTemplate(templateFile.getName());
+                template = engine.getTemplate(internalTemplate.getName());
             }
             return template;
         }
+
     }
 
     /**
@@ -266,7 +306,7 @@ public abstract class TemplateEngine<C> {
          */
         static class JavaScriptCtx extends TemplateContext<ScriptContext> {
 
-            public JavaScriptCtx(ScriptContext wrappedContext) {
+            JavaScriptCtx(ScriptContext wrappedContext) {
                 super(wrappedContext);
             }
 
@@ -284,7 +324,7 @@ public abstract class TemplateEngine<C> {
         }
 
         @Override
-        public void parse(TemplateFile template) throws TemplateException {
+        public void parse(org.esa.snap.core.gpf.descriptor.template.Template template) throws TemplateException {
             try {
                 if (template == null) {
                     throw new ScriptException("null template");
@@ -297,7 +337,7 @@ public abstract class TemplateEngine<C> {
         }
 
         @Override
-        public String execute(TemplateFile template, Map<String, Object> parameters) throws TemplateException {
+        public String execute(org.esa.snap.core.gpf.descriptor.template.Template template, Map<String, Object> parameters) throws TemplateException {
             String result;
             Bindings bindings = new SimpleBindings(parameters);
             scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
@@ -321,4 +361,71 @@ public abstract class TemplateEngine<C> {
         }
     }
 
+    static class XsltEngine extends TemplateEngine<Transformer> {
+
+        /**
+         * Implementation wrapper for javax.script.ScriptContext
+         */
+        static class XsltContext extends TemplateContext<Transformer> {
+
+            public XsltContext(Transformer transformer) {
+                super(transformer);
+            }
+
+            @Override
+            public Object getValue(String name) {
+                return this.context != null ? this.context.getParameter(name) : null;
+            }
+        }
+
+        XsltEngine(ToolAdapterOperatorDescriptor descriptor, boolean stateful) {
+            super(descriptor);
+        }
+
+        @Override
+        public void parse(org.esa.snap.core.gpf.descriptor.template.Template template) throws TemplateException {
+            if (template == null) {
+                throw new TemplateException("null template");
+            }
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            try {
+                SAXParser saxParser = saxParserFactory.newSAXParser();
+                String templateContents = template.getContents();
+                saxParser.parse(new InputSource(new StringReader(templateContents)), new DefaultHandler());
+            } catch (Exception ex) {
+                throw new TemplateException(ex);
+            }
+        }
+
+        @Override
+        public String execute(org.esa.snap.core.gpf.descriptor.template.Template template, Map<String, Object> parameters) throws TemplateException {
+            String result;
+            try {
+                Source stringSource = new StreamSource(new StringReader(template.getContents()));
+                this.context = new XsltContext(TransformerFactory.newInstance().newTransformer(stringSource));
+                Transformer transformContext = this.context.getContext();
+                if (parameters != null) {
+                    for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                        if (entry.getValue() != null) {
+                            transformContext.setParameter(entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+                transformContext.setOutputProperty("method", "xml");
+                transformContext.setOutputProperty("indent", "yes");
+                StringWriter writer = new StringWriter();
+                transformContext.transform(new DOMSource(), new StreamResult(writer));
+                result = writer.toString();
+                this.lastContext = this.context;
+            } catch (Exception ex) {
+                throw new TemplateException(ex);
+            }
+            return result;
+        }
+
+        @Override
+        public TemplateType getType() {
+            return TemplateType.XSLT;
+        }
+    }
 }

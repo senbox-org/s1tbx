@@ -22,7 +22,6 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.ImageGeometry;
 import org.esa.snap.core.datamodel.MapGeoCoding;
 import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.dataop.maptransf.LambertConformalConicDescriptor;
@@ -226,11 +225,7 @@ public class EnviHeader {
     }
 
     /**
-     * Writes the datatype of the <code>Band</code> to the out stream
-     *
-     * @param dataType one of <code>ProductData.TYPE_<i>X</i></code>
-     * @param out      the stream to write to
-     * @throws java.lang.IllegalArgumentException
+     * Writes the data type of the {@code Band} to the out stream
      */
     private static void writeDataType(PrintWriter out, int dataType) {
         int enviType;
@@ -301,14 +296,8 @@ public class EnviHeader {
     /**
      * Writes the systems byte order to the out stream. In java only high byte first.
      *
-     * @param out            the stream to write to
-     * @param rasterDataNode
      */
-    private static void writeMapProjectionInfo(PrintWriter out, RasterDataNode rasterDataNode) {
-        Product product = rasterDataNode.getProduct();
-        if (product == null) {
-            return;
-        }
+    static void writeMapProjectionInfo(PrintWriter out, RasterDataNode rasterDataNode) {
 
         String mapProjectionName = "Arbitrary";
         String mapUnits = "Meters";
@@ -320,11 +309,11 @@ public class EnviHeader {
         String utmHemisphere = "";
         MapProjection mapProjection = null;
 
-        if (product.getSceneGeoCoding() instanceof CrsGeoCoding) {
-            final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) product.getSceneGeoCoding();
+        if (rasterDataNode.getGeoCoding() instanceof CrsGeoCoding) {
+            final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) rasterDataNode.getGeoCoding();
             final CoordinateReferenceSystem crs = crsGeoCoding.getMapCRS();
 
-            final ImageGeometry imgGeom = ImageGeometry.createTargetGeometry(product, crs,
+            final ImageGeometry imgGeom = ImageGeometry.createTargetGeometry(rasterDataNode, crs,
                     null, null, null, null,
                     null, null, null, null, null);
 
@@ -342,8 +331,8 @@ public class EnviHeader {
                 }
                 utmZone = Integer.parseInt(zoneNumStr);
 
-                GeoPos centrePos = crsGeoCoding.getGeoPos(new PixelPos(product.getSceneRasterWidth() / 2,
-                        product.getSceneRasterHeight() / 2), null);
+                GeoPos centrePos = crsGeoCoding.getGeoPos(new PixelPos(rasterDataNode.getRasterWidth() / 2,
+                                                                       rasterDataNode.getRasterHeight() / 2), null);
                 utmHemisphere = centrePos.getLat() > 0 ? "North" : "South";
             }
             referencePixelX = imgGeom.getReferencePixelX();
@@ -354,8 +343,8 @@ public class EnviHeader {
             pixelSizeY = imgGeom.getPixelSizeY();
             datumName = crsGeoCoding.getDatum().getName();
 
-        } else if (product.getSceneGeoCoding() instanceof MapGeoCoding) {
-            final MapGeoCoding mapGeoCoding = (MapGeoCoding) product.getSceneGeoCoding();
+        } else if (rasterDataNode.getGeoCoding() instanceof MapGeoCoding) {
+            final MapGeoCoding mapGeoCoding = (MapGeoCoding) rasterDataNode.getGeoCoding();
 
             final MapInfo info = mapGeoCoding.getMapInfo();
             if (info == null) {
@@ -464,7 +453,7 @@ public class EnviHeader {
         }
 
         // write coordinate system string
-        GeoCoding geoCoding = product.getSceneGeoCoding();
+        GeoCoding geoCoding = rasterDataNode.getGeoCoding();
         CoordinateReferenceSystem crs = geoCoding.getMapCRS();
         if (crs != null) {
             String wkt;

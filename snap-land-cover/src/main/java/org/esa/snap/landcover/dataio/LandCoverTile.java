@@ -15,7 +15,7 @@
  */
 package org.esa.snap.landcover.dataio;
 
-import org.esa.snap.engine_utilities.datamodel.DownloadableFile;
+import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableFile;
 
 /**
  * Interface for Land Cover tiles

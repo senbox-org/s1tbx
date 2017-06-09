@@ -22,6 +22,7 @@ package org.esa.snap.core.util.math;/*
 public final class SphericalDistance implements DistanceMeasure {
 
     private final double lon;
+    private final double lat;
     private final double si;
     private final double co;
 
@@ -33,6 +34,7 @@ public final class SphericalDistance implements DistanceMeasure {
      */
     public SphericalDistance(double lon, double lat) {
         this.lon = lon;
+        this.lat = lat;
         this.si = Math.sin(Math.toRadians(lat));
         this.co = Math.cos(Math.toRadians(lat));
     }
@@ -49,6 +51,9 @@ public final class SphericalDistance implements DistanceMeasure {
      */
     @Override
     public double distance(double lon, double lat) {
+        if (lon == this.lon && lat == this.lat) {
+            return 0.0;
+        }
         final double phi = Math.toRadians(lat);
         return Math.acos(si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
     }

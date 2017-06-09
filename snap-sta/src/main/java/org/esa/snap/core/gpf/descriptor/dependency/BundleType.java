@@ -1,7 +1,10 @@
 package org.esa.snap.core.gpf.descriptor.dependency;
 
 /**
- * Created by kraftek on 10/31/2016.
+ * Bundle types enumeration.
+ *
+ * @author  Cosmin Cara
+ * @since   5.0.4
  */
 public enum BundleType {
     /**
@@ -9,12 +12,29 @@ public enum BundleType {
      */
     NONE,
     /**
-     * The dependencies are bundled as a single archive (zip) file
+     * The dependencies are packed as a single zip
      */
-    ARCHIVE,
+    ZIP,
     /**
      * The dependencies are bundled as an installer
      */
-    INSTALLER
+    INSTALLER;
 
+
+    @Override
+    public String toString() {
+        String ret = null;
+        switch (this) {
+            case NONE:
+                ret = "None";
+                break;
+            case ZIP:
+                ret = "Zip archive";
+                break;
+            case INSTALLER:
+                ret = "Installer";
+                break;
+        }
+        return ret;
+    }
 }

@@ -261,7 +261,7 @@ public class BandMathsOp extends Operator {
         }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
-        targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
+        targetProduct = new Product(sourceProducts[0].getName() + "_BandMath", "BandMath", width, height);
         descriptorMap = new HashMap<>(targetBandDescriptors.length);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
             Term targetTerm = createTerm(bandDescriptor.expression, true);
