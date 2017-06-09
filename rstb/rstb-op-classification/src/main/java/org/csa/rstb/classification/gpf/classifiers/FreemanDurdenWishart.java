@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class FreemanDurdenWishart extends PolClassifierBase implements PolClassifier {
 
-    private final static String TERRAIN_CLASS = "Freeman-Durden_wishart_class";
+    private final static String TERRAIN_CLASS = "Freeman_Durden_wishart_class";
     private final int numInitialClusters; // number of initial clusters in each category
 
     private boolean clusterCentersComputed = false;
