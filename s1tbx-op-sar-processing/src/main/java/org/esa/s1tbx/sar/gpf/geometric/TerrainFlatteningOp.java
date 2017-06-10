@@ -376,13 +376,8 @@ public final class TerrainFlatteningOp extends Operator {
                         sigma0BandName = "Sigma0_" + srcBandName;
                     }
                 } else { // amplitude or intensity
-                    final String pol = OperatorUtils.getBandPolarization(srcBandName, absRoot);
-                    gamma0BandName = "Gamma0";
-                    sigma0BandName = "Sigma0";
-                    if (pol != null && !pol.isEmpty()) {
-                        gamma0BandName = "Gamma0_" + pol.toUpperCase();
-                        sigma0BandName = "Sigma0_" + pol.toUpperCase();
-                    }
+                    gamma0BandName = srcBandName.replaceFirst("Beta0", "Gamma0");
+                    sigma0BandName = srcBandName.replaceFirst("Beta0", "Sigma0");
                     tgtUnit = Unit.INTENSITY;
                 }
 
