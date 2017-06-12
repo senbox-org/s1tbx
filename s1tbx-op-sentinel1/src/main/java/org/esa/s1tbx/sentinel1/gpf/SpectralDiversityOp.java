@@ -237,7 +237,7 @@ public class SpectralDiversityOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains(StackUtils.MST)) {
+            if (StackUtils.isMasterBand(srcBandName, sourceProduct)) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset") ||
                     srcBandName.contains("derampDemod")) {
