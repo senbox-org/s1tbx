@@ -343,14 +343,15 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         if(maskOutAreaWithoutElevation) {
             Band slvBand = null;
             for(Band tgtBand : targetProduct.getBands()) {
-                if(tgtBand.getName().contains("_slv")) {
+                if(StackUtils.isSlaveBand(tgtBand, targetProduct)) {
                     slvBand = tgtBand;
                     break;
                 }
             }
+
             if(slvBand != null) {
                 for (Band tgtBand : targetProduct.getBands()) {
-                    if (tgtBand.getName().contains("_mst")) {
+                    if (StackUtils.isMasterBand(tgtBand, targetProduct)) {
                         tgtBand.setValidPixelExpression(slvBand.getName());
                     }
                 }
