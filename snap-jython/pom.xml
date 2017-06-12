@@ -5,7 +5,7 @@
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>5.0.6-SNAPSHOT</version>
+        <version>5.0.6</version>
     </parent>
 
     <artifactId>snap-jython</artifactId>
