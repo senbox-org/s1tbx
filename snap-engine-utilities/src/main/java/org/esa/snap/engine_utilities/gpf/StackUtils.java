@@ -148,6 +148,28 @@ public final class StackUtils {
         return bandNames.toArray(new String[bandNames.size()]);
     }
 
+    public static boolean isMasterBand(final Band band, final Product sourceProduct) {
+        return isMasterBand(band.getName(), sourceProduct);
+    }
+
+    public static boolean isMasterBand(final String bandName, final Product sourceProduct) {
+
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+
+        if (slaveMetadataRoot != null) {
+            final String mstBandNames = slaveMetadataRoot.getAttributeString(AbstractMetadata.MASTER_BANDS, "");
+            return mstBandNames.contains(bandName);
+        }
+
+        for(String srcBandName : sourceProduct.getBandNames()) {
+            if(srcBandName.toLowerCase().contains(MST) && srcBandName.contains(bandName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns all master band names including virtual intensity bands
      * @param sourceProduct coregistered product
@@ -193,6 +215,48 @@ public final class StackUtils {
             }
         }
         return bandNames.toArray(new String[bandNames.size()]);
+    }
+
+    public static boolean isSlaveBand(final Band band, final Product sourceProduct) {
+        return isSlaveBand(band.getName(), sourceProduct);
+    }
+
+    public static boolean isSlaveBand(final String bandName, final Product sourceProduct) {
+
+        final String[] slvProductNames = StackUtils.getSlaveProductNames(sourceProduct);
+        for (String slvProductName:slvProductNames) {
+            if (isSlaveBand(bandName, sourceProduct, slvProductName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isSlaveBand(final Band band, final Product sourceProduct, final String slvProductName) {
+        return isSlaveBand(band.getName(), sourceProduct, slvProductName);
+    }
+
+    public static boolean isSlaveBand(final String bandName, final Product sourceProduct, final String slvProductName) {
+
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+
+        if (slaveMetadataRoot != null) {
+            final MetadataElement elem = slaveMetadataRoot.getElement(slvProductName);
+            final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
+            if(!slvBandNames.isEmpty()) {
+                return slvBandNames.contains(bandName);
+            }
+        }
+
+        String dateSuffix = slvProductName.substring(slvProductName.lastIndexOf('_'), slvProductName.length()).toLowerCase();
+        for(String srcBandName : sourceProduct.getBandNames()) {
+            final String name = srcBandName.toLowerCase();
+            if(name.contains(SLV) && name.endsWith(dateSuffix) && srcBandName.contains(bandName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String[] getSlaveProductNames(final Product sourceProduct) {
