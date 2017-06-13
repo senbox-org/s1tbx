@@ -120,10 +120,7 @@ public class DoubleDifferenceInterferogramOp extends Operator {
             cohWin = Integer.parseInt(cohWinSize);
             numOverlaps = subSwath[subSwathIndex - 1].numOfBursts - 1;
 
-            mstBandI = getSourceBand(StackUtils.MST, Unit.REAL);
-            mstBandQ = getSourceBand(StackUtils.MST, Unit.IMAGINARY);
-            slvBandI = getSourceBand(StackUtils.SLV, Unit.REAL);
-            slvBandQ = getSourceBand(StackUtils.SLV, Unit.IMAGINARY);
+            getSourceBands();
 
             createTargetProduct();
 
@@ -265,19 +262,31 @@ public class DoubleDifferenceInterferogramOp extends Operator {
         }
     }
 
-    private Band getSourceBand(final String suffix, final String bandUnit) {
+    private void getSourceBands() {
 
-        final String[] bandNames = sourceProduct.getBandNames();
-        for (String bandName : bandNames) {
-            if (!bandName.contains(suffix)) {
-                continue;
-            }
-            final Band band = sourceProduct.getBand(bandName);
-            if (band.getUnit().contains(bandUnit)) {
-                return band;
+        final Band[] sourceBands = sourceProduct.getBands();
+        for (Band band : sourceBands) {
+            final String bandName = band.getName();
+            final String unit = band.getUnit();
+
+            if (StackUtils.isMasterBand(bandName, sourceProduct)) {
+                if (unit.contains(Unit.REAL) && mstBandI == null) {
+                    mstBandI = band;
+                } else if (unit.contains(Unit.IMAGINARY) && mstBandQ == null) {
+                    mstBandQ = band;
+                }
+            } else if (StackUtils.isSlaveBand(bandName, sourceProduct)) {
+                if (unit.contains(Unit.REAL) && slvBandI == null) {
+                    slvBandI = band;
+                } else if (unit.contains(Unit.IMAGINARY) && slvBandQ == null) {
+                    slvBandQ = band;
+                }
             }
         }
-        return null;
+
+        if (mstBandI == null || mstBandQ == null || slvBandI == null || slvBandQ == null) {
+            throw new OperatorException("Invalid source bands");
+        }
     }
 
     /**
