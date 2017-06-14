@@ -100,19 +100,30 @@ public class AlosPalsarImageFile extends CEOSImageFile {
 
             String pol = imageFileName.substring(4, 6);
             String pol1 = imageFileName.substring(4, 9);
-            if (pol1.equals("HH+VV") || pol1.equals("HH-VV") || pol1.equals("HV+VH") || pol1.equals("HV-VH")) {
-                return pol1;
+            if (pol1.equals("HH+VV") || pol1.equals("HH-VV") || pol1.equals("HV+VH") || pol1.equals("HV-VH") ) {
+                if (pol1.equals("HH+VV"))
+                    return "HHplusVV";
+                else if (pol1.equals("HH-VV"))
+                    return "HHminusVV";
+                else if (pol1.equals("HV+VH"))
+                    return "HVplusVH";
+                else
+                    return "HVminusVH";
             } else if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
                 return pol;
             } else if (imageRecords[0] != null) {
                 try {
                     final int tx = imageRecords[0].getAttributeInt("Transmitted polarization");
                     final int rx = imageRecords[0].getAttributeInt("Received polarization");
-                    if (tx == 1) pol = "V";
-                    else pol = "H";
+                    if (tx == 1)
+                        pol = "V";
+                    else
+                        pol = "H";
 
-                    if (rx == 1) pol += "V";
-                    else pol += "H";
+                    if (rx == 1)
+                        pol += "V";
+                    else
+                        pol += "H";
 
                     return pol;
                 } catch (Exception e) {
