@@ -687,21 +687,21 @@ public class ToolAdapterIO {
             // Inspect all zip entries to see if there is a root zip folder.
             // If yes, it will be discarded so that the uncompression root folder is
             // the zip file name
-            LinkedHashMap<ZipEntry, String> fileNames = new LinkedHashMap<>();
+            LinkedHashMap<String, String> fileNames = new LinkedHashMap<>();
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 entry = entries.nextElement();
-                fileNames.put(entry, entry.getName());
+                fileNames.put(entry.getName(), entry.getName());
             }
             String firstEntry = fileNames.values().iterator().next();
-            String token = firstEntry.substring(0, firstEntry.indexOf(File.separator));
+            String token = firstEntry.substring(0, firstEntry.indexOf("/"));
             if (fileNames.values().stream().allMatch(n -> n.startsWith(token))) {
-                fileNames.values().forEach(n -> n = n.substring(n.indexOf(File.separator) + 1));
+                fileNames.values().forEach(n -> n = n.substring(n.indexOf("/") + 1));
             }
             entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 entry = entries.nextElement();
-                Path filePath = destination.resolve(fileNames.get(entry));//entry.getName());
+                Path filePath = destination.resolve(fileNames.get(entry.getName()));
                 if (!Files.exists(filePath)) {
                     if (entry.isDirectory()) {
                         Files.createDirectories(filePath);
