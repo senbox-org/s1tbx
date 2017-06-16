@@ -176,7 +176,9 @@ public class CreateStackOp extends Operator {
             }
 
             appendToMaster = AbstractMetadata.getAbstractedMetadata(masterProduct).
-                    getAttributeInt(AbstractMetadata.coregistered_stack, 0) == 1;
+                    getAttributeInt(AbstractMetadata.coregistered_stack, 0) == 1 ||
+                    AbstractMetadata.getAbstractedMetadata(masterProduct).getAttributeInt("collocated_stack", 0) == 1;
+
             final List<String> masterProductBands = new ArrayList<>(masterProduct.getNumBands());
 
             final Band[] slaveBandList = getSlaveBands();
@@ -234,13 +236,18 @@ public class CreateStackOp extends Operator {
             if (!appendToMaster) {
                 for (final Band srcBand : slaveBandList) {
                     if (srcBand.getProduct() == masterProduct) {
-                        suffix = StackUtils.MST + StackUtils.createBandTimeStamp(srcBand.getProduct());
+                        suffix = StackUtils.createBandTimeStamp(srcBand.getProduct());
+                        String tgtBandName = srcBand.getName();
+                        if (!tgtBandName.contains(suffix)) {
+                            tgtBandName += suffix;
+                        }
 
-                        final Band targetBand = new Band(srcBand.getName() + suffix,
+                        final Band targetBand = new Band(tgtBandName,
                                                          srcBand.getDataType(),
                                                          targetProduct.getSceneRasterWidth(),
                                                          targetProduct.getSceneRasterHeight());
-                        masterProductBands.add(targetBand.getName());
+
+                        masterProductBands.add(tgtBandName);
                         sourceRasterMap.put(targetBand, srcBand);
                         targetProduct.addBand(targetBand);
 
@@ -257,17 +264,22 @@ public class CreateStackOp extends Operator {
             int cnt = 1;
             if (appendToMaster) {
                 for (Band trgBand : targetProduct.getBands()) {
-                    final String name = trgBand.getName();
-                    if (name.contains(StackUtils.SLV + cnt))
+                    if (StackUtils.isSlaveBand(trgBand, targetProduct))
                         ++cnt;
                 }
             }
+
             for (final Band srcBand : slaveBandList) {
                 if (srcBand.getProduct() != masterProduct) {
-                    if (srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY)) {
-                    } else {
-                        suffix = StackUtils.SLV + cnt++ + StackUtils.createBandTimeStamp(srcBand.getProduct());
+                    final String timeStamp = StackUtils.createBandTimeStamp(srcBand.getProduct());
+                    if (!(srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY))) {
+                        if (srcBand.getName().contains(timeStamp)) {
+                            suffix = String.valueOf(cnt++);
+                        } else {
+                            suffix = cnt++ + timeStamp;
+                        }
                     }
+
                     final String tgtBandName = srcBand.getName() + suffix;
 
                     if (targetProduct.getBand(tgtBandName) == null) {

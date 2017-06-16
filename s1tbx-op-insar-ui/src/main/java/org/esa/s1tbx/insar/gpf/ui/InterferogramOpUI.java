@@ -15,7 +15,9 @@
  */
 package org.esa.s1tbx.insar.gpf.ui;
 
+import com.bc.ceres.swing.TableLayout;
 import org.esa.s1tbx.insar.gpf.CoherenceOp;
+import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.dem.dataio.DEMFactory;
@@ -25,13 +27,19 @@ import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
+import org.esa.snap.ui.ModalDialog;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -76,13 +84,39 @@ public class InterferogramOpUI extends BaseOperatorUI {
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
     private final JButton externalDEMBrowseButton = new JButton("...");
-    private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
+    private final JLabel externalDEMFileLabel = new JLabel("External DEM");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
     private final JCheckBox externalDEMApplyEGMCheckBox = new JCheckBox("Apply Earth Gravitational Model");
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
     private final JComboBox<String> tileExtensionPercent = new JComboBox<>(new String[]{"20", "40", "60", "80", "100", "150", "200"});
     private Double extNoDataValue = 0.0;
     private Boolean externalDEMApplyEGM = true;
+
+    private static final JLabel pairSelButtonLabel = new JLabel("Master-Slave Pair Selection");
+    private final JButton pairSelButton = new JButton("Pair Selection");
+    private final JTabbedPane tabbedPane = new JTabbedPane();
+    private JTextPane textArea;
+
+    final JCheckBox mstToAllSlvCheckBox = new JCheckBox("Master to all slaves");
+    final JList bandList = new JList();
+    final JScrollPane bandListPane = new JScrollPane(bandList);
+    final JLabel bandListLabel = new JLabel("Source Bands:");
+
+    final JCheckBox baselineCheckBox = new JCheckBox("Baseline based selection");
+    final JTextField maxGeoBaseline = new JTextField("");
+    final JTextField maxTempBaseline = new JTextField("");
+    final JLabel maxGeoBaselineLabel = new JLabel("Max Geometrical Baseline (m)");
+    final JLabel maxTempBaselineLabel = new JLabel("Max Temporal Baseline (day)");
+
+    private JPanel panel;
+    private ChartPanel chartPanel;
+    private JTextArea textarea;
+    private JFreeChart chart;
+    private XYSeriesCollection dataset;
+    private static final String TITLE = "Baselines";
+    private static final String XAXIS_LABEL = "Temporal Baseline";
+    private static final String YAXIS_LABEL = "Perpendicular Baseline";
+    public static final String EmptyMsg = "This tool window requires a coregistered stack product.";
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -199,6 +233,12 @@ public class InterferogramOpUI extends BaseOperatorUI {
         });
 
         externalDEMNoDataValue.addKeyListener(textAreaKeyListener);
+
+        pairSelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                promptPairSelection();
+            }
+        });
 
         return panel;
     }
@@ -396,6 +436,10 @@ public class InterferogramOpUI extends BaseOperatorUI {
         cohWinAz.setEnabled(false);
         cohWinAz.setEditable(false);
 
+        gbc.gridx = 0;
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, pairSelButtonLabel, pairSelButton);
+
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
@@ -442,5 +486,125 @@ public class InterferogramOpUI extends BaseOperatorUI {
         }
         externalDEMBrowseButton.setVisible(flag);
         externalDEMApplyEGMCheckBox.setVisible(flag);
+    }
+
+
+    private void promptPairSelection() {
+
+        final TopComponent pairSelTopComponent = new TopComponent();
+        pairSelTopComponent.setLayout(new BorderLayout());
+        pairSelTopComponent.setDisplayName("Master-Slave Pair Selection");
+        pairSelTopComponent.add(createTabbedPanel(), BorderLayout.CENTER);
+        pairSelTopComponent.open();
+        pairSelTopComponent.requestActive();
+    }
+
+    private JTabbedPane createTabbedPanel() {
+
+        tabbedPane.removeAll();
+        tabbedPane.add("Pair Selection", createTab1Panel());
+        tabbedPane.add("Baseline Plot", createTab2Panel());
+        tabbedPane.setSelectedIndex(0);
+
+        return tabbedPane;
+    }
+
+    private Component createTab1Panel() {
+
+        //=======================================
+        final JPanel contentPane = new JPanel();
+        contentPane.setLayout(new GridBagLayout());
+        final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
+
+        contentPane.add(mstToAllSlvCheckBox, gbc);
+        mstToAllSlvCheckBox.setSelected(true);
+        gbc.gridy++;
+
+        DialogUtils.addComponent(contentPane, gbc, bandListLabel, bandListPane);
+        gbc.gridy++;
+        gbc.gridy++;
+
+        contentPane.add(baselineCheckBox, gbc);
+        baselineCheckBox.setSelected(false);
+        gbc.gridy++;
+
+        DialogUtils.addComponent(contentPane, gbc, maxGeoBaselineLabel, maxGeoBaseline);
+        gbc.gridy++;
+
+        DialogUtils.addComponent(contentPane, gbc, maxTempBaselineLabel, maxTempBaseline);
+        gbc.gridy++;
+        enableBaselineFields(false);
+
+        //=======================================
+        OperatorUIUtils.initParamList(bandList, getBandNames(), (Object[])paramMap.get("sourceBands"));
+
+        mstToAllSlvCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                final boolean isSelected = e.getStateChange() == ItemEvent.SELECTED;
+                baselineCheckBox.setSelected(!isSelected);
+                enableSourceBandsField(isSelected);
+                enableBaselineFields(!isSelected);
+            }
+        });
+
+        baselineCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                final boolean isSelected = e.getStateChange() == ItemEvent.SELECTED;
+                mstToAllSlvCheckBox.setSelected(!isSelected);
+                enableSourceBandsField(!isSelected);
+                enableBaselineFields(isSelected);
+            }
+        });
+
+        return contentPane;
+    }
+
+    private Component createTab2Panel() {
+
+        // Add the series to your data set
+        dataset = new XYSeriesCollection();
+
+        // Generate the graph
+        chart = ChartFactory.createXYLineChart(
+                TITLE, // Title
+                XAXIS_LABEL, // x-axis Label
+                YAXIS_LABEL, // y-axis Label
+                dataset, // Dataset
+                PlotOrientation.VERTICAL, // Plot Orientation
+                true, // Show Legend
+                true, // Use tooltips
+                false // Configure chart to generate URLs?
+        );
+
+        chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(500, 470));
+        chartPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        panel = new JPanel(new BorderLayout());
+        textarea = new JTextArea(EmptyMsg);
+        panel.add(textarea, BorderLayout.NORTH);
+        panel.add(chartPanel, BorderLayout.CENTER);
+        setVisible(false);
+
+        return panel;
+
+        /*textArea = new JTextPane();
+        textArea.setContentType("text/html");
+        return new JScrollPane(textArea);*/
+    }
+
+    private void setVisible(final boolean flag) {
+        textarea.setVisible(!flag);
+        chartPanel.setVisible(flag);
+    }
+
+    private void enableSourceBandsField(final boolean isSelected) {
+        bandListPane.setEnabled(isSelected);
+        bandListPane.setRequestFocusEnabled(isSelected);
+    }
+
+    private void enableBaselineFields(final boolean isSelected) {
+        maxGeoBaseline.setEnabled(isSelected);
+        maxTempBaseline.setEnabled(isSelected);
     }
 }

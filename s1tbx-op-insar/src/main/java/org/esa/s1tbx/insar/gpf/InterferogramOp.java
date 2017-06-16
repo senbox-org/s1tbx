@@ -367,16 +367,12 @@ public class InterferogramOp extends Operator {
 
     private void constructSourceMetadata() throws Exception {
 
-        // define sourceMaster/sourceSlave name tags
-        final String masterTag = "mst";
-        final String slaveTag = "slv";
-
         // get sourceMaster & sourceSlave MetadataElement
         final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
 
         // organize metadata
         // put sourceMaster metadata into the masterMap
-        metaMapPut(masterTag, mstRoot, sourceProduct, masterMap);
+        metaMapPut(StackUtils.MST, mstRoot, sourceProduct, masterMap);
 
         // put sourceSlave metadata into slaveMap
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
@@ -386,7 +382,7 @@ public class InterferogramOp extends Operator {
         MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
             if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
-                metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
+                metaMapPut(StackUtils.SLV, meta, sourceProduct, slaveMap);
         }
     }
 
@@ -405,7 +401,8 @@ public class InterferogramOp extends Operator {
                 String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
 
                 // metadata: construct classes and define bands
-                final String date = OperatorUtils.getAcquisitionDate(root);
+//                final String date = OperatorUtils.getAcquisitionDate(root);
+                final String date = OperatorUtils.getAcquisitionTime(root);
                 final SLCImage meta = new SLCImage(root, product);
                 final Orbit orbit = new Orbit(root, orbitDegree);
 
@@ -416,7 +413,9 @@ public class InterferogramOp extends Operator {
                 Band bandReal = null;
                 Band bandImag = null;
                 for (String bandName : product.getBandNames()) {
-                    if (bandName.contains(tag) && bandName.contains(date)) {
+//                    if (bandName.contains(tag) && bandName.contains(date)) {
+                    if (tag.contains(StackUtils.MST) && StackUtils.isMasterBand(bandName, product) ||
+                            tag.contains(StackUtils.SLV) && StackUtils.isSlaveBand(bandName, product)) {
                         if (subswath.isEmpty() || bandName.contains(subswath)) {
                             if (pol.isEmpty() || bandName.contains(pol)) {
                                 final Band band = product.getBand(bandName);
@@ -470,8 +469,11 @@ public class InterferogramOp extends Operator {
 
             if (CREATE_VIRTUAL_BAND) {
                 final String countStr = '_' + productTag + tag;
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
-                Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
+                        targetProduct.getBand(targetBandName_Q), countStr);
+
+                Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct,
+                        targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
 
                 targetProduct.setQuicklookBandName(phaseBand.getName());
                 targetBandNames.add(phaseBand.getName());
@@ -503,9 +505,11 @@ public class InterferogramOp extends Operator {
                 targetBandNames.add(fepBand.getName());
             }
 
-            String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
-            StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
-                                                 targetBandNames.toArray(new String[targetBandNames.size()]));
+//            String slvProductName = StackUtils.findOriginalSlaveProductName(
+//                    sourceProduct, container.sourceSlave.realBand);
+
+//            StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
+//                                                 targetBandNames.toArray(new String[targetBandNames.size()]));
         }
 
         for(String bandName : sourceProduct.getBandNames()) {
