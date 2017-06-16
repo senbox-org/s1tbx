@@ -229,8 +229,7 @@ public final class BackGeocodingOp extends Operator {
             createTargetProduct();
 
             final List<String> masterProductBands = new ArrayList<>();
-//            final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
-            final String mstSuffix = StackUtils.createBandTimeStamp(masterProduct);
+            final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
             for (String bandName : masterProduct.getBandNames()) {
                 if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                     continue;
@@ -314,8 +313,7 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         
         final String[] masterBandNames = masterProduct.getBandNames();
-//        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
-        final String mstSuffix = StackUtils.createBandTimeStamp(masterProduct);
+        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
             if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
@@ -335,8 +333,7 @@ public final class BackGeocodingOp extends Operator {
         int i = 1;
         for(SlaveData slaveData : slaveDataList) {
             final String[] slaveBandNames = slaveData.slaveProduct.getBandNames();
-//            final String slvSuffix = StackUtils.SLV + i + StackUtils.createBandTimeStamp(slaveData.slaveProduct);
-            final String slvSuffix = i + StackUtils.createBandTimeStamp(slaveData.slaveProduct);
+            final String slvSuffix = StackUtils.SLV + i + StackUtils.createBandTimeStamp(slaveData.slaveProduct);
             slaveData.slvSuffix = slvSuffix;
             for (String bandName : slaveBandNames) {
                 final Band srcBand = slaveData.slaveProduct.getBand(bandName);

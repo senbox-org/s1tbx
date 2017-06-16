@@ -248,8 +248,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         final java.util.List<String> masterProductBands = new ArrayList<>(masterProduct.getNumBands());
         final String[] masterBandNames = masterProduct.getBandNames();
-//        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
-        final String mstSuffix = StackUtils.createBandTimeStamp(masterProduct);
+        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
             if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
@@ -276,8 +275,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         for(Product slaveProduct : slaveProducts) {
             final String[] slaveBandNames = slaveProduct.getBandNames();
-//            final String slvSuffix = StackUtils.SLV+'1' + StackUtils.createBandTimeStamp(slaveProduct);
-            final String slvSuffix = '1' + StackUtils.createBandTimeStamp(slaveProduct);
+            final String slvSuffix = StackUtils.SLV+'1' + StackUtils.createBandTimeStamp(slaveProduct);
             for (String bandName : slaveBandNames) {
                 final Band srcBand = slaveProduct.getBand(bandName);
                 if (srcBand instanceof VirtualBand) {
