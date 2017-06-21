@@ -163,7 +163,7 @@
                         <publicPackage>org.opengis.*</publicPackage>
                         <publicPackage>com.vividsolutions.jts.*</publicPackage>
                         <publicPackage>Jama</publicPackage>
-						<publicPackage>org.apache.commons.*</publicPackage>
+						<publicPackage>org.apache.*</publicPackage>
                         <publicPacakage>net.coobird.thumbnailator.*</publicPacakage>
                         <publicPackage>com.bc.io</publicPackage>
                         <publicPackage>org.esa.snap.core.jexp</publicPackage>
