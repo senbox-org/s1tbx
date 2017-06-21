@@ -224,6 +224,7 @@ public class CrsGeoCodingTest {
     @Test
     public void testGetPixels() throws FactoryException, TransformException {
         int numPixels = 10000;
+        // SR-ORG:6965
         String wkt = "PROJCS[\"MODIS_Sinusoidal\", \n" +
                      "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
                      "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
@@ -234,9 +235,9 @@ public class CrsGeoCodingTest {
                      "    AXIS[\"Latitude\", NORTH]], \n" +
                      "  PROJECTION[\"Sinusoidal\"], \n" +
                      "  PARAMETER[\"central_meridian\", 0.0], \n" +
-                     "  PARAMETER[\"scale_factor\", 1.0], \n" +
                      "  PARAMETER[\"false_easting\", 1000.0], \n" +
                      "  PARAMETER[\"false_northing\", 500000.0], \n" +
+                     "  PARAMETER[\"semi_minor\",6371007.0], \n" +
                      "  UNIT[\"m\", 1.0], \n" +
                      "  AXIS[\"x\", EAST], \n" +
                      "  AXIS[\"y\", NORTH]]";
