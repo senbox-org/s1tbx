@@ -63,6 +63,10 @@ public class SliderAdapter extends ComponentAdapter implements ChangeListener {
     private void updateScale() {
         PropertyDescriptor propertyDescriptor = getBinding().getContext().getPropertySet().getDescriptor(getBinding().getPropertyName());
         ValueRange range = propertyDescriptor.getValueRange();
-        scale = (range.getMax() - range.getMin()) / (slider.getMaximum() - slider.getMinimum());
+        if (range != null) {
+            scale = (range.getMax() - range.getMin()) / (slider.getMaximum() - slider.getMinimum());
+        } else {
+            scale = 1;
+        }
     }
 }

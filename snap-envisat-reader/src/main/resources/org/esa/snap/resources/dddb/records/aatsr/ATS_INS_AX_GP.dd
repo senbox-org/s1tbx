@@ -1,0 +1,7 @@
+ATS_INS_AX_GP|Master Unpacking Definition Table |*
+#
+aux_tot       |SLong  |-         |4 |1  |*|Total number of auxiliary data items in MUDT        |
+aux_val_tot   |SLong  |-         |4 |1  |*|Total number of sets of auxiliary limits data items |
+n_conv        |SLong  |-         |4 |1  |*|Total number of auxiliary items for conversion  |
+n_surv_tot    |SLong  |-         |4 |1  |*|Total number of surveillance limit specifications  |
+spare         |UChar  |-         |1 |12 |*|Spare  |

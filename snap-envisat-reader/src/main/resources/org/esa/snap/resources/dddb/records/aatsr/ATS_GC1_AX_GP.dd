@@ -1,0 +1,29 @@
+ATS_GC1_AX_GP|General Parameters|*
+#
+ems_mxbb_12       |Double|-         |8 |1 |*|Emissivity factor for MXBB, 12 micron channel|
+ems_mxbb_11       |Double|-         |8 |1 |*|Emissivity factor for MXBB, 11 micron channel|
+ems_mxbb_37       |Double|-         |8 |1 |*|Emissivity factor for MXBB, 3.7 micron channel|
+ems_pxbb_12       |Double|-         |8 |1 |*|Emissivity factor for PXBB, 12 micron channel|
+ems_pxbb_11       |Double|-         |8 |1 |*|Emissivity factor for PXBB, 11 micron channel|
+ems_pxbb_37       |Double|-         |8 |1 |*|Emissivity factor for PXBB, 3.7 micron channel|
+num_temp_rad      |SShort|-         |2 |1 |*|Number of entries in Temperature to Radiance LUT or size_of_LUT|
+inc_temp_rad      |Double|K         |8 |1 |*|Increment in Temperature to Radiance LUT|
+fst_value_temp    |Double|K         |8 |1 |*|First value in Temperature to Radiance LUT|
+last_val_temp     |Double|K         |8 |1 |*|Last value in Temperature to Radiance LUT|
+num_radtemp_12    |SShort|-         |2 |1 |*|Number of entries in 12 micron Radiance to Temperature LUT|
+inc_rad_temp_12   |Double|Wcm-2 sr-1|8 |1 |*|Increment in 12 micron Radiance to brightness Temperature LUT|
+fst_value_rad_12  |Double|Wcm-2 sr-1|8 |1 |*|First value in 12 micron Radiance to brightness Temperature LUT|
+last_val_rad_12   |Double|Wcm-2 sr-1|8 |1 |*|Last value in 12 micron Radiance to brightness Temperature LUT|
+num_radtemp_11    |SShort|-         |2 |1 |*|Number of entries in 11 micron Radiance to Temperature LUT|
+inc_rad_temp_11   |Double|Wcm-2 sr-1|8 |1 |*|Increment in 11 micron Radiance to brightness Temperature LUT|
+fst_value_rad_11  |Double|Wcm-2 sr-1|8 |1 |*|First value in 11 micron Radiance to brightness Temperature LUT|
+last_val_rad_11   |Double|Wcm-2 sr-1|8 |1 |*|Last value in 11 micron Radiance to brightness Temperature LUT|
+num_radtemp_37    |SShort|-         |2 |1 |*|Number of entries in 3.7 micron Radiance to Temperature LUT|
+inc_rad_temp_37   |Double|Wcm-2 sr-1|8 |1 |*|Increment in 3.7 micron Radiance to brightness Temperature LUT|
+fst_value_rad_37  |Double|Wcm-2 sr-1|8 |1 |*|First value in 3.7 micron Radiance to brightness Temperature LUT|
+last_val_rad_37   |Double|Wcm-2 sr-1|8 |1 |*|Last value in 3.7 micron Radiance to brightness Temperature LUT|
+num_nonlin_cor_16 |SShort|-         |2 |1 |*|Number of entries in 1.6 micron Non-Linearity Correction LUT|
+inc_nonlin_cor_16 |Double|-         |8 |1 |*|Increment in 1.6 micron Non-Linearity Correction LUT|
+fst_nonlin_cor_16 |Double|-         |8 |1 |*|First value in 1.6 micron Non-Linearity Correction LUT|
+last_nonlin_cor_16|Double|-         |8 |1 |*|Last value in 1.6 micron Non-Linearity Correction LUT|
+spare_1           |Uchar |-         |1 |20|*|Spare

@@ -15,13 +15,20 @@
         </xsl:element>
     </xsl:template>
 
+    <xsl:template match="operator[not(templateType)]">
+        <xsl:copy>
+            <xsl:apply-templates select="@*"/>
+            <xsl:element name="templateType">
+                <xsl:choose>
+                    <xsl:when test="contains(., '.js')">JAVASCRIPT</xsl:when>
+                    <xsl:otherwise>VELOCITY</xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
+            <xsl:apply-templates select="node()"/>
+        </xsl:copy>
+    </xsl:template>
+
     <xsl:template match="templateFileLocation">
-        <xsl:element name="templateType">
-            <xsl:choose>
-                <xsl:when test="contains(., '.js')">JAVASCRIPT</xsl:when>
-                <xsl:otherwise>VELOCITY</xsl:otherwise>
-            </xsl:choose>
-        </xsl:element>
         <xsl:element name="template">
             <xsl:attribute name="type">file</xsl:attribute>
             <xsl:element name="file">
@@ -31,12 +38,14 @@
     </xsl:template>
 
     <xsl:template match="template">
-        <xsl:if test="not(@type)">
-            <xsl:attribute name="type">file</xsl:attribute>
+        <xsl:element name="template">
+            <xsl:if test="not(@type)">
+                <xsl:attribute name="type">file</xsl:attribute>
+            </xsl:if>
             <xsl:element name="file">
                 <xsl:value-of select="."/>
             </xsl:element>
-        </xsl:if>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="org.esa.snap.core.gpf.descriptor.DefaultSourceProductDescriptor">
@@ -81,7 +90,6 @@
                 </xsl:element>
             </xsl:otherwise>
         </xsl:choose>
-
     </xsl:template>
 
 </xsl:stylesheet>

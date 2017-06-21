@@ -1,0 +1,71 @@
+ATS_PC1_AX_GP|Processor configuration|*
+#
+pulse_cal                |SLong |-        |4|1|*|blanking pulse calibration code: blanking_pulse_calibration_flag|
+scan_cal                 |SLong |-        |4|1|*|Number of scans in calibration period|
+res_vis_cal_code         |SLong |-        |4|1|*|Reserved for visible calibration option code|
+spare_1                  |UChar |-        |1|12|*|Spare|
+max_vis_pix              |SShort|-        |2|1|*|max_viscal_pixels|
+max_nad_pix              |SShort|-        |2|1|*|max_nadir_pixels|
+max_pxbb_pix             |SShort|-        |2|1|*|max_pxbb_pixels|
+max_frwrd_pix            |SShort|-        |2|1|*|max_frwrd_pixels|
+max_mxbb_pix             |SShort|-        |2|1|*|max_mxbb_pixels|
+spare_2                  |UChar |-        |1|12|*|Spare|
+flag_off_bthbp           |SShort|-        |2|1|*|Calibration bp flag value: both bp flags off|
+flag_off_asar            |SShort|-        |2|1|*|Calibration bp flag value: ASAR only flag off|
+flag_off_onlyra          |SShort|-        |2|1|*|Calibration bp flag value: RA only flag off|
+flag_on_bthbp            |SShort|-        |2|1|*|Calibration bp flag value: both bp flags on|
+init_cal_parm            |Float |-        |4|1|*|INIT_CAL_PARAM|
+spare_3                  |UChar |-        |1|12|*|Spare|
+vis_bb_code_px           |SShort|-        |2|1|*|vis_bb_code_px|
+vis_bb_code_mx           |SShort|-        |2|1|*|vis_bb_code_mx|
+vis_bb_code_both         |SShort|-        |2|1|*|vis_bb_code_both|
+vis_bb_code_none         |SShort|-        |2|1|*|vis_bb_code_none|
+spare_4                  |UChar |-        |1|12|*|Spare|
+pix_cnt_from_nullpacket  |SShort|-        |2|1|*|PIXEL_COUNT_FROM_NULL_PACKET|
+pix_cnt_int              |SShort|-        |2|1|*|PIXEL_COUNT_INITIAL_VALUE|
+pix_cnt_scidata_ndcmp    |SShort|-        |2|1|*|PIXEL_COUNT_SCIENCE_DATA_NOT_DECOMPRESSSED|
+pix_cnt_zero             |SShort|-        |2|1|*|PIXEL_COUNT_ZERO|
+pix_cnt_sat              |SShort|-        |2|1|*|PIXEL_COUNT_SATURATED|
+cal_unavl_pix            |SShort|-        |2|1|*|CALIBRATION_UNAVAILABLE_FOR_PIXEL|
+pix_rad_out_cal          |SShort|-        |2|1|*|PIXEL_RADIANCE_OUTSIDE_CALIBRATION|
+pix_unfilled             |SShort|-        |2|1|*|PIXEL_UNFILLED|
+spare_5                  |UChar |-        |1|12|*|Spare|
+null_pckt_err            |SShort|-        |2|1|*|NULL PCKT ERR|
+raw_pkt_fail             |SShort|-        |2|1|*|RAW_PKT_FAILS_BASIC_VALIDATION_ERR|
+crc_err_dect_err         |SShort|-        |2|1|*|CRC_ERR_DETECTED_ERR|
+buf_full_chk_err         |SShort|-        |2|1|*|BUFFERS_FULL_CHECK_ERR|
+raw_aux_proc_err         |SShort|-        |2|1|*|RAWPKT_FAILS_AUXILIARY_DATA_PROCESSING_ERR|
+temp_out_range_err       |SShort|-        |2|1|*|TEMP_OUT_OF_RANGE_FOR_LUT_ERR|
+pix_scan_jit_err         |UShort|-        |2|1|*|PIX_SCAN_JITTER_ERR|
+utmz_domain_err          |SShort|-        |2|1|*|UTMZ_DOMAIN_EROR|
+tmz_atlimt_err           |UShort|-        |2|1|*|TMZ_AT_LIMIT_ERR|
+tmz_rog_prt_err          |UShort|-        |2|1|*|TMZ_ROGUE_PRT_ERR|
+tmz_cal_err              |UShort|-        |2|1|*|TMZ_CALIBRATION_ERR|
+tmz_bb_over_err          |UShort|-        |2|1|*|TMZ_BB_OVERRANGE_ERR|
+tmz_survll_err           |UShort|-        |2|1|*|TMZ_SURVEILLANCE_ERR|
+tmz_prt8_err             |UShort|-        |2|1|*|TMZ_PRT8_ERR|
+tmz_rog_scp_err          |UShort|-        |2|1|*|TMZ_ROGUE_SCP_ERR|
+tmz_bb_outlimt_err       |UShort|-        |2|1|*|TMZ_BB_OUT_OF_LIMIT_ERR|
+bb_outrang_err           |SShort|-        |2|1|*|BB_PIX_COUNT_OUT_OF_RANGE_ERR|
+bb_outrang_allchn        |SShort|-        |2|1|*|BB_PIX_COUNT_OUT_OF_RANGE_ALL_CHANS|
+tmz_rog_bb_err           |SShort|-        |2|1|*|TMZ_ROGUE_BB_ERR|
+mon_threshold            |SShort|-        |2|1|*|monitor threshold|
+calibration_window_diff1 |SShort|-        |2|1|*|Calibration window diff1|
+calibration_window_diff2 |SShort|-        |2|1|*|Calibration window diff2|
+reserved                 |SShort|-        |2|1|*|Reserved field|
+orbit_period             |Float |s        |4|1|*|orbit period|
+time_offset              |Float |s        |4|1|*|time offset|
+reflec_fact_16           |Float |-        |4|1|*|1.6 microns reflectance factor|
+reflec_fact_87           |Float |-        |4|1|*|0.87 micron reflectance factor|
+reflec_fact_67           |Float |-        |4|1|*|0.67 micron reflectance factor|
+reflec_fact_55           |Float |-        |4|1|*|0.555 micron reflectance factor|
+solar_irrad_16           |Float |mW/cm2/um|4|1|*|1.6 micron solar irradiance|
+solar_irrad_87           |Float |mW/cm2/um|4|1|*|0.87 micron solar irradiance|
+solar_irrad_67           |Float |mW/cm2/um|4|1|*|0.67 micron solar irradiance|
+solar_irrad_55           |Float |mW/cm2/um|4|1|*|0.555 micron solar irradiance|
+chan_bandw_16            |Float |um       |4|1|*|1.6 micron channel bandwidth|
+chan_bandw_87            |Float |um       |4|1|*|0.87 micron channel bandwidth|
+chan_bandw_67            |Float |um       |4|1|*|0.67 micron channel bandwidth|
+chan_bandw_55            |Float |um       |4|1|*|0.555 micron channel bandwidth|
+window_half_width_in_min |Float |minutes  |4|1|*|Window half width|
+spare_6                  |UChar |-        |1|8|*|Spare|

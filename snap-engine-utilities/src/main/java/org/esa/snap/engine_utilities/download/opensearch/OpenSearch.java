@@ -177,7 +177,7 @@ public class OpenSearch {
     private Credentials.CredentialInfo getCredentialInfo() throws IOException {
         Credentials.CredentialInfo credentialInfo = Credentials.instance().get(host);
         if (credentialInfo == null) {
-            throw new IOException("Credentials for "+ host +"not set");
+            throw new IOException("Credentials for " + host + " not set");
         }
         return credentialInfo;
     }

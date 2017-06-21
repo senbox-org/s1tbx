@@ -1,0 +1,5 @@
+ATS_INS_AX_SLC|Surveillance limit checks |*
+#
+surv_limt_aux  |UChar  |-         |1 |5  |*|surveillance limit auxiliary identifiers    |
+surv_llimt     |Float  |-         |4 |1  |*|surveillance lower limit    |
+surv_ulimt     |Float  |-         |4 |1  |*|surveillance upper limit     |

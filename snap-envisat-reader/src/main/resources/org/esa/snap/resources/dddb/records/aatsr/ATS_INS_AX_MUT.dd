@@ -1,0 +1,6 @@
+ATS_INS_AX_MUT|Master Unpacking Definition Table|*
+#
+aux_id        |UChar  |-         |1 |5 |*|auxiliary item identifier  |
+wd_num_aux    |UShort |-         |2 |1 |*|word number in packet containing auxiliary item |
+mask          |SShort |-         |2 |1 |*|mask to extract auxiliary item from word  |
+shft_norm     |UShort |-         |2 |1 |*|shift to normalise  |

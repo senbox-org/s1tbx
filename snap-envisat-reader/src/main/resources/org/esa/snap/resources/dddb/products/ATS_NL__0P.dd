@@ -1,0 +1,6 @@
+ATS_NL__0P|AATSR Level 0 product|
+#
+MPH                         |@/records/MPH.dd                       |1247                       |Main Product Header
+SPH                         |@/records/aatsr/ATS_NL__0P_sph.dd      |*                          |Level 2 SPH
+DSD                         |@/records/DSD.dd                       |*                          |Data Set Descriptor array
+AATSR_SOURCE_PACKETS        |@/records/aatsr/ATS_NL__0P_asp.dd      |AATSR_SOURCE_PACKETS       |AATSR Level 0 MDS

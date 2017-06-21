@@ -1,0 +1,3 @@
+AUX_LSM_AX_LSM_SURF_1_DEG|Auxiliary Land/Sea Mask Surf 1 Degree|*
+
+surf_flag |SShort|*|2|360|*|Surface flag  |1|

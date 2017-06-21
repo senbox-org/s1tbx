@@ -979,7 +979,7 @@ public class ProductUtils {
      * Copies a virtual band and keeps it as a virtual band
      * The size of the {@code srcBand} is preserved .
      *
-     * @param target  the target product to copy the virtual band to.
+     * @param target the target productto copy the virtual band to.
      * @param srcBand the virtual band to copy.
      * @param name    the name of the new band.
      * @return the copy of the band.

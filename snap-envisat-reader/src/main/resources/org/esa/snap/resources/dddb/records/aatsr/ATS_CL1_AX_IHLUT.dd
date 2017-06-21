@@ -1,0 +1,17 @@
+ATS_CL1_AX_MNFLUT_1|11/12 Micron Nadir/Forward Test LUT GADS
+#
+min_hist            |SShort |TBD   |2|1|*|min_for_ir11_ir12_histogram  |1|
+pk_frac_min         |Float  |TBD   |4|1|*|peak_frac_min                |2|
+pos_lat_thresh      |Float  |TBD   |4|1|*|positive_latitude_thresh     |3|
+sec_low_frac        |Float  |TBD   |4|1|*|second_low_fraction          |4|
+h_width_m1          |Float  |TBD   |4|1|*|half_width_m[1]              |5|
+h_width_b1          |Float  |TBD   |4|1|*|half_width_b[1]              |6|
+h_width_m0          |Float  |TBD   |4|1|*|half_width_m[0]              |7|
+h_width_b0          |Float  |TBD   |4|1|*|half_width_b[0]              |8|
+max_dif_ave_chan_1  |Float  |TBD   |4|1|*|max_dif_ave_chan_1           |9|
+max_dif_pk_chan_1   |Float  |TBD   |4|1|*|max_dif_peak_chan_1          |10|
+ratio_b             |Float  |TBD   |4|1|*|ratio_b                      |11|
+ir_sprd_nv          |Float  |TBD   |4|1|*|ir_spread_nv                 |12|
+ir_sprd_fv          |Float  |TBD   |4|1|*|ir_spread_fv                 |13|
+slp_max_allow       |Float  |TBD   |4|1|*|slope_max_allowed            |14|
+ir_pk_min           |Float  |TBD   |4|1|*|ir_peak_min                  |15|

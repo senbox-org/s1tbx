@@ -22,6 +22,7 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.RGBImageProfile;
 import org.esa.snap.core.datamodel.RGBImageProfileManager;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
@@ -114,7 +115,8 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                     return DecodeQualification.INTENDED;
                 }
             }
-            if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
+
+            if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ") && FileUtils.getExtension(inputFile) != null)
                 return DecodeQualification.UNABLE;
 
             if (ProductFile.getProductType(inputFile) != null) {

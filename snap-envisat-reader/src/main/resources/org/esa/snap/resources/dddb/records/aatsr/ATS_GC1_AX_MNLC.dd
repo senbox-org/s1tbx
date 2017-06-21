@@ -1,0 +1,4 @@
+ATS_GC1_AX_MNLC|1.6 micron Non-Linearity Correction LUT |*
+#
+uncor_count        |Double|- |8 |1|*|Uncorrected count table entry |
+cor_count          |Double|- |8 |1|*|Corrected count table entry |

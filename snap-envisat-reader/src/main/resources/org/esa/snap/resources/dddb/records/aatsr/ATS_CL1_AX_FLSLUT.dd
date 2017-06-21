@@ -1,0 +1,4 @@
+ATS_CL1_AX_FLSLUT|Fog/low Stratus Test LUT GADS
+#
+nad_thresh          |SShort |K/100 |2|1|*|fog_threshold[j], nadir    |1|
+for_thresh          |SShort |K/100 |2|1|*|fog_threshold[j], forward  |2|

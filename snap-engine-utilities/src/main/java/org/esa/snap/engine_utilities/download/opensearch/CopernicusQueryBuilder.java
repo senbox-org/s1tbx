@@ -266,13 +266,52 @@ class CopernicusQueryBuilder {
         return pol.replace('+', ' ');
     }
 
-    private String getCloudCover() {
-        final String cloudCover = dbQuery.getSelectedCloudCover();
+    private String getCloudCover() throws Exception {
+        final String cloudCover = convertToCloudCoverFormat(dbQuery.getSelectedCloudCover());
         if (cloudCover != null && !cloudCover.isEmpty()) {
-            return " AND (" +
-                    "cloudcoverpercentage:" + cloudCover +
-                    " )";
+            if (cloudCover.contains("ERROR")) {
+                throw new Exception("Invalid cloud cover; must be single integer value from 0 to 100 or range, e.g., 5-75");
+            } else {
+                return " AND (" +
+                        "cloudcoverpercentage:" + cloudCover +
+                        " )";
+            }
         }
         return "";
+    }
+
+    private static String convertToCloudCoverFormat(final String cloudCoverText) {
+        if (cloudCoverText == null || cloudCoverText.isEmpty()) {
+            return null;
+        }
+        String[] parts = cloudCoverText.split("-");
+        if (parts.length == 2) {
+            final int cloudCoverMin = getIntFromString(parts[0]);
+            final int cloudCoverMax = getIntFromString(parts[1]);
+            if (cloudCoverMin < 0 || cloudCoverMax < 0 || cloudCoverMin > 100 || cloudCoverMax > 100 || cloudCoverMin >= cloudCoverMax) {
+                return "ERROR";
+            } else {
+                return "["+ cloudCoverMin + " TO " + cloudCoverMax + "]";
+            }
+        } else if (parts.length == 1) {
+            final int cloudCover = getIntFromString(parts[0]);
+            if (cloudCover < 0 || cloudCover > 100) {
+                return "ERROR";
+            } else {
+                return Integer.toString(cloudCover);
+            }
+        } else {
+            return "ERROR";
+        }
+
+    }
+
+    private static int getIntFromString(final String s) {
+        try {
+            final int intVal = Integer.parseInt(s);
+            return intVal;
+        } catch (Exception e) {
+            return -1;
+        }
     }
 }
