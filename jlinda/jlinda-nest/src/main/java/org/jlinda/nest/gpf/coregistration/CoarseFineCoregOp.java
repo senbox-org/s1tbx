@@ -53,7 +53,7 @@ import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;

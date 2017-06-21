@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 /**
  * Test Sentinel-1 QC Scrapping of orbit files

@@ -58,7 +58,7 @@ import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 import org.jlinda.nest.gpf.coregistration.GCPManager;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;

@@ -41,7 +41,10 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.opengis.feature.simple.SimpleFeature;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;

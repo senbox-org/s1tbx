@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 /**
  * find files on step

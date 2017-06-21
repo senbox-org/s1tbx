@@ -45,7 +45,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**

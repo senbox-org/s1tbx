@@ -66,7 +66,9 @@ import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.jlinda.nest.gpf.coregistration.GCPManager;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

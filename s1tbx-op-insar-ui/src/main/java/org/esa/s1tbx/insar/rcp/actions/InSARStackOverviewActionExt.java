@@ -22,7 +22,9 @@ import org.esa.snap.productlibrary.rcp.toolviews.ProductLibraryActions;
 import org.esa.snap.productlibrary.rcp.toolviews.extensions.ProductLibraryActionExt;
 import org.esa.snap.ui.UIUtils;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 /**
  * send ProductLibrary selection to InSARStackOverview

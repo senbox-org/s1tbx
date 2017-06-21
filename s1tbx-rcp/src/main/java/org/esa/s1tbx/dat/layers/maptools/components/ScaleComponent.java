@@ -23,7 +23,10 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 
 /**
  * map tools scale component
