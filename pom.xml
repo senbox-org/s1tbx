@@ -47,7 +47,6 @@
         <module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
         <module>s1tbx-commons</module>
-		<module>s1tbx-config</module>
 		<module>s1tbx-io</module>
         <module>s1tbx-op-analysis-ui</module>
 		<module>s1tbx-op-calibration</module>

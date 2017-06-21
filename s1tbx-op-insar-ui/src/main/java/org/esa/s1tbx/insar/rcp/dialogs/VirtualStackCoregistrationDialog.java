@@ -17,7 +17,7 @@ package org.esa.s1tbx.insar.rcp.dialogs;
 
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.engine_utilities.db.CommonReaders;
+import org.esa.snap.engine_utilities.gpf.CommonReaders;
 import org.esa.snap.graphbuilder.rcp.dialogs.BatchGraphDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.GraphExecuter;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.GraphNode;

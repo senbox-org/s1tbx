@@ -68,11 +68,12 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     protected AlosPalsarTrailerFile trailerFile = null;
 
     protected final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<>(1);
-    public final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
-    public final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
-    public final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
+    private final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
+    private final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
+    private final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
 
     private float[] rangeDist;
+    private boolean isProductIPF = false;
 
     public AlosPalsarProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
@@ -83,6 +84,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     @Override
     protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
         readVolumeDirectoryFileStream();
+
+        final String productSpec = volumeDirectoryFile.getProductOrigin();
+        isProductIPF = productSpec.contains("AIPF");
 
         updateProductType();
 
@@ -96,20 +100,25 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final List<AlosPalsarImageFile> imgArray = new ArrayList<>(ceosFiles.length);
         for (CeosFile imageFile : ceosFiles) {
             try {
+                int prodLevel = getProductLevel();
+                if (isProductIPF)
+                    prodLevel = -prodLevel; //AlosPalsarImageFile imgFile object needs to know if this is a product of IPF
+                //origin (IPF L1.1 uses PDR header structure, not SDR structure) - and we don't
+                //wish to perturb the interface defn (ALOS2) - so pass the info via prodlevel sign.
                 final AlosPalsarImageFile imgFile = new AlosPalsarImageFile(imageFile.imgInputStream,
-                        getProductLevel(), imageFile.fileName);
+                                                                            prodLevel, imageFile.fileName);
                 imgArray.add(imgFile);
+                imgFile.isProductIPF = isProductIPF;
+                final boolean IPF = imgFile.isIPF();
             } catch (Exception e) {
                 e.printStackTrace();
-                // continue
             }
         }
         imageFiles = imgArray.toArray(new AlosPalsarImageFile[imgArray.size()]);
-
+        imageFiles[0].isProductIPF = isProductIPF;
         sceneWidth = imageFiles[0].getRasterWidth();
         sceneHeight = imageFiles[0].getRasterHeight();
         assertSameWidthAndHeightForAllImages(imageFiles, sceneWidth, sceneHeight);
-
         if (leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_0 ||
                 leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1) {
             isProductSLC = true;
@@ -142,7 +151,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     @Override
     public Product createProduct() throws IOException {
         final Product product = new Product(getProductName(),
-                productType, sceneWidth, sceneHeight);
+                                            productType, sceneWidth, sceneHeight);
 
         for (final AlosPalsarImageFile imageFile : imageFiles) {
             final String pol = imageFile.getPolarization();
@@ -161,36 +170,56 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         product.setEndTime(getUTCScanStopTime(leaderFile.getSceneRecord(), null));
         product.setDescription(getProductDescription());
 
-        if(isSLC()) {
-            addGeoCodingFromPixelToLatLonCoefficients(product, leaderFile.getFacilityRecord());
-        }
-
-        if (product.getSceneGeoCoding() == null) {
-            ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
-                    leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
-        }
-        addTiePointGrids(product);
-        addMetaData(product);
-
-        if (product.getSceneGeoCoding() == null) {
-            addGeoCodingFromWorkReport(product);
-        }
-
-        if (product.getSceneGeoCoding() == null &&
-                leaderFile.getSceneRecord() != null && leaderFile.getFacilityRecord() != null) {
-            Double refLat = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic latitude");
-            Double refLon = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic longitude");
-            if (refLat == null || refLat == 0 || refLon == null || refLon == 0) {
-                refLat = leaderFile.getFacilityRecord().getAttributeDouble("Origin Latitude");
-                refLon = leaderFile.getFacilityRecord().getAttributeDouble("Origin Longitude");
-            }
-            if (refLat != null && refLon != null) {
+        if (isProductIPF) {
+// Handle ALOS-IPF products
+            addMetaData(product);
+            if (productType.contains("GEC")) {
+                ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
+                                         leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
+            } else {
+                addTiePointGrids(product); //create SR and incidence angle grids; populate SR grid
+                leaderFile.getSceneRecord();
+                Double refLat = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic latitude");
+                Double refLon = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic longitude");
                 addTPGGeoCoding(product, refLat, refLon);
             }
         }
+// Original code for products of JAXA origin
+        else {
+            if (isSLC()) {
+                addGeoCodingFromPixelToLatLonCoefficients(product, leaderFile.getFacilityRecord());
+            }
 
+            if (product.getSceneGeoCoding() == null) {
+                ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
+                                         leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
+            }
+            addTiePointGrids(product);
+            addMetaData(product);
+            if (product.getSceneGeoCoding() == null) {
+                addGeoCodingFromWorkReport(product);
+            }
+//
+            if (product.getSceneGeoCoding() == null &&
+                    leaderFile.getSceneRecord() != null && leaderFile.getFacilityRecord() != null) {
+                Double refLat = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic latitude");
+                Double refLon = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic longitude");
+                if (refLat == null || refLat == 0 || refLon == null || refLon == 0) {
+                    refLat = leaderFile.getFacilityRecord().getAttributeDouble("Origin Latitude");
+                    refLon = leaderFile.getFacilityRecord().getAttributeDouble("Origin Longitude");
+                }
+                if (refLat != null && refLon != null) {
+                    addTPGGeoCoding(product, refLat, refLon); //in the event that JAXA products get here
+                    //this will not work because the range
+                    //TiePoint grid is not initialised ...
+                    //but, methods addGeoCodingFromPixelToLatLonCoefficients or
+                    //(for GEC products) ReaderUtils.addGeoCoding will invariably
+                    //work for JAXA product data. Should probably delete this and
+                    //replace with an exception.
+                }
+            }
+        }
         updateMetadata(product);
-
         return product;
     }
 
@@ -198,6 +227,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                                                                   final BinaryRecord facilityRecord) {
 
         if (facilityRecord == null || facilityRecord.getAttributeDouble("Origin Line") == null) {
+            System.out.format("cannot access facilityRecord\n");
             return;
         }
         final int originLine = (int) Math.floor(facilityRecord.getAttributeDouble("Origin Line"));
@@ -210,7 +240,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         boolean coeffNonZero = false;
         for (int i = 0; i < numCoefficients; i++) {
             final double c = facilityRecord.getAttributeDouble("Pixel to Lat Lon coefficients " + (i + 1));
-            if(!coeffNonZero && c != 0) {
+            if (!coeffNonZero && c != 0) {
                 coeffNonZero = true;
             }
             if (i < numCoefficients / 2) {
@@ -220,8 +250,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             }
         }
 
-        if(!coeffNonZero)
+        if (!coeffNonZero) {
             return;
+        }
 
         //a[24] = facilityRecord.getAttributeDouble("Origin Latitude");
         //b[24] = facilityRecord.getAttributeDouble("Origin Longitude");
@@ -271,10 +302,10 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight,
-                0.0f, 0.0f, (int) subSamplingX, (int) subSamplingY, targetLatTiePoints);
+                                                      0.0f, 0.0f, (int) subSamplingX, (int) subSamplingY, targetLatTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight,
-                0.0f, 0.0f, (int) subSamplingX, (int) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                                                      0.0f, 0.0f, (int) subSamplingX, (int) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
@@ -311,43 +342,17 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         // ReaderUtils.addMetadataIncidenceAngles(product);
     }
 
-    private void addTiePointGrids(final Product product) {
-
-        final int gridWidth = 11;
-        final int gridHeight = 11;
-        final int subSamplingX = product.getSceneRasterWidth() / (gridWidth - 1);
-        final int subSamplingY = product.getSceneRasterHeight() / (gridHeight - 1);
-
-        final BinaryRecord sceneRec = leaderFile.getSceneRecord();
-
-        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
-                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY);
-        slantRangeGrid.setUnit(Unit.NANOSECONDS);
-        product.addTiePointGrid(slantRangeGrid);
-
-        // incidence angle
-        if (sceneRec != null) {
-
-            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                    gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY);
-            incidentAngleGrid.setDiscontinuity(TiePointGrid.DISCONT_AUTO);
-
-            incidentAngleGrid.setUnit(Unit.DEGREES);
-            product.addTiePointGrid(incidentAngleGrid);
-        }
-    }
-
     public void readTiePointGridRasterData(final TiePointGrid tpg, ProductData destBuffer, ProgressMonitor pm)
             throws IOException {
 
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final int subSamplingX = (int)tpg.getSubSamplingX();
+        final int subSamplingX = (int) tpg.getSubSamplingX();
         final float[] rangeTime = new float[gridWidth * gridHeight];
 
         final BinaryRecord sceneRec = leaderFile.getSceneRecord();
 
-        if(rangeDist == null) {
+        if (rangeDist == null) {
             rangeDist = new float[gridWidth * gridHeight];
 
             // slant range time (2-way)
@@ -373,9 +378,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 int k = 0;
                 for (int j = 0; j < gridHeight; j++) {
                     final double[] polyCoef = computePolynomialCoefficients(slantRangeToFirstPixel,
-                            slantRangeToMidPixel,
-                            slantRangeToLastPixel,
-                            sceneWidth);
+                                                                            slantRangeToMidPixel,
+                                                                            slantRangeToLastPixel,
+                                                                            sceneWidth);
 
                     for (int i = 0; i < gridWidth; i++) {
                         final int x = i * subSamplingX;
@@ -385,7 +390,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             }
         }
 
-        if(tpg.getName().equals(OperatorUtils.TPG_SLANT_RANGE_TIME)) {
+        if (tpg.getName().equals(OperatorUtils.TPG_SLANT_RANGE_TIME)) {
             // get slant range time in nanoseconds from range distance in meters
             for (int k = 0; k < rangeDist.length; k++) {
                 rangeTime[k] = (float) (rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
@@ -393,7 +398,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
             tpg.setDataElems(rangeTime);
             destBuffer.setElems(rangeTime);
-        } else if(tpg.getName().equals(OperatorUtils.TPG_INCIDENT_ANGLE)) {
+        } else if (tpg.getName().equals(OperatorUtils.TPG_INCIDENT_ANGLE)) {
 
             if (sceneRec != null) {
                 final double a0 = sceneRec.getAttributeDouble("Incidence angle constant term");
@@ -419,6 +424,69 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 tpg.setDataElems(angles);
                 destBuffer.setElems(angles);
             }
+        }
+    }
+
+    private void setIPFTiePointGridRasterData(final TiePointGrid tpg) {
+        final int gridWidth = 11;
+        final int gridHeight = 11;
+        final int subSamplingX = (int) tpg.getSubSamplingX();
+        final float[] rangeTime = new float[gridWidth * gridHeight];
+        final double polyCoef[] = new double[4];
+        final BinaryRecord sceneRec = leaderFile.getSceneRecord();
+
+        if (rangeDist == null) {
+            rangeDist = new float[gridWidth * gridHeight];
+            polyCoef[0] = sceneRec.getAttributeDouble("Image range to slant constant term");
+            polyCoef[1] = sceneRec.getAttributeDouble("Image range to slant linear term");
+            polyCoef[2] = sceneRec.getAttributeDouble("Image range to slant quadratic term");
+            polyCoef[3] = sceneRec.getAttributeDouble("Image range to slant cubic term");
+            double rangePixelSpacing = sceneRec.getAttributeDouble("Pixel spacing");
+
+            int k = 0;
+            for (int j = 0; j < gridHeight; j++) {
+
+                for (int i = 0; i < gridWidth; i++) {
+                    double x = (double) (i * subSamplingX) * rangePixelSpacing / 1000.0;
+                    x = x - rangePixelSpacing / 2000.0; //polynomial has convention pixel-is-point
+                    rangeDist[k++] = (float) ((polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x + polyCoef[3] * x * x * x) * 1000.0);
+                }
+            }
+
+            // get slant range time in nanoseconds from range distance in meters
+            for (k = 0; k < rangeDist.length; k++) {
+                rangeTime[k] = (float) (rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
+            }
+            tpg.setDataElems(rangeTime);
+        }
+    }
+
+    private void addTiePointGrids(final Product product) {
+
+        final int gridWidth = 11;
+        final int gridHeight = 11;
+        final int subSamplingX = product.getSceneRasterWidth() / (gridWidth - 1);
+        final int subSamplingY = product.getSceneRasterHeight() / (gridHeight - 1);
+
+        final BinaryRecord sceneRec = leaderFile.getSceneRecord();
+
+        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
+                                                             gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY);
+        slantRangeGrid.setUnit(Unit.NANOSECONDS);
+        product.addTiePointGrid(slantRangeGrid);
+
+        if (isProductIPF) {
+            setIPFTiePointGridRasterData(slantRangeGrid); //populate sR grid data
+        }
+
+        if (sceneRec != null) {
+
+            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
+                                                                    gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY);
+            incidentAngleGrid.setDiscontinuity(TiePointGrid.DISCONT_AUTO);
+
+            incidentAngleGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(incidentAngleGrid);
         }
     }
 
@@ -578,21 +646,63 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, getProductType());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
-                sceneRec.getAttributeString("Product type descriptor"));
+                                      sceneRec.getAttributeString("Product type descriptor"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                sceneRec.getAttributeString("Processing system identifier").trim());
+                                      getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
+        if (isProductIPF) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, "ESA ALOS IPF");
+/*		AbstractMetadata.setAttribute(absRoot, AbstractMetadata.percent_RFI_power_rejected,
+                        sceneRec.getAttributeDouble("RFI %power rejected"));
+		int fmethod = sceneRec.getAttributeInt("Faraday rotation method flag");
+
+		if(!(fmethod==0)) {
+			AbstractMetadata.setAttribute(absRoot, AbstractMetadata.Faraday_rotation_angle,
+                        sceneRec.getAttributeDouble("Faraday rotation angle"));
+		}
+		if(fmethod==2) {
+			AbstractMetadata.setAttribute(absRoot, AbstractMetadata.Faraday_angle_estimation_method,"FROM PLR PRODUCT");
+		}
+		else if(fmethod==1) {
+			AbstractMetadata.setAttribute(absRoot, AbstractMetadata.Faraday_angle_estimation_method,"FROM TEC DATA");
+		}
+		if(fmethod==2) {
+			int val = sceneRec.getAttributeInt("Faraday correction applied flag");
+			if(val==1) AbstractMetadata.setAttribute(absRoot, AbstractMetadata.Faraday_correction_applied,"TRUE");
+			else AbstractMetadata.setAttribute(absRoot, AbstractMetadata.Faraday_correction_applied,"FALSE");
+			val = sceneRec.getAttributeInt("Crosstalk correction applied flag");
+			if(val==1) AbstractMetadata.setAttribute(absRoot, AbstractMetadata.cross_talk_correction_applied,"TRUE");
+                        else AbstractMetadata.setAttribute(absRoot, AbstractMetadata.cross_talk_correction_applied,"FALSE");
+			val = sceneRec.getAttributeInt("Channel imbalance correction applied flag");
+                        if(val==1) AbstractMetadata.setAttribute(absRoot, AbstractMetadata.channel_imbalance_correction_applied,"TRUE");
+                        else AbstractMetadata.setAttribute(absRoot, AbstractMetadata.channel_imbalance_correction_applied,"FALSE");
+			val = sceneRec.getAttributeInt("Channel symmetrisation applied flag");
+                        if(val==1) AbstractMetadata.setAttribute(absRoot, AbstractMetadata.symmetrisation_applied,"TRUE");
+                        else AbstractMetadata.setAttribute(absRoot, AbstractMetadata.symmetrisation_applied,"FALSE");
+		}
+
+		AbstractMetadata.setAttribute(absRoot, AbstractMetadata.irsr_const,
+                        sceneRec.getAttributeDouble("Image range to slant constant term"));
+		AbstractMetadata.setAttribute(absRoot, AbstractMetadata.irsr_lin,
+                        sceneRec.getAttributeDouble("Image range to slant linear term"));
+		AbstractMetadata.setAttribute(absRoot, AbstractMetadata.irsr_quad,
+                        sceneRec.getAttributeDouble("Image range to slant quadratic term"));
+		AbstractMetadata.setAttribute(absRoot, AbstractMetadata.irsr_cubic,
+                        sceneRec.getAttributeDouble("Image range to slant cubic term"));
+*/
+        } else {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
+                                          sceneRec.getAttributeString("Processing system identifier").trim());
+        }
         // cycle n/a?
 
         //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT,
         //        Integer.parseInt(sceneRec.getAttributeString("Orbit number").trim()));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT,
-                Integer.parseInt(sceneRec.getAttributeString("Orbit number").trim()));
+                                      Integer.parseInt(sceneRec.getAttributeString("Orbit number").trim()));
 
         final ProductData.UTC startTime = getStartTime(sceneRec, origProductMetadata, "StartDateTime");
         product.setStartTime(startTime);
@@ -604,41 +714,41 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         if (mapProjRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
-                    mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude"));
+                                          mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
-                    mapProjRec.getAttributeDouble("1st line 1st pixel geodetic longitude"));
+                                          mapProjRec.getAttributeDouble("1st line 1st pixel geodetic longitude"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat,
-                    mapProjRec.getAttributeDouble("1st line last valid pixel geodetic latitude"));
+                                          mapProjRec.getAttributeDouble("1st line last valid pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long,
-                    mapProjRec.getAttributeDouble("1st line last valid pixel geodetic longitude"));
+                                          mapProjRec.getAttributeDouble("1st line last valid pixel geodetic longitude"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat,
-                    mapProjRec.getAttributeDouble("Last line 1st pixel geodetic latitude"));
+                                          mapProjRec.getAttributeDouble("Last line 1st pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long,
-                    mapProjRec.getAttributeDouble("Last line 1st pixel geodetic longitude"));
+                                          mapProjRec.getAttributeDouble("Last line 1st pixel geodetic longitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat,
-                    mapProjRec.getAttributeDouble("Last line last valid pixel geodetic latitude"));
+                                          mapProjRec.getAttributeDouble("Last line last valid pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
-                    mapProjRec.getAttributeDouble("Last line last valid pixel geodetic longitude"));
+                                          mapProjRec.getAttributeDouble("Last line last valid pixel geodetic longitude"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                    mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
+                                          mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                    mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
+                                          mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
         } else if (sceneRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                    sceneRec.getAttributeDouble("Pixel spacing"));
+                                          sceneRec.getAttributeDouble("Pixel spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                    sceneRec.getAttributeDouble("Line spacing"));
+                                          sceneRec.getAttributeDouble("Line spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
         }
 
         //sph
         AbstractMetadata.setAttribute(absRoot, "SAMPLE_TYPE", getSampleType());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
-                sceneRec.getAttributeString("Processing algorithm identifier"));
+                                      sceneRec.getAttributeString("Processing algorithm identifier"));
 
         final Set<String> polSet = new TreeSet<>();
         for (AlosPalsarImageFile imageFile : imageFiles) {
@@ -647,39 +757,39 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             }
         }
         int i = 0;
-        for(String pol : polSet) {
+        for (String pol : polSet) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.polarTags[i++], pol);
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                sceneRec.getAttributeDouble("Nominal number of looks processed in azimuth"));
+                                      sceneRec.getAttributeDouble("Nominal number of looks processed in azimuth"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                sceneRec.getAttributeDouble("Nominal number of looks processed in range"));
+                                      sceneRec.getAttributeDouble("Nominal number of looks processed in range"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                sceneRec.getAttributeDouble("Pulse Repetition Frequency") / 1000.0);
+                                      sceneRec.getAttributeDouble("Pulse Repetition Frequency") / 1000.0);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, getRadarFrequency(sceneRec));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                imageFiles[0].getSlantRangeToFirstPixel(0));
+                                      imageFiles[0].getSlantRangeToFirstPixel(0));
 
         // add Range and Azimuth bandwidth
-        final double rangeBW = sceneRec.getAttributeDouble("Total processor bandwidth in range"); // MHz
+        final double rangeBW = (sceneRec.getAttributeDouble("Total processor bandwidth in range") / 1000.0); // MHz
         final double azimuthBW = sceneRec.getAttributeDouble("Total processor bandwidth in azimuth"); // Hz
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth, rangeBW);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth, azimuthBW);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                ReaderUtils.getLineTimeInterval(startTime, endTime, sceneHeight));
+                                      ReaderUtils.getLineTimeInterval(startTime, endTime, sceneHeight));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                product.getSceneRasterHeight());
+                                      product.getSceneRasterHeight());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                product.getSceneRasterWidth());
+                                      product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, getMapProjection());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
-                sceneRec.getAttributeString("Ellipsoid designator"));
+                                      sceneRec.getAttributeString("Ellipsoid designator"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 1);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 1);
@@ -688,11 +798,11 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
         if (radiometricRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor,
-                    radiometricRec.getAttributeDouble("Calibration factor"));
+                                          radiometricRec.getAttributeDouble("Calibration factor"));
             absRoot.getAttribute(AbstractMetadata.calibration_factor).setUnit("dB");
         }
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                sceneRec.getAttributeDouble("Range sampling rate"));
+                                      sceneRec.getAttributeDouble("Range sampling rate"));
 
         addOrbitStateVectors(absRoot, leaderFile.getPlatformPositionRecord());
 
@@ -710,13 +820,13 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     private String getMapProjection() {
         if (leaderFile.getMapProjRecord() == null) return " ";
         final String projDesc = leaderFile.getMapProjRecord().getAttributeString("Map projection descriptor").toLowerCase();
-        if(projDesc.contains("geo") || getProductType().contains("1.5G"))
+        if (projDesc.contains("geo") || getProductType().contains("1.5G"))
             return "Geocoded";
         return " ";
     }
 
     private ProductData.UTC getStartTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
-                                                final String tagInSummary) {
+                                         final String tagInSummary) {
         ProductData.UTC time = getUTCScanStartTime(sceneRec, null);
         if (time.equalElems(AbstractMetadata.NO_METADATA_UTC)) {
             try {
@@ -751,10 +861,10 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 if (imageDescriptorElem != null) {
                     final MetadataElement imageRecordElem = imageDescriptorElem.getElement("Image Record");
                     if (imageRecordElem != null) {
-                        final int year = imageRecordElem.getAttributeInt("Sensor acquisition year", 0);
-                        final int days = imageRecordElem.getAttributeInt("Sensor acquisition day of year", 0);
-                        final int milliseconds = imageRecordElem.getAttributeInt("Sensor acquisition milliseconds of day", 0);
-
+                        final int year = imageFiles[0].startYear;
+                        final int days = imageFiles[0].startDay;
+                        final int seconds = imageFiles[0].startMsec / 1000;
+                        final int milliseconds = imageFiles[0].startMsec - seconds * 1000;
                         StringBuilder sb = new StringBuilder(String.valueOf(year));
                         String dayStr = String.valueOf(days);
                         for (int i = dayStr.length(); i < 3; i++) {
@@ -762,8 +872,18 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                         }
                         sb.append(dayStr);
 
+                        String secondStr = String.valueOf(seconds);
+                        for (int i = secondStr.length(); i < 5; i++) {
+                            sb.append('0');
+                        }
+                        sb.append(secondStr);
+                        sb.append("000"); // a 'quirk' of UTC.parse is that it wants msec of day (which it rounds to
+//					     integer seconds) - it will take a period '.' followed by the fractional
+//					     time in msecs (or microsecs) ... 
+                        sb.append('.');
+
                         String millisecondStr = String.valueOf(milliseconds);
-                        for (int i = millisecondStr.length(); i < 8; i++) {
+                        for (int i = millisecondStr.length(); i < 3; i++) {
                             sb.append('0');
                         }
                         sb.append(millisecondStr);
@@ -772,10 +892,11 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                if (summaryTime != null)
+                if (summaryTime != null) {
                     return summaryTime;
-                else if (workReportTime != null)
+                } else if (workReportTime != null) {
                     return workReportTime;
+                }
                 return imgRecTime;
 
             } catch (Exception e) {
@@ -786,7 +907,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     }
 
     private ProductData.UTC getEndTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
-                                              final String tagInSummary, final ProductData.UTC startTime) {
+                                       final String tagInSummary, final ProductData.UTC startTime) {
         ProductData.UTC time = getUTCScanStartTime(sceneRec, null);
         if (time.equalElems(AbstractMetadata.NO_METADATA_UTC)) {
             try {
@@ -829,14 +950,15 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 ProductData.UTC imgRecTime = null;
                 final MetadataElement imageDescriptorElem = origProductMetadata.getElement("Image Descriptor 1");
                 if (imageDescriptorElem != null) {
-                    final int numRecords = imageDescriptorElem.getAttributeInt("Number of SAR DATA records", 0);
+//                    final int numRecords = imageDescriptorElem.getAttributeInt("Number of SAR DATA records", 0);
                     final MetadataElement imageRecordElem = imageDescriptorElem.getElement("Image Record");
                     if (imageRecordElem != null) {
-                        final int year = imageRecordElem.getAttributeInt("Sensor acquisition year", 0);
-                        final int days = imageRecordElem.getAttributeInt("Sensor acquisition day of year", 0);
-                        int milliseconds = imageRecordElem.getAttributeInt("Sensor acquisition milliseconds of day", 0);
-                        final double prf = imageRecordElem.getAttributeDouble("PRF", 0);
-                        milliseconds += (int)((numRecords - 1) * Constants.oneMillion / prf);
+                        final int year = imageFiles[0].endYear;
+                        final int days = imageFiles[0].endDay;
+                        final int seconds = imageFiles[0].endMsec / 1000;
+                        final int milliseconds = imageFiles[0].endMsec - seconds * 1000;
+//                        final double prf = imageRecordElem.getAttributeDouble("PRF", 0);
+//                        milliseconds += (int)((numRecords - 1) * Constants.oneMillion / prf);
 
                         StringBuilder sb = new StringBuilder(String.valueOf(year));
                         String dayStr = String.valueOf(days);
@@ -845,8 +967,16 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                         }
                         sb.append(dayStr);
 
+                        String secondStr = String.valueOf(seconds);
+                        for (int i = secondStr.length(); i < 5; i++) {
+                            sb.append('0');
+                        }
+                        sb.append(secondStr);
+                        sb.append("000");
+                        sb.append('.');
+
                         String millisecondStr = String.valueOf(milliseconds);
-                        for (int i = millisecondStr.length(); i < 8; i++) {
+                        for (int i = millisecondStr.length(); i < 3; i++) {
                             sb.append('0');
                         }
                         sb.append(millisecondStr);
@@ -855,12 +985,13 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                if (summaryTime != null)
+                if (summaryTime != null) {
                     return summaryTime;
-                else if (workReportTime != null)
+                } else if (workReportTime != null) {
                     return workReportTime;
-                else if (imgRecTime != null)
+                } else if (imgRecTime != null) {
                     return imgRecTime;
+                }
 
                 final String centreTimeStr = sceneRec.getAttributeString("Scene centre time");
                 final ProductData.UTC centreTime = AbstractMetadata.parseUTC(centreTimeStr.trim(), dateFormat1);
@@ -898,16 +1029,17 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final int sourceImageWidth = product.getSceneRasterWidth();
         final int sourceImageHeight = product.getSceneRasterHeight();
 
-        final double subSamplingX = sourceImageWidth / (double) (gridWidth - 1);
-        final double subSamplingY = sourceImageHeight / (double) (gridHeight - 1);
+        final int isubSamplingX = sourceImageWidth / (gridWidth - 1);
+        final int isubSamplingY = sourceImageHeight / (gridHeight - 1);
+        final double subSamplingX = (double) isubSamplingX;
+        final double subSamplingY = (double) isubSamplingY;
 
         final TiePointGrid slantRangeTime = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         final double firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
         final double lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
-        final double lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
-
+        final double lineTimeInterval = (lastLineUTC - firstLineUTC) / (double) (sourceImageHeight - 1);
         OrbitStateVector[] orbitStateVectors;
         try {
             orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
@@ -963,39 +1095,32 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         for (int r = 0; r < gridHeight; r++) {
             // get the zero Doppler time for the rth line
             int y;
-            if (r == gridHeight - 1) { // last row
-                y = sourceImageHeight - 1;
-            } else { // other rows
-                y = (int) (r * subSamplingY);
-            }
-            final double curLineUTC = firstLineUTC + y * lineTimeInterval;
-            //System.out.println((new ProductData.UTC(curLineUTC)).toString());
+            y = (r * isubSamplingY);
+            final double curLineUTC = firstLineUTC + y * lineTimeInterval - lineTimeInterval / 2.0; //pixel-is-point
 
             // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
             final Orbits.OrbitVector data = getOrbitData(curLineUTC, timeArray, xPosArray, yPosArray, zPosArray,
-                    xVelArray, yVelArray, zVelArray);
+                                                         xVelArray, yVelArray, zVelArray);
 
             for (int c = 0; c < gridWidth; c++) {
                 int x;
-                if (c == gridWidth - 1) { // last column
-                    x = sourceImageWidth - 1;
-                } else { // other columns
-                    x = (int) (c * subSamplingX);
-                }
-
-                final double slrgTime = slantRangeTime.getPixelDouble(x, y) / Constants.oneBillion; // ns to s;
+                x = (c * isubSamplingX);
+// Tie-point grid needs lat/long at top left corner of pixel - public getPixelDouble returns the tie point value 
+// corresponding to x+0.5, y+0.5
+//
+                final double slrgTime = 0.5 * (slantRangeTime.getPixelFloat(x - 1, y - 1) + slantRangeTime.getPixelFloat(x, y)) / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(refLat, refLon, slrgTime, data);
-                targetLatTiePoints[k] = (float)geoPos.lat;
-                targetLonTiePoints[k] = (float)geoPos.lon;
+                targetLatTiePoints[k] = (float) geoPos.lat;
+                targetLonTiePoints[k] = (float) geoPos.lon;
                 ++k;
             }
         }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
+                                                      0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                                                      0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
@@ -1062,17 +1187,17 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
      * @return The orbit information.
      */
     private static Orbits.OrbitVector getOrbitData(final double utc, final double[] timeArray,
-                                                 final double[] xPosArray, final double[] yPosArray, final double[] zPosArray,
-                                                 final double[] xVelArray, final double[] yVelArray, final double[] zVelArray) {
+                                                   final double[] xPosArray, final double[] yPosArray, final double[] zPosArray,
+                                                   final double[] xVelArray, final double[] yVelArray, final double[] zVelArray) {
 
         // Lagrange polynomial interpolation
         return new Orbits.OrbitVector(utc,
-                Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc),
-                Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc),
-                Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc),
-                Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc),
-                Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc),
-                Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc));
+                                      Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc),
+                                      Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc),
+                                      Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc),
+                                      Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc),
+                                      Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc),
+                                      Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc));
     }
 
 }

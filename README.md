@@ -2,8 +2,10 @@ The SENTINEL-1 Toolbox
 ======================
 
 [![Build Status](https://travis-ci.org/senbox-org/s1tbx.svg?branch=master)](https://travis-ci.org/senbox-org/s1tbx) 
+[![Coverity Scan Status](https://scan.coverity.com/projects/7248/badge.svg)](https://scan.coverity.com/projects/senbox-org-s1tbx)
 
 Building S1TBX from the source
+------------------------------
 
 1. Download and install the required build tools
 	* Install J2SE 1.8 JDK and set JAVA_HOME accordingly. 
@@ -23,22 +25,22 @@ Building S1TBX from the source
 	
 4. CD into SNAP/snap-engine:
 
-   mvn install
+   mvn clean install
 
 5. CD into SNAP/snap-desktop:
 
-   mvn install
+   mvn clean install
 
 6. CD into SNAP/s1tbx:
 
-   mvn install
+   mvn clean install
    
 7. If unit tests are failing, you can use the following to skip the tests
    
-   mvn clean
-   mvn install -Dmaven.test.skip=true
+   mvn clean install -Dmaven.test.skip=true
 	
 Setting up IntelliJ IDEA
+------------------------
 
 1. Create an empty project with the SNAP/ directory as project directory
 
@@ -60,4 +62,15 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
 	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
 	* **Use classpath of module:** snap-main
 
+Contributing
+------------
+
+    Fork it on github ( https://github.com/senbox-org/s1tbx/fork )
+    Clone it locally (git clone https://github.com/senbox-org/s1tbx.git)
+    Create your feature branch (git checkout -b my-new-feature)
+    Commit your changes (git commit -am 'Add some feature')
+    Push to the branch (git push origin my-new-feature)
+    Create a new Pull Request on github
+    
+    
 Enjoy!

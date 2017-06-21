@@ -32,7 +32,7 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.envisat.EnvisatAuxReader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
+import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableArchive;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;

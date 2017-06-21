@@ -24,14 +24,7 @@ import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
-import gov.nasa.worldwind.render.BasicShapeAttributes;
-import gov.nasa.worldwind.render.DrawContext;
-import gov.nasa.worldwind.render.Material;
-import gov.nasa.worldwind.render.Path;
-import gov.nasa.worldwind.render.Polyline;
-import gov.nasa.worldwind.render.Renderable;
-import gov.nasa.worldwind.render.ScreenAnnotation;
-import gov.nasa.worldwind.render.ShapeAttributes;
+import gov.nasa.worldwind.render.*;
 import gov.nasa.worldwind.util.BufferFactory;
 import gov.nasa.worldwind.util.BufferWrapper;
 import gov.nasa.worldwind.util.WWMath;
@@ -40,12 +33,7 @@ import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.ocean.toolviews.polarview.OceanSwellTopComponent;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.worldwind.ArrowInfo;
@@ -65,15 +53,16 @@ import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
-    S-1 L2 OCN visualization
+ * S-1 L2 OCN visualization
  */
 public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
     private static double HUE_BLUE = 240d / 360d;
-    private static double HUE_RED = 0d / 360d;
-    private static double HUE_MAX_RED = 1.0;
+    private static final double HUE_RED = 0d / 360d;
+    private static final double HUE_MAX_RED = 1.0;
 
     private JPanel theControlLevel2Panel;
     private boolean theOWILimitChanged = false;
@@ -82,14 +71,14 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
     private boolean theOWIArrowsDisplayed = false;
 
-    private static double GLOBE_RADIUS = 6371000;
+    private static final double GLOBE_RADIUS = 6371000;
 
     // this is the dimension of the cell in which to draw an arrow
     // at the highest resolution
-    private static int theOWIArrowCellSize = 4;
+    private static final int theOWIArrowCellSize = 4;
 
     // the number of resolutions for OWI arrows
-    private static int theOWIArrowNumLevels = 5;
+    private static final int theOWIArrowNumLevels = 5;
 
     private JCheckBox theArrowsCB;
 
@@ -111,17 +100,16 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
     private final HashMap<Product, ProductRenderablesInfo> theProductRenderablesInfoHash = new HashMap<>();
 
-    //public ShapeAttributes dpAttrs = null;
-    //public ShapeAttributes dpHighlightAttrs = null;
-
-    public ScreenAnnotation theInfoAnnotation;
+    private final ScreenAnnotation theInfoAnnotation;
 
     private DirectedPath theLastSelectedDP = null;
+
     // this is set every time a product is added
     // because we can't added it in constructor as it is not called explicitly
     // and removeProduct needs it for redrawNow
     // (removeProduct can't be modified either to accept a wwd parameter)
     private WorldWindowGLCanvas theWWD;
+
     public Level2ProductLayer() {
         this.setName("S-1 Level-2 OCN");
         theWWD = null;
@@ -171,13 +159,11 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             //SystemUtils.LOG.info("selectedProduct " + getSelectedProduct());
             //final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
             //command.execute(2);
-        }
-        else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && theSurfaceProductHash.get(event.getTopObject()) != null && theSurfaceSequenceHash.get(event.getTopObject()) != null)  {
+        } else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && theSurfaceProductHash.get(event.getTopObject()) != null && theSurfaceSequenceHash.get(event.getTopObject()) != null) {
             //SystemUtils.LOG.info("click " + event.getTopObject());
             OceanSwellTopComponent.setOSWRecord(theSurfaceProductHash.get(event.getTopObject()), theSurfaceSequenceHash.get(event.getTopObject()));
 
-        }
-        else {
+        } else {
 
             if (theLastSelectedDP != null) {
                 theLastSelectedDP.setHighlighted(false);
@@ -189,7 +175,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
     public void addProduct(final Product product, final WorldWindowGLCanvas wwd) {
 
-        if(!product.getProductType().equalsIgnoreCase("OCN")) {
+        if (!product.getProductType().equalsIgnoreCase("OCN")) {
             return;
         }
 
@@ -206,8 +192,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         theInfoAnnotation.getAttributes().setVisible(false);
 
         //theColorBarLegendProduct = product;
-        final ProductRenderablesInfo productRenderablesInfo = new ProductRenderablesInfo ();
-        // There is code in LayerMagerLayer that updates the size
+        final ProductRenderablesInfo productRenderablesInfo = new ProductRenderablesInfo();
+        // There is code in LayerManagerLayer that updates the size
         //  it's re-rendered
         // Update current size and adjust annotation draw offset according to it's width
         //this.size = theInfoAnnotation.getPreferredSize(dc);
@@ -241,25 +227,23 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
         if (acquisitionMode.equalsIgnoreCase("IW")) {
             numSwaths = 3;
-        }
-
-        else if (acquisitionMode.equalsIgnoreCase("EW")) {
+        } else if (acquisitionMode.equalsIgnoreCase("EW")) {
             numSwaths = 5;
         }
         for (int i = 0; i < numSwaths; i++) {
-            Band rvlLonBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlLon");
+            Band rvlLonBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i + 1) + "_rvlLon");
 
             numRVLElements += (rvlLonBand.getRasterWidth() * rvlLonBand.getRasterHeight());
             rvlSwathWidth = rvlLonBand.getRasterWidth();
             rvlSwathHeight = rvlLonBand.getRasterHeight();
         }
 
-            final GeoPos geoPos1 = product.getSceneGeoCoding().getGeoPos(new PixelPos(0, 0), null);
-            final GeoPos geoPos2 = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
-                    product.getSceneRasterHeight() - 1), null);
+        final GeoPos geoPos1 = product.getSceneGeoCoding().getGeoPos(new PixelPos(0, 0), null);
+        final GeoPos geoPos2 = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+                product.getSceneRasterHeight() - 1), null);
 
         try {
-            if(owiLonBand != null) {
+            if (owiLonBand != null) {
                 final double[] lonValues = new double[owiLonBand.getRasterWidth() * owiLonBand.getRasterHeight()];
                 owiLonBand.readPixels(0, 0, owiLonBand.getRasterWidth(), owiLonBand.getRasterHeight(), lonValues, ProgressMonitor.NULL);
 
@@ -300,12 +284,12 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
 
                 for (int i = 0; i < numSwaths; i++) {
-                    Band currRVLLonBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlLon");
-                    Band currRVLLatBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlLat");
-                    Band currRVLRadVelBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlRadVel");
+                    Band currRVLLonBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i + 1) + "_rvlLon");
+                    Band currRVLLatBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i + 1) + "_rvlLat");
+                    Band currRVLRadVelBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i + 1) + "_rvlRadVel");
 
                     double[] currRVLLonValues = new double[currRVLLonBand.getRasterWidth() * currRVLLonBand.getRasterHeight()];
-                    currRVLLonBand.readPixels(0, 0, currRVLLonBand.getRasterWidth(), currRVLLonBand.getRasterHeight(),currRVLLonValues, ProgressMonitor.NULL);
+                    currRVLLonBand.readPixels(0, 0, currRVLLonBand.getRasterWidth(), currRVLLonBand.getRasterHeight(), currRVLLonValues, ProgressMonitor.NULL);
 
                     double[] currRVLLatValues = new double[currRVLLatBand.getRasterWidth() * currRVLLatBand.getRasterHeight()];
                     currRVLLatBand.readPixels(0, 0, currRVLLatBand.getRasterWidth(), currRVLLatBand.getRasterHeight(), currRVLLatValues, ProgressMonitor.NULL);
@@ -317,17 +301,16 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                         System.arraycopy(currRVLLonValues, 0, rvlLonValues, i * currRVLLonBand.getRasterWidth() * currRVLLonBand.getRasterHeight(), currRVLLonBand.getRasterWidth() * currRVLLonBand.getRasterHeight());
                         System.arraycopy(currRVLLatValues, 0, rvlLatValues, i * currRVLLatBand.getRasterWidth() * currRVLLatBand.getRasterHeight(), currRVLLatBand.getRasterWidth() * currRVLLatBand.getRasterHeight());
                         System.arraycopy(currRVLRadVelValues, 0, rvlRadVelValues, i * currRVLRadVelBand.getRasterWidth() * currRVLRadVelBand.getRasterHeight(), currRVLRadVelBand.getRasterWidth() * currRVLRadVelBand.getRasterHeight());
-                    }
-                    else {
+                    } else {
                         createColorSurfaceWithGradient(geoPos1, geoPos2, currRVLLatValues, currRVLLonValues, currRVLRadVelValues, rvlSwathWidth, rvlSwathHeight, -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
                     }
                 }
 
 
-		        if (displayAsOne) {
-                	createColorSurfaceWithGradient(geoPos1, geoPos2, rvlLatValues, rvlLonValues, rvlRadVelValues, numSwaths*rvlSwathWidth, rvlSwathHeight, -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
+                if (displayAsOne) {
+                    createColorSurfaceWithGradient(geoPos1, geoPos2, rvlLatValues, rvlLonValues, rvlRadVelValues, numSwaths * rvlSwathWidth, rvlSwathHeight, -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
                     //createColorSurfaceWithGradient(geoPos1, geoPos2, rvlLatValues, rvlLonValues, rvlRadVelValues, 10, 10, -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
-            	}
+                }
             }
 
 
@@ -370,7 +353,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
 
 
-
             //owiLonBand
             if (owiData != null && owiLonBand == null) {
                 //addWaveLengthArrows(owiData[0], owiData[1], owiData[3], owiData[4], productRenderablesInfo.theRenderableListHash.get("owi"));
@@ -382,28 +364,28 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
 
             theProductRenderablesInfoHash.put(product, productRenderablesInfo);
-            if(theControlLevel2Panel != null) {
+            if (theControlLevel2Panel != null) {
                 theControlLevel2Panel.setVisible(true);
             }
             setComponentVisible(theSelectedComp, wwd);
 
         } catch (Exception e) {
-            SnapApp.getDefault().handleError("L2ProductLayer unable to add product "+product.getName(), e);
+            SnapApp.getDefault().handleError("L2ProductLayer unable to add product " + product.getName(), e);
         }
     }
 
-    public double getData (MetadataElement element) {
+    private double getData(MetadataElement element) {
         if (element.getElement("Values") != null) {
             return element.getElement("Values").getAttribute("data").getData().getElemDouble();
         }
         return 0;
     }
 
-    public void createColorSurfaceWithGradient(GeoPos geoPos1, GeoPos geoPos2, double[] latValues,
-                                               double[] lonValues, double[] values, int width, int height,
-                                               double minValue, double maxValue, boolean whiteZero, ArrayList<Renderable> renderableList, ProductRenderablesInfo prodRenderInfo, String comp) {
+    private void createColorSurfaceWithGradient(GeoPos geoPos1, GeoPos geoPos2, double[] latValues,
+                                                double[] lonValues, double[] values, int width, int height,
+                                                double minValue, double maxValue, boolean whiteZero, ArrayList<Renderable> renderableList, ProductRenderablesInfo prodRenderInfo, String comp) {
         createColorSurface(geoPos1, geoPos2, latValues, lonValues, values, width, height,
-                           renderableList, prodRenderInfo, comp);
+                renderableList, prodRenderInfo, comp);
         //createColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), rvlRadVelValues, 40, 40, minValue, maxValue, renderableList);
 
         //theCurrMinHue = minHue;
@@ -422,7 +404,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         createColorGradient(minValue, maxValue, whiteZero, prodRenderInfo, comp);
     }
 
-    public void createColorBarLegend(double minValue, double maxValue, String title, String comp) {
+    private void createColorBarLegend(double minValue, double maxValue, String title, String comp) {
         //SystemUtils.LOG.info("createColorBarLegend " + minValue + " " + maxValue);
 
         String unit = "m/s";
@@ -453,7 +435,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
 
-    public void setComponentVisible(String comp, WorldWindowGLCanvas wwd) {
+    private void setComponentVisible(String comp, WorldWindowGLCanvas wwd) {
         //SystemUtils.LOG.info("setComponentVisible " + comp);
         //SystemUtils.LOG.info("theColorBarLegendHash " + theColorBarLegendHash);
         for (String currComp : theColorBarLegendHash.keySet()) {
@@ -484,13 +466,13 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     private void addWindSpeedArrows(double[] latValues,
-                                     double[] lonValues,
-                                     double[] incAngleValues,
-                                     double[] windSpeedValues,
-                                     double[] windDirValues,
-                                     int width,
-                                     int height,
-                                     ArrayList<Renderable> renderableList) {
+                                    double[] lonValues,
+                                    double[] incAngleValues,
+                                    double[] windSpeedValues,
+                                    double[] windDirValues,
+                                    int width,
+                                    int height,
+                                    ArrayList<Renderable> renderableList) {
         double pixelWidth = Math.abs(lonValues[0] - lonValues[lonValues.length - 1]) / width;
         double pixelHeight = Math.abs(latValues[0] - latValues[latValues.length - 1]) / height;
 
@@ -527,7 +509,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         // through it and disregard this possible last element (which is the remainder, in the corners of the whole area)
         ArrowInfo[][][] arrowGrid = new ArrowInfo[theOWIArrowNumLevels][numCellRows + 1][numCellCols + 1];
 
-        for (int row = 0; row < height; row=row + theOWIArrowCellSize) {
+        for (int row = 0; row < height; row = row + theOWIArrowCellSize) {
             for (int col = 0; col < width; col = col + theOWIArrowCellSize) {
                 //int i = row*width + col;
                 int globalInd = row * width + col;
@@ -595,70 +577,69 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
 
                 //if (currCellRow > 0 && currCellCol > 0) {
-                    for (int cellSizeResolution = 1; cellSizeResolution < theOWIArrowNumLevels; cellSizeResolution++) {
-                        // treating the original cell size as 1
-                        int currBigCellSize = (int) FastMath.pow(2, cellSizeResolution);
-                        if ((currCellRow % currBigCellSize == currBigCellSize - 1) && (currCellCol % currBigCellSize == currBigCellSize - 1)) {
-                            int bigCellRow = (currCellRow / currBigCellSize);
-                            int bigCellCol = (currCellCol / currBigCellSize);
+                for (int cellSizeResolution = 1; cellSizeResolution < theOWIArrowNumLevels; cellSizeResolution++) {
+                    // treating the original cell size as 1
+                    int currBigCellSize = (int) FastMath.pow(2, cellSizeResolution);
+                    if ((currCellRow % currBigCellSize == currBigCellSize - 1) && (currCellCol % currBigCellSize == currBigCellSize - 1)) {
+                        int bigCellRow = (currCellRow / currBigCellSize);
+                        int bigCellCol = (currCellCol / currBigCellSize);
 
-                            int smallCellStartRow = bigCellRow * 2;
-                            int smallCellStartCol = bigCellCol * 2;
+                        int smallCellStartRow = bigCellRow * 2;
+                        int smallCellStartCol = bigCellCol * 2;
 
-                            double cumAvgIncAngle = 0;
-                            double cumAvgWindSpeed = 0;
-                            double cumAvgWindDir = 0;
-                            Position cumStartPos = new Position(Angle.fromDegreesLatitude(0.0), Angle.fromDegreesLongitude(0.0), 10.0);
-                            Position cumEndPos = new Position(Angle.fromDegreesLatitude(0.0), Angle.fromDegreesLongitude(0.0), 10.0);
-                            double cumStartPosLat_deg = 0;
-                            double cumStartPosLon_deg = 0;
-                            double bigCellArrowLength_deg = currBigCellSize*arrowLength_deg;
-                            for (int currSmallCellRow = smallCellStartRow; currSmallCellRow < smallCellStartRow + 2; currSmallCellRow++) {
-                                for (int currSmallCellCol = smallCellStartCol; currSmallCellCol < smallCellStartCol + 2; currSmallCellCol++) {
-                                    ArrowInfo currSmallArrow = arrowGrid[cellSizeResolution - 1][currSmallCellRow][currSmallCellCol];
-                                    // all small cell's arrow length's will be the same
-                                    //bigCellArrowLength_deg = 2*currSmallArrow.theArrowLength;
-                                    cumAvgIncAngle += currSmallArrow.theAvgIncAngle;
-                                    cumAvgWindSpeed += currSmallArrow.theAvgWindSpeed;
-                                    cumAvgWindDir += currSmallArrow.theAvgWindDir;
-                                    boolean firstPosNext = true;
-                                    for (Position pos : currSmallArrow.theDirectedPath.getPositions()) {
-                                        if (firstPosNext) {
-                                            cumStartPos = cumStartPos.add(pos);
-                                            cumStartPosLat_deg += pos.getLatitude().getDegrees();
-                                            cumStartPosLon_deg += pos.getLongitude().getDegrees();
-                                            firstPosNext = false;
-                                        }
-                                        else {
-                                            cumEndPos = cumEndPos.add(pos);
-                                        }
+                        double cumAvgIncAngle = 0;
+                        double cumAvgWindSpeed = 0;
+                        double cumAvgWindDir = 0;
+                        Position cumStartPos = new Position(Angle.fromDegreesLatitude(0.0), Angle.fromDegreesLongitude(0.0), 10.0);
+                        Position cumEndPos = new Position(Angle.fromDegreesLatitude(0.0), Angle.fromDegreesLongitude(0.0), 10.0);
+                        double cumStartPosLat_deg = 0;
+                        double cumStartPosLon_deg = 0;
+                        double bigCellArrowLength_deg = currBigCellSize * arrowLength_deg;
+                        for (int currSmallCellRow = smallCellStartRow; currSmallCellRow < smallCellStartRow + 2; currSmallCellRow++) {
+                            for (int currSmallCellCol = smallCellStartCol; currSmallCellCol < smallCellStartCol + 2; currSmallCellCol++) {
+                                ArrowInfo currSmallArrow = arrowGrid[cellSizeResolution - 1][currSmallCellRow][currSmallCellCol];
+                                // all small cell's arrow length's will be the same
+                                //bigCellArrowLength_deg = 2*currSmallArrow.theArrowLength;
+                                cumAvgIncAngle += currSmallArrow.theAvgIncAngle;
+                                cumAvgWindSpeed += currSmallArrow.theAvgWindSpeed;
+                                cumAvgWindDir += currSmallArrow.theAvgWindDir;
+                                boolean firstPosNext = true;
+                                for (Position pos : currSmallArrow.theDirectedPath.getPositions()) {
+                                    if (firstPosNext) {
+                                        cumStartPos = cumStartPos.add(pos);
+                                        cumStartPosLat_deg += pos.getLatitude().getDegrees();
+                                        cumStartPosLon_deg += pos.getLongitude().getDegrees();
+                                        firstPosNext = false;
+                                    } else {
+                                        cumEndPos = cumEndPos.add(pos);
                                     }
                                 }
                             }
-                            cumAvgIncAngle = cumAvgIncAngle / 4;
-                            cumAvgWindSpeed = cumAvgWindSpeed / 4;
-                            cumAvgWindDir = cumAvgWindDir / 4;
-                            cumStartPosLat_deg = cumStartPosLat_deg / 4;
-                            cumStartPosLon_deg = cumStartPosLon_deg / 4;
-
-                            arrowGrid[cellSizeResolution][bigCellRow][bigCellCol] = null;
-
-
-                            Position bigCellStartPos = new Position(Angle.fromDegreesLatitude(cumStartPosLat_deg), Angle.fromDegreesLongitude(cumStartPosLon_deg), 10.0);
-                            Position bigCellEndPos = new Position(LatLon.greatCircleEndPosition(bigCellStartPos, Angle.fromDegrees(cumAvgWindDir), Angle.fromDegrees(bigCellArrowLength_deg)), 10.0);
-
-                            //System.out.println("startPos " + startPos + " endPos " + endPos);
-                            ArrayList<Position> bigCellPositions = new ArrayList<>();
-                            bigCellPositions.add(bigCellStartPos);
-                            bigCellPositions.add(bigCellEndPos);
-
-                            DirectedPath bigDC = getDirectedPath(bigCellPositions, dpAttrs);
-                            bigDC.setArrowLength(currBigCellSize * arrowHeadLength);
-                            arrowGrid[cellSizeResolution][bigCellRow][bigCellCol] = new ArrowInfo(bigDC, cumAvgIncAngle, cumAvgWindSpeed, cumAvgWindDir, bigCellArrowLength_deg);
-
                         }
+                        cumAvgIncAngle = cumAvgIncAngle / 4;
+                        cumAvgWindSpeed = cumAvgWindSpeed / 4;
+                        cumAvgWindDir = cumAvgWindDir / 4;
+                        cumStartPosLat_deg = cumStartPosLat_deg / 4;
+                        cumStartPosLon_deg = cumStartPosLon_deg / 4;
+
+                        arrowGrid[cellSizeResolution][bigCellRow][bigCellCol] = null;
+
+
+                        Position bigCellStartPos = new Position(Angle.fromDegreesLatitude(cumStartPosLat_deg), Angle.fromDegreesLongitude(cumStartPosLon_deg), 10.0);
+                        Position bigCellEndPos = new Position(LatLon.greatCircleEndPosition(bigCellStartPos, Angle.fromDegrees(cumAvgWindDir), Angle.fromDegrees(bigCellArrowLength_deg)), 10.0);
+
+                        //System.out.println("startPos " + startPos + " endPos " + endPos);
+                        ArrayList<Position> bigCellPositions = new ArrayList<>();
+                        bigCellPositions.add(bigCellStartPos);
+                        bigCellPositions.add(bigCellEndPos);
+
+                        DirectedPath bigDC = getDirectedPath(bigCellPositions, dpAttrs);
+                        bigDC.setArrowLength(currBigCellSize * arrowHeadLength);
+                        arrowGrid[cellSizeResolution][bigCellRow][bigCellCol] = new ArrowInfo(bigDC, cumAvgIncAngle, cumAvgWindSpeed, cumAvgWindDir, bigCellArrowLength_deg);
 
                     }
+
+                }
                 //}
 
             }
@@ -671,7 +652,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
                 //DirectedPath directedPath = arrowGrid[0][cellRow][cellCol].theDirectedPath;
                 Renderable renderable = new Renderable() {
-                    public void render (DrawContext dc) {
+                    public void render(DrawContext dc) {
                         if (!theOWIArrowsDisplayed) {
                             return;
                         }
@@ -697,13 +678,10 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                         int selectedResolutionInd = (int) (Math.log(currAlt * (4 / 0.5e6)) / Math.log(2));
                         if (selectedResolutionInd < 0) {
                             selectedResolutionInd = 0;
-                        }
-                        else if (selectedResolutionInd > 4) {
+                        } else if (selectedResolutionInd > 4) {
                             selectedResolutionInd = 4;
                         }
                         int selectedInd = (int) FastMath.pow(2, selectedResolutionInd);
-
-
 
 
                         //int selectedInd = (int) (currAlt * (4 / 0.5e6));
@@ -741,8 +719,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                         */
 
 
-
-
                         //System.out.println("eyePosition " + dc.getView().getCurrentEyePosition());
                     }
                 };
@@ -756,7 +732,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         }
     }
 
-    private DirectedPath getDirectedPath (ArrayList<Position> positions, ShapeAttributes dpAttrs) {
+    private DirectedPath getDirectedPath(ArrayList<Position> positions, ShapeAttributes dpAttrs) {
         DirectedPath directedPath = new DirectedPath(positions);
         directedPath.setAttributes(dpAttrs);
         //directedPath.setHighlightAttributes(highlightAttrs);
@@ -768,10 +744,10 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     private void addWaveLengthArrows(double[] latValues,
-                                    double[] lonValues,
-                                    double[] waveLengthValues,
-                                    double[] waveDirValues,
-                                    ArrayList<Renderable> renderableList) {
+                                     double[] lonValues,
+                                     double[] waveLengthValues,
+                                     double[] waveDirValues,
+                                     ArrayList<Renderable> renderableList) {
         //SystemUtils.LOG.info(":: addWaveLengthArrows ");
 
         final ShapeAttributes dpAttrs = new BasicShapeAttributes();
@@ -798,7 +774,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             directedPath.setArrowLength(arrowHeadLength);
 
             Renderable renderable = new Renderable() {
-                public void render (DrawContext dc) {
+                public void render(DrawContext dc) {
                     directedPath.render(dc);
                 }
             };
@@ -850,11 +826,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             String info = "";
             if (comp.equalsIgnoreCase("osw")) {
                 info = "Wave Length: " + values[ind] + "<br/>";
-            }
-            else if (comp.equalsIgnoreCase("owi")) {
+            } else if (comp.equalsIgnoreCase("owi")) {
                 info = "Wind Speed: " + values[ind] + "<br/>";
-            }
-            else if (comp.equalsIgnoreCase("rvl")) {
+            } else if (comp.equalsIgnoreCase("rvl")) {
                 info = "Radial Velocity: " + values[ind] + "<br/>";
             }
             String finalInfo = info;
@@ -878,7 +852,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             analyticSurface.setDimensions(2, 2);
 
             final ArrayList<AnalyticSurface.GridPointAttributes> attributesList = new ArrayList<>();
-            for (int i =0; i < 4; i++) {
+            for (int i = 0; i < 4; i++) {
                 attributesList.add(createColorGradientAttributes(values[ind], 0, 10, HUE_RED, HUE_MAX_RED, false));
             }
 
@@ -902,16 +876,15 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
     }
 
-    private double computeSegmentLength(Path path, DrawContext dc, Position posA, Position posB)
-    {
+    private double computeSegmentLength(Path path, DrawContext dc, Position posA, Position posB) {
         final LatLon llA = new LatLon(posA.getLatitude(), posA.getLongitude());
         final LatLon llB = new LatLon(posB.getLatitude(), posB.getLongitude());
 
         Angle ang;
         String pathType = path.getPathType();
-        if (pathType == AVKey.LINEAR) {
+        if (Objects.equals(pathType, AVKey.LINEAR)) {
             ang = LatLon.linearDistance(llA, llB);
-        } else if (pathType == AVKey.RHUMB_LINE || pathType == AVKey.LOXODROME) {
+        } else if (Objects.equals(pathType, AVKey.RHUMB_LINE) || Objects.equals(pathType, AVKey.LOXODROME)) {
             ang = LatLon.rhumbDistance(llA, llB);
         } else { // Great circle
             ang = LatLon.greatCircleDistance(llA, llB);
@@ -926,20 +899,18 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     // ADDED
-    protected void createColorSurface(GeoPos geoPos1, GeoPos geoPos2, double[] latValues, double[] lonValues, double[] vals,
-                                      int width, int height, ArrayList<Renderable> renderableList,
-                                      ProductRenderablesInfo prodRenderInfo, String comp)
-    {
+    private void createColorSurface(GeoPos geoPos1, GeoPos geoPos2, double[] latValues, double[] lonValues, double[] vals,
+                                    int width, int height, ArrayList<Renderable> renderableList,
+                                    ProductRenderablesInfo prodRenderInfo, String comp) {
         //double minValue = -200e3;
         //double maxValue = 200e3;
         //SystemUtils.LOG.info("createColorSurface " + latValues.length + " " + lonValues.length + " " + vals.length + " " + width + " " + height);
 
         // analytic surface has to be overidden in order to allow for non-rectangular surfaces
         // the approach is render the surface point by point and not use the sector as the boundary
-        AnalyticSurface analyticSurface = new AnalyticSurface(){
+        AnalyticSurface analyticSurface = new AnalyticSurface() {
 
-            protected void doUpdate(DrawContext dc)
-            {
+            protected void doUpdate(DrawContext dc) {
                 this.referencePos = new Position(this.sector.getCentroid(),
                         this.altitude);
                 this.referencePoint =
@@ -947,11 +918,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
                 if (this.surfaceRenderInfo == null ||
                         this.surfaceRenderInfo.getGridWidth() != this.width ||
-                        this.surfaceRenderInfo.getGridHeight() != this.height)
-                {
+                        this.surfaceRenderInfo.getGridHeight() != this.height) {
                     this.surfaceRenderInfo = new RenderInfo(this.width, this.height) {
-                        public void drawInterior(DrawContext dc)
-                        {
+                        public void drawInterior(DrawContext dc) {
                             if (dc == null) {
                                 cartesianVertexBuffer.rewind();
                                 geographicVertexBuffer.rewind();
@@ -969,8 +938,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
 
             protected void updateSurfacePoints(DrawContext dc, RenderInfo
-                    outRenderInfo)
-            {
+                    outRenderInfo) {
                 Iterator<? extends GridPointAttributes> iter =
                         this.values.iterator();
 
@@ -979,22 +947,21 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 //while (iter.hasNext()) {
                 for (int row = 0; row < this.height; row++) {
                     for (int col = 0; col < this.width; col++) {
-                    int i = row * (this.width) + col;
-                    GridPointAttributes attr = iter.hasNext() ? iter.next() :
-                            null;
-                    if (vals[i] != -999) {
-                    //if (vals[i] > 0) {
-                        this.updateNextSurfacePoint(dc, Angle.fromDegrees(latValues[i]),
-                                Angle.fromDegrees(lonValues[i]), attr, outRenderInfo);
-                    }
-                    //i++;
+                        int i = row * (this.width) + col;
+                        GridPointAttributes attr = iter.hasNext() ? iter.next() :
+                                null;
+                        if (vals[i] != -999) {
+                            //if (vals[i] > 0) {
+                            this.updateNextSurfacePoint(dc, Angle.fromDegrees(latValues[i]),
+                                    Angle.fromDegrees(lonValues[i]), attr, outRenderInfo);
+                        }
+                        //i++;
                     }
                 }
                 //}
                 //outRenderInfo.rewindBuffers();
                 outRenderInfo.drawInterior(null);
             }
-
 
 
         };
@@ -1021,14 +988,14 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
         //mixValuesOverTime(2000L, firstBuffer, analyticSurfaceValueBuffer, minValue, maxValue, minHue, maxHue, analyticSurface);
 
-        prodRenderInfo.setAnalyticSurfaceAndBuffer (analyticSurface, analyticSurfaceValueBuffer, comp);
+        prodRenderInfo.setAnalyticSurfaceAndBuffer(analyticSurface, analyticSurfaceValueBuffer, comp);
         if (renderableList != null) {
             renderableList.add(analyticSurface);
         }
     }
 
-    public void createColorGradient(double minValue, double maxValue, boolean whiteZero,
-                                    ProductRenderablesInfo prodRenderInfo, String comp) {
+    private void createColorGradient(double minValue, double maxValue, boolean whiteZero,
+                                     ProductRenderablesInfo prodRenderInfo, String comp) {
         //SystemUtils.LOG.info("createColorGradient " + minValue + " " + maxValue + " " + comp);
         ArrayList<AnalyticSurface> analyticSurfaces = null;
         ArrayList<BufferWrapper> analyticSurfaceValueBuffers = null;
@@ -1036,17 +1003,15 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         if (comp.equalsIgnoreCase("owi")) {
             analyticSurfaces = prodRenderInfo.owiAnalyticSurfaces;
             analyticSurfaceValueBuffers = prodRenderInfo.owiAnalyticSurfaceValueBuffers;
-        }
-        else if (comp.equalsIgnoreCase("osw")) {
+        } else if (comp.equalsIgnoreCase("osw")) {
             analyticSurfaces = prodRenderInfo.oswAnalyticSurfaces;
             analyticSurfaceValueBuffers = prodRenderInfo.oswAnalyticSurfaceValueBuffers;
-        }
-        else if (comp.equalsIgnoreCase("rvl")) {
+        } else if (comp.equalsIgnoreCase("rvl")) {
             analyticSurfaces = prodRenderInfo.rvlAnalyticSurfaces;
             analyticSurfaceValueBuffers = prodRenderInfo.rvlAnalyticSurfaceValueBuffers;
         }
 
-        if(analyticSurfaces != null) {
+        if (analyticSurfaces != null) {
 
             for (int currSurfInd = 0; currSurfInd < analyticSurfaces.size(); currSurfInd++) {
 
@@ -1066,11 +1031,10 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
     // ADDED:
     // this method is copied from gov.nasa.worldwindx.examples.analytics.AnalyticSurface
-    public static AnalyticSurface.GridPointAttributes createColorGradientAttributes(final double value,
-                                                                                    double minValue, double maxValue,
-                                                                                    double minHue, double maxHue,
-                                                                                    boolean whiteZero)
-    {
+    private static AnalyticSurface.GridPointAttributes createColorGradientAttributes(final double value,
+                                                                                     double minValue, double maxValue,
+                                                                                     double minHue, double maxHue,
+                                                                                     boolean whiteZero) {
         final double hueFactor = WWMath.computeInterpolationFactor(value, minValue, maxValue);
 
         //double hue = WWMath.mixSmooth(hueFactor, minHue, maxHue);
@@ -1093,7 +1057,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         //SystemUtils.LOG.info(":: chosen ProductRenderablesInfo " + productRenderablesInfo);
 
         if (productRenderablesInfo != null) {
-        //for (ProductRenderablesInfo currProductRenderablesInfo : theProductRenderablesInfoHash.values()) {
+            //for (ProductRenderablesInfo currProductRenderablesInfo : theProductRenderablesInfoHash.values()) {
             //SystemUtils.LOG.info(":: currProductRenderablesInfo " + productRenderablesInfo);
 
             for (ArrayList<Renderable> renderableList : productRenderablesInfo.theRenderableListHash.values()) {
@@ -1101,7 +1065,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 for (Renderable renderable : renderableList) {
                     //SystemUtils.LOG.info(":: renderable " + renderable);
                     removeRenderable(renderable);
-                    if (renderable  instanceof DirectedPath) {
+                    if (renderable instanceof DirectedPath) {
                         theObjectInfoHash.remove(renderable);
                         theSurfaceProductHash.remove(renderable);
                         theSurfaceSequenceHash.remove(renderable);
@@ -1118,32 +1082,30 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             theColorBarLegendHash.clear();
             */
 
-            theProductRenderablesInfoHash.remove(product);
-            if (theProductRenderablesInfoHash.size() == 0) {
-                theControlLevel2Panel.setVisible(false);
-                for (ColorBarLegend colorBarLegend : theColorBarLegendHash.values()) {
-                    removeRenderable(colorBarLegend);
-                }
+        theProductRenderablesInfoHash.remove(product);
+        if (theProductRenderablesInfoHash.size() == 0) {
+            theControlLevel2Panel.setVisible(false);
+            for (ColorBarLegend colorBarLegend : theColorBarLegendHash.values()) {
+                removeRenderable(colorBarLegend);
             }
+        }
 
 
-            theWWD.redrawNow();
+        theWWD.redrawNow();
         //}
 
         theWWD.redrawNow();
     }
 
-    public void recreateColorBarAndGradient(double minValue, double maxValue, String comp, WorldWindowGLCanvas wwd, boolean redraw) {
+    private void recreateColorBarAndGradient(double minValue, double maxValue, String comp, WorldWindowGLCanvas wwd, boolean redraw) {
         //SystemUtils.LOG.info("recreateColorBarAndGradient " + minValue + " " + maxValue + " " + comp + " " + theColorBarLegendHash.get(comp));
 
         String title = "";
         if (comp.equalsIgnoreCase("owi")) {
             title = "OWI Wind Speed";
-        }
-        else if (comp.equalsIgnoreCase("osw")) {
+        } else if (comp.equalsIgnoreCase("osw")) {
             title = "OSW Wave Height.";
-        }
-        else if (comp.equalsIgnoreCase("rvl")) {
+        } else if (comp.equalsIgnoreCase("rvl")) {
             title = "RVL Rad. Vel.";
         }
 
@@ -1222,10 +1184,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         theArrowsCB = new JCheckBox(new AbstractAction() {
             public void actionPerformed(ActionEvent actionEvent) {
                 // Simply enable or disable the layer based on its toggle button.
-                if (((JCheckBox) actionEvent.getSource()).isSelected())
-                    theOWIArrowsDisplayed = true;
-                else
-                    theOWIArrowsDisplayed = false;
+                theOWIArrowsDisplayed = ((JCheckBox) actionEvent.getSource()).isSelected();
 
                 wwd.redrawNow();
             }
@@ -1313,7 +1272,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                     //double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
 
                     double maxValue = ((Integer) maxRVLSP.getValue());
-                    double minValue = -1*maxValue;
+                    double minValue = -1 * maxValue;
 
                     recreateColorBarAndGradient(minValue, maxValue, "rvl", wwd, theSelectedComp.equalsIgnoreCase("rvl"));
                 }

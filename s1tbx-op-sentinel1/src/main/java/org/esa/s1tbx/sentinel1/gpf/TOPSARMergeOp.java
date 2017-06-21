@@ -289,6 +289,8 @@ public final class TOPSARMergeOp extends Operator {
         // source band name is assumed in format: name_acquisitionModeAndSubSwathIndex_polarization_prefix
         // target band name is then in format: name_polarization_prefix
         boolean hasVirtualPhaseBand = false;
+        List<String> masterProductBands = new ArrayList<>();
+        List<String> slaveProductBands = new ArrayList<>();
         for (Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();
             if (!containSelectedPolarisations(srcBandName)) {
@@ -308,6 +310,12 @@ public final class TOPSARMergeOp extends Operator {
                 trgBand.setUnit(srcBand.getUnit());
                 trgBand.setNoDataValueUsed(true);
                 trgBand.setNoDataValue(srcBand.getNoDataValue());
+
+                if (StackUtils.isMasterBand(srcBandName, sourceProduct[prodIdx])) {
+                    masterProductBands.add(tgtBandName);
+                } else if (StackUtils.isSlaveBand(srcBandName, sourceProduct[prodIdx])) {
+                    slaveProductBands.add(tgtBandName);
+                }
             }
         }
 
@@ -336,6 +344,19 @@ public final class TOPSARMergeOp extends Operator {
         targetProduct.setDescription(sourceProduct[prodIdx].getDescription());
 
         createTiePointGrids();
+
+        if (StackUtils.isCoregisteredStack(targetProduct)) {
+            MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
+            if(!masterProductBands.isEmpty()) {
+                targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS,
+                        String.join(" ", masterProductBands.toArray(new String[masterProductBands.size()])));
+            }
+
+            if(!slaveProductBands.isEmpty()) {
+                targetSlaveMetadataRoot.getElementAt(0).setAttributeString(AbstractMetadata.SLAVE_BANDS,
+                        String.join(" ", slaveProductBands.toArray(new String[slaveProductBands.size()])));
+            }
+        }
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
@@ -539,31 +560,6 @@ public final class TOPSARMergeOp extends Operator {
             }
         }
         absTgt.addElement(ESDMeasurementTgt);
-
-        if (StackUtils.isCoregisteredStack(targetProduct)) {
-            List<String> masterProductBands = new ArrayList<>();
-            List<String> slaveProductBands = new ArrayList<>();
-            for (String bandName : targetProduct.getBandNames()) {
-                if (targetProduct.getBand(bandName) instanceof VirtualBand) {
-                    continue;
-                }
-                if (bandName.contains(StackUtils.MST)) {
-                    masterProductBands.add(bandName);
-                }
-                if (bandName.contains(StackUtils.SLV)) {
-                    slaveProductBands.add(bandName);
-                }
-            }
-            MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
-            if(!masterProductBands.isEmpty()) {
-                targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS,
-                        String.join(" ", masterProductBands.toArray(new String[masterProductBands.size()])));
-            }
-            if(!slaveProductBands.isEmpty()) {
-                targetSlaveMetadataRoot.getElementAt(0).setAttributeString(AbstractMetadata.SLAVE_BANDS,
-                        String.join(" ", slaveProductBands.toArray(new String[slaveProductBands.size()])));
-            }
-        }
     }
 
     private void updateOriginalMetadata() {

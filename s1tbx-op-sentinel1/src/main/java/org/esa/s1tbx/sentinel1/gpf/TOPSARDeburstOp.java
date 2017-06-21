@@ -632,6 +632,7 @@ public final class TOPSARDeburstOp extends Operator {
             final MetadataElement elem = new MetadataElement(elemName);
             final MetadataElement calElem = bandCalibration.createDeepClone();
             final MetadataElement calibrationVectorListElem = calElem.getElement("calibrationVectorList");
+            calElem.setAttributeString("polarisation", pol);
             final MetadataElement[] list = calibrationVectorListElem.getElements();
             int vectorIndex = 0;
             final String mergedPixelStr = getMergedPixels(pol);

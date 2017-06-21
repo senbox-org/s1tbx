@@ -38,25 +38,58 @@ public class AlosPalsarImageFile extends CEOSImageFile {
     private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
     private final static Document procDataXML = BinaryDBReader.loadDefinitionFile(mission, processedData_recordDefinition);
 
+    int startYear;
+    int startDay;
+    int startMsec;
+    int endYear;
+    int endDay;
+    int endMsec;
+    boolean isProductIPF = false;
+
     public AlosPalsarImageFile(final ImageInputStream imageStream, int prodLevel, String fileName)
             throws IOException {
+        if (prodLevel < 0) {  // To avoid perturbing the AlosPalsarImageFile interface definition, a negative prodLevel is used
+            // to signify a product of IPF origin to this object - relevant because the L1.1 PDR header structure
+            // is different between JAXA and IPF - the IPF uses a PDR header structure.
+            isProductIPF = true;
+            prodLevel = -prodLevel;
+        }
         this.productLevel = prodLevel;
         imageFileName = fileName.toUpperCase();
 
         binaryReader = new BinaryFileReader(imageStream);
         imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
         binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
+        int numRecs = imageFDR.getAttributeInt("Number of lines per data set");
+//	System.out.format("numRecs %d\n",numRecs);
         imageRecords = new BinaryRecord[imageFDR.getAttributeInt("Number of lines per data set")];
-        imageRecords[0] = createNewImageRecord(0);
+        if (imageRecords.length > 0) {
+            imageRecords[0] = createNewImageRecord(0);
+            _imageRecordLength = imageRecords[0].getRecordLength(); //get the PDR record length
+            imageRecords[numRecs - 1] = createNewImageRecord(numRecs - 1); //read the last record (to access timing info)
+            startPosImageRecords = imageRecords[0].getStartPos();
+            startYear = imageRecords[0].getAttributeInt("Sensor acquisition year");
+            startDay = imageRecords[0].getAttributeInt("Sensor acquisition day of year");
+            startMsec = imageRecords[0].getAttributeInt("Sensor acquisition milliseconds of day");
+            int startRange = imageRecords[0].getAttributeInt("Slant range to 1st pixel");
+//	    System.out.format("startRange %d\n",startRange);
+//          System.out.format("start msec %d %d %d\n",startYear,startDay,startMsec);
+            endYear = imageRecords[numRecs - 1].getAttributeInt("Sensor acquisition year");
+            endDay = imageRecords[numRecs - 1].getAttributeInt("Sensor acquisition day of year");
+            endMsec = imageRecords[numRecs - 1].getAttributeInt("Sensor acquisition milliseconds of day");
+//          System.out.format("end msec %d %d %d\n",endYear,endDay,endMsec);
 
-        _imageRecordLength = imageRecords[0].getRecordLength();
-        startPosImageRecords = imageRecords[0].getStartPos();
+        }
         imageHeaderLength = imageFDR.getAttributeInt("Number of bytes of prefix data per record");
     }
 
-    protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = imageFDR.getAbsolutPosition(imageFDR.getRecordLength()) + (line * _imageRecordLength);
-        if (productLevel == AlosPalsarConstants.LEVEL1_5)
+    boolean isIPF() {
+        return isProductIPF;
+    }
+
+    protected BinaryRecord createNewImageRecord(int line) throws IOException {
+        long pos = imageFDR.getAbsolutPosition(imageFDR.getRecordLength()) + (line * _imageRecordLength);
+        if ((productLevel == AlosPalsarConstants.LEVEL1_5) || isIPF()) //IPF 1.1 SLC has PDR header structure
             return new BinaryRecord(binaryReader, pos, procDataXML, processedData_recordDefinition);
         else
             return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
@@ -64,18 +97,33 @@ public class AlosPalsarImageFile extends CEOSImageFile {
 
     public String getPolarization() {
         if (imageFileName.startsWith("IMG-") && imageFileName.length() > 6) {
+
             String pol = imageFileName.substring(4, 6);
-            if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
+            String pol1 = imageFileName.substring(4, 9);
+            if (pol1.equals("HH+VV") || pol1.equals("HH-VV") || pol1.equals("HV+VH") || pol1.equals("HV-VH") ) {
+                if (pol1.equals("HH+VV"))
+                    return "HHplusVV";
+                else if (pol1.equals("HH-VV"))
+                    return "HHminusVV";
+                else if (pol1.equals("HV+VH"))
+                    return "HVplusVH";
+                else
+                    return "HVminusVH";
+            } else if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
                 return pol;
             } else if (imageRecords[0] != null) {
                 try {
                     final int tx = imageRecords[0].getAttributeInt("Transmitted polarization");
                     final int rx = imageRecords[0].getAttributeInt("Received polarization");
-                    if (tx == 1) pol = "V";
-                    else pol = "H";
+                    if (tx == 1)
+                        pol = "V";
+                    else
+                        pol = "H";
 
-                    if (rx == 1) pol += "V";
-                    else pol += "H";
+                    if (rx == 1)
+                        pol += "V";
+                    else
+                        pol += "H";
 
                     return pol;
                 } catch (Exception e) {

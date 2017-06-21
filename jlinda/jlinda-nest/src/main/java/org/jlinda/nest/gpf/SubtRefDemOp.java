@@ -254,7 +254,8 @@ public final class SubtRefDemOp extends Operator {
         // plug sourceSlave metadata into slaveMap
         MetadataElement[] slaveRoot = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
         for (MetadataElement meta : slaveRoot) {
-            metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
+            if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
+                metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
         }
     }
 
@@ -493,12 +494,24 @@ public final class SubtRefDemOp extends Operator {
                                      final double demSamplingLon,
                                      final String tileExtensionPercent) {
 
-        try {
-            ProductContainer mstContainer = targetMap.values().iterator().next();
+        ProductContainer mstContainer = targetMap.values().iterator().next();
 
+        return getDEMTile(tileWindow, mstContainer.sourceMaster.metaData, mstContainer.sourceMaster.orbit,
+                dem, demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
+    }
+
+    public static DemTile getDEMTile(final org.jlinda.core.Window tileWindow,
+                                     final SLCImage metaData,
+                                     final Orbit orbit,
+                                     final ElevationModel dem,
+                                     final double demNoDataValue,
+                                     final double demSamplingLat,
+                                     final double demSamplingLon,
+                                     final String tileExtensionPercent) {
+
+        try {
             // compute tile geo-corners ~ work on ellipsoid
-            GeoPoint[] geoCorners = org.jlinda.core.utils.GeoUtils.computeCorners(
-                    mstContainer.sourceMaster.metaData, mstContainer.sourceMaster.orbit, tileWindow);
+            GeoPoint[] geoCorners = org.jlinda.core.utils.GeoUtils.computeCorners(metaData, orbit, tileWindow);
 
             // get corners as DEM indices
             PixelPos[] pixelCorners = new PixelPos[2];
@@ -517,8 +530,7 @@ public final class SubtRefDemOp extends Operator {
 
             // compute extra lat/lon for dem tile
             GeoPoint geoExtent = org.jlinda.core.utils.GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
-                    tileWindow, mstContainer.sourceMaster.metaData,
-                    mstContainer.sourceMaster.orbit);
+                    tileWindow, metaData, orbit);
 
             // extend corners
             geoCorners = org.jlinda.core.utils.GeoUtils.extendCorners(geoExtent, geoCorners);
@@ -575,9 +587,20 @@ public final class SubtRefDemOp extends Operator {
     public static TopoPhase computeTopoPhase(
             final ProductContainer product, final Window tileWindow, final DemTile demTile, final boolean outputDEM) {
 
+        final SLCImage mstMetaData = product.sourceMaster.metaData;
+        final Orbit mstOrbit = product.sourceMaster.orbit;
+        final SLCImage slvMetaData = product.sourceSlave.metaData;
+        final Orbit slvOrbit = product.sourceSlave.orbit;
+
+        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM);
+    }
+
+    public static TopoPhase computeTopoPhase(
+            final SLCImage mstMetaData, final Orbit mstOrbit, final SLCImage slvMetaData, final Orbit slvOrbit,
+            final Window tileWindow, final DemTile demTile, final boolean outputDEM) {
+
         try {
-            final TopoPhase topoPhase = new TopoPhase(product.sourceMaster.metaData, product.sourceMaster.orbit,
-                    product.sourceSlave.metaData, product.sourceSlave.orbit, tileWindow, demTile);
+            final TopoPhase topoPhase = new TopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile);
 
             topoPhase.radarCode();
 

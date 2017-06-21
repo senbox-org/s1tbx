@@ -60,10 +60,7 @@ import org.jlinda.core.delaunay.TriangleInterpolator;
 
 import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Co-registering non-burst products based on orbits and DEM.
@@ -183,10 +180,6 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             createTargetProduct();
 
-            //StackUtils.saveMasterProductBandNames(targetProduct, masterProduct.getBandNames());
-            StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
-                    masterProduct, targetBandToSlaveBandMap);
-
             updateTargetProductMetadata();
 
             noDataValue = masterProduct.getBandAt(0).getNoDataValue();
@@ -252,7 +245,8 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 masterProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
-        
+
+        final java.util.List<String> masterProductBands = new ArrayList<>(masterProduct.getNumBands());
         final String[] masterBandNames = masterProduct.getBandNames();
         final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
@@ -266,6 +260,8 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             final Band targetBand = ProductUtils.copyBand(
                     bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
+
+            masterProductBands.add(targetBand.getName());
 
             if(targetBand != null && Unit.IMAGINARY.equals(targetBand.getUnit())) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());
@@ -303,12 +299,18 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
                 if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
                     int idx = targetProduct.getBandIndex(targetBand.getName());
-                    ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx-1), targetBand, slvSuffix);
+                    ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx - 1), targetBand, slvSuffix);
                 }
             }
 
             copySlaveMetadata(slaveProduct);
         }
+
+        StackUtils.saveMasterProductBandNames(
+                targetProduct, masterProductBands.toArray(new String[masterProductBands.size()]));
+
+        StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
+                masterProduct, targetBandToSlaveBandMap);
 
         // set non-elevation areas to no data value for the master bands using the slave bands
         setMasterValidPixelExpression(targetProduct, maskOutAreaWithoutElevation);
@@ -341,14 +343,15 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         if(maskOutAreaWithoutElevation) {
             Band slvBand = null;
             for(Band tgtBand : targetProduct.getBands()) {
-                if(tgtBand.getName().contains("_slv")) {
+                if(StackUtils.isSlaveBand(tgtBand, targetProduct)) {
                     slvBand = tgtBand;
                     break;
                 }
             }
+
             if(slvBand != null) {
                 for (Band tgtBand : targetProduct.getBands()) {
-                    if (tgtBand.getName().contains("_mst")) {
+                    if (StackUtils.isMasterBand(tgtBand, targetProduct)) {
                         tgtBand.setValidPixelExpression(slvBand.getName());
                     }
                 }

@@ -58,6 +58,17 @@
                 <attr name="icon" stringvalue="rstbIcon"/>
                 <attr name="helpId" stringvalue="PolarimetricParametersOp"/>
             </file>
+            <file name="org-csa-rstb-polarimetric-gpf-CrossChannelSNRCorrectionOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Cross Channel SNR Correction"/>
+                <attr name="operatorName" stringvalue="Cross-Channel-SNR-Correction"/>
+                <attr name="dialogTitle" stringvalue="Cross Channel SNR Correction"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_snr"/>
+                <attr name="ShortDescription" stringvalue="Cross Channel SNR Correction"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="helpId" stringvalue="CrossChannelSNRCorrectionOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -89,6 +100,10 @@
                 <file name="org-csa-rstb-polarimetric-gpf-PolarimetricParametersOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-PolarimetricParametersOp-Action.instance"/>
                     <attr name="position" intvalue="420"/>
+                </file>
+                <file name="org-csa-rstb-polarimetric-gpf-CrossChannelSNRCorrectionOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-CrossChannelSNRCorrectionOp-Action.instance"/>
+                    <attr name="position" intvalue="430"/>
                 </file>
             </folder>
         </folder>

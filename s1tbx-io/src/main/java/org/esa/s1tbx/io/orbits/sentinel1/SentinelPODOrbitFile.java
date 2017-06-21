@@ -28,8 +28,8 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
-import org.esa.snap.engine_utilities.datamodel.DownloadableContentImpl;
+import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableArchive;
+import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableContentImpl;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
 import org.esa.snap.engine_utilities.util.Maths;
 import org.esa.snap.engine_utilities.util.Settings;
@@ -38,10 +38,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
@@ -284,8 +281,8 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         final String[] orbitFiles = step.getFileURLs(missionPrefix, year, month);
         final URL remotePath = new URL(step.getRemoteURL());
-
-        disableSSLCertificateCheck();
+        final SSLUtil ssl = new SSLUtil();
+        ssl.disableSSLCertificateCheck();
 
         for (String file : orbitFiles) {
             if (isWithinRange(file, stateVectorTime)) {
@@ -295,7 +292,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             }
         }
 
-        enableSSLCertificateCheck();
+        ssl.enableSSLCertificateCheck();
     }
 
     private static void getQCFiles(final String missionPrefix, final String orbitType, int year, int month,
@@ -307,8 +304,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         final String[] orbitFiles = qc.getFileURLs(missionPrefix, year, month);
         final URL remotePath = new URL(qc.getRemoteURL());
+        final SSLUtil ssl = new SSLUtil();
 
-        disableSSLCertificateCheck();
+        ssl.disableSSLCertificateCheck();
 
         for (String file : orbitFiles) {
             if (isWithinRange(file, stateVectorTime)) {
@@ -322,7 +320,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             }
         }
 
-        enableSSLCertificateCheck();
+        ssl.enableSSLCertificateCheck();
     }
 
     /**
@@ -827,40 +825,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         public boolean accept(File dir, String name) {
             name = name.toUpperCase();
             return (name.endsWith(".ZIP") || name.endsWith(".EOF")) && name.startsWith(prefix);
-        }
-    }
-
-    public static void disableSSLCertificateCheck() {
-        final TrustManager[] trustManager = new TrustManager[]{
-                new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }
-        };
-
-        try {
-            final SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustManager, null);
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            SystemUtils.LOG.warning("disableSSLCertificateCheck failed: " + e);
-        }
-    }
-
-    public static void enableSSLCertificateCheck() {
-        try {
-            final SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, null, null);
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            SystemUtils.LOG.warning("enableSSLCertificateCheck failed: " + e);
         }
     }
 

@@ -19,11 +19,15 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.DoubleMatrix;
+
+import java.awt.*;
 
 /*
 import Jama.Matrix;
@@ -40,6 +44,210 @@ public final class PolOpUtils {
 
     private static final double sqrt2 = Math.sqrt(2);
     public static final double EPS = Constants.EPS;
+
+    public static void getDataBuffer(final Operator op, final Band[] srcBands, final Rectangle sourceRectangle,
+                                     final PolBandUtils.MATRIX sourceProductType,
+                                     final Tile[] sourceTiles, final ProductData[] dataBuffers) {
+
+        for (Band band : srcBands) {
+            final String bandName = band.getName();
+
+            if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+                if (bandName.contains("i_HH")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("q_HH")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("i_HV")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("q_HV")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("i_VH")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("q_VH")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("i_VV")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("q_VV")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+
+                if (bandName.contains("C11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("C12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("C12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("C13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("C13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("C22")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("C23_real")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("C23_imag")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("C33")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+                if (bandName.contains("T11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("T12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("T12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("T13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("T13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("T22")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("T23_real")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("T23_imag")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("T33")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+                if (bandName.contains("C11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("C12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("C12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("C13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("C13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("C14_real")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("C14_imag")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("C22")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("C23_real")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                } else if (bandName.contains("C23_imag")) {
+                    sourceTiles[9] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[9] = sourceTiles[9].getDataBuffer();
+                } else if (bandName.contains("C24_real")) {
+                    sourceTiles[10] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[10] = sourceTiles[10].getDataBuffer();
+                } else if (bandName.contains("C24_imag")) {
+                    sourceTiles[11] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[11] = sourceTiles[11].getDataBuffer();
+                } else if (bandName.contains("C33")) {
+                    sourceTiles[12] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[12] = sourceTiles[12].getDataBuffer();
+                } else if (bandName.contains("C34_real")) {
+                    sourceTiles[13] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[13] = sourceTiles[13].getDataBuffer();
+                } else if (bandName.contains("C34_imag")) {
+                    sourceTiles[14] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[14] = sourceTiles[14].getDataBuffer();
+                } else if (bandName.contains("C44")) {
+                    sourceTiles[15] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[15] = sourceTiles[15].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+                if (bandName.contains("T11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("T12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("T12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("T13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("T13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("T14_real")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("T14_imag")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("T22")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("T23_real")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                } else if (bandName.contains("T23_imag")) {
+                    sourceTiles[9] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[9] = sourceTiles[9].getDataBuffer();
+                } else if (bandName.contains("T24_real")) {
+                    sourceTiles[10] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[10] = sourceTiles[10].getDataBuffer();
+                } else if (bandName.contains("T24_imag")) {
+                    sourceTiles[11] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[11] = sourceTiles[11].getDataBuffer();
+                } else if (bandName.contains("T33")) {
+                    sourceTiles[12] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[12] = sourceTiles[12].getDataBuffer();
+                } else if (bandName.contains("T34_real")) {
+                    sourceTiles[13] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[13] = sourceTiles[13].getDataBuffer();
+                } else if (bandName.contains("T34_imag")) {
+                    sourceTiles[14] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[14] = sourceTiles[14].getDataBuffer();
+                } else if (bandName.contains("T44")) {
+                    sourceTiles[15] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[15] = sourceTiles[15].getDataBuffer();
+                }
+            }
+        }
+    }
 
     /**
      * Get scatter matrix for given pixel.
@@ -850,6 +1058,45 @@ public final class PolOpUtils {
     }
 
     /**
+     * Convert covariance matrix C4 to covariance matrix C3
+     *
+     * @param c4Re Real part of C4 matrix
+     * @param c4Im Imaginary part of C4 matrix
+     * @param c3Re Real part of C3 matrix
+     * @param c3Im Imaginary part of C3 matrix
+     */
+    public static void c4ToC3(final double[][] c4Re, final double[][] c4Im,
+                              final double[][] c3Re, final double[][] c3Im) {
+
+        c3Re[0][0] = c4Re[0][0];
+        c3Im[0][0] = c4Im[0][0];
+
+        c3Re[0][1] = (c4Re[0][1] + c4Re[0][2]) / sqrt2;
+        c3Im[0][1] = (c4Im[0][1] + c4Im[0][2]) / sqrt2;
+
+        c3Re[0][2] = c4Re[0][3];
+        c3Im[0][2] = c4Im[0][3];
+
+        c3Re[1][0] = (c4Re[1][0] + c4Re[2][0]) / sqrt2;
+        c3Im[1][0] = (c4Im[1][0] + c4Im[2][0]) / sqrt2;
+
+        c3Re[1][1] = (c4Re[1][1] + c4Re[2][1] + c4Re[1][2] + c4Re[2][2]) / 2.0;
+        c3Im[1][1] = (c4Im[1][1] + c4Im[2][1] + c4Im[1][2] + c4Im[2][2]) / 2.0;
+
+        c3Re[1][2] = (c4Re[1][3] + c4Re[2][3]) / sqrt2;
+        c3Im[1][2] = (c4Im[1][3] + c4Im[2][3]) / sqrt2;
+
+        c3Re[2][0] = c4Re[3][0];
+        c3Im[2][0] = c4Im[3][0];
+
+        c3Re[2][1] = (c4Re[3][1] + c4Re[3][2]) / sqrt2;
+        c3Im[2][1] = (c4Im[3][1] + c4Im[3][2]) / sqrt2;
+
+        c3Re[2][2] = c4Re[3][3];
+        c3Im[2][2] = c4Im[3][3];
+    }
+
+    /**
      * Get mean coherency matrix for given pixel.
      *
      * @param x                 X coordinate of the given pixel.
@@ -1018,8 +1265,232 @@ public final class PolOpUtils {
         }
     }
 
+    public static void getMeanCovarianceMatrixC4(
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
+            final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,
+            final double[][] Cr, final double[][] Ci) {
 
-    public static void getT3(final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+        final double[][] tempCr = new double[4][4];
+        final double[][] tempCi = new double[4][4];
+
+        final int xSt = Math.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
+        final int xEd = Math.min(x + halfWindowSizeX, sourceTiles[0].getMaxX());
+        final int ySt = Math.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
+        final int yEd = Math.min(y + halfWindowSizeY, sourceTiles[0].getMaxY());
+        final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
+
+        final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+
+        final Matrix CrMat = new Matrix(4, 4);
+        final Matrix CiMat = new Matrix(4, 4);
+
+        for (int yy = ySt; yy <= yEd; ++yy) {
+            srcIndex.calculateStride(yy);
+            for (int xx = xSt; xx <= xEd; ++xx) {
+                getCovarianceMatrixC4(srcIndex.getIndex(xx), sourceProductType, dataBuffers, tempCr, tempCi);
+                CrMat.plusEquals(new Matrix(tempCr));
+                CiMat.plusEquals(new Matrix(tempCi));
+            }
+        }
+
+        CrMat.timesEquals(1.0 / num);
+        CiMat.timesEquals(1.0 / num);
+        for (int i = 0; i < 4; i++) {
+            Cr[i][0] = CrMat.get(i, 0);
+            Ci[i][0] = CiMat.get(i, 0);
+
+            Cr[i][1] = CrMat.get(i, 1);
+            Ci[i][1] = CiMat.get(i, 1);
+
+            Cr[i][2] = CrMat.get(i, 2);
+            Ci[i][2] = CiMat.get(i, 2);
+
+            Cr[i][3] = CrMat.get(i, 3);
+            Ci[i][3] = CiMat.get(i, 3);
+        }
+    }
+
+    /**
+     * Get covariance matrix C4 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Cr                The real part of the covariance matrix C4.
+     * @param Ci                The imaginary part of the covariance matrix C4.
+     */
+    public static void getCovarianceMatrixC4(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Cr, final double[][] Ci) {
+
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCovarianceMatrixC4(tempSr, tempSi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+
+            getCoherencyMatrixT4(index, dataBuffers, tempTr, tempTi);
+            t4ToC4(tempTr, tempTi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            getCovarianceMatrixC4(index, dataBuffers, Cr, Ci);
+
+        }
+    }
+
+    /**
+     * Get coherency matrix T4 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Tr                The real part of the coherency matrix T4.
+     * @param Ti                The imaginary part of the coherency matrix T4.
+     */
+    public static void getCoherencyMatrixT4(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Tr, final double[][] Ti) {
+
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCoherencyMatrixT4(tempSr, tempSi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            getCoherencyMatrixT4(index, dataBuffers, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+
+            getCovarianceMatrixC4(index, dataBuffers, tempCr, tempCi);
+            c4ToT4(tempCr, tempCi, Tr, Ti);
+        }
+    }
+
+    /**
+     * Get covariance matrix C3 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Cr                The real part of the covariance matrix C3.
+     * @param Ci                The imaginary part of the covariance matrix C3.
+     */
+    public static void getCovarianceMatrixC3(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Cr, final double[][] Ci) {
+
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCovarianceMatrixC3(tempSr, tempSi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+
+            getCoherencyMatrixT4(index, dataBuffers, tempTr, tempTi);
+            t4ToC4(tempTr, tempTi, tempCr, tempCi);
+            c4ToC3(tempCr, tempCi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+
+            getCovarianceMatrixC4(index, dataBuffers, tempCr, tempCi);
+            c4ToC3(tempCr, tempCi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+            final double[][] tempTr = new double[3][3];
+            final double[][] tempTi = new double[3][3];
+
+            getCoherencyMatrixT3(index, dataBuffers, tempTr, tempTi);
+            t3ToC3(tempTr, tempTi, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+
+            getCovarianceMatrixC3(index, dataBuffers, Cr, Ci);
+
+        }
+    }
+
+    /**
+     * Get coherency matrix T3 for given pixel.
+     *
+     * @param index             Pixel index in the given tile.
+     * @param sourceProductType The source product type.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Tr                The real part of the coherency matrix T3.
+     * @param Ti                The imaginary part of the coherency matrix T3.
+     */
+    public static void getCoherencyMatrixT3(
+            final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
+            final double[][] Tr, final double[][] Ti) {
+
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
+
+            getComplexScatterMatrix(index, dataBuffers, tempSr, tempSi);
+            computeCoherencyMatrixT3(tempSr, tempSi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+
+            getCoherencyMatrixT4(index, dataBuffers, tempTr, tempTi);
+            t4ToT3(tempTr, tempTi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+            final double[][] tempCr = new double[4][4];
+            final double[][] tempCi = new double[4][4];
+            final double[][] tempTr = new double[4][4];
+            final double[][] tempTi = new double[4][4];
+
+            getCovarianceMatrixC4(index, dataBuffers, tempCr, tempCi);
+            c4ToT4(tempCr, tempCi, tempTr, tempTi);
+            t4ToT3(tempTr, tempTi, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+            getCoherencyMatrixT3(index, dataBuffers, Tr, Ti);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+
+            final double[][] tempCr = new double[3][3];
+            final double[][] tempCi = new double[3][3];
+
+            getCovarianceMatrixC3(index, dataBuffers, tempCr, tempCi);
+            c3ToT3(tempCr, tempCi, Tr, Ti);
+        }
+    }
+
+    /*public static void getT3(final int index, final PolBandUtils.MATRIX sourceProductType, final ProductData[] dataBuffers,
                              final double[][] Tr, final double[][] Ti) {
 
         if (sourceProductType == PolBandUtils.MATRIX.FULL) {
@@ -1040,7 +1511,7 @@ public final class PolOpUtils {
             getCovarianceMatrixC3(index, dataBuffers, Cr, Ci);
             c3ToT3(Cr, Ci, Tr, Ti);
         }
-    }
+    }*/
 
     /**
      * Perform eigenvalue decomposition for a given Hermitian matrix

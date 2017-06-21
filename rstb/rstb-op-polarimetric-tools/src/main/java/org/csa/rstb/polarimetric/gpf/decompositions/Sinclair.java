@@ -105,10 +105,7 @@ public class Sinclair extends DecompositionBase implements Decomposition {
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-            for (int i = 0; i < bandList.srcBands.length; i++) {
-                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], targetRectangle);
-                dataBuffers[i] = sourceTiles[i].getDataBuffer();
-            }
+            PolOpUtils.getDataBuffer(op, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             double re = 0.0, im = 0.0, v = 0.0;
@@ -186,6 +183,27 @@ public class Sinclair extends DecompositionBase implements Decomposition {
 
                 }
             }
+        }
+    }
+
+    public static RGB getSinclairDecomposition(final double[][] Cr, final double[][] Ci) {
+
+        final double r = Cr[2][2];
+        final double g = 0.5 * Cr[1][1];
+        final double b = Cr[0][0];
+
+        return new RGB(r, g, b);
+    }
+
+    public static class RGB {
+        public final double r;
+        public final double g;
+        public final double b;
+
+        public RGB(final double r, final double g, final double b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
         }
     }
 }

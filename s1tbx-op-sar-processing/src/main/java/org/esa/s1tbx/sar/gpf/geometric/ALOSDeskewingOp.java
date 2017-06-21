@@ -222,9 +222,11 @@ public class ALOSDeskewingOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for (Band srcBand : sourceProduct.getBands()) {
-            if (srcBand instanceof VirtualBand) {
-                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
+        if(sourceBandNames.length == 0) {
+            for (Band srcBand : sourceProduct.getBands()) {
+                if (srcBand instanceof VirtualBand) {
+                    ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
+                }
             }
         }
     }

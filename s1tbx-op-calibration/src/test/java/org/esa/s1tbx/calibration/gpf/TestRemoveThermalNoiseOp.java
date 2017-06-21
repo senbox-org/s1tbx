@@ -41,9 +41,10 @@ public class TestRemoveThermalNoiseOp {
 
     private final static OperatorSpi spi = new Sentinel1RemoveThermalNoiseOp.Spi();
 
-    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U"};
+    private String[] productTypeExemptions = {"OCN"};
     private String[] exceptionExemptions = {"not supported",
-            "not a valid mission for Sentinel1 product"};
+            "not a valid mission for Sentinel1 product",
+            "WV is not a valid acquisition mode from: IW,EW,SM"};
 
     @Test
     public void testProcessingS1_GRD() throws Exception {

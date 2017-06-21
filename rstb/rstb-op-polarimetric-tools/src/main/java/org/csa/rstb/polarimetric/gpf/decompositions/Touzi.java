@@ -133,28 +133,13 @@ public class Touzi extends DecompositionBase implements Decomposition {
 
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
-        final double[][] EigenVectRe = new double[3][3];
-        final double[][] EigenVectIm = new double[3][3];
-        final double[] EigenVal = new double[3];
-
-        final double[] psi = new double[3];
-        final double[] tau = new double[3];
-        final double[] alpha = new double[3];
-        final double[] phi = new double[3];
-        final double[] vr = new double[3];
-        final double[] vi = new double[3];
-        double p1, p2, p3, psiMean, tauMean, alphaMean, phiMean;
-        double phase, c, s, tmp1r, tmp1i, tmp2r, tmp2i;
 
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            for (int i = 0; i < bandList.srcBands.length; ++i) {
-                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], sourceRectangle);
-                dataBuffers[i] = sourceTiles[i].getDataBuffer();
-            }
+            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             for (int y = y0; y < maxY; ++y) {
@@ -165,107 +150,172 @@ public class Touzi extends DecompositionBase implements Decomposition {
                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
-                    PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
-
-                    for (int k = 0; k < 3; ++k) {
-                        for (int l = 0; l < 3; ++l) {
-                            vr[l] = EigenVectRe[l][k];
-                            vi[l] = EigenVectIm[l][k];
-                        }
-
-                        phase = Math.atan2(vi[0], vr[0] + PolOpUtils.EPS);
-                        c = FastMath.cos(phase);
-                        s = FastMath.sin(phase);
-                        for (int l = 0; l < 3; ++l) {
-                            tmp1r = vr[l];
-                            tmp1i = vi[l];
-                            vr[l] = tmp1r * c + tmp1i * s;
-                            vi[l] = tmp1i * c - tmp1r * s;
-                        }
-
-                        psi[k] = 0.5 * Math.atan2(vr[2], vr[1] + PolOpUtils.EPS);
-
-                        tmp1r = vr[1];
-                        tmp1i = vi[1];
-                        tmp2r = vr[2];
-                        tmp2i = vi[2];
-                        c = FastMath.cos(2.0 * psi[k]);
-                        s = FastMath.sin(2.0 * psi[k]);
-                        vr[1] = tmp1r * c + tmp2r * s;
-                        vi[1] = tmp1i * c + tmp2i * s;
-                        vr[2] = -tmp1r * s + tmp2r * c;
-                        vi[2] = -tmp1i * s + tmp2i * c;
-
-                        tau[k] = 0.5 * Math.atan2(-vi[2], vr[0] + PolOpUtils.EPS);
-
-                        phi[k] = Math.atan2(vi[1], vr[1] + PolOpUtils.EPS);
-
-                        alpha[k] = Math.atan(Math.sqrt((vr[1] * vr[1] + vi[1] * vi[1]) / (vr[0] * vr[0] + vi[2] * vi[2])));
-
-                        if ((psi[k] < -Constants.PI / 4.0) || (psi[k] > Constants.PI / 4.0)) {
-                            tau[k] = -tau[k];
-                            phi[k] = -phi[k];
-                        }
-
-                    }
-
-                    final double sum = EigenVal[0] + EigenVal[1] + EigenVal[2];
-                    p1 = EigenVal[0] / sum;
-                    p2 = EigenVal[1] / sum;
-                    p3 = EigenVal[2] / sum;
-
-                    psiMean = p1 * psi[0] + p2 * psi[1] + p3 * psi[2];
-                    tauMean = p1 * tau[0] + p2 * tau[1] + p3 * tau[2];
-                    alphaMean = p1 * alpha[0] + p2 * alpha[1] + p3 * alpha[2];
-                    phiMean = p1 * phi[0] + p2 * phi[1] + p3 * phi[2];
+                    final TDD data = getTouziDecomposition(Tr, Ti);
 
                     for (final Band band : bandList.targetBands) {
                         final String targetBandName = band.getName();
                         final ProductData dataBuffer = targetTiles.get(band).getDataBuffer();
                         if (outputTouziParamSet0) {
                             if (targetBandName.equals("Psi") || targetBandName.contains("Psi_"))
-                                dataBuffer.setElemFloatAt(idx, (float) psiMean);
+                                dataBuffer.setElemFloatAt(idx, (float) data.psiMean);
                             else if (targetBandName.equals("Tau") || targetBandName.contains("Tau_"))
-                                dataBuffer.setElemFloatAt(idx, (float) tauMean);
+                                dataBuffer.setElemFloatAt(idx, (float) data.tauMean);
                             else if (targetBandName.equals("Alpha") || targetBandName.contains("Alpha_"))
-                                dataBuffer.setElemFloatAt(idx, (float) alphaMean);
+                                dataBuffer.setElemFloatAt(idx, (float) data.alphaMean);
                             else if (targetBandName.equals("Phi") || targetBandName.contains("Phi_"))
-                                dataBuffer.setElemFloatAt(idx, (float) phiMean);
+                                dataBuffer.setElemFloatAt(idx, (float) data.phiMean);
                         }
                         if (outputTouziParamSet1) {
                             if (targetBandName.contains("Psi1"))
-                                dataBuffer.setElemFloatAt(idx, (float) psi[0]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.psi1);
                             else if (targetBandName.contains("Tau1"))
-                                dataBuffer.setElemFloatAt(idx, (float) tau[0]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.tau1);
                             else if (targetBandName.contains("Alpha1"))
-                                dataBuffer.setElemFloatAt(idx, (float) alpha[0]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.alpha1);
                             else if (targetBandName.contains("Phi1"))
-                                dataBuffer.setElemFloatAt(idx, (float) phi[0]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.phi1);
                         }
                         if (outputTouziParamSet2) {
                             if (targetBandName.contains("Psi2"))
-                                dataBuffer.setElemFloatAt(idx, (float) psi[1]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.psi2);
                             else if (targetBandName.contains("Tau2"))
-                                dataBuffer.setElemFloatAt(idx, (float) tau[1]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.tau2);
                             else if (targetBandName.contains("Alpha2"))
-                                dataBuffer.setElemFloatAt(idx, (float) alpha[1]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.alpha2);
                             else if (targetBandName.contains("Phi2"))
-                                dataBuffer.setElemFloatAt(idx, (float) phi[1]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.phi2);
                         }
                         if (outputTouziParamSet3) {
                             if (targetBandName.contains("Psi3"))
-                                dataBuffer.setElemFloatAt(idx, (float) psi[2]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.psi3);
                             else if (targetBandName.contains("Tau3"))
-                                dataBuffer.setElemFloatAt(idx, (float) tau[2]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.tau3);
                             else if (targetBandName.contains("Alpha3"))
-                                dataBuffer.setElemFloatAt(idx, (float) alpha[2]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.alpha3);
                             else if (targetBandName.contains("Phi3"))
-                                dataBuffer.setElemFloatAt(idx, (float) phi[2]);
+                                dataBuffer.setElemFloatAt(idx, (float) data.phi3);
                         }
                     }
-
                 }
             }
+        }
+    }
+
+    public static TDD getTouziDecomposition(final double[][] Tr, final double[][] Ti) {
+
+        final double[][] EigenVectRe = new double[3][3];
+        final double[][] EigenVectIm = new double[3][3];
+        final double[] EigenVal = new double[3];
+        final double[] psi = new double[3];
+        final double[] tau = new double[3];
+        final double[] alpha = new double[3];
+        final double[] phi = new double[3];
+        final double[] vr = new double[3];
+        final double[] vi = new double[3];
+        double p1, p2, p3, psiMean, tauMean, alphaMean, phiMean;
+        double phase, c, s, tmp1r, tmp1i, tmp2r, tmp2i;
+
+        PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
+
+        for (int k = 0; k < 3; ++k) {
+            for (int l = 0; l < 3; ++l) {
+                vr[l] = EigenVectRe[l][k];
+                vi[l] = EigenVectIm[l][k];
+            }
+
+            phase = Math.atan2(vi[0], vr[0] + PolOpUtils.EPS);
+            c = FastMath.cos(phase);
+            s = FastMath.sin(phase);
+            for (int l = 0; l < 3; ++l) {
+                tmp1r = vr[l];
+                tmp1i = vi[l];
+                vr[l] = tmp1r * c + tmp1i * s;
+                vi[l] = tmp1i * c - tmp1r * s;
+            }
+
+            psi[k] = 0.5 * Math.atan2(vr[2], vr[1] + PolOpUtils.EPS);
+
+            tmp1r = vr[1];
+            tmp1i = vi[1];
+            tmp2r = vr[2];
+            tmp2i = vi[2];
+            c = FastMath.cos(2.0 * psi[k]);
+            s = FastMath.sin(2.0 * psi[k]);
+            vr[1] = tmp1r * c + tmp2r * s;
+            vi[1] = tmp1i * c + tmp2i * s;
+            vr[2] = -tmp1r * s + tmp2r * c;
+            vi[2] = -tmp1i * s + tmp2i * c;
+
+            tau[k] = 0.5 * Math.atan2(-vi[2], vr[0] + PolOpUtils.EPS);
+
+            phi[k] = Math.atan2(vi[1], vr[1] + PolOpUtils.EPS);
+
+            alpha[k] = Math.atan(Math.sqrt((vr[1] * vr[1] + vi[1] * vi[1]) / (vr[0] * vr[0] + vi[2] * vi[2])));
+
+            if ((psi[k] < -Constants.PI / 4.0) || (psi[k] > Constants.PI / 4.0)) {
+                tau[k] = -tau[k];
+                phi[k] = -phi[k];
+            }
+
+        }
+
+        final double sum = EigenVal[0] + EigenVal[1] + EigenVal[2];
+        p1 = EigenVal[0] / sum;
+        p2 = EigenVal[1] / sum;
+        p3 = EigenVal[2] / sum;
+
+        psiMean = p1 * psi[0] + p2 * psi[1] + p3 * psi[2];
+        tauMean = p1 * tau[0] + p2 * tau[1] + p3 * tau[2];
+        alphaMean = p1 * alpha[0] + p2 * alpha[1] + p3 * alpha[2];
+        phiMean = p1 * phi[0] + p2 * phi[1] + p3 * phi[2];
+
+        return new TDD(psiMean, tauMean, alphaMean, phiMean, psi, tau, alpha, phi);
+    }
+
+    public static class TDD {
+        public final double psiMean;
+        public final double tauMean;
+        public final double alphaMean;
+        public final double phiMean;
+
+        public final double psi1;
+        public final double tau1;
+        public final double alpha1;
+        public final double phi1;
+
+        public final double psi2;
+        public final double tau2;
+        public final double alpha2;
+        public final double phi2;
+
+        public final double psi3;
+        public final double tau3;
+        public final double alpha3;
+        public final double phi3;
+
+        public TDD(final double psiMean, final double tauMean, final double alphaMean, final double phiMean,
+                   final double[] psi, final double[] tau, final double[] alpha, final double[] phi) {
+
+            this.psiMean = psiMean;
+            this.tauMean = tauMean;
+            this.alphaMean = alphaMean;
+            this.phiMean = phiMean;
+
+            this.psi1 = psi[0];
+            this.psi2 = psi[1];
+            this.psi3 = psi[2];
+
+            this.tau1 = tau[0];
+            this.tau2 = tau[1];
+            this.tau3 = tau[2];
+
+            this.alpha1 = alpha[0];
+            this.alpha2 = alpha[1];
+            this.alpha3 = alpha[2];
+
+            this.phi1 = phi[0];
+            this.phi2 = phi[1];
+            this.phi3 = phi[2];
         }
     }
 }

@@ -8,10 +8,10 @@
         <version>6.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>jLinda NEST Support</name>
+    <name>jLinda SNAP Support</name>
     <artifactId>jlinda-nest</artifactId>
 
-    <description>NEST utilities and operators</description>
+    <description>SNAP InSAR utilities and operators</description>
 
     <packaging>nbm</packaging>
     

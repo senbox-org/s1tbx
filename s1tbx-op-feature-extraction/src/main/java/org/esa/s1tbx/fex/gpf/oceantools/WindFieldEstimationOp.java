@@ -19,7 +19,6 @@ import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.collections.list.SynchronizedList;
 import org.apache.commons.math3.util.FastMath;
@@ -28,7 +27,6 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
@@ -51,6 +49,7 @@ import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.engine_utilities.util.VectorUtils;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -143,6 +142,7 @@ public class WindFieldEstimationOp extends Operator {
     private static final String ATTRIB_DX = "dx";
     private static final String ATTRIB_DY = "dy";
     private static final String ATTRIB_RATIO = "ratio";
+    private static final String ATTRIB_STYLE_CSS = "style_css";
 
     @Override
     public void initialize() throws OperatorException {
@@ -163,6 +163,9 @@ public class WindFieldEstimationOp extends Operator {
             latitudeTPG = OperatorUtils.getLatitude(sourceProduct);
             longitudeTPG = OperatorUtils.getLongitude(sourceProduct);
             incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+            if(incidenceAngle == null) {
+                throw new OperatorException("Incidence Angle Tie Point Grid required.");
+            }
 
             checkCalibrationFlag();
 
@@ -982,8 +985,9 @@ public class WindFieldEstimationOp extends Operator {
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DX, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DY, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_RATIO, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_STYLE_CSS, String.class));
 
-        return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
+        return VectorUtils.createFeatureType(targetProduct.getSceneGeoCoding(), VECTOR_NODE_NAME, attributeDescriptors);
     }
 
     private synchronized void AddWindRecordsAsVectors(final List<WindFieldRecord> recordList) {
@@ -1002,22 +1006,20 @@ public class WindFieldEstimationOp extends Operator {
         int c = collection.size();
         for (WindFieldRecord rec : recordList) {
 
-            final String name = "wind_" + c;
-
-            Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
-
-            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(windFeatureType, name, p, STYLE_FORMAT);
-
             geoCoding.getGeoPos(new PixelPos(rec.x, rec.y), geoPos1);
             geoCoding.getGeoPos(new PixelPos(rec.x + rec.dx, rec.y + rec.dy), geoPos2);
 
             GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos1, geoPos2);
 
-            feature.setAttribute(ATTRIB_SPEED, rec.speed);
-            feature.setAttribute(ATTRIB_HEADING, heading.heading1);
-            feature.setAttribute(ATTRIB_DX, rec.dx);
-            feature.setAttribute(ATTRIB_DY, rec.dy);
-            feature.setAttribute(ATTRIB_RATIO, rec.ratio);
+            final SimpleFeatureBuilder fb = new SimpleFeatureBuilder(windFeatureType);
+            fb.add(geometryFactory.createPoint(new Coordinate(rec.x, rec.y)));
+            fb.add(rec.speed);
+            fb.add(heading.heading1);
+            fb.add(rec.dx);
+            fb.add(rec.dy);
+            fb.add(rec.ratio);
+            fb.add(STYLE_FORMAT);
+            final SimpleFeature feature =  fb.buildFeature("wind_" + c);
 
             collection.add(feature);
             c++;

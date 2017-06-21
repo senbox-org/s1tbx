@@ -33,8 +33,6 @@ import java.text.DateFormat;
  */
 public class Sentinel1Level2Directory extends XMLProductDirectory implements Sentinel1Directory {
 
-    private final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
-
     private Sentinel1OCNReader OCNReader = null;
 
     public Sentinel1Level2Directory(final File inputFile) {
@@ -161,24 +159,6 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     public void addGeoCodingToBands(final Product product) {
 
         OCNReader.addGeoCodingToBands(product);
-    }
-
-    // TODO This method appears in SentinelLevel0Directory as well. So may be we should put it in the base class
-    // XMLProductDirectory.
-    private MetadataElement getMetadataObject(final MetadataElement origProdRoot, final String metadataObjectName) {
-
-        final MetadataElement metadataSection = origProdRoot.getElement("XFDU").getElement("metadataSection");
-        final MetadataElement[] metadataObjects = metadataSection.getElements();
-
-        for (MetadataElement elem : metadataObjects) {
-
-            if (elem.getAttribute("ID").getData().getElemString().equals(metadataObjectName)) {
-
-                return elem;
-            }
-        }
-
-        return null;
     }
 
     @Override

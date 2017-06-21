@@ -102,14 +102,17 @@ public class MultilookOpUI extends BaseOperatorUI {
         nAzLooks.setText(String.valueOf(paramMap.get("nAzLooks")));
 
         outputIntensity = (Boolean) paramMap.get("outputIntensity");
-        boolean isComplex = isComplexSrcProduct();
-        if(!isComplex) {
-            outputIntensity = true;
+        if (sourceProducts != null && sourceProducts.length > 0) {
+            boolean isComplex = isComplexSrcProduct();
+            if(!isComplex) {
+                outputIntensity = true;
+            }
         }
+
         if (outputIntensity != null) {
             outputIntensityCheckBox.setSelected(outputIntensity);
         }
-        outputIntensityCheckBox.setVisible(isComplex);
+        //outputIntensityCheckBox.setVisible(isComplex);
 
         grSquarePixel = (Boolean) paramMap.get("grSquarePixel");
         if (grSquarePixel != null) {
@@ -172,9 +175,7 @@ public class MultilookOpUI extends BaseOperatorUI {
             paramMap.put("nRgLooks", Integer.parseInt(nRgLooksStr));
         if (nAzLooksStr != null && !nAzLooksStr.isEmpty())
             paramMap.put("nAzLooks", Integer.parseInt(nAzLooksStr));
-        if(!isComplexSrcProduct()) {
-            outputIntensity = true;
-        }
+
         paramMap.put("outputIntensity", outputIntensity);
         paramMap.put("grSquarePixel", grSquarePixel);
     }

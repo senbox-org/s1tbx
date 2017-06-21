@@ -82,6 +82,10 @@ public class CEOSVolumeDirectoryFile {
         return getProductType(textRecord);
     }
 
+    public String getProductOrigin() {
+	return getProductOrigin(volumeDescriptorRecord);
+    }
+
     public void assignMetadataTo(final MetadataElement rootElem) {
         CeosHelper.addMetadata(rootElem, volumeDescriptorRecord, "Volume Descriptor");
         CeosHelper.addMetadata(rootElem, textRecord, "Text Record");
@@ -122,5 +126,9 @@ public class CEOSVolumeDirectoryFile {
         type = type.replace("ERS-2", "ERS2");
         type = type.replace("ERS_2", "ERS2");
         return type.trim();
+    }
+
+    public static String getProductOrigin(final BinaryRecord vdr) {
+	return vdr.getAttributeString("Specification number");
     }
 }

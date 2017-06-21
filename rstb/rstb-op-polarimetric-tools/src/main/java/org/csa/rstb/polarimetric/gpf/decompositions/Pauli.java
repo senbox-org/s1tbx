@@ -105,10 +105,7 @@ public class Pauli extends DecompositionBase implements Decomposition {
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-            for (int i = 0; i < bandList.srcBands.length; i++) {
-                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], targetRectangle);
-                dataBuffers[i] = sourceTiles[i].getDataBuffer();
-            }
+            PolOpUtils.getDataBuffer(op, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             double re = 0.0, im = 0.0, v = 0.0;
@@ -184,6 +181,27 @@ public class Pauli extends DecompositionBase implements Decomposition {
                     }
                 }
             }
+        }
+    }
+
+    public static RGB getPauliDecomposition(final double[][] Cr, final double[][] Ci) {
+
+        final double r = 0.5 * (Cr[0][0] - 2.0 * Cr[0][2] + Cr[2][2]);
+        final double g = Cr[1][1];
+        final double b = 0.5 * (Cr[0][0] + 2.0 * Cr[0][2] + Cr[2][2]);
+
+        return new RGB(r, g, b);
+    }
+
+    public static class RGB {
+        public final double r;
+        public final double g;
+        public final double b;
+
+        public RGB(final double r, final double g, final double b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
         }
     }
 }

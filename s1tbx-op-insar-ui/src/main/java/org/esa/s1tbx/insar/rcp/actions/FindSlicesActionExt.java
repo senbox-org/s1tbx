@@ -45,14 +45,14 @@ public class FindSlicesActionExt implements ProductLibraryActionExt {
     }
 
     public void selectionChanged(final ProductEntry[] selections) {
-        button.setEnabled(selections.length == 1);
+        button.setEnabled(selections.length == 1 && ProductLibraryActions.allProductsExist(selections));
     }
 
-    public void performAction() {
+    public void performAction(final com.bc.ceres.core.ProgressMonitor pm) {
         final ProductEntry entry = actionHandler.getSelectedProductEntries()[0];
         int dataTakeId = entry.getMetadata().getAttributeInt(AbstractMetadata.data_take_id, AbstractMetadata.NO_METADATA);
         if(dataTakeId != AbstractMetadata.NO_METADATA) {
-            actionHandler.findSlices(dataTakeId);
+            actionHandler.getToolView().findSlices(dataTakeId);
         }
     }
 }

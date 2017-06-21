@@ -55,10 +55,6 @@
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-rcp</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
         </dependency>

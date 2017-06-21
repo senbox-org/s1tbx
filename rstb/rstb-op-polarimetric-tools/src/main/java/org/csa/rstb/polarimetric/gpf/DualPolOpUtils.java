@@ -221,4 +221,85 @@ public final class DualPolOpUtils {
         Cr[1][0] = Cr[0][1];
         Ci[1][0] = -Ci[0][1];
     }
+
+    public static void getMeanCorrelationMatrixC2(
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
+            final int sourceImageWidth, final int sourceImageHeight, final PolBandUtils.MATRIX sourceProductType,
+            final Tile[] sourceTiles, final ProductData[] mstDataBuffers, final ProductData[] slvDataBuffers,
+            final double[][] Cr, final double[][] Ci) {
+
+        final int xSt = Math.max(x - halfWindowSizeX, 0);
+        final int xEd = Math.min(x + halfWindowSizeX, sourceImageWidth - 1);
+        final int ySt = Math.max(y - halfWindowSizeY, 0);
+        final int yEd = Math.min(y + halfWindowSizeY, sourceImageHeight - 1);
+        final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
+
+        final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+
+        final Matrix CrMat = new Matrix(2, 2);
+        final Matrix CiMat = new Matrix(2, 2);
+
+        if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
+            sourceProductType == PolBandUtils.MATRIX.RCHCP ||
+            sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+            sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+            sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+
+            final double[] K1r = new double[2];
+            final double[] K1i = new double[2];
+            final double[] K2r = new double[2];
+            final double[] K2i = new double[2];
+
+            for (int yy = ySt; yy <= yEd; ++yy) {
+                srcIndex.calculateStride(yy);
+                for (int xx = xSt; xx <= xEd; ++xx) {
+                    final int idx = srcIndex.getIndex(xx);
+
+                    final Matrix tmpCrMat = new Matrix(2, 2);
+                    final Matrix tmpCiMat = new Matrix(2, 2);
+
+                    getScatterVector(idx, mstDataBuffers, K1r, K1i);
+                    getScatterVector(idx, slvDataBuffers, K2r, K2i);
+
+                    computeCorrelationMatrixC2(K1r, K1i, K2r, K2i, tmpCrMat.getArray(), tmpCiMat.getArray());
+
+                    CrMat.plusEquals(tmpCrMat);
+                    CiMat.plusEquals(tmpCiMat);
+                }
+            }
+
+        } else {
+            throw new OperatorException("getMeanCorrelationMatrix: input should be raw dual pol data");
+        }
+
+        CrMat.timesEquals(1.0 / num);
+        CiMat.timesEquals(1.0 / num);
+
+        Cr[0][0] = CrMat.get(0, 0);
+        Ci[0][0] = CiMat.get(0, 0);
+        Cr[0][1] = CrMat.get(0, 1);
+        Ci[0][1] = CiMat.get(0, 1);
+
+        Cr[1][0] = CrMat.get(1, 0);
+        Ci[1][0] = CiMat.get(1, 0);
+        Cr[1][1] = CrMat.get(1, 1);
+        Ci[1][1] = CiMat.get(1, 1);
+    }
+
+    public static void computeCorrelationMatrixC2(final double[] k1r, final double[] k1i,
+                                                  final double[] k2r, final double[] k2i,
+                                                  final double[][] Cr, final double[][] Ci) {
+
+        Cr[0][0] = k1r[0] * k2r[0] + k1i[0] * k2i[0];
+        Ci[0][0] = k1i[0] * k2r[0] - k1r[0] * k2i[0];
+
+        Cr[0][1] = k1r[0] * k2r[1] + k1i[0] * k2i[1];
+        Ci[0][1] = k1i[0] * k2r[1] - k1r[0] * k2i[1];
+
+        Cr[1][0] = k1r[1] * k2r[0] + k1i[1] * k2i[0];
+        Ci[1][0] = k1i[1] * k2r[0] - k1r[1] * k2i[0];
+
+        Cr[1][1] = k1r[1] * k2r[1] + k1i[1] * k2i[1];
+        Ci[1][1] = k1i[1] * k2r[1] - k1r[1] * k2i[1];
+    }
 }

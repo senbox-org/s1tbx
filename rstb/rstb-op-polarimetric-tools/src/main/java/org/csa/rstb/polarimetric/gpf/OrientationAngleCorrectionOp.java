@@ -199,10 +199,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
                 final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-                for (int i = 0; i < bandList.srcBands.length; i++) {
-                    sourceTiles[i] = getSourceTile(bandList.srcBands[i], targetRectangle);
-                    dataBuffers[i] = sourceTiles[i].getDataBuffer();
-                }
+                PolOpUtils.getDataBuffer(this, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
                 final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
                 final ProductData[] targetDataBuffers = new ProductData[10];
@@ -246,7 +243,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
                         if (sourceProductType == PolBandUtils.MATRIX.FULL) {
 
-                            PolOpUtils.getT3(srcIdx, sourceProductType, dataBuffers, T3r, T3i);
+                            PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, dataBuffers, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
 

@@ -102,10 +102,7 @@ public class Cloude extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            for (int i = 0; i < bandList.srcBands.length; ++i) {
-                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], sourceRectangle);
-                dataBuffers[i] = sourceTiles[i].getDataBuffer();
-            }
+            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             final double[][] EigenVectRe = new double[3][3];
@@ -144,6 +141,33 @@ public class Cloude extends DecompositionBase implements Decomposition {
                     }
                 }
             }
+        }
+    }
+
+    public static RGB getCloudeDecomposition(final double[][] Tr, final double[][] Ti) {
+
+        final double[][] EigenVectRe = new double[3][3];
+        final double[][] EigenVectIm = new double[3][3];
+        final double[] EigenVal = new double[3];
+
+        PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
+
+        final double b = EigenVal[0] * (EigenVectRe[0][0] * EigenVectRe[0][0] + EigenVectIm[0][0] * EigenVectIm[0][0]);
+        final double r = EigenVal[0] * (EigenVectRe[1][0] * EigenVectRe[1][0] + EigenVectIm[1][0] * EigenVectIm[1][0]);
+        final double g = EigenVal[0] * (EigenVectRe[2][0] * EigenVectRe[2][0] + EigenVectIm[2][0] * EigenVectIm[2][0]);
+
+        return new RGB(r, g, b);
+    }
+
+    public static class RGB {
+        public final double r;
+        public final double g;
+        public final double b;
+
+        public RGB(final double r, final double g, final double b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
         }
     }
 }
