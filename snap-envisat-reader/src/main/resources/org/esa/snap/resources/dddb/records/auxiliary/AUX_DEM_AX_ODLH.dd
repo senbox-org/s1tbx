@@ -1,0 +1,32 @@
+AUX_DEM_AX_ODLH|Ocean Depth and Land Header|*
+
+lat_gs_keyword |String|*|14|1|*|Spare|1|
+lat_grid_size |String|minutes|15|1|*|Resolution of the grid in latitude (dφ)|1|
+lat_gs_units |String|*|5|1|*|Spare|1|
+lat_gs_terminator |String|*|1|1|*|Spare|1|
+lat_f_keyword |String|*|10|1|*|Spare|1|
+lat_first |String|minutes|15|1|*|Latitude of first point on the grid (φf)|1|
+lat_f_units |String|*|5|1|*|Spare|1|
+lat_f_terminator |String|*|1|1|*|Spare|1|
+lat_l_keyword |String|*|9|1|*|Spare|1|
+lat_last |String|minutes|15|1|*|Latitude of last point on the grid (φl)|1|
+lat_l_units |String|*|5|1|*|Spare|1|
+lat_l_terminator |String|*|1|1|*|Spare|1|
+lon_gs_keyword |String|*|14|1|*|Spare|1|
+lon_grid_size |String|minutes|15|1|*|Resolution of the grid in longitude (dμ)|1|
+lon_gs_units |String|*|5|1|*|Spare|1|
+lon_gs_terminator |String|*|1|1|*|Spare|1|
+lon_f_keyword |String|*|10|1|*|Spare|1|
+lon_first |String|minutes|15|1|*|Longitude of first point on the grid (μf)|1|
+lon_f_units |String|*|5|1|*|Spare|1|
+lon_f_terminator |String|*|1|1|*|Spare|1|
+lon_l_keyword |String|*|9|1|*|Spare|1|
+lon_last |String|minutes|15|1|*|Longitude of last point on the grid (μl)|1|
+lon_l_units |String|*|5|1|*|Spare|1|
+lon_l_terminator |String|*|1|1|*|Spare|1|
+def_keyword |String|*|4|1|*|Spare|1|
+def |String|-|11|1|*|Default value of the grid values(def)|1|
+def_terminator |String|*|1|1|*|Spare|1|
+Spare |String|*|50|1|*|Spare|1|
+Spare_terminator |String|*|1|1|*|Spare|1|
+

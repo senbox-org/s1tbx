@@ -1,0 +1,5 @@
+ATS_CL1_AX_MNFLUT_2|11/3.7 Micron Nadir/Forward Test LUT GADS
+#
+diff_slope       |Float  |-     |4|5|*|view_diff_slope[j]           |1|
+diff_offset      |Float  |-     |4|5|*|view_diff_offset[j]          |2|
+diff_thresh      |SShort |K/100 |2|1|*|ir11_ir12_view_diff_thresh   |3|

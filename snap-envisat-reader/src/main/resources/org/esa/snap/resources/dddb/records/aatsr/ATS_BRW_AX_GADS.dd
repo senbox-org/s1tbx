@@ -1,0 +1,12 @@
+ATS_BRW_AX_GADS|Browse LUT Data file GADS|*
+#
+no_red_coeffs       |SShort  |*     |2  |1  |* |Number of red coefficients in LUT   |1  |
+red_reflec          |SShort  |0.01% |2  |10 |* |Red channel relectancee             |2  |
+red_coeffs          |UChar   |*     |1  |10 |* |Red channel colour coefficients     |3  |
+no_green_coeffs     |SShort  |*     |2  |1  |* |Number of green coefficients in LUT |4  |
+green_reflec        |SShort  |0.01% |2  |10 |* |Green channel relectancee           |5  |
+green_coeffs        |UChar   |*     |1  |10 |* |Green channel colour coefficients   |6  |
+no_blue_coeffs      |SShort  |*     |2  |1  |* |Number of blue coefficients in LUT  |7  |
+blue_reflec         |SShort  |0.01% |2  |10 |* |Blue channel relectancee            |8  |
+blue_coeffs         |UChar   |*     |1  |10 |* |Blue channel colour coefficients    |9  |
+spare               |UChar   |*     |1  |20 |* |Spare                               |10  |

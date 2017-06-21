@@ -1,0 +1,7 @@
+AUX_DEM_AX|Digital Elevation Model|
+#
+MPH                        |@/records/MPH.dd                                    |1247                            |Main Product Header
+SPH                        |@/records/SPH.dd       	                            |*                               |AATSR Browse LUT Data SPH
+DSD                        |@/records/DSD.dd                                    |*                               |Data Set Descriptor array
+Ocean Depth Land Header    |@/records/auxiliary/AUX_DEM_AX_ODLH.dd              |OCEAN_DEPTH_LAND_HEADER         |OCEAN DEPTH LAND HEADER
+Ocean Depth Land Elevation |@/records/auxiliary/AUX_DEM_AX_ODLE.dd              |OCEAN_DEPTH_LAND_ELEVATION      |OCEAN DEPTH LAND ELEVATION

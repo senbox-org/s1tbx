@@ -1042,6 +1042,7 @@ public abstract class ProductFile {
             throw new ProductIOException("not an ENVISAT product or ENVISAT product type not supported");
         }
         // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
+        // and for auxiliary data it is 'A'
         String productTypeUC = productType.toUpperCase().substring(0, 9);
 
         ProductFile productFile = null;
@@ -1049,7 +1050,13 @@ public abstract class ProductFile {
         if (productTypeUC.startsWith("ME")) {
             productFile = new MerisProductFile(file, dataInputStream, lineInterleaved);
         } else if (productTypeUC.startsWith("AT")) {
-            productFile = new AatsrProductFile(file, dataInputStream);
+            if (productTypeUC.startsWith("ATS_NL__0")) {
+                productFile = new AatsrL0ProductFile(file, dataInputStream);
+            }else if (productTypeUC.matches("ATS_..._A")) {
+                productFile = new AatsrAuxProductFile(file, dataInputStream);
+            }else {
+                productFile = new AatsrProductFile(file, dataInputStream);
+            }
         } else if (productTypeUC.startsWith("AS") || productTypeUC.startsWith("SA")) {
             if (productTypeUC.startsWith("ASA_XCA")) {
                 productFile = new AsarXCAProductFile(file, dataInputStream);
@@ -1058,6 +1065,8 @@ public abstract class ProductFile {
             }
         } else if (productTypeUC.startsWith("DOR")) {
             productFile = new DorisOrbitProductFile(file, dataInputStream);
+        } else if (productTypeUC.startsWith("AUX")) {
+            productFile = new AuxProductFile(file, dataInputStream);
         }
 
         if (productFile == null) {
@@ -1224,8 +1233,9 @@ public abstract class ProductFile {
      * @throws java.io.IOException if an I/O error occurs
      */
     private void readGADS() throws IOException {
-        if (getGADSName() != null && isValidDatasetName(getGADSName())) {
-            gads = getRecordReader(getGADSName()).readRecord();
+        String gadsName = getGADSName();
+        if (gadsName != null && isValidDatasetName(gadsName)) {
+            gads = getRecordReader(gadsName).readRecord();
         } else {
             gads = null;
         }

@@ -1,0 +1,6 @@
+ATS_CL1_AX_MNFLUT_1|11/12 Micron Nadir/Forward Test LUT GADS
+#
+const_coeff      |Float  |-     |4|5|*|constant coefficient a0[j]   |1|
+lin_coeff        |Float  |-     |4|5|*|linear coefficient a1[j]     |2|
+quad_coeff       |Float  |-     |4|5|*|quadratic coefficient a2[j]  |3|
+diff_thresh      |SShort |K/100 |2|1|*|ir37_ir11_view_diff_thresh   |4|

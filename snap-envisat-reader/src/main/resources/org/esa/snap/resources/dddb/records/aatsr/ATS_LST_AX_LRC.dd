@@ -1,0 +1,8 @@
+ATS_SST_AX_LRC|Land Surface Temperature Retrieval Coefficients
+#
+lst_coeff_a0_day_time   |Float  |K/100 |4|1|*|LST Coefficient A0 (day-time)                    |1|
+lst_coeff_a1_day_time   |Float  |-     |4|1|*|LST Coefficient A1 (day-time)                    |2|
+lst_coeff_a2_day_time   |Float  |-     |4|1|*|LST Coefficient A2 (day-time)                    |3|
+lst_coeff_a0_night_time |Float  |K/100 |4|1|*|LST Coefficient A0 (night-time)                  |4|
+lst_coeff_a1_night_time |Float  |-     |4|1|*|LST Coefficient A1 (night-time)                  |5|
+lst_coeff_a2_night_time |Float  |-     |4|1|*|LST Coefficient A2 (night-time)                  |6|

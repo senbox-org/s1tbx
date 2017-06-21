@@ -1,0 +1,20 @@
+ATS_NL__0P_MDSR_fep|AATSR Level 0 AATSR_SOURCE_PACKETS MDSR|*
+#
+ISP_SENSING_TIME              |@/types/UTC.dd |MJD        |12 |1   |* |MJD of ISP sensing time                                              |1  |
+GROUND_STATION_REFERENCE_TIME |@/types/UTC.dd |MJD        |12 |1   |* |Ground station reference time                                        |2  |
+ISP_LENGTH                    |UShort         |bytes      |2  |1   |* |Length of the ISP                                                    |3  |
+CRC_ERRS                      |UShort         |VCDU       |2  |1   |* |Number of VCDUs in the ISP with a CRC error                          |4  |
+RS_ERR_CORRECTION             |UShort         |VCDU       |2  |1   |* |Number of VCDUs in the ISP for which as RS correction was performed  |5  |
+spare                         |UChar          |-          |1  |2   |* |Spare                                                                |6  |
+PACKET_ID                     |UShort         |-          |2  |1   |* |Packet ID                                                            |7  |
+PACKET_SEQUENCE_COUNT         |UShort         |-          |2  |1   |* |Packet Sequence Count                                                |8  |
+PACKET_LENGTH                 |UShort         |-          |2  |1   |* |Packet Length                                                        |9  |
+DATA_FIELD_HEADER_LENGTH      |UShort         |-          |2  |1   |* |Data Field Header Length                                             |10 |
+INSTRUMENT_MODE               |UShort         |-          |2  |1   |* |Instrument Mode                                                      |11 |
+ICU_ONBOARD_TIME              |ULong          |-          |4  |1   |* |ICU On-Board Time                                                    |12 |
+REDUNDANCY_VECTOR             |UShort         |-          |2  |1   |* |Redundancy Vector                                                    |13 |
+AUXILIARY_DATA                |UShort         |-          |2  |390 |* |Auxiliary Data                                                       |14 |
+SCIENCE_DATA                  |UShort         |-          |2  |5357|* |Science (Pixel) Data                                                 |15 |
+CRC_ERROR                     |UShort         |-          |2  |1   |* |CRC error Code for Packet                                            |16 |
+
+

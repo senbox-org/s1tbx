@@ -1,0 +1,5 @@
+ATS_INS_AX_GCP|Conversion Parameters |*
+#
+aux_id     |UChar  |-         |1 |5  |*|auxiliary item identifier  |
+func_id    |UChar  |-         |1 |3  |*|function identifier  |
+par_lst    |Double |-         |8 |20 |*|parameter list   |

@@ -1,0 +1,21 @@
+ATS_CL1_AX|Cloud LUT data|
+#
+MPH                              |@/records/MPH.dd                        |1247                          |Main Product Header
+SPH                              |@/records/SPH.dd       				  |*                             |AATSR Browse LUT Data SPH
+DSD                              |@/records/DSD.dd                        |*                             |Data Set Descriptor array
+1.6_Micron_Histogram_LUT        |@/records/aatsr/ATS_CL1_AX_MHLUT.dd	  |1.6 micron histogram LUT      |1.6 Micron Histogram Test LUT GADS
+11_Micron_Spatial_Coh_LUT       |@/records/aatsr/ATS_CL1_AX_SCLUT.dd     |11 micron spatial coh LUT     |11 Micron Spatial Coherence Test LUT GADS
+12_Micron_Gross_Cloud_LUT       |@/records/aatsr/ATS_CL1_AX_GCLUT.dd     |12 micron gross cloud LUT     |12 Micron Gross Cloud Test LUT GADS
+#12_Micron_Gross_Cloud_Land_LUT*  |@/records/aatsr/ATS_CL1_AX_GCLLUT.dd    |12 micron gross cld land LUT  |12 Micron Gross Cloud Land Test LUT GADS
+Thin_Cirrus_Cloud_LUT           |@/records/aatsr/ATS_CL1_AX_TCCLUT.dd    |thin cirrus cloud LUT         |Thin Cirrus Test LUT GADS
+Med_High_Level_Cloud_LUT        |@/records/aatsr/ATS_CL1_AX_MHLCLUT.dd   |med/high level cloud LUT      |Medium/High Level Test LUT GADS
+Fog_Low_Stratus_LUT             |@/records/aatsr/ATS_CL1_AX_FLSLUT.dd    |fog/low stratus               |Fog/low Stratus Test LUT GADS
+11_12_Micron_Nadir_Forward_LUT  |@/records/aatsr/ATS_CL1_AX_MNFLUT_1.dd  |11/12 micron ndr/frwrd LUT    |11/12 Micron Nadir/Forward Test LUT GADS
+11_37_Micron_Nadir_Forward_LUT  |@/records/aatsr/ATS_CL1_AX_MNFLUT_2.dd  |11/37 micron ndr/frwrd LUT    |11/3.7 Micron Nadir/Forward Test LUT GADS
+Infrared_Histogram_LUT          |@/records/aatsr/ATS_CL1_AX_IHLUT.dd     |infra-red histogram LUT       |Infrared Histogram Test LUT GADS
+#General_Visible_Channel_LUT*     |@/records/aatsr/ATS_CL1_AX_GVCLUT.dd    |General visible channel LUT   |General Visible Channel LUT GADS
+#NDVI_Zone_Vertices_LUT*          |@/records/aatsr/ATS_CL1_AX_NZVLUT.dd    |ndvi zone vertices LUT        |NDVI Zone Vertices LUT GADS
+#NDVI_Zone_Definitions_LUT*       |@/records/aatsr/ATS_CL1_AX_NZDLUT.dd    |ndvi zone definitions LUT     |NDVI Zone Definitions LUT GADS
+#Snowcovered_Surface_Test_LUT*    |@/records/aatsr/ATS_CL1_AX_SSTLUT.dd    |Snowcovered surface test LUT  |Snowcovered Surface Test LUT GADS
+
+# Datasets with comments are not used

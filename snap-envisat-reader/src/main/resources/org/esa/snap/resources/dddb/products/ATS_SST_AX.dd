@@ -1,0 +1,8 @@
+ATS_SST_AX|SST Retrieval Coefficients data|
+#
+MPH                       |@/records/MPH.dd                      |1247                          |Main Product Header
+SPH                       |@/records/SPH.dd       				 |*                             |AATSR Browse LUT Data SPH
+DSD                       |@/records/DSD.dd                      |*                             |Data Set Descriptor array
+Band_LUT                  |@/records/aatsr/ATS_SST_AX_BL.dd	     |BAND_LUT                      |Across-track Band Mapping Look-up Table
+Gridded_LUT               |@/records/aatsr/ATS_SST_AX_ARC.dd     |GRIDDED_LUT                   |Average SST Retrieval Coefficients GADS
+Average_LUT               |@/records/aatsr/ATS_SST_AX_ARC.dd	 |AVERAGE_LUT                   |Average SST Retrieval Coefficients GADS

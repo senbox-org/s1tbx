@@ -1,0 +1,5 @@
+ATS_GC1_AX_RTBT|Radiance to Brightness Temperature LUT|*
+#
+temp_lut_12        |Double|Wcm-2 sr-1 |8 |1|*|temperature_lut [12 micron] |
+temp_lut_11        |Double|Wcm-2 sr-1 |8 |1|*|temperature_lut [11 micron] |
+temp_lut_37        |Double|Wcm-2 sr-1 |8 |1|*|temperature_lut [3.7 micron]|
