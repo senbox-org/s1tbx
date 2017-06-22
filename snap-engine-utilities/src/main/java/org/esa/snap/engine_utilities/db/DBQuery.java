@@ -355,6 +355,7 @@ public class DBQuery {
             SystemUtils.LOG.info("Query=" + queryStr);
             return intersectMapSelection(db.queryProduct(queryStr.toString()), returnAllIfNoIntersection);
         } else {
+            SystemUtils.LOG.info("Query=empty");
             return intersectMapSelection(db.getProductEntryList(false), returnAllIfNoIntersection);
         }
     }
@@ -459,6 +460,7 @@ public class DBQuery {
     private ProductEntry[] intersectMapSelection(final ProductEntry[] resultsList, final boolean returnAllIfNoIntersection) {
 
         if (selectionRectangle == null) {
+            //System.out.println("DBQuery.intersectMapSelection: null rect returns " + resultsList.length + " products");
             return resultsList;
         }
 
@@ -466,6 +468,12 @@ public class DBQuery {
         final int mult = 100000; //float to integer
         final Rectangle selRect = new Rectangle((int) (selectionRectangle.x * mult), (int) (selectionRectangle.y * mult),
                 (int) (selectionRectangle.width * mult), (int) (selectionRectangle.height * mult));
+
+        /*
+        System.out.println("DBQuery.intersectMapSelection: selectionRectangle: x = " + selectionRectangle.x + " y = " + selectionRectangle.y
+            + " width = " + selectionRectangle.width + " height = " + selectionRectangle.height
+            + "; selRect: x = " + selRect.x + " y = " + selRect.y + " width = " + selRect.width + " height = " + selRect.height);
+        */
 
         final boolean singlePointSelection = selectionRectangle.getWidth() == 0 && selectionRectangle.getHeight() == 0;
 
@@ -475,7 +483,9 @@ public class DBQuery {
             final GeoPos[] geoBox = entry.getBox();
             for (GeoPos geo : geoBox) {
                 p.addPoint((int) (geo.getLat() * mult), (int) (geo.getLon() * mult));
+                //System.out.println("DBQuery.intersectMapSelection: product geoPoint: " + (int)(geo.getLat() * mult) + ", " + (int)(geo.getLon() * mult));
             }
+            //System.out.println("DBQuery.intersectMapSelection: product geoPoint: add first pt again");
             p.addPoint((int) (geoBox[0].getLat() * mult), (int) (geoBox[0].getLon() * mult));
 
             if (singlePointSelection) {
@@ -486,15 +496,16 @@ public class DBQuery {
                 if (p.contains(selRect)) {
                     intersectList.add(entry);
                 } else {
-                    // check all points
-                    boolean allPoints = true;
+                    // Check if at least one point is in rectangle
+                    boolean onePoint = false;
                     for (GeoPos geo : geoBox) {
-                        if (!selRect.contains((int) (geo.getLat() * mult), (int) (geo.getLon() * mult))) {
-                            allPoints = false;
+                        if (selRect.contains((int) (geo.getLat() * mult), (int) (geo.getLon() * mult))) {
+                            //System.out.println("DBQuery.intersectMapSelection: product this pt is in rec: " + (int)(geo.getLat() * mult) + ", " + (int)(geo.getLon() * mult));
+                            onePoint = true;
                             break;
                         }
                     }
-                    if (allPoints) {
+                    if (onePoint) {
                         intersectList.add(entry);
                     }
                 }
@@ -503,9 +514,11 @@ public class DBQuery {
 
         // if nothing selected then return all
         if (singlePointSelection && returnAllIfNoIntersection && intersectList.isEmpty()) {
+            //System.out.println("DBQuery.intersectMapSelection: nothing selected returns " + resultsList.length + " products; singlePt = " + singlePointSelection);
             return resultsList;
         }
 
+        //System.out.println("DBQuery.intersectMapSelection: returns " + intersectList.size() + " products; singlePt = " + singlePointSelection);
         return intersectList.toArray(new ProductEntry[intersectList.size()]);
     }
 
