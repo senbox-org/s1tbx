@@ -272,6 +272,9 @@ public class EngineConfig extends Config {
     }
 
     private void initLogger() {
+        // This prevents our logger to be reconfigured by hsqldb (used by geotools)
+        // see documentation of org.hsqldb.lib.FrameworkLogger
+        System.setProperty("hsqldb.reconfig_logging", "false");
         setLogger(loggerName(), logLevel());
     }
 
