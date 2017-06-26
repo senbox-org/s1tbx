@@ -574,7 +574,8 @@ public class ToolAdapterIO {
     }
 
     private static Preferences getPreferences() {
-        Path storagePath = Config.instance().storagePath();
+        Config instance = Config.instance();
+        Path storagePath = instance.storagePath();
         File file = storagePath.toFile();
         if (!file.exists()) {
             try {
@@ -585,7 +586,11 @@ public class ToolAdapterIO {
                 logger.severe("Error while creating module preferences: " + e.getMessage());
             }
         }
-        Config instance = Config.instance().load();
+        try {
+            instance = Config.instance().load();
+        } catch (Exception e) {
+            logger.severe("Cannot read preferences: " + e.getMessage());
+        }
         return instance.preferences();
     }
 

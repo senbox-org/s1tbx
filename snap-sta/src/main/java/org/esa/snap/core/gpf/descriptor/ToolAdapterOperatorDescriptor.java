@@ -642,6 +642,9 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             default:
                 throw new IllegalArgumentException("Operating system not supported");
         }
+        if (bundle.getParent() == null) {
+            bundle.setParent(this);
+        }
         return bundle;
     }
 

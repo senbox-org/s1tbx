@@ -239,7 +239,9 @@ public class BundleInstaller implements AutoCloseable {
         ToolAdapterIO.unzip(source,
                             descriptor.resolveVariables(targetLocation).toPath(),
                             this.progressMonitor, taskCount);
-        Files.deleteIfExists(source);
+        if (!bundle.isLocal()) {
+            Files.deleteIfExists(source);
+        }
     }
 
     private void install(Path source, Bundle bundle) throws IOException {
