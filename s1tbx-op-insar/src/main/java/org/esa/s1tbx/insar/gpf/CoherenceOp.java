@@ -251,10 +251,8 @@ public class CoherenceOp extends Operator {
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
             }
 
-            polarisations = OperatorUtils.getPolarisations(sourceProduct);
-            if (polarisations.length == 0) {
-                polarisations = new String[]{""};
-            }
+            final String[] polarisationsInBandNames = OperatorUtils.getPolarisations(sourceProduct);
+            polarisations = InterferogramOp.getPolsSharedByMstSlv(sourceProduct, polarisationsInBandNames);
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -339,8 +337,9 @@ public class CoherenceOp extends Operator {
             for (String keySlave : slaveMap.keySet()) {
                 final CplxContainer slave = slaveMap.get(keySlave);
 
-                if ((master.polarisation == null && slave.polarisation == null) ||
-                        (master.polarisation != null && master.polarisation.equals(slave.polarisation))) {
+                if ((master.polarisation == null || slave.polarisation == null) ||
+                        (master.polarisation != null && slave.polarisation != null &&
+                                master.polarisation.equals(slave.polarisation))) {
                     // generate name for product bands
                     final String productName = keyMaster + '_' + keySlave;
 
