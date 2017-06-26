@@ -311,8 +311,8 @@ public final class Sentinel1Utils {
 
         int k = 0;
         if (subSwath.numOfBursts > 0) {
-            int firstValidPixel = subSwath.numOfSamples;
-            int lastValidPixel = 0;
+            int firstValidPixel = 0;
+            int lastValidPixel = subSwath.numOfSamples;
             final MetadataElement[] burstListElem = burstList.getElements();
             for (MetadataElement listElem : burstListElem) {
 
@@ -332,7 +332,7 @@ public final class Sentinel1Utils {
                 for (int lineIdx = 0; lineIdx < subSwath.firstValidSample[k].length; lineIdx++) {
                     if (subSwath.firstValidSample[k][lineIdx] != -1) {
 
-                        if (subSwath.firstValidSample[k][lineIdx] < firstValidPixel) {
+                        if (subSwath.firstValidSample[k][lineIdx] > firstValidPixel) {
                             firstValidPixel = subSwath.firstValidSample[k][lineIdx];
                         }
 
@@ -347,7 +347,7 @@ public final class Sentinel1Utils {
 
                 for (int lineIdx = 0; lineIdx < subSwath.lastValidSample[k].length; lineIdx++) {
                     if (subSwath.lastValidSample[k][lineIdx] != -1 &&
-                            subSwath.lastValidSample[k][lineIdx] > lastValidPixel) {
+                            subSwath.lastValidSample[k][lineIdx] < lastValidPixel) {
                         lastValidPixel = subSwath.lastValidSample[k][lineIdx];
                     }
                 }
