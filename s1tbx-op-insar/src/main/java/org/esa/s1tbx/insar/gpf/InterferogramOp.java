@@ -260,16 +260,44 @@ public class InterferogramOp extends Operator {
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
             }
 
-            polarisations = OperatorUtils.getPolarisations(sourceProduct);
-            if (polarisations.length == 0) {
-                polarisations = new String[]{""};
-            }
+            final String[] polarisationsInBandNames = OperatorUtils.getPolarisations(sourceProduct);
+            polarisations = getPolsSharedByMstSlv(sourceProduct, polarisationsInBandNames);
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
         } catch (Exception e) {
             throw new OperatorException(e);
         }
+    }
+
+    public static String[] getPolsSharedByMstSlv(final Product sourceProduct, final String[] polarisationsInBandNames) {
+
+        final String masterTag = "mst";
+        final String slaveTag = "slv";
+        final List<String> polarisations = new ArrayList<>();
+
+        for (String pol : polarisationsInBandNames) {
+            if (checkPolarisation(sourceProduct, masterTag, pol) && checkPolarisation(sourceProduct, slaveTag, pol)) {
+                polarisations.add(pol);
+            }
+        }
+
+        if (polarisations.size() > 0) {
+            return polarisations.toArray(new String[polarisations.size()]);
+        } else {
+            return new String[]{""};
+        }
+    }
+
+    private static boolean checkPolarisation(final Product product, final String tag, final String polarisation) {
+
+        for (String name:product.getBandNames()) {
+            if (name.toLowerCase().contains(tag.toLowerCase()) &&
+                    name.toLowerCase().contains(polarisation.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void getMstApproxSceneCentreXYZ() throws Exception {
