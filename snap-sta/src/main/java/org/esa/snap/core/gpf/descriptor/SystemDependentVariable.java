@@ -63,11 +63,10 @@ public class SystemDependentVariable extends SystemVariable {
     @Override
     public void setValue(String value) {
         values.put(currentOS, value);
-        if (!isUpdatable()) {
-            this.value = value;
-            if (!isTransient && value != null && !value.isEmpty() && this.isShared) {
-                ToolAdapterIO.saveVariable(this.key, value);
-            }
+        this.value = value;
+
+        if (!isTransient && value != null && !value.isEmpty() && this.isShared) {
+            ToolAdapterIO.saveVariable(this.key, value);
         }
     }
 
