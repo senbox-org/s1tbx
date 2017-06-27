@@ -16,39 +16,47 @@
 
 package org.esa.snap.core.dataop.projection;
 
+import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.referencing.operation.MathTransformProvider;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This is not testing our implementation of Sinusoidal projection but the one of geotools.
+ * Our implementation is not use anymore.
+ * <p>
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
-public final class SinusoidalTest extends AbstractProjectionTest<Sinusoidal.Provider> {
+public final class SinusoidalTest extends AbstractProjectionTest {
 
 
     @Override
-    protected Sinusoidal.Provider createProvider() {
-        return new Sinusoidal.Provider();
+    protected ReferenceIdentifier getProjectionIdentifier() {
+        return new NamedIdentifier(Citations.OGC, "Sinusoidal");
     }
 
     @Override
-    public MathTransform createMathTransform(Sinusoidal.Provider provider) {
+    public MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(provider.getParameters());
         params.parameter("semi_major").setValue(6370997.0);
         params.parameter("semi_minor").setValue(6370997.0);
         params.parameter("central_meridian").setValue(30.0);
         params.parameter("false_easting").setValue(0.0);
         params.parameter("false_northing").setValue(0.0);
-        return provider.createMathTransform(params);
+        return createParameterizedTransform(params);
     }
 
     @Override
     protected List<ProjTestData> createTestData() {
-        List<ProjTestData> dataList = new ArrayList<ProjTestData>(13);
-        dataList.add(new ProjTestData(-180.0, -87.5, 727537.84417,  -9729551.49991));
+        List<ProjTestData> dataList = new ArrayList<>(13);
+        dataList.add(new ProjTestData(-180.0, -87.5, 727537.84417, -9729551.49991));
         dataList.add(new ProjTestData(-180.0, -59.5, 8465349.66961, -6616095.01994));
         dataList.add(new ProjTestData(-173.0, -45.5, 12236190.25202, -5059366.77995));
         dataList.add(new ProjTestData(-75.0, -35.0, -9563978.40140, -3891820.59996));

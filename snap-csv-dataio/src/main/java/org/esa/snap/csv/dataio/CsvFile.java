@@ -26,7 +26,6 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.converters.JavaTypeConverter;
 import org.geotools.data.collection.ListFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
@@ -67,7 +66,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     private final SortedMap<Long, Long> bytePositionForOffset = new TreeMap<>();
 
     private SimpleFeatureType simpleFeatureType;
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+    private ListFeatureCollection featureCollection;
     private CoordinateReferenceSystem crs;
 
     private boolean propertiesParsed = false;

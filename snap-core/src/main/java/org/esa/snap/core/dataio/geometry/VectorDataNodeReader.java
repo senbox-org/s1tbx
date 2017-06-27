@@ -460,8 +460,7 @@ public class VectorDataNodeReader {
                 return featureCollection;
             }
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection =
-                    new DefaultFeatureCollection(featureCollection.getID() + "_vertex", featureType);
+            DefaultFeatureCollection vertexCollection = new DefaultFeatureCollection(featureCollection.getID() + "_vertex", featureType);
             vertexCollection.add(feature);
 
             return vertexCollection;

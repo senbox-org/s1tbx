@@ -17,6 +17,8 @@ package org.esa.snap.core.util;
 
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.runtime.Config;
+import org.geotools.factory.GeoTools;
+import org.geotools.factory.Hints;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
@@ -380,7 +382,7 @@ public class SystemUtils {
     }
 
     /**
-     * Initialize third party libraries of BEAM.
+     * Initialize third party libraries of SNAP.
      *
      * @param cls The most useful class loader.
      * @since BEAM 4.8
@@ -394,9 +396,15 @@ public class SystemUtils {
         Logger logger = Logger.getLogger("org.geotools");
         logger.setUseParentHandlers(false);
 
-        // Must store EPSG database in SNAP home, otherwise it will be deleted from default temp location (Unix!, Windows?)
+        // setting longitude first so we can, rely on the order
+        GeoTools.init(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, true));
+
+        // Must store EPSG database in application data dir, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
+
+        // disable unwanted logging messages from hsqldb
+        System.setProperty("hsqldb.db.level", Level.WARNING.getName());
     }
 
     public static void initJAI(Class<?> cls) {

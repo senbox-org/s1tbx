@@ -34,7 +34,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Marco Peters
@@ -42,29 +42,30 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractReprojectionOpTest {
 
-    protected static final String WGS84_CODE = "EPSG:4326";
-    protected static final String UTM33N_CODE = "EPSG:32633";
+    static final String AUTO_UTM = "AUTO:42001";
+    static final String WGS84_CODE = "EPSG:4326";
+    static final String UTM33N_CODE = "EPSG:32633";
     @SuppressWarnings({"StringConcatenation"})
-    protected static final String UTM33N_WKT = "PROJCS[\"WGS 84 / UTM zone 33N\"," +
-                                               "GEOGCS[\"WGS 84\"," +
-                                               "  DATUM[\"World Geodetic System 1984\"," +
-                                               "    SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]]," +
-                                               "    AUTHORITY[\"EPSG\",\"6326\"]]," +
-                                               "  PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]]," +
-                                               "  UNIT[\"degree\", 0.017453292519943295]," +
-                                               "  AXIS[\"Geodetic longitude\", EAST]," +
-                                               "  AXIS[\"Geodetic latitude\", NORTH]," +
-                                               "  AUTHORITY[\"EPSG\",\"4326\"]]," +
-                                               "PROJECTION[\"Transverse Mercator\", AUTHORITY[\"EPSG\",\"9807\"]]," +
-                                               "PARAMETER[\"central_meridian\", 15.0]," +
-                                               "PARAMETER[\"latitude_of_origin\", 0.0]," +
-                                               "PARAMETER[\"scale_factor\", 0.9996]," +
-                                               "PARAMETER[\"false_easting\", 500000.0]," +
-                                               "PARAMETER[\"false_northing\", 0.0]," +
-                                               "UNIT[\"m\", 1.0]," +
-                                               "AXIS[\"Easting\", EAST]," +
-                                               "AXIS[\"Northing\", NORTH]," +
-                                               "AUTHORITY[\"EPSG\",\"32633\"]]";
+    static final String UTM33N_WKT = "PROJCS[\"WGS 84 / UTM zone 33N\"," +
+            "GEOGCS[\"WGS 84\"," +
+            "  DATUM[\"World Geodetic System 1984\"," +
+            "    SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]]," +
+            "    AUTHORITY[\"EPSG\",\"6326\"]]," +
+            "  PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]]," +
+            "  UNIT[\"degree\", 0.017453292519943295]," +
+            "  AXIS[\"Geodetic longitude\", EAST]," +
+            "  AXIS[\"Geodetic latitude\", NORTH]," +
+            "  AUTHORITY[\"EPSG\",\"4326\"]]," +
+            "PROJECTION[\"Transverse Mercator\", AUTHORITY[\"EPSG\",\"9807\"]]," +
+            "PARAMETER[\"central_meridian\", 15.0]," +
+            "PARAMETER[\"latitude_of_origin\", 0.0]," +
+            "PARAMETER[\"scale_factor\", 0.9996]," +
+            "PARAMETER[\"false_easting\", 500000.0]," +
+            "PARAMETER[\"false_northing\", 0.0]," +
+            "UNIT[\"m\", 1.0]," +
+            "AXIS[\"Easting\", EAST]," +
+            "AXIS[\"Northing\", NORTH]," +
+            "AUTHORITY[\"EPSG\",\"32633\"]]";
     protected static File wktFile;
 
     private static final float[] LATS = new float[]{
@@ -133,7 +134,7 @@ public abstract class AbstractReprojectionOpTest {
     }
 
     protected void assertPixelValue(Band targetBand, double sourceX, double sourceY,
-                                  double expectedPixelValue, double delta) throws IOException {
+                                    double expectedPixelValue, double delta) throws IOException {
         final PixelPos targetPP = computeTargetPP(targetBand, sourceX, sourceY);
         assertTargetPixelValue(targetBand, targetPP, expectedPixelValue, delta);
     }

@@ -585,17 +585,7 @@ public class ReprojectionOp extends Operator {
                 try {
                     return CRS.parseWKT(crs);
                 } catch (FactoryException ignored) {
-                    // prefix with EPSG, if there are only numbers
-                    if (crs.matches("[0-9]*")) {
-                        crs = "EPSG:" + crs;
-                    }
-                    // append center coordinates for AUTO code
-                    if (crs.matches("AUTO:[0-9]*")) {
-//                        final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
-                        crs = String.format("%s,%s,%s", crs, centerGeoPos.lon, centerGeoPos.lat);
-                    }
-                    // force longitude==x-axis and latitude==y-axis
-                    return CRS.decode(crs, true);
+                    return createCRSFromCode(crs, centerGeoPos);
                 }
             }
             if (collocationProduct != null && collocationProduct.getSceneGeoCoding() != null) {
@@ -606,6 +596,19 @@ public class ReprojectionOp extends Operator {
         }
 
         throw new OperatorException("Target CRS could not be created.");
+    }
+
+    static CoordinateReferenceSystem createCRSFromCode(String crsCode, GeoPos centerGeoPos) throws FactoryException {
+        // prefix with EPSG, if there are only numbers
+        if (crsCode.matches("[0-9]*")) {
+            crsCode = "EPSG:" + crsCode;
+        }
+        // append center coordinates for AUTO code
+        if (crsCode.matches("AUTO:[0-9]*")) {
+            crsCode = String.format("%s,%s,%s", crsCode, centerGeoPos.lon, centerGeoPos.lat);
+        }
+        // force longitude==x-axis and latitude==y-axis
+        return CRS.decode(crsCode, true);
     }
 
     protected void validateCrsParameters() {
