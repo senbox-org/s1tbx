@@ -89,7 +89,7 @@ def _collect_snap_jvm_env(dir_path, env):
         path = os.path.join(dir_path, name)
         if os.path.isfile(path) and name.endswith('.jar'):
             if not (name.endswith('-ui.jar') or name in EXCLUDED_JAR_NAMES):
-                env[0].append(path)
+                env[0][name] = path
         elif os.path.isdir(path) and name not in EXCLUDED_DIR_NAMES:
             if name == 'lib':
                 import platform
@@ -157,6 +157,8 @@ def _get_snap_jvm_env():
     else:
         raise RuntimeError('does not seem to be a valid SNAP distribution directory: ' + snap_home)
 
+    # NetBeans modules dir will be scaned as last. It contains the latest module updates and they shall replace
+    # older modules
     nb_user_modules_dir = _get_nb_user_modules_dir()
     if nb_user_modules_dir and os.path.isdir(nb_user_modules_dir):
         java_module_dirs.append(nb_user_modules_dir)
@@ -167,7 +169,7 @@ def _get_snap_jvm_env():
         print(module_dir + ': java_module_dirs = ')
         pprint.pprint(java_module_dirs)
 
-    env = ([], [])
+    env = (dict(), [])
     for path in java_module_dirs:
         _collect_snap_jvm_env(path, env)
 
@@ -199,7 +201,7 @@ def _get_snap_jvm_options():
                       "existing SNAP distribution directory.")
 
     env = _get_snap_jvm_env()
-    class_path = env[0]
+    class_path = env[0].values()
     library_path = env[1]
 
     if config.has_option('DEFAULT', 'java_class_path'):
@@ -341,6 +343,7 @@ try:
 
     # Utilities
     EngineConfig = jpy.get_type('org.esa.snap.runtime.EngineConfig')
+    Engine = jpy.get_type('org.esa.snap.runtime.Engine')
     SystemUtils = jpy.get_type('org.esa.snap.core.util.SystemUtils')
     ProductIO = jpy.get_type('org.esa.snap.core.dataio.ProductIO')
     ProductUtils = jpy.get_type('org.esa.snap.core.util.ProductUtils')
@@ -367,4 +370,5 @@ except Exception:
 # Only needed, if SNAP Python API is not called from Java (e.g. from SNAP gpt or SNAP desktop).
 if not called_from_java:
     EngineConfig.instance().load()
+    Engine.start()
     SystemUtils.init3rdPartyLibs(None)
