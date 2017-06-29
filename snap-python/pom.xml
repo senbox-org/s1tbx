@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>snap-python</artifactId>
+
     <packaging>nbm</packaging>
 
     <name>SNAP Python Interface</name>
@@ -17,6 +18,10 @@
         file provides the instructions how to setup SNAP for Python development.
     </description>
 
+    <properties>
+        <snappy.devVersionId>.dev1</snappy.devVersionId>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -60,10 +65,27 @@
                     </publicPackages>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>regex-property</id>
+                        <goals>
+                            <goal>regex-property</goal>
+                        </goals>
+                        <configuration>
+                            <name>snappy.version</name>
+                            <value>${snap.version}</value>
+                            <regex>-SNAPSHOT</regex>
+                            <replacement>${snappy.devVersionId}</replacement>
+                            <failIfNoMatch>false</failIfNoMatch>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -71,6 +93,32 @@
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>snappy-version</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/snappy</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources/snappy</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>setup.py</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>
