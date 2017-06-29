@@ -370,5 +370,12 @@ except Exception:
 # Only needed, if SNAP Python API is not called from Java (e.g. from SNAP gpt or SNAP desktop).
 if not called_from_java:
     EngineConfig.instance().load()
-    Engine.start()
     SystemUtils.init3rdPartyLibs(None)
+
+    start_snap_engine = True
+    if config.has_option('DEFAULT', 'start_snap_engine'):
+        start_snap_engine = config.getboolean('DEFAULT', 'start_snap_engine')
+
+    if start_snap_engine:
+        Engine.start()
+
