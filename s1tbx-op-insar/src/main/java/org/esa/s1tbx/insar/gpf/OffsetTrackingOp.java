@@ -170,6 +170,7 @@ public class OffsetTrackingOp extends Operator {
     private boolean velocityAvailable = false;
     private VelocityData velocityData = null;
     private Resampling selectedResampling = null;
+    private MetadataElement mstAbsRoot = null;
 
     private final static double invalidIndex = -9999.0;
     private final static String PRODUCT_SUFFIX = "_Vel";
@@ -216,6 +217,13 @@ public class OffsetTrackingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+
+            mstAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            if (mstAbsRoot != null && mstAbsRoot.getAttributeInt(AbstractMetadata.coregistered_stack, 0) != 1) {
+                throw new OperatorException(
+                        "Source product should be a coregistered stack created by DEM-Assisted Coregistration");
+            }
+
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
             if(selectedResampling == null) {
                 throw new OperatorException("Resampling method "+ resamplingType + " is invalid");
@@ -259,8 +267,6 @@ public class OffsetTrackingOp extends Operator {
     }
 
     private void getMetadata() throws Exception {
-
-        final MetadataElement mstAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         final MetadataElement slvAbsRoot = AbstractMetadata.getSlaveMetadata(sourceProduct.getMetadataRoot()).getElementAt(0);
 
