@@ -373,8 +373,8 @@ if not called_from_java:
     SystemUtils.init3rdPartyLibs(None)
 
     start_snap_engine = True
-    if config.has_option('DEFAULT', 'start_snap_engine'):
-        start_snap_engine = config.getboolean('DEFAULT', 'start_snap_engine')
+    if config.has_option('DEFAULT', 'snap_start_engine'):
+        start_snap_engine = config.getboolean('DEFAULT', 'snap_start_engine')
 
     if start_snap_engine:
         Engine.start()
