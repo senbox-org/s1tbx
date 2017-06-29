@@ -71,7 +71,7 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>regex-property</id>
+                        <id>snappy-version-property</id>
                         <goals>
                             <goal>regex-property</goal>
                         </goals>
