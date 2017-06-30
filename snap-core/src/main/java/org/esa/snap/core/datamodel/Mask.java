@@ -418,7 +418,11 @@ public class Mask extends Band {
 
         @Override
         public boolean canTransferMask(Mask mask, Product product) {
-            return getVectorData(mask) != null;
+            // At the moment we disable the transfer of masks. It causes more problems as it solves.
+            // the subsetting needs to be considered and also the different geo-codings.
+            // Finally the masks need to be stored in DIMAP (mp/20170630)
+//            return getVectorData(mask) != null;
+            return false;
         }
 
         @Override
