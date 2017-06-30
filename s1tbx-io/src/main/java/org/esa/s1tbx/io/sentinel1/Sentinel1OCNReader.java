@@ -15,15 +15,19 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.s1tbx.io.netcdf.NetCDFUtils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.netcdf.util.MetadataUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.util.VectorUtils;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
@@ -32,11 +36,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * NetCDF reader for Level-2 OCN products
@@ -83,6 +83,52 @@ public class Sentinel1OCNReader {
     // Each MDS has the same variables, so we want unique band names for variables of same name from different .nc file.
     // Given a band name, we want to map back to the .nc file.
     private final Map<String, NetcdfFile> bandNameNCFileMap = new HashMap<>(1);
+
+
+    // These are for exporting wind data to ESRI Shape -----------------------------------------------------------------
+
+    private static final String WIND_VECTOR_DATA_NODE_NAME = "wind_data";
+
+    // Map a band name to a shapefile field name. Shapefile field names are limited to 10 characters.
+    // One VectorDataNode for OSW and one for OWI.
+
+    private final static Map<String, String> oswWindBandNameShpFieldNameMap;
+    static {
+        Map<String, String> aMap = new HashMap<>(6);
+        aMap.put("oswLon", "oswLon");
+        aMap.put("oswLat", "oswLat");
+        aMap.put("oswWindSpeed", "oswWdSpd");
+        aMap.put("oswWindDirection", "oswWdDir");
+        aMap.put("oswWindSeaHs", "oswWdSeaHs");
+        aMap.put("oswWaveAge", "oswWaveAge");
+        oswWindBandNameShpFieldNameMap = Collections.unmodifiableMap(aMap);
+    }
+
+    private final static Map<String, String> owiWindBandNameShpFieldNameMap;
+    static {
+        Map<String, String> aMap = new HashMap<>(8);
+        aMap.put("owiLon", "owiLon");
+        aMap.put("owiLat", "owiLat");
+        aMap.put("owiWindSpeed", "owiWdSpd");
+        aMap.put("owiWindDirection", "owiWdDir");
+        aMap.put("owiWindQuality", "owiWdQulty");
+        aMap.put("owiEcmwfWindSpeed", "owiEcmwfWS");
+        aMap.put("owiEcmwfWindDirection", "owiEcmwfWD");
+        aMap.put("owiWindSeaHs", "owiWdSeaHs");
+        owiWindBandNameShpFieldNameMap = Collections.unmodifiableMap(aMap);
+    }
+
+    private final Map<Band, String> bandToAttributeName =
+            new HashMap<>(oswWindBandNameShpFieldNameMap.size() + owiWindBandNameShpFieldNameMap.size());
+
+    private final int shapeSideLen = 25; // Number of points will be approximately square of this number
+
+    // These are for exporting osw data to ESRI Shape -----------------------------------------------------------------
+
+    // TODO
+
+
+    //------------------------------------------------------------------------------------------------------------------
 
     public Sentinel1OCNReader(final Sentinel1Level2Directory dataDir) {
 
@@ -288,6 +334,155 @@ public class Sentinel1OCNReader {
             }
         }
 */
+    }
+
+    public void addWindDataToVectorNodes(final Product product){
+
+        // This is not expected to do anything but leave it anyhow.
+        // osw data will be handled in addOSWDataToVectorNode()
+        addOneWindDataToVectorNode(product, "osw");
+
+        addOneWindDataToVectorNode(product, "owi");
+    }
+
+    public void addOneWindDataToVectorNode(final Product product, final String componentName){
+
+        //System.out.println("Sentinel1OCNReader.addWindToVectorNodes: called for " + componentName);
+
+        List<Band> windBands = new ArrayList<>();
+
+        SimpleFeatureType windFeatureType = createWindSimpleFeatureType(product, componentName , windBands);
+
+        if (windBands.size() == 0) {
+            SystemUtils.LOG.info("No " + componentName + " wind data bands");
+            return;
+        }
+
+        //System.out.println("Sentinel1OCNReader.addWindToVectorNodes: total " + componentName + " wind bands = " + windBands.size());
+
+        final int rasterH = windBands.get(0).getRasterHeight();
+        final int rasterW = windBands.get(0).getRasterWidth();
+
+        final int productRasterH = product.getSceneRasterHeight();
+        final int productRasterW = product.getSceneRasterWidth();
+
+        for (Band b : windBands) {
+            //System.out.println("  " + componentName + " wind data band: " + b.getName());
+            if (rasterH != b.getRasterHeight()) {
+                SystemUtils.LOG.warning(componentName + " wind data bands have different raster height");
+                return;
+            } else if (rasterW != b.getRasterWidth()) {
+                SystemUtils.LOG.warning(componentName + " wind data bands have different raster width");
+                return;
+            }
+        }
+
+        VectorDataNode windNode = new VectorDataNode(componentName + "_" + WIND_VECTOR_DATA_NODE_NAME, windFeatureType);
+
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = windNode.getFeatureCollection();
+        final GeometryFactory geometryFactory = new GeometryFactory();
+
+        final int xStepSize = rasterW / shapeSideLen;
+        final int yStepSize = rasterH / shapeSideLen;
+        //System.out.println("Sentinel1OCNReader.addWindToVectorNodes: xStepSize = " + xStepSize + " yStepSize = " + yStepSize);
+        int i = 0;
+        for (int x = 0; x < rasterW; x += xStepSize) {
+            for (int y = 0; y < rasterH; y += yStepSize) {
+
+                SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(windFeatureType);
+
+                // TODO The problem is that productRasterW and productRasterH are wrong and equal to 99999 which messes
+                // TODO up the geocoding.
+
+                // com.vividsolutions.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x, y));
+                final int x1 = getScaledValue(x, productRasterW, rasterW);
+                final int y1 = getScaledValue(y, productRasterH, rasterH);
+                com.vividsolutions.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x1, y1));
+
+                //System.out.println("Sentinel1OCNReader.addWindToVectorNodes: (" + x + ", " + y + ") -> (" + x1 + ", " + y1 + ")");
+
+                sfb.set(PlainFeatureFactory.ATTRIB_NAME_GEOMETRY, p);
+                final SimpleFeature feature = sfb.buildFeature( componentName + "_wind_data_pt_" + i++);
+
+                for (Band b : windBands) {
+
+                    ProductData productData = b.createCompatibleProductData(1);
+                    readData(x, y, 1, 1, 1, 1, b, 0, 0, 1, 1, productData);
+                    double val = productData.getElemDoubleAt(0);
+
+                    feature.setAttribute(bandToAttributeName.get(b), val);
+                }
+
+                collection.add(feature);
+            }
+        }
+
+        //System.out.println("Sentinel1OCNReader.addWindToVectorNodes: total " + componentName + " wind data points = " + i);
+
+        final ProductNodeGroup<VectorDataNode> vectorGroup = product.getVectorDataGroup();
+        vectorGroup.add(windNode);
+    }
+
+    private int getScaledValue(final int x, final int w1, final int w2) {
+        return (int) ( ( ((double) x ) * ((double) w1 ) / ((double) w2) ) + 0.5);
+    }
+
+    private SimpleFeatureType createWindSimpleFeatureType(final Product product,
+                                                          final String componentName, // osw or owi
+                                                          final List<Band> windBands) {
+
+        Map<String, String> map =
+                componentName.equals("osw") ? oswWindBandNameShpFieldNameMap : owiWindBandNameShpFieldNameMap;
+
+        final List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
+
+        Band[] bands = product.getBands();
+        for (Band band : bands) {
+            for (String s : map.keySet())
+            if (band.getName().contains(s)) {
+                final String attributeName = map.get(s);
+                attributeDescriptors.add(VectorUtils.createAttribute(attributeName, Double.class));
+                windBands.add(band);
+                bandToAttributeName.put(band, attributeName);
+            }
+        }
+
+        return VectorUtils.createFeatureType(product.getSceneGeoCoding(),
+                componentName + " " + WIND_VECTOR_DATA_NODE_NAME, attributeDescriptors);
+    }
+
+    public void addOSWDataToVectorNode(final Product product) {
+
+        // TODO
+        // oswLon
+        // oswLat
+        // oswHs_1, oswHs_2, osw_Hs_n where n = oswPartitions
+        // oswWI_1,
+        // oswDirmet_1
+        // oswWindSpeed
+        // oswWindDirection
+        // oswEcmwfWindSpeed
+        // oswEcmwfWindDirection
+        // oswWaveAge
+        // oswWindSeaHs
+
+        MetadataElement root = product.getMetadataRoot();
+        dumpElems("root metadata", root);
+
+        MetadataElement originalProductMetadata = root.getElement(AbstractMetadata.ORIGINAL_PRODUCT_METADATA);
+        dumpElems(AbstractMetadata.ORIGINAL_PRODUCT_METADATA, originalProductMetadata);
+
+    }
+
+    private void dumpElems(final String name, final MetadataElement metadataElement) {
+        if (metadataElement == null) {
+            System.out.println(name + " is null");
+            return;
+        }
+        String[] elementNames = metadataElement.getElementNames();
+        for (String a : elementNames) {
+            System.out.println(metadataElement.getName() + " elem = " + a);
+        }
     }
 
     private void addBand(final Product product, String bandName, final Variable variable, final int width, final int height) {
