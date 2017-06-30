@@ -138,8 +138,11 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
+        // TODO They are 99999 which is NOT correct.
         final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
         final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
+        System.out.println("Sentinel1Level2Directory.createProduct: sceneWidth = " + sceneWidth + " sceneHeight = " + sceneHeight);
 
         final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
         updateProduct(product, newRoot);
@@ -151,6 +154,11 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         product.setDescription(getProductDescription());
 
         ReaderUtils.addMetadataProductSize(product);
+
+        OCNReader.addWindDataToVectorNodes(product);
+        //OCNReader.addOSWDataToVectorNode(product);
+
+        //System.out.println("Sentinel1Level2Directory.createProduct: product w and h = " + product.getSceneRasterWidth() + ", " + product.getSceneRasterHeight());
 
         return product;
     }
