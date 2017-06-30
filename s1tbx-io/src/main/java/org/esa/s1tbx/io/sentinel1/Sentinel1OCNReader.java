@@ -23,6 +23,7 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.netcdf.util.MetadataUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.VectorUtils;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
@@ -379,7 +380,9 @@ public class Sentinel1OCNReader {
 
         VectorDataNode windNode = new VectorDataNode(componentName + "_" + WIND_VECTOR_DATA_NODE_NAME, windFeatureType);
 
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = windNode.getFeatureCollection();
+        //final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = windNode.getFeatureCollection();
+        final DefaultFeatureCollection collection = windNode.getFeatureCollection();
+
         final GeometryFactory geometryFactory = new GeometryFactory();
 
         final int xStepSize = rasterW / shapeSideLen;
