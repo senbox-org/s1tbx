@@ -45,11 +45,17 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.ComplexDoubleMatrix;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.SLCImage;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
+import org.jlinda.nest.utils.BandUtilsDoris;
+import org.jlinda.nest.utils.CplxContainer;
+import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -128,8 +134,6 @@ public class SpectralDiversityOp extends Operator {
 
     private boolean isRangeOffsetAvailable = false;
     private boolean isAzimuthOffsetAvailable = false;
-    private double azOffset = 0.0;
-    private double rgOffset = 0.0;
     private Double noDataValue = -9999.0;
     private Sentinel1Utils su;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
@@ -138,6 +142,11 @@ public class SpectralDiversityOp extends Operator {
     private String swathIndexStr = null;
     private String[] subSwathNames = null;
     private String[] polarizations = null;
+
+    private Map<String, CplxContainer> masterMap = new HashMap<>();
+    private Map<String, CplxContainer> slaveMap = new HashMap<>();
+    private Map<String, ProductContainer> targetMap = new HashMap<>();
+    private Map<String, AzRgOffsets> targetOffsetMap = new HashMap<>();
 
     private static final int cohWin = 5; // window size for coherence calculation
     private static final int maxRangeShift = 1;
@@ -186,8 +195,6 @@ public class SpectralDiversityOp extends Operator {
 
             if (useSuppliedShifts) {
 
-                azOffset = overallAzimuthShift;
-                rgOffset = overallRangeShift;
                 isRangeOffsetAvailable = true;
                 isAzimuthOffsetAvailable = true;
 
@@ -210,10 +217,87 @@ public class SpectralDiversityOp extends Operator {
                 }
             }
 
+            constructSourceMetadata();
+            constructTargetMetadata();
             createTargetProduct();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void constructSourceMetadata() throws Exception {
+
+        MetadataElement mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
+
+        metaMapPut(StackUtils.MST, mstRoot, sourceProduct, masterMap);
+
+        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
+        if (slaveElem == null) {
+            slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
+        }
+        MetadataElement[] slaveRoot = slaveElem.getElements();
+        for (MetadataElement meta : slaveRoot) {
+            if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
+                metaMapPut(StackUtils.SLV, meta, sourceProduct, slaveMap);
+        }
+    }
+
+    private void metaMapPut(final String tag,
+                            final MetadataElement root,
+                            final Product product,
+                            final Map<String, CplxContainer> map) throws Exception {
+
+        for (String swath : subSwathNames) {
+            final String subswath = swath.isEmpty() ? "" : '_' + swath.toUpperCase();
+
+            for (String polarisation : polarizations) {
+                final String pol = polarisation.isEmpty() ? "" : '_' + polarisation.toUpperCase();
+
+                String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
+
+                final String date = OperatorUtils.getAcquisitionDate(root);
+                final SLCImage meta = new SLCImage(root, product);
+
+                meta.setMlAz(1);
+                meta.setMlRg(1);
+
+                Band bandReal = null;
+                Band bandImag = null;
+                for (String bandName : product.getBandNames()) {
+                    if (bandName.contains(tag) && bandName.contains(date)) {
+                        if (subswath.isEmpty() || bandName.contains(subswath)) {
+                            if (pol.isEmpty() || bandName.contains(pol)) {
+                                final Band band = product.getBand(bandName);
+                                if (BandUtilsDoris.isBandReal(band)) {
+                                    bandReal = band;
+                                } else if (BandUtilsDoris.isBandImag(band)) {
+                                    bandImag = band;
+                                }
+                            }
+                        }
+                    }
+                }
+                if(bandReal != null && bandImag != null) {
+                    map.put(mapKey, new CplxContainer(date, meta, null, bandReal, bandImag));
+                }
+            }
+        }
+    }
+
+    private void constructTargetMetadata() {
+
+        for (String keyMaster : masterMap.keySet()) {
+            CplxContainer master = masterMap.get(keyMaster);
+            for (String keySlave : slaveMap.keySet()) {
+                final CplxContainer slave = slaveMap.get(keySlave);
+                if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
+                    final String productName = keyMaster + '_' + keySlave;
+                    final ProductContainer product = new ProductContainer(productName, master, slave, true);
+                    targetMap.put(productName, product);
+                }
+            }
         }
     }
 
@@ -271,23 +355,40 @@ public class SpectralDiversityOp extends Operator {
 
         MetadataElement ESDMeasurement = new MetadataElement("ESD Measurement");
 
-        final MetadataElement OverallRgAzShiftElem = new MetadataElement("Overall_Range_Azimuth_Shift");
-        OverallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
-        ESDMeasurement.addElement(OverallRgAzShiftElem);
+        for (String key : targetMap.keySet()) {
+            final CplxContainer master = targetMap.get(key).sourceMaster;
+            final CplxContainer slave = targetMap.get(key).sourceSlave;
+            final String mstSlvTag = getMasterSlavePairTag(master, slave);
 
-        final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
-        RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
-        ESDMeasurement.addElement(RgShiftPerBurstElem);
+            final MetadataElement mstSlvTagElem = new MetadataElement(mstSlvTag);
+            final MetadataElement OverallRgAzShiftElem = new MetadataElement("Overall_Range_Azimuth_Shift");
+            OverallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
+            mstSlvTagElem.addElement(OverallRgAzShiftElem);
 
-        final MetadataElement AzShiftPerOverlapElem = new MetadataElement("Azimuth_Shift_Per_Overlap");
-        AzShiftPerOverlapElem.addElement(new MetadataElement(subSwathNames[0]));
-        ESDMeasurement.addElement(AzShiftPerOverlapElem);
+            final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
+            RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
+            mstSlvTagElem.addElement(RgShiftPerBurstElem);
 
-        final MetadataElement AzShiftPerBlockElem = new MetadataElement("Azimuth_Shift_Per_Block");
-        AzShiftPerBlockElem.addElement(new MetadataElement(subSwathNames[0]));
-        ESDMeasurement.addElement(AzShiftPerBlockElem);
+            final MetadataElement AzShiftPerOverlapElem = new MetadataElement("Azimuth_Shift_Per_Overlap");
+            AzShiftPerOverlapElem.addElement(new MetadataElement(subSwathNames[0]));
+            mstSlvTagElem.addElement(AzShiftPerOverlapElem);
+
+            final MetadataElement AzShiftPerBlockElem = new MetadataElement("Azimuth_Shift_Per_Block");
+            AzShiftPerBlockElem.addElement(new MetadataElement(subSwathNames[0]));
+            mstSlvTagElem.addElement(AzShiftPerBlockElem);
+
+            ESDMeasurement.addElement(mstSlvTagElem);
+        }
 
         absTgt.addElement(ESDMeasurement);
+    }
+
+    private String getMasterSlavePairTag(final CplxContainer master, final CplxContainer slave) {
+        final String mstBandName = master.realBand.getName();
+        final String slvBandName = slave.realBand.getName();
+        final String mstTag = mstBandName.substring(mstBandName.indexOf("i_") + 2);
+        final String slvTag = slvBandName.substring(slvBandName.indexOf("i_") + 2);
+        return mstTag + "_" + slvTag;
     }
 
     /**
@@ -312,12 +413,20 @@ public class SpectralDiversityOp extends Operator {
                 estimateAzimuthOffset();
             }
 
-            // perform range and azimuth shift using FFT
-            for(String polarization : polarizations) {
-                final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarization);
-                final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarization);
+            for (String key : targetMap.keySet()) {
+                final CplxContainer slave = targetMap.get(key).sourceSlave;
 
-                performRangeAzimuthShift(sBandI, sBandQ, targetRectangle, targetTileMap);
+                double azOffset = 0.0, rgOffset = 0.0;
+                if (useSuppliedShifts) {
+                    azOffset = overallAzimuthShift;
+                    rgOffset = overallRangeShift;
+                } else {
+                    final AzRgOffsets azRgOffsets = targetOffsetMap.get(key);
+                    azOffset = azRgOffsets.azOffset;
+                    rgOffset = azRgOffsets.rgOffset;
+                }
+
+                performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle, targetTileMap);
             }
 
         } catch (Throwable e) {
@@ -335,86 +444,95 @@ public class SpectralDiversityOp extends Operator {
         }
 
         final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
-        final List<Double> azOffsetArray = new ArrayList<>(numBursts);
-        final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
-        final List<Integer> burstIndexArray = new ArrayList<>(numBursts);
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating range offsets... ", numBursts);
 
         final ThreadManager threadManager = new ThreadManager();
         try {
-            final Band mBandI = getBand(StackUtils.MST, "i_", swathIndexStr, polarizations[0]);
-            final Band mBandQ = getBand(StackUtils.MST, "q_", swathIndexStr, polarizations[0]);
-            final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarizations[0]);
-            final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarizations[0]);
+            for (String key : targetMap.keySet()) {
+                final List<Double> azOffsetArray = new ArrayList<>(numBursts);
+                final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
+                final List<Integer> burstIndexArray = new ArrayList<>(numBursts);
 
-            for (int i = 0; i < numBursts; i++) {
-                checkForCancellation();
-                final int burstIndex = i;
+                final ProductContainer container = targetMap.get(key);
+                final CplxContainer master = container.sourceMaster;
+                final CplxContainer slave = container.sourceSlave;
 
-                final Thread worker = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            final double[] offset = new double[2]; // az/rg offset
+                for (int i = 0; i < numBursts; i++) {
+                    checkForCancellation();
+                    final int burstIndex = i;
 
-                            estimateAzRgOffsets(mBandI, mBandQ, sBandI, sBandQ, burstIndex, offset);
+                    final Thread worker = new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                final double[] offset = new double[2]; // az/rg offset
 
-                            synchronized(azOffsetArray) {
-                                azOffsetArray.add(offset[0]);
-                                rgOffsetArray.add(offset[1]);
-                                burstIndexArray.add(burstIndex);
+                                estimateAzRgOffsets(master.realBand, master.imagBand, slave.realBand, slave.imagBand,
+                                        burstIndex, offset);
+
+                                synchronized(azOffsetArray) {
+                                    azOffsetArray.add(offset[0]);
+                                    rgOffsetArray.add(offset[1]);
+                                    burstIndexArray.add(burstIndex);
+                                }
+                            } catch (Throwable e) {
+                                OperatorUtils.catchOperatorException("estimateOffset", e);
                             }
-                        } catch (Throwable e) {
-                            OperatorUtils.catchOperatorException("estimateOffset", e);
                         }
+                    };
+                    threadManager.add(worker);
+                    status.worked(1);
+                }
+                status.done();
+                threadManager.finish();
+
+                double sumAzOffset = 0.0;
+                double sumRgOffset = 0.0;
+                int count = 0;
+                for (int i = 0; i < azOffsetArray.size(); i++) {
+                    final double azShift = azOffsetArray.get(i);
+                    final double rgShift = rgOffsetArray.get(i);
+
+                    SystemUtils.LOG.fine("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
+                            + ", azimuth offset = " + azShift);
+
+                    if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
+                        continue;
                     }
-                };
-                threadManager.add(worker);
-                status.worked(1);
-            }
-            status.done();
-            threadManager.finish();
 
-            double sumAzOffset = 0.0;
-            double sumRgOffset = 0.0;
-            int count = 0;
-            for (int i = 0; i < azOffsetArray.size(); i++) {
-                final double azShift = azOffsetArray.get(i);
-                final double rgShift = rgOffsetArray.get(i);
+                    if (Math.abs(rgShift) > maxRangeShift) {
+                        continue;
+                    }
 
-                SystemUtils.LOG.fine("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
-                                             + ", azimuth offset = " + azShift);
-
-                if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
-                    continue;
+                    sumAzOffset += azShift;
+                    sumRgOffset += rgShift;
+                    count++;
                 }
 
-                if (Math.abs(rgShift) > maxRangeShift) {
-                    continue;
+                double rgOffset;
+                if (count > 0) {
+                    rgOffset = sumRgOffset / (double)count;
+                } else {
+                    rgOffset = 0.0;
+                    SystemUtils.LOG.warning("RangeShiftOp: Cross-correlation failed for all bursts, set range shift to 0");
                 }
 
-                sumAzOffset += azShift;
-                sumRgOffset += rgShift;
-                count++;
+                if (targetOffsetMap.get(key) == null) {
+                    targetOffsetMap.put(key, new AzRgOffsets(0.0, rgOffset));
+                } else {
+                    targetOffsetMap.get(key).setRgOffset(rgOffset);
+                }
+
+                final String mstSlvTag = getMasterSlavePairTag(master, slave);
+
+                saveOverallRangeShift(mstSlvTag, rgOffset);
+
+                saveRangeShiftPerBurst(mstSlvTag, rgOffsetArray, burstIndexArray);
+
+                SystemUtils.LOG.fine("RangeShiftOp: Overall range shift = " + rgOffset);
             }
-
-            if (count > 0) {
-                //azOffset = sumAzOffset / (double)count;
-                rgOffset = sumRgOffset / (double)count;
-            } else {
-                rgOffset = 0.0;
-                SystemUtils.LOG.warning("RangeShiftOp: Cross-correlation failed for all bursts, set range shift to 0");
-            }
-
-            saveOverallRangeShift(rgOffset);
-
-            saveRangeShiftPerBurst(rgOffsetArray, burstIndexArray);
-
-            //SystemUtils.LOG.fine("RangeShiftOp: whole image azimuth offset = " + azOffset);
-            SystemUtils.LOG.fine("RangeShiftOp: Overall range shift = " + rgOffset);
-
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
         }
@@ -501,90 +619,106 @@ public class SpectralDiversityOp extends Operator {
 
         final ThreadManager threadManager = new ThreadManager();
         try {
-            final Band mBandI = getBand(StackUtils.MST, "i_", swathIndexStr, polarizations[0]);
-            final Band mBandQ = getBand(StackUtils.MST, "q_", swathIndexStr, polarizations[0]);
-            final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarizations[0]);
-            final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarizations[0]);
+            for (String key : targetMap.keySet()) {
 
-            final double spectralSeparation = computeSpectralSeparation();
+                final ProductContainer container = targetMap.get(key);
+                final CplxContainer master = container.sourceMaster;
+                final CplxContainer slave = container.sourceSlave;
 
-            final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
+                final Band mBandI = master.realBand;
+                final Band mBandQ = master.imagBand;
+                final Band sBandI = slave.realBand;
+                final Band sBandQ = slave.imagBand;
 
-            for (int i = 0; i < numOverlaps; i++) {
+                final double spectralSeparation = computeSpectralSeparation();
 
-                final Rectangle overlapInBurstOneRectangle =  new Rectangle();
-                final Rectangle overlapInBurstTwoRectangle = new Rectangle();
+                final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
 
-                getOverlappedRectangles(i, overlapInBurstOneRectangle, overlapInBurstTwoRectangle);
+                for (int i = 0; i < numOverlaps; i++) {
 
-                final double[][] coherence = computeCoherence(
-                        overlapInBurstOneRectangle, mBandI, mBandQ, sBandI, sBandQ, cohWin);
+                    final Rectangle overlapInBurstOneRectangle =  new Rectangle();
+                    final Rectangle overlapInBurstTwoRectangle = new Rectangle();
 
-                final int w = overlapInBurstOneRectangle.width / numBlocksPerOverlap; // block width
-                final int h = overlapInBurstOneRectangle.height;
-                final int x0BurstOne = overlapInBurstOneRectangle.x;
-                final int y0BurstOne = overlapInBurstOneRectangle.y;
-                final int y0BurstTwo = overlapInBurstTwoRectangle.y;
-                final int overlapIndex = i;
+                    getOverlappedRectangles(i, overlapInBurstOneRectangle, overlapInBurstTwoRectangle);
 
-                for (int j = 0; j < numBlocksPerOverlap; j++) {
-                    checkForCancellation();
-                    final int x0 = x0BurstOne + j * w;
-                    final int blockIndex = j;
+                    final double[][] coherence = computeCoherence(
+                            overlapInBurstOneRectangle, mBandI, mBandQ, sBandI, sBandQ, cohWin);
 
-                    final Thread worker = new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                final Rectangle blockInBurstOneRectangle = new Rectangle(x0, y0BurstOne, w, h);
-                                final Rectangle blockInBurstTwoRectangle = new Rectangle(x0, y0BurstTwo, w, h);
+                    final int w = overlapInBurstOneRectangle.width / numBlocksPerOverlap; // block width
+                    final int h = overlapInBurstOneRectangle.height;
+                    final int x0BurstOne = overlapInBurstOneRectangle.x;
+                    final int y0BurstOne = overlapInBurstOneRectangle.y;
+                    final int y0BurstTwo = overlapInBurstTwoRectangle.y;
+                    final int overlapIndex = i;
 
-                                final double[] blockCoherence = getBlockCoherence(blockIndex, w, h, coherence);
+                    for (int j = 0; j < numBlocksPerOverlap; j++) {
+                        checkForCancellation();
+                        final int x0 = x0BurstOne + j * w;
+                        final int blockIndex = j;
 
-                                final double azShift = estimateAzOffsets(mBandI, mBandQ, sBandI, sBandQ, blockCoherence,
-                                        blockInBurstTwoRectangle, blockInBurstOneRectangle, spectralSeparation);
+                        final Thread worker = new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    final Rectangle blockInBurstOneRectangle = new Rectangle(x0, y0BurstOne, w, h);
+                                    final Rectangle blockInBurstTwoRectangle = new Rectangle(x0, y0BurstTwo, w, h);
 
-                                synchronized(azShiftArray) {
-                                    azShiftArray.add(new AzimuthShiftData(overlapIndex, blockIndex, azShift));
+                                    final double[] blockCoherence = getBlockCoherence(blockIndex, w, h, coherence);
+
+                                    final double azShift = estimateAzOffsets(mBandI, mBandQ, sBandI, sBandQ, blockCoherence,
+                                            blockInBurstTwoRectangle, blockInBurstOneRectangle, spectralSeparation);
+
+                                    synchronized(azShiftArray) {
+                                        azShiftArray.add(new AzimuthShiftData(overlapIndex, blockIndex, azShift));
+                                    }
+                                } catch (Throwable e) {
+                                    OperatorUtils.catchOperatorException("estimateOffset", e);
                                 }
-                            } catch (Throwable e) {
-                                OperatorUtils.catchOperatorException("estimateOffset", e);
                             }
-                        }
-                    };
-                    threadManager.add(worker);
-                    status.worked(1);
-                }
-            }
-
-            status.done();
-            threadManager.finish();
-
-            // todo The following simple average should be replaced by weighted average using coherence as weight
-            final double[] averagedAzShiftArray = new double[numOverlaps];
-            double totalOffset = 0.0;
-            for (int i = 0; i < numOverlaps; i++) {
-                double sumAzOffset = 0.0;
-                for (int j = 0; j < numShifts; j++) {
-                    if (azShiftArray.get(j).overlapIndex == i) {
-                        sumAzOffset += azShiftArray.get(j).shift;
+                        };
+                        threadManager.add(worker);
+                        status.worked(1);
                     }
                 }
-                averagedAzShiftArray[i] = sumAzOffset / numBlocksPerOverlap;
-                totalOffset += sumAzOffset;
 
-                SystemUtils.LOG.fine(
-                        "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
+                status.done();
+                threadManager.finish();
+
+                // todo The following simple average should be replaced by weighted average using coherence as weight
+                final double[] averagedAzShiftArray = new double[numOverlaps];
+                double totalOffset = 0.0;
+                for (int i = 0; i < numOverlaps; i++) {
+                    double sumAzOffset = 0.0;
+                    for (int j = 0; j < numShifts; j++) {
+                        if (azShiftArray.get(j).overlapIndex == i) {
+                            sumAzOffset += azShiftArray.get(j).shift;
+                        }
+                    }
+                    averagedAzShiftArray[i] = sumAzOffset / numBlocksPerOverlap;
+                    totalOffset += sumAzOffset;
+
+                    SystemUtils.LOG.fine(
+                            "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
+                }
+
+                final double azOffset = -totalOffset / numShifts;
+                SystemUtils.LOG.fine("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
+
+                if (targetOffsetMap.get(key) == null) {
+                    targetOffsetMap.put(key, new AzRgOffsets(azOffset, 0.0));
+                } else {
+                    targetOffsetMap.get(key).setAzOffset(azOffset);
+                }
+
+                final String mstSlvTag = getMasterSlavePairTag(master, slave);
+
+                saveOverallAzimuthShift(mstSlvTag, azOffset);
+
+                saveAzimuthShiftPerOverlap(mstSlvTag, averagedAzShiftArray);
+
+                saveAzimuthShiftPerBlock(mstSlvTag, azShiftArray);
+
             }
-
-            azOffset = -totalOffset / numShifts;
-            SystemUtils.LOG.fine("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
-
-            saveOverallAzimuthShift(azOffset);
-
-            saveAzimuthShiftPerOverlap(averagedAzShiftArray);
-
-            saveAzimuthShiftPerBlock(azShiftArray);
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateAzimuthOffset", e);
@@ -673,7 +807,7 @@ public class SpectralDiversityOp extends Operator {
         return blockCoherence;
     }
 
-    private void saveOverallRangeShift(final double rangeShift) {
+    private void saveOverallRangeShift(final String mstSlvPairTag, final double rangeShift) {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absTgt == null) {
@@ -681,7 +815,8 @@ public class SpectralDiversityOp extends Operator {
         }
 
         final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
-        final MetadataElement OverallRgAzShiftElem = ESDMeasurement.getElement("Overall_Range_Azimuth_Shift");
+        final MetadataElement mstSlvPairElem = ESDMeasurement.getElement(mstSlvPairTag);
+        final MetadataElement OverallRgAzShiftElem = mstSlvPairElem.getElement("Overall_Range_Azimuth_Shift");
         final MetadataElement swathElem = OverallRgAzShiftElem.getElement(subSwathNames[0]);
 
         final MetadataAttribute rangeShiftAttr = new MetadataAttribute("rangeShift", ProductData.TYPE_FLOAT32);
@@ -690,7 +825,7 @@ public class SpectralDiversityOp extends Operator {
         swathElem.setAttributeDouble("rangeShift", rangeShift);
     }
 
-    private void saveOverallAzimuthShift(final double azimuthShift) {
+    private void saveOverallAzimuthShift(final String mstSlvPairTag, final double azimuthShift) {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absTgt == null) {
@@ -698,7 +833,8 @@ public class SpectralDiversityOp extends Operator {
         }
 
         final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
-        final MetadataElement OverallRgAzShiftElem = ESDMeasurement.getElement("Overall_Range_Azimuth_Shift");
+        final MetadataElement mstSlvPairElem = ESDMeasurement.getElement(mstSlvPairTag);
+        final MetadataElement OverallRgAzShiftElem = mstSlvPairElem.getElement("Overall_Range_Azimuth_Shift");
         final MetadataElement swathElem = OverallRgAzShiftElem.getElement(subSwathNames[0]);
 
         final MetadataAttribute azimuthShiftAttr = new MetadataAttribute("azimuthShift", ProductData.TYPE_FLOAT32);
@@ -707,7 +843,8 @@ public class SpectralDiversityOp extends Operator {
         swathElem.setAttributeDouble("azimuthShift", azimuthShift);
     }
 
-    private void saveRangeShiftPerBurst(final List<Double> rangeShiftArray, final List<Integer> burstIndexArray) {
+    private void saveRangeShiftPerBurst(
+            final String mstSlvPairTag, final List<Double> rangeShiftArray, final List<Integer> burstIndexArray) {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absTgt == null) {
@@ -715,7 +852,8 @@ public class SpectralDiversityOp extends Operator {
         }
 
         final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
-        final MetadataElement RangeShiftPerBurstElem = ESDMeasurement.getElement("Range_Shift_Per_Burst");
+        final MetadataElement mstSlvPairElem = ESDMeasurement.getElement(mstSlvPairTag);
+        final MetadataElement RangeShiftPerBurstElem = mstSlvPairElem.getElement("Range_Shift_Per_Burst");
         final MetadataElement swathElem = RangeShiftPerBurstElem.getElement(subSwathNames[0]);
 
         swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
@@ -733,7 +871,7 @@ public class SpectralDiversityOp extends Operator {
         }
     }
 
-    private void saveAzimuthShiftPerOverlap(final double[] averagedAzShiftArray) {
+    private void saveAzimuthShiftPerOverlap(final String mstSlvPairTag, final double[] averagedAzShiftArray) {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absTgt == null) {
@@ -741,7 +879,8 @@ public class SpectralDiversityOp extends Operator {
         }
 
         final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
-        final MetadataElement AzShiftPerOverlapElem = ESDMeasurement.getElement("Azimuth_Shift_Per_Overlap");
+        final MetadataElement mstSlvPairElem = ESDMeasurement.getElement(mstSlvPairTag);
+        final MetadataElement AzShiftPerOverlapElem = mstSlvPairElem.getElement("Azimuth_Shift_Per_Overlap");
         final MetadataElement swathElem = AzShiftPerOverlapElem.getElement(subSwathNames[0]);
 
         swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
@@ -759,7 +898,7 @@ public class SpectralDiversityOp extends Operator {
         }
     }
 
-    private void saveAzimuthShiftPerBlock(final List<AzimuthShiftData> azShiftArray) {
+    private void saveAzimuthShiftPerBlock(final String mstSlvPairTag, final List<AzimuthShiftData> azShiftArray) {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absTgt == null) {
@@ -767,7 +906,8 @@ public class SpectralDiversityOp extends Operator {
         }
 
         final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
-        final MetadataElement AzShiftPerBlockElem = ESDMeasurement.getElement("Azimuth_Shift_Per_Block");
+        final MetadataElement mstSlvPairElem = ESDMeasurement.getElement(mstSlvPairTag);
+        final MetadataElement AzShiftPerBlockElem = mstSlvPairElem.getElement("Azimuth_Shift_Per_Block");
         final MetadataElement swathElem = AzShiftPerBlockElem.getElement(subSwathNames[0]);
 
         swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
@@ -1009,8 +1149,9 @@ public class SpectralDiversityOp extends Operator {
         return coherence;
     }
 
-    private void performRangeAzimuthShift(final Band slvBandI, final Band slvBandQ, final Rectangle targetRectangle,
-                                          Map<Band, Tile> targetTileMap) {
+    private void performRangeAzimuthShift(final double azOffset, final double rgOffset,
+                                          final Band slvBandI, final Band slvBandQ,
+                                          final Rectangle targetRectangle, Map<Band, Tile> targetTileMap) {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
@@ -1133,6 +1274,23 @@ public class SpectralDiversityOp extends Operator {
         }
     }
 
+    private static class AzRgOffsets {
+        double azOffset;
+        double rgOffset;
+
+        public AzRgOffsets(final double azOffset, final double rgOffset) {
+            this.azOffset = azOffset;
+            this.rgOffset = rgOffset;
+        }
+
+        public void setAzOffset(final double azOffset) {
+            this.azOffset = azOffset;
+        }
+
+        public void setRgOffset(final double rgOffset) {
+            this.rgOffset = rgOffset;
+        }
+    }
 
     /**
      * The SPI is used to register this operator in the graph processing framework
