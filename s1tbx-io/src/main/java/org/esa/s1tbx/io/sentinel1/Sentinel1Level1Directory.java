@@ -41,7 +41,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +50,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.NO_METADATA_STRING;
+import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.*;
 
 /**
  * This class represents a product directory.

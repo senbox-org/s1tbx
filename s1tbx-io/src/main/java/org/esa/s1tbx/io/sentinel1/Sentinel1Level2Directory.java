@@ -26,7 +26,6 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 
 /**
  * This class represents a product directory.

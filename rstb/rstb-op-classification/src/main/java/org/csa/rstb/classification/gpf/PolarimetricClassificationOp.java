@@ -16,7 +16,13 @@
 package org.csa.rstb.classification.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.classification.gpf.classifiers.*;
+import org.csa.rstb.classification.gpf.classifiers.CloudePottier;
+import org.csa.rstb.classification.gpf.classifiers.CloudePottierC2;
+import org.csa.rstb.classification.gpf.classifiers.FreemanDurdenWishart;
+import org.csa.rstb.classification.gpf.classifiers.GeneralWishart;
+import org.csa.rstb.classification.gpf.classifiers.HAlphaWishart;
+import org.csa.rstb.classification.gpf.classifiers.HAlphaWishartC2;
+import org.csa.rstb.classification.gpf.classifiers.PolClassifier;
 import org.csa.rstb.polarimetric.gpf.PolarimetricDecompositionOp;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;

@@ -49,7 +49,7 @@ import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.engine_utilities.util.VectorUtils;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -62,7 +62,7 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.operator.MedianFilterDescriptor;
 import javax.media.jai.operator.MedianFilterShape;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -997,7 +997,7 @@ public class WindFieldEstimationOp extends Operator {
             vectorDataNode = new VectorDataNode(VECTOR_NODE_NAME, windFeatureType);
             targetProduct.getVectorDataGroup().add(vectorDataNode);
         }
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = vectorDataNode.getFeatureCollection();
+        DefaultFeatureCollection collection = vectorDataNode.getFeatureCollection();
         final GeometryFactory geometryFactory = new GeometryFactory();
         final GeoCoding geoCoding = targetProduct.getSceneGeoCoding();
         final GeoPos geoPos1 = new GeoPos();

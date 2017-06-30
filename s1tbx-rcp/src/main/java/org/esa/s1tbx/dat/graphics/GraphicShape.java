@@ -17,7 +17,10 @@ package org.esa.s1tbx.dat.graphics;
 
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;

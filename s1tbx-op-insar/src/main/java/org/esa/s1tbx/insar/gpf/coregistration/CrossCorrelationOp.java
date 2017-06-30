@@ -62,7 +62,8 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -71,7 +72,8 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Image co-registration is fundamental for Interferometry SAR (InSAR) imaging and its applications, such as

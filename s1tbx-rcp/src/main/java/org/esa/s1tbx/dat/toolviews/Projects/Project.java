@@ -49,8 +49,9 @@ import org.netbeans.api.progress.ProgressUtils;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

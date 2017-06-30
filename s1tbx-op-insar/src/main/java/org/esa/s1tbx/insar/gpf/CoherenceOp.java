@@ -18,11 +18,13 @@ package org.esa.s1tbx.insar.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.dem.ElevationModel;
-import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
-import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -48,8 +50,10 @@ import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
-import org.jlinda.core.*;
+import org.jlinda.core.GeoPoint;
+import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
 import org.jlinda.core.utils.PolyUtils;
@@ -60,11 +64,12 @@ import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
-import java.awt.*;
-import java.awt.Window;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @OperatorMetadata(alias = "Coherence",
         category = "Radar/Interferometric/Products",

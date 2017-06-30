@@ -25,7 +25,8 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 
 /**
  * Base class for polarimetric decompositions

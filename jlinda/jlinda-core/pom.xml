@@ -66,8 +66,8 @@
         </dependency>
         <dependency>
             <groupId>com.googlecode.efficient-java-matrix-library</groupId>
-            <artifactId>ejml</artifactId>
-            <version>0.21</version>
+            <artifactId>core</artifactId>
+            <version>0.26</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

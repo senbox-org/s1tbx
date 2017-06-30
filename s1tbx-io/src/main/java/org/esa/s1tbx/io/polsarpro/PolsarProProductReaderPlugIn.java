@@ -17,8 +17,6 @@ package org.esa.s1tbx.io.polsarpro;
 
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.datamodel.RGBImageProfile;
-import org.esa.snap.core.datamodel.RGBImageProfileManager;
 import org.esa.snap.dataio.envi.EnviProductReaderPlugIn;
 
 import java.io.File;

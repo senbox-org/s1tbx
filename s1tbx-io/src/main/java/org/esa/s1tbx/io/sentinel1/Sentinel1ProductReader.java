@@ -28,7 +28,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;

@@ -47,7 +47,6 @@ import org.esa.snap.dem.dataio.EarthGravitationalModel96;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
-import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.datamodel.ProductInformation;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -58,9 +57,13 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.delaunay.TriangleInterpolator;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Co-registering non-burst products based on orbits and DEM.

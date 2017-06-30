@@ -25,7 +25,7 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**

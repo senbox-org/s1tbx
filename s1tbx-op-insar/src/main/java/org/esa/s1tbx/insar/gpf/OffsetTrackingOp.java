@@ -53,7 +53,7 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.VectorUtils;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
@@ -62,7 +62,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -170,6 +170,7 @@ public class OffsetTrackingOp extends Operator {
     private boolean velocityAvailable = false;
     private VelocityData velocityData = null;
     private Resampling selectedResampling = null;
+    private MetadataElement mstAbsRoot = null;
 
     private final static double invalidIndex = -9999.0;
     private final static String PRODUCT_SUFFIX = "_Vel";
@@ -216,6 +217,13 @@ public class OffsetTrackingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+
+            mstAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            if (mstAbsRoot != null && mstAbsRoot.getAttributeInt(AbstractMetadata.coregistered_stack, 0) != 1) {
+                throw new OperatorException(
+                        "Source product should be a coregistered stack created by DEM-Assisted Coregistration");
+            }
+
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
             if(selectedResampling == null) {
                 throw new OperatorException("Resampling method "+ resamplingType + " is invalid");
@@ -259,8 +267,6 @@ public class OffsetTrackingOp extends Operator {
     }
 
     private void getMetadata() throws Exception {
-
-        final MetadataElement mstAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         final MetadataElement slvAbsRoot = AbstractMetadata.getSlaveMetadata(sourceProduct.getMetadataRoot()).getElementAt(0);
 
@@ -988,7 +994,7 @@ public class OffsetTrackingOp extends Operator {
             vectorDataNode = new VectorDataNode(VECTOR_NODE_NAME, windFeatureType);
             targetProduct.getVectorDataGroup().add(vectorDataNode);
         }
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = vectorDataNode.getFeatureCollection();
+        DefaultFeatureCollection collection = vectorDataNode.getFeatureCollection();
         final GeometryFactory geometryFactory = new GeometryFactory();
         final GeoCoding geoCoding = targetProduct.getSceneGeoCoding();
         final GeoPos mstGeoPos = new GeoPos();

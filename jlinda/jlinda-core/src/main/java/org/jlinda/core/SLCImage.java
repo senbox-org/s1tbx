@@ -12,9 +12,7 @@ import org.jlinda.core.utils.DateUtils;
 import java.io.File;
 import java.io.IOException;
 
-import static org.jlinda.core.Constants.EPS;
-import static org.jlinda.core.Constants.LIGHT_SPEED;
-import static org.jlinda.core.Constants.MEGA;
+import static org.jlinda.core.Constants.*;
 
 public final class SLCImage {
 
