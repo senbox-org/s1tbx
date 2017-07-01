@@ -181,9 +181,9 @@ public class Bundle {
     public void setTargetLocation(String targetLocation) {
         checkEmpty(targetLocation, "targetLocation");
         this.targetLocation = targetLocation;
-        if (this.targetLocation != null) {
+        /*if (this.targetLocation != null) {
             setEntryPoint(Paths.get(this.targetLocation).getFileName().toString());
-        }
+        }*/
     }
     /**
      * Returns the download URL for this bundle.
