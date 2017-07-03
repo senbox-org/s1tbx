@@ -1,6 +1,7 @@
 package org.esa.snap.csv.dataio.writer;
 
 import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -24,7 +25,7 @@ class FeatureCsvWriter implements CsvWriter {
     private WriteStrategy writer;
     private OutputFormatStrategy targetFormat;
     private SimpleFeatureType featureType;
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+    private ListFeatureCollection featureCollection;
 
     FeatureCsvWriter(WriteStrategy writer, OutputFormatStrategy targetFormat) {
         this.writer = writer;
@@ -94,10 +95,11 @@ class FeatureCsvWriter implements CsvWriter {
         }
     }
 
-    private void extract(Object[] input) {
+    private void extract(Object[] input) throws IOException {
         if (input.length == 2 && (input[0] instanceof SimpleFeatureType && input[1] instanceof FeatureCollection)) {
             this.featureType = (SimpleFeatureType) input[0];
-            this.featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) input[1];
+            FeatureCollection<SimpleFeatureType, SimpleFeature> simpleFeatureFeatureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) input[1];
+            this.featureCollection = new ListFeatureCollection(new DefaultFeatureCollection(simpleFeatureFeatureCollection));
         } else if (input.length >= 2 && input[0] instanceof SimpleFeatureType) {
             this.featureType = (SimpleFeatureType) input[0];
             this.featureCollection = new ListFeatureCollection(featureType);

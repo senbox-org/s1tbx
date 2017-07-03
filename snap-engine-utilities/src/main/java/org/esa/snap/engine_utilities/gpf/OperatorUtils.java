@@ -300,6 +300,19 @@ public final class OperatorUtils {
         return dateString;
     }
 
+    public static String getAcquisitionTime(final MetadataElement root) {
+        String dateString;
+        try {
+            final ProductData.UTC time = root.getAttributeUTC(AbstractMetadata.first_line_time);
+            final DateFormat timeFormat = ProductData.UTC.createDateFormat("yyyyMMdd_HHmmss");
+            dateString = timeFormat.format(time.getAsDate());
+            dateString = dateString.replace('_', 'T').substring(0, dateString.length() - 2);
+        } catch (Exception e) {
+            dateString = "";
+        }
+        return dateString;
+    }
+
     public static void createNewTiePointGridsAndGeoCoding(
             final Product sourceProduct, final Product targetProduct,
             final int gridWidth, final int gridHeight,

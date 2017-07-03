@@ -29,7 +29,9 @@ import java.util.Map;
 /**
  * Base class for cylindrical map projections.
  *
+ * @deprecated since SNAP 6.0, see {@link Sinusoidal}
  */
+@Deprecated
 public class PseudoCylindricalProjection extends DefaultProjection implements CylindricalProjection {
     /**
      * Serial number for interoperability with different versions.

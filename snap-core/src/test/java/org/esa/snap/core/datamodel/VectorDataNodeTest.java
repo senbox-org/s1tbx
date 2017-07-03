@@ -16,10 +16,8 @@
 
 package org.esa.snap.core.datamodel;
 
-import org.geotools.feature.CollectionEvent;
-import org.geotools.feature.CollectionListener;
+import org.esa.snap.core.util.ObservableFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.Test;
@@ -28,12 +26,14 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 
 public class VectorDataNodeTest {
@@ -55,7 +55,7 @@ public class VectorDataNodeTest {
                                                              new PixelPos(10, 10), null, null);
 
         VectorDataNode vectorDataNode = new VectorDataNode("Features", Placemark.createPointFeatureType("feature"));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+        DefaultFeatureCollection featureCollection = vectorDataNode.getFeatureCollection();
         vectorDataGroup.add(vectorDataNode);        //Also: Sets the owner of the vectorDataNode
         vectorDataNode.getPlacemarkGroup();         //Also: Creates the PlacemarkGroup (owner has to be set!)
 
@@ -162,26 +162,23 @@ public class VectorDataNodeTest {
         SimpleFeatureType type = createFeatureType();
         SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
 
-        DefaultFeatureCollection collection = new DefaultFeatureCollection("Col1", type);
-        SimpleFeature toBeChanged = fb.buildFeature("1");
-        collection.add(toBeChanged);
+        VectorDataNode vdn = new VectorDataNode("test", type);
+        Product p = new Product("dummy", "type", 10, 10);
+        p.getVectorDataGroup().add(vdn);
+        MyProductNodeListenerAdapter listener = new MyProductNodeListenerAdapter();
+        p.addProductNodeListener(listener);
+
+        SimpleFeature aFeature = fb.buildFeature("1");
         SimpleFeature toBeRemoved = fb.buildFeature("2");
-        collection.add(toBeRemoved);
-        MyCollectionListener listener = new MyCollectionListener();
-        collection.addListener(listener);
-
-        collection.add(fb.buildFeature("3"));
-        collection.remove(toBeRemoved);
-
-        assertEquals(CollectionEvent.FEATURES_ADDED, listener.eventList.get(0).getEventType());
-        assertEquals(CollectionEvent.FEATURES_REMOVED, listener.eventList.get(1).getEventType());
-        assertEquals(2, listener.eventList.size());
-
-        toBeChanged.setDefaultGeometry(new Point2D.Double(12, 45));
-        toBeChanged.setAttribute("height", 345);
-        assertEquals(2, listener.eventList.size());
-        // no change event
-//        assertEquals(CollectionEvent.FEATURES_CHANGED, listener.eventList.get(2).getEventType());
+        vdn.getFeatureCollection().add(aFeature);
+        assertEquals(VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION, listener.event.getPropertyName());
+        assertEquals(aFeature, ((SimpleFeature[]) listener.event.getNewValue())[0]);
+        vdn.getFeatureCollection().add(toBeRemoved);
+        assertEquals(VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION, listener.event.getPropertyName());
+        assertEquals(toBeRemoved, ((SimpleFeature[]) listener.event.getNewValue())[0]);
+        vdn.getFeatureCollection().remove(toBeRemoved);
+        assertEquals(VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION, listener.event.getPropertyName());
+        assertEquals(toBeRemoved, ((SimpleFeature[]) listener.event.getOldValue())[0]);
     }
 
     private static class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
@@ -202,13 +199,23 @@ public class VectorDataNodeTest {
         return ft;
     }
 
-    private static class MyCollectionListener implements CollectionListener {
+    private static class MyCollectionListener implements ObservableFeatureCollection.Listener {
 
-        List<CollectionEvent> eventList = new ArrayList<>();
+        List<Event> eventList = new ArrayList<>();
 
         @Override
-        public void collectionChanged(CollectionEvent tce) {
-            eventList.add(tce);
+        public void changed(ObservableFeatureCollection.EVENT_TYPE type, SimpleFeature... features) {
+            eventList.add(new Event(type, features));
+        }
+    }
+
+    private static class Event  {
+        ObservableFeatureCollection.EVENT_TYPE type;
+        SimpleFeature[] features;
+
+        public Event(ObservableFeatureCollection.EVENT_TYPE type, SimpleFeature[] features) {
+            this.type = type;
+            this.features = features;
         }
     }
 }

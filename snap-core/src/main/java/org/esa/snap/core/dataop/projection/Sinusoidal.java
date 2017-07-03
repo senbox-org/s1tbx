@@ -30,13 +30,18 @@ import org.opengis.referencing.operation.Projection;
 
 import java.awt.geom.Point2D;
 
-import static java.lang.Math.*;
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
 
 /**
+ * This projection is not in use anymore. WE now rely on the GeoTools implementation.
+ *
  * The sinusoidal projection is a pseudocylindrical equal-area map projection.
  *
- * @since 4.8
+ * @since BEAM 4.8
+ * @deprecated since SNAP 6.0
  */
+@Deprecated
 public class Sinusoidal extends MapProjection {
 
     private static final double HALF_PI = PI/2;

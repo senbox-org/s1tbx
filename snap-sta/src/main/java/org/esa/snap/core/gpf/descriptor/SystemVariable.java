@@ -93,12 +93,9 @@ public class SystemVariable {
      * Sets the value of the system variable
      */
     public void setValue(String value) {
-        if (isUpdatable()) {
-            this.value = value;
-            if (this.value != null && !this.value.isEmpty() && this.isShared &&
-                    !this.value.contains("$")) {
-                ToolAdapterIO.saveVariable(this.key, this.value);
-            }
+        this.value = value;
+        if (this.value != null && !this.value.isEmpty() && this.isShared) {
+            ToolAdapterIO.saveVariable(this.key, this.value);
         }
     }
 
@@ -139,17 +136,5 @@ public class SystemVariable {
             }
         }
         return this.value;
-    }
-
-    protected boolean isUpdatable() {
-        String lookupValue = null;
-        for (LookupReference reference : lookupReferences) {
-            if (lookupValue == null || lookupValue.isEmpty()) {
-                lookupValue = reference.apply(this.key);
-            } else {
-                break;
-            }
-        }
-        return lookupValue == null;
     }
 }

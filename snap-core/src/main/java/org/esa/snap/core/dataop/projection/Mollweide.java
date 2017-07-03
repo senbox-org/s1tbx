@@ -30,6 +30,10 @@ import org.opengis.referencing.operation.Projection;
 
 import java.awt.geom.Point2D;
 
+// A pull request is pending at GeoTools to fix their Mollweide implementation.
+// https://github.com/geotools/geotools/pull/1473
+// If this is accepted we can remove our implementation
+
 /**
  * The Mollweide projection is a pseudocylindrical map projection.
  * <p>

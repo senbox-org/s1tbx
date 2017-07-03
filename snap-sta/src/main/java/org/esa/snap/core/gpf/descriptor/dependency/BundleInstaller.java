@@ -26,6 +26,12 @@ import org.esa.snap.core.gpf.operators.tooladapter.ProcessExecutor;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.core.util.SystemUtils;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +40,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,6 +74,13 @@ public class BundleInstaller implements AutoCloseable {
     static {
         currentOS = Bundle.getCurrentOS();
         baseModulePath =  SystemUtils.getApplicationDataDir().toPath().resolve("modules").resolve("lib");
+        try {
+            fixUnsignedCertificates();
+        } catch (KeyManagementException e) {
+            logger.warning(e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            logger.warning(e.getMessage());
+        }
     }
 
     /**
@@ -319,6 +335,34 @@ public class BundleInstaller implements AutoCloseable {
             logger.warning(ioex.getMessage());
         }
         return exit;
+    }
+
+    private static void fixUnsignedCertificates() throws KeyManagementException, NoSuchAlgorithmException {
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {  }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
+
+                }
+        };
+
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // Create all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+        // Install the all-trusting host verifier
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
     }
 
     private Path download(String remoteUrl, Path targetFile) throws IOException {

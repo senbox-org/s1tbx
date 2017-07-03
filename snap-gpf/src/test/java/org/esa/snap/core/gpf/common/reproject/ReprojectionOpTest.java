@@ -25,12 +25,19 @@ import org.esa.snap.core.datamodel.PlacemarkDescriptor;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.junit.Test;
+import org.opengis.parameter.ParameterValue;
+import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
@@ -51,6 +58,15 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     @Test
     public void testUTMWithWktText() throws IOException {
         parameterMap.put("crs", UTM33N_WKT);
+        final Product targetPoduct = createReprojectedProduct();
+
+        assertNotNull(targetPoduct);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+    }
+
+    @Test
+    public void testAutoUTM() throws IOException {
+        parameterMap.put("crs", AUTO_UTM);
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
@@ -206,5 +222,18 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertEquals(gcp.getGeoPos(), gcp2.getGeoPos());
         assertNotNull(pin2.getPixelPos());
         assertNotNull(gcp2.getPixelPos());
+    }
+
+    @Test
+    public void testCreateCRSFromCode_AutoUTM() throws Exception {
+        GeoPos centerGeoPos = new GeoPos(40, 16);
+        CoordinateReferenceSystem crs = ReprojectionOp.createCRSFromCode(AUTO_UTM, centerGeoPos);
+        assertEquals("WGS 84 / Auto UTM", crs.getName().getCode());
+        ProjectedCRS projCrs = (ProjectedCRS) crs;
+        ParameterValueGroup parameterValues = projCrs.getConversionFromBase().getParameterValues();
+        ParameterValue<?> central_meridian = parameterValues.parameter("central_meridian");
+        // 15 is the central meridian of zone 33, that's where the center geo-pos is located
+        assertEquals(15.0, central_meridian.doubleValue(), 1.0e-6);
+
     }
 }

@@ -48,7 +48,6 @@ public class AzimuthalEquidistant extends MapProjection {
          * Latitude of origin is phi0, the latitude value of the center
          */
         static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup(new NamedIdentifier[]{
-                new NamedIdentifier(Citations.EPSG, "Azimuthal Equidistant"),
                 new NamedIdentifier(Citations.OGC, "Azimuthal_Equidistant"),
                 new NamedIdentifier(Citations.GEOTIFF, "CT_AzimuthalEquidistant"),
                 new NamedIdentifier(Citations.GEOTOOLS, "CT_AzimuthalEquidistant"),

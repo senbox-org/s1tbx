@@ -42,7 +42,7 @@
         <hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
         <slf4j.version>1.6.6</slf4j.version> <!-- used by netcdf, yes we hate that! -->
-        <geotools.version>2.7.4</geotools.version>
+        <geotools.version>17.1</geotools.version>
         <jide.version>3.6.1</jide.version>
     </properties>
 
@@ -80,14 +80,14 @@
         <module>snap-geotiff</module>
         <module>snap-hdf5-writer</module>
         <module>snap-jython</module>
-		<module>snap-land-cover</module>
+        <module>snap-land-cover</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
         <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
         <module>snap-python</module>
-		<module>snap-raster</module>
+        <module>snap-raster</module>
         <module>snap-rtp-codec</module>
         <module>snap-smart-configurator</module>
         <module>snap-statistics</module>
@@ -185,7 +185,7 @@
                 <artifactId>snap-gpf</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
                 <version>${snap.version}</version>
@@ -248,6 +248,11 @@
                 <artifactId>htmlparser</artifactId>
                 <version>1.6</version>
             </dependency>
+            <dependency>
+                <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+                <artifactId>core</artifactId>
+                <version>0.26</version>
+            </dependency>
 
             <!-- JDOM Library ############################################# -->
 
@@ -288,7 +293,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2</version>
+                <version>3.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -365,6 +370,11 @@
                     <exclusion>
                         <groupId>javax.media</groupId>
                         <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                    <!-- this lib is also used in snap-cluster-analysis and in jlinda-core -->
+                    <exclusion>
+                        <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+                        <artifactId>core</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -523,6 +533,10 @@
                     <exclusion>
                         <groupId>it.geosolutions.imageio-ext</groupId>
                         <artifactId>imageio-ext-utilities</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -993,6 +1007,29 @@
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.1.0</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.8</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
