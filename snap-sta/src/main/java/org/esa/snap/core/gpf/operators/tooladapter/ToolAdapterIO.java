@@ -726,6 +726,8 @@ public class ToolAdapterIO {
                 progress = 100 - workUnits + (int) ((double)count++ / (double)size * (double)workUnits);
                 progressMonitor.worked(progress);
             }
+        } catch (Exception ex){
+            throw ex;
         }
     }
 

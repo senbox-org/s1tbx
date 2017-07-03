@@ -64,7 +64,7 @@ public class Bundle {
     private BundleType bundleType;
     private BundleLocation bundleLocation;
     private String downloadURL;
-    @XStreamOmitField
+    //@XStreamOmitField
     private File source;
     private TemplateParameterDescriptor templateparameter;
     private String targetLocation;
@@ -150,7 +150,14 @@ public class Bundle {
      * Sets the type of the bundle location
      * @param value     The bundle location type
      */
-    public void setLocation(BundleLocation value) { this.bundleLocation = value; }
+    public void setLocation(BundleLocation value) {
+        this.bundleLocation = value;
+        if(this.bundleLocation.equals(BundleLocation.REMOTE)){
+            setSource(null);
+        } else {
+            setDownloadURL(null);
+        }
+    }
 
     /**
      * Returns the local source of the bundle
@@ -194,7 +201,9 @@ public class Bundle {
      */
     public void setDownloadURL(String url) {
         this.downloadURL = url;
-        setEntryPoint(lastSegmentFromUrl(url));
+        if(url != null && url.length() > 0) {
+            setEntryPoint(lastSegmentFromUrl(url));
+        }
     }
     /**
      * Checks if the bundle location is local or remote.
