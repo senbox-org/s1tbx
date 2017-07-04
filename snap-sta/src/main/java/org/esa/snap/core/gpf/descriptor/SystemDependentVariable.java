@@ -53,8 +53,8 @@ public class SystemDependentVariable extends SystemVariable {
     public String getValue() {
         if (values == null) {
             initialize();
-            this.value = getCurrentOSValue();
         }
+        this.value = getCurrentOSValue();
         String retVal = resolve();
         return (retVal != null && !retVal.isEmpty()) ? retVal : values.getOrDefault(currentOS, null);
     }
