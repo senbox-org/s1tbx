@@ -107,54 +107,56 @@ public final class LinearTodBOp extends Operator {
             final int w = targetTileRectangle.width;
             final int h = targetTileRectangle.height;
 
-            Tile sourceRaster1;
-            Tile sourceRaster2 = null;
+            Tile sourceTile1;
+            Tile sourceTile2 = null;
             final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
             Band sourceBand1;
             if (srcBandNames.length == 1) {
                 sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
-                sourceRaster1 = getSourceTile(sourceBand1, targetTileRectangle);
-                if (sourceRaster1 == null) {
+                sourceTile1 = getSourceTile(sourceBand1, targetTileRectangle);
+                if (sourceTile1 == null) {
                     throw new OperatorException("Cannot get source tile");
                 }
             } else {
                 sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
                 final Band sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
-                sourceRaster1 = getSourceTile(sourceBand1, targetTileRectangle);
-                sourceRaster2 = getSourceTile(sourceBand2, targetTileRectangle);
-                if (sourceRaster1 == null || sourceRaster2 == null) {
+                sourceTile1 = getSourceTile(sourceBand1, targetTileRectangle);
+                sourceTile2 = getSourceTile(sourceBand2, targetTileRectangle);
+                if (sourceTile1 == null || sourceTile2 == null) {
                     throw new OperatorException("Cannot get source tile");
                 }
             }
 
+            final ProductData srcData1 = sourceTile1.getDataBuffer();
+            ProductData srcData2 = null;
+            if (sourceTile2 != null)
+                srcData2 = sourceTile2.getDataBuffer();
+
+            final TileIndex srcIndex = new TileIndex(sourceTile1);
             final boolean linearTodB = !sourceBand1.getUnit().endsWith(Unit.DB);
             final Double nodatavalue = sourceBand1.getNoDataValue();
 
-            final ProductData trgData = targetTile.getDataBuffer();
-
-            final ProductData srcData1 = sourceRaster1.getDataBuffer();
-            ProductData srcData2 = null;
-            if (sourceRaster2 != null)
-                srcData2 = sourceRaster2.getDataBuffer();
-
-            final TileIndex trgIndex = new TileIndex(targetTile);
+            final ProductData tgtData = targetTile.getDataBuffer();
+            final TileIndex tgtIndex = new TileIndex(targetTile);
 
             double value, i, q;
             final int maxY = y0 + h;
             final int maxX = x0 + w;
             for (int y = y0; y < maxY; ++y) {
-                trgIndex.calculateStride(y);
+                tgtIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
-                    final int index = trgIndex.getIndex(x);
+                    final int tgtIdx = tgtIndex.getIndex(x);
+                    final int srcIdx = srcIndex.getIndex(x);
                     if (srcData2 != null) {
-                        i = srcData1.getElemDoubleAt(index);
-                        q = srcData2.getElemDoubleAt(index);
+                        i = srcData1.getElemDoubleAt(srcIdx);
+                        q = srcData2.getElemDoubleAt(srcIdx);
                         value = i * i + q * q;
                     } else {
-                        value = srcData1.getElemDoubleAt(index);
+                        value = srcData1.getElemDoubleAt(srcIdx);
                     }
                     if (nodatavalue.equals(value)) {
-                        trgData.setElemDoubleAt(index, value);
+                        tgtData.setElemDoubleAt(tgtIdx, value);
                         continue;
                     }
                     if (linearTodB) {
@@ -166,7 +168,7 @@ public final class LinearTodBOp extends Operator {
                     } else {
                         value = Math.pow(10, value / 10.0);
                     }
-                    trgData.setElemDoubleAt(index, value);
+                    tgtData.setElemDoubleAt(tgtIdx, value);
                 }
             }
 
