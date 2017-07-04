@@ -54,7 +54,7 @@ public interface ProductWriter {
      * flushed, is up to the implementation.
      *
      * @param product the in-memory representation of the data product
-     * @param output  an object representing a valid output for this writer, might be a <code>ImageInputStream</code> or
+     * @param output  an object representing a valid output for this writer, might be a <code>ImageOutputStream</code> or
      *                other <code>Object</code> to use for future decoding.
      *
      * @throws IllegalArgumentException if <code>output</code> is <code>null</code> or it's type is not one of the
