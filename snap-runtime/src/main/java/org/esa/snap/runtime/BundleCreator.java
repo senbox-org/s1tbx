@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.*;
 
 /**
  * This main class offers to create a bundle either from an existing SNAP installation, or from checked-out and build
@@ -59,9 +59,9 @@ public class BundleCreator {
         EngineConfig config = EngineConfig.instance();
         config.logger().info("Creating assembly file " + targetFile + " for SNAP installation '" + installationDir + "'...");
 
-        config.installDir(Paths.get(installationDir));
+        Path installationPath = Paths.get(installationDir);
+        config.installDir(installationPath);
 
-        Path userDir = config.userDir();
         InstallationScanner.ScanResult scanResult = new InstallationScanner(config).scanInstallationDir();
 
         List<Path> classPathEntries = scanResult.classPathEntries;
@@ -71,6 +71,11 @@ public class BundleCreator {
             config.logger().warning("Nothing found in directory '" + installationDir + "'. Please make sure a valid " +
                     "SNAP installation is provided.");
             System.exit(0);
+        }
+
+        Path nbUserDir = config.userDir().resolve("system");
+        if (!Files.isDirectory(nbUserDir)) {
+            nbUserDir = Paths.get(System.getProperty("user.home")).resolve("AppData").resolve("Roaming").resolve("SNAP");
         }
 
         Logger logger = config.logger();
@@ -89,10 +94,8 @@ public class BundleCreator {
             logger.fine("Adding classpath entries to zip...");
             for (Path classPathEntry : classPathEntries) {
                 String targetFilename;
-                if (classPathEntry.toString().contains(installationDir)) {
-                    targetFilename = getTargetFilename(installationDir, classPathEntry);
-                } else if (classPathEntry.toString().contains(userDir.toString())) {
-                    targetFilename = getTargetFilename(userDir.toString(), classPathEntry);
+                if (classPathEntry.startsWith(installationPath) || classPathEntry.startsWith(nbUserDir)) {
+                    targetFilename = getTargetFilename(classPathEntry.getParent().toString(), classPathEntry);
                 } else {
                     logger.warning("Invalid classpath entry: '" + classPathEntry.toString());
                     continue;
