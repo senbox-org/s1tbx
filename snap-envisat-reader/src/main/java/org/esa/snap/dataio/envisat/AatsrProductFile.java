@@ -33,7 +33,7 @@ import java.util.Map;
 
 
 /**
- * The <code>AatsrProductFile</code> is a specialization of the abstract <code>ProductFile</code> class for ENVISAT
+ * The {@code AatsrProductFile} is a specialization of the abstract {@code ProductFile} class for ENVISAT
  * AATSR data products.
  *
  * @author Norman Fomferra
@@ -97,7 +97,7 @@ public class AatsrProductFile extends ProductFile {
 
 
     /**
-     * Constructs a <code>MerisProductFile</code> for the given seekable data input stream.
+     * Constructs a {@code MerisProductFile} for the given seekable data input stream.
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
@@ -116,12 +116,7 @@ public class AatsrProductFile extends ProductFile {
     public ProductData.UTC getSceneRasterStartTime() {
         try {
             return getSPH().getParamUTC(FIRST_LINE_TIME);
-        } catch (HeaderParseException e) {
-            getLogger().warning(
-                    MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", FIRST_LINE_TIME,
-                                         e.getMessage()));
-            return null;
-        } catch (HeaderEntryNotFoundException e) {
+        } catch (HeaderParseException | HeaderEntryNotFoundException e) {
             getLogger().warning(
                     MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", FIRST_LINE_TIME,
                                          e.getMessage()));
@@ -138,12 +133,7 @@ public class AatsrProductFile extends ProductFile {
     public ProductData.UTC getSceneRasterStopTime() {
         try {
             return getSPH().getParamUTC(LAST_LINE_TIME);
-        } catch (HeaderParseException e) {
-            getLogger().warning(
-                    MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", LAST_LINE_TIME,
-                                         e.getMessage()));
-            return null;
-        } catch (HeaderEntryNotFoundException e) {
+        } catch (HeaderParseException | HeaderEntryNotFoundException e) {
             getLogger().warning(
                     MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", LAST_LINE_TIME,
                                          e.getMessage()));
@@ -221,7 +211,7 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Returns the name of the GADS for this ENVISAT product file.
      *
-     * @return the GADS name "VISIBLE_CALIB_COEFS_GADS", or <code>null</code> if this product file does not have a
+     * @return the GADS name "VISIBLE_CALIB_COEFS_GADS", or {@code null} if this product file does not have a
      *         GADS.
      */
     @Override
@@ -233,9 +223,9 @@ public class AatsrProductFile extends ProductFile {
 
     /**
      * This method is called after the main product header has been read in successfully.
-     * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters
+     * <p> Sub-classes should set product specific parameters in the {@code parameters} argument. The parameters
      * can be referenced in DDDB in order to implement dynamic field length, such as 'LINE_WIDTH'.
-     * <p> When this method is called, the <code>getMPH()</code> method returns a non-null value.
+     * <p> When this method is called, the {@code getMPH()} method returns a non-null value.
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
@@ -359,7 +349,7 @@ public class AatsrProductFile extends ProductFile {
      */
     @Override
     public DSD[] getValidDSDs(char datasetType) {
-        ArrayList<DSD> dsdList = new ArrayList<DSD>();
+        ArrayList<DSD> dsdList = new ArrayList<>();
         for (int i = 0; i < getNumDSDs(); i++) {
             final DSD dsd = getDSDAt(i);
             if (dsd.getDatasetType() == datasetType && !StringUtils.isNullOrEmpty(dsd.getDatasetName())) {
@@ -424,7 +414,7 @@ public class AatsrProductFile extends ProductFile {
      *
      * @param dsName the name of the flag dataset
      * @return a new default set, an empty array if no default set is given for this product type, never
-     *         <code>null</code>.
+     *         {@code null}.
      */
     @Override
     public Mask[] createDefaultMasks(String dsName) {
@@ -465,7 +455,9 @@ public class AatsrProductFile extends ProductFile {
                 mask(mkBMDNm(prefix, "CLOUDY_FOG_LOW_STRATUS_11_37"), null, dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
                 mask(mkBMDNm(prefix, "CLOUDY_VW_DIFF_11_12"), null, dsName + ".CLOUDY_VW_DIFF_11_12", Color.red, 0.5F),
                 mask(mkBMDNm(prefix, "CLOUDY_VW_DIFF_37_11"), null, dsName + ".CLOUDY_VW_DIFF_37_11", Color.green, 0.5F),
-                mask(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, dsName + ".CLOUDY_THERM_HIST_11_12", Color.blue, 0.5F)
+                mask(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, dsName + ".CLOUDY_THERM_HIST_11_12", Color.blue, 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_VIS_CHANNEL"), null, dsName + ".CLOUDY_VIS_CHANNEL", Color.yellow.darker(), 0.5F),
+                mask(mkBMDNm(prefix, "CLOUDY_NDSI"), null, dsName + ".CLOUDY_NDSI", Color.gray, 0.5F)
         };
     }
 
