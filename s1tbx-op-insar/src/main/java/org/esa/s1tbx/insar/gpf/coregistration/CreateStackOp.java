@@ -373,17 +373,21 @@ public class CreateStackOp extends Operator {
             for(InSARStackOverview.IfgStack stack : stackOverview) {
                 final InSARStackOverview.IfgPair[] slaves = stack.getMasterSlave();
                 System.out.println("======");
-                System.out.println("Master: " + slaves[0].getMasterMetadata().getMjd());
+                System.out.println("Master: " + StackUtils.createBandTimeStamp(
+                        slaves[0].getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
 
-                final MetadataElement masterElem = new MetadataElement(""+slaves[0].getMasterMetadata().getMjd());
+                final MetadataElement masterElem = new MetadataElement("Master: " + StackUtils.createBandTimeStamp(
+                        slaves[0].getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
                 baselinesElem.addElement(masterElem);
 
                 for (InSARStackOverview.IfgPair slave : slaves) {
-                    System.out.println("Slave: " + slave.getSlaveMetadata().getMjd() +
+                    System.out.println("Slave: " + StackUtils.createBandTimeStamp(
+                            slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1) +
                             " prep baseline: " + slave.getPerpendicularBaseline() +
                             " temp baseline: " + slave.getTemporalBaseline());
 
-                    final MetadataElement slaveElem = new MetadataElement(""+slave.getMasterMetadata().getMjd());
+                    final MetadataElement slaveElem = new MetadataElement("Slave: " + StackUtils.createBandTimeStamp(
+                            slave.getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
                     masterElem.addElement(slaveElem);
 
                     addAttrib(slaveElem, "Prep Baseline", slave.getPerpendicularBaseline());
