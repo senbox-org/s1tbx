@@ -145,4 +145,27 @@ public class ToolParameterDescriptor extends DefaultParameterDescriptor {
         return value;
     }
 
+    public void copyFrom(ToolParameterDescriptor source) {
+        setName(source.getName());
+        setAlias(source.getAlias());
+        setDataType(source.getDataType());
+        setDefaultValue(source.getDefaultValue());
+        setDescription(source.getDescription());
+        setLabel(source.getLabel());
+        setUnit(source.getUnit());
+        setInterval(source.getInterval());
+        setValueSet(source.getValueSet());
+        setCondition(source.getCondition());
+        setPattern(source.getPattern());
+        setFormat(source.getFormat());
+        setNotNull(source.isNotNull());
+        setNotEmpty(source.isNotEmpty());
+        setRasterDataNodeClass(source.getRasterDataNodeClass());
+        setValidatorClass(source.getValidatorClass());
+        setConverterClass(source.getConverterClass());
+        setDomConverterClass(source.getDomConverterClass());
+        setItemAlias(source.getItemAlias());
+        setDeprecated(source.isDeprecated());
+        setParameterType(source.getParameterType());
+    }
 }

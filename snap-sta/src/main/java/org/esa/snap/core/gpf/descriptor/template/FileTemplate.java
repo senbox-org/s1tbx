@@ -39,6 +39,7 @@ import java.nio.file.Paths;
 public class FileTemplate implements Template {
 
     private static final String defaultNamePattern = "template%s.%s";
+    private static int counter = 1;
 
     @XStreamOmitField
     private TemplateType templateType;
@@ -114,12 +115,12 @@ public class FileTemplate implements Template {
     @Override
     public String getName() {
         if (fileName == null) {
-            if (engine != null) {
+            /*if (engine != null) {
                 Path adapterPath = engine.getTemplateBasePath();
                 fileName = adapterPath.getName(adapterPath.getNameCount() - 1) + "." + getExtension();
-            } else {
-                fileName = String.format(defaultNamePattern, 1, getExtension());
-            }
+            } else {*/
+                fileName = String.format(defaultNamePattern, counter++, getExtension());
+            /*}*/
         }
         return fileName;
     }

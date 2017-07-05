@@ -222,4 +222,29 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
     public void setOutputFile(File outputFile) {
         this.outputFile = outputFile;
     }
+
+    public void copyFrom(TemplateParameterDescriptor source) {
+        super.copyFrom(source);
+        try {
+            setTemplateEngine(source.engine);
+            Template sourceTemplate = source.getTemplate();
+            if (sourceTemplate != null) {
+                setTemplate(sourceTemplate.copy());
+            }
+        } catch (TemplateException | IOException e) {
+            logger.warning(e.getMessage());
+        }
+        setOutputFile(source.getOutputFile());
+        if (this.parameterDescriptors == null) {
+            this.parameterDescriptors = new ArrayList<>();
+        } else {
+            this.parameterDescriptors.clear();
+        }
+        List<ToolParameterDescriptor> sourceParameterDescriptors = source.getParameterDescriptors();
+        if (sourceParameterDescriptors != null) {
+            for (ToolParameterDescriptor sourceDescriptor : sourceParameterDescriptors) {
+                this.parameterDescriptors.add(new ToolParameterDescriptor(sourceDescriptor));
+            }
+        }
+    }
 }
