@@ -85,6 +85,8 @@ public class Sentinel1OCNReader {
     // Given a band name, we want to map back to the .nc file.
     private final Map<String, NetcdfFile> bandNameNCFileMap = new HashMap<>(1);
 
+    private int sceneWidth = -1;
+    private int sceneHeight = -1;
 
     // These are for exporting wind data to ESRI Shape -----------------------------------------------------------------
 
@@ -138,6 +140,8 @@ public class Sentinel1OCNReader {
 
     public void addImageFile(final File file, final String name) throws IOException {
 
+        //System.out.println("Sentinel1OCNReader.addImageFile: file = " + file + "; name = " + name);
+
         // The image file here is the MDS .nc file.
         String imgNum = name.substring(name.lastIndexOf("-")+1, name.length());
 
@@ -145,7 +149,25 @@ public class Sentinel1OCNReader {
         bandNCFileMap.put(imgNum, new NCFileData(name, netcdfFile));
     }
 
+    public int getSceneWidth() {
+        if (bandNCFileMap.size() == 1) {
+            return sceneWidth;
+        } else {
+            return -1;
+        }
+    }
+
+    public int getSceneHeight() {
+        if (bandNCFileMap.size() == 1) {
+            return sceneHeight;
+        } else {
+            return -1;
+        }
+    }
+
     public void addNetCDFMetadata(final MetadataElement annotationElement) {
+
+        //System.out.println("Sentinel1OCNReader.addNetCDFMetadata: annotationElement = " + annotationElement.getName());
 
         List<String> keys = new ArrayList<>(bandNCFileMap.keySet());
         Collections.sort(keys);
@@ -173,6 +195,13 @@ public class Sentinel1OCNReader {
                 productData.setElemUInt(d.getLength());
                 final MetadataAttribute metadataAttribute = new MetadataAttribute(d.getFullName(), productData, true);
                 dimElem.addAttribute(metadataAttribute);
+                if (metadataAttribute.getName().equals("owiRaSize")) {
+                    sceneWidth = metadataAttribute.getData().getElemInt(); // width = #columns
+                } else if (metadataAttribute.getName().equals("owiAzSize")) {
+                    sceneHeight = metadataAttribute.getData().getElemInt(); // height = #rows
+                }
+                //System.out.println("Sentinel1OCNReader.addNetCDFMetadata: add dimensions: " + metadataAttribute.getName()
+                //    + " = " + metadataAttribute.getData().getElemInt());
             }
 
             final List<Variable> variableList = netcdfFile.getVariables();
@@ -394,8 +423,8 @@ public class Sentinel1OCNReader {
 
                 SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(windFeatureType);
 
-                // TODO The problem is that productRasterW and productRasterH are wrong and equal to 99999 which messes
-                // TODO up the geocoding.
+                // TODO The problem is that productRasterW and productRasterH can be wrong and equal to 99999 which messes
+                // TODO up the geocoding. getScaledValue() will decide if scaling is needed.
 
                 // com.vividsolutions.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x, y));
                 final int x1 = getScaledValue(x, productRasterW, rasterW);
@@ -427,6 +456,7 @@ public class Sentinel1OCNReader {
     }
 
     private int getScaledValue(final int x, final int w1, final int w2) {
+        if (sceneHeight > 0) return x; // No need to scale if sceneHeight is available
         return (int) ( ( ((double) x ) * ((double) w1 ) / ((double) w2) ) + 0.5);
     }
 
