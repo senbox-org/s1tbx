@@ -176,7 +176,8 @@ public class CreateStackOp extends Operator {
             }
 
             appendToMaster = AbstractMetadata.getAbstractedMetadata(masterProduct).
-                    getAttributeInt(AbstractMetadata.coregistered_stack, 0) == 1;
+                    getAttributeInt(AbstractMetadata.coregistered_stack, 0) == 1 ||
+                    AbstractMetadata.getAbstractedMetadata(masterProduct).getAttributeInt("collocated_stack", 0) == 1;
             final List<String> masterProductBands = new ArrayList<>(masterProduct.getNumBands());
 
             final Band[] slaveBandList = getSlaveBands();
@@ -204,10 +205,10 @@ public class CreateStackOp extends Operator {
                     ProductUtils.copyProductNodes(masterProduct, targetProduct);
                     break;
                 case MIN_EXTENT:
-                    determinMinExtents();
+                    determineMinExtents();
                     break;
                 default:
-                    determinMaxExtents();
+                    determineMaxExtents();
                     break;
             }
 
@@ -348,7 +349,7 @@ public class CreateStackOp extends Operator {
 
         final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
 
-        getBaselines();
+        getBaselines(sourceProduct, targetProduct);
 
         for (Product srcProduct : sourceProduct) {
             if (srcProduct == masterProduct)
@@ -363,7 +364,7 @@ public class CreateStackOp extends Operator {
         }
     }
 
-    private void getBaselines() {
+    public static void getBaselines(final Product[] sourceProduct, final Product targetProduct) {
         try {
             final MetadataElement abstractedMetadata = AbstractMetadata.getAbstractedMetadata(targetProduct);
             final MetadataElement baselinesElem = getBaselinesElem(abstractedMetadata);
@@ -373,17 +374,21 @@ public class CreateStackOp extends Operator {
             for(InSARStackOverview.IfgStack stack : stackOverview) {
                 final InSARStackOverview.IfgPair[] slaves = stack.getMasterSlave();
                 System.out.println("======");
-                System.out.println("Master: " + slaves[0].getMasterMetadata().getMjd());
+                System.out.println("Master: " + StackUtils.createBandTimeStamp(
+                        slaves[0].getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
 
-                final MetadataElement masterElem = new MetadataElement(""+slaves[0].getMasterMetadata().getMjd());
+                final MetadataElement masterElem = new MetadataElement("Master: " + StackUtils.createBandTimeStamp(
+                        slaves[0].getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
                 baselinesElem.addElement(masterElem);
 
                 for (InSARStackOverview.IfgPair slave : slaves) {
-                    System.out.println("Slave: " + slave.getSlaveMetadata().getMjd() +
+                    System.out.println("Slave: " + StackUtils.createBandTimeStamp(
+                            slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1) +
                             " prep baseline: " + slave.getPerpendicularBaseline() +
                             " temp baseline: " + slave.getTemporalBaseline());
 
-                    final MetadataElement slaveElem = new MetadataElement(""+slave.getMasterMetadata().getMjd());
+                    final MetadataElement slaveElem = new MetadataElement("Slave: " + StackUtils.createBandTimeStamp(
+                            slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1));
                     masterElem.addElement(slaveElem);
 
                     addAttrib(slaveElem, "Prep Baseline", slave.getPerpendicularBaseline());
@@ -400,13 +405,13 @@ public class CreateStackOp extends Operator {
         }
     }
 
-    private void addAttrib(final MetadataElement elem, final String tag, final double value) {
+    private static void addAttrib(final MetadataElement elem, final String tag, final double value) {
         final MetadataAttribute attrib = new MetadataAttribute(tag, ProductData.TYPE_FLOAT64);
         attrib.getData().setElemDouble(value);
         elem.addAttribute(attrib);
     }
 
-    public static MetadataElement getBaselinesElem(final MetadataElement abstractedMetadata) {
+    private static MetadataElement getBaselinesElem(final MetadataElement abstractedMetadata) {
         MetadataElement baselinesElem = abstractedMetadata.getElement("Baselines");
         if (baselinesElem == null) {
             baselinesElem = new MetadataElement("Baselines");
@@ -579,7 +584,7 @@ public class CreateStackOp extends Operator {
     /**
      * Minimum extents consists of the overlapping area
      */
-    private void determinMinExtents() {
+    private void determineMinExtents() {
 
         Geometry tgtGeometry = FeatureUtils.createGeoBoundaryPolygon(masterProduct);
 
@@ -642,7 +647,7 @@ public class CreateStackOp extends Operator {
     /**
      * Maximum extents consists of the overall area
      */
-    private void determinMaxExtents() throws Exception {
+    private void determineMaxExtents() throws Exception {
         /*
         final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
         OperatorUtils.computeImageGeoBoundary(sourceProduct, scnProp);

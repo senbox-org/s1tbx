@@ -17,6 +17,7 @@ package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.s1tbx.insar.gpf.coregistration.DEMAssistedCoregistrationOp;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
@@ -439,6 +440,8 @@ public final class BackGeocodingOp extends Operator {
                 inputAttrb.getData().setElems(attrib.getData().getElemString());
             }
         }
+
+        CreateStackOp.getBaselines(sourceProduct, targetProduct);
     }
 
     /**
