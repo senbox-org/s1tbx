@@ -397,6 +397,8 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 inputAttrb.getData().setElems(attrib.getData().getElemString());
             }
         }
+
+        CreateStackOp.getBaselines(sourceProduct, targetProduct);
     }
 
 
