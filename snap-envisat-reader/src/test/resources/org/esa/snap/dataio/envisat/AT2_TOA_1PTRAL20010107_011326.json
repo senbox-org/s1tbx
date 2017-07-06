@@ -201,6 +201,16 @@
                         "name": "CLOUDY_THERM_HIST_11_12",
                         "value": 4096,
                         "description": "11/12 micron thermal histogram test shows pixel cloudy"
+                    },
+                    {
+                        "name": "CLOUDY_VIS_CHANNEL",
+                        "value": 8192,
+                        "description": "Visible channel cloud test shows pixel cloudy"
+                    },
+                    {
+                        "name": "CLOUDY_NDSI",
+                        "value": 16384,
+                        "description": "NDSI snow flag"
                     }
                 ]
             },
@@ -271,7 +281,18 @@
                         "name": "CLOUDY_THERM_HIST_11_12",
                         "value": 4096,
                         "description": "11/12 micron thermal histogram test shows pixel cloudy"
+                    },
+                    {
+                        "name": "CLOUDY_VIS_CHANNEL",
+                        "value": 8192,
+                        "description": "Visible channel cloud test shows pixel cloudy"
+                    },
+                    {
+                        "name": "CLOUDY_NDSI",
+                        "value": 16384,
+                        "description": "NDSI snow flag"
                     }
+
                 ]
             }
         ],
