@@ -388,7 +388,7 @@ public class CreateStackOp extends Operator {
                             " temp baseline: " + slave.getTemporalBaseline());
 
                     final MetadataElement slaveElem = new MetadataElement("Slave: " + StackUtils.createBandTimeStamp(
-                            slave.getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
+                            slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1));
                     masterElem.addElement(slaveElem);
 
                     addAttrib(slaveElem, "Prep Baseline", slave.getPerpendicularBaseline());
