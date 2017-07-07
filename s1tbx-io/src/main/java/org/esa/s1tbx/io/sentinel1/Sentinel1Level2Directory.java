@@ -138,9 +138,22 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
-        // TODO They are 99999 which is NOT correct.
-        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        // They are 99999 which is NOT correct.
+        //final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        //final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
+        // Only implemented for SM(?), IW and EW, NOT for WV
+        // SM, IW and EW only have one .nc file while WV has 1 per vignette
+        // For WV, the calls return -1. In that case just use AbstractMetadata.num_samples_per_line
+        // and AbstractMetadata.num_output_lines but they are 99999 which is wrong.
+        int sceneWidth = OCNReader.getSceneWidth();
+        int sceneHeight = OCNReader.getSceneHeight();
+        if (sceneWidth < 0) {
+            sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        }
+        if (sceneHeight < 0) {
+            sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        }
 
         System.out.println("Sentinel1Level2Directory.createProduct: sceneWidth = " + sceneWidth + " sceneHeight = " + sceneHeight);
 
