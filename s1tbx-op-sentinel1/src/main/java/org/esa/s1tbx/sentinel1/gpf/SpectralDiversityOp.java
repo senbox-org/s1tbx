@@ -338,7 +338,7 @@ public class SpectralDiversityOp extends Operator {
 
             if(targetBand != null && srcBandName.startsWith("q_")) {
                 final String suffix = srcBandName.substring(1);
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand('i'+suffix), targetBand, suffix);
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand('i' + suffix), targetBand, suffix);
             }
         }
 
@@ -365,22 +365,33 @@ public class SpectralDiversityOp extends Operator {
             OverallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
             mstSlvTagElem.addElement(OverallRgAzShiftElem);
 
-            final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
-            RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
-            mstSlvTagElem.addElement(RgShiftPerBurstElem);
+            if (!useSuppliedShifts) {
+                final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
+                RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
+                mstSlvTagElem.addElement(RgShiftPerBurstElem);
 
-            final MetadataElement AzShiftPerOverlapElem = new MetadataElement("Azimuth_Shift_Per_Overlap");
-            AzShiftPerOverlapElem.addElement(new MetadataElement(subSwathNames[0]));
-            mstSlvTagElem.addElement(AzShiftPerOverlapElem);
+                final MetadataElement AzShiftPerOverlapElem = new MetadataElement("Azimuth_Shift_Per_Overlap");
+                AzShiftPerOverlapElem.addElement(new MetadataElement(subSwathNames[0]));
+                mstSlvTagElem.addElement(AzShiftPerOverlapElem);
 
-            final MetadataElement AzShiftPerBlockElem = new MetadataElement("Azimuth_Shift_Per_Block");
-            AzShiftPerBlockElem.addElement(new MetadataElement(subSwathNames[0]));
-            mstSlvTagElem.addElement(AzShiftPerBlockElem);
+                final MetadataElement AzShiftPerBlockElem = new MetadataElement("Azimuth_Shift_Per_Block");
+                AzShiftPerBlockElem.addElement(new MetadataElement(subSwathNames[0]));
+                mstSlvTagElem.addElement(AzShiftPerBlockElem);
+            }
 
             ESDMeasurement.addElement(mstSlvTagElem);
         }
-
         absTgt.addElement(ESDMeasurement);
+
+        if (useSuppliedShifts) {
+            for (String key : targetMap.keySet()) {
+                final CplxContainer master = targetMap.get(key).sourceMaster;
+                final CplxContainer slave = targetMap.get(key).sourceSlave;
+                final String mstSlvTag = getMasterSlavePairTag(master, slave);
+                saveOverallRangeShift(mstSlvTag, overallRangeShift);
+                saveOverallAzimuthShift(mstSlvTag, overallAzimuthShift);
+            }
+        }
     }
 
     private String getMasterSlavePairTag(final CplxContainer master, final CplxContainer slave) {
