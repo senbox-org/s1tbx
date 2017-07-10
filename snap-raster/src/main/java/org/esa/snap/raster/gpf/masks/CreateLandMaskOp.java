@@ -30,13 +30,15 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +71,7 @@ public class CreateLandMaskOp extends Operator {
     @Parameter(label = "Use SRTM 3sec", defaultValue = "true")
     private Boolean useSRTM = true;
 
-    @Parameter(label = "Vector", defaultValue = "")
+    @Parameter(label = "Vector")
     private String geometry = "";
 
     @Parameter(label = "Invert Vector", defaultValue = "false")
@@ -81,8 +83,6 @@ public class CreateLandMaskOp extends Operator {
     private ElevationModel dem = null;
     private final static int landThreshold = -10;
     private final static int seaThreshold = -10;
-
-    private final static String tmpVirtBandName = "_tmpVirtBand";
 
     @Override
     public void initialize() throws OperatorException {
@@ -142,30 +142,16 @@ public class CreateLandMaskOp extends Operator {
                 if (invertGeometry) {
                     expression = '!' + expression;
                 }
-                final VirtualBand virtBand = new VirtualBand(srcBand.getName() + tmpVirtBandName,
-                                                             srcBand.getDataType(),
-                                                             srcBand.getRasterWidth(), srcBand.getRasterHeight(),
-                                                             expression);
-                virtBand.setUnit(srcBand.getUnit());
-                virtBand.setDescription(srcBand.getDescription());
-                sourceProduct.addBand(virtBand);
+                Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
 
-                final Band targetBand = ProductUtils.copyBand(virtBand.getName(), sourceProduct, targetProduct, false);
-                targetBand.setName(srcBand.getName());
-                targetBand.setSourceImage(virtBand.getSourceImage());
+                VirtualBandOpImage.Builder builder = VirtualBandOpImage.builder(expression, sourceProduct)
+                        .dataType(srcBand.getDataType())
+                        .sourceSize(new Dimension(srcBand.getRasterWidth(), srcBand.getRasterHeight()));
+                VirtualBandOpImage virtualBandImage = builder.create();
+
+                targetBand.setSourceImage(virtualBandImage);
             } else {
                 ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-            }
-        }
-    }
-
-    public void dispose() {
-        if (geometry != null && !geometry.isEmpty()) {
-            final Band[] sourceBands = sourceProduct.getBands();
-            for (Band srcBand : sourceBands) {
-                if (srcBand.getName().contains(tmpVirtBandName)) {
-                    sourceProduct.removeBand(srcBand);
-                }
             }
         }
     }
@@ -175,8 +161,8 @@ public class CreateLandMaskOp extends Operator {
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
      * @param targetTiles     The current tiles to be computed for each target band.
-     * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
-     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
+     * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in {@code targetRasters}).
+     * @param pm              A progress monitor which should be used to determine computation cancellation requests.
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
@@ -216,21 +202,23 @@ public class CreateLandMaskOp extends Operator {
                     final Double elev = localDEM[yy][x - minX];
 
                     if (landMask) {
-                        if (useSRTM)
+                        if (useSRTM) {
                             valid = elev.equals(demNoDataValue);
-                        else
+                        } else {
                             valid = elev < seaThreshold;
+                        }
                     } else {
-                        if (useSRTM)
+                        if (useSRTM) {
                             valid = !elev.equals(demNoDataValue);
-                        else
+                        } else {
                             valid = elev > landThreshold;
+                        }
                     }
 
                     if (valid) {
                         final int srcIndex = srcTileIndex.getIndex(x);
                         for (TileData tileData : trgTiles) {
-                            if(tileData.isInt) {
+                            if (tileData.isInt) {
                                 tileData.tileDataBuffer.setElemIntAt(trgIndex, tileData.srcDataBuffer.getElemIntAt(srcIndex));
                             } else {
                                 tileData.tileDataBuffer.setElemDoubleAt(trgIndex,
@@ -245,10 +233,10 @@ public class CreateLandMaskOp extends Operator {
                             for (int ey = eMinY; ey < eMaxY; ++ey) {
                                 for (int ex = eMinX; ex < eMaxX; ++ex) {
                                     int eIndex = targetTile.getDataBufferIndex(ex, ey);
-                                    if(trgTiles[0].tileDataBuffer.getElemDoubleAt(eIndex) != trgTiles[0].noDataValue) {
+                                    if (trgTiles[0].tileDataBuffer.getElemDoubleAt(eIndex) != trgTiles[0].noDataValue) {
                                         for (TileData tileData : trgTiles) {
-                                            if(tileData.isInt) {
-                                                tileData.tileDataBuffer.setElemIntAt(eIndex, (int)tileData.noDataValue);
+                                            if (tileData.isInt) {
+                                                tileData.tileDataBuffer.setElemIntAt(eIndex, (int) tileData.noDataValue);
                                             } else {
                                                 tileData.tileDataBuffer.setElemDoubleAt(eIndex, tileData.noDataValue);
                                             }
@@ -271,7 +259,9 @@ public class CreateLandMaskOp extends Operator {
     }
 
     private synchronized void createDEM() throws IOException {
-        if (dem != null) return;
+        if (dem != null) {
+            return;
+        }
 
         if (useSRTM) {
             dem = DEMFactory.createElevationModel("SRTM 3Sec", ResamplingFactory.NEAREST_NEIGHBOUR_NAME);
@@ -287,13 +277,14 @@ public class CreateLandMaskOp extends Operator {
         for (Band targetBand : keySet) {
 
             trgTileList.add(new TileData(targetBand,
-                                             targetTiles.get(targetBand),
-                                             getSourceTile(srcProduct.getBand(targetBand.getName()), targetRectangle)));
+                                         targetTiles.get(targetBand),
+                                         getSourceTile(srcProduct.getBand(targetBand.getName()), targetRectangle)));
         }
         return trgTileList.toArray(new TileData[trgTileList.size()]);
     }
 
     private static class TileData {
+
         final Tile targetTile;
         final Tile srcTile;
         final ProductData tileDataBuffer;
