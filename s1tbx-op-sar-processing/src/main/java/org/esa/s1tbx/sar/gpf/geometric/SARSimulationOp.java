@@ -180,6 +180,7 @@ public final class SARSimulationOp extends Operator {
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
 
     private static String SIMULATED_BAND_NAME = "Simulated_Intensity";
+    public static final String externalDEMStr = "External DEM";
 
     private boolean nearRangeOnLeft = true;
     private boolean isPolsar = false;
@@ -219,7 +220,11 @@ public final class SARSimulationOp extends Operator {
 
             createTargetProduct();
 
-            if (externalDEMFile == null) {
+            if (demName.contains(externalDEMStr) && externalDEMFile == null) {
+                throw new OperatorException("External DEM file is not specified. ");
+            }
+
+            if (!demName.contains(externalDEMStr)) {
                 DEMFactory.checkIfDEMInstalled(demName);
             }
 
@@ -296,7 +301,7 @@ public final class SARSimulationOp extends Operator {
 
         if (isElevationModelAvailable) return;
         try {
-            if (externalDEMFile != null) { // if external DEM file is specified by user
+            if (demName.contains(externalDEMStr)) { // if external DEM file is specified by user
 
                 dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
                 ((FileElevationModel)dem).applyEarthGravitionalModel(externalDEMApplyEGM);

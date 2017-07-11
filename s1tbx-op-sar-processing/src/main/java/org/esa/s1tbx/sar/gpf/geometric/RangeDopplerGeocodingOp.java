@@ -276,6 +276,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private String mission = null;
     private boolean skipBistaticCorrection = false;
 
+    public static final String externalDEMStr = "External DEM";
     private static final String PRODUCT_SUFFIX = "_TC";
 
     /**
@@ -349,8 +350,12 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             updateTargetProductMetadata();
 
-            if (externalDEMFile == null && !useAvgSceneHeight) {
+            if (!demName.contains(externalDEMStr) && !useAvgSceneHeight) {
                 DEMFactory.checkIfDEMInstalled(demName);
+            }
+
+            if (demName.contains(externalDEMStr) && externalDEMFile == null) {
+                throw new OperatorException("External DEM file is not specified. ");
             }
 
             if (!useAvgSceneHeight) {
@@ -513,7 +518,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private synchronized void getElevationModel() throws Exception {
 
         if (isElevationModelAvailable) return;
-        if (externalDEMFile != null) { // if external DEM file is specified by user
+        if (demName.contains(externalDEMStr) && externalDEMFile != null) { // if external DEM file is specified by user
 
             dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
             ((FileElevationModel) dem).applyEarthGravitionalModel(externalDEMApplyEGM);
