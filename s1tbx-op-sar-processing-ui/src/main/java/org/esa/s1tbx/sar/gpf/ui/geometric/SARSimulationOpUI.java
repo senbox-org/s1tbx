@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.sar.gpf.ui.geometric;
 
+import org.esa.s1tbx.sar.gpf.geometric.SARSimulationOp;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
@@ -51,7 +52,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
 
     private final JList<String> bandList = new JList();
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
-    private static final String externalDEMStr = "External DEM";
+    private static final String externalDEMStr = SARSimulationOp.externalDEMStr;
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
 

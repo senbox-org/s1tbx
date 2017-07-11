@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.sar.gpf.ui.geometric;
 
+import org.esa.s1tbx.sar.gpf.geometric.RangeDopplerGeocodingOp;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
@@ -64,7 +65,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private final JList<String> bandList = new JList();
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
 
-    private static final String externalDEMStr = "External DEM";
+    private static final String externalDEMStr = RangeDopplerGeocodingOp.externalDEMStr;
 
     private JComboBox<String> demResamplingMethod = new JComboBox<>(DEMFactory.getDEMResamplingMethods());
 
