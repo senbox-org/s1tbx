@@ -308,7 +308,7 @@ public final class SubtRefDemOp extends Operator {
             for (String keySlave : slaveMap.keySet()) {
                 final CplxContainer slave = slaveMap.get(keySlave);
 
-                if (master.polarisation.equals(slave.polarisation)) {
+                if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
                     // generate name for product bands
                     String productName = keyMaster + '_' + keySlave;
 
@@ -336,7 +336,8 @@ public final class SubtRefDemOp extends Operator {
             final CplxContainer master = container.sourceMaster;
             final CplxContainer slave = container.sourceSlave;
 
-            final String pol = master.polarisation.isEmpty() ? "" : '_' + master.polarisation.toUpperCase();
+            final String pol = (master.polarisation == null || master.polarisation.isEmpty()) ? "" :
+                    '_' + master.polarisation.toUpperCase();
             final String tag = pol + '_' + master.date + '_' + slave.date;
 
             String targetBandName_I = "i_ifg" + tag;
