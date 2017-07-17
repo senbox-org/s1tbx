@@ -22,6 +22,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
@@ -80,16 +81,19 @@ public abstract class XMLProductDirectory {
     }
 
     public final String getRootFolder() {
-        if (rootFolder != null)
-            return rootFolder;
+        if (rootFolder == null)
+            rootFolder = findRootFolder();
+        return rootFolder;
+    }
+
+    protected String findRootFolder() {
+        String rootFolder = "";
         try {
             if (productDir.isCompressed()) {
                 rootFolder = ZipUtils.getRootFolder(baseDir, getHeaderFileName());
-            } else {
-                rootFolder = "";
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            SystemUtils.LOG.severe("Unable to get root path from zip file " + e.getMessage());
         }
         return rootFolder;
     }
@@ -224,6 +228,21 @@ public abstract class XMLProductDirectory {
         } catch (Exception e) {
             throw new IOException("Product is corrupt or incomplete\n"+e.getMessage());
         }
+    }
+
+    public String[] findFilesContaining(final String path, final String searchString) {
+        final List<String> list = new ArrayList<>();
+        try {
+            final String[] files = listFiles(path);
+            for (String file : files) {
+                if (file.endsWith(searchString)) {
+                    list.add(file);
+                }
+            }
+        } catch (IOException e) {
+            SystemUtils.LOG.severe("Error listing files in " + path);
+        }
+        return list.toArray(new String[list.size()]);
     }
 
     private boolean isDirectory(final String path) throws IOException {
