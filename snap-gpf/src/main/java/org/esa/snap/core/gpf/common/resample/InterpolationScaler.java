@@ -107,15 +107,11 @@ class InterpolationScaler {
             if (levelMasterWidth != renderedImage.getWidth() || levelMasterHeight != renderedImage.getHeight() ||
                     Precision.compareTo((double) offsetX, 0.0, EPSILON) != 0 ||
                     Precision.compareTo((double) offsetY, 0.0, EPSILON) != 0) {
-                final float scaledXOffset = offsetX * xScale;
-                final float scaledYOffset = offsetY * yScale;
-                final int leftPad = Math.round(scaledXOffset);
-                final int upperPad = Math.round(scaledYOffset);
-                int borderCorrectorX = (scaledXOffset - leftPad < 0) ? 1 : 0;
-                int borderCorrectorY = (scaledYOffset - upperPad < 0) ? 1 : 0;
+                final int leftPad = renderedImage.getMinX();
+                final int upperPad = renderedImage.getMinY();
                 final BorderExtender borderExtender = new BorderExtenderConstant(new double[]{noDataValue});
-                final int rightPad = Math.max(0, levelMasterWidth - leftPad - renderedImage.getWidth() + borderCorrectorX);
-                final int lowerPad = Math.max(0, levelMasterHeight - upperPad - renderedImage.getHeight() + borderCorrectorY);
+                final int rightPad = Math.max(0, levelMasterWidth - leftPad - renderedImage.getWidth());
+                final int lowerPad = Math.max(0, levelMasterHeight - upperPad - renderedImage.getHeight());
                 renderedImage = BorderDescriptor.create(renderedImage,
                                                         leftPad,
                                                         rightPad,
