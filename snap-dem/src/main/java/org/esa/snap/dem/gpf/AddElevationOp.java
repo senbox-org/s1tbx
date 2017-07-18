@@ -83,7 +83,7 @@ public final class AddElevationOp extends Operator {
     private double demNoDataValue = 0; // no data value for DEM
     private Band elevationBand = null;
 
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
+    public static final String externalDEMStr = "External DEM";
 
     public AddElevationOp() {
     }
@@ -105,7 +105,7 @@ public final class AddElevationOp extends Operator {
         ensureSingleRasterSize(sourceProduct);
 
         try {
-            if (externalDEMFile == null) {
+            if (!demName.contains(externalDEMStr)) {
                 DEMFactory.checkIfDEMInstalled(demName);
             }
 
@@ -136,12 +136,10 @@ public final class AddElevationOp extends Operator {
 
             if (band instanceof VirtualBand) {
                 Band targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) band, band.getName());
-                sourceRasterMap.put(targetBand, band);
             } else {
                 if (!targetProduct.containsBand((band.getName()))) {
                     final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
                     targetBand.setSourceImage(band.getSourceImage());
-                    sourceRasterMap.put(targetBand, band);
                 }
             }
         }
@@ -209,7 +207,7 @@ public final class AddElevationOp extends Operator {
 
         if (isElevationModelAvailable) return;
         try {
-            if (externalDEMFile != null) { // if external DEM file is specified by user
+            if (demName.contains(externalDEMStr) && externalDEMFile != null) { // if external DEM file is specified by user
                 dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
                 demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
@@ -221,7 +219,7 @@ public final class AddElevationOp extends Operator {
             elevationBand.setNoDataValue(demNoDataValue);
             elevationBand.setNoDataValueUsed(true);
             elevationBand.setUnit(Unit.METERS);
-            elevationBand.setDescription(dem.getDescriptor().getName());
+            elevationBand.setDescription(demName);
 
         } catch (Throwable t) {
             t.printStackTrace();
