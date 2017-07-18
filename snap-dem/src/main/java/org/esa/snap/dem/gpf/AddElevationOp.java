@@ -73,7 +73,6 @@ public final class AddElevationOp extends Operator {
             label = "Resampling Method")
     private String resamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
-    private FileElevationModel fileElevationModel = null;
     private ElevationModel dem = null;
     private Band elevationBand = null;
     private double noDataValue = 0;
@@ -100,8 +99,9 @@ public final class AddElevationOp extends Operator {
 
             if (externalDEM != null && !externalDEM.trim().isEmpty()) {
 
-                fileElevationModel = new FileElevationModel(new File(externalDEM), resamplingMethod, null);
+                FileElevationModel fileElevationModel = new FileElevationModel(new File(externalDEM), resamplingMethod, null);
                 noDataValue = fileElevationModel.getNoDataValue();
+                dem = fileElevationModel;
             } else {
 
                 dem = DEMFactory.createElevationModel(demName, resamplingMethod);
