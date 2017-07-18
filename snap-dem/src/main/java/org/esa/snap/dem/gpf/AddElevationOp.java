@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2017 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -51,34 +51,42 @@ import java.util.Map;
         category = "Raster/DEM Tools",
         authors = "Jun Lu, Luis Veci",
         version = "1.0",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2017 by Array Systems Computing Inc.",
         description = "Creates a DEM band")
 public final class AddElevationOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
+
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The digital elevation model.", defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
+    @Parameter(description = "The digital elevation model.",
+            defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
+
+    @Parameter(defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+            label = "DEM Resampling Method")
+    private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
+
+    @Parameter(label = "External DEM")
+    private File externalDEMFile = null;
+
+    @Parameter(label = "DEM No Data Value", defaultValue = "0")
+    private double externalDEMNoDataValue = 0;
 
     @Parameter(description = "The elevation band name.", defaultValue = "elevation", label = "Elevation Band Name")
     private String elevationBandName = "elevation";
 
-    @Parameter(description = "The external DEM file.", defaultValue = " ", label = "External DEM")
-    private String externalDEM = " ";
-
-    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            label = "Resampling Method")
-    private String resamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
-
-    private FileElevationModel fileElevationModel = null;
+    private boolean isElevationModelAvailable = false;
     private ElevationModel dem = null;
+    private double demNoDataValue = 0; // no data value for DEM
     private Band elevationBand = null;
-    private double noDataValue = 0;
 
     private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
+
+    public AddElevationOp() {
+    }
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -97,16 +105,11 @@ public final class AddElevationOp extends Operator {
         ensureSingleRasterSize(sourceProduct);
 
         try {
-
-            if (externalDEM != null && !externalDEM.trim().isEmpty()) {
-
-                fileElevationModel = new FileElevationModel(new File(externalDEM), resamplingMethod, null);
-                noDataValue = fileElevationModel.getNoDataValue();
-            } else {
-
-                dem = DEMFactory.createElevationModel(demName, resamplingMethod);
-                noDataValue = dem.getDescriptor().getNoDataValue();
+            if (externalDEMFile == null) {
+                DEMFactory.checkIfDEMInstalled(demName);
             }
+
+            DEMFactory.validateDEM(demName, sourceProduct);
 
             createTargetProduct();
 
@@ -124,11 +127,13 @@ public final class AddElevationOp extends Operator {
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
+
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (Band band : sourceProduct.getBands()) {
             if (band.getName().equalsIgnoreCase(elevationBandName))
                 throw new OperatorException("Band " + elevationBandName + " already exists. Try another name.");
+
             if (band instanceof VirtualBand) {
                 Band targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) band, band.getName());
                 sourceRasterMap.put(targetBand, band);
@@ -142,10 +147,6 @@ public final class AddElevationOp extends Operator {
         }
 
         elevationBand = targetProduct.addBand(elevationBandName, ProductData.TYPE_FLOAT32);
-        elevationBand.setNoDataValue(noDataValue);
-        elevationBand.setNoDataValueUsed(true);
-        elevationBand.setUnit(Unit.METERS);
-        elevationBand.setDescription(dem.getDescriptor().getName());
     }
 
     /**
@@ -161,37 +162,71 @@ public final class AddElevationOp extends Operator {
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         try {
-            if (targetBand == elevationBand) {
-                final Rectangle targetRectangle = targetTile.getRectangle();
-                final int x0 = targetRectangle.x;
-                final int y0 = targetRectangle.y;
-                final int w = targetRectangle.width;
-                final int h = targetRectangle.height;
-                final ProductData trgData = targetTile.getDataBuffer();
+            final Rectangle targetRectangle = targetTile.getRectangle();
+            final int x0 = targetRectangle.x;
+            final int y0 = targetRectangle.y;
+            final int w = targetRectangle.width;
+            final int h = targetRectangle.height;
 
-                final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
+            if (!isElevationModelAvailable) {
+                getElevationModel();
+            }
 
-                final double demNoDataValue = dem.getDescriptor().getNoDataValue();
-                final double[][] localDEM = new double[h + 2][w + 2];
-                DEMFactory.getLocalDEM(
-                        dem, demNoDataValue, resamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, true, localDEM);
+            final ProductData tgtData = targetTile.getDataBuffer();
+            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
+            final double[][] localDEM = new double[h + 2][w + 2];
 
-                final TileIndex trgIndex = new TileIndex(targetTile);
+            final boolean valid = DEMFactory.getLocalDEM(
+                    dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h,
+                    sourceProduct, true, localDEM);
 
-                final int maxX = x0 + w;
-                final int maxY = y0 + h;
-                for (int y = y0; y < maxY; ++y) {
-                    final int yy = y - y0 + 1;
-                    trgIndex.calculateStride(y);
-                    for (int x = x0; x < maxX; ++x) {
+            if (!valid)
+                return;
 
-                        trgData.setElemDoubleAt(trgIndex.getIndex(x), localDEM[yy][x - x0 + 1]);
-                    }
+            final TileIndex tgtIndex = new TileIndex(targetTile);
+
+            final int maxX = x0 + w;
+            final int maxY = y0 + h;
+            for (int y = y0; y < maxY; ++y) {
+                final int yy = y - y0 + 1;
+                tgtIndex.calculateStride(y);
+                for (int x = x0; x < maxX; ++x) {
+
+                    tgtData.setElemDoubleAt(tgtIndex.getIndex(x), localDEM[yy][x - x0 + 1]);
                 }
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    /**
+     * Get elevation model.
+     *
+     * @throws Exception The exceptions.
+     */
+    private synchronized void getElevationModel() throws Exception {
+
+        if (isElevationModelAvailable) return;
+        try {
+            if (externalDEMFile != null) { // if external DEM file is specified by user
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                demNoDataValue = externalDEMNoDataValue;
+                demName = externalDEMFile.getPath();
+            } else {
+                dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
+                demNoDataValue = dem.getDescriptor().getNoDataValue();
+            }
+
+            elevationBand.setNoDataValue(demNoDataValue);
+            elevationBand.setNoDataValueUsed(true);
+            elevationBand.setUnit(Unit.METERS);
+            elevationBand.setDescription(dem.getDescriptor().getName());
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        isElevationModelAvailable = true;
     }
 
     /**
