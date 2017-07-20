@@ -111,7 +111,7 @@ public class MosaicOp extends Operator {
             label = "Convergence Threshold")
     private double convergenceThreshold = 1e-4;
 
-    private final SceneProperties scnProp = new SceneProperties();
+    private final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
     private final Map<Integer, Band> bandIndexSet = new HashMap<>(20);
     private final Map<Product, Rectangle> srcRectMap = new HashMap<>(10);
     private Product[] selectedProducts = null;
@@ -145,7 +145,7 @@ public class MosaicOp extends Operator {
 
             getSourceBands();
 
-            computeImageGeoBoundary(selectedProducts, scnProp);
+            OperatorUtils.computeImageGeoBoundary(selectedProducts, scnProp);
 
             if (sceneWidth == 0 || sceneHeight == 0) {
 
@@ -156,7 +156,7 @@ public class MosaicOp extends Operator {
                     final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
                     pixelSize = Math.min(rangeSpacing, azimuthSpacing);
                 }
-                getSceneDimensions(pixelSize, scnProp);
+                OperatorUtils.getSceneDimensions(pixelSize, scnProp);
 
                 sceneWidth = scnProp.sceneWidth;
                 sceneHeight = scnProp.sceneHeight;
@@ -1039,77 +1039,6 @@ public class MosaicOp extends Operator {
             }
             return allValid;
         }
-    }
-
-    /**
-     * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
-     * latitude/longitude.
-     *
-     * @param sourceProducts the list of input products
-     * @param scnProp        the output scene properties
-     */
-    public static void computeImageGeoBoundary(final Product[] sourceProducts, final SceneProperties scnProp) {
-
-        scnProp.latMin = 90.0f;
-        scnProp.latMax = -90.0f;
-        scnProp.lonMin = 180.0f;
-        scnProp.lonMax = -180.0f;
-
-        for (final Product srcProd : sourceProducts) {
-            final GeoCoding geoCoding = srcProd.getSceneGeoCoding();
-            final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0, 0), null);
-            final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(srcProd.getSceneRasterWidth() - 1, 0), null);
-            final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0, srcProd.getSceneRasterHeight() - 1), null);
-            final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(srcProd.getSceneRasterWidth() - 1,
-                                                                          srcProd.getSceneRasterHeight() - 1), null);
-
-            final double[] lats = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
-            final double[] lons = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
-            scnProp.srcCornerLatitudeMap.put(srcProd, lats);
-            scnProp.srcCornerLongitudeMap.put(srcProd, lons);
-
-            for (double lat : lats) {
-                if (lat < scnProp.latMin) {
-                    scnProp.latMin = (float)lat;
-                }
-                if (lat > scnProp.latMax) {
-                    scnProp.latMax = (float)lat;
-                }
-            }
-
-            for (double lon : lons) {
-                if (lon < scnProp.lonMin) {
-                    scnProp.lonMin = (float)lon;
-                }
-                if (lon > scnProp.lonMax) {
-                    scnProp.lonMax = (float)lon;
-                }
-            }
-        }
-    }
-
-    public static void getSceneDimensions(final double minSpacing, final SceneProperties scnProp) {
-        double minAbsLat;
-        if (scnProp.latMin * scnProp.latMax > 0) {
-            minAbsLat = Math.min(Math.abs(scnProp.latMin), Math.abs(scnProp.latMax)) * Constants.DTOR;
-        } else {
-            minAbsLat = 0.0;
-        }
-        double delLat = minSpacing / Constants.MeanEarthRadius * Constants.RTOD;
-        double delLon = minSpacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
-        delLat = Math.min(delLat, delLon);
-        delLon = delLat;
-
-        scnProp.sceneWidth = (int) ((scnProp.lonMax - scnProp.lonMin) / delLon) + 1;
-        scnProp.sceneHeight = (int) ((scnProp.latMax - scnProp.latMin) / delLat) + 1;
-    }
-
-    public static class SceneProperties {
-        public int sceneWidth, sceneHeight;
-        public float latMin, lonMin, latMax, lonMax;
-
-        public final Map<Product, double[]> srcCornerLatitudeMap = new HashMap<>(10);
-        public final Map<Product, double[]> srcCornerLongitudeMap = new HashMap<>(10);
     }
 
 
