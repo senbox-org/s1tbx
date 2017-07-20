@@ -15,6 +15,7 @@
  */
 package org.esa.snap.engine_utilities.gpf;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GcpDescriptor;
 import org.esa.snap.core.datamodel.GeoCoding;
@@ -34,15 +35,12 @@ import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.db.DBQuery;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Helper methods for working with Operators
@@ -637,4 +635,114 @@ public final class OperatorUtils {
         }
         return rectangles;
     }
+
+
+    /**
+     * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
+     * latitude/longitude.
+     *
+     * @param sourceProducts the list of input products
+     * @param scnProp        the output scene properties
+     */
+    public static void computeImageGeoBoundary(final Product[] sourceProducts, final SceneProperties scnProp) {
+
+        scnProp.latMin = 90.0f;
+        scnProp.latMax = -90.0f;
+        scnProp.lonMin = 180.0f;
+        scnProp.lonMax = -180.0f;
+
+        for (final Product srcProd : sourceProducts) {
+            final GeoCoding geoCoding = srcProd.getSceneGeoCoding();
+            final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0, 0), null);
+            final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(srcProd.getSceneRasterWidth() - 1, 0), null);
+            final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0, srcProd.getSceneRasterHeight() - 1), null);
+            final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(srcProd.getSceneRasterWidth() - 1,
+                    srcProd.getSceneRasterHeight() - 1), null);
+
+            final double[] lats = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
+            final double[] lons = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+            scnProp.srcCornerLatitudeMap.put(srcProd, lats);
+            scnProp.srcCornerLongitudeMap.put(srcProd, lons);
+
+            for (double lat : lats) {
+                if (lat < scnProp.latMin) {
+                    scnProp.latMin = (float)lat;
+                }
+                if (lat > scnProp.latMax) {
+                    scnProp.latMax = (float)lat;
+                }
+            }
+
+            for (double lon : lons) {
+                if (lon < scnProp.lonMin) {
+                    scnProp.lonMin = (float)lon;
+                }
+                if (lon > scnProp.lonMax) {
+                    scnProp.lonMax = (float)lon;
+                }
+            }
+        }
+    }
+
+    public static void getSceneDimensions(final double minSpacing, final SceneProperties scnProp) {
+        double minAbsLat;
+        if (scnProp.latMin * scnProp.latMax > 0) {
+            minAbsLat = Math.min(Math.abs(scnProp.latMin), Math.abs(scnProp.latMax)) * Constants.DTOR;
+        } else {
+            minAbsLat = 0.0;
+        }
+        double delLat = minSpacing / Constants.MeanEarthRadius * Constants.RTOD;
+        double delLon = minSpacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
+        delLat = Math.min(delLat, delLon);
+        delLon = delLat;
+
+        scnProp.sceneWidth = (int) ((scnProp.lonMax - scnProp.lonMin) / delLon) + 1;
+        scnProp.sceneHeight = (int) ((scnProp.latMax - scnProp.latMin) / delLat) + 1;
+    }
+
+    public static void addGeoCoding(final Product product, final SceneProperties scnProp) {
+
+        final int sceneWidth = product.getSceneRasterWidth();
+        final int sceneHeight = product.getSceneRasterHeight();
+        final double delLon = (scnProp.lonMax - scnProp.lonMin) / (scnProp.sceneWidth - 1);
+        final double delLat = (scnProp.latMax - scnProp.latMin) / (scnProp.sceneHeight - 1);
+
+        final int gridWidth = 11;
+        final int gridHeight = 11;
+        final int subSamplingX = (sceneWidth - 1) / (gridWidth - 1);
+        final int subSamplingY = (sceneHeight - 1) / (gridHeight - 1);
+        final float[] latTiePoints = new float[gridWidth*gridHeight];
+        final float[] lonTiePoints = new float[gridWidth*gridHeight];
+
+        for (int i = 0; i < gridHeight; ++i) {
+            for (int j = 0; j < gridWidth; ++j) {
+                latTiePoints[i*gridHeight + j] = (float)(scnProp.latMax - i*subSamplingY*delLat);
+                lonTiePoints[i*gridHeight + j] = (float)(scnProp.lonMin + j*subSamplingX*delLon);
+                System.out.print(lonTiePoints[i*gridHeight + j]);
+                System.out.print(" ");
+            }
+            System.out.println();
+        }
+
+        final TiePointGrid latGrid = new TiePointGrid("latitude", gridWidth, gridHeight, 0.5f, 0.5f,
+                subSamplingX, subSamplingY, latTiePoints);
+        latGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGrid lonGrid = new TiePointGrid("longitude", gridWidth, gridHeight, 0.5f, 0.5f,
+                subSamplingX, subSamplingY, lonTiePoints, TiePointGrid.DISCONT_AT_180);
+        lonGrid.setUnit(Unit.DEGREES);
+
+        product.addTiePointGrid(latGrid);
+        product.addTiePointGrid(lonGrid);
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+    }
+
+    public static class SceneProperties {
+        public int sceneWidth, sceneHeight;
+        public float latMin, lonMin, latMax, lonMax;
+
+        public final Map<Product, double[]> srcCornerLatitudeMap = new HashMap<>(10);
+        public final Map<Product, double[]> srcCornerLongitudeMap = new HashMap<>(10);
+    }
+
 }
