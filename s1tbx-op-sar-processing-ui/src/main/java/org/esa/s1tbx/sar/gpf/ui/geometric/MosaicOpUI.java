@@ -20,6 +20,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
@@ -64,7 +65,7 @@ public class MosaicOpUI extends BaseOperatorUI {
 
     private double widthHeightRatio = 1;
     private double pixelSizeHeightRatio = 1;
-    private final MosaicOp.SceneProperties scnProp = new MosaicOp.SceneProperties();
+    private final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
 
     private final static String useGradientDomainStr = System.getProperty(SystemUtils.getApplicationContextId() + ".mosaic.allow.gradient.domain");
     private final static boolean useGradientDomain = useGradientDomainStr != null && useGradientDomainStr.equals("true");
@@ -145,7 +146,7 @@ public class MosaicOpUI extends BaseOperatorUI {
 
         if (!changedByUser && sourceProducts != null) {
             try {
-                MosaicOp.computeImageGeoBoundary(sourceProducts, scnProp);
+                OperatorUtils.computeImageGeoBoundary(sourceProducts, scnProp);
 
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
                 final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
@@ -153,7 +154,7 @@ public class MosaicOpUI extends BaseOperatorUI {
                 final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
                 pixSize = minSpacing;
 
-                MosaicOp.getSceneDimensions(minSpacing, scnProp);
+                OperatorUtils.getSceneDimensions(minSpacing, scnProp);
 
                 width = scnProp.sceneWidth;
                 height = scnProp.sceneHeight;
@@ -268,7 +269,7 @@ public class MosaicOpUI extends BaseOperatorUI {
                 changedByUser = true;
                 if (e.getComponent() == pixelSize) {
                     final double pixSize = Double.parseDouble(pixelSize.getText());
-                    MosaicOp.getSceneDimensions(pixSize, scnProp);
+                    OperatorUtils.getSceneDimensions(pixSize, scnProp);
 
                     sceneWidth.setText(String.valueOf(scnProp.sceneWidth));
                     sceneHeight.setText(String.valueOf(scnProp.sceneHeight));
