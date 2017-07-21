@@ -33,7 +33,6 @@ import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.SingleBandedOpImage;
 import org.esa.snap.core.transform.MathTransform2D;
-import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ObjectUtils;
 import org.esa.snap.core.util.ProductUtils;
@@ -41,7 +40,6 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.jai.SingleBandedSampleModel;
 import org.esa.snap.core.util.math.Histogram;
-import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.core.util.math.Quantizer;
 import org.esa.snap.core.util.math.Range;
@@ -2676,22 +2674,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
          * @param pm       a progress monitor
          */
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
-    }
-
-    static final class ValidMaskValidator implements IndexValidator {
-
-        private final int pixelOffset;
-        private final BitRaster validMask;
-
-        ValidMaskValidator(int rasterWidth, int lineOffset, BitRaster validMask) {
-            this.pixelOffset = rasterWidth * lineOffset;
-            this.validMask = validMask;
-        }
-
-        @Override
-        public boolean validateIndex(final int pixelIndex) {
-            return validMask.isSet(pixelOffset + pixelIndex);
-        }
     }
 
     private class AncillaryBandRemover extends ProductNodeListenerAdapter {

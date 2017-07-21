@@ -23,7 +23,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.jexp.ParseException;
-import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
@@ -40,6 +39,8 @@ import javax.media.jai.RasterFactory;
 import javax.media.jai.RasterFormatTag;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ScaleDescriptor;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.ComponentSampleModel;
@@ -49,6 +50,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -271,21 +274,39 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             latLonImage = new LatLonImage(this.latBand.getGeophysicalImage(), this.lonBand.getGeophysicalImage(),
                                           validMask, pixelPosEstimator);
         } else {
+            Mask validMask = null;
             try {
                 pm.beginTask("Preparing data for pixel based geo-coding...", 4);
                 latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
                 lonGrid = PixelGrid.create(lonBand, SubProgressMonitor.create(pm, 1));
                 if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
-                    final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
-                                                                                     SubProgressMonitor.create(pm, 1));
-                    fillInvalidGaps(new RasterDataNode.ValidMaskValidator(rasterWidth, 0, validMask),
+                    Dimension sceneSize = latBand.getProduct().getSceneRasterSize();
+                    String maskName = getUniqueMaskName(latBand.getProduct(), "_tempMask_");
+                    validMask = Mask.BandMathsType.create(maskName, "", sceneSize.width, sceneSize.height, validMaskExpr, Color.RED, 0.0);
+                    validMask.setOwner(latBand.getProduct());
+                    fillInvalidGaps(new ValidMaskValidator(rasterWidth, 0, validMask),
                                     (float[]) latGrid.getDataElems(),
                                     (float[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 pm.done();
+                if(validMask != null) {
+                    validMask.setOwner(null);
+                    validMask.dispose();
+                }
             }
         }
+    }
+
+    private String getUniqueMaskName(Product product, String startName) {
+        ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+        List<String> names = Arrays.asList(maskGroup.getNodeNames());
+        String currentName = startName;
+        int index = 1;
+        while(names.contains(currentName)) {
+            currentName = String.format("%s_%d", startName, index);
+        }
+        return currentName;
     }
 
     /**
@@ -1414,5 +1435,21 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             }
         }
 
+    }
+
+    static final class ValidMaskValidator implements IndexValidator {
+
+        private final int pixelOffset;
+        private final Mask validMask;
+
+        ValidMaskValidator(int rasterWidth, int lineOffset, Mask validMask) {
+            this.pixelOffset = rasterWidth * lineOffset;
+            this.validMask = validMask;
+        }
+
+        @Override
+        public boolean validateIndex(final int pixelIndex) {
+            return validMask.isPixelValid(pixelOffset + pixelIndex);
+        }
     }
 }

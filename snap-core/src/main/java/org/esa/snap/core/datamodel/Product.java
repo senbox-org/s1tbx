@@ -28,7 +28,6 @@ import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
-import org.esa.snap.core.dataop.barithm.RasterDataLoop;
 import org.esa.snap.core.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.core.dataop.barithm.SingleFlagSymbol;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
@@ -42,12 +41,9 @@ import org.esa.snap.core.jexp.Parser;
 import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.jexp.WritableNamespace;
 import org.esa.snap.core.jexp.impl.ParserImpl;
-import org.esa.snap.core.util.BitRaster;
-import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ObjectUtils;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.WildcardMatcher;
@@ -83,11 +79,11 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
- * an abstract hull containing references to the data of the product or readers to retrieve the data on demant. The
+ * {@code Product} instances are an in-memory representation of a remote sensing data product. The product is more
+ * an abstract hull containing references to the data of the product or readers to retrieve the data on demand. The
  * product itself does not hold the remote sensing data. Data products can contain multiple geophysical parameters
- * stored as bands and can also have multiple metadata attributes. Also, a <code>Product</code> can contain any number
- * of <code>TiePointGrids</code> holding the tie point data.
+ * stored as bands and can also have multiple metadata attributes. Also, a {@code Product} can contain any number
+ * of {@code TiePointGrids} holding the tie point data.
  * <p>
  * <p>Every product can also have a product reader and writer assigned to it. The reader represents the data source from
  * which a product was created, whereas the writer represents the data sink. Both, the source and the sink must not
@@ -511,10 +507,10 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Retrieves the disk location of this product. The return value can be <code>null</code> when the product has no
+     * Retrieves the disk location of this product. The return value can be {@code null} when the product has no
      * disk location (pure virtual memory product)
      *
-     * @return the file location, may be <code>null</code>
+     * @return the file location, may be {@code null}
      */
     public File getFileLocation() {
         return fileLocation;
@@ -523,7 +519,7 @@ public class Product extends ProductNode {
     /**
      * Sets the file location for this product.
      *
-     * @param fileLocation the file location, may be <code>null</code>
+     * @param fileLocation the file location, may be {@code null}
      */
     public void setFileLocation(final File fileLocation) {
         if (!ObjectUtils.equalObjects(this.fileLocation, fileLocation)) {
@@ -535,7 +531,7 @@ public class Product extends ProductNode {
 
     /**
      * Overwrites the{@link ProductNode#setOwner(ProductNode)} method in order to
-     * throw an <code>IllegalStateException</code>,
+     * throw an {@code IllegalStateException},
      * since products currently cannot have an owner.
      */
     @Override
@@ -587,7 +583,7 @@ public class Product extends ProductNode {
      * Returns the reader which was used to create this product in-memory represention from an external source and which
      * will be used to (re-)load band rasters.
      *
-     * @return the product reader, can be <code>null</code>
+     * @return the product reader, can be {@code null}
      */
     @Override
     public ProductReader getProductReader() {
@@ -598,7 +594,7 @@ public class Product extends ProductNode {
      * Sets the writer which will be used to write modifications of this product's in-memory represention to an external
      * destination.
      *
-     * @param writer the product writer, can be <code>null</code>
+     * @param writer the product writer, can be {@code null}
      */
     public void setProductWriter(final ProductWriter writer) {
         this.writer = writer;
@@ -608,7 +604,7 @@ public class Product extends ProductNode {
      * Returns the writer which will be used to write modifications of this product's in-memory represention to an
      * external destination.
      *
-     * @return the product writer, can be <code>null</code>
+     * @return the product writer, can be {@code null}
      */
     @Override
     public ProductWriter getProductWriter() {
@@ -618,9 +614,9 @@ public class Product extends ProductNode {
     /**
      * <p>Writes the header of a data product.<p>
      *
-     * @param output an object representing a valid output for this writer, might be a <code>ImageOutputStream</code>
-     *               or a <code>File</code> or other <code>Object</code> to use for future decoding.
-     * @throws IllegalArgumentException if <code>output</code> is <code>null</code> or it's type is none of the
+     * @param output an object representing a valid output for this writer, might be a {@code ImageOutputStream}
+     *               or a {@code File} or other {@code Object} to use for future decoding.
+     * @throws IllegalArgumentException if {@code output} is {@code null} or it's type is none of the
      *                                  supported output types.
      * @throws IOException              if an I/O error occurs
      */
@@ -692,11 +688,11 @@ public class Product extends ProductNode {
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
-     * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
+     * results of referencing an instance of this class after a call to {@code dispose()} are undefined.
      * <p>
-     * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
+     * <p>Overrides of this method should always call {@code super.dispose();} after disposing this instance.
      * <p>
-     * <p>This implementation also calls the <code>closeIO</code> in order to release all open I/O resources.
+     * <p>This implementation also calls the {@code closeIO} in order to release all open I/O resources.
      */
     @Override
     public void dispose() {
@@ -724,11 +720,6 @@ public class Product extends ProductNode {
         if (sceneGeoCoding != null) {
             sceneGeoCoding.dispose();
             sceneGeoCoding = null;
-        }
-
-        if (validMasks != null) {
-            validMasks.clear();
-            validMasks = null;
         }
 
         if (maskCache != null) {
@@ -800,15 +791,15 @@ public class Product extends ProductNode {
     /**
      * Sets the geo-coding to be associated with the scene raster.
      *
-     * @param sceneGeoCoding the geo-coding, or <code>null</code>
-     * @throws IllegalArgumentException <br>- if the given <code>GeoCoding</code> is a <code>TiePointGeoCoding</code>
-     *                                  and <code>latGrid</code> or <code>lonGrid</code> are not instances of tie point
-     *                                  grids in this product. <br>- if the given <code>GeoCoding</code> is a
-     *                                  <code>MapGeoCoding</code> and its <code>MapInfo</code> is <code>null</code>
-     *                                  <br>- if the given <code>GeoCoding</code> is a <code>MapGeoCoding</code> and the
-     *                                  <code>sceneWith</code> or <code>sceneHeight</code> of its <code>MapInfo</code>
-     *                                  is not equal to this products <code>sceneRasterWidth</code> or
-     *                                  <code>sceneRasterHeight</code>
+     * @param sceneGeoCoding the geo-coding, or {@code null}
+     * @throws IllegalArgumentException <br>- if the given {@code GeoCoding} is a {@code TiePointGeoCoding}
+     *                                  and {@code latGrid} or {@code lonGrid} are not instances of tie point
+     *                                  grids in this product. <br>- if the given {@code GeoCoding} is a
+     *                                  {@code MapGeoCoding} and its {@code MapInfo} is {@code null}
+     *                                  <br>- if the given {@code GeoCoding} is a {@code MapGeoCoding} and the
+     *                                  {@code sceneWith} or {@code sceneHeight} of its {@code MapInfo}
+     *                                  is not equal to this products {@code sceneRasterWidth} or
+     *                                  {@code sceneRasterHeight}
      */
     public void setSceneGeoCoding(final GeoCoding sceneGeoCoding) {
         checkGeoCoding(sceneGeoCoding);
@@ -822,7 +813,7 @@ public class Product extends ProductNode {
     /**
      * Gets the geo-coding associated with the scene raster.
      *
-     * @return the geo-coding, can be <code>null</code> if this product is not geo-coded.
+     * @return the geo-coding, can be {@code null} if this product is not geo-coded.
      */
     public GeoCoding getSceneGeoCoding() {
         return sceneGeoCoding;
@@ -856,7 +847,7 @@ public class Product extends ProductNode {
      * the given {@link ProductSubsetDef subsetDef}.
      *
      * @param destProduct the destination product
-     * @param subsetDef   the definition of the subset, may be <code>null</code>
+     * @param subsetDef   the definition of the subset, may be {@code null}
      * @return true, if the geo-coding could be transferred.
      */
     public boolean transferGeoCodingTo(final Product destProduct, final ProductSubsetDef subsetDef) {
@@ -1017,7 +1008,7 @@ public class Product extends ProductNode {
     /**
      * Adds the given tie-point grid to this product.
      *
-     * @param tiePointGrid the tie-point grid to added, ignored if <code>null</code>
+     * @param tiePointGrid the tie-point grid to added, ignored if {@code null}
      */
     public void addTiePointGrid(final TiePointGrid tiePointGrid) {
         if (containsRasterDataNode(tiePointGrid.getName())) {
@@ -1030,8 +1021,8 @@ public class Product extends ProductNode {
     /**
      * Removes the tie-point grid from this product.
      *
-     * @param tiePointGrid the tie-point grid to be removed, ignored if <code>null</code>
-     * @return <code>true</code> if node could be removed
+     * @param tiePointGrid the tie-point grid to be removed, ignored if {@code null}
+     * @return {@code true} if node could be removed
      */
     public boolean removeTiePointGrid(final TiePointGrid tiePointGrid) {
         return tiePointGridGroup.remove(tiePointGrid);
@@ -1085,7 +1076,7 @@ public class Product extends ProductNode {
      * Returns the tie-point grid with the given name.
      *
      * @param name the tie-point grid name
-     * @return the tie-point grid with the given name or <code>null</code> if a tie-point grid with the given name is
+     * @return the tie-point grid with the given name or {@code null} if a tie-point grid with the given name is
      * not contained in this product.
      */
     public TiePointGrid getTiePointGrid(final String name) {
@@ -1097,9 +1088,9 @@ public class Product extends ProductNode {
     /**
      * Tests if a tie-point grid with the given name is contained in this product.
      *
-     * @param name the name, must not be <code>null</code>
-     * @return <code>true</code> if a tie-point grid with the given name is contained in this product,
-     * <code>false</code> otherwise
+     * @param name the name, must not be {@code null}
+     * @return {@code true} if a tie-point grid with the given name is contained in this product,
+     * {@code false} otherwise
      */
     public boolean containsTiePointGrid(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
@@ -1122,7 +1113,7 @@ public class Product extends ProductNode {
     /**
      * Adds the given band to this product.
      *
-     * @param band the band to added, must not be <code>null</code>
+     * @param band the band to added, must not be {@code null}
      */
     public void addBand(final Band band) {
         Assert.notNull(band, "band");
@@ -1181,7 +1172,7 @@ public class Product extends ProductNode {
     /**
      * Removes the given band from this product.
      *
-     * @param band the band to be removed, ignored if <code>null</code>
+     * @param band the band to be removed, ignored if {@code null}
      * @return {@code true} if removed succesfully, otherwise {@code false}
      */
     public boolean removeBand(final Band band) {
@@ -1231,9 +1222,9 @@ public class Product extends ProductNode {
      * Returns the band with the given name.
      *
      * @param name the band name
-     * @return the band with the given name or <code>null</code> if a band with the given name is not contained in this
+     * @return the band with the given name or {@code null} if a band with the given name is not contained in this
      * product.
-     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     * @throws IllegalArgumentException if the given name is {@code null} or empty.
      */
     public Band getBand(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
@@ -1244,8 +1235,8 @@ public class Product extends ProductNode {
      * Returns the index for the band with the given name.
      *
      * @param name the band name
-     * @return the band index or <code>-1</code> if a band with the given name is not contained in this product.
-     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     * @return the band index or {@code -1} if a band with the given name is not contained in this product.
+     * @throws IllegalArgumentException if the given name is {@code null} or empty.
      */
     public int getBandIndex(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
@@ -1255,10 +1246,10 @@ public class Product extends ProductNode {
     /**
      * Tests if a band with the given name is contained in this product.
      *
-     * @param name the name, must not be <code>null</code>
-     * @return <code>true</code> if a band with the given name is contained in this product, <code>false</code>
+     * @param name the name, must not be {@code null}
+     * @return {@code true} if a band with the given name is contained in this product, {@code false}
      * otherwise
-     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     * @throws IllegalArgumentException if the given name is {@code null} or empty.
      */
     public boolean containsBand(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
@@ -1272,9 +1263,9 @@ public class Product extends ProductNode {
      * Tests if a raster data node with the given name is contained in this product. Raster data nodes can be bands or
      * tie-point grids.
      *
-     * @param name the name, must not be <code>null</code>
-     * @return <code>true</code> if a raster data node with the given name is contained in this product,
-     * <code>false</code> otherwise
+     * @param name the name, must not be {@code null}
+     * @return {@code true} if a raster data node with the given name is contained in this product,
+     * {@code false} otherwise
      */
     public boolean containsRasterDataNode(final String name) {
         return containsBand(name) || containsTiePointGrid(name) || getMaskGroup().contains(name);
@@ -1282,10 +1273,10 @@ public class Product extends ProductNode {
 
     /**
      * Gets the raster data node with the given name. The method first searches for bands with the given name, then for
-     * tie-point grids. If neither bands nor tie-point grids exist with the given name, <code>null</code> is returned.
+     * tie-point grids. If neither bands nor tie-point grids exist with the given name, {@code null} is returned.
      *
-     * @param name the name, must not be <code>null</code>
-     * @return the raster data node with the given name or <code>null</code> if a raster data node with the given name
+     * @param name the name, must not be {@code null}
+     * @return the raster data node with the given name or {@code null} if a raster data node with the given name
      * is not contained in this product.
      */
     public RasterDataNode getRasterDataNode(final String name) {
@@ -1345,9 +1336,9 @@ public class Product extends ProductNode {
      * Returns the Quicklook with the given name.
      *
      * @param name the quicklook name
-     * @return the quicklook with the given name or <code>null</code> if a quicklook with the given name is not contained in this
+     * @return the quicklook with the given name or {@code null} if a quicklook with the given name is not contained in this
      * product.
-     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     * @throws IllegalArgumentException if the given name is {@code null} or empty.
      */
     public Quicklook getQuicklook(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
@@ -1492,7 +1483,7 @@ public class Product extends ProductNode {
      *
      * @param product the product to compare with
      * @param eps     the maximum lat/lon error in degree
-     * @return <code>false</code> if the scene dimensions or geocoding are different, <code>true</code> otherwise.
+     * @return {@code false} if the scene dimensions or geocoding are different, {@code true} otherwise.
      */
     public boolean isCompatibleProduct(final Product product, final float eps) {
         Guardian.assertNotNull("product", product);
@@ -1605,10 +1596,10 @@ public class Product extends ProductNode {
      * The visitor pattern allows to define new operations on the product data model without the need to add more code
      * to it. The new operation is implemented by the visitor.
      * <p>
-     * <p>The method subsequentially visits (calls <code>acceptVisitor</code> for) all bands, tie-point grids and flag
-     * codings. Finally it visits product metadata root element and calls <code>visitor.visit(this)</code>.
+     * <p>The method subsequentially visits (calls {@code acceptVisitor} for) all bands, tie-point grids and flag
+     * codings. Finally it visits product metadata root element and calls {@code visitor.visit(this)}.
      *
-     * @param visitor the visitor, must not be <code>null</code>
+     * @param visitor the visitor, must not be {@code null}
      */
     @Override
     public void acceptVisitor(final ProductVisitor visitor) {
@@ -1628,7 +1619,7 @@ public class Product extends ProductNode {
     // Product listener support
 
     /**
-     * Adds a <code>ProductNodeListener</code> to this product. The <code>ProductNodeListener</code> is informed each
+     * Adds a {@code ProductNodeListener} to this product. The {@code ProductNodeListener} is informed each
      * time a node in this product changes.
      *
      * @param listener the listener to be added
@@ -1648,7 +1639,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Removes a <code>ProductNodeListener</code> from this product.
+     * Removes a {@code ProductNodeListener} from this product.
      *
      * @param listener the listener to be removed.
      */
@@ -1765,17 +1756,17 @@ public class Product extends ProductNode {
     /**
      * Returns the product manager for this product.
      *
-     * @return this product's manager, can be <code>null</code>
+     * @return this product's manager, can be {@code null}
      */
     public ProductManager getProductManager() {
         return productManager;
     }
 
     /**
-     * Sets the product manager for this product. Called by a <code>PropductManager</code> to set the product's
+     * Sets the product manager for this product. Called by a {@code PropductManager} to set the product's
      * ownership.
      *
-     * @param productManager this product's manager, can be <code>null</code>
+     * @param productManager this product's manager, can be {@code null}
      */
     void setProductManager(final ProductManager productManager) {
         this.productManager = productManager;
@@ -1875,7 +1866,7 @@ public class Product extends ProductNode {
      * @param subsetDef the product subset definition
      * @param name      the name for the new product
      * @param desc      the description for the new product
-     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
+     * @return the product subset, or {@code null} if the product/subset combination is not valid
      * @throws IOException if an I/O error occurs
      */
     public Product createSubset(final ProductSubsetDef subsetDef, final String name, final String desc) throws
@@ -1904,7 +1895,7 @@ public class Product extends ProductNode {
     /**
      * Gets an estimated, raw storage size in bytes of this product node.
      *
-     * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     * @param subsetDef if not {@code null} the subset may limit the size returned
      * @return the size in bytes.
      */
     @Override
@@ -2209,7 +2200,7 @@ public class Product extends ProductNode {
      * Gets the preferred tile size which may be used for a the {@link java.awt.image.RenderedImage rendered image}
      * created for a {@link RasterDataNode} of this product.
      *
-     * @return the preferred tile size, may be <code>null</code> if not specified
+     * @return the preferred tile size, may be {@code null} if not specified
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode#setSourceImage(java.awt.image.RenderedImage)
      */
@@ -2233,7 +2224,7 @@ public class Product extends ProductNode {
      * Sets the preferred tile size which may be used for a the {@link java.awt.image.RenderedImage rendered image}
      * created for a {@link RasterDataNode} of this product.
      *
-     * @param preferredTileSize the preferred tile size, may be <code>null</code> if not specified
+     * @param preferredTileSize the preferred tile size, may be {@code null} if not specified
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode#setSourceImage(java.awt.image.RenderedImage)
      */
@@ -2250,7 +2241,7 @@ public class Product extends ProductNode {
      * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
      *
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
-     * never <code>null</code>.
+     * never {@code null}.
      * @see #parseExpression(String)
      */
     public String[] getAllFlagNames() {
@@ -2449,7 +2440,7 @@ public class Product extends ProductNode {
     /**
      * Adds the given mask to this product.
      *
-     * @param mask the mask to be added, must not be <code>null</code>
+     * @param mask the mask to be added, must not be {@code null}
      */
     public void addMask(Mask mask) {
         getMaskGroup().add(mask);
@@ -2610,7 +2601,7 @@ public class Product extends ProductNode {
             int code = 0;
             for (AutoGroupingPath autoGroupingPath : autoGroupingPaths) {
                 String[] path = autoGroupingPath.getInputPath();
-                code += path.hashCode();
+                code += Arrays.hashCode(path);
             }
             return code;
         }
@@ -2661,7 +2652,7 @@ public class Product extends ProductNode {
 
     }
 
-    static interface Entry {
+    interface Entry {
 
         boolean matches(String name);
 
@@ -2698,212 +2689,6 @@ public class Product extends ProductNode {
 
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
-
-    @Deprecated
-    private Map<String, BitRaster> validMasks;
-
-    /**
-     * Gets a valid-mask for the given ID.
-     *
-     * @param id the ID
-     * @return a cached valid mask for the given ID or null
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitRaster getValidMask(final String id) {
-        if (validMasks != null) {
-            return validMasks.get(id);
-        }
-        return null;
-    }
-
-    /**
-     * Sets a valid-mask for the given ID.
-     *
-     * @param id        the ID
-     * @param validMask the pixel mask
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void setValidMask(final String id, final BitRaster validMask) {
-        if (validMask != null) {
-            Guardian.assertEquals("validMask", validMask.getWidth(), getSceneRasterWidth());
-            Guardian.assertEquals("validMask", validMask.getHeight(), getSceneRasterHeight());
-            if (validMasks == null) {
-                validMasks = new HashMap<>();
-            }
-            validMasks.put(id, validMask);
-        } else {
-            if (validMasks != null) {
-                validMasks.remove(id);
-            }
-        }
-    }
-
-    /**
-     * Creates a bit-packed valid-mask for all pixels of the scene covered by this product.
-     * The given expression is considered to be boolean, if it evaluates to <code>true</code>
-     * the related bit in the mask is set.
-     *
-     * @param expression the boolean expression, e.g. "l2_flags.LAND &amp;&amp; reflec_10 &gt;= 0.0"
-     * @param pm         a progress monitor
-     * @return a bit-packed mask for all pixels of the scene, never null
-     * @throws IOException if an I/O error occurs
-     * @see #parseExpression(String)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitRaster createValidMask(final String expression, final ProgressMonitor pm) throws IOException {
-        try {
-            final Term term = getProduct().parseExpression(expression);
-            return createValidMask(term, pm);
-        } catch (ParseException e) {
-            final IOException ioException = new IOException(
-                    "Unable to load the valid pixel mask, parse error: " + e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
-        }
-    }
-
-    /**
-     * Creates a bit-packed mask for all pixels of the scene covered by this product.
-     * The given term is considered to be boolean, if it evaluates to <code>true</code>
-     * the related bit in the mask is set.
-     *
-     * @param term the boolean term, e.g. "l2_flags.LAND &amp;&amp; reflec_10 &gt;= 0.0"
-     * @param pm   a progress monitor
-     * @return a bit-packed mask for all pixels of the scene, never null
-     * @throws IOException if an I/O error occurs
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link Mask.BandMathsType#create(String, String, int, int, String, java.awt.Color, double) Mask.BandMathsType.create()}
-     * and {@link #getMaskGroup()}) instead
-     */
-    @Deprecated
-    public BitRaster createValidMask(final Term term, final ProgressMonitor pm) throws IOException {
-        final String id = term.toString();
-        BitRaster cachedValidMask = getValidMask(id);
-        if (cachedValidMask != null) {
-            return cachedValidMask;
-        }
-        Debug.trace("createValidMask: " + id);
-        final int productWidth = getSceneRasterWidth();
-        final int productHeight = getSceneRasterHeight();
-        final BitRaster validMask = new BitRaster(productWidth, productHeight);
-
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        final RasterDataLoop loop = new RasterDataLoop(0, 0,
-                                                       productWidth, productHeight,
-                                                       new Term[]{term}, pm);
-        loop.forEachPixel((env, pixelIndex) -> {
-            if (term.evalB(env)) {
-                validMask.set(pixelIndex);
-            }
-        }, "Computing valid-mask..."); /*I18N*/
-
-        setValidMask(id, validMask);
-
-        stopWatch.stopAndTrace("createValidMask");
-
-        return validMask;
-    }
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * <p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * <p>
-     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)} method
-     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     * @param pm          a monitor to inform the user about progress
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #parseExpression(String)
-     * @deprecated since BEAM 4.7, add a new mask to product
-     * (see {@link Mask.BandMathsType#create(String, String, int, int, String, java.awt.Color, double) Mask.BandMathsType.create()}
-     * and {@link #getMaskGroup()}) and use its source image instead
-     */
-    @Deprecated
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final boolean[] bitmask, ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel((env, pixelIndex) -> bitmask[pixelIndex] = bitmaskTerm.evalB(env));
-    }
-
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * <p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * <p>
-     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
-     *                    method
-     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #parseExpression(String)
-     * @deprecated since BEAM 4.7, add a new mask to product
-     * (see {@link Mask.BandMathsType#create(String, String, int, int, String, java.awt.Color, double) Mask.BandMathsType.create()}
-     * and {@link #getMaskGroup()}) and use its source image instead
-     */
-    @Deprecated
-    public synchronized void readBitmask(final int offsetX,
-                                         final int offsetY,
-                                         final int width,
-                                         final int height,
-                                         final Term bitmaskTerm,
-                                         final byte[] bitmask,
-                                         final byte trueValue,
-                                         final byte falseValue,
-                                         ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel((env, pixelIndex) -> {
-            if (bitmaskTerm.evalB(env)) {
-                bitmask[pixelIndex] = trueValue;
-            } else {
-                bitmask[pixelIndex] = falseValue;
-            }
-        }, "Reading bitmask...");  /*I18N*/
-    }
 
     /**
      * Gets a multi-level mask image for the given band maths expression and an optional associated raster.
@@ -2984,7 +2769,7 @@ public class Product extends ProductNode {
         Comparator<Band> maxAreaComparator = (o1, o2) -> {
             final long a1 = o1.getRasterWidth() * (long) o1.getRasterHeight();
             final long a2 = o2.getRasterWidth() * (long) o2.getRasterHeight();
-            return new Long(a2).compareTo(a1);
+            return Long.compare(a2, a1);
         };
         Band refBand = Stream.of(getBands())
                 .filter(b -> b.getGeoCoding() != null)
