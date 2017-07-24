@@ -55,6 +55,10 @@ public class GlobalMetadata {
         }
         final BinningConfig config = operator.createConfig();
         globalMetadata.extractConfigMetadata(config);
+        
+        if (StringUtils.isNotNullAndNotEmpty(operator.getSourceProductFormat())) {
+            globalMetadata.metaProperties.put("sourceProductFormat", operator.getSourceProductFormat());
+        }
 
         return globalMetadata;
     }

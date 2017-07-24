@@ -31,7 +31,6 @@ import org.esa.snap.binning.TemporalBin;
 import org.esa.snap.binning.TemporalBinSource;
 import org.esa.snap.binning.TemporalBinner;
 import org.esa.snap.binning.cellprocessor.CellProcessorChain;
-import org.esa.snap.binning.operator.metadata.GlobalMetaParameter;
 import org.esa.snap.binning.operator.metadata.GlobalMetadata;
 import org.esa.snap.binning.operator.metadata.MetadataAggregator;
 import org.esa.snap.binning.operator.metadata.MetadataAggregatorFactory;
@@ -132,12 +131,11 @@ public class BinningOp extends Operator {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
-    // TODO nf/mz 2013-11-05: this could be a common Operator parameter, it accelerates opening of products
     @Parameter(description = "The common product format of all source products.\n" +
                              "This parameter is optional and may be used in conjunction with\n" +
-                             "parameter 'sourceProductPaths' and only to speed up source product opening.\n" +
-                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.",
-            defaultValue = "")
+                             "parameter 'sourceProductPaths'. Can be set if multiple reader are \n" +
+                             "available for the source files and a specific one shall be used." +
+                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.")
     private String sourceProductFormat;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source graphs.\n" +
@@ -322,6 +320,10 @@ public class BinningOp extends Operator {
         this.maskExpr = maskExpr;
     }
 
+    public String getSourceProductFormat() {
+        return sourceProductFormat;
+    }
+
     public void setOutputFile(String outputFile) {
         this.outputFile = outputFile;
     }
@@ -442,7 +444,7 @@ public class BinningOp extends Operator {
             if (!spatialBinMap.isEmpty()) {
                 // update region
                 if (region == null && regionArea != null) {
-                    region = JTS.shapeToGeometry(regionArea, new GeometryFactory());
+                    region = JTS.toGeometry(regionArea, new GeometryFactory());
                 }
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
                 TemporalBinList temporalBins = doTemporalBinning(spatialBinMap);
@@ -576,13 +578,6 @@ public class BinningOp extends Operator {
     }
 
     private void initMetadataProperties() {
-        final GlobalMetaParameter parameter = new GlobalMetaParameter();
-
-        parameter.setDescriptor(getSpi().getOperatorDescriptor());
-        parameter.setOutputFile(new File(outputFile));
-        parameter.setStartDateTime(startDateTime);
-        parameter.setPeriodDuration(periodDuration);
-
         globalMetadata = GlobalMetadata.create(this);
         globalMetadata.load(metadataPropertiesFile, getLogger());
     }
