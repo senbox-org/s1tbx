@@ -160,6 +160,10 @@ public class ProductIOPlugInManager {
         return getAvailableFormatNames(iterator);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    /////// END OF PUBLIC
+    ///////////////////////////////////////////////////////////////////////////
+
     private String[] getAvailableFormatNames(Iterator<? extends ProductIOPlugIn> iterator) {
         ProductIOPlugIn ioPlugIn;
         ArrayList<String> formats = new ArrayList<>();
@@ -176,10 +180,6 @@ public class ProductIOPlugInManager {
 
         return formats.toArray(new String[formats.size()]);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    /////// END OF PUBLIC
-    ///////////////////////////////////////////////////////////////////////////
 
     private static <T extends ProductIOPlugIn> Iterator<T> getProductIOPlugIns(Set<T> ioPlugIns, String formatName) {
         Debug.assertNotNull(ioPlugIns);
