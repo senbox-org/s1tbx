@@ -6,9 +6,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -42,6 +44,20 @@ public class ResourceInstallerTest {
         assertEquals(1, Files.list(targetDir).toArray().length);
         Stream<Path> targetFileList = Files.list(targetDir.resolve("spi"));
         assertEquals(4, targetFileList.toArray().length);
+    }
+
+    @Test
+    public void testInstall_withDiffSize() throws Exception {
+        URL origResource = ResourceInstallerTest.class.getResource("/org/esa/snap/core/util/sizeTest/file.txt");
+        Path origFilePath = Paths.get(origResource.toURI());
+        Files.copy(origFilePath, targetDir.resolve("file.txt"));
+        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir.resolve("org/esa/snap/core/util/sizeTest/newSize"), targetDir);
+        resourceInstaller.install(".*txt", ProgressMonitor.NULL);
+        assertEquals(1, Files.list(targetDir).toArray().length);
+        Stream<Path> targetFileList = Files.list(targetDir);
+        Path[] targetFiles = targetFileList.toArray(Path[]::new);
+        assertEquals(1, targetFiles.length);
+        assertEquals(7, Files.size(targetFiles[0]));
     }
 
     @Test
