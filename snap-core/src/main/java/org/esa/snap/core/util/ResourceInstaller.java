@@ -87,23 +87,13 @@ public class ResourceInstaller {
                     Path relFilePath = sourceBasePath.relativize(resource);
                     String relPathString = relFilePath.toString();
                     Path targetFile = targetDirPath.resolve(relPathString);
-
-                    if (!Files.isDirectory(resource)) {
-                        boolean targetExists = Files.exists(targetFile);
-                        boolean differentSize = false;
-                        if(targetExists) {
-                            long targetSize = Files.size(targetFile);
-                            long sourceSize = Files.size(resource);
-                            differentSize = targetSize != sourceSize;
+                    if (!Files.exists(targetFile) && !Files.isDirectory(resource)) {
+                        Path parentPath = targetFile.getParent();
+                        if (parentPath == null) {
+                            throw new IOException("Could not retrieve the parent directory of '" + targetFile.toString() + "'.");
                         }
-                        if (!targetExists || differentSize) {
-                            Path parentPath = targetFile.getParent();
-                            if (parentPath == null) {
-                                throw new IOException("Could not retrieve the parent directory of '" + targetFile.toString() + "'.");
-                            }
-                            Files.createDirectories(parentPath);
-                            Files.copy(resource, targetFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
-                        }
+                        Files.createDirectories(parentPath);
+                        Files.copy(resource, targetFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
                     }
                     pm.worked(1);
                 }
