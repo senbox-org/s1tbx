@@ -357,17 +357,23 @@ public class PConvertMain {
                 error("invalid no-data-color in '" + noDataColorStr + "'");
             }
         }
-        if (!_imageFormat && _rgbProfile != null) {
-            error("RGB profile is only valid for image output");
+        if (_rgbProfile != null && !_imageFormat) {
+            error("RGB-profile is only valid for image output");
         }
-        if (!_imageFormat && _colorPalette != null) {
+        if (_rgbProfile != null && _colorPalette != null) {
+            error("RGB-profile and color palette definition can be specified at the same time");
+        }
+        if (_rgbProfile != null && _bandIndices != null) {
+            error("RGB-profile and band indices cannot be given at the same time");
+        }
+        if (_colorPalette != null && !_imageFormat) {
             error("Color palette definition is only valid for image output");
         }
-        if (_colorPalette != null && (_bandIndices.length != 1 || _rgbProfile != null)) {
-            error("Color palette definition can only be applied on single bands");
+        if (_colorPalette != null && (_bandIndices != null && _bandIndices.length != 1)) {
+            error("Color palette definition can only be applied on single bands. Select only one with the -b option");
         }
-        if (_bandIndices != null && _rgbProfile != null) {
-            error("Band indices and RGB profile cannot be given at the same time");
+        if (_colorPalette != null && _bandIndices == null) {
+            _bandIndices = new int[]{1};
         }
         if (_imageFormat && _bandIndices == null && _rgbProfile == null) {
             _bandIndices = _imageFormat ? DEFAULT_RGB_BAND_INDICES : null;
