@@ -57,6 +57,7 @@ public class ProductEntry {
     private int id;
     private File file;
     private long fileSize;
+    private String fileSizeString; // For SciHub search result only
     private String name;
     private String mission;
     private String productType;
@@ -168,6 +169,17 @@ public class ProductEntry {
         this.mission = productResult.mission;
         this.firstLineTime = productResult.utc;
         this.refID = productResult.id;
+
+        this.acquisitionMode = productResult.mode;
+
+        final String productType = productResult.name.substring(7, 10);
+        if (productType.equals("GRD") || productType.equals("SLC") || productType.equals("OCN")) {
+            this.productType = productType;
+        } else {
+            this.productType = "";
+        }
+
+        this.fileSizeString = productResult.size;
     }
 
     public void dispose() {
@@ -370,6 +382,8 @@ public class ProductEntry {
     public long getFileSize() {
         return fileSize;
     }
+
+    public String getFileSizeString() { return  fileSizeString; }
 
     public long getLastModified() {
         return lastModified;
