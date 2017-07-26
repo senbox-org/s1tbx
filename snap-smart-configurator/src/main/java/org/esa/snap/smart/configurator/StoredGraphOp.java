@@ -28,7 +28,7 @@ import java.io.FileReader;
         autoWriteDisabled = true)
 public class StoredGraphOp extends Operator {
 
-    @Parameter(description = "The file from which the graph is read.", notNull = true, notEmpty = true)
+    @Parameter(label = "Graph xml file", description = "The file from which the graph is read.", notNull = true, notEmpty = true)
     private File file;
 
     GraphProcessor processor = null;
