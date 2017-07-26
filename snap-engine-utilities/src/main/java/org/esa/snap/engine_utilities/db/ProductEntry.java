@@ -177,6 +177,7 @@ public class ProductEntry {
 
         this.quicklook = new Quicklook(null);
         this.quicklook.setQuicklookLink(productResult.quicklookLink);
+        // Need to call getImage() to force it to get the image from the link
         if (this.quicklook.getImage(null) == null) {
             SystemUtils.LOG.warning("No quicklook for SciHub search product " + this.name + "; quicklookLink = " + productResult.quicklookLink);
         };
