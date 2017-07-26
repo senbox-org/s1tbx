@@ -25,11 +25,11 @@ import java.util.Vector;
 /**
  * @author Tonio Fincke
  */
-class Resample {
+public class Resample {
 
     enum Type {FIRST, MIN, MAX, MEDIAN, MEAN, MIN_MEDIAN, MAX_MEDIAN}
 
-    static MultiLevelImage createInterpolatedMultiLevelImage(MultiLevelImage sourceImage, double noDataValue,
+    public static MultiLevelImage createInterpolatedMultiLevelImage(MultiLevelImage sourceImage, double noDataValue,
                                                              AffineTransform sourceImageToModelTransform,
                                                              final int referenceWidth, int referenceHeight,
                                                              MultiLevelModel referenceMultiLevelModel, Interpolation interpolation) {
