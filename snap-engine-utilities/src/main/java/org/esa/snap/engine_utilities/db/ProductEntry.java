@@ -16,13 +16,7 @@
 package org.esa.snap.engine_utilities.db;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
@@ -180,6 +174,14 @@ public class ProductEntry {
         }
 
         this.fileSizeString = productResult.size;
+
+        this.quicklook = new Quicklook(null);
+        this.quicklook.setQuicklookLink(productResult.quicklookLink);
+        if (this.quicklook.getImage(null) == null) {
+            SystemUtils.LOG.warning("No quicklook for SciHub search product " + this.name + "; quicklookLink = " + productResult.quicklookLink);
+        };
+
+        //System.out.println("ProductEntry quicklookLink = " + productResult.quicklookLink);
     }
 
     public void dispose() {
