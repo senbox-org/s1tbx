@@ -27,9 +27,11 @@ import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.prefs.Preferences;
 
@@ -50,6 +52,8 @@ public class Quicklook extends ProductNode implements Thumbnail {
     private final Path productQuicklookFolder;
     private final boolean productCanAppendFiles;
     private final boolean saveWithProduct;
+
+    private String quicklookLink = null;
 
     public Quicklook(final File productFile) {
         this(null, DEFAULT_QUICKLOOK_NAME);
@@ -136,6 +140,10 @@ public class Quicklook extends ProductNode implements Thumbnail {
      */
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         return 0;
+    }
+
+    public void setQuicklookLink(final String link) {
+         this.quicklookLink = link;
     }
 
     /**
@@ -230,11 +238,20 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     private void loadQuicklook() {
+        //System.out.println("Quicklook.loadQuicklook: called");
         if (productQuicklookFolder != null) {
             // load from product
 
             final File quickLookFile = productQuicklookFolder.resolve(getQLFileName(0)).toFile();
             image = QuicklookGenerator.loadImage(quickLookFile);
+        }
+        if (quicklookLink != null) {
+            try {
+                URL url = new URL(quicklookLink);
+                image = ImageIO.read(url);
+            } catch (Exception e) {
+                SystemUtils.LOG.warning("Quicklook URL ERROR " + e.getMessage() + "; link = " + quicklookLink);
+            }
         }
         if (image == null) {
             // load from database
