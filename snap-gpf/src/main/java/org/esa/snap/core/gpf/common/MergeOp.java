@@ -75,7 +75,7 @@ public class MergeOp extends Operator {
 
     @Parameter(itemAlias = "include",
             description = "Defines nodes to be included in the master product. If no includes are provided, all" +
-                    " nodes are copied.")
+                          " nodes are copied.")
     private NodeDescriptor[] includes;
 
     @Parameter(itemAlias = "exclude",
@@ -84,7 +84,7 @@ public class MergeOp extends Operator {
 
     @Parameter(defaultValue = "1.0E-5f",
             description = "Defines the maximum lat/lon error in degree between the products. If set to NaN no check " +
-                    "for compatible geographic boundary is performed")
+                          "for compatible geographic boundary is performed")
     private float geographicError;
 
     @Override
@@ -116,7 +116,7 @@ public class MergeOp extends Operator {
                 for (String bandName : product.getBandNames()) {
                     Matcher inclMatcher = inclPattern.matcher(bandName);
                     if (inclMatcher.matches()) {
-                        if(!shallBandBeExcluded(bandName, productId, exclusionMap)) {
+                        if (!shallBandBeExcluded(bandName, productId, exclusionMap)) {
                             String newName = StringUtils.isNotNullAndNotEmpty(includeDescriptor.newName) ? includeDescriptor.newName : bandName;
                             copyBandWithFeatures(product, bandName, newName);
                             usedProducts.add(product);
@@ -177,14 +177,15 @@ public class MergeOp extends Operator {
     }
 
     private void validateNodeDescriptor(NodeDescriptor nd) {
-        if(StringUtils.isNullOrEmpty(nd.productId)) {
+        if (StringUtils.isNullOrEmpty(nd.productId)) {
             throw new OperatorException("Missing product id for an include or exclude description");
         }
         if (StringUtils.isNullOrEmpty(nd.name) && StringUtils.isNullOrEmpty(nd.namePattern)) {
             throw new OperatorException(String.format("Neither 'name' nor 'namePattern' given node descriptor with product id '%s'", nd.productId));
         }
         if (StringUtils.isNotNullAndNotEmpty(nd.newName) && StringUtils.isNotNullAndNotEmpty(nd.namePattern)) {
-            throw new OperatorException(String.format("Property 'newName' cannot be used with 'namePattern' in node descriptor with product id '%s'", nd.productId));
+            throw new OperatorException(
+                    String.format("Property 'newName' cannot be used with 'namePattern' in node descriptor with product id '%s'", nd.productId));
         }
     }
 
@@ -229,7 +230,7 @@ public class MergeOp extends Operator {
 
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        getLogger().warning("Wrongly configured operator. Tiles should not be requested.");
+        getLogger().warning("Wrongly configured operator. Tiles of Band '" + band.getName() + "' should not be requested.");
     }
 
     @SuppressWarnings({"SameParameterValue", "WeakerAccess"})
