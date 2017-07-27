@@ -496,16 +496,16 @@ public class DBQuery {
                 if (p.contains(selRect)) {
                     intersectList.add(entry);
                 } else {
-                    // Check if at least one point is in rectangle
+                    // Check if all points are in rectangle
                     boolean onePoint = false;
                     for (GeoPos geo : geoBox) {
-                        if (selRect.contains((int) (geo.getLat() * mult), (int) (geo.getLon() * mult))) {
-                            //System.out.println("DBQuery.intersectMapSelection: product this pt is in rec: " + (int)(geo.getLat() * mult) + ", " + (int)(geo.getLon() * mult));
+                        if (!selRect.contains((int) (geo.getLat() * mult), (int) (geo.getLon() * mult))) {
+                            //System.out.println("DBQuery.intersectMapSelection: product this pt is NOT in rec: " + (int)(geo.getLat() * mult) + ", " + (int)(geo.getLon() * mult));
                             onePoint = true;
                             break;
                         }
                     }
-                    if (onePoint) {
+                    if (!onePoint) {
                         intersectList.add(entry);
                     }
                 }
