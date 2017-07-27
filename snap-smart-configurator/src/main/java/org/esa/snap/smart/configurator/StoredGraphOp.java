@@ -47,7 +47,7 @@ public class StoredGraphOp extends Operator {
             processor = new GraphProcessor();
             graphContext = new GraphContext(graph);
         } catch (GraphException e) {
-            throw new OperatorException(e);
+            throw new OperatorException(new OperatorException("Invalid graph xml file. Try to edit it using the Graph Builder."));
         } catch (FileNotFoundException e) {
             throw new OperatorException("'file' not found");
         }
