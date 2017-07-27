@@ -51,7 +51,7 @@ public class ProductEntry {
     private int id;
     private File file;
     private long fileSize;
-    private String fileSizeString; // For SciHub search result only
+    private String fileSizeString = null; // For SciHub search result only
     private String name;
     private String mission;
     private String productType;
@@ -165,6 +165,8 @@ public class ProductEntry {
         this.refID = productResult.id;
 
         this.acquisitionMode = productResult.mode;
+        this.pass = "";
+        this.fileFormat = "";
 
         final String productType = productResult.name.substring(7, 10);
         if (productType.equals("GRD") || productType.equals("SLC") || productType.equals("OCN")) {
