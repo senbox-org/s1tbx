@@ -457,9 +457,9 @@ public class DBQuery {
         return selectionRectangle;
     }
 
-    private ProductEntry[] intersectMapSelection(final ProductEntry[] resultsList, final boolean returnAllIfNoIntersection) {
+    public ProductEntry[] intersectMapSelection(final ProductEntry[] resultsList, final boolean returnAllIfNoIntersection) {
 
-        if (selectionRectangle == null) {
+        if (selectionRectangle == null || resultsList == null) {
             //System.out.println("DBQuery.intersectMapSelection: null rect returns " + resultsList.length + " products");
             return resultsList;
         }
