@@ -182,6 +182,7 @@ public class ProductEntry {
             SystemUtils.LOG.warning("No quicklook for SciHub search product " + this.name + "; quicklookLink = " + productResult.quicklookLink);
         };
 
+        useGeoboundaryForBox = true;
         //System.out.println("ProductEntry quicklookLink = " + productResult.quicklookLink);
     }
 
