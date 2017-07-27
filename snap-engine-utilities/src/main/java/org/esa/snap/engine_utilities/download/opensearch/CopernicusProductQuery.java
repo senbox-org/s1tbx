@@ -37,6 +37,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
 
     private static CopernicusProductQuery instance;
 
+    private ProductEntry[] productEntryListFull = null;
     private ProductEntry[] productEntryList = null;
 
     public static final String NAME = "ESA SciHub";
@@ -70,6 +71,15 @@ public class CopernicusProductQuery implements ProductQueryInterface {
     }
 
     public boolean partialQuery(final DBQuery dbQuery) throws Exception {
+
+        ProductEntry[] productEntries = dbQuery.intersectMapSelection(productEntryListFull, true);
+        if (productEntries != null) {
+            //System.out.println("CopernicusProductQuery.partialQuery productEntries.length = " + productEntries.length);
+            productEntryList = productEntries;
+        } /*else {
+            System.out.println("CopernicusProductQuery.partialQuery productEntries is null");
+        }*/
+
         return true;
     }
 
@@ -143,6 +153,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             }
 
             productEntryList = resultList.toArray(new ProductEntry[resultList.size()]);
+            productEntryListFull = productEntryList.clone();
             pm.worked(1);
             
             return true;
