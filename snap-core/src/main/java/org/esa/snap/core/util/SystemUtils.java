@@ -20,6 +20,8 @@ import org.esa.snap.runtime.Config;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
+import org.geotools.util.logging.LoggerFactory;
+import org.geotools.util.logging.Logging;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
@@ -80,9 +82,6 @@ public class SystemUtils {
     public static final String AUXDATA_DIR_NAME = "auxdata";
 
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
-    // need to keep it as static field, otherwise it might be removed from logmanager, and therefor the configuration too
-    // seems this is a bug and fixed in Java9 (http://bugs.java.com/view_bug.do?bug_id=8030192)
-    private static final Logger LOGGER_GEOTOOLS = Logger.getLogger("org.geotools");
 
     /**
      * Gets the current user's name, or the string <code>"unknown"</code> if the the user's name cannot be determined.
@@ -396,10 +395,10 @@ public class SystemUtils {
     }
 
     public static void initGeoTools() {
-        LOGGER_GEOTOOLS.setUseParentHandlers(false);
-
         // setting longitude first so we can, rely on the order
         GeoTools.init(new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, true));
+
+        Logging.ALL.setLoggerFactory(new GeoToolsLoggerFactory());
 
         // Must store EPSG database in application data dir, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
@@ -594,5 +593,31 @@ public class SystemUtils {
             return attrValue;
         }
 
+    }
+
+    // reduces the amount of log messages
+    private static class GeoToolsLoggerFactory extends LoggerFactory<Logger> {
+
+        public GeoToolsLoggerFactory() {
+            super(Logger.class);
+        }
+
+        @Override
+        protected Logger getImplementation(String name) {
+            Logger logger = Logger.getLogger(name);
+            // only severe messages shall be logged
+            logger.setLevel(Level.SEVERE);
+            return logger;
+        }
+
+        @Override
+        protected Logger wrap(String name, Logger implementation) {
+            return implementation;
+        }
+
+        @Override
+        protected Logger unwrap(Logger logger) {
+            return logger;
+        }
     }
 }
