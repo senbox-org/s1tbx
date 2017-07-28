@@ -30,8 +30,7 @@ public class KmzExporter {
     private static final String IMAGE_TYPE = "PNG";
 
 
-    public void export(KmlFeature kmlFeature, ZipOutputStream zipOutputStream, final ProgressMonitor pm) throws
-                                                                                                         IOException {
+    public void export(KmlFeature kmlFeature, ZipOutputStream zipOutputStream, final ProgressMonitor pm) throws IOException {
 
         final int numOverlaysToExport = getNumOverlaysToExport(kmlFeature);
         pm.beginTask("Exporting KMZ...", numOverlaysToExport);
@@ -43,7 +42,6 @@ public class KmzExporter {
             zipOutputStream.write(kml.getBytes());
             pm.isCanceled();
         } finally {
-            zipOutputStream.close();
             pm.done();
         }
 
