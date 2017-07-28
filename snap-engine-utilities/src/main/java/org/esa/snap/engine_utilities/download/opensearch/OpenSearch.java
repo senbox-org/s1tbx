@@ -206,6 +206,7 @@ public class OpenSearch {
         public final ProductData.UTC utc;
         public String productLink;
         public String quicklookLink;
+        public String manifestLink;
 
         private static final String SIZE = "Size:";
         private static final String SATELLITE = "Satellite:";
@@ -217,7 +218,9 @@ public class OpenSearch {
             this.id = (entry.getId().toString());
             this.name = entry.getTitle();
 
+            // entry.getText(), entry.getAttributes() are both empty?
             final String summary = entry.getSummary();
+            //System.out.println("OpenSearch.ProductResult: summary = " + summary);
 
             this.mission = getMission(summary);
             this.utc = AbstractMetadata.parseUTC(getDate(summary), dateFormat);
@@ -229,6 +232,9 @@ public class OpenSearch {
 
                 if (link.getRel() == null) {
                     productLink = link.getHref().toString();
+                    manifestLink = productLink.substring(0, productLink.lastIndexOf('/')) + "/Nodes('" + this.name + ".SAFE')/Nodes('manifest.safe')/$value";
+                    //System.out.println("OpenSearch.ProductResult: productLink = " + productLink + "; filename = " + this.name + ".SAFE");
+                    //System.out.println("OpenSearch.ProductResult: manifestLink = " + manifestLink);
                 } else if (link.getRel().equals("icon")) {
                     quicklookLink = link.getHref().toString();
                 }

@@ -24,9 +24,14 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.download.opensearch.OpenSearch;
 import org.esa.snap.engine_utilities.gpf.CommonReaders;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -165,6 +170,7 @@ public class ProductEntry {
         this.refID = productResult.id;
 
         this.acquisitionMode = productResult.mode;
+
         this.pass = "";
         this.fileFormat = "";
 
@@ -185,6 +191,21 @@ public class ProductEntry {
         };
 
         useGeoboundaryForBox = true;
+
+        // TODO
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        try {
+            Document doc = factory.newDocumentBuilder().parse(new URL(productResult.manifestLink).openStream());
+            if (doc == null) {
+                SystemUtils.LOG.warning("Null manifest for SciHub search product; manifestLink = " + productResult.manifestLink);
+            } else {
+                // instrumentMode
+            }
+        } catch (Exception e) {
+            SystemUtils.LOG.warning("No manifest for SciHub search product; " + e.getMessage() + "; manifestLink = " + productResult.manifestLink);
+        }
+
         //System.out.println("ProductEntry quicklookLink = " + productResult.quicklookLink);
     }
 
