@@ -30,6 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This is not testing our implementation of Mollweide projection but the one of geotools.
+ * Our implementation is not in use anymore and has been removed in SNAP 6.
+ *
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
