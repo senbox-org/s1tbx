@@ -64,15 +64,16 @@ import java.util.List;
  *
  * @author Nobody wants to be responsible for this mess.
  * @since BEAM 1.0
- * @deprecated since BEAM 4.10, Placemark API is being fully renewed
  */
-@Deprecated
 public class PlacemarkIO {
 
     public static final String FILE_EXTENSION_FLAT_OLD = ".pnf";
     public static final String FILE_EXTENSION_XML_OLD = ".pnx";
     public static final String FILE_EXTENSION_FLAT_TEXT = ".txt";
     public static final String FILE_EXTENSION_PLACEMARK = ".placemark";
+
+    public static final String TAG_FILL_COLOR = "FillColor";
+    public static final String TAG_OUTLINE_COLOR = "OutlineColor";
 
     private static final int INDEX_FOR_NAME = 0;
     private static final int INDEX_FOR_LON = 1;
@@ -370,7 +371,7 @@ public class PlacemarkIO {
      *
      * @param element    the element.
      * @param descriptor the descriptor of the placemark.
-     * @param geoCoding  the geoCoding to used by the placemark. Can be <code>null</code>.
+     * @param geoCoding  the geoCoding to used by the placemark. Can be {@code null}.
      * @return the placemark created.
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
@@ -439,8 +440,8 @@ public class PlacemarkIO {
 
     private static String getStyleCssFromOldFormat(Element element) {
         StringBuilder styleCss = new StringBuilder();
-        buildStyleCss(getColorProperty(element, DimapProductConstants.TAG_PLACEMARK_FILL_COLOR, "fill"), styleCss);
-        buildStyleCss(getColorProperty(element, DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, "stroke"), styleCss);
+        buildStyleCss(getColorProperty(element, TAG_FILL_COLOR, "fill"), styleCss);
+        buildStyleCss(getColorProperty(element, TAG_OUTLINE_COLOR, "stroke"), styleCss);
         return styleCss.toString();
     }
 

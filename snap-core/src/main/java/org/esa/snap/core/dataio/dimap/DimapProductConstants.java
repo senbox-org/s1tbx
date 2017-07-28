@@ -388,8 +388,14 @@ public final class DimapProductConstants {
     public static final String TAG_PLACEMARK_PIXEL_X = "PIXEL_X";
     public static final String TAG_PLACEMARK_PIXEL_Y = "PIXEL_Y";
     public static final String TAG_PLACEMARK_STYLE_CSS = "STYLE_CSS";
+    /**
+     * @deprecated since SNAP 2.0
+     */
     @Deprecated
     public static final String TAG_PLACEMARK_FILL_COLOR = "FillColor";
+    /**
+     * @deprecated since SNAP 2.0
+     */
     @Deprecated
     public static final String TAG_PLACEMARK_OUTLINE_COLOR = "OutlineColor";
 
