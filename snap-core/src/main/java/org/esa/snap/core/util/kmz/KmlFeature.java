@@ -24,6 +24,7 @@ public abstract class KmlFeature {
     private String kmlElementName;
     private final String name;
     private final String description;
+    private ExtendedData extendedData;
 
     protected KmlFeature(String kmlElementName, String name, String description) {
         Assert.notNull(kmlElementName, "xmlTagName");
@@ -41,19 +42,30 @@ public abstract class KmlFeature {
         return description;
     }
 
+    public void setExtendedData(ExtendedData extendedData) {
+        this.extendedData = extendedData;
+    }
+
     public final void createKml(StringBuilder sb) {
         sb.append("<").append(kmlElementName).append(">");
         sb.append("<name>");
         sb.append(getName());
         sb.append("</name>");
-        String description1 = getDescription();
-        if (description1 != null && !description1.isEmpty()) {
+        String description = getDescription();
+        if (description != null && !description.isEmpty()) {
             sb.append("<description>");
-            sb.append(description1);
+            sb.append(description);
             sb.append("</description>");
         }
         createKmlSpecifics(sb);
+        addExtendedData(sb, extendedData);
         sb.append("</").append(kmlElementName).append(">");
+    }
+
+    private void addExtendedData(StringBuilder sb, ExtendedData extendedData) {
+        if(extendedData != null) {
+            extendedData.createKml(sb);
+        }
     }
 
     protected abstract void createKmlSpecifics(StringBuilder sb);

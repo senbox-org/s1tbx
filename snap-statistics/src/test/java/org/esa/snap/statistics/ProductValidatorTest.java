@@ -18,24 +18,24 @@ public class ProductValidatorTest {
 
     private final int oneSecond = 1000; // == 1000 milliseconds
 
-    private ProductData.UTC _startDate;
-    private ProductData.UTC _endDate;
-    private List<BandConfiguration> _bandConfigurations;
-    private ProductValidator _productValidator;
-    private Logger _loggerMock;
-    private Product _product;
+    private ProductData.UTC startDate;
+    private ProductData.UTC endDate;
+    private List<BandConfiguration> bandConfigurations;
+    private ProductValidator productValidator;
+    private Logger loggerMock;
+    private Product product;
 
     @Before
     public void setUp() throws Exception {
-        _loggerMock = mock(Logger.class);
-        _bandConfigurations = new ArrayList<BandConfiguration>();
-        _startDate = ProductData.UTC.parse("2012-05-21 00:00:00", StatisticsOp.DATETIME_PATTERN);
-        _endDate = ProductData.UTC.parse("2012-11-08 00:00:00", StatisticsOp.DATETIME_PATTERN);
-        _productValidator = new ProductValidator(_bandConfigurations, _startDate, _endDate, _loggerMock);
-        _product = mock(Product.class);
-        when(_product.getSceneGeoCoding()).thenReturn(mock(GeoCoding.class));
-        when(_product.getStartTime()).thenReturn(_startDate);
-        when(_product.getEndTime()).thenReturn(_endDate);
+        loggerMock = mock(Logger.class);
+        bandConfigurations = new ArrayList<>();
+        startDate = ProductData.UTC.parse("2012-05-21 00:00:00", StatisticsOp.DATETIME_PATTERN);
+        endDate = ProductData.UTC.parse("2012-11-08 00:00:00", StatisticsOp.DATETIME_PATTERN);
+        productValidator = new ProductValidator(bandConfigurations, startDate, endDate, loggerMock);
+        product = mock(Product.class);
+        when(product.getSceneGeoCoding()).thenReturn(mock(GeoCoding.class));
+        when(product.getStartTime()).thenReturn(startDate);
+        when(product.getEndTime()).thenReturn(endDate);
     }
 
     @Test
@@ -43,122 +43,122 @@ public class ProductValidatorTest {
         //preparation
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(true, valid);
-        verifyNoMoreInteractions(_loggerMock);
+        verifyNoMoreInteractions(loggerMock);
     }
 
     @Test
     public void testIsInvalid_IfProductDoesNotContainAGeoCoding() {
         //preparation
-        when(_product.getSceneGeoCoding()).thenReturn(null);
-        when(_product.getName()).thenReturn("No Geocoding");
+        when(product.getSceneGeoCoding()).thenReturn(null);
+        when(product.getName()).thenReturn("No Geocoding");
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'No Geocoding' does not contain a geo coding.");
-        verifyNoMoreInteractions(_loggerMock);
+        verify(loggerMock).warning("Product skipped. The product 'No Geocoding' does not contain a geo coding.");
+        verifyNoMoreInteractions(loggerMock);
     }
 
     @Test
     public void testIsInvalid_IfIsNotEntirelyInTimeRange_beforeTimeRange() {
         //preparation
-        when(_product.getStartTime()).thenReturn(before(_startDate));
-        when(_product.getEndTime()).thenReturn(_endDate);
-        when(_product.getName()).thenReturn("OutOfDateRange_before");
+        when(product.getStartTime()).thenReturn(before(startDate));
+        when(product.getEndTime()).thenReturn(endDate);
+        when(product.getName()).thenReturn("OutOfDateRange_before");
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'OutOfDateRange_before' is not inside the date range from 21-MAY-2012 00:00:00.000000 to 08-NOV-2012 00:00:00.000000");
-        verifyNoMoreInteractions(_loggerMock);
+        verify(loggerMock).warning("Product skipped. The product 'OutOfDateRange_before' is not inside the date range from 21-MAY-2012 00:00:00.000000 to 08-NOV-2012 00:00:00.000000");
+        verifyNoMoreInteractions(loggerMock);
     }
 
     @Test
     public void testIsInvalid_IfIsNotEntirelyInTimeRange_afterTimeRange() {
         //preparation
-        when(_product.getStartTime()).thenReturn(_startDate);
-        when(_product.getEndTime()).thenReturn(after(_endDate));
-        when(_product.getName()).thenReturn("OutOfDateRange_after");
+        when(product.getStartTime()).thenReturn(startDate);
+        when(product.getEndTime()).thenReturn(after(endDate));
+        when(product.getName()).thenReturn("OutOfDateRange_after");
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'OutOfDateRange_after' is not inside the date range from 21-MAY-2012 00:00:00.000000 to 08-NOV-2012 00:00:00.000000");
-        verifyNoMoreInteractions(_loggerMock);
+        verify(loggerMock).warning("Product skipped. The product 'OutOfDateRange_after' is not inside the date range from 21-MAY-2012 00:00:00.000000 to 08-NOV-2012 00:00:00.000000");
+        verifyNoMoreInteractions(loggerMock);
     }
 
     @Test
     public void testProductValidatorThatHasOnlyStartTime() throws Exception {
         //preparation
-        _productValidator = new ProductValidator(_bandConfigurations, _startDate, null, _loggerMock);
+        productValidator = new ProductValidator(bandConfigurations, startDate, null, loggerMock);
 
         //execution
         //verification
-        assertTrue(isValid(configureProductTimes(_startDate, after(_endDate))));
-        assertTrue(isValid(configureProductTimes(_startDate, before(_endDate))));
-        assertTrue(isValid(configureProductTimes(_startDate, _endDate)));
-        assertTrue(isValid(configureProductTimes(_startDate, null)));
+        assertTrue(isValid(configureProductTimes(startDate, after(endDate))));
+        assertTrue(isValid(configureProductTimes(startDate, before(endDate))));
+        assertTrue(isValid(configureProductTimes(startDate, endDate)));
+        assertTrue(isValid(configureProductTimes(startDate, null)));
 
         assertFalse(isValid(configureProductTimes(null, null)));
-        assertFalse(isValid(configureProductTimes(null, _endDate)));
-        assertFalse(isValid(configureProductTimes(before(_startDate), null)));
-        assertFalse(isValid(configureProductTimes(before(_startDate), _endDate)));
+        assertFalse(isValid(configureProductTimes(null, endDate)));
+        assertFalse(isValid(configureProductTimes(before(startDate), null)));
+        assertFalse(isValid(configureProductTimes(before(startDate), endDate)));
     }
 
     @Test
     public void testProductValidatorThatHasOnlyEndTime() throws Exception {
         //preparation
-        _productValidator = new ProductValidator(_bandConfigurations, null, _endDate, _loggerMock);
+        productValidator = new ProductValidator(bandConfigurations, null, endDate, loggerMock);
 
         //execution
         //verification
-        assertTrue(isValid(configureProductTimes(null, _endDate)));
-        assertTrue(isValid(configureProductTimes(after(_startDate), _endDate)));
-        assertTrue(isValid(configureProductTimes(before(_startDate), _endDate)));
-        assertTrue(isValid(configureProductTimes(_startDate, _endDate)));
+        assertTrue(isValid(configureProductTimes(null, endDate)));
+        assertTrue(isValid(configureProductTimes(after(startDate), endDate)));
+        assertTrue(isValid(configureProductTimes(before(startDate), endDate)));
+        assertTrue(isValid(configureProductTimes(startDate, endDate)));
 
         assertFalse(isValid(configureProductTimes(null, null)));
-        assertFalse(isValid(configureProductTimes(_startDate, null)));
-        assertFalse(isValid(configureProductTimes(null, after(_endDate))));
-        assertFalse(isValid(configureProductTimes(_startDate, after(_endDate))));
+        assertFalse(isValid(configureProductTimes(startDate, null)));
+        assertFalse(isValid(configureProductTimes(null, after(endDate))));
+        assertFalse(isValid(configureProductTimes(startDate, after(endDate))));
     }
 
     @Test
     public void testProductValidatorThatHasNoTimes() throws Exception {
         //preparation
-        _productValidator = new ProductValidator(_bandConfigurations, null, null, _loggerMock);
+        productValidator = new ProductValidator(bandConfigurations, null, null, loggerMock);
 
         //execution
         //verification
-        assertTrue(isValid(configureProductTimes(null, _endDate)));
-        assertTrue(isValid(configureProductTimes(after(_startDate), _endDate)));
-        assertTrue(isValid(configureProductTimes(before(_startDate), _endDate)));
-        assertTrue(isValid(configureProductTimes(_startDate, _endDate)));
+        assertTrue(isValid(configureProductTimes(null, endDate)));
+        assertTrue(isValid(configureProductTimes(after(startDate), endDate)));
+        assertTrue(isValid(configureProductTimes(before(startDate), endDate)));
+        assertTrue(isValid(configureProductTimes(startDate, endDate)));
 
         assertTrue(isValid(configureProductTimes(null, null)));
-        assertTrue(isValid(configureProductTimes(_startDate, null)));
-        assertTrue(isValid(configureProductTimes(null, after(_endDate))));
-        assertTrue(isValid(configureProductTimes(_startDate, after(_endDate))));
+        assertTrue(isValid(configureProductTimes(startDate, null)));
+        assertTrue(isValid(configureProductTimes(null, after(endDate))));
+        assertTrue(isValid(configureProductTimes(startDate, after(endDate))));
     }
 
     private boolean isValid(Product product) {
-        return _productValidator.isValid(product);
+        return productValidator.isValid(product);
     }
 
     private Product configureProductTimes(ProductData.UTC startDate, ProductData.UTC endDate) {
-        when(_product.getStartTime()).thenReturn(startDate);
-        when(_product.getEndTime()).thenReturn(endDate);
-        return _product;
+        when(product.getStartTime()).thenReturn(startDate);
+        when(product.getEndTime()).thenReturn(endDate);
+        return product;
     }
 
     @Test
@@ -166,16 +166,16 @@ public class ProductValidatorTest {
         //preparation
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "band-1";
-        _bandConfigurations.add(bandConfiguration);
+        bandConfigurations.add(bandConfiguration);
 
-        when(_product.containsBand("band-1")).thenReturn(true);
+        when(product.containsBand("band-1")).thenReturn(true);
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(true, valid);
-        verifyNoMoreInteractions(_loggerMock);
+        verifyNoMoreInteractions(loggerMock);
     }
 
     @Test
@@ -183,18 +183,18 @@ public class ProductValidatorTest {
         //preparation
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "band-1";
-        _bandConfigurations.add(bandConfiguration);
+        bandConfigurations.add(bandConfiguration);
 
-        when(_product.containsBand("band-1")).thenReturn(false);
-        when(_product.getName()).thenReturn("InvalidProduct");
+        when(product.containsBand("band-1")).thenReturn(false);
+        when(product.getName()).thenReturn("InvalidProduct");
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'InvalidProduct' does not contain the band 'band-1'");
-        verifyNoMoreInteractions(_loggerMock);
+        verify(loggerMock).warning("Product skipped. The product 'InvalidProduct' does not contain the band 'band-1'");
+        verifyNoMoreInteractions(loggerMock);
     }
 
     @Test
@@ -202,18 +202,18 @@ public class ProductValidatorTest {
         //preparation
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.expression = "band_1 + 4";
-        _bandConfigurations.add(bandConfiguration);
+        bandConfigurations.add(bandConfiguration);
 
-        when(_product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(false);
-        when(_product.getName()).thenReturn("InvalidProduct");
+        when(product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(false);
+        when(product.getName()).thenReturn("InvalidProduct");
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'InvalidProduct' can not resolve the band arithmetic expression 'band_1 + 4'");
-        verifyNoMoreInteractions(_loggerMock);
+        verify(loggerMock).warning("Product skipped. The product 'InvalidProduct' can not resolve the band arithmetic expression 'band_1 + 4'");
+        verifyNoMoreInteractions(loggerMock);
     }
 
     @Test
@@ -221,18 +221,18 @@ public class ProductValidatorTest {
         //preparation
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.expression = "band_1 + 4";
-        _bandConfigurations.add(bandConfiguration);
-        when(_product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(true);
-        when(_product.getName()).thenReturn("InvalidProduct");
-        when(_product.containsBand("band_1_+_4")).thenReturn(true);
+        bandConfigurations.add(bandConfiguration);
+        when(product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(true);
+        when(product.getName()).thenReturn("InvalidProduct");
+        when(product.containsBand("band_1_+_4")).thenReturn(true);
 
         //execution
-        final boolean valid = _productValidator.isValid(_product);
+        final boolean valid = productValidator.isValid(product);
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'InvalidProduct' already contains a band 'band_1_+_4'");
-        verifyNoMoreInteractions(_loggerMock);
+        verify(loggerMock).warning("Product skipped. The product 'InvalidProduct' already contains a band 'band_1_+_4'");
+        verifyNoMoreInteractions(loggerMock);
     }
 
     private ProductData.UTC before(ProductData.UTC date) {

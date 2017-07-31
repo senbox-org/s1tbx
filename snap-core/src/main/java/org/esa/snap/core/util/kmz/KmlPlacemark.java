@@ -35,7 +35,7 @@ public class KmlPlacemark extends KmlFeature {
     protected void createKmlSpecifics(StringBuilder sb) {
         final Point2D position = getPosition();
         sb.append("<Point>");
-        sb.append(String.format("<coordinates>%s,%s,0</coordinates>", getPosition().getX(), position.getY()));
+        sb.append(String.format("<coordinates>%s,%s,0</coordinates>", position.getX(), position.getY()));
         sb.append("</Point>");
     }
 }

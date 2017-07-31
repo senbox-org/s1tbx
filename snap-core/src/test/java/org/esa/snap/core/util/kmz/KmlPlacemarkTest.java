@@ -30,15 +30,35 @@ public class KmlPlacemarkTest {
         StringBuilder builder = new StringBuilder();
         kmlPlacemark.createKml(builder);
 
-        assertEquals(getExpected(), builder.toString());
+        assertEquals("<Placemark>" +
+                     "<name>Pin</name>" +
+                     "<Point>" +
+                     "<coordinates>12.5,60.9,0</coordinates>" +
+                     "</Point>" +
+                     "</Placemark>", builder.toString());
     }
 
-    private String getExpected() {
-        return "<Placemark>" +
-               "<name>Pin</name>" +
-               "<Point>" +
-               "<coordinates>12.5,60.9,0</coordinates>" +
-               "</Point>" +
-               "</Placemark>";
+    @Test
+    public void testExportWithExtendedData() throws Exception {
+        KmlPlacemark kmlPlacemark = new KmlPlacemark("Pin", null, new Point2D.Double(1.01, 2.0));
+        ExtendedData extendedData = new ExtendedData();
+        extendedData.add("Clark Kent", "Superman", "Hero");
+        kmlPlacemark.setExtendedData(extendedData);
+        StringBuilder builder = new StringBuilder();
+        kmlPlacemark.createKml(builder);
+
+        assertEquals("<Placemark>" +
+                     "<name>Pin</name>" +
+                     "<Point>" +
+                     "<coordinates>1.01,2.0,0</coordinates>" +
+                     "</Point>" +
+                     "<ExtendedData>" +
+                     "<Data name=\"Clark Kent\">" +
+                     "<displayName>Superman</displayName>" +
+                     "<value>Hero</value>" +
+                     "</Data>" +
+                     "</ExtendedData>" +
+                     "</Placemark>", builder.toString());
     }
+
 }
