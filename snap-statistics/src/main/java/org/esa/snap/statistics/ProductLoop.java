@@ -2,7 +2,6 @@ package org.esa.snap.statistics;
 
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.OperatorException;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class ProductLoop {
         this.productValidator = productValidator;
         this.logger = logger;
         this.statisticComputer = statisticComputer;
-        productNames = new ArrayList<String>();
+        productNames = new ArrayList<>();
         newestDate = null;
         oldestDate = null;
     }
@@ -44,9 +43,6 @@ public class ProductLoop {
                 continue;
             }
             loadProductAndCompute(productFile);
-        }
-        if (productNames.size() == 0) {
-            throw new OperatorException("No input products found.");
         }
     }
 
