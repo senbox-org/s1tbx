@@ -57,6 +57,9 @@ public class MinimumDistanceClassifierOp extends Operator {
     @Parameter(description = "The saved classifier name", label = "Classifier name")
     private String savedClassifierName = null;
 
+    @Parameter(defaultValue = "false", description = "Choose to save or load classifier")
+    private Boolean doLoadClassifier = false;
+
     @Parameter(defaultValue = "true", description = "Quantization for raster traiing")
     private Boolean doClassValQuantization = true;
 
@@ -113,7 +116,8 @@ public class MinimumDistanceClassifierOp extends Operator {
                     new BaseClassifier.ClassifierParams(CLASSIFIER_TYPE, PRODUCT_SUFFIX,
                                                         sourceProducts, numTrainSamples,
                                                         minClassValue, classValStepSize, classLevels,
-                                                        savedClassifierName, doClassValQuantization, trainOnRaster,
+                                                        savedClassifierName, doLoadClassifier,
+                                                        doClassValQuantization, trainOnRaster,
                                                         trainingBands, trainingVectors, featureBands, labelSource,
                                                         evaluateClassifier, evaluateFeaturePowerSet,
                                                         minPowerSetSize, maxPowerSetSize));

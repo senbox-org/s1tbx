@@ -92,7 +92,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     private final static String ConfidenceBandName = "Confidence"; // target
     public final static String VectorNodeNameLabelSource = "VectorNodeName";
 
-    private boolean doLoadClassifier;
+    //private boolean doLoadClassifier;
 
     private VectorDataNode[] polygonVectorDataNodes;
     private Map<VectorDataNode, Integer> polygonVectorDataNodeToVectorIndex;
@@ -125,6 +125,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         private double classValStepSize;
         private int classLevels;
         private String savedClassifierName;
+        private boolean doLoadClassifier;
         private boolean doClassValQuantization;
         private final boolean trainOnRaster;
         private final String[] trainingBands;
@@ -139,7 +140,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         public ClassifierParams(final String classifierType, final String productSuffix, final Product[] sourceProducts,
                                 final int numTrainSamples, final double minClassValue,
                                 final double classValStepSize, final int classLevels,
-                                final String savedClassifierName, final boolean doClassValQuantization,
+                                final String savedClassifierName, final boolean doLoadClassifier,
+                                final boolean doClassValQuantization,
                                 final boolean trainOnRaster,
                                 final String[] trainingBands,
                                 final String[] trainingVectors,
@@ -157,6 +159,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             this.classValStepSize = classValStepSize;
             this.classLevels = classLevels;
             this.savedClassifierName = savedClassifierName;
+            this.doLoadClassifier = doLoadClassifier;
             this.doClassValQuantization = doClassValQuantization;
             this.trainOnRaster = trainOnRaster;
             this.trainingBands = trainingBands;
@@ -179,7 +182,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         return mlClassifier;
     }
 
-    protected Object getXMLInfoToSave(final BaseClassifier.ClassifierUserInfo commonInfo) {
+    protected Object getXMLInfoToSave(final ClassifierUserInfo commonInfo) {
         return commonInfo;
     }
 
@@ -215,7 +218,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         }
         maxClassValue = getMaxValue(params.minClassValue, params.classValStepSize, params.classLevels);
 
-        if (!doLoadClassifier) {
+        if (!params.doLoadClassifier) {
             if (params.trainOnRaster && params.trainingBands == null) {
                 trainingSetMaskBand = maskProduct.getBandAt(0);
             }
@@ -259,12 +262,13 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                         geometryNames.add(node.getName() + "::" + maskProduct.getName());
                     }
                 }
-                if (geometryNames.size() < 2) {
+
+                if (!params.doLoadClassifier && geometryNames.size() < 2) {
                     throw new OperatorException("Cannot train on vectors because source product has less than 2 vectors");
                 }
                 params.trainingVectors = geometryNames.toArray(new String[geometryNames.size()]);
             }
-            if (doLoadClassifier || params.trainingVectors != null) {
+            if (params.doLoadClassifier || params.trainingVectors != null) {
                 if (params.trainingVectors.length == 1) {
                     throw new OperatorException("Please select two or more vectors as classes");
                 }
@@ -310,7 +314,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             }
         }
 
-        //SystemUtils.LOG.info("doLoadClassifier = " + doLoadClassifier);
+        //SystemUtils.LOG.info("doLoadClassifier = " + params.doLoadClassifier);
+        //SystemUtils.LOG.info("trainOnRaster = " + params.trainOnRaster);
         //SystemUtils.LOG.info("doClassValQuantization = " + doClassValQuantization);
         //SystemUtils.LOG.info("Min class value = " + minClassValue + "; class value step size = " + classValStepSize
         //        + "; class levels = " + classLevels + "; max class value = " + maxClassValue);
@@ -441,7 +446,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + targetRectangle.width + ", h = " + targetRectangle.height);
 
         if (!classifierTrained) {
-            if (doLoadClassifier) {
+            if (params.doLoadClassifier) {
                 loadClassifier(operator);
             } else {
                 trainClassifier(operator, pm);
@@ -487,6 +492,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 confidenceBuffer.setElemDoubleAt(tgtIdx, confidence);
             }
         }
+        //System.out.println("DONE x0 = " + x0 + ", y0 = " + y0 + ", w = " + targetRectangle.width + ", h = " + targetRectangle.height);
     }
 
     public static int getTotalNumBands(final Product[] products) {
@@ -891,12 +897,18 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
     private synchronized void loadClassifier(final Operator operator) throws IOException {
 
+        //System.out.println("BaseClassifier.loadClassifier: classifieredTrained = " + classifierTrained);
+
         if (classifierTrained) return;
 
         try {
             loadClassifierDescriptor();
 
             final String[] featureNames = loadedClassifierDescriptor.getFeatureNames();
+            /*
+            for (String s : featureNames) {
+                System.out.println("feature name = " + s);
+            }*/
 
             final int totalAvailableFeatures = getTotalNumBands(featureProducts);
             if (featureNames.length > totalAvailableFeatures) {
@@ -1258,6 +1270,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     }
 
     private void saveClassifier(final Dataset trainDataset) throws IOException {
+
+        //System.out.println("BaseClassifier.saveClassifier");
 
         // First save the classifier and other info required by the software to use it.
 
