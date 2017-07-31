@@ -75,6 +75,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     private int sourceImageHeight;
     private boolean classifierTrained = false;
 
+    private Product targetProduct = null;
     private Band labelBand = null; // target
 
     // E.g., for Random Forest, this is the number of trees that vote for the label over the total number of trees
@@ -346,7 +347,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
      */
     public Product createTargetProduct() {
 
-        Product targetProduct = new Product(
+        targetProduct = new Product(
                 params.sourceProducts[0].getName() + getProductSuffix(),
                 params.sourceProducts[0].getProductType(),
                 sourceImageWidth,
@@ -369,21 +370,23 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         labelBand.setValidPixelExpression(ConfidenceBandName + " >= 0.5");
 
         if (!params.trainOnRaster) {
-            final IndexCoding indexCoding = new IndexCoding("Classes");
-            indexCoding.addIndex("no data", INT_NO_DATA_VALUE, "no data");
-            for (Integer i : classLabelMap.keySet()) {
-                String label = classLabelMap.get(i);
-                if(label == null || label.isEmpty())
-                    label = "null";
-                indexCoding.addIndex(label, i, "");
-            }
-            targetProduct.getIndexCodingGroup().add(indexCoding);
-            labelBand.setSampleCoding(indexCoding);
+            if (!params.doLoadClassifier) {
+                final IndexCoding indexCoding = new IndexCoding("Classes");
+                indexCoding.addIndex("no data", INT_NO_DATA_VALUE, "no data");
+                for (Integer i : classLabelMap.keySet()) {
+                    String label = classLabelMap.get(i);
+                    if (label == null || label.isEmpty())
+                        label = "null";
+                    indexCoding.addIndex(label, i, "");
+                }
+                targetProduct.getIndexCodingGroup().add(indexCoding);
+                labelBand.setSampleCoding(indexCoding);
 
-            // remove training vectors
-            final ProductNodeGroup<VectorDataNode> vectorDataGroup = targetProduct.getVectorDataGroup();
-            for (String vector : params.trainingVectors) {
-                vectorDataGroup.remove(vectorDataGroup.get(createClassLabel(vector)));
+                // remove training vectors
+                final ProductNodeGroup<VectorDataNode> vectorDataGroup = targetProduct.getVectorDataGroup();
+                for (String vector : params.trainingVectors) {
+                    vectorDataGroup.remove(vectorDataGroup.get(createClassLabel(vector)));
+                }
             }
         } else {
             IndexCoding indexCoding = trainingSetMaskBand.getIndexCoding();
@@ -923,6 +926,16 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
             SystemUtils.LOG.info("*** Loaded " + params.classifierType + " classifier (filename = " + params.savedClassifierName
                                          + ") to predict " + loadedClassifierDescriptor.getClassName());
+
+
+            double[] sortedClasses = loadedClassifierDescriptor.getSortedClassValues();
+            final IndexCoding indexCoding = new IndexCoding("Classes");
+            indexCoding.addIndex("no data", INT_NO_DATA_VALUE, "no data");
+            for (int i = 0; i < sortedClasses.length; i++) {
+                indexCoding.addIndex("label_" + i, (int)sortedClasses[i], "");
+            }
+            targetProduct.getIndexCodingGroup().add(indexCoding);
+            labelBand.setSampleCoding(indexCoding);
 
             int numFeatures = featureNames.length;
             final List<FeatureInfo> featureInfos = new ArrayList<>(featureNames.length);
