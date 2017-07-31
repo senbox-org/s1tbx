@@ -54,6 +54,9 @@ public class SVMClassifierOp extends Operator {
             label = "Number of training samples")
     private int numTrainSamples = 5000;
 
+    @Parameter(defaultValue = "false", description = "Choose to save or load classifier")
+    private Boolean doLoadClassifier = false;
+
     @Parameter(description = "The saved classifier name", label = "Classifier name")
     private String savedClassifierName = null;
 
@@ -113,7 +116,8 @@ public class SVMClassifierOp extends Operator {
                     new BaseClassifier.ClassifierParams(CLASSIFIER_TYPE, PRODUCT_SUFFIX,
                                                         sourceProducts, numTrainSamples,
                                                         minClassValue, classValStepSize, classLevels,
-                                                        savedClassifierName, doClassValQuantization, trainOnRaster,
+                                                        savedClassifierName, doLoadClassifier,
+                                                        doClassValQuantization, trainOnRaster,
                                                         trainingBands, trainingVectors, featureBands, labelSource,
                                                         evaluateClassifier, evaluateFeaturePowerSet,
                                                         minPowerSetSize, maxPowerSetSize));
