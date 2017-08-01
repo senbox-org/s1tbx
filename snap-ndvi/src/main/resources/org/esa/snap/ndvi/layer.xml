@@ -37,4 +37,11 @@
         </folder>
     </folder>
 
+    <folder name="OperatorUIs">
+    <file name="org.esa.snap.ndvi">
+        <attr name="operatorName" stringvalue="NdviOp"/>
+        <attr name="disableFromGraphBuilder" stringvalue="true"/>
+    </file>
+    </folder>
+
 </filesystem>
