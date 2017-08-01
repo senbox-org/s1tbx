@@ -43,7 +43,7 @@ import java.util.Map;
  */
 @OperatorMetadata(
         alias = "NdviOp",
-        version="1.3",
+        version = "1.3",
         category = "Optical/Thematic Land Processing/Vegetation Radiometric Indices",
         description = "The retrieves the Normalized Difference Vegetation Index (NDVI).",
         authors = "Maximilian Aulinger, Thomas Storm",
@@ -60,7 +60,7 @@ public class NdviOp extends Operator {
     public static final int NDVI_LOW_FLAG_VALUE = 1 << 1;
     public static final int NDVI_HIGH_FLAG_VALUE = 1 << 2;
 
-    @SourceProduct(alias = "source", description="The source product.")
+    @SourceProduct(alias = "source", description = "The source product.")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -72,15 +72,15 @@ public class NdviOp extends Operator {
     private float nirFactor;
 
     @Parameter(label = "Red source band",
-               description = "The red band for the NDVI computation. If not provided, the " +
-                             "operator will try to find the best fitting band.",
-               rasterDataNodeType = Band.class)
+            description = "The red band for the NDVI computation. If not provided, the " +
+                          "operator will try to find the best fitting band.",
+            rasterDataNodeType = Band.class)
     private String redSourceBand;
 
     @Parameter(label = "NIR source band",
-               description = "The near-infrared band for the NDVI computation. If not provided," +
-                             " the operator will try to find the best fitting band.",
-               rasterDataNodeType = Band.class)
+            description = "The near-infrared band for the NDVI computation. If not provided," +
+                          " the operator will try to find the best fitting band.",
+            rasterDataNodeType = Band.class)
     private String nirSourceBand;
 
 
@@ -175,18 +175,22 @@ public class NdviOp extends Operator {
 
     private void loadSourceBands(Product product) throws OperatorException {
         if (redSourceBand == null) {
-            redSourceBand = findBand(600, 650, product);
-            getLogger().info("Using band '" + redSourceBand + "' as red input band.");
-        }
-        if (nirSourceBand == null) {
-            nirSourceBand = findBand(800, 900, product);
-            getLogger().info("Using band '" + nirSourceBand + "' as NIR input band.");
+            redSourceBand = findBand(600, 665, product);
         }
         if (redSourceBand == null) {
             throw new OperatorException("Unable to find band that could be used as red input band. Please specify band.");
+        } else {
+            getLogger().info("Using band '" + redSourceBand + "' as red input band.");
+        }
+
+        if (nirSourceBand == null) {
+            nirSourceBand = findBand(800, 900, product);
         }
         if (nirSourceBand == null) {
             throw new OperatorException("Unable to find band that could be used as nir input band. Please specify band.");
+        } else {
+            getLogger().info("Using band '" + nirSourceBand + "' as NIR input band.");
+
         }
     }
 
