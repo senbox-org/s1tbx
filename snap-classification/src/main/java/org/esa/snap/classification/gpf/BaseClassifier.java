@@ -223,6 +223,23 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             if (params.trainOnRaster && params.trainingBands == null) {
                 trainingSetMaskBand = maskProduct.getBandAt(0);
             }
+            if (params.featureBands != null) {
+                List<String> bandNames = new ArrayList<>();
+                for (String s : params.featureBands) {
+                    final int multiProductIndex = s.indexOf("::");
+                    String bandName = s;
+                    //String productName = maskProduct.getName();
+                    if (multiProductIndex > 0) {
+                        bandName = s.substring(0, multiProductIndex);
+                        if (bandNames.contains(bandName)) {
+                            throw new OperatorException("Cannot select feature band " + bandName + " in more than one product");
+                        } else {
+                            bandNames.add(bandName);
+                        }
+                        //productName = s.substring(s.indexOf("::") + 2);
+                    }
+                }
+            }
         }
 
         if (params.trainOnRaster && params.trainingBands != null && params.trainingBands.length == 1) {
@@ -251,7 +268,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         // There will be 3 classes named "water", "trees" and "shrubs".
         // All the pixels in the "water" polygon will have the class "water"
         // Get the corresponding VectorDataNode and store them in polygonVectorDataNodes.
-        if (maskProduct != null && !params.trainOnRaster) {
+        // The polygons must be in the first product.
+        if (!params.doLoadClassifier && (maskProduct != null && !params.trainOnRaster)) {
             polygonVectorDataNodeToVectorIndex = new HashMap<>();
 
             if (params.trainingVectors == null || params.trainingVectors.length == 0) {
@@ -264,12 +282,13 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                     }
                 }
 
-                if (!params.doLoadClassifier && geometryNames.size() < 2) {
+                if (geometryNames.size() < 2) {
                     throw new OperatorException("Cannot train on vectors because source product has less than 2 vectors");
                 }
                 params.trainingVectors = geometryNames.toArray(new String[geometryNames.size()]);
             }
-            if (params.doLoadClassifier || params.trainingVectors != null) {
+            if (params.trainingVectors != null) { // Can this ever be false?
+                //System.out.println("params.trainingVectors.length = " + params.trainingVectors.length);
                 if (params.trainingVectors.length == 1) {
                     throw new OperatorException("Please select two or more vectors as classes");
                 }
@@ -282,10 +301,13 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                     if (multiProductIndex > 0) {
                         name = params.trainingVectors[i].substring(0, multiProductIndex);
                     }
-
+                    //System.out.println("vector " + name);
                     polygonVectorDataNodes[i] = vectorGroup.get(name);
                     if (polygonVectorDataNodes[i] == null) {
+                        //System.out.println("fail to find vector " + name);
                         throw new OperatorException("Cannot find vector " + params.trainingVectors[i]);
+                    /*} else {
+                        System.out.println("found vector " + name);*/
                     }
                 }
 
@@ -576,6 +598,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             int i = 0;
             final List<FeatureInfo> featureInfos = new ArrayList<>(params.featureBands.length);
             for (String s : params.featureBands) {
+                //System.out.println("trainClassifier: feature band = " + s);
                 final int multiProductIndex = s.indexOf("::");
                 String bandName = s;
                 String productName = maskProduct.getName();
@@ -929,10 +952,13 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
 
             double[] sortedClasses = loadedClassifierDescriptor.getSortedClassValues();
+            String[] labels = loadedClassifierDescriptor.getPolygonsAsClasses();
             final IndexCoding indexCoding = new IndexCoding("Classes");
             indexCoding.addIndex("no data", INT_NO_DATA_VALUE, "no data");
             for (int i = 0; i < sortedClasses.length; i++) {
-                indexCoding.addIndex("label_" + i, (int)sortedClasses[i], "");
+                //indexCoding.addIndex("label_" + i, (int)sortedClasses[i], "");
+                final int idx = labels[i].indexOf("::");
+                indexCoding.addIndex(labels[i].substring(0, idx), (int)sortedClasses[i], "");
             }
             targetProduct.getIndexCodingGroup().add(indexCoding);
             labelBand.setSampleCoding(indexCoding);
@@ -1308,8 +1334,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         for (int i = 0; i < featureNames.length; i++) {
             final Band featureBand = featureInfoList[i].featureBand;
             featureNames[i] = featureBand.getName();
-            if(featureNames[i].contains(StackUtils.MST) || featureNames[i].contains(StackUtils.SLV))
-            featureNames[i] = StackUtils.getBandNameWithoutDate(featureNames[i]);
+            if (featureNames[i].contains(StackUtils.MST) || featureNames[i].contains(StackUtils.SLV))
+                featureNames[i] = StackUtils.getBandNameWithoutDate(featureNames[i]);
             featureMinValues[i] = featureBand.getStx().getMinimum();
             featureMaxValues[i] = featureBand.getStx().getMaximum();
         }
