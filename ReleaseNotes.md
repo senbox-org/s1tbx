@@ -1,3 +1,19 @@
+#New in S1TBX 6.0
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=12202
+
+###New Features and Important Changes
+* Integrate into the Product Library integration with SciHub
+* Add option to terrain correction to use a standard grid across images
+* Support for ALOS on demand products from ESA IPF
+* Topo Phase Removal handles multiple slave images correctly
+* DEM is oversampled in Terrain Flattening 
+* Error in Interferogram with TSX/TDX CoSSC data
+* RSTB output Polarisation Orientation Angle
+
+
 #New in S1TBX 5.0
 
 ###Bugs fixed 
