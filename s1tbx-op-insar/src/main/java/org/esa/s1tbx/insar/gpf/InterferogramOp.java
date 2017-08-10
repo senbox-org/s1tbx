@@ -1051,29 +1051,54 @@ public class InterferogramOp extends Operator {
         final DoubleMatrix dataImag = dataMaster.imag();
         final TileIndex tgtIndex = new TileIndex(tileOutReal);
 
-        final double mstNoDataValue = product.sourceMaster.realBand.getNoDataValue();
         final Tile mstRealTile = getSourceTile(product.sourceMaster.realBand, targetRectangle);
         final ProductData mstRealData = mstRealTile.getDataBuffer();
+        final TileIndex srcIndex = new TileIndex(mstRealTile);
 
-        final double slvNoDataValue = product.sourceSlave.realBand.getNoDataValue();
         final Tile slvRealTile = getSourceTile(product.sourceSlave.realBand, targetRectangle);
         final ProductData slvRealData = slvRealTile.getDataBuffer();
 
-        final TileIndex srcIndex = new TileIndex(mstRealTile);
+        final boolean mstNoDataValueUsed = product.sourceMaster.realBand.isNoDataValueUsed();
+        final boolean slvNoDataValueUsed = product.sourceSlave.realBand.isNoDataValueUsed();
 
-        for (int y = y0; y < maxY; y++) {
-            tgtIndex.calculateStride(y);
-            srcIndex.calculateStride(y);
-            final int yy = y - y0;
-            for (int x = x0; x < maxX; x++) {
-                final int tgtIdx = tgtIndex.getIndex(x);
-                final int xx = x - x0;
-                final int srcIdx = srcIndex.getIndex(x);
-                if (mstRealData.getElemDoubleAt(srcIdx) == mstNoDataValue ||
-                        slvRealData.getElemDoubleAt(srcIdx) == slvNoDataValue) {
-                    samplesReal.setElemFloatAt(tgtIdx, (float) mstNoDataValue);
-                    samplesImag.setElemFloatAt(tgtIdx, (float) mstNoDataValue);
-                } else {
+        if (mstNoDataValueUsed || slvNoDataValueUsed) {
+
+            double mstNoDataValue = 0.0, slvNoDataValue = 0.0;
+            if (mstNoDataValueUsed) {
+                mstNoDataValue = product.sourceMaster.realBand.getNoDataValue();
+            }
+            if (slvNoDataValueUsed) {
+                slvNoDataValue = product.sourceSlave.realBand.getNoDataValue();
+            }
+
+            for (int y = y0; y < maxY; y++) {
+                tgtIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
+                final int yy = y - y0;
+                for (int x = x0; x < maxX; x++) {
+                    final int tgtIdx = tgtIndex.getIndex(x);
+                    final int xx = x - x0;
+                    final int srcIdx = srcIndex.getIndex(x);
+                    if (mstNoDataValueUsed && mstRealData.getElemDoubleAt(srcIdx) == mstNoDataValue ||
+                            slvNoDataValueUsed && slvRealData.getElemDoubleAt(srcIdx) == slvNoDataValue) {
+                        samplesReal.setElemFloatAt(tgtIdx, (float) mstNoDataValue);
+                        samplesImag.setElemFloatAt(tgtIdx, (float) mstNoDataValue);
+                    } else {
+                        samplesReal.setElemFloatAt(tgtIdx, (float) dataReal.get(yy, xx));
+                        samplesImag.setElemFloatAt(tgtIdx, (float) dataImag.get(yy, xx));
+                    }
+                }
+            }
+
+        } else {
+
+            for (int y = y0; y < maxY; y++) {
+                tgtIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
+                final int yy = y - y0;
+                for (int x = x0; x < maxX; x++) {
+                    final int tgtIdx = tgtIndex.getIndex(x);
+                    final int xx = x - x0;
                     samplesReal.setElemFloatAt(tgtIdx, (float) dataReal.get(yy, xx));
                     samplesImag.setElemFloatAt(tgtIdx, (float) dataImag.get(yy, xx));
                 }
