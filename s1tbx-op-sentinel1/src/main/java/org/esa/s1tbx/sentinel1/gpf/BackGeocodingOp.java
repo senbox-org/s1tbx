@@ -246,7 +246,7 @@ public final class BackGeocodingOp extends Operator {
             updateTargetProductMetadata();
 
             final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, mSU.getPolarizations()[0]);
-            if(masterBandI != null) {
+            if(masterBandI != null && masterBandI.isNoDataValueUsed()) {
                 noDataValue = masterBandI.getNoDataValue();
             }
         } catch (Throwable e) {
