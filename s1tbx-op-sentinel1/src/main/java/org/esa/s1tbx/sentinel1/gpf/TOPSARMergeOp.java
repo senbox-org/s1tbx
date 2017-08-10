@@ -308,8 +308,10 @@ public final class TOPSARMergeOp extends Operator {
             if (!targetProduct.containsBand(tgtBandName)) {
                 final Band trgBand = targetProduct.addBand(tgtBandName, srcBand.getDataType());
                 trgBand.setUnit(srcBand.getUnit());
-                trgBand.setNoDataValueUsed(true);
-                trgBand.setNoDataValue(srcBand.getNoDataValue());
+                if (srcBand.isNoDataValueUsed()) {
+                    trgBand.setNoDataValueUsed(true);
+                    trgBand.setNoDataValue(srcBand.getNoDataValue());
+                }
 
                 if (StackUtils.isMasterBand(srcBandName, sourceProduct[prodIdx])) {
                     masterProductBands.add(tgtBandName);

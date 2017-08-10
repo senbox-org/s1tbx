@@ -273,8 +273,10 @@ public final class TOPSARDeburstOp extends Operator {
             if (!targetProduct.containsBand(tgtBandName)) {
                 final Band trgBand = targetProduct.addBand(tgtBandName, srcBand.getDataType());
                 trgBand.setUnit(srcBand.getUnit());
-                trgBand.setNoDataValueUsed(true);
-                trgBand.setNoDataValue(srcBand.getNoDataValue());
+                if (srcBand.isNoDataValueUsed()) {
+                    trgBand.setNoDataValueUsed(true);
+                    trgBand.setNoDataValue(srcBand.getNoDataValue());
+                }
 
                 int i = targetProduct.getBandIndex(tgtBandName);
                 if (trgBand.getUnit().equals(Unit.IMAGINARY) && i-1 >= 0) {
