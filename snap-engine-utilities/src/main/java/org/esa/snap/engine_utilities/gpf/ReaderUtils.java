@@ -48,8 +48,10 @@ public final class ReaderUtils {
                                                      expression);
         virtBand.setUnit(Unit.PHASE);
         virtBand.setDescription("Phase from complex data");
-        virtBand.setNoDataValueUsed(true);
-        virtBand.setNoDataValue(bandI.getNoDataValue());
+        if (bandI.isNoDataValueUsed()) {
+            virtBand.setNoDataValueUsed(true);
+            virtBand.setNoDataValue(bandI.getNoDataValue());
+        }
         virtBand.setOwner(product);
         product.addBand(virtBand);
 
