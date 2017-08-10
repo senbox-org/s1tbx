@@ -35,6 +35,16 @@
                 <attr name="helpId" stringvalue="BandSelectOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
+            <file name="org-esa-s1tbx-utilities-gpf-SetNoDataValueOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Set No-Data Value"/>
+                <attr name="operatorName" stringvalue="SetNoDataValue"/>
+                <attr name="dialogTitle" stringvalue="Set No-Data Value"/>
+                <attr name="ShortDescription" stringvalue="Set NoDataValueUsed flag and NoDataValue"/>
+                <attr name="helpId" stringvalue="SetNoDataValueOp"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
         </folder>
     </folder>
 
@@ -63,6 +73,11 @@
                 <file name="org-esa-s1tbx-utilities-gpf-BandSelectOp-Action.shadow">
                     <attr name="originalFile"
                           stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-BandSelectOp-Action.instance"/>
+                    <attr name="position" intvalue="500"/>
+                </file>
+                <file name="org-esa-s1tbx-utilities-gpf-SetNoDataValueOp-Action.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-SetNoDataValueOp-Action.instance"/>
                     <attr name="position" intvalue="500"/>
                 </file>
             </folder>

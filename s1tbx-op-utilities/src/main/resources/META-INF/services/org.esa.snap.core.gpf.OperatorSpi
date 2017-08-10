@@ -5,3 +5,4 @@ org.esa.s1tbx.utilities.gpf.TileWriterOp$Spi
 org.esa.s1tbx.utilities.gpf.TestPatternOp$Spi
 org.esa.s1tbx.utilities.gpf.OversamplingOp$Spi
 org.esa.s1tbx.utilities.gpf.UndersamplingOp$Spi
+org.esa.s1tbx.utilities.gpf.SetNoDataValueOp$Spi
