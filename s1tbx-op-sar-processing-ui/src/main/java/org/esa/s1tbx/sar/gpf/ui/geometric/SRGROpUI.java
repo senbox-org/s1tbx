@@ -24,8 +24,6 @@ import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Map;
 
 /**
@@ -38,7 +36,6 @@ public class SRGROpUI extends BaseOperatorUI {
     private final JLabel bandListLabel = new JLabel("Source Bands:");
 
     private final JComboBox<Integer> warpPolynomialOrder = new JComboBox(new Integer[]{1, 2, 3, 4});
-    //private final JComboBox<String> warpPolynomialOrder = new JComboBox<>(new String[]{"1", "2", "3", "4"});
     private final JComboBox<String> interpolationMethod = new JComboBox<>(new String[]{
             SRGROp.nearestNeighbourStr, SRGROp.linearStr, SRGROp.cubicStr, SRGROp.cubic2Str, SRGROp.sincStr});
 
@@ -75,7 +72,6 @@ public class SRGROpUI extends BaseOperatorUI {
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
-        //paramMap.put("warpPolynomialOrder", Integer.parseInt((String) warpPolynomialOrder.getSelectedItem()));
         paramMap.put("warpPolynomialOrder", warpPolynomialOrder.getSelectedItem());
 
         paramMap.put("interpolationMethod", interpolationMethod.getSelectedItem());
