@@ -92,7 +92,7 @@
                 <attr name="helpId" stringvalue="ALOSDeskewingOp"/>
                 <attr name="icon" stringvalue="geoAusIcon"/>
             </file>
-            <file name="org-esa-s1tbx-sar-gpf-geometric-SlantRangeGroundRangeOp-Action.instance">
+            <file name="org-esa-s1tbx-sar-gpf-geometric-SRGROp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Slant Range to Ground Range"/>
@@ -265,8 +265,8 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-ALOSDeskewingOp-Action.instance"/>
                     <attr name="position" intvalue="400"/>
                 </file>
-                <file name="org-esa-s1tbx-sar-gpf-geometric-SlantRangeGroundRangeOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-SlantRangeGroundRangeOp-Action.instance"/>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-SRGROp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-SRGROp-Action.instance"/>
                     <attr name="position" intvalue="500"/>
                 </file>
                 <file name="org-esa-s1tbx-sar-gpf-geometric-UpdateGeoRefOp-Action.shadow">
@@ -351,6 +351,10 @@
         <file name="org.esa.s1tbx.sar.gpf.ui.geometric.TerrainFlatteningOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.geometric.TerrainFlatteningOpUI"/>
             <attr name="operatorName" stringvalue="Terrain-Flattening"/>
+        </file>
+        <file name="org.esa.s1tbx.sar.gpf.ui.geometric.SRGROpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.geometric.SRGROpUI"/>
+            <attr name="operatorName" stringvalue="SRGR"/>
         </file>
     </folder>
 

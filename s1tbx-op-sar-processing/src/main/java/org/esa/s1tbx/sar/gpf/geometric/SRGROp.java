@@ -66,8 +66,8 @@ public class SRGROp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(description = "The order of WARP polynomial function", interval = "[1, *)", defaultValue = "4",
-            label = "Warp Polynomial Order")
+    @Parameter(description = "The order of WARP polynomial function", valueSet = {"1", "2", "3", "4"},
+            defaultValue = "4", label = "Warp Polynomial Order")
     private int warpPolynomialOrder = 4;
 
     //    @Parameter(description = "The number of range points used in computing WARP polynomial",
@@ -97,11 +97,11 @@ public class SRGROp extends Operator {
 
     private Interpolation interpMethod = Interpolation.LINEAR;
 
-    private static final String nearestNeighbourStr = "Nearest-neighbor interpolation";
-    private static final String linearStr = "Linear interpolation";
-    private static final String cubicStr = "Cubic interpolation";
-    private static final String cubic2Str = "Cubic2 interpolation";
-    private static final String sincStr = "Sinc interpolation";
+    public static final String nearestNeighbourStr = "Nearest-neighbor interpolation";
+    public static final String linearStr = "Linear interpolation";
+    public static final String cubicStr = "Cubic interpolation";
+    public static final String cubic2Str = "Cubic2 interpolation";
+    public static final String sincStr = "Sinc interpolation";
 
     private static final String PRODUCT_SUFFIX = "_SRGR";
 
