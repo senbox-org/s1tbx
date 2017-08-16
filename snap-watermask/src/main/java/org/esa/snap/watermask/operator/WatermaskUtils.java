@@ -123,14 +123,15 @@ public class WatermaskUtils {
             try {
                 final URL fileUrl = new URL(remotePath);
                 final URLConnection urlConnection = fileUrl.openConnection();
-                if (!localZipFile.exists() || localZipFile.length() != urlConnection.getContentLength()) {
+                if (!localZipFile.exists() || (localZipFile.length() != urlConnection.getContentLength() &&
+                        urlConnection.getContentLength() >= 0)) {
                     SystemUtils.LOG.fine(localZipFile.getPath() + " exists " + localZipFile.exists() + " local length " + (localZipFile.exists() ? localZipFile.length() : 0) + " remote length " + urlConnection.getContentLength());
                     SystemUtils.LOG.fine("http retrieving " + remotePath);
                     downloadHttpFile(fileUrl, urlConnection, localZipFile);
                 } else {
                     SystemUtils.LOG.fine("Found '" + localZipFile.getName() + "'.");
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 final String message = "Mandatory auxdata file '" + localZipFile.getName() +
                         "' could not be downloaded: " + e.getMessage();
                 throw new OperatorException(message);
