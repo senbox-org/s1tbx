@@ -77,14 +77,47 @@ public final class StackUtils {
                 final String suffix = StackUtils.createBandTimeStamp(prod);
                 final List<String> bandNames = new ArrayList<>(10);
                 for (Band tgtBand : sourceRasterMap.keySet()) {
+                    // It is assumed that tgtBand is a band in targetProduct
                     final Band srcBand = sourceRasterMap.get(tgtBand);
                     final Product srcProduct = srcBand.getProduct();
                     if (srcProduct == prod) {
                         bandNames.add(tgtBand.getName());
+                        //System.out.println("StackUtils: " + prod.getName() + ": " + tgtBand.getName());
                     }
                 }
+
+                // CompactPolStokesParametersOp.initialize() calls PolBandUtils.getSourceBands() which calls
+                // StackUtils.getSlaveBandNames() which gets the slave bands from the meta data of the stack product.
+                // The bands are passed (in the order they appear in the metadata) to
+                // DualPolOpUtils.getMeanCovarianceMatrixC2().
+                // CreateStackOp.initialize() calls this method to get the slave bands to put in Slave_bands of
+                // Slave_Metadata. So make sure the slave band names are in the same order as how the bands appear in
+                // the stack product.
+                // In particular, compact pol C2 stack product slave bands must be in the order
+                // C11, C12_real, C12_imag, C22 because CompactPolStokesParametersOp() expects them to be in that
+                // order.
+                String[] slvBandNames = new String[bandNames.size()];
+                Band[] tgtBands = targetProduct.getBands();
+                int cnt = 0;
+                for (int i = 0; i < tgtBands.length; i++) {
+                    //System.out.println("StackUtils: tgt band i = " + i + " " + tgtBands[i].getName());
+                    if (bandNames.contains(tgtBands[i].getName())) {
+                        slvBandNames[cnt++] = tgtBands[i].getName();
+                    }
+
+                    if (cnt >= slvBandNames.length) {
+                        break;
+                    }
+                }
+                /*
+                for (int i = 0; i < slvBandNames.length; i++) {
+                    System.out.println("StackUtils: " + prod.getName() + ": slv band = " + slvBandNames[i]);
+                }
+                */
+
                 final String prodName = prod.getName() + suffix;
-                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
+                //StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
+                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, slvBandNames);
             }
         }
     }
