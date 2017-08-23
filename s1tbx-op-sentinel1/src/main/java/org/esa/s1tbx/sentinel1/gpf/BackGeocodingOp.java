@@ -349,6 +349,10 @@ public final class BackGeocodingOp extends Operator {
 
                 targetBand.setUnit(srcBand.getUnit());
                 targetBand.setDescription(srcBand.getDescription());
+                if (maskOutAreaWithoutElevation) {
+                    targetBand.setNoDataValueUsed(true);
+                    targetBand.setNoDataValue(noDataValue);
+                }
                 targetProduct.addBand(targetBand);
                 targetBandToSlaveBandMap.put(targetBand, srcBand);
 
