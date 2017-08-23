@@ -9,6 +9,7 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.delaunay.TriangleInterpolator;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class TopoPhase {
@@ -37,6 +38,7 @@ public class TopoPhase {
 
     private double rngAzRatio = 0;
     private boolean isBiStaticStack = false;
+    private static final double invalidIndex = -9999.0;
 
     public TopoPhase(SLCImage masterMeta, Orbit masterOrbit, SLCImage slaveMeta, Orbit slaveOrbit, Window window,
                      DemTile demTile) throws Exception {
@@ -191,8 +193,8 @@ public class TopoPhase {
                     line = sarPoint.y;
                     pix = sarPoint.x;
 
-                    demRadarCode_y[i][j] = line;
-                    demRadarCode_x[i][j] = pix;
+                    demRadarCode_y[i][j] = invalidIndex;//line;
+                    demRadarCode_x[i][j] = invalidIndex;//pix;
                     demRadarCode_phase[i][j] = 0;
                 }
 
@@ -272,6 +274,10 @@ public class TopoPhase {
         TriangleInterpolator.ZData[] data;
         if(includeDEM) {
             elevation = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
+            for (double[] row : elevation) {
+                Arrays.fill(row, dem.noDataValue);
+            }
+
             data = new TriangleInterpolator.ZData[] {
                     new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
                     new TriangleInterpolator.ZData(demElevation, elevation)
@@ -283,6 +289,6 @@ public class TopoPhase {
         }
 
         TriangleInterpolator.gridDataLinear(demRadarCode_y, demRadarCode_x, data,
-                tileWindow, rngAzRatio, mlAz, mlRg, dem.noDataValue, offset);
+                tileWindow, rngAzRatio, mlAz, mlRg, invalidIndex, offset);
     }
 }
