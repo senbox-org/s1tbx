@@ -26,14 +26,7 @@ import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -56,6 +49,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
     private final JCheckBox includeCoherenceCheckBox = new JCheckBox("Include coherence estimation");
     private final JCheckBox squarePixelCheckBox = new JCheckBox("Square Pixel");
     private final JCheckBox independentWindowSizeCheckBox = new JCheckBox("Independent Window Sizes");
+    private final JCheckBox outputElevationCheckBox = new JCheckBox("Output Elevation");
 
     private final JTextField cohWinAz = new JTextField("");
     private final JTextField cohWinRg = new JTextField("");
@@ -74,6 +68,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
     private Boolean includeCoherence = true;
     private Boolean squarePixel = true;
     private final CoherenceOp.DerivedParams param = new CoherenceOp.DerivedParams();
+    private Boolean outputElevation = false;
 
     private Boolean subtractTopographicPhase = false;
     private static final String[] demValueSet = DEMFactory.getDEMNameList();
@@ -165,9 +160,11 @@ public class InterferogramOpUI extends BaseOperatorUI {
                 if (subtractTopographicPhase) {
                     demName.setEnabled(true);
                     tileExtensionPercent.setEnabled(true);
+                    outputElevationCheckBox.setEnabled(true);
                 } else {
                     demName.setEnabled(false);
                     tileExtensionPercent.setEnabled(false);
+                    outputElevationCheckBox.setEnabled(false);
                 }
             }
         });
@@ -206,6 +203,12 @@ public class InterferogramOpUI extends BaseOperatorUI {
         });
 
         externalDEMNoDataValue.addKeyListener(textAreaKeyListener);
+
+        outputElevationCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputElevation = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
 
         return panel;
     }
@@ -324,6 +327,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
                 paramMap.put("externalDEMApplyEGM", externalDEMApplyEGM);
             }
             paramMap.put("tileExtensionPercent", tileExtensionPercent.getSelectedItem());
+            paramMap.put("outputElevation", outputElevation);
         }
 
         paramMap.put("includeCoherence", includeCoherence);
@@ -377,9 +381,12 @@ public class InterferogramOpUI extends BaseOperatorUI {
         gbc.gridx = 0;
         gbc.gridy = gbc.gridy + 10;
         DialogUtils.addComponent(contentPane, gbc, "Tile Extension [%]", tileExtensionPercent);
+        gbc.gridy++;
+        contentPane.add(outputElevationCheckBox, gbc);
 
         demName.setEnabled(false);
         tileExtensionPercent.setEnabled(false);
+        outputElevationCheckBox.setEnabled(false);
 
         gbc.gridy++;
         contentPane.add(includeCoherenceCheckBox, gbc);
