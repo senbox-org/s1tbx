@@ -154,6 +154,9 @@ public class InterferogramOp extends Operator {
             defaultValue = "100")
     private String tileExtensionPercent = "100";
 
+    @Parameter(defaultValue = "false", label = "Output Elevation")
+    private boolean outputElevation = false;
+
     // flat_earth_polynomial container
     private Map<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
     private boolean flatEarthEstimated = false;
@@ -191,6 +194,8 @@ public class InterferogramOp extends Operator {
     private static final String PRODUCT_SUFFIX = "_Ifg";
     private static final String FLAT_EARTH_PHASE = "flat_earth_phase";
     private static final String TOPO_PHASE = "topo_phase";
+    private static final String COHERENCE = "coherence";
+    private static final String ELEVATION = "elevation";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -214,11 +219,12 @@ public class InterferogramOp extends Operator {
 
             constructSourceMetadata();
             constructTargetMetadata();
-            createTargetProduct();
 
             if (subtractTopographicPhase) {
                 defineDEM();
             }
+
+            createTargetProduct();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -500,8 +506,11 @@ public class InterferogramOp extends Operator {
 
             if (CREATE_VIRTUAL_BAND) {
                 final String countStr = '_' + productTag + tag;
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
-                Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
+                ReaderUtils.createVirtualIntensityBand(targetProduct,
+                        targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
+
+                Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct,
+                        targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
 
                 targetProduct.setQuicklookBandName(phaseBand.getName());
                 targetBandNames.add(phaseBand.getName());
@@ -512,7 +521,7 @@ public class InterferogramOp extends Operator {
                 final Band coherenceBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
                 coherenceBand.setNoDataValueUsed(true);
                 coherenceBand.setNoDataValue(master.realBand.getNoDataValue());
-                container.addBand(Unit.COHERENCE, coherenceBand.getName());
+                container.addBand(COHERENCE, coherenceBand.getName());
                 coherenceBand.setUnit(Unit.COHERENCE);
                 targetBandNames.add(coherenceBand.getName());
             }
@@ -520,7 +529,7 @@ public class InterferogramOp extends Operator {
             if (subtractTopographicPhase && OUTPUT_PHASE) {
                 final String targetBandTgp = "tgp" + tag;
                 final Band tgpBand = targetProduct.addBand(targetBandTgp, ProductData.TYPE_FLOAT32);
-                container.addBand(Unit.PHASE, tgpBand.getName());
+                container.addBand(TOPO_PHASE, tgpBand.getName());
                 tgpBand.setUnit(Unit.PHASE);
                 targetBandNames.add(tgpBand.getName());
             }
@@ -528,9 +537,19 @@ public class InterferogramOp extends Operator {
             if (subtractFlatEarthPhase && OUTPUT_PHASE) {
                 final String targetBandFep = "fep" + tag;
                 final Band fepBand = targetProduct.addBand(targetBandFep, ProductData.TYPE_FLOAT32);
-                container.addBand(Unit.PHASE, fepBand.getName());
+                container.addBand(FLAT_EARTH_PHASE, fepBand.getName());
                 fepBand.setUnit(Unit.PHASE);
                 targetBandNames.add(fepBand.getName());
+            }
+
+            outputElevation = outputElevation && sourceProduct.getBand("elevation") == null;
+            if (subtractTopographicPhase && outputElevation) {
+                final Band elevBand = targetProduct.addBand("elevation", ProductData.TYPE_FLOAT32);
+                elevBand.setNoDataValueUsed(true);
+                elevBand.setNoDataValue(demNoDataValue);
+                container.addBand(ELEVATION, elevBand.getName());
+                elevBand.setUnit(Unit.METERS);
+                targetBandNames.add(elevBand.getName());
             }
 
             String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
@@ -907,7 +926,7 @@ public class InterferogramOp extends Operator {
 
                 if (subtractTopographicPhase) {
                     final TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                            product, tileWindow, demTile, false);
+                            product, tileWindow, demTile, outputElevation);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -917,6 +936,10 @@ public class InterferogramOp extends Operator {
 
                     if (OUTPUT_PHASE) {
                         saveTopoPhase(x0, xN, y0, yN, topoPhase.demPhase, product, targetTileMap);
+                    }
+
+                    if (outputElevation) {
+                        saveElevation(x0, xN, y0, yN, topoPhase.elevation, product, targetTileMap);
                     }
                 }
 
@@ -992,6 +1015,25 @@ public class InterferogramOp extends Operator {
 
         return PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
                 polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
+    }
+
+    private void saveElevation(final int x0, final int xN, final int y0, final int yN, final double[][] elevation,
+                               final ProductContainer product, final Map<Band, Tile> targetTileMap) {
+
+        final Band elevationBand = targetProduct.getBand(product.getBandName(ELEVATION));
+        final Tile elevationTile = targetTileMap.get(elevationBand);
+        final ProductData elevationData = elevationTile.getDataBuffer();
+        final TileIndex tgtIndex = new TileIndex(elevationTile);
+
+        for (int y = y0; y <= yN; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - y0;
+            for (int x = x0; x <= xN; x++) {
+                final int tgtIdx = tgtIndex.getIndex(x);
+                final int xx = x - x0;
+                elevationData.setElemFloatAt(tgtIdx, (float)elevation[yy][xx]);
+            }
+        }
     }
 
     private void saveTopoPhase(final int x0, final int xN, final int y0, final int yN, final double[][] topoPhase,
@@ -1272,7 +1314,7 @@ public class InterferogramOp extends Operator {
 
                 if (subtractTopographicPhase) {
                     TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, false);
+                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, outputElevation);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -1282,6 +1324,10 @@ public class InterferogramOp extends Operator {
 
                     if (OUTPUT_PHASE) {
                         saveTopoPhase(x0, xN, y0, yN, topoPhase.demPhase, product, targetTileMap);
+                    }
+
+                    if (outputElevation) {
+                        saveElevation(x0, xN, y0, yN, topoPhase.elevation, product, targetTileMap);
                     }
                 }
 
