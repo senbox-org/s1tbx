@@ -35,6 +35,8 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -52,7 +54,7 @@ import java.util.Map;
         category = "Radar/Interferometric/PSI \\ SBAS",
         authors = "Cecilia Wong, Luis Veci",
         version = "1.0",
-        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2017 by Array Systems Computing Inc.",
         autoWriteDisabled = true,
         description = "Export data for StaMPS processing")
 public class StampsExportOp extends Operator {
@@ -82,6 +84,12 @@ public class StampsExportOp extends Operator {
     private ProjectedDEM projectedDEM;
     private WriterInfo projectedDEMInfo;
     private boolean projectedDEMWritten = false;
+    private WriterInfo latInfo;
+    private WriterInfo lonInfo;
+    private TiePointGrid latGrid = null;
+    private TiePointGrid lonGrid = null;
+    private Band latBand = null;
+    private Band lonBand = null;
 
     public StampsExportOp() {
         setRequiresAllBands(true);
@@ -136,23 +144,29 @@ public class StampsExportOp extends Operator {
                     final String srcBandName = srcBand.getName();
                     if (srcBandName.startsWith("i_")) {
                         final FOLDERS folderType = srcBandName.startsWith("i_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
-                        final String targetBandName = "i_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
-                        final Band targetBand = ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
-                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[folderType.ordinal()], targetBandName, targetProduct));
+                        final String targetBandName =
+                                "i_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
+                        final Band targetBand = ProductUtils.copyBand(
+                                srcBandName, aSourceProduct, targetBandName, targetProduct, true);
+                        tgtBandToInfoMap.put(targetBand, new WriterInfo(
+                                folder[folderType.ordinal()], targetBandName, targetProduct));
 
                         //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
                     } else if (srcBandName.startsWith("q_")) {
                         // It is necessary to copy the q bands to target product because the product writer will look
                         // for them in the target product
                         final FOLDERS folderType = srcBandName.startsWith("q_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
-                        final String targetBandName = "q_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
+                        final String targetBandName =
+                                "q_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
                         ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
 
                         //System.out.println("copy " + srcBandName + " to " + targetBandName);
                     } else if (srcBandName.startsWith("elevation")) {
                         final String targetBandName = srcBandName + ext[FOLDERS.GEO.ordinal()];
-                        final Band targetBand = ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
-                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[FOLDERS.GEO.ordinal()], targetBandName, targetProduct));
+                        final Band targetBand = ProductUtils.copyBand(
+                                srcBandName, aSourceProduct, targetBandName, targetProduct, true);
+                        tgtBandToInfoMap.put(targetBand, new WriterInfo(
+                                folder[FOLDERS.GEO.ordinal()], targetBandName, targetProduct));
                         includesElevation = true;
 
                         //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
@@ -162,10 +176,24 @@ public class StampsExportOp extends Operator {
 
             String projectedDEMName = "projected" + ext[FOLDERS.DEM.ordinal()];
             projectedDEM = new ProjectedDEM(projectedDEMName, sourceProduct[0]);
-            projectedDEMInfo = new WriterInfo(folder[FOLDERS.DEM.ordinal()], projectedDEMName, projectedDEM.getTargetProduct());
+            projectedDEMInfo = new WriterInfo(
+                    folder[FOLDERS.DEM.ordinal()], projectedDEMName, projectedDEM.getTargetProduct());
+
+            final String masterDateStr = extractDate(sourceProduct[0].getBandAt(0).getName(), FOLDERS.GEO);
+            final String latBandName = masterDateStr + ".lat";
+            final String lonBandName = masterDateStr + ".lon";
+            latBand = targetProduct.addBand(latBandName, ProductData.TYPE_FLOAT32);
+            lonBand = targetProduct.addBand(lonBandName, ProductData.TYPE_FLOAT32);
+
+            latGrid = OperatorUtils.getLatitude(sourceProduct[0]);
+            lonGrid = OperatorUtils.getLongitude(sourceProduct[0]);
+
+            latInfo = new WriterInfo(folder[FOLDERS.GEO.ordinal()], latBandName, targetProduct);
+            lonInfo = new WriterInfo(folder[FOLDERS.GEO.ordinal()], lonBandName, targetProduct);
 
             if (!includesElevation) {
-                throw new OperatorException("Elevation band required. Please add an elevation band to the interferogram product.");
+                throw new OperatorException(
+                        "Elevation band required. Please add an elevation band to the interferogram product.");
             }
 
         } catch (Throwable t) {
@@ -217,6 +245,25 @@ public class StampsExportOp extends Operator {
                 } else {
                     throw new OperatorException(e);
                 }
+            }
+        }
+
+        try {
+            writeHeader(latInfo);
+            writeHeader(lonInfo);
+
+            final ProductData latSamples = latGrid.getRasterData();
+            latInfo.productWriter.writeBandRasterData(latBand, targetRectangle.x, targetRectangle.y,
+                    targetRectangle.width, targetRectangle.height, latSamples, ProgressMonitor.NULL);
+
+            final ProductData lonSamples = lonGrid.getRasterData();
+            lonInfo.productWriter.writeBandRasterData(lonBand, targetRectangle.x, targetRectangle.y,
+                    targetRectangle.width, targetRectangle.height, lonSamples, ProgressMonitor.NULL);
+        } catch (Exception e) {
+            if (e instanceof OperatorException) {
+                throw (OperatorException) e;
+            } else {
+                throw new OperatorException(e);
             }
         }
 
