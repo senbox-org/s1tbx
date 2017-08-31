@@ -5,6 +5,7 @@
 
 
 
+
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
@@ -24,18 +25,26 @@ constant range offset for the whole sub-swath of the split S-1 SLC
 image using incoherent cross-correlation. The estimation is done for
 each burst using a small block of data in the center of the burst. The
 estimates from all bursts are then averaged to get the final constant
-offset for the whole image.<br>
+range offset for the whole image.<br>
 </span></p>
 <p class="MsoNormal"><span>The operator then estimates a constant
 azimuth offset for the whole sub-swath using a Enhanced Spectral
 Diversity (ESD) method. The ESD
 approach exploits the data at the overlapped area of the adjacent
-bursts. The estimation is done for every overlapped area and the final
-azimuth offset is obtained by averaging all the estimations.<br>
+bursts. The estimation is done for a number of windows in every overlapped area and the final
+azimuth offset is obtained by averaging all the estimations. <br>
+</span></p>
+<p class="MsoNormal"><span>The estimated range and azimuth shifts are
+saved in the metadata of the output product. The ESD estimations for
+all windows and all overlaps are saved in and ASCII file with master
+and slave azquisition dates and "_azimuth_shift" in the file name. The
+file can be found at user's \.snap\var\log folder. <br>
 </span>
 </p>
-<p class="MsoNormal"><span>Finally, the operator then performs range and azimuth
-shift for every burst using the range and azimuth offsets computed above with a phase
+
+<p class="MsoNormal"><span>Finally, the operator performs range and
+azimuth corrections for every burst using the range and azimuth offsets
+estimated above with a phase
 ramp method in frequency domain</span>.<br>
 <span style=""><o:p></o:p></span></p>
 <h4>Input <br>
@@ -61,7 +70,7 @@ VV). <br>
 <ul>
 <li>The output of the operator are the co-registered master and slave
 bands in I/Q format with the slave bands shifted by a small amount in
-range direction. <br>
+range and azimuth directions. <br>
 
   </li>
 </ul>
@@ -102,9 +111,9 @@ considered valid, otherwise invalid.</li>
   <li>Use User supplied shifts: If the checkbox is selected, then user
 supplied azimuth and range offsets will be used in shifting the image.
 No cross-correlation or ESD will be performed to estimate the offsets.</li>
-  <li>The overall azimuth shift: The user provided azimuth offset. <br>
+  <li>The overall azimuth shift in pixels: The user provided azimuth offset in pixels. <br>
   </li>
-  <li>The overall range shift: The user provided range offset. <br>
+  <li>The overall range shift in pixels: The user provided range offset in pixels. <br>
   </li>
 </ul>
 <img style="width: 450px; height: 450px;" alt="" src="images/ESD.jpg"><br>
