@@ -43,7 +43,7 @@ import org.esa.snap.engine_utilities.util.ResourceUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Perform supervised Wishart classification of a given polarimetric product
@@ -76,6 +76,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
     private PolBandUtils.MATRIX sourceProductType;
 
     private PolClassifierBase.ClusterInfo[] clusterCenters = null;
+    private String[] classNames = null;
     private int[] clusterToClassMap = null;
     private int numClasses = 0;
     private boolean isDualPol = false;
@@ -158,6 +159,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
         final int numOfClusters = Integer.parseInt(clusterCenterProperties.getProperty("number_of_clusters"));
         clusterCenters = new PolClassifierBase.ClusterInfo[numOfClusters];
         clusterToClassMap = new int[numOfClusters];
+        final java.util.List<String> classNameList = new ArrayList<>();
 
         final double[][] Cr = new double[2][2];
         final double[][] Ci = new double[2][2];
@@ -170,6 +172,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
             if (!className.equals(currentClassName)) {
                 numClasses++;
                 currentClassName = className;
+                classNameList.add(className);
             }
             clusterToClassMap[c] = numClasses;
 
@@ -181,6 +184,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
             clusterCenters[c] = new PolClassifierBase.ClusterInfo();
             clusterCenters[c].setClusterCenter(c, Cr, Ci, 0);
         }
+        classNames = classNameList.toArray(new String[classNameList.size()]);
     }
 
     private void getQuadPolClusterCenters() throws IOException {
@@ -189,6 +193,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
         final int numOfClusters = Integer.parseInt(clusterCenterProperties.getProperty("number_of_clusters"));
         clusterCenters = new PolClassifierBase.ClusterInfo[numOfClusters];
         clusterToClassMap = new int[numOfClusters];
+        final java.util.List<String> classNameList = new ArrayList<>();
 
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
@@ -201,6 +206,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
             if (!className.equals(currentClassName)) {
                 numClasses++;
                 currentClassName = className;
+                classNameList.add(className);
             }
             clusterToClassMap[c] = numClasses;
 
@@ -217,6 +223,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
             clusterCenters[c] = new PolClassifierBase.ClusterInfo();
             clusterCenters[c].setClusterCenter(c, Tr, Ti, 0);
         }
+        classNames = classNameList.toArray(new String[classNameList.size()]);
     }
 
     /**
@@ -235,7 +242,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
         // add index coding
         final IndexCoding indexCoding = new IndexCoding("Cluster_classes");
         for (int i = 0; i < numClasses; i++) {
-            indexCoding.addIndex("class_" + (i + 1), i, "Cluster " + (i + 1));
+            indexCoding.addIndex("class_" + (i + 1), i, classNames[i]);
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
 
@@ -305,7 +312,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
 
                             targetData.setElemIntAt(
                                     trgIndex.getIndex(x),
-                                    clusterToClassMap[HAlphaWishartC2.findZoneIndex(Cr, Ci, clusterCenters) - 1]);
+                                    clusterToClassMap[HAlphaWishartC2.findZoneIndex(Cr, Ci, clusterCenters) - 1] - 1);
                         }
                     }
 
@@ -325,7 +332,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
 
                             targetData.setElemIntAt(
                                     trgIndex.getIndex(x),
-                                    clusterToClassMap[HAlphaWishart.findZoneIndex(Tr, Ti, clusterCenters) - 1]);
+                                    clusterToClassMap[HAlphaWishart.findZoneIndex(Tr, Ti, clusterCenters) - 1] - 1);
                         }
                     }
                 }
