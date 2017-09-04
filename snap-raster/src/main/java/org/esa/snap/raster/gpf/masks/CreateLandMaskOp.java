@@ -138,7 +138,7 @@ public class CreateLandMaskOp extends Operator {
             if (srcBand instanceof VirtualBand && copyVirtualBands) {
                 ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else if (geometry != null && !geometry.isEmpty()) {
-                String expression = geometry + " ? " + srcBand.getName() + " : " + srcBand.getNoDataValue();
+                String expression = geometry + " ? " + srcBand.getName() + ".raw : " + srcBand.getNoDataValue();
                 if (invertGeometry) {
                     expression = '!' + expression;
                 }
