@@ -847,7 +847,10 @@ public final class SliceAssemblyOp extends Operator {
             int sliceIdx = 0, heightOffset = 0;
             for (int i = 0; i < sliceProducts.length; ++i) {
                 heightOffset += sliceSwathImageDimMap.get(sliceProducts[i]).get(swath)[0];
-                if (y <= heightOffset) {
+                // The second condition is to fix the bug where rounding errors cause the last line to be
+                // just outside the last slice, i.e., the first condition is never satisfied and we could
+                // end up with zero sliceIdx.
+                if (y <= heightOffset || i == sliceProducts.length - 1) {
                     yy = y - heightOffset + sliceSwathImageDimMap.get(sliceProducts[i]).get(swath)[0];
                     sliceIdx = i;
                     break;
