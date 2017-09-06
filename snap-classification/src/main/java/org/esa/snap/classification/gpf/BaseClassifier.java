@@ -353,15 +353,22 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     private void checkSourceProductsValidity() {
 
         // All the source products must have the same raster dimensions.
-        // Here we are assuming that a band will have the same raster dimensions as the product it belongs to.
+        // All bands must have the same raster dimensions as the product it belongs to.
 
         sourceImageHeight = params.sourceProducts[0].getSceneRasterHeight();
         sourceImageWidth = params.sourceProducts[0].getSceneRasterWidth();
 
-        for (int i = 1; i < params.sourceProducts.length; i++) {
+        for (int i = 0; i < params.sourceProducts.length; i++) {
             if (sourceImageHeight != params.sourceProducts[i].getSceneRasterHeight() ||
                     sourceImageWidth != params.sourceProducts[i].getSceneRasterWidth()) {
                 throw new OperatorException("Source products are of different dimensions");
+            }
+
+            for (Band band:params.sourceProducts[i].getBands()) {
+                if (band.getRasterWidth() != sourceImageWidth || band.getRasterHeight() != sourceImageHeight) {
+                    throw new OperatorException("Bands in source product " + params.sourceProducts[i].getName() +
+                            " are of different dimensions");
+                }
             }
         }
     }
