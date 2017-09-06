@@ -17,11 +17,15 @@ package org.csa.rstb.polarimetric.gpf;
 
 import Jama.Matrix;
 import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
+
+import java.awt.*;
 
 
 /**
@@ -30,6 +34,80 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 public final class DualPolOpUtils {
 
     public static final double EPS = Constants.EPS;
+
+
+    public static void getDataBuffer(final Operator op, final Band[] srcBands, final Rectangle sourceRectangle,
+                                     final PolBandUtils.MATRIX sourceProductType,
+                                     final Tile[] sourceTiles, final ProductData[] dataBuffers) {
+
+        for (Band band : srcBands) {
+            final String bandName = band.getName();
+            if (sourceProductType == PolBandUtils.MATRIX.C2) {
+
+                if (bandName.contains("C11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("C12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("C12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("C22")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV) {
+
+                if (bandName.contains("i_HH")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("q_HH")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("i_HV")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("q_HV")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+
+                if (bandName.contains("i_HH")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("q_HH")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("i_VV")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("q_VV")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV) {
+
+                if (bandName.contains("i_VH")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("q_VH")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("i_VV")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("q_VV")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                }
+            }
+        }
+    }
 
     /**
      * Get mean covariance matrix C2 for given pixel.

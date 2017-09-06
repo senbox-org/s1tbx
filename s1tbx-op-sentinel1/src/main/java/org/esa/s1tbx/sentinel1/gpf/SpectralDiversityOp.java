@@ -44,6 +44,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
@@ -54,10 +55,11 @@ import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
 
 /**
  * Estimate range and azimuth offsets for each burst using cross-correlation with a 512x512 block in
@@ -119,11 +121,11 @@ public class SpectralDiversityOp extends Operator {
     private boolean useSuppliedShifts = false;
 
     @Parameter(description = "The overall azimuth shift", defaultValue = "0.0",
-            label = "The overall azimuth shift")
+            label = "The overall azimuth shift in pixels")
     private double overallAzimuthShift = 0.0;
 
     @Parameter(description = "The overall range shift", defaultValue = "0.0",
-            label = "The overall range shift")
+            label = "The overall range shift in pixels")
     private double overallRangeShift = 0.0;
 
     private int fineWinWidth = 0;
@@ -151,6 +153,8 @@ public class SpectralDiversityOp extends Operator {
     private static final int cohWin = 5; // window size for coherence calculation
     private static final int maxRangeShift = 1;
     private static final String DerampDemodPhase = "derampDemodPhase";
+
+    private boolean outputESDEstimationToFile = true;
 
     /**
      * Default constructor. The graph processing framework
@@ -644,6 +648,7 @@ public class SpectralDiversityOp extends Operator {
                 final double spectralSeparation = computeSpectralSeparation();
 
                 final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
+                final double[][] shiftLUT = new double[numOverlaps][numBlocksPerOverlap];
 
                 for (int i = 0; i < numOverlaps; i++) {
 
@@ -681,6 +686,7 @@ public class SpectralDiversityOp extends Operator {
 
                                     synchronized(azShiftArray) {
                                         azShiftArray.add(new AzimuthShiftData(overlapIndex, blockIndex, azShift));
+                                        shiftLUT[overlapIndex][blockIndex] = azShift;
                                     }
                                 } catch (Throwable e) {
                                     OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -729,6 +735,10 @@ public class SpectralDiversityOp extends Operator {
 
                 saveAzimuthShiftPerBlock(mstSlvTag, azShiftArray);
 
+                if (outputESDEstimationToFile) {
+                    final String fileName = mstSlvTag + "_azimuth_shift.txt";
+                    outputESDEstimationToFile(fileName, shiftLUT, -azOffset);
+                }
             }
 
         } catch (Throwable e) {
@@ -1271,6 +1281,37 @@ public class SpectralDiversityOp extends Operator {
             }
         }
     }
+
+    private static void outputESDEstimationToFile(
+            final String fileName, final double[][] shiftLUT, final double overallAzShift) throws OperatorException {
+
+        final File logESDFile = new File(ResourceUtils.getReportFolder(), fileName);
+        final int numOverlaps = shiftLUT.length;
+        final int numBlocksPerOverlap = shiftLUT[0].length;
+        PrintStream p = null;
+
+        try {
+            final FileOutputStream out = new FileOutputStream(logESDFile.getAbsolutePath(), false);
+            p = new PrintStream(out);
+
+            for (int i = 0; i < numOverlaps; ++i) {
+                for (int j = 0; j < numBlocksPerOverlap; ++j) {
+                    p.format("%13.6f ", shiftLUT[i][j]);
+                }
+                p.println();
+            }
+
+            p.println();
+            p.print("Mean Azimuth shift = " + overallAzShift);
+
+        } catch (IOException exc) {
+            throw new OperatorException(exc);
+        } finally {
+            if (p != null)
+                p.close();
+        }
+    }
+
 
 
     private static class AzimuthShiftData {

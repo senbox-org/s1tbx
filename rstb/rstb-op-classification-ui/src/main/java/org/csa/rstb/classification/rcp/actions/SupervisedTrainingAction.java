@@ -160,8 +160,8 @@ public class SupervisedTrainingAction extends AbstractAction {
                 int totalRows = 0;
                 for (final String geom : subGeometries) {
                     final VectorDataNode vec = roiProduct.getVectorDataGroup().get(geom);
-                    final int minY = Math.min(sourceImageWidth, Math.max(0, (int) vec.getEnvelope().getMinY() - 1));
-                    final int maxY = Math.min(sourceImageHeight, (int) vec.getEnvelope().getMaxY() + 1);
+                    final int minY = Math.max(0, (int) vec.getEnvelope().getMinY() - 1);
+                    final int maxY = Math.min(sourceImageHeight - 1, (int) vec.getEnvelope().getMaxY() + 1);
                     totalRows += (maxY - minY);
                 }
 
@@ -171,10 +171,10 @@ public class SupervisedTrainingAction extends AbstractAction {
 
                     final Mask band = roiProduct.getMaskGroup().get(geom);
                     final VectorDataNode vec = roiProduct.getVectorDataGroup().get(geom);
-                    final int minX = Math.min(sourceImageWidth, Math.max(0, (int) vec.getEnvelope().getMinX() - 1));
-                    final int minY = Math.min(sourceImageWidth, Math.max(0, (int) vec.getEnvelope().getMinY() - 1));
-                    final int maxX = Math.min(sourceImageWidth, (int) vec.getEnvelope().getMaxX() + 1);
-                    final int maxY = Math.min(sourceImageHeight, (int) vec.getEnvelope().getMaxY() + 1);
+                    final int minX = Math.max(0, (int) vec.getEnvelope().getMinX() - 1);
+                    final int minY = Math.max(0, (int) vec.getEnvelope().getMinY() - 1);
+                    final int maxX = Math.min(sourceImageWidth - 1, (int) vec.getEnvelope().getMaxX() + 1);
+                    final int maxY = Math.min(sourceImageHeight - 1, (int) vec.getEnvelope().getMaxY() + 1);
 
                     int counter = 0;
 
