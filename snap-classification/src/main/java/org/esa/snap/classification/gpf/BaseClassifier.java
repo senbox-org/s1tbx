@@ -303,6 +303,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                     }
                     //System.out.println("vector " + name);
                     polygonVectorDataNodes[i] = vectorGroup.get(name);
+                    // So for class value "i", the label is polygonVectorDataNodes[i] which corresponds to
+                    // params.trainingVectors[i]. This is used to set up classLabelMap.
                     if (polygonVectorDataNodes[i] == null) {
                         //System.out.println("fail to find vector " + name);
                         throw new OperatorException("Cannot find vector " + params.trainingVectors[i]);
@@ -1340,6 +1342,9 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             featureMaxValues[i] = featureBand.getStx().getMaximum();
         }
 
+        // "sortedClasses" and "trainingVectors" should be aligned, see Initialize().
+        // params.trainingVectors[i] corresponds to class value "i".
+        // The class values are 0, 1, ... , params.trainingVectors.length
         final String classUnit = labelBand.getUnit();
         ClassifierDescriptor classifierDescriptor =
                 new ClassifierDescriptor(params.classifierType, params.savedClassifierName,
