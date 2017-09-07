@@ -118,7 +118,9 @@ public class CreateLandMaskOp extends Operator {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                bandNameList.add(band.getName());
+                if(!targetProduct.containsBand(band.getName())) {
+                    bandNameList.add(band.getName());
+                }
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
         }
