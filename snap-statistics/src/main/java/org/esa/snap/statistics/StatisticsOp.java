@@ -78,12 +78,12 @@ import java.util.logging.Level;
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "StatisticsOp",
-                  category = "Raster",
-                  version = "1.0",
-                  authors = "Sabine Embacher, Tonio Fincke, Thomas Storm",
-                  copyright = "(c) 2012 by Brockmann Consult GmbH",
-                  description = "Computes statistics for an arbitrary number of source products.",
-                  autoWriteDisabled = true)
+        category = "Raster",
+        version = "1.0",
+        authors = "Sabine Embacher, Tonio Fincke, Thomas Storm",
+        copyright = "(c) 2012 by Brockmann Consult GmbH",
+        description = "Computes statistics for an arbitrary number of source products.",
+        autoWriteDisabled = true)
 public class StatisticsOp extends Operator {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
@@ -102,51 +102,51 @@ public class StatisticsOp extends Operator {
     private static final double FILL_VALUE = -999.0;
 
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
-            "the parameter 'sourceProductPaths' must be provided.")
+                                  "the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).\n" +
-            "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).\n" +
+                             "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
     @Parameter(description = "An ESRI shapefile, providing the considered geographical region(s) given as polygons. " +
-            "If null, all pixels are considered.")
+                             "If null, all pixels are considered.")
     File shapefile;
 
     @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
-            "have a start date before the start date given by this parameter are not considered.",
-               format = DATETIME_PATTERN, converter = UtcConverter.class)
+                             "have a start date before the start date given by this parameter are not considered.",
+            format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that " +
-            "have an end date after the end date given by this parameter are not considered.",
-               format = DATETIME_PATTERN, converter = UtcConverter.class)
+                             "have an end date after the end date given by this parameter are not considered.",
+            format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
     @Parameter(description = "The band configurations. These configurations determine the input of the operator.",
-               alias = "bandConfigurations", itemAlias = "bandConfiguration", notNull = true)
+            alias = "bandConfigurations", itemAlias = "bandConfiguration", notNull = true)
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "The target file for shapefile output. Shapefile output will only be written if this " +
-            "parameter is set. The band mapping file will have the suffix _band_mapping.txt.",
-               notNull = false)
+                             "parameter is set. The band mapping file will have the suffix _band_mapping.txt.",
+            notNull = false)
     File outputShapefile;
 
     @Parameter(description = "The target file for ASCII output." +
-            "The metadata file will have the suffix _metadata.txt.\n" +
-            "ASCII output will only be written if this parameter is set.", notNull = false)
+                             "The metadata file will have the suffix _metadata.txt.\n" +
+                             "ASCII output will only be written if this parameter is set.", notNull = false)
     File outputAsciiFile;
 
     @Parameter(description = "The percentile levels that shall be created. Must be in the interval [0..100]",
-               notNull = false, defaultValue = DEFAULT_PERCENTILES)
+            notNull = false, defaultValue = DEFAULT_PERCENTILES)
     int[] percentiles;
 
     @Parameter(description = "The degree of accuracy used for statistics computation. Higher numbers " +
-            "indicate higher accuracy but may lead to a considerably longer computation time.",
-               defaultValue = "3")
+                             "indicate higher accuracy but may lead to a considerably longer computation time.",
+            defaultValue = "3")
     int accuracy;
 
     final Set<StatisticsOutputter> statisticsOutputters = new HashSet<StatisticsOutputter>();
@@ -343,7 +343,9 @@ public class StatisticsOp extends Operator {
                 final FileOutputStream bandMappingFOS = new FileOutputStream(bandMappingFile);
                 bandMappingOutputStream = new PrintStream(bandMappingFOS);
                 BandNameCreator bandNameCreator = new BandNameCreator(bandMappingOutputStream);
-                statisticsOutputters.add(FeatureStatisticsWriter.createFeatureStatisticsWriter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
+                statisticsOutputters.add(
+                        FeatureStatisticsWriter.createFeatureStatisticsWriter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(),
+                                                                              bandNameCreator));
             } catch (MalformedURLException e) {
                 throw new OperatorException(
                         "Unable to create shapefile outputter: shapefile '" + shapefile.getName() + "' is invalid.", e);
@@ -384,7 +386,7 @@ public class StatisticsOp extends Operator {
             throw new OperatorException("Parameter 'accuracy' must be less than or equal to " + Util.MAX_ACCURACY);
         }
         if ((sourceProducts == null || sourceProducts.length == 0) &&
-                (sourceProductPaths == null || sourceProductPaths.length == 0)) {
+            (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
                     "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
@@ -415,6 +417,9 @@ public class StatisticsOp extends Operator {
             throw new OperatorException("Parameter 'shapefile' must point to a file.");
         }
 
+        if (percentiles == null || percentiles.length == 0) {
+            percentiles = DEFAULT_PERCENTILES_INTS;
+        }
         for (int percentile : percentiles) {
             if (percentile < 0 || percentile > 100) {
                 throw new OperatorException("Percentile '" + percentile + "' outside of interval [0..100].");

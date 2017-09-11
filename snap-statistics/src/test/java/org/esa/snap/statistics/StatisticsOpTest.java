@@ -121,6 +121,38 @@ public class StatisticsOpTest {
     }
 
     @Test
+    public void testStatisticsOp_WithNoPercentiles() throws Exception {
+        final StatisticsOp statisticsOp = createStatisticsOp();
+        final BandConfiguration bandConfiguration = new BandConfiguration();
+        bandConfiguration.sourceBandName = "algal_2";
+        statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
+        statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
+        statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
+        statisticsOp.accuracy = 6;
+        statisticsOp.percentiles = null;
+
+        final MyOutputter outputter = new MyOutputter();
+        statisticsOp.statisticsOutputters.add(outputter);
+
+        statisticsOp.initialize();
+        
+
+        assertEquals("4_pixels.1", outputter.region);
+        assertEquals("algal_2", outputter.bandName);
+        assertEquals(4, outputter.pixels);
+        assertEquals(0.804474, outputter.maximum, 1E-6);
+        assertEquals(0.695857, outputter.minimum, 1E-6);
+        assertEquals(0.749427, outputter.average, 1E-6);
+        assertEquals(0.721552, outputter.median, 1E-6);
+        assertEquals(0.049577, outputter.sigma, 1E-6);
+        assertEquals(2, outputter.percentiles.length);
+        assertEquals(0.80447364, outputter.percentiles[0], 1E-6);
+        assertEquals(0.80447364, outputter.percentiles[1], 1E-6);
+        assertArrayEquals(new String[]{"minimum","maximum", "median", "average", "sigma", "p90_threshold", "p95_threshold", "max_error", "total"},
+                          outputter.algorithmNames);
+    }
+
+    @Test
     public void testStatisticsOp_WithExpression() throws Exception {
         final StatisticsOp statisticsOp = createStatisticsOp();
         final BandConfiguration bandConfiguration = new BandConfiguration();
@@ -295,6 +327,7 @@ public class StatisticsOpTest {
         double[] percentiles;
         String region;
         String bandName;
+        private String[] algorithmNames;
 
         public MyOutputter() {
             percentiles = new double[2];
@@ -303,7 +336,8 @@ public class StatisticsOpTest {
         @Override
         public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
             int numPercentiles = 0;
-            for (String algorithmName : statisticsOutputContext.algorithmNames) {
+            algorithmNames = statisticsOutputContext.algorithmNames;
+            for (String algorithmName : algorithmNames) {
                 if (algorithmName.matches("p\\d\\d_threshold")) {
                     numPercentiles++;
                 }
