@@ -203,12 +203,14 @@ public class MosaicOp extends Operator {
             final ArrayList<PlanarImage> list = new ArrayList<>(reprojectedProducts.length);
             alphaImageList.add(list);
             for (final Product product : reprojectedProducts) {
-                final String validMaskExpression;
+                String validMaskExpression;
                 try {
                     validMaskExpression = createValidMaskExpression(product, variable.getExpression());
                 } catch (ParseException e) {
                     throw new OperatorException(e);
                 }
+                // in the case no valid mask expression could be retrieved, all pixels are valid.
+                validMaskExpression = validMaskExpression == null ? "True" : validMaskExpression;
                 final StringBuilder combinedExpression = new StringBuilder(validMaskExpression);
                 if (conditions != null && conditions.length > 0) {
                     combinedExpression.append(" && (");
@@ -221,7 +223,9 @@ public class MosaicOp extends Operator {
                     }
                     combinedExpression.append(")");
                 }
-                list.add(createExpressionImage(combinedExpression.toString(), product));
+                if (combinedExpression.length() > 0) {
+                    list.add(createExpressionImage(combinedExpression.toString(), product));
+                }
             }
             if (isUpdateMode()) {
                 final RenderedImage updateImage = updateProduct.getBand(getCountBandName(variable)).getSourceImage();

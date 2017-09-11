@@ -34,6 +34,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -80,6 +81,37 @@ public class MosaicOpTest {
         op.setSourceProducts(product1, product2, product3);
         op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1"),
+
+        };
+        op.westBound = -10.0;
+        op.northBound = 10.0;
+        op.eastBound = 10.0;
+        op.southBound = -10.0;
+        op.pixelSizeX = 1.0;
+        op.pixelSizeY = 1.0;
+
+        final Product product = op.getTargetProduct();
+
+        final GeoPos[] geoPositions = {
+                new GeoPos(8, -8), new GeoPos(4, -4), new GeoPos(-1, 1), new GeoPos(-4, 4), new GeoPos(-8, 8)
+        };
+
+        Band b1Band = product.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.333333f, 2.5f});
+
+        Band countBand = product.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 1, 2, 3, 2});
+    }
+
+    @Test
+    public void testMosaicking_Mask() throws IOException {
+        final MosaicOp op = new MosaicOp();
+        op.setParameterDefaultValues();
+
+        op.setSourceProducts(product1, product2, product3);
+        op.variables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1"),
+                new MosaicOp.Variable("myMask", "mask1"),
 
         };
         op.westBound = -10.0;
@@ -291,6 +323,7 @@ public class MosaicOpTest {
                                          final float bandFillValue) throws FactoryException, TransformException {
         final Product product = new Product(name, "T", WIDTH, HEIGHT);
         product.addBand(createBand(bandFillValue));
+        product.addMask("mask1", "X % 2 == 0", "description", Color.RED, 0.5);
         final AffineTransform transform = new AffineTransform();
         transform.translate(easting, northing);
         transform.scale(1, -1);
