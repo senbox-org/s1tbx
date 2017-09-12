@@ -1,23 +1,43 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>Help - Stack Averaging</title>
+<html><head><title>Help - Stack Averaging</title>
 
 
-    <link rel="stylesheet" href="../style.css">
-</head>
-<body>
+
+
+    <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
     <tbody>
     <tr class="header">
         <td class="header">&nbsp; Stack Averaging<br>
         </td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
-                                                                                 border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
     </tr>
     </tbody>
 </table>
-
-
+<h3>Stack Averaging Operator</h3>Stack Averaging operator computes
+statistics for the corresponding bands in the given stack product. For
+example the mean of all "i_VV_" bands and mean of all "q_VV_" bands. .
+The statistics include mean, minimum, maximum, standard deviation and
+coefficient of variation. <br>
+<h4>Input and Output</h4>
+<ul>
+    <li>The
+        input to this operator is a stack product.
+    </li>
+    <li>The output of this operator is the user selected statistic for all bands.</li>
+</ul>
+<ol>
+</ol>
+<h4>Parameters Used</h4>&nbsp;&nbsp; The following processing parameter is required for this operator (see Figure
+1):<br>
+<ul>
+    <li>Statistic: The user selected statistic which could be mean, minimum, maximum, standard deviation and coefficient of variation.<br>
+    </li>
+</ul>
+<img style="width: 450px; height: 450px;" alt="" src="images/stack_averaging_dlg.jpg"><br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Figure 1. Stack Averaging operator
+UI<br>
+<br><br>
 <hr>
-</body>
-</html>
+</body></html>
