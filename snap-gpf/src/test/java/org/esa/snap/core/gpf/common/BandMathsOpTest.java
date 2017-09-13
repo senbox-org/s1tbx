@@ -149,6 +149,32 @@ public class BandMathsOpTest {
     }
 
     @Test
+    public void testReferencingTwoProducts() throws Exception {
+        Product sourceProduct1 = createTestProduct(4, 4);
+        final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4), new AffineTransform());
+        sourceProduct1.setSceneGeoCoding(geoCoding);
+
+        Product sourceProduct2 = createTestProduct(4,4);
+        final GeoCoding geoCoding2 = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4), new AffineTransform());
+        sourceProduct2.setSceneGeoCoding(geoCoding2);
+
+        Map<String, Object> parameters = new HashMap<>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
+        bandDescriptors[0] = createBandDescription("aBandName1WithDot", "$sourceProduct.1.band1 + $sourceProduct.1.band2", ProductData.TYPESTRING_FLOAT32, "unit");
+        bandDescriptors[1] = createBandDescription("aBandName2WithDot", "$sourceProduct.1.band1 + $sourceProduct.2.band3", ProductData.TYPESTRING_FLOAT32, "unit");
+        parameters.put("targetBands", bandDescriptors);
+
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct1, sourceProduct2);
+
+        assertNotNull(targetProduct);
+        assertNotNull(targetProduct.getSceneGeoCoding());
+
+        assertEquals(3.5, targetProduct.getBand("aBandName1WithDot").getSampleFloat(0,0), 1.0e-6);
+        assertEquals(4.0, targetProduct.getBand("aBandName2WithDot").getSampleFloat(0,0), 1.0e-6);
+
+    }
+
+    @Test
     public void testOneExpressionWithMultiSize() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Band band4 = new Band("band4", ProductData.TYPE_INT16, 10, 10);
