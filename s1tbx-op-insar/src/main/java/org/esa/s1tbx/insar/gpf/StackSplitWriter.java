@@ -100,11 +100,13 @@ public class StackSplitWriter extends Operator {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             final String mstProductName = absRoot.getAttributeString(AbstractMetadata.PRODUCT, sourceProduct.getName());
             final String[] mstNames = StackUtils.getMasterBandNames(sourceProduct);
+            //System.out.println("mstProductName = " + mstProductName);
             createSubset(mstProductName, getBandNames(mstNames));
 
             final String[] slvProductNames = StackUtils.getSlaveProductNames(sourceProduct);
             for(String slvProductName : slvProductNames) {
                 final String[] slvBandNames = StackUtils.getSlaveBandNames(sourceProduct, slvProductName);
+                //System.out.println("slvProductName = " + slvProductName);
                 createSubset(slvProductName, getBandNames(slvBandNames));
             }
 
@@ -166,7 +168,14 @@ public class StackSplitWriter extends Operator {
         subsetInfo.productWriter.setFormatName(formatName);
         subsetInfo.productWriter.setIncrementalMode(false);
         subsetInfo.subsetProduct.setProductWriter(subsetInfo.productWriter);
-        bandMap.put(targetProduct.getBand(bandNames[0]), subsetInfo);
+        for (int i = 0; i < bandNames.length; i++) {
+            Band band = targetProduct.getBand(bandNames[i]);
+            if (!(band instanceof VirtualBand)) {
+                bandMap.put(band, subsetInfo);
+                //System.out.println("createSubset: productName = " + productName + " put band " + band.getName());
+                break;
+            }
+        }
     }
 
     @Override
