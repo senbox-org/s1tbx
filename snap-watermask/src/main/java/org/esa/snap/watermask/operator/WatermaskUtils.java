@@ -1,6 +1,7 @@
 package org.esa.snap.watermask.operator;
 
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
+import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
 
@@ -121,17 +122,24 @@ public class WatermaskUtils {
             final String remotePath = baseUrl + localZipFile.getName();
             SystemUtils.LOG.fine("Checking for '" + localZipFile.getPath() + "' ...");
             try {
-                final URL fileUrl = new URL(remotePath);
-                final URLConnection urlConnection = fileUrl.openConnection();
-                if (!localZipFile.exists() || (localZipFile.length() != urlConnection.getContentLength() &&
-                        urlConnection.getContentLength() >= 0)) {
-                    SystemUtils.LOG.fine(localZipFile.getPath() + " exists " + localZipFile.exists() + " local length " + (localZipFile.exists() ? localZipFile.length() : 0) + " remote length " + urlConnection.getContentLength());
-                    SystemUtils.LOG.fine("http retrieving " + remotePath);
-                    downloadHttpFile(fileUrl, urlConnection, localZipFile);
-                } else {
+                // avoid query for length if download is disabled
+                if (Boolean.getBoolean(GPF.SNAP_GPF_ALLOW_AUXDATA_DOWNLOAD)) {
+                    final URL fileUrl = new URL(remotePath);
+                    final URLConnection urlConnection = fileUrl.openConnection();
+                    if (!localZipFile.exists() || (localZipFile.length() != urlConnection.getContentLength() &&
+                                            urlConnection.getContentLength() >= 0)) {
+                        SystemUtils.LOG.fine(localZipFile.getPath() + " exists " + localZipFile.exists() + " local length " + (localZipFile.exists() ? localZipFile.length() : 0) + " remote length " + urlConnection.getContentLength());
+                        SystemUtils.LOG.fine("http retrieving " + remotePath);
+                        downloadHttpFile(fileUrl, urlConnection, localZipFile);
+                    } else {
+                        SystemUtils.LOG.fine("Found '" + localZipFile.getName() + "'.");
+                    }
+                } else if (localZipFile.exists()) {
                     SystemUtils.LOG.fine("Found '" + localZipFile.getName() + "'.");
+                } else {
+                    throw new IllegalAccessException("snap.gpf.allowAuxdataDownload is set to false");
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 final String message = "Mandatory auxdata file '" + localZipFile.getName() +
                         "' could not be downloaded: " + e.getMessage();
                 throw new OperatorException(message);
