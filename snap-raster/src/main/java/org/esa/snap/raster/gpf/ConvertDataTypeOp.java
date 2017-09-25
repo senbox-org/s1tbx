@@ -264,6 +264,10 @@ public class ConvertDataTypeOp extends Operator {
             double srcValue;
             for (int i = 0; i < numElem; ++i) {
                 srcValue = srcData.getElemDoubleAt(i);
+                if(sourceBand.isScalingApplied()) {
+                    srcValue = sourceBand.scale(srcValue);
+                }
+
                 if (srcNoDataValue.equals(srcValue)) {
                     dstData.setElemDoubleAt(i, destNoDataValue);
                 } else {
