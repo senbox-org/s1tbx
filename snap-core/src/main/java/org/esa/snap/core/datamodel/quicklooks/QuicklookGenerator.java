@@ -71,12 +71,12 @@ public class QuicklookGenerator {
 
     private final int maxWidth;
 
-    QuicklookGenerator() {
+    public QuicklookGenerator() {
         final Preferences preferences = Config.instance().preferences();
         maxWidth = preferences.getInt(PREFERENCE_KEY_QUICKLOOKS_MAX_WIDTH, DEFAULT_VALUE_QUICKLOOKS_MAX_WIDTH);
     }
 
-    BufferedImage createQuickLookFromBrowseProduct(final Product browseProduct) throws IOException {
+    public BufferedImage createQuickLookFromBrowseProduct(final Product browseProduct) throws IOException {
 
         final BufferedImage image;
         if (browseProduct.getNumBands() < 3) {
@@ -106,7 +106,7 @@ public class QuicklookGenerator {
                 .make(image);
     }
 
-    BufferedImage createQuickLookImage(final Product product, Band[] quicklookBands,
+    public BufferedImage createQuickLookImage(final Product product, Band[] quicklookBands,
                                        final ProgressMonitor pm) throws IOException {
         Product productSubset = product;
 
@@ -153,7 +153,7 @@ public class QuicklookGenerator {
                 .make(image);
     }
 
-    Band[] findQuicklookBands(final Product product) {
+    public static Band[] findQuicklookBands(final Product product) {
 
         Band[] rgbBands = findSuitableRGBProfileBands(product);
         if (rgbBands != null && rgbBands.length > 0) {
