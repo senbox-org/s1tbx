@@ -5,7 +5,7 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
+    <version>6.0.0-Skywatch-SNAPSHOT</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <description>Tools for SAR Earth Observation</description>
@@ -32,9 +32,9 @@
             It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
-		<s1tbx.version>6.0.0-SNAPSHOT</s1tbx.version>
-        <rstb.version>7.4.0-SNAPSHOT</rstb.version>
-        <jlinda.version>6.0.0-SNAPSHOT</jlinda.version>
+		<s1tbx.version>6.0.0-Skywatch-SNAPSHOT</s1tbx.version>
+        <rstb.version>7.4.0-Skywatch-SNAPSHOT</rstb.version>
+        <jlinda.version>6.0.0-Skywatch-SNAPSHOT</jlinda.version>
         
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>	
@@ -95,12 +95,20 @@
 	 <connection>scm:git:git://github.com/senbox-org/s1tbx.git</connection>
      <url>https://github.com/senbox-org/s1tbx.git</url>
     </scm>
-
+    
 	<repositories>
-          <repository>
-    		<id>central</id>
-    		<url>http://repo1.maven.org/maven2/</url>
-  	   </repository>
+        <repository>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/release</url>
+          <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
@@ -155,19 +163,15 @@
         </pluginRepository>
     </pluginRepositories>
 
-	<distributionManagement>
-        <repository>
-            <id>snap-repo-public</id>
-            <name>Public Maven Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/releases/</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
+    <distributionManagement>
         <snapshotRepository>
-            <id>snap-repo-public</id>
-            <name>Public Maven Snapshot Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/snapshots/</url>
-            <uniqueVersion>false</uniqueVersion>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/snapshot</url>
         </snapshotRepository>
+        <repository>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/release</url>
+        </repository>
     </distributionManagement>
 	
     <dependencyManagement>
@@ -806,6 +810,13 @@
             </plugin>
         </plugins>
 		
+        <extensions>
+          <extension>
+            <groupId>org.kuali.maven.wagons</groupId>
+            <artifactId>maven-s3-wagon</artifactId>
+            <version>1.2.1</version>
+          </extension>
+        </extensions>
     </build>
 
     <developers>

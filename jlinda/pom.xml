@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.0.0-Skywatch-SNAPSHOT</version>
     </parent>
     
     <name>jLinda</name>
@@ -44,7 +44,30 @@
         <module>jlinda-nest-ui</module>
     </modules>
 
+    <distributionManagement>
+        <snapshotRepository>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/snapshot</url>
+        </snapshotRepository>
+        <repository>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/release</url>
+        </repository>
+    </distributionManagement>
+    
     <repositories>
+        <repository>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/release</url>
+          <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
         <repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
