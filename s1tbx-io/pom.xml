@@ -90,6 +90,7 @@
                         <publicPackage>org.esa.s1tbx.*</publicPackage>
                         <publicPackage>org.joda.*</publicPackage>
                         <publicPackage>org.slf4j.*</publicPackage>
+						<publicPackage>com.google.common.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
