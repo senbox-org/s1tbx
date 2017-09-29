@@ -102,12 +102,12 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
     }
 
     public static String[] getColumnNames(){
-        String[] columnsNames = {"Execution Order", "Tile Width", "Tile Height", "Cache size", "Nb threads", "Execution time"};
+        String[] columnsNames = {"Execution Order", "Tile Width", "Tile Height", "Cache size (MB)", "Nb threads", "Execution time (ms)"};
         return columnsNames;
     }
 
     public static String[] getColumnNamesWithoutTileSize(){
-        String[] columnsNames = {"Execution Order", "Cache size", "Nb threads", "Execution time"};
+        String[] columnsNames = {"Execution Order", "Cache size (MB)", "Nb threads", "Execution time (ms)"};
         return columnsNames;
     }
 
