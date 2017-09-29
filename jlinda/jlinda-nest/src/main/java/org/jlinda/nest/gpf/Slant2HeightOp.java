@@ -116,7 +116,8 @@ public class Slant2HeightOp extends Operator {
             for (Integer keySlave : slaveMap.keySet()) {
                 CplxContainer slave = slaveMap.get(keySlave);
 
-                Slant2Height slant2Height = new Slant2Height(nPoints, nHeights, degree1D, degree2D, master.metaData, master.orbit, slave.metaData, slave.orbit);
+                Slant2Height slant2Height = new Slant2Height(nPoints, nHeights, degree1D, degree2D,
+                        master.metaData, master.orbit, slave.metaData, slave.orbit);
                 slant2Height.setDataWindow(new Window(0, sourceImageHeight, 0, sourceImageWidth));
                 slant2Height.schwabisch();
 
@@ -165,7 +166,7 @@ public class Slant2HeightOp extends Operator {
 
         // define sourceMaster/sourceSlave name tags
         final String masterTag = "ifg";
-        final String slaveTag = "dummy";
+        final String slaveTag = "ifg";
         final MetadataElement masterMeta = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
         MetadataElement[] slaveRoot;
@@ -210,15 +211,15 @@ public class Slant2HeightOp extends Operator {
             String bandName = bandNames[i];
             if (bandName.contains(tag) && bandName.contains(date)) {
                 final Band band = product.getBandAt(i);
-                if (BandUtilsDoris.isBandReal(band)) {
-                    bandReal = band;
-                } else if (product.getBandAt(i).getUnit().contains(Unit.ABS_PHASE)) {
+
+                if (product.getBandAt(i).getUnit().contains(Unit.ABS_PHASE)) {
                     bandReal = band;
                 } else if (BandUtilsDoris.isBandImag(band)) {
                     bandImag = band;
                 }
             }
         }
+
         try {
             map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
         } catch (Exception e) {
