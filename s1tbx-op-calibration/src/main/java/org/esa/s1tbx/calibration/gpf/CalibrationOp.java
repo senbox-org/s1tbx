@@ -145,12 +145,14 @@ public class CalibrationOp extends Operator {
             targetProduct = calibrator.createTargetProduct(sourceProduct, sourceBandNames);
             calibrator.initialize(this, sourceProduct, targetProduct, false, true);
 
-            if (createGammaBand) {
-                createGammaVirtualBand(targetProduct, outputImageScaleInDb);
-            }
+            if (!(calibrator instanceof Sentinel1Calibrator)) {
+                if (createGammaBand) {
+                    createGammaVirtualBand(targetProduct, outputImageScaleInDb);
+                }
 
-            if (createBetaBand) {
-                createBetaVirtualBand(targetProduct, outputImageScaleInDb);
+                if (createBetaBand) {
+                    createBetaVirtualBand(targetProduct, outputImageScaleInDb);
+                }
             }
 
             updateTargetProductMetadata();

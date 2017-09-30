@@ -140,6 +140,7 @@ public final class TerrainFlatteningOp extends Operator {
     private boolean outputSigma0 = false;
     private boolean detectShadow = true;
     private double threshold = 0.05;
+    private boolean invalidSource = false;
 
     private static final String PRODUCT_SUFFIX = "_TF";
 
@@ -413,7 +414,11 @@ public final class TerrainFlatteningOp extends Operator {
         }
 
         if (targetProduct.getNumBands() == 0) {
-            throw new OperatorException("TerrainFlattening requires beta0 or T3, C3, C2 as input");
+            invalidSource = true;
+            // Moved the following exception to computeTileStack. Add a dummy band so that computeTileStack get executed
+            //throw new OperatorException("TerrainFlattening requires beta0 or T3, C3, C2 as input");
+            final Band dummyBand = targetProduct.addBand("dummy", ProductData.TYPE_INT8);
+            dummyBand.setUnit(Unit.IMAGINARY);
         }
 
         if (outputSimulatedImage) {
@@ -453,6 +458,9 @@ public final class TerrainFlatteningOp extends Operator {
             throws OperatorException {
 
         try {
+            if (invalidSource) {
+                throw new OperatorException("TerrainFlattening requires beta0 or T3, C3, C2 as input");
+            }
             if (!isElevationModelAvailable) {
                 getElevationModel();
             }
