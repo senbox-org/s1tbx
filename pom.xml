@@ -25,7 +25,7 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>6.0.0-SNAPSHOT</snap.version>
+        <snap.version>6.0.0-Skywatch-SNAPSHOT</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
@@ -746,7 +746,7 @@
                             <configuration>
                                 <name>s1tbx.nbmSpecVersion</name>
                                 <value>${project.version}</value>
-                                <regex>-SNAPSHOT</regex>
+                                <regex>-Skywatch-SNAPSHOT</regex>
                                 <replacement>.0</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>

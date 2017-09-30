@@ -157,7 +157,7 @@
                             <configuration>
                                 <name>rstb.nbmSpecVersion</name>
                                 <value>${project.version}</value>
-                                <regex>-SNAPSHOT</regex>
+                                <regex>-Skywatch-SNAPSHOT</regex>
                                 <replacement>.0</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
