@@ -18,13 +18,7 @@ package org.esa.snap.core.dataop.barithm;
 import com.bc.ceres.core.Assert;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.jexp.Function;
-import org.esa.snap.core.jexp.Namespace;
-import org.esa.snap.core.jexp.ParseException;
-import org.esa.snap.core.jexp.Parser;
-import org.esa.snap.core.jexp.Symbol;
-import org.esa.snap.core.jexp.Term;
-import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.*;
 import org.esa.snap.core.jexp.impl.DefaultNamespace;
 import org.esa.snap.core.jexp.impl.NamespaceImpl;
 import org.esa.snap.core.jexp.impl.ParserImpl;
@@ -32,10 +26,7 @@ import org.esa.snap.core.jexp.impl.Tokenizer;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Provides band arithmetic utility methods.
@@ -144,12 +135,12 @@ public class BandArithmetic {
      * @param products            the array of source products which form the valid namespace for the expression
      * @param contextProductIndex the index of the context product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     * @param prefixProvider      a product prefix provider
+     * @param prefixProviders     a list of product prefix providers
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products,
                                                            int contextProductIndex,
-                                                           ProductNamespacePrefixProvider prefixProvider) {
+                                                           ProductNamespacePrefixProvider... prefixProviders) {
         Assert.argument(products.length > 0, "products.length > 0");
         Assert.argument(contextProductIndex >= 0, "contextProductIndex >= 0");
         Assert.argument(contextProductIndex < products.length, "contextProductIndex < products.length");
@@ -162,9 +153,18 @@ public class BandArithmetic {
 
         // If the namespace comprises multple products...
         if (products.length > 1) {
+            boolean allSet = Arrays.stream(products).allMatch(p -> p.getRefNo() != 0);
+            if (!allSet) {
+                int cnt = 1;
+                for (Product product : products) {
+                    product.setRefNo(cnt++);
+                }
+            }
             // ... register symbols using a name prefix
             for (Product product : products) {
-                namespaceExtender.extendNamespace(product, prefixProvider.getPrefix(product), namespace);
+                for (ProductNamespacePrefixProvider prefixProvider : prefixProviders) {
+                    namespaceExtender.extendNamespace(product, prefixProvider.getPrefix(product), namespace);
+                }
             }
         }
 

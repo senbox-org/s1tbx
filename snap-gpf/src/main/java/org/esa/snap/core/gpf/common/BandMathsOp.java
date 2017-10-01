@@ -16,12 +16,7 @@
 package org.esa.snap.core.gpf.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.FlagCoding;
-import org.esa.snap.core.datamodel.IndexCoding;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.dataop.barithm.ProductNamespacePrefixProvider;
 import org.esa.snap.core.dataop.barithm.RasterDataEvalEnv;
@@ -35,19 +30,13 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.support.BandDescriptorDomConverter;
-import org.esa.snap.core.jexp.Namespace;
-import org.esa.snap.core.jexp.ParseException;
-import org.esa.snap.core.jexp.Parser;
-import org.esa.snap.core.jexp.Symbol;
-import org.esa.snap.core.jexp.Term;
-import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.*;
 import org.esa.snap.core.jexp.impl.ParserImpl;
 import org.esa.snap.core.jexp.impl.SymbolFactory;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -454,7 +443,8 @@ public class BandMathsOp extends Operator {
 
     private Namespace createNamespace() {
         WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0,
-                                                                            new SourceProductNamespacePrefixProvider());
+                                                                            new SourceProductNamespacePrefixProvider(),
+                                                                            BandArithmetic::getProductNodeNamePrefix);
         if (variables != null) {
             for (Variable variable : variables) {
                 if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
