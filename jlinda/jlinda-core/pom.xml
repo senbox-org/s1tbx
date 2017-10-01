@@ -50,11 +50,6 @@
             <version>2.3</version>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
-        </dependency>
-        <dependency>
             <groupId>net.sf.trove4j</groupId>
             <artifactId>trove4j</artifactId>
             <version>3.0.3</version>
@@ -102,7 +97,6 @@
                         <publicPackage>org.jblas.*</publicPackage>
                         <publicPackage>gnu.trove.*</publicPackage>
                         <publicPackage>edu.emory.mathcs.jtransforms.*</publicPackage>
-                        <publicPackage>com.google.common.*</publicPackage>
                         <publicPackage>org.apache.commons.*</publicPackage>
                     </publicPackages>
                 </configuration>

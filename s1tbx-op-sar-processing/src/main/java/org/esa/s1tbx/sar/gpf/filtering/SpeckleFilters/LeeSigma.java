@@ -16,7 +16,6 @@
 package org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.google.common.primitives.Doubles;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -31,6 +30,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -419,7 +419,7 @@ public class LeeSigma implements SpeckleFilter {
         final boolean[][] isPointTarget = new boolean[h][w];
         final double[][] targetWindow = new double[targetWindowSize][targetWindowSize];
         final double[][] filterWindow = new double[filterSize][filterSize];
-        double[] pixelsSelected = null;
+        double[] pixelsSelected;
 
         final int xMax = x0 + w;
         final int yMax = y0 + h;
@@ -547,8 +547,7 @@ public class LeeSigma implements SpeckleFilter {
 
     private static double[] getValidPixels(final double[][] filterWindow, final double noDataValue) {
 
-        final java.util.List<Double> pixelsSelected = new ArrayList<>();
-        final int nRows = filterWindow.length;
+        final List<Double> pixelsSelected = new ArrayList<>();
         final int nCols = filterWindow[0].length;
         for (double[] aFilterWindow : filterWindow) {
             for (int i = 0; i < nCols; i++) {
@@ -557,7 +556,11 @@ public class LeeSigma implements SpeckleFilter {
                 }
             }
         }
-        return Doubles.toArray(pixelsSelected);
+        final double[] result = new double[pixelsSelected.size()];
+        for(int i = 0; i < pixelsSelected.size(); ++i) {
+            result[i] = pixelsSelected.get(i);
+        }
+        return result;
     }
 
     private boolean checkPointTarget(final int x, final int y, final double z98, final double[][] targetWindow,
@@ -626,7 +629,7 @@ public class LeeSigma implements SpeckleFilter {
     private double[] selectPixelsInSigmaRange(
             final double[] sigmaRange, final double[][] filterWindow, final double noDataValue) {
 
-        final java.util.List<Double> pixelsSelected = new ArrayList<>();
+        final List<Double> pixelsSelected = new ArrayList<>();
         for (int j = 0; j < filterSize; j++) {
             for (int i = 0; i < filterSize; i++) {
                 if (filterWindow[j][i] != noDataValue && filterWindow[j][i] >= sigmaRange[0] &&
@@ -635,8 +638,11 @@ public class LeeSigma implements SpeckleFilter {
                 }
             }
         }
-
-        return Doubles.toArray(pixelsSelected);
+        final double[] result = new double[pixelsSelected.size()];
+        for(int i = 0; i < pixelsSelected.size(); ++i) {
+            result[i] = pixelsSelected.get(i);
+        }
+        return result;
     }
 
     private double computeMMSEEstimate(final double centerPixelValue, final double[] dataArray,
