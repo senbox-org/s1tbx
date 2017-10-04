@@ -93,7 +93,7 @@ public class MosaicOp extends Operator {
     @TargetProduct
     Product targetProduct;
 
-    @Parameter(itemAlias = "variable", description = "Specifies the bands in the target product.")
+    @Parameter(itemAlias = "variable", description = "Specifies the bands in the target product.", notNull = true)
     Variable[] variables;
 
     @Parameter(itemAlias = "condition", description = "Specifies valid pixels considered in the target product.")
