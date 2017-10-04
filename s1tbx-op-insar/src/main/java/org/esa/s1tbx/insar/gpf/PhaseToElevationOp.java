@@ -422,8 +422,8 @@ public final class PhaseToElevationOp extends Operator {
         }
 
         // get unwrapped phases for seeds in the final seed list
-        final double[] phaseList = new double[totalFinalSeeds];
-        for (int i = 0; i < finalSeedList.length; i++) {
+        final double[] phaseList = new double[numSeeds];
+        for (int i = 0; i < numSeeds; i++) {
             SeedRecord seed = finalSeedList[i];
             final Rectangle srcRect = new Rectangle(seed.x, seed.y, 1, 1);
             final Tile sourceTile = getSourceTile(unwrappedPhaseBand, srcRect);
@@ -434,7 +434,7 @@ public final class PhaseToElevationOp extends Operator {
         final int xc = sourceImageWidth / 2;
         double phase, slantRange, incidenceAngle, bn, bp, alpha, flatAngle;
         double a = 0.0, b = 0.0, c = 0.0, d = 0.0, e = 0.0, f = 0.0;
-        for (int i = 0; i < finalSeedList.length; i++) {
+        for (int i = 0; i < numSeeds; i++) {
             SeedRecord seed = finalSeedList[i];
             phase = phaseList[i];
             slantRange = slantRangeTimeTPG.getPixelDouble(seed.x, seed.y) / Constants.oneBillion * Constants.halfLightSpeed;
@@ -451,7 +451,7 @@ public final class PhaseToElevationOp extends Operator {
             f += seed.height - alpha * phase;
         }
         c = -b;
-        d = finalSeedList.length;
+        d = numSeeds;
 
         refHeight = (a * f - c * e) / (a * d - c * b);
         refPhase = (e * d - b * f) / (a * d - c * b);
