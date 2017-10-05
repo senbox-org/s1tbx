@@ -36,7 +36,7 @@ public class MetadataWriterTest {
 
         metadataWriter.initialiseOutput(StatisticsOutputContext.create(sourceProducts, null, null, startDate, endDate, regionIds));
 
-        assertEquals("# BEAM Statistics export\n" +
+        assertEquals("# SNAP Statistics export\n" +
                              "#\n" +
                              "# Products:\n" +
                              "#              MER_RR__2PBCMsomething\n" +

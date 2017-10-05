@@ -33,7 +33,7 @@ public class MetadataWriter implements StatisticsOutputter {
      */
     @Override
     public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
-        printStream.append("# BEAM Statistics export\n")
+        printStream.append("# SNAP Statistics export\n")
                 .append("#\n")
                 .append("# Products:\n");
         for (String sourceProductName : statisticsOutputContext.sourceProductNames) {
