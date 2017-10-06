@@ -178,21 +178,27 @@ public final class AddElevationOp extends Operator {
                     dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h,
                     sourceProduct, true, localDEM);
 
-            if (!valid)
-                return;
-
             final TileIndex tgtIndex = new TileIndex(targetTile);
-
             final int maxX = x0 + w;
             final int maxY = y0 + h;
-            for (int y = y0; y < maxY; ++y) {
-                final int yy = y - y0 + 1;
-                tgtIndex.calculateStride(y);
-                for (int x = x0; x < maxX; ++x) {
 
-                    tgtData.setElemDoubleAt(tgtIndex.getIndex(x), localDEM[yy][x - x0 + 1]);
+            if (valid) {
+                for (int y = y0; y < maxY; ++y) {
+                    final int yy = y - y0 + 1;
+                    tgtIndex.calculateStride(y);
+                    for (int x = x0; x < maxX; ++x) {
+                        tgtData.setElemDoubleAt(tgtIndex.getIndex(x), localDEM[yy][x - x0 + 1]);
+                    }
+                }
+            } else {
+                for (int y = y0; y < maxY; ++y) {
+                    tgtIndex.calculateStride(y);
+                    for (int x = x0; x < maxX; ++x) {
+                        tgtData.setElemDoubleAt(tgtIndex.getIndex(x), demNoDataValue);
+                    }
                 }
             }
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
