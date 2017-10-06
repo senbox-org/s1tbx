@@ -107,12 +107,16 @@ public class GcpGeoCoding extends AbstractGeoCoding {
 
         int offsetX = 0;
         int offsetY = 0;
-        if (subsetDef.getRegion() != null) {
+        if (subsetDef != null && subsetDef.getRegion() != null) {
             offsetX = subsetDef.getRegion().x;
             offsetY = subsetDef.getRegion().y;
         }
-        final int subSamplingX = subsetDef.getSubSamplingX();
-        final int subSamplingY = subsetDef.getSubSamplingY();
+        int subSamplingX = 1;
+        int subSamplingY = 1;
+        if (subsetDef != null) {
+            subSamplingX = subsetDef.getSubSamplingX();
+            subSamplingY = subsetDef.getSubSamplingY();
+        }
 
         final int sceneWidth = targetScene.getRasterWidth();
         final int sceneHeight = targetScene.getRasterHeight();
