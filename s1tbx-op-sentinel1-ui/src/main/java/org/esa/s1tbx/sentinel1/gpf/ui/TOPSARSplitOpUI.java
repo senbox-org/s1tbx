@@ -73,7 +73,8 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
                 }
 
                 if (su != null) {
-                    burstLabel.setText(burstRange.getLowValue() + " to " + burstRange.getMaximum());
+                    burstLabel.setText(burstRange.getLowValue() + " to " + burstRange.getHighValue() +
+                            " (max number of bursts: " + burstRange.getMaximum() + ")");
                     worldMapUI.getModel().setAdditionalGeoBoundaries(getSelectedBoundaries());
                 }
             }
@@ -85,7 +86,8 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
         burstRange.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                burstLabel.setText(burstRange.getLowValue() + " to " + burstRange.getHighValue());
+                burstLabel.setText(burstRange.getLowValue() + " to " + burstRange.getHighValue()+
+                        " (max number of bursts: " + burstRange.getMaximum() + ")");
 
                 if (su != null) {
                     worldMapUI.getModel().setAdditionalGeoBoundaries(getSelectedBoundaries());
