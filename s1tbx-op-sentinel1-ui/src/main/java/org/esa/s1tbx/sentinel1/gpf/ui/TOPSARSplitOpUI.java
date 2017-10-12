@@ -73,6 +73,7 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
                 }
 
                 if (su != null) {
+                    burstLabel.setText(burstRange.getLowValue() + " to " + burstRange.getMaximum());
                     worldMapUI.getModel().setAdditionalGeoBoundaries(getSelectedBoundaries());
                 }
             }
