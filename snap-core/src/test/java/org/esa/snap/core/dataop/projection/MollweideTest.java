@@ -21,7 +21,6 @@ import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.referencing.operation.MathTransformProvider;
-import org.junit.Ignore;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.operation.MathTransform;
@@ -36,7 +35,6 @@ import java.util.List;
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
-@Ignore("Currently conflicts with GeoTools impl., which has a bug (https://osgeo-org.atlassian.net/browse/GEOT-5641).")
 public final class MollweideTest extends AbstractProjectionTest {
 
     @Override
