@@ -15,6 +15,7 @@
  */
 package org.esa.snap.core.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetDef;
@@ -68,7 +69,6 @@ public abstract class ProductNode extends ExtensibleObject {
      * Sets the the owner node of this node.
      * <p>Overrides shall finally call <code>super.setOwner(owner)</code>.
      *
-     *
      * @param owner the new owner
      */
     public void setOwner(ProductNode owner) {
@@ -105,6 +105,12 @@ public abstract class ProductNode extends ExtensibleObject {
     private void setNodeName(String trimmedName, boolean silent) {
         Guardian.assertNotNullOrEmpty("name contains only spaces", trimmedName);
         if (!ObjectUtils.equalObjects(name, trimmedName)) {
+            Product product = getProduct();
+            if (product != null) {
+                Assert.argument(!product.containsRasterDataNode(trimmedName),
+                                "The Product '" + product.getName() + "' already contains " +
+                                "a raster data node with the name '" + trimmedName + "'.");
+            }
             if (!isValidNodeName(trimmedName)) {
                 throw new IllegalArgumentException("The given name '" + trimmedName + "' is not a valid node name.");
             }
@@ -212,7 +218,7 @@ public abstract class ProductNode extends ExtensibleObject {
      * Returns the product to which this node belongs to.
      *
      * @return the product, or <code>null</code> if this node was not owned by a product at the time this method was
-     *         called
+     * called
      */
     public Product getProduct() {
         if (product == null) {
@@ -236,6 +242,7 @@ public abstract class ProductNode extends ExtensibleObject {
      * Returns safely the product to which this node belongs to.
      *
      * @return the product, never <code>null</code>
+     *
      * @throws IllegalStateException if this node does not belong to a product
      */
     protected Product getProductSafe() throws IllegalStateException {
@@ -262,6 +269,7 @@ public abstract class ProductNode extends ExtensibleObject {
      * <code>IllegalStateException</code> if no such reader exists.
      *
      * @return the product reader, never <code>null</code>
+     *
      * @throws IllegalStateException if the the product reader is <code>null</code>
      */
     protected ProductReader getProductReaderSafe() {
@@ -288,6 +296,7 @@ public abstract class ProductNode extends ExtensibleObject {
      * <code>IllegalStateException</code> if no such writer exists.
      *
      * @return the product writer, never <code>null</code>
+     *
      * @throws IllegalStateException if the the product writer is <code>null</code>
      */
     protected ProductWriter getProductWriterSafe() {
@@ -305,7 +314,8 @@ public abstract class ProductNode extends ExtensibleObject {
      * product with the reference number <code>2</code>.
      *
      * @return this node's name with a product prefix <br>or this node's name only if this node's product prefix is
-     *         <code>null</code>
+     * <code>null</code>
+     *
      * @see #getProductRefString
      */
     public String getDisplayName() {
@@ -322,7 +332,7 @@ public abstract class ProductNode extends ExtensibleObject {
      * <code>2</code>.
      *
      * @return the product reference string. <br>or <code>null</code> if this node has no product <br>or
-     *         <code>null</code> if its product reference number was inactive
+     * <code>null</code> if its product reference number was inactive
      */
     public String getProductRefString() {
         final Product product = getProduct();
@@ -387,7 +397,7 @@ public abstract class ProductNode extends ExtensibleObject {
      *
      * @param subsetDef The subset definition.
      * @return <code>true</code> if the subset is not <code>null</code> and it contains a node name equal to this node's
-     *         name.
+     * name.
      */
     protected boolean isPartOfSubset(ProductSubsetDef subsetDef) {
         return subsetDef == null || subsetDef.containsNodeName(getName());
