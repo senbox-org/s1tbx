@@ -378,6 +378,12 @@ public class EnviProductReader extends AbstractProductReader {
         }
         if (EnviConstants.PROJECTION_NAME_WGS84.equalsIgnoreCase(enviMapInfo.getProjectionName())) {
             crs = DefaultGeographicCRS.WGS84;
+            if ("seconds".equalsIgnoreCase(enviMapInfo.getUnit())) {
+                enviMapInfo.setEasting(enviMapInfo.getEasting() / 3600);
+                enviMapInfo.setNorthing(enviMapInfo.getNorthing() / 3600);
+                enviMapInfo.setPixelSizeX(enviMapInfo.getPixelSizeX() / 3600);
+                enviMapInfo.setPixelSizeY(enviMapInfo.getPixelSizeY() / 3600);
+            }
         } else if ("UTM".equalsIgnoreCase(enviMapInfo.getProjectionName())) {
             try {
                 final int zone = enviMapInfo.getUtmZone();
