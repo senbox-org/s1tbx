@@ -245,27 +245,29 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             geoPos = new GeoPos();
         }
         geoPos.setInvalid();
-        if (pixelPos.isValid() && pixelPosIsInsideRasterWH(pixelPos)) {
-            int x0 = (int) Math.floor(pixelPos.getX());
-            int y0 = (int) Math.floor(pixelPos.getY());
+        if (pixelPos.isValid()) {
+            if (pixelPosIsInsideRasterWH(pixelPos)) {
+                int x0 = (int) Math.floor(pixelPos.getX());
+                int y0 = (int) Math.floor(pixelPos.getY());
 
-            if (fractionAccuracy && !isInPixelCenter(pixelPos)) {
-                if (x0 > 0 && pixelPos.x - x0 < 0.5 || x0 == rasterW - 1) {
-                    x0 -= 1;
-                }
-                if (y0 > 0 && pixelPos.y - y0 < 0.5 || y0 == rasterH - 1) {
-                    y0 -= 1;
-                }
+                if (fractionAccuracy && !isInPixelCenter(pixelPos)) {
+                    if (x0 > 0 && pixelPos.x - x0 < 0.5 || x0 == rasterW - 1) {
+                        x0 -= 1;
+                    }
+                    if (y0 > 0 && pixelPos.y - y0 < 0.5 || y0 == rasterH - 1) {
+                        y0 -= 1;
+                    }
 
-                final double wx = pixelPos.x - (x0 + 0.5);
-                final double wy = pixelPos.y - (y0 + 0.5);
+                    final double wx = pixelPos.x - (x0 + 0.5);
+                    final double wy = pixelPos.y - (y0 + 0.5);
 
-                dataProvider.getGeoPosDouble(x0, y0, wx, wy, geoPos);
-                if (!geoPos.isValid()) {
+                    dataProvider.getGeoPosDouble(x0, y0, wx, wy, geoPos);
+                    if (!geoPos.isValid()) {
+                        dataProvider.getGeoPosInteger(x0, y0, geoPos);
+                    }
+                } else {
                     dataProvider.getGeoPosInteger(x0, y0, geoPos);
                 }
-            } else {
-                dataProvider.getGeoPosInteger(x0, y0, geoPos);
             }
             if (!geoPos.isValid()) {
                 if (formerGeocoding != null && formerGeocoding.canGetGeoPos()) {
