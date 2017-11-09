@@ -418,7 +418,7 @@ public final class TerrainFlatteningOp extends Operator {
             // Moved the following exception to computeTileStack. Add a dummy band so that computeTileStack get executed
             //throw new OperatorException("TerrainFlattening requires beta0 or T3, C3, C2 as input");
             final Band dummyBand = targetProduct.addBand("dummy", ProductData.TYPE_INT8);
-            dummyBand.setUnit(Unit.IMAGINARY);
+            dummyBand.setUnit(Unit.AMPLITUDE);
         }
 
         if (outputSimulatedImage) {
