@@ -91,14 +91,14 @@ public class EnviProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         try {
-            return innerReadeProductNodes();
+            return innerReadProductNodes();
         } catch (IOException e) {
             close();
             throw e;
         }
     }
 
-    private Product innerReadeProductNodes() throws IOException {
+    private Product innerReadProductNodes() throws IOException {
         final Object inputObject = getInput();
         final File inputFile = EnviProductReaderPlugIn.getInputFile(inputObject);
 
