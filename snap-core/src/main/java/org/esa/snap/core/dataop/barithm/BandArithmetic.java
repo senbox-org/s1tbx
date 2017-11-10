@@ -18,7 +18,13 @@ package org.esa.snap.core.dataop.barithm;
 import com.bc.ceres.core.Assert;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.jexp.*;
+import org.esa.snap.core.jexp.Function;
+import org.esa.snap.core.jexp.Namespace;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Parser;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.WritableNamespace;
 import org.esa.snap.core.jexp.impl.DefaultNamespace;
 import org.esa.snap.core.jexp.impl.NamespaceImpl;
 import org.esa.snap.core.jexp.impl.ParserImpl;
@@ -26,7 +32,11 @@ import org.esa.snap.core.jexp.impl.Tokenizer;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Provides band arithmetic utility methods.
@@ -151,12 +161,13 @@ public class BandArithmetic {
         // Register symbols for default product without name prefix
         namespaceExtender.extendNamespace(products[contextProductIndex], "", namespace);
 
-        // If the namespace comprises multple products...
+        // If the namespace comprises multiple products...
         if (products.length > 1) {
             boolean allSet = Arrays.stream(products).allMatch(p -> p.getRefNo() != 0);
             if (!allSet) {
                 int cnt = 1;
                 for (Product product : products) {
+                    product.resetRefNo();
                     product.setRefNo(cnt++);
                 }
             }
