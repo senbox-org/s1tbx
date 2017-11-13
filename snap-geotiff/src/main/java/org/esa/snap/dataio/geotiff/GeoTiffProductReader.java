@@ -308,11 +308,12 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
 
         if (product == null) {            // without DIMAP header
-            final String productName;
+            String productName = null;
             if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
                 final TIFFField field1 = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
-                productName = field1.getAsString(0);
-            } else if (inputFile != null) {
+                productName = field1.getAsString(0).trim();
+            }
+            if ((productName == null || productName.isEmpty()) && inputFile != null) {
                 productName = FileUtils.getFilenameWithoutExtension(inputFile);
             } else {
                 productName = "geotiff";
