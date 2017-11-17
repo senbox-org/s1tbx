@@ -542,8 +542,8 @@ public class InterferogramOp extends Operator {
                 targetBandNames.add(fepBand.getName());
             }
 
-            outputElevation = outputElevation && sourceProduct.getBand("elevation") == null;
-            if (subtractTopographicPhase && outputElevation) {
+            //outputElevation = outputElevation && sourceProduct.getBand("elevation") == null;
+            if (subtractTopographicPhase && outputElevation && targetProduct.getBand("elevation") == null) {
                 final Band elevBand = targetProduct.addBand("elevation", ProductData.TYPE_FLOAT32);
                 elevBand.setNoDataValueUsed(true);
                 elevBand.setNoDataValue(demNoDataValue);
@@ -1019,7 +1019,9 @@ public class InterferogramOp extends Operator {
 
     private void saveElevation(final int x0, final int xN, final int y0, final int yN, final double[][] elevation,
                                final ProductContainer product, final Map<Band, Tile> targetTileMap) {
-
+        if (product.getBandName(ELEVATION) == null) {
+            return;
+        }
         final Band elevationBand = targetProduct.getBand(product.getBandName(ELEVATION));
         final Tile elevationTile = targetTileMap.get(elevationBand);
         final ProductData elevationData = elevationTile.getDataBuffer();
