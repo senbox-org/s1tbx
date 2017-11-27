@@ -121,6 +121,20 @@ public class StampsExportOp extends Operator {
             validator2.checkIfSLC();
             validator2.checkIfTOPSARBurstProduct(false);
 
+            // First product should be stack product
+            String bandnames[] = sourceProduct[0].getBandNames();
+            boolean foundmst = false;
+            for (int i = 0; i < bandnames.length; i++) {
+                if (bandnames[i].toLowerCase().contains("mst")) {
+                    foundmst = true;
+                    break;
+                }
+            }
+            if (!foundmst) {
+                throw new OperatorException("The 1st product should be a stack of coregistered SLC products, the 2nd should be interferogram");
+            }
+
+
             if (targetFolder == null) {
                 throw new OperatorException("Please add a target folder");
             }
