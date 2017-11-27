@@ -1,15 +1,14 @@
 package org.esa.snap.core.util;
 
 import com.bc.ceres.binding.ValidationException;
-import java.text.ParseException;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.text.ParseException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class TimeStampExtractorTest {
 
@@ -114,7 +113,7 @@ public class TimeStampExtractorTest {
         ProductData.UTC[] dateRange = extractor.extractTimeStamps(
                 "MER_RR__2CNACR20070123_101652_000000072055_00008_25613_0000.nc");
         assertEquals(2, dateRange.length);
-        assertEquals(ProductData.UTC.parse("2007-01-23:10:16:52", "yyyy-MM-dd:HH:mm:ss").getAsDate().getTime(),
+        assertEquals(ProductData.UTC.parse("2007-01-23:10:16:52", "yyyy-MM-dd:hh:mm:ss").getAsDate().getTime(),
                 dateRange[0].getAsDate().getTime());
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
@@ -126,7 +125,7 @@ public class TimeStampExtractorTest {
                 "MER_RR__2CNACR2012-Oct-23_101652_blahblah.nc");
 
         assertEquals(2, dateRange.length);
-        assertEquals(ProductData.UTC.parse("2012-10-23:10:16:52", "yyyy-MM-dd:HH:mm:ss").getAsDate().getTime(),
+        assertEquals(ProductData.UTC.parse("2012-10-23:10:16:52", "yyyy-MM-dd:hh:mm:ss").getAsDate().getTime(),
                 dateRange[0].getAsDate().getTime());
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
@@ -145,7 +144,7 @@ public class TimeStampExtractorTest {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyDDD", "A${startDate}.L3m_DAY_SST_4");
         ProductData.UTC[] dateRange = extractor.extractTimeStamps("A2010159.L3m_DAY_SST_4");
         assertEquals(2, dateRange.length);
-        assertEquals(ProductData.UTC.parse("2010-06-08:00:00:00", "yyyy-MM-dd:HH:mm:ss").getAsDate().getTime(),
+        assertEquals(ProductData.UTC.parse("2010-06-08:00:00:00", "yyyy-MM-dd:hh:mm:ss").getAsDate().getTime(),
                 dateRange[0].getAsDate().getTime());
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
