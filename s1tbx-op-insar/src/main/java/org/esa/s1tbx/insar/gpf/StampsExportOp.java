@@ -99,7 +99,7 @@ public class StampsExportOp extends Operator {
     public void initialize() throws OperatorException {
         try {
             if (sourceProduct.length != 2) {
-                throw new OperatorException("Input requires a coregistered stack and at least 4 interferograms");
+                throw new OperatorException("Input requires a coregistered stack (1st product) and an interferogram product of at least 4 interferograms");
             }
 
             if(!psiFormat) {
