@@ -1,12 +1,7 @@
 package org.jlinda.core.geom;
 
 import org.esa.snap.core.util.SystemUtils;
-import org.jlinda.core.Constants;
-import org.jlinda.core.Ellipsoid;
-import org.jlinda.core.Orbit;
-import org.jlinda.core.Point;
-import org.jlinda.core.SLCImage;
-import org.jlinda.core.Window;
+import org.jlinda.core.*;
 import org.jlinda.core.delaunay.TriangleInterpolator;
 
 import java.util.Arrays;
@@ -27,11 +22,15 @@ public class TopoPhase {
     private DemTile dem;           // demTileData
     public double[][] demPhase;
     public double[][] elevation;
+    public double[][] latitude;
+    public double[][] longitude;
 
     private double[][] demRadarCode_x;
     private double[][] demRadarCode_y;
     private double[][] demRadarCode_phase; // interpolated grid
     private double[][] demElevation;
+    private double[][] demLatitude;
+    private double[][] demLongitude;
 
     private int nRows;
     private int nCols;
@@ -71,7 +70,6 @@ public class TopoPhase {
         this.slaveMeta = slaveMeta;
     }
 
-
     public void setWindow(Window window) {
         this.tileWindow = window;
     }
@@ -104,6 +102,8 @@ public class TopoPhase {
         demRadarCode_y = new double[nRows][nCols];
         demRadarCode_phase = new double[nRows][nCols];
         demElevation = new double[nRows][nCols];
+        demLatitude = new double[nRows][nCols];
+        demLongitude = new double[nRows][nCols];
 
         final int nPoints = nRows * nCols;
         final boolean onlyTopoRefPhase = true;
@@ -135,6 +135,8 @@ public class TopoPhase {
 
                 height = heightArray[j];
                 demElevation[i][j] = height;
+                demLatitude[i][j] = phi;
+                demLongitude[i][j] = lambda;
 
                 if (height != dem.noDataValue) {
 
@@ -262,7 +264,7 @@ public class TopoPhase {
 
     }
 
-    public void gridData(boolean includeDEM) throws Exception {
+    public void gridData(boolean includeDEM, boolean includeLatLon) throws Exception {
         if (rngAzRatio == 0) {
             calculateScalingRatio();
         }
@@ -272,16 +274,45 @@ public class TopoPhase {
         demPhase = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
 
         TriangleInterpolator.ZData[] data;
-        if(includeDEM) {
-            elevation = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
-            for (double[] row : elevation) {
-                Arrays.fill(row, dem.noDataValue);
+        if(includeDEM || includeLatLon) {
+            final int nLines = (int) tileWindow.lines();
+            final int nPixels = (int) tileWindow.pixels();
+            if (includeDEM) {
+                elevation = new double[nLines][nPixels];
+                for (double[] row : elevation) {
+                    Arrays.fill(row, dem.noDataValue);
+                }
+            }
+            if (includeLatLon) {
+                latitude = new double[nLines][nPixels];
+                longitude = new double[nLines][nPixels];
+                for (double[] row : latitude) {
+                    Arrays.fill(row, Double.NaN);
+                }
+                for (double[] row : longitude) {
+                    Arrays.fill(row, Double.NaN);
+                }
             }
 
-            data = new TriangleInterpolator.ZData[] {
-                    new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
-                    new TriangleInterpolator.ZData(demElevation, elevation)
-            };
+            if (includeDEM && includeLatLon) {
+                data = new TriangleInterpolator.ZData[]{
+                        new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
+                        new TriangleInterpolator.ZData(demElevation, elevation),
+                        new TriangleInterpolator.ZData(demLatitude, latitude),
+                        new TriangleInterpolator.ZData(demLongitude, longitude)
+                };
+            } else if (includeDEM) {
+                data = new TriangleInterpolator.ZData[]{
+                        new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
+                        new TriangleInterpolator.ZData(demElevation, elevation),
+                };
+            }  else { // includeLatLon must be true
+                data = new TriangleInterpolator.ZData[]{
+                        new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
+                        new TriangleInterpolator.ZData(demLatitude, latitude),
+                        new TriangleInterpolator.ZData(demLongitude, longitude)
+                };
+            }
         } else {
             data = new TriangleInterpolator.ZData[] {
                     new TriangleInterpolator.ZData(demRadarCode_phase, demPhase)

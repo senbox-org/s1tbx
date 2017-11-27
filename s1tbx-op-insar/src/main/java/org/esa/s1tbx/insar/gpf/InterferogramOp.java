@@ -18,11 +18,7 @@ package org.esa.s1tbx.insar.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
@@ -42,20 +38,10 @@ import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.esa.snap.engine_utilities.gpf.TileIndex;
-import org.jblas.ComplexDouble;
-import org.jblas.ComplexDoubleMatrix;
-import org.jblas.DoubleMatrix;
-import org.jblas.MatrixFunctions;
-import org.jblas.Solve;
-import org.jlinda.core.GeoPoint;
-import org.jlinda.core.Orbit;
+import org.esa.snap.engine_utilities.gpf.*;
+import org.jblas.*;
+import org.jlinda.core.*;
 import org.jlinda.core.Point;
-import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
@@ -68,7 +54,7 @@ import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -157,6 +143,9 @@ public class InterferogramOp extends Operator {
     @Parameter(defaultValue = "false", label = "Output Elevation")
     private boolean outputElevation = false;
 
+    @Parameter(defaultValue = "false", label = "Output Lat/Lon")
+    private boolean outputLatLon = false;
+
     // flat_earth_polynomial container
     private Map<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
     private boolean flatEarthEstimated = false;
@@ -196,6 +185,8 @@ public class InterferogramOp extends Operator {
     private static final String TOPO_PHASE = "topo_phase";
     private static final String COHERENCE = "coherence";
     private static final String ELEVATION = "elevation";
+    private static final String LATITUDE = " orthorectifiedLat";
+    private static final String LONGITUDE = "orthorectifiedLon";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -206,7 +197,7 @@ public class InterferogramOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -239,7 +230,7 @@ public class InterferogramOp extends Operator {
             validator.checkIfCoregisteredStack();
             validator.checkIfSLC();
             isTOPSARBurstProduct = !validator.isDebursted();
-
+            System.out.println("IFG: isTOPSARBurstProduct = " + isTOPSARBurstProduct);
             if (isTOPSARBurstProduct) {
                 final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
                 final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(' ')));
@@ -481,7 +472,6 @@ public class InterferogramOp extends Operator {
                                     sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-
         for (String key : targetMap.keySet()) {
             final List<String> targetBandNames = new ArrayList<>();
 
@@ -542,7 +532,6 @@ public class InterferogramOp extends Operator {
                 targetBandNames.add(fepBand.getName());
             }
 
-            //outputElevation = outputElevation && sourceProduct.getBand("elevation") == null;
             if (subtractTopographicPhase && outputElevation && targetProduct.getBand("elevation") == null) {
                 final Band elevBand = targetProduct.addBand("elevation", ProductData.TYPE_FLOAT32);
                 elevBand.setNoDataValueUsed(true);
@@ -550,6 +539,26 @@ public class InterferogramOp extends Operator {
                 container.addBand(ELEVATION, elevBand.getName());
                 elevBand.setUnit(Unit.METERS);
                 targetBandNames.add(elevBand.getName());
+            }
+
+            if (subtractTopographicPhase && outputLatLon && targetProduct.getBand("orthorectifiedLat") == null) {
+                // add latitude band
+                final Band latBand = targetProduct.addBand("orthorectifiedLat", ProductData.TYPE_FLOAT32);
+                latBand.setNoDataValueUsed(true);
+                latBand.setNoDataValue(Double.NaN);
+                container.addBand(LATITUDE, latBand.getName());
+                latBand.setUnit(Unit.DEGREES);
+                targetBandNames.add(latBand.getName());
+            }
+
+            if (subtractTopographicPhase && outputLatLon && targetProduct.getBand("orthorectifiedLon") == null) {
+                // add longitude band
+                final Band lonBand = targetProduct.addBand("orthorectifiedLon", ProductData.TYPE_FLOAT32);
+                lonBand.setNoDataValueUsed(true);
+                lonBand.setNoDataValue(Double.NaN);
+                container.addBand(LONGITUDE, lonBand.getName());
+                lonBand.setUnit(Unit.DEGREES);
+                targetBandNames.add(lonBand.getName());
             }
 
             String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
@@ -642,7 +651,7 @@ public class InterferogramOp extends Operator {
      */
     public static DoubleMatrix estimateFlatEarthPolynomial(
             final CplxContainer master, final CplxContainer slave, final int subSwathIndex, final int burstIndex,
-            final org.jlinda.core.Point[] mstSceneCentreXYZ, final int orbitDegree, final int srpPolynomialDegree,
+            final Point[] mstSceneCentreXYZ, final int orbitDegree, final int srpPolynomialDegree,
             final int srpNumberPoints, final Sentinel1Utils.SubSwathInfo[] subSwath, final Sentinel1Utils su)
             throws Exception {
 
@@ -680,10 +689,10 @@ public class InterferogramOp extends Operator {
             final double mstAzTime = line2AzimuthTime(line, subSwathIndex, burstIndex, subSwath);
 
             // compute xyz of this point : sourceMaster
-            org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(
+            Point xyzMaster = masterOrbit.lph2xyz(
                     mstAzTime, mstRgTime, 0.0, mstSceneCentreXYZ[burstIndex]);
 
-            org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slave.metaData.getSceneCentreAzimuthTime());
+            Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slave.metaData.getSceneCentreAzimuthTime());
 
             final double slaveTimeRange = slaveTimeVector.x;
 
@@ -714,7 +723,7 @@ public class InterferogramOp extends Operator {
     }
 
     private static double[][] getAdjacentOrbitStateVectors(
-            final CplxContainer container, final org.jlinda.core.Point sceneCentreXYZ) {
+            final CplxContainer container, final Point sceneCentreXYZ) {
 
         try {
             double[] time = container.orbit.getTime();
@@ -836,7 +845,7 @@ public class InterferogramOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
@@ -859,7 +868,6 @@ public class InterferogramOp extends Operator {
     private void computeTileStackForNormalProduct(
             final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, final ProgressMonitor pm)
             throws OperatorException {
-
         try {
             final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
 
@@ -867,8 +875,7 @@ public class InterferogramOp extends Operator {
             final int yN = y0 + targetRectangle.height - 1;
             final int x0 = targetRectangle.x;
             final int xN = targetRectangle.x + targetRectangle.width - 1;
-
-            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yN, x0, xN);
+            final Window tileWindow = new Window(y0, yN, x0, xN);
 
             DemTile demTile = null;
             if (subtractTopographicPhase) {
@@ -888,7 +895,7 @@ public class InterferogramOp extends Operator {
             final int cohh = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
-            final org.jlinda.core.Window cohTileWindow = new org.jlinda.core.Window(
+            final Window cohTileWindow = new Window(
                     cohy0, cohy0 + cohh - 1, cohx0, cohx0 + cohw - 1);
 
             DemTile cohDemTile = null;
@@ -926,7 +933,7 @@ public class InterferogramOp extends Operator {
 
                 if (subtractTopographicPhase) {
                     final TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                            product, tileWindow, demTile, outputElevation);
+                            product, tileWindow, demTile, outputElevation, outputLatLon);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -940,6 +947,10 @@ public class InterferogramOp extends Operator {
 
                     if (outputElevation) {
                         saveElevation(x0, xN, y0, yN, topoPhase.elevation, product, targetTileMap);
+                    }
+
+                    if (outputLatLon) {
+                        saveLatLon(x0, xN, y0, yN, topoPhase.latitude, topoPhase.longitude, product, targetTileMap);
                     }
                 }
 
@@ -992,7 +1003,6 @@ public class InterferogramOp extends Operator {
                     saveCoherence(cohMatrix, product, targetTileMap, targetRectangle);
                 }
             }
-
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
@@ -1026,7 +1036,6 @@ public class InterferogramOp extends Operator {
         final Tile elevationTile = targetTileMap.get(elevationBand);
         final ProductData elevationData = elevationTile.getDataBuffer();
         final TileIndex tgtIndex = new TileIndex(elevationTile);
-
         for (int y = y0; y <= yN; y++) {
             tgtIndex.calculateStride(y);
             final int yy = y - y0;
@@ -1034,6 +1043,36 @@ public class InterferogramOp extends Operator {
                 final int tgtIdx = tgtIndex.getIndex(x);
                 final int xx = x - x0;
                 elevationData.setElemFloatAt(tgtIdx, (float)elevation[yy][xx]);
+            }
+        }
+    }
+
+    private void saveLatLon(final int x0, final int xN, final int y0, final int yN,
+                            final double[][] latitude, final double[][] longitude,
+                            final ProductContainer product, final Map<Band, Tile> targetTileMap) {
+
+        if (product.getBandName(LATITUDE) == null || product.getBandName(LONGITUDE) == null) {
+            return;
+        }
+
+        final Band latBand = targetProduct.getBand(product.getBandName(LATITUDE));
+        final Tile latTile = targetTileMap.get(latBand);
+        final ProductData latData = latTile.getDataBuffer();
+        final Band lonBand = targetProduct.getBand(product.getBandName(LONGITUDE));
+        final Tile lonTile = targetTileMap.get(lonBand);
+        final ProductData lonData = lonTile.getDataBuffer();
+
+        final TileIndex tgtIndex = new TileIndex(latTile);
+
+        for (int y = y0; y <= yN; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - y0;
+            for (int x = x0; x <= xN; x++) {
+                final int tgtIdx = tgtIndex.getIndex(x);
+                final int xx = x - x0;
+
+                latData.setElemFloatAt(tgtIdx, (float) (latitude[yy][xx] * 180.0/Math.PI));
+                lonData.setElemFloatAt(tgtIdx, (float) (longitude[yy][xx] * 180.0/Math.PI));
             }
         }
     }
@@ -1241,7 +1280,7 @@ public class InterferogramOp extends Operator {
             final int x0 = targetRectangle.x;
             final int xN = x0 + targetRectangle.width - 1;
 
-            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0 - firstLineIdx, yN - firstLineIdx, x0, xN);
+            final Window tileWindow = new Window(y0 - firstLineIdx, yN - firstLineIdx, x0, xN);
             final SLCImage mstMeta = targetMap.values().iterator().next().sourceMaster.metaData.clone();
             updateMstMetaData(burstIndex, mstMeta);
             final Orbit mstOrbit = targetMap.values().iterator().next().sourceMaster.orbit;
@@ -1267,7 +1306,7 @@ public class InterferogramOp extends Operator {
             final int cohh = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
-            final org.jlinda.core.Window cohTileWindow = new org.jlinda.core.Window(
+            final Window cohTileWindow = new Window(
                     cohy0 - firstLineIdx, cohy0 + cohh - 1 - firstLineIdx, cohx0, cohx0 + cohw - 1);
 
             DemTile cohDemTile = null;
@@ -1316,7 +1355,7 @@ public class InterferogramOp extends Operator {
 
                 if (subtractTopographicPhase) {
                     TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, outputElevation);
+                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, outputElevation, outputLatLon);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -1330,6 +1369,10 @@ public class InterferogramOp extends Operator {
 
                     if (outputElevation) {
                         saveElevation(x0, xN, y0, yN, topoPhase.elevation, product, targetTileMap);
+                    }
+
+                    if (outputLatLon) {
+                        saveLatLon(x0, xN, y0, yN, topoPhase.latitude, topoPhase.longitude, product, targetTileMap);
                     }
                 }
 
@@ -1451,8 +1494,8 @@ public class InterferogramOp extends Operator {
      * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.snap.core.gpf.OperatorSpi#createOperator()
-     * @see org.esa.snap.core.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see OperatorSpi#createOperator()
+     * @see OperatorSpi#createOperator(Map, Map)
      */
     public static class Spi extends OperatorSpi {
 
