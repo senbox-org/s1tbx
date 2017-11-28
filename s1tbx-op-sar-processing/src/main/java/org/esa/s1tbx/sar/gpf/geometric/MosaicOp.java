@@ -16,7 +16,6 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.CRSGeoCodingHandler;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
@@ -203,7 +202,7 @@ public class MosaicOp extends Operator {
                     ProductUtils.copyIndexCodings(sourceProduct[0], targetProduct);
                 } catch (Exception e) {
                     if (!resamplingMethod.equals(Resampling.NEAREST_NEIGHBOUR)) {
-                        throw new OperatorException("Use Nearest Neighbour with Classificaitons: " + e.getMessage());
+                        throw new OperatorException("Use Nearest Neighbour with Classifications: " + e.getMessage());
                     }
                 }
             }
@@ -533,7 +532,7 @@ public class MosaicOp extends Operator {
                 }
 
                 if (!validSourceData.isEmpty()) {
-                    collocateSourceBand(validSourceData, resampling, bandTileEntry.getValue());
+                    collocateSourceBand(validSourceData, resampling, bandTileEntry.getValue(), bandTileEntry.getKey());
                 }
             }
         } catch (Throwable e) {
@@ -544,7 +543,7 @@ public class MosaicOp extends Operator {
     }
 
     private void collocateSourceBand(final List<SourceData> validSourceData, final Resampling resampling,
-                                     final Tile targetTile) throws OperatorException {
+                                     final Tile targetTile, final Band targetBand) throws OperatorException {
         try {
             final Rectangle targetRectangle = targetTile.getRectangle();
             final ProductData trgBuffer = targetTile.getDataBuffer();
@@ -604,6 +603,8 @@ public class MosaicOp extends Operator {
                         }
 
                         trgBuffer.setElemDoubleAt(trgIndex.getIndex(x), targetVal);
+                    } else {
+                        trgBuffer.setElemDoubleAt(trgIndex.getIndex(x), targetBand.getNoDataValue());
                     }
                 }
             }
