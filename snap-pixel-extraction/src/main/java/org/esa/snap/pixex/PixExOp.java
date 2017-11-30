@@ -204,7 +204,7 @@ public class PixExOp extends Operator {
 
     @Parameter(
             description = "Describes how a date/time section inside a product filename should be interpreted. " +
-                          "E.G. yyyyMMdd_hhmmss",
+                          "E.G. yyyyMMdd_HHmmss",
             validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
             defaultValue = "yyyyMMdd",
             label = "Date/Time pattern")
