@@ -93,9 +93,11 @@ public class OpenSearch {
         ClientResponse response[] = new ClientResponse[1];
 
         pm.beginTask("Searching...", result.totalResults/numRows);
+        //System.out.println("OpenSearch.getProductResults: result.totalResults = " + result.totalResults + "; numRows = " + numRows);
         for (int item = 0; item < result.totalResults; item += numRows) {
             if (pm.isCanceled()) break;
             try {
+                //System.out.println("OpenSearch.getProductResults: item = " + item + " searchURL = " + searchURL);
                 final Feed feed = connect(searchURL, "&start=" + item + "&rows=" + numRows, response);
 
                 //SystemUtils.LOG.info("Paging results: \t " + (item+1) + '/' + result.pages);
@@ -125,10 +127,6 @@ public class OpenSearch {
 
     private Feed connect(String searchURL, final String compl, final ClientResponse[] response) throws IOException {
 
-        if (compl != null) {
-            searchURL = searchURL + ' ' + compl;
-        }
-
         SystemUtils.LOG.info("OpenSearch: " + searchURL);
 
         int end = searchURL.indexOf("search") + 9;
@@ -136,7 +134,7 @@ public class OpenSearch {
         String last = searchURL.substring(end);
 
         try {
-            searchURL = init + URLEncoder.encode(last, "UTF-8");
+            searchURL = init + URLEncoder.encode(last, "UTF-8") + compl;
         } catch (UnsupportedEncodingException e) {
             throw new IOException(e);
         }
