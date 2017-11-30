@@ -93,4 +93,24 @@ public class AggregatorMinMaxTest {
         assertEquals(5.1f, tvec.get(1), 1e-5f);
     }
 
+    @Test
+    public void tesAggregatorMinMaxWithNaNsInObservations() {
+        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a", "Out");
+
+        VectorImpl svec = vec(NaN, NaN);
+
+        agg.initSpatial(ctx, svec);
+        assertEquals(Float.POSITIVE_INFINITY, svec.get(0), 0.0f);
+        assertEquals(Float.NEGATIVE_INFINITY, svec.get(1), 0.0f);
+
+        agg.aggregateSpatial(ctx, obsNT(7.3f), svec);
+        agg.aggregateSpatial(ctx, obsNT(5.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(Float.NaN), svec);
+        agg.aggregateSpatial(ctx, obsNT(-0.1f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.0f), svec);
+        agg.aggregateSpatial(ctx, obsNT(Float.NaN), svec);
+        assertEquals(-0.1f, svec.get(0), 1e-5f);
+        assertEquals(7.3f, svec.get(1), 1e-5f);
+    }
+
 }
