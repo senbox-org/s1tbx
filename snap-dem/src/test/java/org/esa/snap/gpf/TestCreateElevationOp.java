@@ -78,6 +78,7 @@ public class TestCreateElevationOp {
 
         final Band elevBand = targetProduct.getBand("elevation");
         assertNotNull(elevBand);
+        assertEquals(-32768.0, elevBand.getNoDataValue(), 1e-8);
 
         final double[] demValues = new double[8];
         elevBand.readPixels(0, 0, 4, 2, demValues, ProgressMonitor.NULL);

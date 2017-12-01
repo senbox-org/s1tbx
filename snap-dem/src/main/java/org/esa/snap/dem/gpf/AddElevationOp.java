@@ -40,8 +40,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.Rectangle;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
 /**
  * CreateElevationBandOp adds an elevation band to a product
@@ -78,7 +77,6 @@ public final class AddElevationOp extends Operator {
     @Parameter(description = "The elevation band name.", defaultValue = "elevation", label = "Elevation Band Name")
     private String elevationBandName = "elevation";
 
-    private boolean isElevationModelAvailable = false;
     private ElevationModel dem = null;
     private double demNoDataValue = 0; // no data value for DEM
     private Band elevationBand = null;
@@ -110,7 +108,7 @@ public final class AddElevationOp extends Operator {
             }
 
             DEMFactory.validateDEM(demName, sourceProduct);
-
+            initElevationModel();
             createTargetProduct();
 
         } catch (Throwable e) {
@@ -121,12 +119,12 @@ public final class AddElevationOp extends Operator {
     /**
      * Create target product.
      */
-    void createTargetProduct() {
+    private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
+                                    sourceProduct.getProductType(),
+                                    sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -135,7 +133,7 @@ public final class AddElevationOp extends Operator {
                 throw new OperatorException("Band " + elevationBandName + " already exists. Try another name.");
 
             if (band instanceof VirtualBand) {
-                Band targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) band, band.getName());
+                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) band, band.getName());
             } else {
                 if (!targetProduct.containsBand((band.getName()))) {
                     final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
@@ -145,6 +143,10 @@ public final class AddElevationOp extends Operator {
         }
 
         elevationBand = targetProduct.addBand(elevationBandName, ProductData.TYPE_FLOAT32);
+        elevationBand.setNoDataValue(demNoDataValue);
+        elevationBand.setNoDataValueUsed(true);
+        elevationBand.setUnit(Unit.METERS);
+        elevationBand.setDescription(demName);
     }
 
     /**
@@ -165,10 +167,6 @@ public final class AddElevationOp extends Operator {
             final int y0 = targetRectangle.y;
             final int w = targetRectangle.width;
             final int h = targetRectangle.height;
-
-            if (!isElevationModelAvailable) {
-                getElevationModel();
-            }
 
             final ProductData tgtData = targetTile.getDataBuffer();
             final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
@@ -204,33 +202,15 @@ public final class AddElevationOp extends Operator {
         }
     }
 
-    /**
-     * Get elevation model.
-     *
-     * @throws Exception The exceptions.
-     */
-    private synchronized void getElevationModel() throws Exception {
-
-        if (isElevationModelAvailable) return;
-        try {
-            if (demName.contains(externalDEMStr) && externalDEMFile != null) { // if external DEM file is specified by user
-                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
-                demNoDataValue = externalDEMNoDataValue;
-                demName = externalDEMFile.getPath();
-            } else {
-                dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
-                demNoDataValue = dem.getDescriptor().getNoDataValue();
-            }
-
-            elevationBand.setNoDataValue(demNoDataValue);
-            elevationBand.setNoDataValueUsed(true);
-            elevationBand.setUnit(Unit.METERS);
-            elevationBand.setDescription(demName);
-
-        } catch (Throwable t) {
-            t.printStackTrace();
+    private void initElevationModel() throws IOException {
+        if (demName.contains(externalDEMStr) && externalDEMFile != null) { // if external DEM file is specified by user
+            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+            demNoDataValue = externalDEMNoDataValue;
+            demName = externalDEMFile.getPath();
+        } else {
+            dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
+            demNoDataValue = dem.getDescriptor().getNoDataValue();
         }
-        isElevationModelAvailable = true;
     }
 
     /**
