@@ -24,13 +24,7 @@ import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
 import net.sf.javaml.core.DenseInstance;
 import net.sf.javaml.core.Instance;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.IndexCoding;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.VectorDataNode;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -44,22 +38,11 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.VectorUtils;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Base class for classifiers.
@@ -282,6 +265,9 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                     }
                 }
 
+                // Here we are assuming that the vectors must come from the one product (namely the first product).
+                // You cannot choose one polyogn from one product and another polygon from another product.
+                // Do we want to allow user to do that? It should work?!
                 if (geometryNames.size() < 2) {
                     throw new OperatorException("Cannot train on vectors because source product has less than 2 vectors");
                 }
@@ -946,6 +932,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             }*/
 
             final int totalAvailableFeatures = getTotalNumBands(featureProducts);
+            //System.out.println("totalAvailableFeatures = " + totalAvailableFeatures);
             if (featureNames.length > totalAvailableFeatures) {
                 throw new OperatorException("classifier expects " + featureNames.length
                                                     + " features; source product(s) only have " + totalAvailableFeatures);
@@ -967,7 +954,15 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             for (int i = 0; i < sortedClasses.length; i++) {
                 //indexCoding.addIndex("label_" + i, (int)sortedClasses[i], "");
                 final int idx = labels[i].indexOf("::");
-                indexCoding.addIndex(labels[i].substring(0, idx), (int)sortedClasses[i], "");
+                // It looks like that...
+                // When you are training and you select (i.e., highlight) the Training vectors that you want, they are
+                // save without "::". If you do not select any Training vectors and by default all are used, they are
+                // saved with "::". Either way, we are handling both cases here.
+                if (idx < 0) {
+                    indexCoding.addIndex(labels[i], (int) sortedClasses[i], "");
+                } else {
+                    indexCoding.addIndex(labels[i].substring(0, idx), (int) sortedClasses[i], "");
+                }
             }
             targetProduct.getIndexCodingGroup().add(indexCoding);
             labelBand.setSampleCoding(indexCoding);
@@ -988,6 +983,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 }
                 indicesSet.add(idxPair);
                 Band featureBand = featureProducts[indices[0]].getBandAt(indices[1]);
+                //System.out.println("loadClassifier: featurBand = " + featureBand);
                 double noDataValue = DOUBLE_NO_DATA_VALUE;
                 if (featureBand.isNoDataValueSet()) {
                     noDataValue = featureBand.getNoDataValue();
@@ -1317,6 +1313,17 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         return features;
     }
 
+    private String haveDuplicates(final String[] featureNames) {
+        for (int i = 0; i < featureNames.length; i++) {
+            for (int j = i+1; j < featureNames.length; j++) {
+                if (featureNames[i].equals(featureNames[j])) {
+                    return featureNames[i];
+                }
+            }
+        }
+        return null;
+    }
+
     private void saveClassifier(final Dataset trainDataset) throws IOException {
 
         //System.out.println("BaseClassifier.saveClassifier");
@@ -1347,6 +1354,19 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 featureNames[i] = StackUtils.getBandNameWithoutDate(featureNames[i]);
             featureMinValues[i] = featureBand.getStx().getMinimum();
             featureMaxValues[i] = featureBand.getStx().getMaximum();
+        }
+        // If the feature bands are in a co-registered product with virtual bands like:
+        // - Intensity_IW3_VV_mst_06Jun2016
+        // - Intensity_IW3_VV_slv1_15Nov2015
+        // - Intensity_IW3_VV_slv2_27Nov2015
+        // - Intensity_IW3_VV_slv3_09Dec2015
+        // - Intensity_IW3_VV_slv4_21Dec2015
+        // Then featureNames after stripping the date will all be "Intensity_IW3_VV". This will not work because
+        // when we load the classifier, we will look for the five feature bands and they all have the same name.
+        // Does it even make sense to use the same feature, namely, intensity, five times?
+        final String sameName = haveDuplicates(featureNames);
+        if (sameName != null) {
+            SystemUtils.LOG.warning("BaseClassifier.saveClassifier: saved classifier will not work because some feature bands are saved with same name - " + sameName);
         }
 
         // "sortedClasses" and "trainingVectors" should be aligned, see Initialize().
