@@ -83,6 +83,7 @@ public class NdviOp extends Operator {
             rasterDataNodeType = Band.class)
     private String nirSourceBand;
 
+    private static final float nodatavalue = Float.NaN;
 
     @Override
     public void initialize() throws OperatorException {
@@ -98,6 +99,10 @@ public class NdviOp extends Operator {
         ProductUtils.copyTimeInformation(sourceProduct, targetProduct);
 
         Band ndviOutputBand = new Band(NDVI_BAND_NAME, ProductData.TYPE_FLOAT32, targetWidth, targetHeight);
+        if(band1.isNoDataValueUsed() || band2.isNoDataValueUsed()) {
+            ndviOutputBand.setNoDataValueUsed(true);
+            ndviOutputBand.setNoDataValue(nodatavalue);
+        }
         targetProduct.addBand(ndviOutputBand);
 
         boolean sceneSizeRetained = sourceProduct.getSceneRasterSize().equals(targetProduct.getSceneRasterSize());
@@ -142,13 +147,25 @@ public class NdviOp extends Operator {
             Tile ndvi = targetTiles.get(targetProduct.getBand(NDVI_BAND_NAME));
             Tile ndviFlags = targetTiles.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
 
+            boolean nodataValueUsed = targetProduct.getBand(NDVI_BAND_NAME).isNoDataValueUsed();
+            Float redNoDataValue = (float)getSourceProduct().getBand(redSourceBand).getGeophysicalNoDataValue();
+            Float nirNoDataValue = (float)getSourceProduct().getBand(nirSourceBand).getGeophysicalNoDataValue();
+
             float ndviValue;
             int ndviFlagsValue;
 
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                    final float nir = nirFactor * nirTile.getSampleFloat(x, y);
-                    final float red = redFactor * redTile.getSampleFloat(x, y);
+                    final float nirSample = nirTile.getSampleFloat(x, y);
+                    final float redSample = redTile.getSampleFloat(x, y);
+                    final float nir = nirFactor * nirSample;
+                    final float red = redFactor * redSample;
+
+                    if(nodataValueUsed && (redNoDataValue.equals(redSample) || nirNoDataValue.equals(nirSample))) {
+                        ndvi.setSample(x, y, nodatavalue);
+                        ndviFlags.setSample(x, y, 0);
+                        continue;
+                    }
 
                     ndviValue = (nir - red) / (nir + red);
                     ndviFlagsValue = 0;
