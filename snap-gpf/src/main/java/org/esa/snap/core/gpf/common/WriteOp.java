@@ -297,6 +297,10 @@ public class WriteOp extends Operator {
     @Override
     public void doExecute(ProgressMonitor pm) {
         try {
+            // Create not existing directories before writing
+            if(file != null && file.getParentFile() != null){
+                file.getParentFile().mkdirs();
+            }
             productWriter.writeProductNodes(targetProduct, file);
         } catch (IOException e) {
             throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
