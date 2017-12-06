@@ -28,6 +28,9 @@ import static org.junit.Assert.*;
  */
 public class NdviOpTest {
 
+    private static final float[] redValues = new float[] { 0, 1, 2, 3 };
+    private static final float[] nirValues = new float[] { 1, 2, 3, 0 };
+
     @Test
     public void testFindBand() throws Exception {
         Product product = new Product("dummy", "dummy", 10, 10);
@@ -87,16 +90,50 @@ public class NdviOpTest {
         assertNull(NdviOp.findBand(600, 650, product));
     }
 
+    @Test
+    public void testTargetNoDataValue() {
+        final Product sourceProduct = createTestProduct(4, 1, redValues, nirValues);
 
+        final NdviOp op = new NdviOp();
+        op.setSourceProduct(sourceProduct);
+        op.setParameter("redFactor", 1.0f);
+        op.setParameter("nirFactor", 1.0f);
 
-    public static void addBand(Product product, String bandName) {
+        final Product targetProduct = op.getTargetProduct();
+        final Band ndvi = targetProduct.getBand("ndvi");
+
+        assertEquals(true, ndvi.isNoDataValueUsed());
+        assertEquals(Float.NaN, ndvi.getSampleFloat(0, 0), 1e-6);
+        assertEquals(0.3333333f, ndvi.getSampleFloat(1, 0), 1e-6);
+        assertEquals(0.2f, ndvi.getSampleFloat(2, 0), 1e-6);
+        assertEquals(Float.NaN, ndvi.getSampleFloat(3, 0), 1e-6);
+    }
+
+    private static void addBand(Product product, String bandName) {
         Band a = new Band(bandName, ProductData.TYPE_FLOAT32, 10, 10);
         product.addBand(a);
     }
 
-    public static void addBand(Product product, String bandName, int wavelength) {
-            Band a = new Band(bandName, ProductData.TYPE_FLOAT32, 10, 10);
-            a.setSpectralWavelength(wavelength);
-            product.addBand(a);
-        }
+    private static void addBand(Product product, String bandName, int wavelength) {
+        Band a = new Band(bandName, ProductData.TYPE_FLOAT32, 10, 10);
+        a.setSpectralWavelength(wavelength);
+        product.addBand(a);
     }
+
+    private static void addBand(Product product, String bandName, int wavelength, int width, int height, float[] values) {
+        Band a = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
+        a.setSpectralWavelength(wavelength);
+        a.setRasterData(ProductData.createInstance(values));
+        a.setNoDataValueUsed(true);
+        a.setNoDataValue(0);
+        product.addBand(a);
+    }
+
+    private static Product createTestProduct(int width, int height, float[] redValues, float[] nirValues) {
+        final Product product = new Product("ProductName", "ProductType", width, height);
+        addBand(product, "red", 600, width, height, redValues);
+        addBand(product, "nir", 800, width, height, nirValues);
+
+        return product;
+    }
+}

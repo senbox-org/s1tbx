@@ -65,7 +65,6 @@ public class WriteOpTest {
     public void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(algoSpi);
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("WriteOpTest/writtenProduct.dim");
-        outputFile.getParentFile().mkdirs();
 
         TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         oldParallelism = tileScheduler.getParallelism();
