@@ -48,8 +48,10 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.wkt.UnformattableObjectException;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -110,6 +112,10 @@ public class MosaicOp extends Operator {
             label = "Convergence Threshold")
     private double convergenceThreshold = 1e-4;
 
+    @Parameter(defaultValue = "EPSG:4326",
+            description = "The CRS of the target product, represented as WKT or authority code.")
+    String crs;
+
     private final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
     private final Map<Integer, Band> bandIndexSet = new HashMap<>(20);
     private final Map<Product, Rectangle> srcRectMap = new HashMap<>(10);
@@ -157,6 +163,7 @@ public class MosaicOp extends Operator {
                 }
                 OperatorUtils.getSceneDimensions(pixelSize, scnProp);
 
+                /*
                 sceneWidth = scnProp.sceneWidth;
                 sceneHeight = scnProp.sceneHeight;
                 final double ratio = sceneWidth / (double) sceneHeight;
@@ -165,11 +172,12 @@ public class MosaicOp extends Operator {
                     sceneWidth -= 1000;
                     sceneHeight = (int) (sceneWidth / ratio);
                     dim = (long) sceneWidth * (long) sceneHeight;
-                }
+                }*/
             }
 
+            final CrsGeoCoding crsGeoCoding = createCRSGeoCoding(srcGeoCodingProduct, srcGeocoding);
             targetProduct = new Product("mosaic", "mosaic", sceneWidth, sceneHeight);
-            targetProduct.setSceneGeoCoding(createCRSGeoCoding(srcGeoCodingProduct, srcGeocoding));
+            targetProduct.setSceneGeoCoding(crsGeoCoding);
 
             // add all bands
             for (Map.Entry<Integer, Band> integerBandEntry : bandIndexSet.entrySet()) {
@@ -222,6 +230,46 @@ public class MosaicOp extends Operator {
     }
 
     private CrsGeoCoding createCRSGeoCoding(final Product srcGeoCodingProduct, final GeoCoding srcGeocoding) throws Exception {
+
+        CoordinateReferenceSystem targetCRS;
+        if (crs == null) {
+            final CoordinateReferenceSystem srcCRS = srcGeocoding.getMapCRS();
+            String wkt;
+            try {
+                wkt = srcCRS.toWKT();
+            } catch (UnformattableObjectException e) {        // if too complex to convert using strict
+                wkt = srcCRS.toString();
+            }
+            targetCRS = CRSGeoCodingHandler.getCRS(srcGeoCodingProduct, wkt);
+
+        } else {
+
+            try {
+                targetCRS = CRS.parseWKT(crs);
+            } catch (FactoryException e) {
+                targetCRS = CRS.decode(crs, true);
+            }
+        }
+
+        final Rectangle2D bounds = new Rectangle2D.Double();
+        bounds.setFrameFromDiagonal(scnProp.lonMin, scnProp.latMin, scnProp.lonMax, scnProp.latMax);
+        final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
+        final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true);
+        final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * Constants.RTOD;
+
+        if (sceneWidth == 0 || sceneHeight == 0) {
+            sceneWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSpacingInDegree);
+            sceneHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSpacingInDegree);
+        }
+
+        return new CrsGeoCoding(targetCRS,
+                sceneWidth,
+                sceneHeight,
+                targetEnvelope.getMinimum(0),
+                targetEnvelope.getMaximum(1),
+                pixelSpacingInDegree, pixelSpacingInDegree);
+
+        /*
         final CoordinateReferenceSystem srcCRS = srcGeocoding.getMapCRS();
         String wkt;
         try {
@@ -250,6 +298,7 @@ public class MosaicOp extends Operator {
                 targetEnvelope.getMinimum(0),
                 targetEnvelope.getMaximum(1),
                 pixelSizeX, pixelSizeY);
+         */
     }
 
     /**
