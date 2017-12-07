@@ -117,7 +117,7 @@ public class SpectralDiversityOp extends Operator {
     private int numBlocksPerOverlap = 10;
 
     @Parameter(description = "Use user supplied range and azimuth shifts", defaultValue = "false",
-            label = "Use user supplied shifts")
+            label = "Use user supplied shifts (please enter them below)")
     private boolean useSuppliedShifts = false;
 
     @Parameter(description = "The overall azimuth shift", defaultValue = "0.0",
@@ -224,6 +224,7 @@ public class SpectralDiversityOp extends Operator {
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
+            //System.out.println("SpectralDiversityOp.initialize: targetProduct name = " + targetProduct.getName());
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -241,6 +242,9 @@ public class SpectralDiversityOp extends Operator {
         if (slaveElem == null) {
             slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
         }
+        if (slaveElem == null) {
+            throw new OperatorException("Product must be coregistered (missing Slave_Metadata in Metadata)");
+        }
         MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
             if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
@@ -248,28 +252,45 @@ public class SpectralDiversityOp extends Operator {
         }
     }
 
+    // input:
+    // tag is either  "_mst" or "_slv". For differentiating master and slave bands in the product
+    // root is Abstracted_Metadata for tag "_mst" and one of the slave meta data under Slave_Metadata for tag "_slv"
+    // product is sourceProduct
+    // output:
+    // map is either masterMap (for  tag "_mst") or slaveMap (tag "_slv")
     private void metaMapPut(final String tag,
                             final MetadataElement root,
                             final Product product,
                             final Map<String, CplxContainer> map) throws Exception {
 
+        // There is really just one subswath, i.e., subSwathNames.length() is 1
+        // Polarization can be 1 or more
+        // "ABS_ORBIT" is from root so it is expected to be unique for each master and slave product?
+        // Say #polarizations is N and # slaves is M.
+        // We are expecting to have only N elements (one element for each pol) in masterMap and
+        // N*M elements in the slaveMap?
         for (String swath : subSwathNames) {
+            // Can swath ever be empty??
             final String subswath = swath.isEmpty() ? "" : '_' + swath.toUpperCase();
 
             for (String polarisation : polarizations) {
                 final String pol = polarisation.isEmpty() ? "" : '_' + polarisation.toUpperCase();
 
                 String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
+                //System.out.println("SpectralDiversityOp.metaMapPut: tag = " + tag + "; mapKey = " + mapKey);
 
                 final String date = OperatorUtils.getAcquisitionDate(root);
                 final SLCImage meta = new SLCImage(root, product);
 
+                // Set Multilook factor
                 meta.setMlAz(1);
                 meta.setMlRg(1);
 
                 Band bandReal = null;
                 Band bandImag = null;
                 for (String bandName : product.getBandNames()) {
+                    // When looking for the master band, tag is sufficient
+                    // date is needed to pick the correct slave band
                     if (bandName.contains(tag) && bandName.contains(date)) {
                         if (subswath.isEmpty() || bandName.contains(subswath)) {
                             if (pol.isEmpty() || bandName.contains(pol)) {
@@ -284,6 +305,7 @@ public class SpectralDiversityOp extends Operator {
                     }
                 }
                 if(bandReal != null && bandImag != null) {
+                    //System.out.println("SpectralDiversityOp.metaMapPut: tag = " + tag + "; mapKey = " + mapKey + " add to map");
                     map.put(mapKey, new CplxContainer(date, meta, null, bandReal, bandImag));
                 }
             }
@@ -299,6 +321,7 @@ public class SpectralDiversityOp extends Operator {
                 if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
                     final String productName = keyMaster + '_' + keySlave;
                     final ProductContainer product = new ProductContainer(productName, master, slave, true);
+                    //System.out.println("SpectralDiversityOp.constructTargetMetadata: productName = " + productName + " add to map");
                     targetMap.put(productName, product);
                 }
             }
@@ -363,6 +386,7 @@ public class SpectralDiversityOp extends Operator {
             final CplxContainer master = targetMap.get(key).sourceMaster;
             final CplxContainer slave = targetMap.get(key).sourceSlave;
             final String mstSlvTag = getMasterSlavePairTag(master, slave);
+            //System.out.println("SpectralDiversityOp.updateTargetMetadata: mstSlvTag = " + mstSlvTag);
 
             final MetadataElement mstSlvTagElem = new MetadataElement(mstSlvTag);
             final MetadataElement OverallRgAzShiftElem = new MetadataElement("Overall_Range_Azimuth_Shift");
@@ -458,6 +482,7 @@ public class SpectralDiversityOp extends Operator {
             return;
         }
 
+        // Each subswath can have its own number of bursts but we are dealing with only one subswath anyways
         final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
@@ -465,6 +490,7 @@ public class SpectralDiversityOp extends Operator {
 
         final ThreadManager threadManager = new ThreadManager();
         try {
+            // for each slave and pol combination
             for (String key : targetMap.keySet()) {
                 final List<Double> azOffsetArray = new ArrayList<>(numBursts);
                 final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
@@ -645,6 +671,7 @@ public class SpectralDiversityOp extends Operator {
                 final Band sBandI = slave.realBand;
                 final Band sBandQ = slave.imagBand;
 
+                // todo Can this not be computed just once outside of loop? Does its value ever change?
                 final double spectralSeparation = computeSpectralSeparation();
 
                 final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
@@ -1311,8 +1338,6 @@ public class SpectralDiversityOp extends Operator {
                 p.close();
         }
     }
-
-
 
     private static class AzimuthShiftData {
         int overlapIndex;

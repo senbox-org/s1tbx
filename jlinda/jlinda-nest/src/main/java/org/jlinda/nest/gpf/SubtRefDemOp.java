@@ -599,6 +599,17 @@ public final class SubtRefDemOp extends Operator {
     }
 
     public static TopoPhase computeTopoPhase(
+            final ProductContainer product, final Window tileWindow, final DemTile demTile, final boolean outputDEM, final boolean outputLatLon) {
+
+        final SLCImage mstMetaData = product.sourceMaster.metaData;
+        final Orbit mstOrbit = product.sourceMaster.orbit;
+        final SLCImage slvMetaData = product.sourceSlave.metaData;
+        final Orbit slvOrbit = product.sourceSlave.orbit;
+
+        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM, outputLatLon);
+    }
+
+    public static TopoPhase computeTopoPhase(
             final ProductContainer product, final Window tileWindow, final DemTile demTile, final boolean outputDEM) {
 
         final SLCImage mstMetaData = product.sourceMaster.metaData;
@@ -606,19 +617,25 @@ public final class SubtRefDemOp extends Operator {
         final SLCImage slvMetaData = product.sourceSlave.metaData;
         final Orbit slvOrbit = product.sourceSlave.orbit;
 
-        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM);
+        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM, false);
     }
 
     public static TopoPhase computeTopoPhase(
             final SLCImage mstMetaData, final Orbit mstOrbit, final SLCImage slvMetaData, final Orbit slvOrbit,
             final Window tileWindow, final DemTile demTile, final boolean outputDEM) {
+        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM, false);
+    }
+
+    public static TopoPhase computeTopoPhase(
+            final SLCImage mstMetaData, final Orbit mstOrbit, final SLCImage slvMetaData, final Orbit slvOrbit,
+            final Window tileWindow, final DemTile demTile, final boolean outputDEM, final boolean outputLatLon) {
 
         try {
             final TopoPhase topoPhase = new TopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile);
 
             topoPhase.radarCode();
 
-            topoPhase.gridData(outputDEM);
+            topoPhase.gridData(outputDEM, outputLatLon);
 
             return topoPhase;
 

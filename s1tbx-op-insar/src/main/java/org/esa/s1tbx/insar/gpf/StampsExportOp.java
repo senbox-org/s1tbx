@@ -99,7 +99,7 @@ public class StampsExportOp extends Operator {
     public void initialize() throws OperatorException {
         try {
             if (sourceProduct.length != 2) {
-                throw new OperatorException("Input requires a coregistered stack and at least 4 interferograms");
+                throw new OperatorException("Input requires a coregistered stack (1st product) and an interferogram product of at least 4 interferograms");
             }
 
             if(!psiFormat) {
@@ -121,6 +121,20 @@ public class StampsExportOp extends Operator {
             validator2.checkIfSLC();
             validator2.checkIfTOPSARBurstProduct(false);
 
+            // First product should be stack product
+            String bandnames[] = sourceProduct[0].getBandNames();
+            boolean foundmst = false;
+            for (int i = 0; i < bandnames.length; i++) {
+                if (bandnames[i].toLowerCase().contains("mst")) {
+                    foundmst = true;
+                    break;
+                }
+            }
+            if (!foundmst) {
+                throw new OperatorException("The 1st product should be a stack of coregistered SLC products, the 2nd should be interferogram");
+            }
+
+
             if (targetFolder == null) {
                 throw new OperatorException("Please add a target folder");
             }
@@ -138,6 +152,8 @@ public class StampsExportOp extends Operator {
             ProductUtils.copyProductNodes(sourceProduct[1], targetProduct);
 
             boolean includesElevation = false;
+            boolean includesLat = false;
+            boolean includesLon = false;
             for (Product aSourceProduct : sourceProduct) {
 
                 for (Band srcBand : aSourceProduct.getBands()) {
@@ -170,6 +186,22 @@ public class StampsExportOp extends Operator {
                         includesElevation = true;
 
                         //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
+                    } else if (srcBandName.equals("orthorectifiedLat") || srcBandName.equals("orthorectifiedLon")) {
+                        final String masterDateStr = extractDate(sourceProduct[0].getBandAt(0).getName(), FOLDERS.GEO);
+                        String targetBandName = masterDateStr;
+                        if (srcBandName.equals("orthorectifiedLat")) {
+                            targetBandName = targetBandName + ".lat";
+                            includesLat = true;
+                        } else {
+                            targetBandName = targetBandName + ".lon";
+                            includesLon = true;
+                        }
+                        final Band targetBand = ProductUtils.copyBand(
+                                srcBandName, aSourceProduct, targetBandName, targetProduct, true);
+                        tgtBandToInfoMap.put(targetBand, new WriterInfo(
+                                folder[FOLDERS.GEO.ordinal()], targetBandName, targetProduct));
+                    } else if (srcBandName.equals("orthorectifiedLon")) {
+
                     }
                 }
             }
@@ -179,21 +211,13 @@ public class StampsExportOp extends Operator {
             projectedDEMInfo = new WriterInfo(
                     folder[FOLDERS.DEM.ordinal()], projectedDEMName, projectedDEM.getTargetProduct());
 
-            final String masterDateStr = extractDate(sourceProduct[0].getBandAt(0).getName(), FOLDERS.GEO);
-            final String latBandName = masterDateStr + ".lat";
-            final String lonBandName = masterDateStr + ".lon";
-            latBand = targetProduct.addBand(latBandName, ProductData.TYPE_FLOAT32);
-            lonBand = targetProduct.addBand(lonBandName, ProductData.TYPE_FLOAT32);
-
-            latGrid = OperatorUtils.getLatitude(sourceProduct[0]);
-            lonGrid = OperatorUtils.getLongitude(sourceProduct[0]);
-
-            latInfo = new WriterInfo(folder[FOLDERS.GEO.ordinal()], latBandName, targetProduct);
-            lonInfo = new WriterInfo(folder[FOLDERS.GEO.ordinal()], lonBandName, targetProduct);
-
             if (!includesElevation) {
                 throw new OperatorException(
                         "Elevation band required. Please add an elevation band to the interferogram product.");
+            }
+            if (!includesLat || !includesLon) {
+                throw new OperatorException(
+                        "Orthorectified lat/lon bands required. Please add the bands to the interferogram product.");
             }
 
         } catch (Throwable t) {
@@ -245,25 +269,6 @@ public class StampsExportOp extends Operator {
                 } else {
                     throw new OperatorException(e);
                 }
-            }
-        }
-
-        try {
-            writeHeader(latInfo);
-            writeHeader(lonInfo);
-
-            final ProductData latSamples = latGrid.getRasterData();
-            latInfo.productWriter.writeBandRasterData(latBand, targetRectangle.x, targetRectangle.y,
-                    targetRectangle.width, targetRectangle.height, latSamples, ProgressMonitor.NULL);
-
-            final ProductData lonSamples = lonGrid.getRasterData();
-            lonInfo.productWriter.writeBandRasterData(lonBand, targetRectangle.x, targetRectangle.y,
-                    targetRectangle.width, targetRectangle.height, lonSamples, ProgressMonitor.NULL);
-        } catch (Exception e) {
-            if (e instanceof OperatorException) {
-                throw (OperatorException) e;
-            } else {
-                throw new OperatorException(e);
             }
         }
 

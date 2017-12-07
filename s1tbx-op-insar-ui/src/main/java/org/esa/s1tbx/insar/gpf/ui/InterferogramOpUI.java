@@ -50,6 +50,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
     private final JCheckBox squarePixelCheckBox = new JCheckBox("Square Pixel");
     private final JCheckBox independentWindowSizeCheckBox = new JCheckBox("Independent Window Sizes");
     private final JCheckBox outputElevationCheckBox = new JCheckBox("Output Elevation");
+    private final JCheckBox outputLatLonCheckBox = new JCheckBox("Output Orthorectified Lat/Lon");
 
     private final JTextField cohWinAz = new JTextField("");
     private final JTextField cohWinRg = new JTextField("");
@@ -69,6 +70,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
     private Boolean squarePixel = true;
     private final CoherenceOp.DerivedParams param = new CoherenceOp.DerivedParams();
     private Boolean outputElevation = false;
+    private Boolean outputLatLon = false;
 
     private Boolean subtractTopographicPhase = false;
     private static final String[] demValueSet = DEMFactory.getDEMNameList();
@@ -161,10 +163,12 @@ public class InterferogramOpUI extends BaseOperatorUI {
                     demName.setEnabled(true);
                     tileExtensionPercent.setEnabled(true);
                     outputElevationCheckBox.setEnabled(true);
+                    outputLatLonCheckBox.setEnabled(true);
                 } else {
                     demName.setEnabled(false);
                     tileExtensionPercent.setEnabled(false);
                     outputElevationCheckBox.setEnabled(false);
+                    outputLatLonCheckBox.setEnabled(false);
                 }
             }
         });
@@ -207,6 +211,12 @@ public class InterferogramOpUI extends BaseOperatorUI {
         outputElevationCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 outputElevation = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
+        outputLatLonCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputLatLon = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -328,6 +338,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
             }
             paramMap.put("tileExtensionPercent", tileExtensionPercent.getSelectedItem());
             paramMap.put("outputElevation", outputElevation);
+            paramMap.put("outputLatLon", outputLatLon);
         }
 
         paramMap.put("includeCoherence", includeCoherence);
@@ -383,10 +394,13 @@ public class InterferogramOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Tile Extension [%]", tileExtensionPercent);
         gbc.gridy++;
         contentPane.add(outputElevationCheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(outputLatLonCheckBox, gbc);
 
         demName.setEnabled(false);
         tileExtensionPercent.setEnabled(false);
         outputElevationCheckBox.setEnabled(false);
+        outputLatLonCheckBox.setEnabled(false);
 
         gbc.gridy++;
         contentPane.add(includeCoherenceCheckBox, gbc);
