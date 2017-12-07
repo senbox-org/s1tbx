@@ -248,6 +248,21 @@ public class InterferogramOpUI extends BaseOperatorUI {
             subtractTopographicPhaseCheckBox.setSelected(subtractTopographicPhase);
         }
 
+        paramVal = (Boolean) paramMap.get("outputElevation");
+        if (paramVal != null) {
+            outputElevation = paramVal;
+        }
+        outputElevationCheckBox.setSelected(outputElevation);
+        outputElevationCheckBox.setEnabled(subtractTopographicPhase);
+
+        paramVal = (Boolean) paramMap.get("outputLatLon");
+        if (paramVal != null) {
+            outputLatLon = paramVal;
+        }
+        outputLatLonCheckBox.setSelected(outputLatLon);
+        outputLatLonCheckBox.setEnabled(subtractTopographicPhase);
+
+
 //        orbitDegree.setText(String.valueOf(paramMap.get("orbitDegree")));
         final String demNameParam = (String) paramMap.get("demName");
         if (demNameParam != null) {
