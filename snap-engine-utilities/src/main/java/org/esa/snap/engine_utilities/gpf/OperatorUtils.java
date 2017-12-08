@@ -429,7 +429,7 @@ public final class OperatorUtils {
         }
 
         System.out.println(message);
-        throw new OperatorException(message);
+        throw new OperatorException(message, e);
     }
 
     /**
