@@ -273,6 +273,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
                 demName.setSelectedItem(demNameParam);
             }
         }
+        demName.setEnabled(subtractTopographicPhase);
 
         final File extFile = (File)paramMap.get("externalDEMFile");
         if(extFile != null) {
@@ -290,6 +291,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
         }
 
         tileExtensionPercent.setSelectedItem(paramMap.get("tileExtensionPercent"));
+        tileExtensionPercent.setEnabled(subtractTopographicPhase);
 
         paramVal = (Boolean) paramMap.get("includeCoherence");
         if (paramVal != null) {
