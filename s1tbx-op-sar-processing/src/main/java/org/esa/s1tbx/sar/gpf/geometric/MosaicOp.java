@@ -251,15 +251,22 @@ public class MosaicOp extends Operator {
             }
         }
 
+        final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * Constants.RTOD;
+        double pixelSizeX = pixelSize;
+        double pixelSizeY = pixelSize;
+        if (targetCRS.getName().getCode().equals("WGS84(DD)") || targetCRS.getName().getCode().equals("WGS 84")) {
+            pixelSizeX = pixelSpacingInDegree;
+            pixelSizeY = pixelSpacingInDegree;
+        }
+
         final Rectangle2D bounds = new Rectangle2D.Double();
         bounds.setFrameFromDiagonal(scnProp.lonMin, scnProp.latMin, scnProp.lonMax, scnProp.latMax);
         final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
         final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true);
-        final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * Constants.RTOD;
 
         if (sceneWidth == 0 || sceneHeight == 0) {
-            sceneWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSpacingInDegree);
-            sceneHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSpacingInDegree);
+            sceneWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSizeX);
+            sceneHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSizeY);
         }
 
         return new CrsGeoCoding(targetCRS,
@@ -267,7 +274,7 @@ public class MosaicOp extends Operator {
                 sceneHeight,
                 targetEnvelope.getMinimum(0),
                 targetEnvelope.getMaximum(1),
-                pixelSpacingInDegree, pixelSpacingInDegree);
+                pixelSizeX, pixelSizeY);
 
         /*
         final CoordinateReferenceSystem srcCRS = srcGeocoding.getMapCRS();
