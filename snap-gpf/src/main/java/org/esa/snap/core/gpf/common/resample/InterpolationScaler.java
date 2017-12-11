@@ -8,7 +8,6 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.apache.commons.math3.util.Precision;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
-import org.esa.snap.core.util.jai.JAIUtils;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
@@ -28,11 +27,12 @@ import java.awt.image.RenderedImage;
  */
 class InterpolationScaler {
 
-    static MultiLevelImage scaleMultiLevelImage(int masterWidth, int masterHeight,
+    static MultiLevelImage scaleMultiLevelImage(int masterWidth, int masterHeight, Dimension tileSize,
                                                        MultiLevelModel masterMultiLevelModel, MultiLevelImage sourceImage,
                                                        float[] scalings, RenderingHints renderingHints,
                                                        double noDataValue, Interpolation interpolation) {
         final ScaledMultiLevelSource multiLevelSource = new ScaledMultiLevelSource(masterWidth, masterHeight,
+                                                                                   tileSize,
                                                                                    masterMultiLevelModel,
                                                                                    sourceImage,
                                                                                    scalings, renderingHints,
@@ -54,11 +54,13 @@ class InterpolationScaler {
         private static double EPSILON = 1E-12;
         private final Dimension tileSize;
 
-        private ScaledMultiLevelSource(int masterWidth, int masterHeight, MultiLevelModel masterMultiLevelModel,
+        private ScaledMultiLevelSource(int masterWidth, int masterHeight, Dimension tileSize,
+                                       MultiLevelModel masterMultiLevelModel,
                                        MultiLevelImage sourceImage, float[] scalings, RenderingHints renderingHints,
                                        double noDataValue, Interpolation interpolation) {
-            super(new DefaultMultiLevelModel(masterMultiLevelModel.getLevelCount(), new AffineTransform(), masterWidth, masterHeight));
-            tileSize = JAIUtils.computePreferredTileSize(masterWidth, masterHeight, 1);
+            super(new DefaultMultiLevelModel(masterMultiLevelModel.getLevelCount(), new AffineTransform(),
+                                             masterWidth, masterHeight));
+            this.tileSize = tileSize;
             this.sourceImage = sourceImage;
             this.scalings = scalings;
             this.renderingHints = renderingHints;

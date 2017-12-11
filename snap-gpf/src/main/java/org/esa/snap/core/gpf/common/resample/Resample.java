@@ -15,6 +15,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -30,12 +31,15 @@ public class Resample {
     enum Type {FIRST, MIN, MAX, MEDIAN, MEAN, MIN_MEDIAN, MAX_MEDIAN}
 
     public static MultiLevelImage createInterpolatedMultiLevelImage(MultiLevelImage sourceImage, double noDataValue,
-                                                             AffineTransform sourceImageToModelTransform,
-                                                             final int referenceWidth, int referenceHeight,
-                                                             MultiLevelModel referenceMultiLevelModel, Interpolation interpolation) {
+                                                                    AffineTransform sourceImageToModelTransform,
+                                                                    final int referenceWidth, int referenceHeight,
+                                                                    Dimension tileSize,
+                                                                    MultiLevelModel referenceMultiLevelModel,
+                                                                    Interpolation interpolation) {
         final RenderingHints targetHints = getRenderingHints(noDataValue);
         final float[] scalings = getScalings(sourceImageToModelTransform, referenceMultiLevelModel);
-        return InterpolationScaler.scaleMultiLevelImage(referenceWidth, referenceHeight, referenceMultiLevelModel, sourceImage,
+        return InterpolationScaler.scaleMultiLevelImage(referenceWidth, referenceHeight, tileSize,
+                                                        referenceMultiLevelModel, sourceImage,
                                                         scalings, targetHints, noDataValue, interpolation);
     }
 

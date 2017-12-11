@@ -464,7 +464,7 @@ public class ResamplingOp extends Operator {
             interpolation = getInterpolation();
         }
         return Resample.createInterpolatedMultiLevelImage(sourceImage, noDataValue, sourceImageToModelTransform,
-                                                          referenceWidth, referenceHeight,
+                                                          referenceWidth, referenceHeight, referenceTileSize,
                                                           referenceMultiLevelModel, interpolation);
     }
 
