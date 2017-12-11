@@ -131,6 +131,7 @@ public class ResamplingOp extends Operator {
 
     private int referenceWidth;
     private int referenceHeight;
+    private Dimension referenceTileSize;
     private AffineTransform referenceImageToModelTransform;
     private MultiLevelModel referenceMultiLevelModel;
 
@@ -154,6 +155,7 @@ public class ResamplingOp extends Operator {
         copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+        targetProduct.setPreferredTileSize(referenceTileSize);
     }
 
     private void transferGeoCoding(Product targetProduct) {
@@ -501,7 +503,6 @@ public class ResamplingOp extends Operator {
             type = aggregationType;
         }
         MultiLevelSource source;
-        final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
         if (resampleOnPyramidLevels) {
             float[] scalings = new float[2];
             scalings[0] = sourceImage.getWidth() / referenceWidth;
@@ -518,7 +519,7 @@ public class ResamplingOp extends Operator {
                     final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
                                                                                                referenceWidth,
                                                                                                referenceHeight,
-                                                                                               tileSize,
+                                                                                               referenceTileSize,
                                                                                                resolutionLevel);
                     try {
                         return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue,
@@ -534,7 +535,7 @@ public class ResamplingOp extends Operator {
             try {
                 final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
                                                                                            referenceWidth, referenceHeight,
-                                                                                           tileSize,
+                                                                                           referenceTileSize,
                                                                                            ResolutionLevel.MAXRES);
                 final RenderedImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue, type, dataBufferType,
                                                                   sourceImage.getModel().getImageToModelTransform(0),
@@ -589,6 +590,7 @@ public class ResamplingOp extends Operator {
             referenceHeight = referenceBand.getRasterHeight();
             referenceImageToModelTransform = referenceBand.getImageToModelTransform();
             referenceMultiLevelModel = referenceBand.getMultiLevelModel();
+            referenceTileSize = sourceProduct.getPreferredTileSize();
         } else if (targetWidth != null && targetHeight != null) {
             referenceWidth = targetWidth;
             referenceHeight = targetHeight;
@@ -604,6 +606,10 @@ public class ResamplingOp extends Operator {
                 referenceImageToModelTransform = new AffineTransform(scaleX, 0, 0, scaleY, 0, 0);
             }
             referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
+            Dimension sourceTileSize = sourceProduct.getPreferredTileSize();
+            if (sourceTileSize != null) {
+                referenceTileSize = new Dimension((int)(sourceTileSize.width / scaleX), (int)(sourceTileSize.height / scaleY));
+            }
         } else {
             final MathTransform imageToMapTransform = sourceProduct.getSceneGeoCoding().getImageToMapTransform();
             if (imageToMapTransform instanceof AffineTransform) {
@@ -613,9 +619,18 @@ public class ResamplingOp extends Operator {
                 referenceImageToModelTransform = new AffineTransform(targetResolution, 0, 0, -targetResolution,
                                                                      mapTransform.getTranslateX(), mapTransform.getTranslateY());
                 referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
+                Dimension sourceTileSize = sourceProduct.getPreferredTileSize();
+                if (sourceTileSize != null) {
+                    referenceTileSize = new Dimension(
+                            (int) ((double)sourceTileSize.width * referenceWidth / sourceProduct.getSceneRasterWidth()), 
+                            (int) ((double)sourceTileSize.height * referenceHeight / sourceProduct.getSceneRasterHeight()));
+                }
             } else {
                 throw new OperatorException("Use of target resolution parameter is not possible for this source product.");
             }
+        }
+        if (referenceTileSize == null) {
+            referenceTileSize = JAIUtils.computePreferredTileSize(referenceWidth, referenceHeight, 1);
         }
     }
 
