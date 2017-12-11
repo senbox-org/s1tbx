@@ -96,6 +96,9 @@ public final class SubtRefDemOp extends Operator {
     @Parameter(description = "Output elevation band.", defaultValue = "false", label = "Output elevation band")
     private Boolean outputElevationBand = false;
 
+    @Parameter(description = "Output lat/lon bands.", defaultValue = "false", label = "Output lat/lon band")
+    private Boolean outputLatLonBands = false;
+
     private ElevationModel dem = null;
     private double demNoDataValue = 0;
     private double demSamplingLat;
@@ -141,6 +144,9 @@ public final class SubtRefDemOp extends Operator {
 
             if(outputElevationBand == null)
                 outputElevationBand = false;
+
+            if (outputLatLonBands == null)
+                outputLatLonBands = false;
 
             constructSourceMetadata();
             constructTargetMetadata();
@@ -230,6 +236,17 @@ public final class SubtRefDemOp extends Operator {
             Band elevBand = targetProduct.getBand("elevation");
             if(elevBand != null) {
                 elevBand.setNoDataValue(demNoDataValue);
+            }
+        }
+
+        if (outputLatLonBands) {
+            Band latBand = targetProduct.getBand("orthorectifiedLat");
+            if (latBand != null) {
+               latBand.setNoDataValue(Double.NaN);
+            }
+            Band lonBand = targetProduct.getBand("orthorectifiedLon");
+            if (lonBand != null) {
+                lonBand.setNoDataValue(Double.NaN);
             }
         }
 
@@ -423,6 +440,27 @@ public final class SubtRefDemOp extends Operator {
             elevBand.setUnit(Unit.METERS);
             elevBand.setDescription("elevation");
         }
+
+        if (outputLatLonBands) {
+            Band latBand = targetProduct.addBand("orthorectifiedLat", ProductData.TYPE_FLOAT32);
+            latBand.setNoDataValue(Double.NaN);
+            latBand.setNoDataValueUsed(true);
+            latBand.setUnit(Unit.DEGREES);
+            latBand.setDescription("Orthorectified latitude");
+            Band lonBand = targetProduct.addBand("orthorectifiedLon", ProductData.TYPE_FLOAT32);
+            lonBand.setNoDataValue(Double.NaN);
+            lonBand.setNoDataValueUsed(true);
+            lonBand.setUnit(Unit.DEGREES);
+            lonBand.setDescription("Orthorectified longitude");
+        }
+    }
+
+    private static void convertToDegree(double[][] a) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[i].length; j++) {
+                  a[i][j] = a[i][j] * 180.0/Math.PI;
+            }
+        }
     }
 
     /**
@@ -456,13 +494,13 @@ public final class SubtRefDemOp extends Operator {
                 return;
             }
 
-            Band topoPhaseBand, targetBand_I, targetBand_Q, elevBand;
+            Band topoPhaseBand, targetBand_I, targetBand_Q, elevBand, latBand, lonBand;
 
             for (String ifgKey : targetMap.keySet()) {
 
                 ProductContainer product = targetMap.get(ifgKey);
 
-                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputElevationBand);
+                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputElevationBand, outputLatLonBands);
 
                 Tile tileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
                 Tile tileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
@@ -492,6 +530,17 @@ public final class SubtRefDemOp extends Operator {
                     elevBand = targetProduct.getBand("elevation");
                     Tile tileElevBand = targetTileMap.get(elevBand);
                     TileUtilsDoris.pushDoubleArray2D(topoPhase.elevation, tileElevBand, targetRectangle);
+                }
+
+                if (outputLatLonBands) {
+                    latBand = targetProduct.getBand("orthorectifiedLat");
+                    Tile tileLatBand = targetTileMap.get(latBand);
+                    convertToDegree(topoPhase.latitude);
+                    TileUtilsDoris.pushDoubleArray2D(topoPhase.latitude, tileLatBand, targetRectangle);
+                    lonBand = targetProduct.getBand("orthorectifiedLon");
+                    Tile tileLonBand = targetTileMap.get(lonBand);
+                    convertToDegree(topoPhase.longitude);
+                    TileUtilsDoris.pushDoubleArray2D(topoPhase.longitude, tileLonBand, targetRectangle);
                 }
             }
 

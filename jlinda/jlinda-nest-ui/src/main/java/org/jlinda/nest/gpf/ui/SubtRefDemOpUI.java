@@ -39,6 +39,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
 
     private final JCheckBox outputTopoPhaseBand = new JCheckBox("Output topographic phase band");
     private final JCheckBox outputElevationBand = new JCheckBox("Output elevation band");
+    private final JCheckBox outputLatLonBands = new JCheckBox("Output orthorectified Lat/Lon bands");
 
     private Double extNoDataValue = 0.0;
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
@@ -117,6 +118,11 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         if(outputElevation != null) {
             outputElevationBand.setSelected(outputElevation);
         }
+
+        Boolean outputLatLon = (Boolean)paramMap.get("outputLatLonBands");
+        if (outputLatLon != null) {
+            outputLatLonBands.setSelected(outputLatLon);
+        }
     }
 
     @Override
@@ -137,6 +143,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
 
         paramMap.put("outputTopoPhaseBand", outputTopoPhaseBand.isSelected());
         paramMap.put("outputElevationBand", outputElevationBand.isSelected());
+        paramMap.put("outputLatLonBands", outputLatLonBands.isSelected());
     }
 
     private JComponent createPanel() {
@@ -165,6 +172,9 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         gbc.gridy++;
 
         DialogUtils.addComponent(contentPane, gbc, "", outputElevationBand);
+        gbc.gridy++;
+
+        DialogUtils.addComponent(contentPane, gbc, "", outputLatLonBands);
         gbc.gridy++;
 
         DialogUtils.fillPanel(contentPane, gbc);
