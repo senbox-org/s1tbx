@@ -933,7 +933,7 @@ public class InterferogramOp extends Operator {
 
                 if (subtractTopographicPhase) {
                     final TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                            product, tileWindow, demTile, outputElevation, outputLatLon);
+                            product, tileWindow, demTile, outputElevation, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -950,7 +950,10 @@ public class InterferogramOp extends Operator {
                     }
 
                     if (outputLatLon) {
-                        saveLatLon(x0, xN, y0, yN, topoPhase.latitude, topoPhase.longitude, product, targetTileMap);
+                        final TopoPhase topoPhase1 = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                                product, tileWindow, demTile, false, true);
+
+                        saveLatLon(x0, xN, y0, yN, topoPhase1.latitude, topoPhase1.longitude, product, targetTileMap);
                     }
                 }
 
@@ -1355,7 +1358,7 @@ public class InterferogramOp extends Operator {
 
                 if (subtractTopographicPhase) {
                     TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
-                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, outputElevation, outputLatLon);
+                            mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, outputElevation, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
@@ -1372,7 +1375,10 @@ public class InterferogramOp extends Operator {
                     }
 
                     if (outputLatLon) {
-                        saveLatLon(x0, xN, y0, yN, topoPhase.latitude, topoPhase.longitude, product, targetTileMap);
+                        TopoPhase topoPhase1 = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                                mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, false, true);
+
+                        saveLatLon(x0, xN, y0, yN, topoPhase1.latitude, topoPhase1.longitude, product, targetTileMap);
                     }
                 }
 
