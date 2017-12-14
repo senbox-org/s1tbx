@@ -6,7 +6,6 @@ import com.bc.ceres.jai.GeneralFilterFunction;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Kernel;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.util.jai.JAIUtils;
 import org.geotools.resources.XArray;
 
 import javax.media.jai.BorderExtender;
@@ -32,16 +31,6 @@ public class Resample {
     enum Type {FIRST, MIN, MAX, MEDIAN, MEAN, MIN_MEDIAN, MAX_MEDIAN}
 
     public static MultiLevelImage createInterpolatedMultiLevelImage(MultiLevelImage sourceImage, double noDataValue,
-                                                                    AffineTransform sourceImageToModelTransform,
-                                                                    final int referenceWidth, int referenceHeight,
-                                                                    MultiLevelModel referenceMultiLevelModel,
-                                                                    Interpolation interpolation) {
-        final Dimension tileSize = JAIUtils.computePreferredTileSize(referenceWidth, referenceHeight, 1);
-        return createInterpolatedMultiLevelImage(sourceImage, noDataValue, sourceImageToModelTransform, referenceWidth,
-                                                 referenceHeight, tileSize, referenceMultiLevelModel, interpolation);
-    }
-
-    static MultiLevelImage createInterpolatedMultiLevelImage(MultiLevelImage sourceImage, double noDataValue,
                                                              AffineTransform sourceImageToModelTransform,
                                                              final int referenceWidth, int referenceHeight,
                                                              Dimension tileSize,
