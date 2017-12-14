@@ -355,8 +355,8 @@ public class ResamplingOp extends Operator {
                 }
                 if (referenceWidth <= sourceBand.getRasterWidth() && referenceHeight <= sourceBand.getRasterHeight()) {
                     targetImage = createAggregatedImage(sourceImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                        sourceBand.isFlagBand(), referenceMultiLevelModel,
-                                                        referenceWidth, referenceHeight);
+                                                        sourceBand.isFlagBand(), referenceMultiLevelModel
+                    );
                 } else if (referenceWidth >= sourceBand.getRasterWidth() && referenceHeight >= sourceBand.getRasterHeight()) {
                     targetImage = createInterpolatedImage(sourceImage, sourceBand.getNoDataValue(), sourceBand.getImageToModelTransform(),
                                                           sourceBand.isFlagBand() || sourceBand.isIndexBand());
@@ -367,8 +367,8 @@ public class ResamplingOp extends Operator {
                     final DefaultMultiLevelModel intermediateMultiLevelModel =
                             new DefaultMultiLevelModel(intermediateTransform, referenceWidth, sourceBand.getRasterHeight());
                     targetImage = createAggregatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                        sourceBand.isFlagBand(), intermediateMultiLevelModel,
-                                                        referenceWidth, sourceBand.getRasterHeight());
+                                                        sourceBand.isFlagBand(), intermediateMultiLevelModel
+                    );
                     targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
                                                           intermediateTransform,
                                                           sourceBand.isFlagBand() || sourceBand.isIndexBand());
@@ -379,8 +379,8 @@ public class ResamplingOp extends Operator {
                     final DefaultMultiLevelModel intermediateMultiLevelModel =
                             new DefaultMultiLevelModel(intermediateTransform, sourceBand.getRasterWidth(), referenceHeight);
                     targetImage = createAggregatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                        sourceBand.isFlagBand(), intermediateMultiLevelModel,
-                                                        sourceBand.getRasterWidth(), referenceHeight);
+                                                        sourceBand.isFlagBand(), intermediateMultiLevelModel
+                    );
                     targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
                                                           intermediateTransform,
                                                           sourceBand.isFlagBand() || sourceBand.isIndexBand());
@@ -488,8 +488,7 @@ public class ResamplingOp extends Operator {
     }
 
     private MultiLevelImage createAggregatedImage(MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
-                                                  boolean isFlagBand, MultiLevelModel referenceModel,
-                                                  int targetWidth, int targetHeight) {
+                                                  boolean isFlagBand, MultiLevelModel referenceModel) {
         AggregationType type;
         if (isFlagBand) {
             if (flagAggregationType == null) {
@@ -504,9 +503,6 @@ public class ResamplingOp extends Operator {
         }
         MultiLevelSource source;
         if (resampleOnPyramidLevels) {
-            float[] scalings = new float[2];
-            scalings[0] = sourceImage.getWidth() / referenceWidth;
-            scalings[1] = sourceImage.getHeight() / referenceHeight;
             source = new AbstractMultiLevelSource(referenceModel) {
                 @Override
                 protected RenderedImage createImage(int targetLevel) {
@@ -548,40 +544,6 @@ public class ResamplingOp extends Operator {
         return new DefaultMultiLevelImage(source);
     }
 
-    //todo remove code duplication with sourceimagescaler - tf 20160314
-    private int findBestSourceLevel(double targetScale, MultiLevelModel sourceModel, float[] scalings) {
-            /*
-             * Find the source level such that the final scaling factor is the closest to 1.0
-             *
-             * Example : When scaling a 20m resolution image to 10m resolution,
-             * when generating the level 1 image of the scaled image, we prefer using the source image data at level 0,
-             * since it will provide a better resolution than upscaling by 2 the source image data at level 1.
-             *
-             * We can't find the best on both X and Y directions if scaling factors are arbitrary, so we limit the
-             * search algorithm by optimizing only for the X direction.
-             * This will cover the most frequent use case where scaling factors in both directions are equal.
-             */
-        float optimizedScaling = 0;
-        int optimizedSourceLevel = 0;
-        boolean initialized = false;
-        for (int sourceLevel = 0; sourceLevel < sourceModel.getLevelCount(); sourceLevel++) {
-            final double sourceScale = sourceModel.getScale(sourceLevel);
-            final float scaleRatio = (float) (sourceScale / targetScale);
-            if (!initialized) {
-                optimizedScaling = scalings[0] * scaleRatio;
-                optimizedSourceLevel = sourceLevel;
-                initialized = true;
-            } else {
-                // We want to be as close to 1.0 as possible
-                if (Math.abs(1 - scalings[0] * scaleRatio) < Math.abs(1 - optimizedScaling)) {
-                    optimizedScaling = scalings[0] * scaleRatio;
-                    optimizedSourceLevel = sourceLevel;
-                }
-            }
-        }
-        return optimizedSourceLevel;
-    }
-
     private void setReferenceValues() {
         validateReferenceSettings();
         if (referenceBandName != null) {
@@ -590,7 +552,6 @@ public class ResamplingOp extends Operator {
             referenceHeight = referenceBand.getRasterHeight();
             referenceImageToModelTransform = referenceBand.getImageToModelTransform();
             referenceMultiLevelModel = referenceBand.getMultiLevelModel();
-            referenceTileSize = sourceProduct.getPreferredTileSize();
         } else if (targetWidth != null && targetHeight != null) {
             referenceWidth = targetWidth;
             referenceHeight = targetHeight;
@@ -606,10 +567,6 @@ public class ResamplingOp extends Operator {
                 referenceImageToModelTransform = new AffineTransform(scaleX, 0, 0, scaleY, 0, 0);
             }
             referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
-            Dimension sourceTileSize = sourceProduct.getPreferredTileSize();
-            if (sourceTileSize != null) {
-                referenceTileSize = new Dimension((int)(sourceTileSize.width / scaleX), (int)(sourceTileSize.height / scaleY));
-            }
         } else {
             final MathTransform imageToMapTransform = sourceProduct.getSceneGeoCoding().getImageToMapTransform();
             if (imageToMapTransform instanceof AffineTransform) {
@@ -619,16 +576,11 @@ public class ResamplingOp extends Operator {
                 referenceImageToModelTransform = new AffineTransform(targetResolution, 0, 0, -targetResolution,
                                                                      mapTransform.getTranslateX(), mapTransform.getTranslateY());
                 referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
-                Dimension sourceTileSize = sourceProduct.getPreferredTileSize();
-                if (sourceTileSize != null) {
-                    referenceTileSize = new Dimension(
-                            (int) ((double)sourceTileSize.width * referenceWidth / sourceProduct.getSceneRasterWidth()), 
-                            (int) ((double)sourceTileSize.height * referenceHeight / sourceProduct.getSceneRasterHeight()));
-                }
             } else {
                 throw new OperatorException("Use of target resolution parameter is not possible for this source product.");
             }
         }
+        referenceTileSize = sourceProduct.getPreferredTileSize();
         if (referenceTileSize == null) {
             referenceTileSize = JAIUtils.computePreferredTileSize(referenceWidth, referenceHeight, 1);
         }
@@ -659,7 +611,7 @@ public class ResamplingOp extends Operator {
     }
 
     //todo this method has been copied from ReprojectionOp. Find a common place? - tf 20160210
-    void validateInterpolationParameter() {
+    private void validateInterpolationParameter() {
         if (getInterpolationType() == -1) {
             throw new OperatorException("Invalid upsampling method: " + upsamplingMethod);
         }
