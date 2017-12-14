@@ -94,7 +94,7 @@ public class TopoPhase {
         this.rngAzRatio = rngAzRatio;
     }
 
-    public void radarCode() throws Exception {
+    public void radarCode(final boolean useInvalidIndex) throws Exception {
 
         //logger.info("Converting DEM to radar system for this tile.");
 
@@ -195,8 +195,13 @@ public class TopoPhase {
                     line = sarPoint.y;
                     pix = sarPoint.x;
 
-                    demRadarCode_y[i][j] = invalidIndex;//line;
-                    demRadarCode_x[i][j] = invalidIndex;//pix;
+                    if (useInvalidIndex) {
+                        demRadarCode_y[i][j] = invalidIndex;//line;
+                        demRadarCode_x[i][j] = invalidIndex;//pix;
+                    } else {
+                        demRadarCode_y[i][j] = line;
+                        demRadarCode_x[i][j] = pix;
+                    }
                     demRadarCode_phase[i][j] = 0;
                 }
 
@@ -295,6 +300,9 @@ public class TopoPhase {
             }
 
             if (includeDEM && includeLatLon) {
+                // This should never happen as elevation requires masking of sea pixels and
+                // lat/lon do not; but leave it here anyways. See comments in SubtRefDemOp.computeTopoPhase()
+                // that calls gridData().
                 data = new TriangleInterpolator.ZData[]{
                         new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
                         new TriangleInterpolator.ZData(demElevation, elevation),

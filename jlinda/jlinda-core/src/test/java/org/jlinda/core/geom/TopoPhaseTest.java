@@ -131,7 +131,7 @@ public class TopoPhaseTest {
 
         /* computation */
         long t0 = System.currentTimeMillis();
-        topoPhase.radarCode();
+        topoPhase.radarCode(true);
         long t1 = System.currentTimeMillis();
         logger.info("Data radarcoded in: " + (0.001 * (t1 - t0)) + " sec");
 

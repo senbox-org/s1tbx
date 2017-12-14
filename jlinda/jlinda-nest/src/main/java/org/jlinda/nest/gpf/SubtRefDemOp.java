@@ -500,7 +500,7 @@ public final class SubtRefDemOp extends Operator {
 
                 ProductContainer product = targetMap.get(ifgKey);
 
-                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputElevationBand, outputLatLonBands);
+                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputElevationBand, false);
 
                 Tile tileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
                 Tile tileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
@@ -533,14 +533,15 @@ public final class SubtRefDemOp extends Operator {
                 }
 
                 if (outputLatLonBands) {
+                    TopoPhase topoPhase1 = computeTopoPhase(product, tileWindow, demTile, false, true);
                     latBand = targetProduct.getBand("orthorectifiedLat");
                     Tile tileLatBand = targetTileMap.get(latBand);
-                    convertToDegree(topoPhase.latitude);
-                    TileUtilsDoris.pushDoubleArray2D(topoPhase.latitude, tileLatBand, targetRectangle);
+                    convertToDegree(topoPhase1.latitude);
+                    TileUtilsDoris.pushDoubleArray2D(topoPhase1.latitude, tileLatBand, targetRectangle);
                     lonBand = targetProduct.getBand("orthorectifiedLon");
                     Tile tileLonBand = targetTileMap.get(lonBand);
-                    convertToDegree(topoPhase.longitude);
-                    TileUtilsDoris.pushDoubleArray2D(topoPhase.longitude, tileLonBand, targetRectangle);
+                    convertToDegree(topoPhase1.longitude);
+                    TileUtilsDoris.pushDoubleArray2D(topoPhase1.longitude, tileLonBand, targetRectangle);
                 }
             }
 
@@ -678,11 +679,15 @@ public final class SubtRefDemOp extends Operator {
     public static TopoPhase computeTopoPhase(
             final SLCImage mstMetaData, final Orbit mstOrbit, final SLCImage slvMetaData, final Orbit slvOrbit,
             final Window tileWindow, final DemTile demTile, final boolean outputDEM, final boolean outputLatLon) {
-
+        // computeTopoPhase() is called separately for outputting lat/lon and outputting elevation because elevation
+        // requires sea pixels to be masked out and lat/lon do not; so outputDEM and outputLatLon cannot be true
+        // at the same time.
         try {
             final TopoPhase topoPhase = new TopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile);
 
-            topoPhase.radarCode();
+            // We do not want to use ivalidIndex if it is outputting lat/lon because we do not want to mask out the sea
+            // pixels like we do with elevation.
+            topoPhase.radarCode(!outputLatLon);
 
             topoPhase.gridData(outputDEM, outputLatLon);
 
