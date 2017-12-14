@@ -296,6 +296,9 @@ public final class SubtRefDemOp extends Operator {
                 }
             }
         }
+        if (bandReal == null || bandImag == null) {
+            throw new OperatorException("Product must be interferogram");
+        }
         map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
     }
 
