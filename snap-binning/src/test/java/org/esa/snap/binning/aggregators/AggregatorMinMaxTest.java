@@ -81,6 +81,11 @@ public class AggregatorMinMaxTest {
         assertEquals(Float.POSITIVE_INFINITY, tvec.get(0), 0.0f);
         assertEquals(Float.NEGATIVE_INFINITY, tvec.get(1), 0.0f);
 
+        agg.completeTemporal(ctx, 5, tvec);
+        assertEquals(Float.NaN, tvec.get(0), 0.0f);
+        assertEquals(Float.NaN, tvec.get(1), 0.0f);
+
+        agg.initTemporal(ctx, tvec);
         agg.aggregateTemporal(ctx, vec(0.9f, 1.0f), 3, tvec);
         agg.aggregateTemporal(ctx, vec(0.1f, 5.1f), 5, tvec);
         agg.aggregateTemporal(ctx, vec(0.6f, 2.0f), 9, tvec);

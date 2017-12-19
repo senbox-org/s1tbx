@@ -83,6 +83,8 @@ public class AggregatorMinMax extends AbstractAggregator {
 
     @Override
     public void completeTemporal(BinContext ctx, int numTemporalObs, WritableVector temporalVector) {
+        temporalVector.set(0, Float.isInfinite(temporalVector.get(0)) ? Float.NaN : temporalVector.get(0));
+        temporalVector.set(1, Float.isInfinite(temporalVector.get(1)) ? Float.NaN : temporalVector.get(1));
     }
 
     @Override
