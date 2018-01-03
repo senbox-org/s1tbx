@@ -500,14 +500,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      * @return the mission string
      */
     public static String getMissionType(final MetadataElement absRoot) {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (mission.equals("ALOS")) {
-            final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).toUpperCase();
-            if (!productType.contains("1.1"))
-                throw new OperatorException("Detected ALOS PALSAR products are currently not supported");
-        }
-
-        return mission;
+        return absRoot.getAttributeString(AbstractMetadata.MISSION);
     }
 
     /**
