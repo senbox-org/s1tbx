@@ -143,7 +143,7 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected static String getBandFileNameFromImage(final String imgPath) {
+    protected String getBandFileNameFromImage(final String imgPath) {
         return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
     }
 
