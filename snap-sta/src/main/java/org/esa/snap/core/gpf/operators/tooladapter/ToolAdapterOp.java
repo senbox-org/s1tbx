@@ -372,7 +372,13 @@ public class ToolAdapterOp extends Operator {
             }
         }
         reportProgress("Trying to open the new product");
-        File input = descriptor.resolveVariables((String) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
+        Object targetFileObj = getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE);
+        File input = null;
+        if(targetFileObj instanceof File){
+            input = (File) targetFileObj;
+        } else {
+            input = descriptor.resolveVariables(targetFileObj.toString());
+        }
         if (input == null) {
             input = descriptor.resolveVariables((File) this.lastPostContext.getValue(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         }
