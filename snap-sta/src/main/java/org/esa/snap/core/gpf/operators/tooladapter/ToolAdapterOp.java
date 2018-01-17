@@ -376,7 +376,7 @@ public class ToolAdapterOp extends Operator {
         File input = null;
         if(targetFileObj instanceof File){
             input = (File) targetFileObj;
-        } else {
+        } else if (targetFileObj != null){
             input = descriptor.resolveVariables(targetFileObj.toString());
         }
         if (input == null) {
