@@ -113,7 +113,7 @@ public class ImageIOFile {
         reader = iioReader;
         initReader();
 
-        numImages = reader.getNumImages(false);
+        numImages = reader.getNumImages(!reader.isSeekForwardOnly());
         if(numImages < 0)
             numImages = 1;
         numBands = 3;
