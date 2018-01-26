@@ -23,7 +23,6 @@ import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.dataio.netcdf.util.Constants;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
-import org.esa.snap.runtime.Engine;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
@@ -43,7 +42,7 @@ import java.util.logging.Logger;
 public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
     private static AbstractNetCdfReaderPlugIn[] netCdfReaderPlugIns;
-    private static final Logger LOGGER = Engine.getInstance().getLogger();
+    private static final Logger LOGGER = Logger.getLogger(GenericNetCdfReaderPlugIn.class.getName());
 
 
     // needed for creation by SPI
