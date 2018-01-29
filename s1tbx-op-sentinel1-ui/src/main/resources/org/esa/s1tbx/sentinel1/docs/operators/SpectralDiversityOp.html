@@ -7,7 +7,8 @@
 
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="../style.css"></head><body>
+<link rel="stylesheet" href="../style.css"></head>
+<body>
 <table class="header">
 <tbody>
 <tr class="header">
@@ -37,7 +38,7 @@ azimuth offset is obtained by averaging all the estimations. <br>
 <p class="MsoNormal"><span>The estimated range and azimuth shifts are
 saved in the metadata of the output product. The ESD estimations for
 all windows and all overlaps are saved in and ASCII file with master
-and slave azquisition dates and "_azimuth_shift" in the file name. The
+and slave acquisition dates and "_azimuth_shift" in the file name. The
 file can be found at user's \.snap\var\log folder. <br>
 </span>
 </p>
@@ -45,7 +46,11 @@ file can be found at user's \.snap\var\log folder. <br>
 <p class="MsoNormal"><span>Finally, the operator performs range and
 azimuth corrections for every burst using the range and azimuth offsets
 estimated above with a phase
-ramp method in frequency domain</span>.<br>
+ramp method in frequency domain</span>.</p><p class="MsoNormal">When
+using ESD estimations read from ASCII files that were saved previously,
+an average is taken of all the estimates from the subswaths selected by
+the user. E.g., if the user selects IW1 and IW3, then one average is
+taken of the estimates from both IW1 and IW3.
 <span style=""><o:p></o:p></span></p>
 <h4>Input <br>
 </h4>
@@ -110,7 +115,7 @@ considered valid, otherwise invalid.</li>
   <li>Number of Windows Per Overlap for ESD: The number of windows for azimuth offset estimation using ESD for each overlap area.</li>
   <li>Use User supplied shifts: If the checkbox is selected, then user
 supplied azimuth and range offsets will be used in shifting the image.
-No cross-correlation or ESD will be performed to estimate the offsets.</li>
+For azimuth offsets, user can enter the shift value to be used, or check the box(es)&nbsp;to read the&nbsp;<span>ESD estimations saved in ASCII files (assumed to be located in </span><span>user's \.snap\var\log folder)</span><span>.</span> No cross-correlation or ESD will be performed to estimate the offsets.</li>
   <li>The overall azimuth shift in pixels: The user provided azimuth offset in pixels. <br>
   </li>
   <li>The overall range shift in pixels: The user provided range offset in pixels. <br>
