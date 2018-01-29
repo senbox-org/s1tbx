@@ -19,13 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -38,15 +32,9 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
-import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.esa.snap.engine_utilities.gpf.*;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.jblas.ComplexDoubleMatrix;
-import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.nest.utils.BandUtilsDoris;
@@ -54,12 +42,12 @@ import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
+import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Estimate range and azimuth offsets for each burst using cross-correlation with a 512x512 block in
@@ -117,16 +105,30 @@ public class SpectralDiversityOp extends Operator {
     private int numBlocksPerOverlap = 10;
 
     @Parameter(description = "Use user supplied range and azimuth shifts", defaultValue = "false",
-            label = "Use user supplied shifts (please enter them below)")
+            label = "Use user supplied shifts (please specify them below)")
     private boolean useSuppliedShifts = false;
 
     @Parameter(description = "The overall azimuth shift", defaultValue = "0.0",
             label = "The overall azimuth shift in pixels")
     private double overallAzimuthShift = 0.0;
 
+    @Parameter(description = "Use saved IW1 azimuth shifts", defaultValue = "false",
+            label = "Use saved IW1 azimuth shifts (overall azimuth shift in pixels will be ignored)")
+    private boolean useSavedIW1AzSfifts = false;
+
+    @Parameter(description = "Use saved IW2 azimuth shifts", defaultValue = "false",
+            label = "Use saved IW2 azimuth shifts (overall azimuth shift in pixels will be ignored)")
+    private boolean useSavedIW2AzSfifts = false;
+
+    @Parameter(description = "Use saved IW3 azimuth shifts", defaultValue = "false",
+            label = "Use saved IW3 azimuth shifts (overall azimuth shift in pixels will be ignored)")
+    private boolean useSavedIW3AzSfifts = false;
+
     @Parameter(description = "The overall range shift", defaultValue = "0.0",
             label = "The overall range shift in pixels")
     private double overallRangeShift = 0.0;
+
+    private String[] azimSubSwaths = null;
 
     private int fineWinWidth = 0;
     private int fineWinHeight = 0;
@@ -198,10 +200,22 @@ public class SpectralDiversityOp extends Operator {
             }
 
             if (useSuppliedShifts) {
-
+                if (useSavedIW1AzSfifts || useSavedIW2AzSfifts || useSavedIW3AzSfifts) {
+                    List<String> list = new ArrayList<>();
+                    if (useSavedIW3AzSfifts) {
+                        list.add("IW3");
+                    }
+                    if (useSavedIW2AzSfifts) {
+                        list.add("IW2");
+                    }
+                    if (useSavedIW1AzSfifts) {
+                        list.add("IW1");
+                    }
+                    azimSubSwaths = list.toArray(new String[list.size()]);
+                } else {
+                    isAzimuthOffsetAvailable = true;
+                }
                 isRangeOffsetAvailable = true;
-                isAzimuthOffsetAvailable = true;
-
             } else {
 
                 fineWinWidth = Integer.parseInt(fineWinWidthStr);
@@ -224,6 +238,10 @@ public class SpectralDiversityOp extends Operator {
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
+
+            if (useSuppliedShifts && (useSavedIW1AzSfifts || useSavedIW2AzSfifts || useSavedIW3AzSfifts)) {
+                readAzimuthOffset();
+            }
             //System.out.println("SpectralDiversityOp.initialize: targetProduct name = " + targetProduct.getName());
 
         } catch (Throwable e) {
@@ -394,7 +412,7 @@ public class SpectralDiversityOp extends Operator {
             mstSlvTagElem.addElement(OverallRgAzShiftElem);
 
             if (!useSuppliedShifts) {
-                final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
+                final MetadataElement RgShiftPerBurstElem = new MetadataElement("Rangiw1e_Shift_Per_Burst");
                 RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
                 mstSlvTagElem.addElement(RgShiftPerBurstElem);
 
@@ -405,6 +423,34 @@ public class SpectralDiversityOp extends Operator {
                 final MetadataElement AzShiftPerBlockElem = new MetadataElement("Azimuth_Shift_Per_Block");
                 AzShiftPerBlockElem.addElement(new MetadataElement(subSwathNames[0]));
                 mstSlvTagElem.addElement(AzShiftPerBlockElem);
+            } else {
+                if (useSavedIW1AzSfifts) {
+                    final MetadataElement iw1Elem = new MetadataElement("IW1");
+                    /*
+                    final MetadataElement overlapsElem = new MetadataElement("Overlaps");
+                    overlapsElem.addElement(new MetadataElement("Blocks"));
+                    iw1Elem.addElement(overlapsElem);
+                    */
+                    mstSlvTagElem.addElement(iw1Elem);
+                }
+                if (useSavedIW2AzSfifts) {
+                    final MetadataElement iw1Elem = new MetadataElement("IW2");
+                    /*
+                    final MetadataElement overlapsElem = new MetadataElement("Overlaps");
+                    overlapsElem.addElement(new MetadataElement("Blocks"));
+                    iw1Elem.addElement(overlapsElem);
+                    */
+                    mstSlvTagElem.addElement(iw1Elem);
+                }
+                if (useSavedIW3AzSfifts) {
+                    final MetadataElement iw1Elem = new MetadataElement("IW3");
+                    /*
+                    final MetadataElement overlapsElem = new MetadataElement("Overlaps");
+                    overlapsElem.addElement(new MetadataElement("Blocks"));
+                    iw1Elem.addElement(overlapsElem);
+                    */
+                    mstSlvTagElem.addElement(iw1Elem);
+                }
             }
 
             ESDMeasurement.addElement(mstSlvTagElem);
@@ -417,7 +463,10 @@ public class SpectralDiversityOp extends Operator {
                 final CplxContainer slave = targetMap.get(key).sourceSlave;
                 final String mstSlvTag = getMasterSlavePairTag(master, slave);
                 saveOverallRangeShift(mstSlvTag, overallRangeShift);
-                saveOverallAzimuthShift(mstSlvTag, overallAzimuthShift);
+                if (!(useSavedIW1AzSfifts || useSavedIW2AzSfifts || useSavedIW3AzSfifts)) {
+                    // save it later when it has been computed
+                    saveOverallAzimuthShift(mstSlvTag, overallAzimuthShift);
+                }
             }
         }
     }
@@ -443,7 +492,7 @@ public class SpectralDiversityOp extends Operator {
     @Override
      public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
              throws OperatorException {
-
+        //System.out.println("SpectralDiversityOp.computeTileStack: isRangeOffsetAvailable = " + isRangeOffsetAvailable + " isAzimuthOffsetAvailable = " + isAzimuthOffsetAvailable);
         try {
             if (!isRangeOffsetAvailable) {
                 estimateRangeOffset();
@@ -456,21 +505,124 @@ public class SpectralDiversityOp extends Operator {
                 final CplxContainer slave = targetMap.get(key).sourceSlave;
 
                 double azOffset = 0.0, rgOffset = 0.0;
-                if (useSuppliedShifts) {
+                if (useSuppliedShifts && (!(useSavedIW1AzSfifts || useSavedIW2AzSfifts || useSavedIW3AzSfifts))) {
                     azOffset = overallAzimuthShift;
                     rgOffset = overallRangeShift;
-                } else {
+                } else { // estimated or read and averaged from file
                     final AzRgOffsets azRgOffsets = targetOffsetMap.get(key);
                     azOffset = azRgOffsets.azOffset;
                     rgOffset = azRgOffsets.rgOffset;
                 }
-
-                performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle, targetTileMap);
+                //System.out.println("ESD: key = " + key + ": azOffset = " + azOffset + "; rgOffset = " + rgOffset);
+                //performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle, targetTileMap);
             }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private double getAvgFromAzimuthOffsetFile(final File file, final int[] numValues, final List<AzimuthShiftData> azShiftArray) {
+        //File file = new File(filePathString);
+        if (!file.exists()) {
+            throw new OperatorException("Azimuth offset file does not exist: " + file.getAbsolutePath());
+        }
+        //System.out.println("Azimuth offset file exists: " + file.getAbsolutePath());
+
+        int numLines = 0;
+        int numCols = 0;
+        double avg = 0.0;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line = br.readLine();
+            String[] cols = line.split(" ");
+            for (int i = 0; i < cols.length; i++) {
+                //System.out.println("cols[" + i + "] = " + cols[i]);
+                if (cols[i] != null && cols[i].length() > 0) {
+                    //System.out.println("1st line cols[" + numCols + "] = " + cols[i]);
+                    numCols++;
+                }
+            }
+            while (line != null) {
+                numLines++;
+                if (line.contains("Mean")) {
+                    cols = line.split("=");
+                    avg = Double.parseDouble(cols[1].trim());
+                } else {
+                    cols = line.split(" ");
+                    int j = 0;
+                    for (int i = 0; i < cols.length; i++) {
+                        if (cols[i] != null && cols[i].length() > 0) {
+                            AzimuthShiftData data = new AzimuthShiftData(numLines - 1, j, Double.parseDouble(cols[i]));
+                            azShiftArray.add(data);
+                            j++;
+                        }
+                    }
+                }
+                //System.out.println("line = " + line);
+                line =  br.readLine();
+            }
+        } catch (Exception e) {
+            throw new OperatorException("Fail to read azimuth offset file: " + e.getMessage());
+        }
+
+        //System.out.println(file.getAbsolutePath() + ": numLines = " + numLines + " numCols = " + numCols + " avg = " + avg);
+        numValues[0] = (numLines - 2) * numCols;
+        return avg;
+    }
+
+    private synchronized void readAzimuthOffset() {
+
+        //System.out.println("ESD.readAzimuthOffset: isAzimuthOffsetAvailable = " + isAzimuthOffsetAvailable + " targetMap.size = " + targetMap.size() + " azimSubSwaths.length = " + azimSubSwaths.length);
+
+        if (isAzimuthOffsetAvailable) return; // not really needed?
+
+        //final String fileLocation = sourceProduct.getFileLocation().getParentFile().getAbsolutePath();
+
+        //System.out.println("SpectralDiversityOp.readAzimuthOffset: file location = " + fileLocation);
+        for (String key : targetMap.keySet()) {
+            List<AzimuthShiftData> azShiftArray = new ArrayList<>();
+
+            double sum = 0.0;
+            int numValues = 0;
+            double avg = 0.0;
+            final CplxContainer master = targetMap.get(key).sourceMaster;
+            final CplxContainer slave = targetMap.get(key).sourceSlave;
+            final String mstSlvTag = getMasterSlavePairTag(master, slave);
+            for (String s : azimSubSwaths) {
+                String fileName = mstSlvTag + "_azimuth_shift.txt";
+                if (!fileName.contains(s)) {
+                    fileName = fileName.replace(fileName.substring(0,3), s);
+                }
+                int[] tmp = new int[1] ;
+                avg = 0.0;
+                /*
+                if (fileLocation.contains("/")) {
+                    avg = getAvgFromAzimuthOffsetFile(fileLocation + '/' + fileName, tmp);
+                } else {
+                    avg = getAvgFromAzimuthOffsetFile(fileLocation + '\\' + fileName, tmp);
+                } */
+                azShiftArray.clear();
+                avg = getAvgFromAzimuthOffsetFile(new File(ResourceUtils.getReportFolder(), fileName), tmp, azShiftArray);
+                numValues += tmp[0];
+                sum += avg * tmp[0];
+                saveAzimuthShiftOverlapsBlocks(mstSlvTag, azShiftArray, s);
+                //System.out.println("SpectralDiversityOp.readAzimuthOffset: key = " + key + " filename = " + fileName + ": avg = " + avg + " numValues = " + numValues);
+            }
+            // The value saved in file is negative of what is saved in targetOffsetMap
+            double azOffset = - (azimSubSwaths.length == 1 ? avg : (sum / numValues));
+            double rgOffset = useSuppliedShifts ? overallRangeShift : 0.0;
+            if (targetOffsetMap.get(key) == null) {
+                targetOffsetMap.put(key, new AzRgOffsets(azOffset, rgOffset));
+            } else { // should not be possible?
+                targetOffsetMap.get(key).setAzOffset(azOffset);
+            }
+
+            //System.out.println("readAzimuthOffset: save azOffset to metadata: " + azOffset);
+            saveOverallAzimuthShift(mstSlvTag, azOffset);
+        }
+
+        isAzimuthOffsetAvailable = true; // is this needed?
     }
 
     /**
@@ -957,6 +1109,35 @@ public class SpectralDiversityOp extends Operator {
         final MetadataElement mstSlvPairElem = ESDMeasurement.getElement(mstSlvPairTag);
         final MetadataElement AzShiftPerBlockElem = mstSlvPairElem.getElement("Azimuth_Shift_Per_Block");
         final MetadataElement swathElem = AzShiftPerBlockElem.getElement(subSwathNames[0]);
+
+        swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
+        swathElem.setAttributeInt("count", azShiftArray.size());
+
+        for (int i = 0; i < azShiftArray.size(); i++) {
+            final MetadataElement overlapListElem = new MetadataElement("AzimuthShiftList." + i);
+            final MetadataAttribute azimuthShiftAttr = new MetadataAttribute("azimuthShift", ProductData.TYPE_FLOAT32);
+            azimuthShiftAttr.setUnit("pixel");
+            overlapListElem.addAttribute(azimuthShiftAttr);
+            overlapListElem.setAttributeDouble("azimuthShift", azShiftArray.get(i).shift);
+            overlapListElem.addAttribute(new MetadataAttribute("overlapIndex", ProductData.TYPE_INT16));
+            overlapListElem.setAttributeInt("overlapIndex", azShiftArray.get(i).overlapIndex);
+            overlapListElem.addAttribute(new MetadataAttribute("blockIndex", ProductData.TYPE_INT16));
+            overlapListElem.setAttributeInt("blockIndex", azShiftArray.get(i).blockIndex);
+            swathElem.addElement(overlapListElem);
+        }
+    }
+
+    private void saveAzimuthShiftOverlapsBlocks(final String mstSlvPairTag, final List<AzimuthShiftData> azShiftArray,
+                                                final String subswath) {
+        // TODO CW_TODO
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if (absTgt == null) {
+            return;
+        }
+
+        final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
+        final MetadataElement mstSlvPairElem = ESDMeasurement.getElement(mstSlvPairTag);
+        final MetadataElement swathElem = mstSlvPairElem.getElement(subswath);
 
         swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
         swathElem.setAttributeInt("count", azShiftArray.size());
