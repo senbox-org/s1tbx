@@ -78,6 +78,9 @@ public class FeatureUtils {
         map.put(ShapefileDataStoreFactory.URLP.key, url);
         map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
         DataStore shapefileStore = DataStoreFinder.getDataStore(map);
+        if (shapefileStore == null) {
+            throw new IOException("Not able to load shapefile from " + url);
+        }
         String typeName = shapefileStore.getTypeNames()[0]; // Shape files do only have one type name
         return shapefileStore.getFeatureSource(typeName);
     }
