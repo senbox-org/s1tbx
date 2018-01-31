@@ -45,10 +45,10 @@ import java.util.zip.ZipFile;
  */
 public abstract class AbstractProductDirectory {
 
-    private VirtualDir productDir = null;
-    private final String baseName;
-    private File baseDir;
-    private String rootFolder = null;
+    protected VirtualDir productDir = null;
+    protected String baseName;
+    protected File baseDir;
+    protected String rootFolder = null;
     protected final File productInputFile;
 
     private boolean isSLC = false;
@@ -61,14 +61,18 @@ public abstract class AbstractProductDirectory {
         Guardian.assertNotNull("inputFile", inputFile);
         this.productInputFile = inputFile;
 
+        createProductDir(inputFile);
+    }
+
+    protected void createProductDir(final File inputFile) {
         if (ZipUtils.isZip(inputFile)) {
-            productDir = VirtualDir.create(inputFile);
             baseDir = inputFile;
-            baseName = inputFile.getName();
+            productDir = VirtualDir.create(baseDir);
+            baseName = baseDir.getName();
         } else {
-            productDir = VirtualDir.create(inputFile.getParentFile());
             baseDir = inputFile.getParentFile();
-            baseName = inputFile.getParentFile().getName();
+            productDir = VirtualDir.create(baseDir);
+            baseName = baseDir.getName();
         }
     }
 
