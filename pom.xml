@@ -33,7 +33,7 @@
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
 		<s1tbx.version>7.0.0-Skywatch-SNAPSHOT</s1tbx.version>
-        <rstb.version>7.4.0-Skywatch-SNAPSHOT</rstb.version>
+        <rstb.version>7.5.0-Skywatch-SNAPSHOT</rstb.version>
         <jlinda.version>7.0.0-Skywatch-SNAPSHOT</jlinda.version>
         
 		<hdf.version>2.7.1</hdf.version>
