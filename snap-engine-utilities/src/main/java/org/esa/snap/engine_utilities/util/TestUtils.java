@@ -89,7 +89,7 @@ public class TestUtils {
         }
         if (product.getMetadataRoot() == null)
             throw new Exception("metadataroot is null");
-        if (product.getNumBands() == 0)
+        if (product.getNumBands() == 0 && verifyBandData)
             throw new Exception("numbands is zero");
         if (product.getProductType() == null || product.getProductType().isEmpty())
             throw new Exception("productType is null");
