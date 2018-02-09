@@ -4,7 +4,13 @@ import os
 import os.path
 import platform
 import sys
+import traceback
 import zipfile
+
+_ERR_CODE_NO_MATCHING_JPY_WHEEL_FOUND = 10
+_ERR_CODE_MISSING_MODULE_JPYUTIL = 20
+_ERR_CODE_IMPORTING_SNAPPY_FAILED = 30
+_ERR_CODE_INTERNAL_ERROR = 40
 
 
 def _find_file(dir_path, regex):
@@ -135,16 +141,20 @@ def _configure_snappy(snap_home=None,
             with zipfile.ZipFile(jpy_wheel_file) as zf:
                 zf.extractall(snappy_dir)
         else:
-            logging.error("The module 'jpy' is required to run snappy, but no binary 'jpy' wheel matching the pattern")
-            logging.error("'" + jpy_wheel_file_pat + "' could be found.\n"
-                          + "You can try to build a 'jpy' wheel yourself and then copy it into\n"
-                          + "\"" + snappy_dir + "\" and then run the configuration again.\n"
-                          + "Please go to https://github.com/bcdev/jpy and follow the build instructions. E.g.\n"
-                          + "  > git clone https://github.com/bcdev/jpy.git\n"
-                          + "  > cd jpy\n"
-                          + "  > python setup.py bdist_wheel\n"
-                          + "  > cp dist/*.whl \"" + snappy_dir + "\"")
-            return 10
+            logging.error(["The module 'jpy' is required to run snappy, but no binary 'jpy' wheel matching the pattern",
+                           "'" + jpy_wheel_file_pat + "' could be found.",
+                           "You can try to build a 'jpy' wheel yourself, then copy it into",
+                           "\"" + snappy_dir + "\", and then run the configuration again.",
+                           "Unzip the jpy sources in " + snappy_dir + "/jpy-<version>.zip, then",
+                           "  $ cd jpy-<version>",
+                           "  $ python setup.py bdist_wheel",
+                           "  $ cp dist/*.whl \"" + snappy_dir + "\"",
+                           "Or get the source code from https://github.com/bcdev/jpy and follow the build instructions:",
+                           "  $ git clone https://github.com/bcdev/jpy.git",
+                           "  $ cd jpy"
+                           ].join("\n"))
+
+            return _ERR_CODE_NO_MATCHING_JPY_WHEEL_FOUND
     else:
         logging.info("jpy is already installed")
 
@@ -178,9 +188,9 @@ def _configure_snappy(snap_home=None,
             if ret_code:
                 return ret_code
         else:
-            logging.error("Missing Python module '" + jpyutil_file + "'\n"
-                                                                     "which is required to complete the configuration.")
-            return 20
+            logging.error("Missing Python module '{}'\nwhich is required to complete the configuration."
+                          .format(jpyutil_file))
+            return _ERR_CODE_MISSING_MODULE_JPYUTIL
     else:
         logging.info("jpy is already configured")
 
@@ -200,7 +210,7 @@ def _configure_snappy(snap_home=None,
                              '# java_library_path: ./lib\n',
                              '# java_options: -Djava.awt.headless=false\n',
                              '# debug: False\n'])
-            logging.info("snappy configuration written to '" + snappy_ini_file + "'")
+            logging.info("snappy configuration written to '{}'".format(snappy_ini_file))
     else:
         logging.info("snappy is already configured")
 
@@ -210,7 +220,10 @@ def _configure_snappy(snap_home=None,
     #
     logging.info("Importing snappy for final test...")
     sys.path = [os.path.join(snappy_dir, '..')] + sys.path
-    __import__('snappy')
+    try:
+        __import__('snappy')
+    except:
+        return _ERR_CODE_IMPORTING_SNAPPY_FAILED
 
     logging.info("Done. The SNAP-Python interface is located in '%s'\n"
                  "When using SNAP from Python, either do: sys.path.append('%s')\n"
@@ -255,6 +268,7 @@ def _main():
     else:
         logging.basicConfig(format=log_format, level=log_level)
 
+    # noinspection PyBroadException
     try:
         ret_code = _configure_snappy(snap_home=args.snap_home,
                                      java_module=args.java_module,
@@ -264,11 +278,12 @@ def _main():
                                      req_java=args.req_java,
                                      req_py=args.req_py,
                                      force=args.force)
-        if ret_code != 0:
-            logging.error("Configuration failed")
     except:
-        ret_code = 30
-        logging.exception("Configuration failed")
+        ret_code = _ERR_CODE_INTERNAL_ERROR
+        logging.error(traceback.format_exc())
+
+    if ret_code != 0:
+        logging.error("Configuration failed with exit code {}".format(ret_code))
 
     exit(ret_code)
 
