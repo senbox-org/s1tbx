@@ -88,7 +88,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     // For after IPF 2.9.0 ...
     private double version = 0.0f;
-    private boolean isTOPSGRD = false;
+    private boolean isTOPS = false;
+    private boolean isGRD = false;
 
     // The key is something like "s1a-iw-grd-hh-..."
     private HashMap<String, Double> t0Map = new HashMap<>();
@@ -153,8 +154,14 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 getCalibrationVectors();
             }
 
-            if (version >= 2.9 && isTOPSGRD) {
-                 getThermalNoiseVectors();
+            if (version >= 2.9) {
+                if (isTOPS && isGRD) {
+                    buildNoiseLUTForTOPSGRD();
+                } else if (isTOPSARSLC) {
+                    // TODO
+                } else { // assume is SM SLC or SM GRD
+                    buildNoiseLUTForSMSLCorSMGRD();
+                }
             }
 
             createTargetProduct();
@@ -178,8 +185,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
         final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
         final String imageName = annotationDataSetListElem[0].getName();
-        isTOPSGRD = productType.contains("GRD") && imageName.indexOf('-', 4) == 6;
-        System.out.println("isTOPSGRD = " + isTOPSGRD + " image name = " + imageName + " idx = " + imageName.indexOf('-', 4));
+        isTOPS = mode.contains("IW") || mode.contains("EW");
+        isGRD = productType.contains("GRD");
+
+        System.out.println("Sentinel1RemoveThermalNoiseOp: productType = " + productType + " isTOPS = " + isTOPS + " isGRD = " + isGRD + " isTOPSARSLC = " + isTOPSARSLC);
     }
 
     /**
@@ -249,7 +258,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             }
 
             MetadataElement noiseVectorListElem = noiElem.getElement("noiseVectorList");
-            // Called by S1CalibrationTPGAction TODO
+            // Called by S1CalibrationTPGAction
             if (noiseVectorListElem == null) {
                 noiseVectorListElem = noiElem.getElement("noiseRangeVectorList");
             }
@@ -571,7 +580,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     double noise = 0;
                     if (version < 2.9) {
                         noise = lut[xx];
-                    } else {
+                    } else if (noiseAzimuthBlockMap.containsKey(targetPol)) {
                         noise = getNoiseValue(x, y, noiseAzimuthBlockMap.get(targetPol));
                     }
 
@@ -790,16 +799,92 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private void getIPFVersion() {
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
-        System.out.println("IPF version = " + version);
+        System.out.println("Sentinel1RemoveThermalNoiseOp: IPF version = " + version);
     }
 
-    private void getThermalNoiseVectors() {
+    private void buildNoiseLUTForSMSLCorSMGRD() {
+
+        //System.out.println("buildNoiseLUTForSMSLCorSMGRD: called");
+
+        final MetadataElement noiseElem = origMetadataRoot.getElement("noise");
+        final MetadataElement[] noiseDataSetListElem = noiseElem.getElements();
+
+        // loop through s1a-s6-slc-hh-..., s1a-s6-slc-hv-... (SM SLC or SM GRD products)
+        for (MetadataElement dataSetListElem : noiseDataSetListElem) {
+
+            // imageName is s1a-s6-slc-hh-..., s1a-s6-slc-hv-...
+            final String imageName = dataSetListElem.getName();
+            //final String key = getKey(imageName);
+            //System.out.println("buildNoiseLUTForSMSLCorSMGRD: imageName = " + imageName + " key = " + key);
+
+            getT0andDeltaTS(imageName);
+            final double firstLineTime = t0Map.get(imageName);
+            final double lineTimeInterval = deltaTsMap.get(imageName);
+
+            final MetadataElement noiElem = dataSetListElem.getElement("noise");
+            final MetadataElement adsHeaderElem = noiElem.getElement("adsHeader");
+            final String pol = adsHeaderElem.getAttributeString("polarisation");
+
+            // get the noise azimuth vectors
+            MetadataElement noiseAzimuthVectorListElem = noiElem.getElement("noiseAzimuthVectorList");
+            final Sentinel1Utils.NoiseAzimuthVector[] noiseAzimuthVectors =
+                    Sentinel1Utils.getAzimuthNoiseVector(noiseAzimuthVectorListElem);
+
+            // get the noise range vectors
+            MetadataElement noiseRangeVectorListElem = noiElem.getElement("noiseRangeVectorList");
+            final Sentinel1Utils.NoiseVector[] noiseRangeVectors =
+                    Sentinel1Utils.getNoiseVector(noiseRangeVectorListElem);
+            /*
+            System.out.println("buildNoiseLUTForSMSLCorSMGRD: noiseAzimuthVectors.length = " + noiseAzimuthVectors.length
+                + " noiseRangeVectors.length = " + noiseRangeVectors.length);
+            */
+            NoiseAzimuthBlock[] noiseAzimuthBlocks = new NoiseAzimuthBlock[noiseAzimuthVectors.length];
+            for (int i = 0; i < noiseAzimuthBlocks.length; i++) {
+
+                final double startAzimTime = firstLineTime + noiseAzimuthVectors[i].firstAzimuthLine * lineTimeInterval;
+                final double endAzimTime = firstLineTime + noiseAzimuthVectors[i].lastAzimuthLine * lineTimeInterval;
+                final String swath = noiseAzimuthVectors[i].swath;
+
+                final double blockCentreTime = (startAzimTime + endAzimTime) / 2.0;
+                /*
+                System.out.println("buildNoiseLUTForSMSLCorSMGRD: i = " + i + " blockCentreTime = " + blockCentreTime
+                    + " time0 = " + noiseRangeVectors[0].timeMJD);
+                */
+                int closest = 0;
+                for (int j = 1; j < noiseRangeVectors.length; j++) {
+                    //System.out.println("buildNoiseLUTForSMSLCorSMGRD: i = " + i + " j = " + j + " time = " + noiseRangeVectors[j].timeMJD);
+                    if (Math.abs(blockCentreTime - noiseRangeVectors[j].timeMJD) <
+                            Math.abs(blockCentreTime - noiseRangeVectors[closest].timeMJD)) {
+                        closest = j;
+                    }
+                }
+                //System.out.println("buildNoiseLUTForSMSLCorSMGRD: i = " + i + " closest = " + closest);
+
+                final int numSamples = noiseAzimuthVectors[i].lastRangeSample
+                        - noiseAzimuthVectors[i].firstRangeSample + 1;
+                final double [][] noiseMatrix = new double[1][numSamples];
+
+                for (int j = 0; j < noiseMatrix[0].length; j++) {
+                    interpolNoiseRangeVector(noiseRangeVectors[closest],
+                            noiseAzimuthVectors[i].firstRangeSample, noiseAzimuthVectors[i].lastRangeSample,
+                            noiseMatrix[0]);
+                }
+
+                noiseAzimuthBlocks[i] = new NoiseAzimuthBlock(swath, noiseAzimuthVectors[i].firstAzimuthLine,
+                        noiseAzimuthVectors[i].firstRangeSample, noiseAzimuthVectors[i].lastAzimuthLine,
+                        noiseAzimuthVectors[i].lastRangeSample, noiseMatrix);
+            }
+
+            noiseAzimuthBlockMap.put(pol, noiseAzimuthBlocks);
+        }
+    }
+
+    private void buildNoiseLUTForTOPSGRD() {
 
         final MetadataElement noiseElem = origMetadataRoot.getElement("noise");
         final MetadataElement[] noiseDataSetListElem = noiseElem.getElements();
 
         // loop through s1a-iw-grd-hh-..., s1a-iw-grd-hv-... (TOPS (IW and EW) GRD products)
-        // or s1a-ew1-slc-hh-..., s1a-ew2-slc-hv-... (SM SLC/GRD and TOPS SLC products)
         for (MetadataElement dataSetListElem : noiseDataSetListElem) {
 
             // imageName is s1a-iw-grd-hh-... or s1a-ew1-slc-hh-...
@@ -811,8 +896,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final MetadataElement noiElem = dataSetListElem.getElement("noise");
             final MetadataElement adsHeaderElem = noiElem.getElement("adsHeader");
             final String pol = adsHeaderElem.getAttributeString("polarisation");
-            final String channel = getChannel(imageName);
-            System.out.println("channel = " + channel);
 
             // get the noise azimuth vectors
             MetadataElement noiseAzimuthVectorListElem = noiElem.getElement("noiseAzimuthVectorList");
@@ -899,7 +982,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             noiseAzimuthBlockMap.put(pol, noiseAzimuthBlocks);
         }
 
-        System.out.println("getThermalNoiseVectors DONE");
+        //System.out.println("getThermalNoiseVectors DONE");
     }
 
     private void interpolNoiseRangeVector(final Sentinel1Utils.NoiseVector noiseRangeVector,
@@ -1235,17 +1318,36 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final int lastAzimuthLine = noiseAzimuthBlocks[i].lastAzimuthLine;
             final int firstRangeSample = noiseAzimuthBlocks[i].firstRangeSample;
             final int lastRangeSample = noiseAzimuthBlocks[i].lastRangeSample;
-            if (y >= firstAzimuthLine && y <= lastAzimuthLine && x >= firstRangeSample && x <= lastRangeSample) {
-                return noiseAzimuthBlocks[i].noiseMatrix[y - firstAzimuthLine][x - firstRangeSample];
+            if (isTOPS) {
+                if (x >= firstRangeSample && x <= lastRangeSample && y >= firstAzimuthLine && y <= lastAzimuthLine) {
+                    return noiseAzimuthBlocks[i].noiseMatrix[y - firstAzimuthLine][x - firstRangeSample];
+                }
+            } else if (x >= firstRangeSample && x <= lastRangeSample) {
+                return noiseAzimuthBlocks[i].noiseMatrix[0][x - firstRangeSample];
             }
         }
 
         return 0;
     }
 
-    private static String getChannel(final String imageName) {
-        // TODO
-        return null;
+    private static int getIndex(final String s, final char c, final int n) {
+        // Find the index of the n'th occurrence of c in s
+        int cnt = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == c) {
+                cnt++;
+                if (cnt == n) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private static String getKey(final String imageName) {
+        final int idx0 = getIndex(imageName, '-', 1);
+        final int idx1 = getIndex(imageName, '-', 4);
+        return imageName.substring(idx0+1, idx1);
     }
 
     public static class ThermalNoiseInfo {
@@ -1291,8 +1393,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         NoiseAzimuthBlock(final String swath,
                           final int firstAzimuthLine, final int firstRangeSample,
                           final int lastAzimuthLine, final int lastRangeSample,
-                          final double[][] noiseMatrix)
-        //final double[] = no interpNoiseAzimVec)
+                          final double [][] noiseMatrix)
         {
             this.swath = swath;
             this.firstAzimuthLine = firstAzimuthLine;
