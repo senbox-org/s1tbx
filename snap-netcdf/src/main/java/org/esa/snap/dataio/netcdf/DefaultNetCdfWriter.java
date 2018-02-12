@@ -109,7 +109,10 @@ public class DefaultNetCdfWriter extends AbstractProductWriter {
     }
 
     private boolean shallWriteVariable(String variableName) {
-        final NVariable variable = writeable.findVariable(variableName);
+        if (this.writeable == null) {
+            return false;
+        }
+        final NVariable variable = this.writeable.findVariable(variableName);
         return variable != null;
     }
 
