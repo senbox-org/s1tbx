@@ -1019,11 +1019,16 @@ public final class Sentinel1Utils {
                  System.out.println("Sentinel1Utils.getAzimuthNoiseVector: " + lineArray[i] + " -> " + noiseLUTArray[i]);
             }*/
 
-            final String swath = noiseVectorElem.getAttributeString("swath");
-            final int firstAzimuthLine = Integer.parseInt(noiseVectorElem.getAttributeString("firstAzimuthLine"));
-            final int firstRangeSample = Integer.parseInt(noiseVectorElem.getAttributeString("firstRangeSample"));
-            final int lastAzimuthLine = Integer.parseInt(noiseVectorElem.getAttributeString("lastAzimuthLine"));
-            final int lastRangeSample = Integer.parseInt(noiseVectorElem.getAttributeString("lastRangeSample"));
+            final String swath = noiseVectorElem.containsAttribute("swath") ?
+                    noiseVectorElem.getAttributeString("swath") : null;
+            final int firstAzimuthLine = noiseVectorElem.containsAttribute("firstAzimuthLine") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("firstAzimuthLine")) : -1;
+            final int firstRangeSample = noiseVectorElem.containsAttribute("firstRangeSample") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("firstRangeSample")) : -1;
+            final int lastAzimuthLine = noiseVectorElem.containsAttribute("lastAzimuthLine") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("lastAzimuthLine")) : -1;
+            final int lastRangeSample = noiseVectorElem.containsAttribute("lastRangeSample") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("lastRangeSample")) : -1;
             /*
             System.out.println("Sentinel1Utils.getAzimuthNoiseVector: swath = " + swath + "; firstAzimuthLine = "
                     + firstAzimuthLine + "; firstRangeSample = " + firstRangeSample
