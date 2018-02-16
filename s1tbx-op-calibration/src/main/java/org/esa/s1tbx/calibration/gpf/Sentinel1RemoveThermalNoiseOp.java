@@ -1383,17 +1383,18 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final int lastAzimuthLine = noiseAzimuthBlocks[i].lastAzimuthLine;
             final int firstRangeSample = noiseAzimuthBlocks[i].firstRangeSample;
             final int lastRangeSample = noiseAzimuthBlocks[i].lastRangeSample;
+            double val = 0;
             if (isTOPS) {
                 if (x >= firstRangeSample && x <= lastRangeSample && y >= firstAzimuthLine && y <= lastAzimuthLine) {
-                    return noiseAzimuthBlocks[i].noiseMatrix[y - firstAzimuthLine][x - firstRangeSample];
+                    val = noiseAzimuthBlocks[i].noiseMatrix[y - firstAzimuthLine][x - firstRangeSample];
                 }
             } else if (x >= firstRangeSample && x <= lastRangeSample) {
-                final double val = noiseAzimuthBlocks[i].noiseMatrix[0][x - firstRangeSample];
-                if (removeThermalNoise) {
-                    return val;
-                } else {
-                    return -val;
-                }
+                val = noiseAzimuthBlocks[i].noiseMatrix[0][x - firstRangeSample];
+            }
+            if (removeThermalNoise) {
+                return val;
+            } else {
+                return -val;
             }
         }
 
