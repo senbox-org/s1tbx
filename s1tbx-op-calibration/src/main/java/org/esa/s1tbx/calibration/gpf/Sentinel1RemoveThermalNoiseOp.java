@@ -83,7 +83,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private int numOfSubSwath = 1;
     private ThermalNoiseInfo[] noise = null;
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
-    private java.util.List<String> selectedPolList = null;
+    private List<String> selectedPolList = null;
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
     // For after IPF 2.9.0 ...
@@ -1383,18 +1383,22 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final int lastAzimuthLine = noiseAzimuthBlocks[i].lastAzimuthLine;
             final int firstRangeSample = noiseAzimuthBlocks[i].firstRangeSample;
             final int lastRangeSample = noiseAzimuthBlocks[i].lastRangeSample;
-            double val = 0;
             if (isTOPS) {
                 if (x >= firstRangeSample && x <= lastRangeSample && y >= firstAzimuthLine && y <= lastAzimuthLine) {
-                    val = noiseAzimuthBlocks[i].noiseMatrix[y - firstAzimuthLine][x - firstRangeSample];
+                    final double val = noiseAzimuthBlocks[i].noiseMatrix[y - firstAzimuthLine][x - firstRangeSample];
+                    if (removeThermalNoise) {
+                        return val;
+                    } else {
+                        return -val;
+                    }
                 }
             } else if (x >= firstRangeSample && x <= lastRangeSample) {
-                val = noiseAzimuthBlocks[i].noiseMatrix[0][x - firstRangeSample];
-            }
-            if (removeThermalNoise) {
-                return val;
-            } else {
-                return -val;
+                final double val = noiseAzimuthBlocks[i].noiseMatrix[0][x - firstRangeSample];
+                if (removeThermalNoise) {
+                    return val;
+                } else {
+                    return -val;
+                }
             }
         }
 
