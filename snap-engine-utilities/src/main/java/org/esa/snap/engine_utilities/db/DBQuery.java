@@ -75,6 +75,7 @@ public class DBQuery {
     private String selectedCalibration = ANY;
     private String selectedOrbitCorrection = ANY;
     private Rectangle.Double selectionRectangle = null;
+    private boolean insideSelRect = true; // user can choose between either completely inside or intersect selection rectangle
     private File baseDir = null;
     private File excludeDir = null;
     private Calendar startDate = null;
@@ -453,6 +454,10 @@ public class DBQuery {
         }
     }
 
+    public void insideSelectionRectangle(final boolean inside) {
+        insideSelRect = inside;
+    }
+
     public Rectangle.Double getSelectionRectangle() {
         return selectionRectangle;
     }
@@ -472,7 +477,8 @@ public class DBQuery {
         /*
         System.out.println("DBQuery.intersectMapSelection: selectionRectangle: x = " + selectionRectangle.x + " y = " + selectionRectangle.y
             + " width = " + selectionRectangle.width + " height = " + selectionRectangle.height
-            + "; selRect: x = " + selRect.x + " y = " + selRect.y + " width = " + selRect.width + " height = " + selRect.height);
+            + "; selRect: x = " + selRect.x + " y = " + selRect.y + " width = " + selRect.width + " height = " + selRect.height
+            + "; insideSelRect = " + insideSelRect);
         */
 
         final boolean singlePointSelection = selectionRectangle.getWidth() == 0 && selectionRectangle.getHeight() == 0;
@@ -495,7 +501,7 @@ public class DBQuery {
             } else {
                 if (p.contains(selRect)) {
                     intersectList.add(entry);
-                } else {
+                } else if (insideSelRect) {
                     // Check if all points are in rectangle
                     boolean onePoint = false;
                     for (GeoPos geo : geoBox) {
@@ -506,6 +512,18 @@ public class DBQuery {
                         }
                     }
                     if (!onePoint) {
+                        intersectList.add(entry);
+                    }
+                } else {
+                    boolean onePtInside = false;
+                    for (GeoPos geo : geoBox) {
+                        if (selRect.contains((int) (geo.getLat() * mult), (int) (geo.getLon() * mult))) {
+                            //System.out.println("DBQuery.intersectMapSelection: product this pt is in rec: " + (int)(geo.getLat() * mult) + ", " + (int)(geo.getLon() * mult));
+                            onePtInside = true;
+                            break;
+                        }
+                    }
+                    if (onePtInside) {
                         intersectList.add(entry);
                     }
                 }
