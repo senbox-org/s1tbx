@@ -32,7 +32,7 @@ import java.io.IOException;
  */
 public class Kompsat5Reader extends SARReader {
 
-    private final ProductReaderPlugIn readerPlugIn;
+    private final Kompsat5ReaderPlugIn readerPlugIn;
 
     private enum Formats {HDF, GEOTIFF}
 
@@ -45,7 +45,7 @@ public class Kompsat5Reader extends SARReader {
      * @param readerPlugIn the reader plug-in which created this reader, can be <code>null</code> for internal reader
      *                     implementations
      */
-    public Kompsat5Reader(final ProductReaderPlugIn readerPlugIn) {
+    public Kompsat5Reader(final Kompsat5ReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
         this.readerPlugIn = readerPlugIn;
     }
@@ -102,6 +102,8 @@ public class Kompsat5Reader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
         try {
             File inputFile = ReaderUtils.getFileFromInput(getInput());
+            final File metadataFile = readerPlugIn.findMetadataFile(inputFile.getParentFile());
+
             format = determineFormat(inputFile);
             inputFile = findProductFile(format, inputFile);
 
@@ -113,7 +115,7 @@ public class Kompsat5Reader extends SARReader {
                 throw new IOException("Kompsat-5 in GeoTiff format is not supported.");
             }
 
-            Product product = k5Reader.open(inputFile);
+            final Product product = k5Reader.open(inputFile);
             setQuicklookBandName(product);
             addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile(product));
 
@@ -136,10 +138,12 @@ public class Kompsat5Reader extends SARReader {
     private static File getQuicklookFile(final Product product) {
         final File folder = product.getFileLocation().getParentFile();
         final File[] files = folder.listFiles();
-        for (File file : files) {
-            String name = file.getName().toLowerCase();
-            if (name.startsWith("k5_") && name.endsWith("ql.png")) {
-                return file;
+        if(files != null) {
+            for (File file : files) {
+                String name = file.getName().toLowerCase();
+                if (name.startsWith("k5_") && name.endsWith("ql.png")) {
+                    return file;
+                }
             }
         }
         return null;
