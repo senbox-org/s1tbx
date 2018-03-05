@@ -279,11 +279,9 @@ public abstract class AbstractProductDirectory {
         final MetadataElement newRoot = addMetaData();
         findImages(newRoot);
 
-        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        Dimension dim = getProductDimensions(newRoot);
 
-        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
+        final Product product = new Product(getProductName(), getProductType(), dim.width, dim.height);
         updateProduct(product, newRoot);
 
         addBands(product);
@@ -302,6 +300,13 @@ public abstract class AbstractProductDirectory {
         ReaderUtils.addMetadataProductSize(product);
 
         return product;
+    }
+
+    protected Dimension getProductDimensions(final MetadataElement newRoot) {
+        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        return new Dimension(sceneWidth, sceneHeight);
     }
 
     protected static void updateProduct(final Product product, final MetadataElement newRoot) {
