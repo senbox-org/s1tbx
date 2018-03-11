@@ -1,4 +1,4 @@
-package org.jlinda.nest.utils;
+package org.jlinda.core.utils;
 
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;

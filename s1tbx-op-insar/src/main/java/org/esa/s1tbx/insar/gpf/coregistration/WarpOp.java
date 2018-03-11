@@ -46,7 +46,6 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.coregistration.CPM;
 import org.jlinda.core.coregistration.PolynomialModel;
 import org.jlinda.core.coregistration.SimpleLUT;
-import org.jlinda.nest.gpf.coregistration.GCPManager;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationTable;

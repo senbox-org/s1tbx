@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.perf4j.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,16 +120,12 @@ public class Slant2HeightTest {
 
         DoubleMatrix inputTile = unwrappedPhase.dup();
 
-        StopWatch watch = new StopWatch();
-        watch.start();
         final Slant2Height tempSlant = new Slant2Height(nPoints, nHeights, degree1d, degree2d, master, masterOrbit, slave, slaveOrbit);
         tempSlant.setTileWindow(tileWindow);
         tempSlant.setDataWindow(dataWindow);
         tempSlant.setTile(inputTile);
         tempSlant.schwabischTotal();
-        watch.stop();
 
-        logger.info("Total processing time TOTAL: {} milli-seconds"+ watch.getElapsedTime());
         Assert.assertArrayEquals(heights.toArray(), tempSlant.getTile().toArray(), DELTA_02);
 
     }
@@ -145,15 +140,10 @@ public class Slant2HeightTest {
 
         DoubleMatrix inputTile = unwrappedPhase.dup();
 
-        StopWatch watch = new StopWatch();
-
-        watch.start();
         final Slant2Height slant = new Slant2Height(nPoints, nHeights, degree1d, degree2d, master, masterOrbit, slave, slaveOrbit);
         slant.setDataWindow(dataWindow);
         slant.schwabisch();
         slant.applySchwabisch(tileWindow, inputTile);
-        watch.stop();
-        logger.info("Total processing time for Slant2Height Schwabisch method: {} milli-seconds"+ watch.getElapsedTime());
 
         Assert.assertArrayEquals(heights.toArray(), inputTile.toArray(), DELTA_02);
 

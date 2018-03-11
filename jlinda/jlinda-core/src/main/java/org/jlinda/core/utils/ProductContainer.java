@@ -1,4 +1,4 @@
-package org.jlinda.nest.utils;
+package org.jlinda.core.utils;
 
 import java.util.HashMap;
 import java.util.Map;
