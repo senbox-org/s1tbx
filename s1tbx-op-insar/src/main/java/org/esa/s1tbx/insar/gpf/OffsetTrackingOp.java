@@ -57,7 +57,7 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
-import org.jlinda.nest.utils.TileUtilsDoris;
+import org.jlinda.core.utils.TileUtilsDoris;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;

@@ -48,10 +48,10 @@ import org.jlinda.core.geom.TopoPhase;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
 import org.jlinda.core.utils.SarUtils;
-import org.jlinda.nest.utils.BandUtilsDoris;
-import org.jlinda.nest.utils.CplxContainer;
-import org.jlinda.nest.utils.ProductContainer;
-import org.jlinda.nest.utils.TileUtilsDoris;
+import org.jlinda.core.utils.BandUtilsDoris;
+import org.jlinda.core.utils.CplxContainer;
+import org.jlinda.core.utils.ProductContainer;
+import org.jlinda.core.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
 import java.awt.*;
@@ -879,7 +879,7 @@ public class InterferogramOp extends Operator {
 
             DemTile demTile = null;
             if (subtractTopographicPhase) {
-                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, targetMap, dem, demNoDataValue,
+                demTile = TopoPhase.getDEMTile(tileWindow, targetMap, dem, demNoDataValue,
                         demSamplingLat, demSamplingLon, tileExtensionPercent);
 
                 if (demTile.getData().length < 3 || demTile.getData()[0].length < 3) {
@@ -900,7 +900,7 @@ public class InterferogramOp extends Operator {
 
             DemTile cohDemTile = null;
             if (subtractTopographicPhase) {
-                cohDemTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(cohTileWindow, targetMap, dem, demNoDataValue,
+                cohDemTile = TopoPhase.getDEMTile(cohTileWindow, targetMap, dem, demNoDataValue,
                         demSamplingLat, demSamplingLon, tileExtensionPercent);
             }
 
@@ -932,7 +932,7 @@ public class InterferogramOp extends Operator {
                 }
 
                 if (subtractTopographicPhase) {
-                    final TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                    final TopoPhase topoPhase = TopoPhase.computeTopoPhase(
                             product, tileWindow, demTile, outputElevation, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
@@ -950,7 +950,7 @@ public class InterferogramOp extends Operator {
                     }
 
                     if (outputLatLon) {
-                        final TopoPhase topoPhase1 = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                        final TopoPhase topoPhase1 = TopoPhase.computeTopoPhase(
                                 product, tileWindow, demTile, false, true);
 
                         saveLatLon(x0, xN, y0, yN, topoPhase1.latitude, topoPhase1.longitude, product, targetTileMap);
@@ -985,7 +985,7 @@ public class InterferogramOp extends Operator {
                     }
 
                     if (subtractTopographicPhase) {
-                        final TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                        final TopoPhase topoPhase = TopoPhase.computeTopoPhase(
                                 product, cohTileWindow, cohDemTile, false);
 
                         final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
@@ -1290,7 +1290,7 @@ public class InterferogramOp extends Operator {
 
             DemTile demTile = null;
             if (subtractTopographicPhase) {
-                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, mstMeta, mstOrbit, dem,
+                demTile = TopoPhase.getDEMTile(tileWindow, mstMeta, mstOrbit, dem,
                         demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
 
                 if (demTile == null) {
@@ -1314,7 +1314,7 @@ public class InterferogramOp extends Operator {
 
             DemTile cohDemTile = null;
             if (subtractTopographicPhase) {
-                cohDemTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(cohTileWindow, mstMeta, mstOrbit, dem,
+                cohDemTile = TopoPhase.getDEMTile(cohTileWindow, mstMeta, mstOrbit, dem,
                         demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
             }
 
@@ -1357,7 +1357,7 @@ public class InterferogramOp extends Operator {
                 }
 
                 if (subtractTopographicPhase) {
-                    TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                    TopoPhase topoPhase = TopoPhase.computeTopoPhase(
                             mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, outputElevation, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
@@ -1375,7 +1375,7 @@ public class InterferogramOp extends Operator {
                     }
 
                     if (outputLatLon) {
-                        TopoPhase topoPhase1 = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                        TopoPhase topoPhase1 = TopoPhase.computeTopoPhase(
                                 mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, false, true);
 
                         saveLatLon(x0, xN, y0, yN, topoPhase1.latitude, topoPhase1.longitude, product, targetTileMap);
@@ -1410,7 +1410,7 @@ public class InterferogramOp extends Operator {
                     }
 
                     if (subtractTopographicPhase) {
-                        TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                        TopoPhase topoPhase = TopoPhase.computeTopoPhase(
                                 mstMeta, mstOrbit, slvMeta, slvOrbit, cohTileWindow, cohDemTile, false);
 
                         final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(

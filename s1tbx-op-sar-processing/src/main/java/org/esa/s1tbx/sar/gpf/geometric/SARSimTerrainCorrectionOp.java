@@ -63,7 +63,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
-import org.jlinda.nest.gpf.coregistration.GCPManager;
+import org.esa.s1tbx.insar.gpf.coregistration.GCPManager;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;

@@ -19,7 +19,6 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.coregistration.estimation.SystemOfEquations;
 import org.jlinda.core.utils.PolyUtils;
-import org.perf4j.StopWatch;
 
 import javax.media.jai.WarpPolynomial;
 import java.util.ArrayList;
@@ -391,13 +390,6 @@ public class CPM implements PolynomialModel {
 
         while (!estimationDone) {
 
-            String codeBlockMessage = "LS ESTIMATION PROCEDURE";
-            StopWatch stopWatch = new StopWatch();
-            StopWatch clock = new StopWatch();
-            clock.start();
-            stopWatch.setTag(codeBlockMessage);
-            stopWatch.start();
-
             //logger.info("Start iteration: {}"+ numIterations);
 
             /** Remove identified outlier from previous estimation */
@@ -478,7 +470,6 @@ public class CPM implements PolynomialModel {
             /** tempMatrix_1 matrices */
             final DenseMatrix64F yL_matrix = DenseMatrix64F.wrap(numObservations, 1, yOffset.toArray());
             final DenseMatrix64F yP_matrix = DenseMatrix64F.wrap(numObservations, 1, xOffset.toArray());
-            logger.info("TIME FOR SETUP of TEMP MATRICES: {}"+ stopWatch.lap("Temp matrices"));
 
             /** normal matrix */
             final DenseMatrix64F N = new DenseMatrix64F(numUnknowns, numUnknowns); // = A_transpose.mmul(Qy_1_diag.mmul(A));

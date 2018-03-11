@@ -12,7 +12,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.perf4j.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -108,17 +107,12 @@ public class DInSARTest {
 
         ComplexDoubleMatrix defoData = cplxIfg.dup();
 
-        StopWatch watch = new StopWatch();
-        watch.start();
         DInSAR dinsar = new DInSAR(masterMeta, masterOrbit, defoSlaveMeta, defoSlaveOrbit, topoSlaveMeta, topoSlaveOrbit);
         dinsar.setDataWindow(totalDataWindow);
         dinsar.setTileWindow(tileWindow);
         dinsar.setTopoData(topoPhase);
         dinsar.setDefoData(defoData);
         dinsar.dinsar();
-        watch.stop();
-
-        logger.info("Total processing time: {} milli-seconds"+ watch.getElapsedTime());
 
         // subtracted expected minus computed and convert to deformation : check on +/- 0.001m level
         ComplexDoubleMatrix expected = SarUtils.computeIfg(defoCplxIfg, dinsar.getDefoData());
@@ -137,16 +131,11 @@ public class DInSARTest {
 
         ComplexDoubleMatrix defoData = cplxIfg.dup();
 
-        StopWatch watch = new StopWatch();
-        watch.start();
         DInSAR dinsar = new DInSAR(masterMeta, masterOrbit, defoSlaveMeta, defoSlaveOrbit, topoSlaveMeta, topoSlaveOrbit);
         dinsar.setDataWindow(totalDataWindow);
         dinsar.computeBperpRatios();
 
         dinsar.applyDInSAR(tileWindow, defoData, topoPhase);
-        watch.stop();
-
-        logger.info("Total processing time: {} milli-seconds"+ watch.getElapsedTime());
 
         // subtracted expected minus computed and convert to deformation : check on +/- 0.001m level
         ComplexDoubleMatrix expected = SarUtils.computeIfg(defoCplxIfg, defoData);

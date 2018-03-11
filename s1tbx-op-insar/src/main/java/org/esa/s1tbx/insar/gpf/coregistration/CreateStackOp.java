@@ -31,8 +31,6 @@ import org.esa.snap.core.datamodel.Placemark;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
@@ -56,7 +54,6 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
-import org.jlinda.nest.gpf.coregistration.GCPManager;
 
 import java.awt.Rectangle;
 import java.io.IOException;

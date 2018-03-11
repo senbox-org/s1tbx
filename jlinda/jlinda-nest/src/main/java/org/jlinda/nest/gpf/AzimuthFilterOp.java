@@ -24,10 +24,10 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.filtering.AzimuthFilter;
 import org.jlinda.core.utils.LinearAlgebraUtils;
-import org.jlinda.nest.utils.BandUtilsDoris;
-import org.jlinda.nest.utils.CplxContainer;
-import org.jlinda.nest.utils.ProductContainer;
-import org.jlinda.nest.utils.TileUtilsDoris;
+import org.jlinda.core.utils.BandUtilsDoris;
+import org.jlinda.core.utils.CplxContainer;
+import org.jlinda.core.utils.ProductContainer;
+import org.jlinda.core.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
 import java.awt.Rectangle;
