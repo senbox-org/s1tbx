@@ -23,7 +23,6 @@ import org.esa.s1tbx.io.orbits.BaseOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
@@ -111,7 +110,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         if (orbitFile == null) {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
             final File destFolder = getDestFolder(missionPrefix, orbitType, year, month);
-            throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
+            throw new IOException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
                     + "\nand placed in " + destFolder.getAbsolutePath());
         }
 
@@ -333,7 +332,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final double validityStopTimeMJD = SentinelPODOrbitFile.toUTC(validityStopTimeStr).getMJD();
 
         if (stateVectorTime < validityStartTimeMJD || stateVectorTime > validityStopTimeMJD) {
-            throw new OperatorException("Product acquisition time is not within the validity period of the orbit");
+            throw new IOException("Product acquisition time is not within the validity period of the orbit");
         }
     }
 
