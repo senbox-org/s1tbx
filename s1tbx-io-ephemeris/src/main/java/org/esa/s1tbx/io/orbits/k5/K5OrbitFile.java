@@ -20,16 +20,12 @@ import org.esa.s1tbx.io.orbits.BaseOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
 import org.esa.snap.engine_utilities.util.Maths;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,7 +47,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private List<Orbits.OrbitVector> osvList;
 
-    public K5OrbitFile(final MetadataElement absRoot, final int polyDegree) throws Exception {
+    public K5OrbitFile(final MetadataElement absRoot, final int polyDegree) {
         super(absRoot);
         this.polyDegree = polyDegree;
     }
@@ -72,7 +68,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
         if (orbitFile == null) {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
             final File destFolder = getDestFolder(orbitType, year, month);
-            throw new OperatorException("No valid orbit file found for " + timeStr +
+            throw new IOException("No valid orbit file found for " + timeStr +
                                                 "\nOrbit files may be downloaded from " + remoteURL
                                                 + "\nand placed in " + destFolder.getAbsolutePath());
         }

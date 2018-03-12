@@ -16,22 +16,13 @@
 package org.esa.s1tbx.io.orbits.delft;
 
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.util.Maths;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -258,7 +249,7 @@ public final class OrbitalDataRecordReader {
      * @param dataRecord The data record read from delft orbit file.
      * @return The data record in pseudo-cartesian coordinate.
      */
-    private OrbitPositionRecord computeOrbitPosition(OrbitDataRecord dataRecord) {
+    private OrbitPositionRecord computeOrbitPosition(OrbitDataRecord dataRecord) throws IOException {
 
         // record time in UTC seconds past 1.0 January 1985.
         final double time = (double) dataRecord.time / Constants.secondsInDay; // to days
@@ -280,7 +271,7 @@ public final class OrbitalDataRecordReader {
                 lon -= 360;
             }
         } else {
-            throw new OperatorException("Invalid product specifier: " + productSpecifier);
+            throw new IOException("Invalid product specifier: " + productSpecifier);
         }
 
         final double[] xyz = new double[3];
@@ -406,7 +397,7 @@ public final class OrbitalDataRecordReader {
      * @return The arc number.
      * @throws IOException The exceptions.
      */
-    public static int getArcNumber(File file, Date productDate) {
+    public static int getArcNumber(File file, Date productDate) throws Exception {
 
         final String fileName = file.getAbsolutePath();
 
@@ -415,7 +406,7 @@ public final class OrbitalDataRecordReader {
         try {
             stream = new FileInputStream(fileName);
         } catch (FileNotFoundException e) {
-            throw new OperatorException("File not found: " + fileName);
+            throw new IOException("File not found: " + fileName);
         }
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -429,51 +420,38 @@ public final class OrbitalDataRecordReader {
         String line = "";
         StringTokenizer st;
 
-        try {
-            // get the title line
-            while ((line = reader.readLine()) != null) {
-                if (line.equals(titleLine)) {
-                    break;
-                }
+        // get the title line
+        while ((line = reader.readLine()) != null) {
+            if (line.equals(titleLine)) {
+                break;
             }
-
-            // get the rest arc record lines
-            while ((line = reader.readLine()) != null) {
-
-                st = new StringTokenizer(line);
-
-                // get arc number
-                final int recordArcNum = Integer.parseInt(st.nextToken());
-
-                // get start date and start time
-                try {
-                    startDate = dateformat.parse(st.nextToken() + " " + st.nextToken());
-                } catch (ParseException e) {
-                    throw new OperatorException(e);
-                }
-
-                // get a hyphen (-)
-                final String hyphen = st.nextToken();
-
-                // get end date and end time
-                try {
-                    endDate = dateformat.parse(st.nextToken() + " " + st.nextToken());
-                } catch (ParseException e) {
-                    throw new OperatorException(e);
-                }
-
-                if (productDate.compareTo(startDate) >= 0 && productDate.compareTo(endDate) < 0) {
-                    arcNum = recordArcNum;
-                    break;
-                }
-            }
-
-            reader.close();
-            stream.close();
-
-        } catch (IOException e) {
-            throw new OperatorException(e);
         }
+
+        // get the rest arc record lines
+        while ((line = reader.readLine()) != null) {
+
+            st = new StringTokenizer(line);
+
+            // get arc number
+            final int recordArcNum = Integer.parseInt(st.nextToken());
+
+            // get start date and start time
+            startDate = dateformat.parse(st.nextToken() + " " + st.nextToken());
+
+            // get a hyphen (-)
+            final String hyphen = st.nextToken();
+
+            // get end date and end time
+            endDate = dateformat.parse(st.nextToken() + " " + st.nextToken());
+
+            if (productDate.compareTo(startDate) >= 0 && productDate.compareTo(endDate) < 0) {
+                arcNum = recordArcNum;
+                break;
+            }
+        }
+
+        reader.close();
+        stream.close();
 
         return arcNum;
     }

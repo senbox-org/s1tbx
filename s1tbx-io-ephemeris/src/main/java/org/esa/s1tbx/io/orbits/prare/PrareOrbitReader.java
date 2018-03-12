@@ -16,7 +16,6 @@
 package org.esa.s1tbx.io.orbits.prare;
 
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
@@ -112,7 +111,7 @@ public final class PrareOrbitReader {
         try {
             stream = new FileInputStream(filePath);
         } catch (FileNotFoundException e) {
-            throw new OperatorException("File not found: " + filePath);
+            throw new IOException("File not found: " + filePath);
         }
 
         return new BufferedReader(new InputStreamReader(stream));

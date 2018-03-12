@@ -6,11 +6,11 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>6.0.2</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>s1tbx-io</artifactId>
-    <name>S1TBX IO</name>
+    <artifactId>s1tbx-io-ephemeris</artifactId>
+    <name>S1TBX IO Orbit Ephemeris</name>
 	
     <packaging>nbm</packaging>
 
@@ -21,23 +21,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>ceres-jai</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>ceres-glayer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-gpf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-geotiff</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -45,19 +29,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-envi-reader</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-netcdf</artifactId>
+            <artifactId>snap-envisat-reader</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -65,9 +41,9 @@
             <version>23.0</version>
         </dependency>
         <dependency>
-            <groupId>uk.me.jstott</groupId>
-            <artifactId>jcoord</artifactId>
-            <version>1.0</version>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.8.3</version>
         </dependency>
     </dependencies>
     
@@ -79,9 +55,6 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.s1tbx.*</publicPackage>
-                        <publicPackage>org.joda.*</publicPackage>
-                        <publicPackage>org.slf4j.*</publicPackage>
-						<publicPackage>com.google.common.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
