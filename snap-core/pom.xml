@@ -164,7 +164,8 @@
                         <publicPackage>com.vividsolutions.jts.*</publicPackage>
                         <publicPackage>Jama</publicPackage>
 						<publicPackage>org.apache.*</publicPackage>
-                        <publicPacakage>net.coobird.thumbnailator.*</publicPacakage>
+                        <publicPackage>net.coobird.thumbnailator.*</publicPackage>
+                        <publicPackage>org.ejml.*</publicPackage>
                         <publicPackage>com.bc.io</publicPackage>
                         <publicPackage>org.esa.snap.core.jexp</publicPackage>
                         <publicPackage>org.esa.snap.core.jexp.impl</publicPackage>
