@@ -100,7 +100,9 @@ public abstract class AbstractProductDirectory {
 
     public abstract void readProductDirectory() throws IOException;
 
-    protected abstract String getHeaderFileName();
+    protected String getHeaderFileName() {
+        return productInputFile.getName();
+    }
 
     protected abstract void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException;
 
