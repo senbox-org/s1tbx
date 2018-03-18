@@ -17,7 +17,7 @@ package org.esa.s1tbx.io.terrasarx;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.io.FileImageInputStreamExtImpl;
+import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.XMLProductDirectory;
 import org.esa.s1tbx.io.imageio.ImageIOFile;

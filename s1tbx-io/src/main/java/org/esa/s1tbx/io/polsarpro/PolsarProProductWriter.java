@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.polsarpro;
 
-import org.esa.s1tbx.io.FileImageOutputStreamExtImpl;
+import org.esa.s1tbx.commons.io.FileImageOutputStreamExtImpl;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.dataio.dimap.EnviHeader;

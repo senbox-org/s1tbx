@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class PolBandUtils {
 
-    public static enum MATRIX {DUAL_HH_HV, DUAL_VH_VV, DUAL_HH_VV, C2, LCHCP, RCHCP, C3, T3, C4, T4, FULL, UNKNOWN}
+    public enum MATRIX {DUAL_HH_HV, DUAL_VH_VV, DUAL_HH_VV, C2, LCHCP, RCHCP, C3, T3, C4, T4, FULL, UNKNOWN}
 
     public static class PolSourceBand {
         public final String productName;
@@ -199,8 +199,7 @@ public class PolBandUtils {
         return bandList.toArray(new Band[bandList.size()]);
     }
 
-    private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames)
-            throws Exception {
+    private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames) {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
         final boolean isComplex = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX");
@@ -464,7 +463,7 @@ public class PolBandUtils {
         };
     }
 
-    public static String getPolarType(final Product product) throws Exception {
+    public static String getPolarType(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         if (absRoot != null) {
             if (!AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds1_tx_rx_polar) &&

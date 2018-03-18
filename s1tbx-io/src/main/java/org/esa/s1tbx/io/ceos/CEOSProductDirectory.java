@@ -16,7 +16,7 @@
 package org.esa.s1tbx.io.ceos;
 
 import com.bc.ceres.core.VirtualDir;
-import org.esa.s1tbx.io.FileImageInputStreamExtImpl;
+import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;

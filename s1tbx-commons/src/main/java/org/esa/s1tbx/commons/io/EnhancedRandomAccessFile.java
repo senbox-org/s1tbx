@@ -33,7 +33,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.esa.s1tbx.io;
+package org.esa.s1tbx.commons.io;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
