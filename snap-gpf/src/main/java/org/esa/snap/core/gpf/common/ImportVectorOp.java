@@ -48,7 +48,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileReader;
@@ -65,7 +65,7 @@ import java.util.Arrays;
 @OperatorMetadata(alias = "Import-Vector",
         category = "Vector",
         authors = "Jun Lu, Luis Veci",
-        version = "1.0",
+        version = "1.1",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Imports a shape file into a product")
 public class ImportVectorOp extends Operator {
@@ -91,7 +91,9 @@ public class ImportVectorOp extends Operator {
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             for (String bandName : sourceProduct.getBandNames()) {
-                ProductUtils.copyBand(bandName, sourceProduct, targetProduct, true);
+                if (!targetProduct.containsBand(bandName)) {
+                    ProductUtils.copyBand(bandName, sourceProduct, targetProduct, true);
+                }
             }
 
             if (vectorFile != null) {
