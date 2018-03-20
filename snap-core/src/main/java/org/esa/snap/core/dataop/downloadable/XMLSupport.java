@@ -59,17 +59,15 @@ public final class XMLSupport {
     }
 
     public static Document LoadXML(final InputStream inputStream) throws IOException {
-
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        org.w3c.dom.Document w3cDocument = null;
-
-        final DOMBuilder domBuilder = new DOMBuilder();
-
         try {
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            w3cDocument = builder.parse(inputStream);
+            final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            final org.w3c.dom.Document w3cDocument = builder.parse(inputStream);
 
-            return domBuilder.build(w3cDocument);
+            final DOMBuilder domBuilder = new DOMBuilder();
+            final Document doc = domBuilder.build(w3cDocument);
+            inputStream.close();
+
+            return doc;
         } catch (MalformedURLException e) {
             final String msg = "Cannot parse xml file path : " + e.getMessage() +
                     '\n' + inputStream +
@@ -87,17 +85,13 @@ public final class XMLSupport {
 
     public static Document LoadXML(final String filePath) throws IOException {
 
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        org.w3c.dom.Document w3cDocument = null;
-
-        final DOMBuilder domBuilder = new DOMBuilder();
-
         try {
             // handle spaces in the path
             final String path = filePath.replaceAll(" ", "%20");
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            w3cDocument = builder.parse(filePath);
+            final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            final org.w3c.dom.Document w3cDocument = builder.parse(path);
 
+            final DOMBuilder domBuilder = new DOMBuilder();
             return domBuilder.build(w3cDocument);
         } catch (MalformedURLException e) {
             final String msg = "Cannot parse xml file path : " + e.getMessage() +
