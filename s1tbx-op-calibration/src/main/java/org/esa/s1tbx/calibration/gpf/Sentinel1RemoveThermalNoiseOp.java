@@ -96,9 +96,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private HashMap<String, Double> deltaTsMap = new HashMap<>();
 
     // The key to these maps is pol, e.g. "HH"
-    //private HashMap<String, Sentinel1Utils.NoiseAzimuthVector[] > noiseAzimuthVectorMap = new HashMap<>();
     private HashMap<String, NoiseAzimuthBlock[] > noiseAzimuthBlockMap = new HashMap<>();
-    //private HashMap<String, Sentinel1Utils.NoiseVector[]> noiseRangeVectorMap = new HashMap<>();
+    private boolean noiseAzimuthBlockPopulated = false;
 
     // key is pol+swath, e.g. "HH+IW1" or "HH+EW1"
     private HashMap<String, double[]> swathStartEndTimesMap = new HashMap<>();
@@ -159,14 +158,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 getCalibrationVectors();
             }
 
-            if (version >= 2.9) {
-                if (isTOPS && isGRD) {
-                    buildNoiseLUTForTOPSGRD();
-                } else if (isTOPSARSLC) {
-                    buildNoiseLUTForTOPSSLC();
-                }
-            }
-
             createTargetProduct();
 
             updateTargetProductMetadata();
@@ -191,7 +182,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         isTOPS = mode.contains("IW") || mode.contains("EW");
         isGRD = productType.contains("GRD");
 
-        System.out.println("Sentinel1RemoveThermalNoiseOp: productType = " + productType + " isTOPS = " + isTOPS + " isGRD = " + isGRD + " isTOPSARSLC = " + isTOPSARSLC);
+        //System.out.println("Sentinel1RemoveThermalNoiseOp: productType = " + productType + " isTOPS = " + isTOPS + " isGRD = " + isGRD + " isTOPSARSLC = " + isTOPSARSLC);
     }
 
     /**
@@ -479,6 +470,18 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
+    private synchronized void populateNoiseAzimuthBlock() {
+        if (version >= 2.9 && !noiseAzimuthBlockPopulated) {
+            if (isTOPS && isGRD) {
+                buildNoiseLUTForTOPSGRD();
+            } else if (isTOPSARSLC) {
+                buildNoiseLUTForTOPSSLC();
+            }
+
+            noiseAzimuthBlockPopulated = true;
+        }
+    }
+
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -499,6 +502,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
 
         try {
+            if (version >= 2.9 && !noiseAzimuthBlockPopulated) {
+                populateNoiseAzimuthBlock();
+            }
+
             final String targetBandName = targetBand.getName();
 
             Tile sourceRaster1 = null;
@@ -817,7 +824,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private void getIPFVersion() {
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
-        System.out.println("Sentinel1RemoveThermalNoiseOp: IPF version = " + version);
+        //System.out.println("Sentinel1RemoveThermalNoiseOp: IPF version = " + version);
     }
 
     private void buildNoiseLUTForTOPSSLC() {

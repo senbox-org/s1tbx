@@ -25,7 +25,7 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>6.0.0</snap.version>
+        <snap.version>6.0.2-SNAPSHOT</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
@@ -114,18 +114,6 @@
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </repository>
-		<repository>
-            <id>array-mvn-repo</id>
-            <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://corp.array.ca/nest-web/mavenrepo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
     </repositories>
 
     <pluginRepositories>
@@ -140,17 +128,6 @@
             <snapshots>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
-            </snapshots>
-        </pluginRepository>
-		<pluginRepository>
-            <id>array-mvn-repo</id>
-            <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://corp.array.ca/nest-web/mavenrepo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
