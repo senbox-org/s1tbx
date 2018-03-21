@@ -110,6 +110,8 @@ public final class SliceAssemblyOp extends Operator {
 
     private static final String PRODUCT_SUFFIX = "_Asm";
 
+    private double version = 0.0f;
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -150,6 +152,8 @@ public final class SliceAssemblyOp extends Operator {
                 selectedPolarisations = su.getPolarizations();
             }
 
+            getIPFVersion();
+
             checkSlantRangeTimes();
 
             createTargetProduct();
@@ -160,6 +164,12 @@ public final class SliceAssemblyOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private void getIPFVersion() {
+        final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+        version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
+        //System.out.println("Sentinel1RemoveThermalNoiseOp: IPF version = " + version);
     }
 
     private Product[] determineSliceProducts() throws Exception {
@@ -1028,6 +1038,16 @@ public final class SliceAssemblyOp extends Operator {
         return data.getElements();
     }
 
+    private static MetadataElement getNoiseAzimuthVectorList(final Product product, final String imageNum) {
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        for (MetadataElement e : origProdRoot.getElement("noise").getElements()) {
+            if (extractImageNumber(e.getName()).equals(imageNum)) {
+                return e.getElement("noise").getElement("noiseAzimuthVectorList");
+            }
+        }
+        return null;
+    }
 
     private static MetadataElement getCalibrationOrNoiseVectorList(final Product product, final String imageNum, final String dataName) {
 
@@ -1091,6 +1111,31 @@ public final class SliceAssemblyOp extends Operator {
         }
 
         return pixelSpacing;
+    }
+
+    private static void combineNoiseAzimuthVectorList(
+            final MetadataElement targetVectorList, final MetadataElement sliceVectorList, final int sliceIndex) {
+
+        final int tgtCount = Integer.parseInt(targetVectorList.getAttribute("count").getData().getElemString());
+        final int sliceCount = Integer.parseInt(sliceVectorList.getAttribute("count").getData().getElemString());
+
+        for (int i = 0; i < tgtCount; i++) {
+            MetadataElement v = targetVectorList.getElementAt(i);
+            final MetadataAttribute attribute = new MetadataAttribute("slice", ProductData.TYPE_ASCII);
+            v.addAttribute(attribute);
+            v.setAttributeString(attribute.getName(), "0");
+        }
+
+        for (int i = 0; i < sliceCount; i++) {
+            MetadataElement v = sliceVectorList.getElementAt(i);
+            MetadataElement newV = v.createDeepClone();
+            final MetadataAttribute attribute = new MetadataAttribute("slice", ProductData.TYPE_ASCII);
+            newV.addAttribute(attribute);
+            newV.setAttributeString(attribute.getName(), String.valueOf(sliceIndex));
+            targetVectorList.addElementAt(newV, tgtCount + i);
+        }
+
+        targetVectorList.setAttributeString("count", Integer.toString(tgtCount + sliceCount));
     }
 
     private static void concatenateVectors(final MetadataElement targetVectorList,
@@ -1212,6 +1257,10 @@ public final class SliceAssemblyOp extends Operator {
             // Update (calibration|noise)VectorList
 
             final MetadataElement targetVectorList = getVectorListElement(targetDat, dataName);
+            MetadataElement targetNoiseAzimuthVectorList = null;
+            if (version >= 2.9 && dataName.equals("noise")) {
+                targetNoiseAzimuthVectorList = targetDat.getElement("noiseAzimuthVectorList");
+            }
 
             int numLines = Integer.parseInt(targetVectorList.getAttribute("count").getData().getElemString());
             final int pixelSpacing = getCalibrationOrNoisePixelSpacing(targetProduct, imageNum, dataName);  // TODO
@@ -1233,8 +1282,14 @@ public final class SliceAssemblyOp extends Operator {
                     throw new OperatorException("slice products have different pixel spacing in " + dataName + " vectors: " + i + ' ' + pixelSpacing + ' ' + slicePixelSpacing);
                 }
 
-                final int targetLastVectorLine = Integer.parseInt(targetVectorList.getElementAt(targetVectorList.getNumElements() - 1).getAttributeString("line"));
+                final int targetLastVectorLine = Integer.parseInt(targetVectorList.getElementAt(
+                        targetVectorList.getNumElements() - 1).getAttributeString("line"));
                 //System.out.println("targetLastVectorLine = " + targetLastVectorLine + " slicePixelSpacing = " + slicePixelSpacing + " height = " + height + " pixelSpacing = " + pixelSpacing + " numLines = " + numLines);
+
+                if (version >= 2.9 && dataName.equals("noise")) {
+                    final MetadataElement sliceNoiseAzimuthVectorList = getNoiseAzimuthVectorList(sliceProduct, imageNum);
+                    combineNoiseAzimuthVectorList(targetNoiseAzimuthVectorList, sliceNoiseAzimuthVectorList, i);
+                }
 
                 final MetadataElement sliceVectorList = getCalibrationOrNoiseVectorList(sliceProduct, imageNum, dataName);
                 final int sliceNumLines = Integer.parseInt(sliceVectorList.getAttribute("count").getData().getElemString());
