@@ -105,6 +105,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     // Only for TOPS SLC. Key is something like "ew1_hh"
     private HashMap<String, BurstBlock[] > burstBlockMap = new HashMap<>();
 
+    private double trgNoDataValue = -0.001234567890000;
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -416,8 +418,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
                 targetBand.setUnit(Unit.INTENSITY);
                 targetBand.setDescription(srcBand.getDescription());
-                targetBand.setNoDataValue(srcBand.getNoDataValue());
-                targetBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+                targetBand.setNoDataValue(trgNoDataValue);
+                targetBand.setNoDataValueUsed(true);
                 targetProduct.addBand(targetBand);
             }
         }
@@ -527,6 +529,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 srcData2 = sourceRaster2.getDataBuffer();
             }
 
+            final double srcNoDataValue = sourceBand1.getNoDataValue();
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
             final ProductData trgData = targetTile.getDataBuffer();
             final TileIndex srcIndex = new TileIndex(sourceRaster1);
@@ -595,6 +598,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         dn2 = srcData1.getElemDoubleAt(srcIdx);
                     } else {
                         throw new OperatorException("Unhandled unit");
+                    }
+
+                    if(dn2 == srcNoDataValue) {
+                        trgData.setElemDoubleAt(tgtIdx, trgNoDataValue);
+                        continue;
                     }
 
                     double noise = 0;
