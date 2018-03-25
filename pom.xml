@@ -5,7 +5,7 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>6.0.1-SNAPSHOT</version>
+    <version>6.0.1</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <description>Tools for SAR Earth Observation</description>
@@ -25,16 +25,16 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>6.0.2-SNAPSHOT</snap.version>
+        <snap.version>6.0.1</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
             It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
-		<s1tbx.version>6.0.1-SNAPSHOT</s1tbx.version>
-        <rstb.version>7.4.1-SNAPSHOT</rstb.version>
-        <jlinda.version>6.0.1-SNAPSHOT</jlinda.version>
+		<s1tbx.version>6.0.1</s1tbx.version>
+        <rstb.version>7.4.1</rstb.version>
+        <jlinda.version>6.0.1</jlinda.version>
         
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>	
