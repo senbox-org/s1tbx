@@ -984,7 +984,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             MetadataElement noiseAzimuthVectorListElem = noiElem.getElement("noiseAzimuthVectorList");
 
             final MetadataElement firstVector = noiseAzimuthVectorListElem.getElementAt(0);
-            if (firstVector.getAttributeString("slice") != null) {
+            if (firstVector.getAttributeString("slice", null) != null) {
                 throw new OperatorException("Noise removal should be applied prior to slice assembly");
             }
 
