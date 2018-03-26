@@ -18,11 +18,7 @@ package org.esa.s1tbx.calibration.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -45,11 +41,8 @@ import org.esa.snap.engine_utilities.util.Maths;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Mask "No-value" pixels for near-range region in a Sentinel-1 Level-1 GRD product.
@@ -89,6 +82,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     private Double noDataValue = 0.0;
     private String coPolarization = null;
     private Sentinel1Utils.NoiseVector noiseVector = null;
+
     private double[] noiseLUT = null;
     private Band coPolBand = null;
     private boolean thermalNoiseCorrectionPerformed = false;
@@ -167,6 +161,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
+        System.out.println("version = " + version);
     }
 
     /**
@@ -221,7 +216,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
             final MetadataElement adsHeaderElem = noiElem.getElement("adsHeader");
             final String pol = adsHeaderElem.getAttributeString("polarisation");
             if (coPolarization.contains(pol)) {
-                final MetadataElement noiseVectorListElem = noiElem.getElement("noiseVectorList");
+                final MetadataElement noiseVectorListElem = noiElem.getElement((version >= 2.9) ? "noiseRangeVectorList" : "noiseVectorList");
                 final int count = Integer.parseInt(noiseVectorListElem.getAttributeString("count"));
                 Sentinel1Utils.NoiseVector[] noiseVectorList = Sentinel1Utils.getNoiseVector(noiseVectorListElem);
                 noiseVector = noiseVectorList[count / 2];
@@ -230,7 +225,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         }
 
         if (noiseVector == null) {
-            throw new OperatorException("Input product does not have noise vector for HH or VV band");
+            throw new OperatorException("Input product does not have range noise vector for HH or VV band");
         }
     }
 
@@ -716,7 +711,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()
-     * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see OperatorSpi#createOperator(Map, Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

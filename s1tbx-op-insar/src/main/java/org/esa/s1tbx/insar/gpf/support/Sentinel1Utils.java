@@ -974,9 +974,18 @@ public final class Sentinel1Utils {
             final MetadataElement pixelElem = noiseVectorElem.getElement("pixel");
             final String pixel = pixelElem.getAttributeString("pixel");
             final int count = Integer.parseInt(pixelElem.getAttributeString("count"));
-            final MetadataElement noiseLutElem = noiseVectorElem.getElement("noiseLut");
-            final String noiseLUT = noiseLutElem.getAttributeString("noiseLut");
-
+            MetadataElement noiseLutElem = noiseVectorElem.getElement("noiseLut");
+            if (noiseLutElem == null) {
+                // After IPF 2.9.0
+                noiseLutElem = noiseVectorElem.getElement("noiseRangeLut");
+            }
+            //String noiseLUT = noiseLutElem.getAttributeString("noiseLut");
+            MetadataAttribute attribute = noiseLutElem.getAttribute("noiseLut");
+            if (attribute == null) {
+                // After IPF 2.9.0
+                attribute = noiseLutElem.getAttribute("noiseRangeLut");
+            }
+            final String noiseLUT = attribute.getData().getElemString();
             final int[] pixelArray = new int[count];
             final float[] noiseLUTArray = new float[count];
             addToArray(pixelArray, 0, pixel, " ");
@@ -985,6 +994,50 @@ public final class Sentinel1Utils {
             noiseVectorList.add(new NoiseVector(time, line, pixelArray, noiseLUTArray));
         }
         return noiseVectorList.toArray(new NoiseVector[noiseVectorList.size()]);
+    }
+
+    public static NoiseAzimuthVector[] getAzimuthNoiseVector(final MetadataElement azimNoiseVectorListElem) {
+
+        final MetadataElement[] list = azimNoiseVectorListElem.getElements();
+
+        final List<NoiseAzimuthVector> noiseVectorList = new ArrayList<>(5);
+
+        for (MetadataElement noiseVectorElem : list) {
+
+            final MetadataElement lineElem = noiseVectorElem.getElement("line");
+            final String line = lineElem.getAttributeString("line");
+            final int count = Integer.parseInt(lineElem.getAttributeString("count"));
+            MetadataElement noiseLutElem = noiseVectorElem.getElement("noiseAzimuthLut");
+            MetadataAttribute attribute = noiseLutElem.getAttribute("noiseAzimuthLut");
+            final String noiseLUT = attribute.getData().getElemString();
+            final int[] lineArray = new int[count];
+            final float[] noiseLUTArray = new float[count];
+            addToArray(lineArray, 0, line, " ");
+            addToArray(noiseLUTArray, 0, noiseLUT, " ");
+            //System.out.println("Sentinel1Utils.getAzimuthNoiseVector: count = " + count);
+            /*for (int i = 0; i < count; i++) {
+                 System.out.println("Sentinel1Utils.getAzimuthNoiseVector: " + lineArray[i] + " -> " + noiseLUTArray[i]);
+            }*/
+
+            final String swath = noiseVectorElem.containsAttribute("swath") ?
+                    noiseVectorElem.getAttributeString("swath") : null;
+            final int firstAzimuthLine = noiseVectorElem.containsAttribute("firstAzimuthLine") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("firstAzimuthLine")) : -1;
+            final int firstRangeSample = noiseVectorElem.containsAttribute("firstRangeSample") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("firstRangeSample")) : -1;
+            final int lastAzimuthLine = noiseVectorElem.containsAttribute("lastAzimuthLine") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("lastAzimuthLine")) : -1;
+            final int lastRangeSample = noiseVectorElem.containsAttribute("lastRangeSample") ?
+                    Integer.parseInt(noiseVectorElem.getAttributeString("lastRangeSample")) : -1;
+            /*
+            System.out.println("Sentinel1Utils.getAzimuthNoiseVector: swath = " + swath + "; firstAzimuthLine = "
+                    + firstAzimuthLine + "; firstRangeSample = " + firstRangeSample
+                    + "; lastAzimuthLine = " + lastAzimuthLine + "; lastRangeSample = " + lastRangeSample);
+            */
+            noiseVectorList.add(new NoiseAzimuthVector(swath, firstAzimuthLine, firstRangeSample, lastAzimuthLine, lastRangeSample, lineArray, noiseLUTArray));
+        }
+
+        return noiseVectorList.toArray(new NoiseAzimuthVector[noiseVectorList.size()]);
     }
 
     //todo: This function is currently used by Sentinel1CalibratorOp and should be replaced later by the function above.
@@ -1537,6 +1590,7 @@ public final class Sentinel1Utils {
         public double[] dataDcPolynomial;
     }
 
+    // After IPF 2.9.0, this is for noiseRangeVectorList
     public final static class NoiseVector {
         public final double timeMJD;
         public final int line;
@@ -1548,6 +1602,30 @@ public final class Sentinel1Utils {
             this.line = line;
             this.pixels = pixels;
             this.noiseLUT = noiseLUT;
+        }
+    }
+
+    // After IPF 2.9.0, there is the new noiseAzimuthVectorList
+    public final static class NoiseAzimuthVector {
+        public final String swath;
+        public final int firstAzimuthLine;
+        public final int firstRangeSample;
+        public final int lastAzimuthLine;
+        public final int lastRangeSample;
+        public final int[] lines;
+        public final float[] noiseAzimuthLUT;
+
+        public NoiseAzimuthVector(final String swath,
+                                  final int firstAzimuthLine, final int firstRangeSample,
+                                  final int lastAzimuthLine, final int lastRangeSample,
+                                  final int[] lines, final float[] noiseAzimuthLUT) {
+            this.swath = swath;
+            this.firstAzimuthLine = firstAzimuthLine;
+            this.firstRangeSample = firstRangeSample;
+            this.lastAzimuthLine = lastAzimuthLine;
+            this.lastRangeSample = lastRangeSample;
+            this.lines = lines;
+            this.noiseAzimuthLUT = noiseAzimuthLUT;
         }
     }
 
