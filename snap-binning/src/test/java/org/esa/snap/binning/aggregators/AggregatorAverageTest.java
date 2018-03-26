@@ -30,11 +30,18 @@ import static org.junit.Assert.*;
 
 public class AggregatorAverageTest {
 
-    BinContext ctx;
+    private BinContext ctx;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ctx = createCtx();
+    }
+
+    @Test
+    public void testRequiresGrowableSpatialData() {
+        final AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", "c", 0.0, false, false);
+
+        assertFalse(agg.requiresGrowableSpatialData());
     }
 
     @Test

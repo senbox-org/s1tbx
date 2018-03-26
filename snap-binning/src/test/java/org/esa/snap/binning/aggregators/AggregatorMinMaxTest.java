@@ -22,17 +22,27 @@ import org.esa.snap.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.*;
-import static org.esa.snap.binning.aggregators.AggregatorTestUtils.*;
-import static org.junit.Assert.*;
+import static java.lang.Float.NaN;
+import static org.esa.snap.binning.aggregators.AggregatorTestUtils.createCtx;
+import static org.esa.snap.binning.aggregators.AggregatorTestUtils.obsNT;
+import static org.esa.snap.binning.aggregators.AggregatorTestUtils.vec;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class AggregatorMinMaxTest {
 
-    BinContext ctx;
+    private BinContext ctx;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ctx = createCtx();
+    }
+
+    @Test
+    public void testRequiresGrowableSpatialData() {
+        final AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a", "Out");
+
+        assertFalse(agg.requiresGrowableSpatialData());
     }
 
     @Test

@@ -18,23 +18,20 @@ package org.esa.snap.binning;
 
 import org.esa.snap.binning.aggregators.AggregatorAverage;
 import org.esa.snap.binning.aggregators.AggregatorAverageML;
+import org.esa.snap.binning.aggregators.AggregatorAverageOutlierAware;
 import org.esa.snap.binning.aggregators.AggregatorMinMax;
+import org.esa.snap.binning.support.GrowableVector;
 import org.esa.snap.binning.support.ObservationImpl;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import static org.junit.Assert.*;
 
 public class SpatialBinTest {
 
     @Test
-    public void testIllegalConstructorCalls() {
+    public void testIllegalConstructorCall() {
         try {
             new SpatialBin(0, -1);
             fail("IllegalArgumentException expected");
@@ -48,15 +45,27 @@ public class SpatialBinTest {
         assertEquals(42, bin.getIndex());
         bin = new SpatialBin(43, 3);
         assertEquals(43, bin.getIndex());
+
+        final GrowableVector[] vectors = bin.getVectors();
+        assertEquals(0, vectors.length);
+    }
+
+    @Test
+    public void testConstructWithGrowableData() {
+        final SpatialBin bin = new SpatialBin(43, 0, 1);
+        assertEquals(43, bin.getIndex());
+
+        final GrowableVector[] vectors = bin.getVectors();
+        assertEquals(1, vectors.length);
     }
 
     @Test
     public void testBinAggregationAndIO() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A", "B", "C");
         BinManager bman = new BinManager(variableContext,
-                                         new AggregatorMinMax(variableContext, "A", "A"),
-                                         new AggregatorAverage(variableContext, "B", "B", 0.0, false, false),
-                                         new AggregatorAverageML(variableContext, "C", "C", 0.5, false));
+                new AggregatorMinMax(variableContext, "A", "A"),
+                new AggregatorAverage(variableContext, "B", "B", 0.0, false, false),
+                new AggregatorAverageML(variableContext, "C", "C", 0.5, false));
 
         SpatialBin bin = bman.createSpatialBin(0);
 
@@ -93,11 +102,7 @@ public class SpatialBinTest {
         assertEquals(2.235039f, agg3.get(0), 1e-5f);
         assertEquals(3.240475f, agg3.get(1), 1e-5f);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bin.write(new DataOutputStream(baos));
-        byte[] bytes = baos.toByteArray();
-
-        SpatialBin binCopy = SpatialBin.read(new DataInputStream(new ByteArrayInputStream(bytes)));
+        SpatialBin binCopy = serializeAndRestoreBin(bin);
 
         assertEquals(-1, binCopy.getIndex());
         assertEquals(3, binCopy.getNumObs());
@@ -120,11 +125,43 @@ public class SpatialBinTest {
     }
 
     @Test
+    public void testAggregationWithGrowingData() throws IOException {
+        final MyVariableContext variableContext = new MyVariableContext("A", "B", "C");
+        final BinManager bman = new BinManager(variableContext,
+                new AggregatorMinMax(variableContext, "A", "A"),
+                new AggregatorAverage(variableContext, "B", "B", 0.0, false, false),
+                new AggregatorAverageOutlierAware(variableContext, "C", 1.2));
+
+        SpatialBin bin = bman.createSpatialBin(0);
+
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.2f, 4.0f, 4.0f), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.2f, 4.0f, 5.0f), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.2f, 4.0f, 6.0f), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.2f, 4.0f, 7.0f), bin);
+
+        assertEquals(4, bin.getNumObs());
+        assertEquals(1, bin.vectors.length);
+        assertEquals(4, bin.featureValues.length);
+
+        bman.completeSpatialBin(bin);
+
+        SpatialBin binCopy = serializeAndRestoreBin(bin);
+
+        assertEquals(4, binCopy.getNumObs());
+        assertEquals(1, binCopy.vectors.length);
+        assertEquals(4, binCopy.featureValues.length);
+
+        assertEquals(4.0f,  binCopy.vectors[0].get(0), 1e-8);
+        assertEquals(5.0f,  binCopy.vectors[0].get(1), 1e-8);
+    }
+
+    @Test
     public void testBinContext() {
-        BinContext ctx = new SpatialBin(0, 0);
-        assertEquals(null, ctx.get("a"));
+        final BinContext ctx = new SpatialBin(0, 0);
+        assertNull(ctx.get("a"));
+
         ctx.put("a", 42);
-        assertEquals(42, (int)ctx.get("a"));
+        assertEquals(42, (int) ctx.get("a"));
     }
 
     @Test
@@ -144,10 +181,18 @@ public class SpatialBinTest {
     public void testBinCreationWithIndex() throws Exception {
         final SpatialBin bin = SpatialBin.read(10L, new DataInputStream(new InputStream() {
             @Override
-            public int read() throws IOException {
+            public int read() {
                 return 0;
             }
         }));
         assertEquals(10L, bin.getIndex());
+    }
+
+    private SpatialBin serializeAndRestoreBin(SpatialBin bin) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bin.write(new DataOutputStream(baos));
+        byte[] bytes = baos.toByteArray();
+
+        return SpatialBin.read(new DataInputStream(new ByteArrayInputStream(bytes)));
     }
 }
