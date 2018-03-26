@@ -27,7 +27,7 @@ import org.csa.rstb.polarimetric.gpf.decompositions.Touzi;
 import org.csa.rstb.polarimetric.gpf.decompositions.Yamaguchi;
 import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
 import org.csa.rstb.polarimetric.gpf.decompositions.vanZyl;
-import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

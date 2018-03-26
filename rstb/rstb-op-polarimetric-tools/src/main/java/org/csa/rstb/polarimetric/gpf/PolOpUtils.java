@@ -18,7 +18,7 @@ package org.csa.rstb.polarimetric.gpf;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
