@@ -380,7 +380,8 @@ public class BinManager {
         traceOutput(temporalBin, outputVector);
     }
 
-    private void initSpatialBin(SpatialBin bin) {
+    // used by calvalus - undocumented API tb 2018-03-26
+    public void initSpatialBin(SpatialBin bin) {
         final VectorImpl vector = new VectorImpl(bin.featureValues);
         for (int i = 0; i < aggregators.length; i++) {
             final Aggregator aggregator = aggregators[i];
