@@ -40,7 +40,7 @@ public class AggregatorAverageOutlierAwareTest {
 
         assertEquals("AVG_OUTLIER", agg.getName());
 
-        // @todo 1 tb/tb add checks for spatial features
+        assertEquals(0, agg.getSpatialFeatureNames().length);
 
         assertEquals(3, agg.getTemporalFeatureNames().length);
         assertEquals("var_mean", agg.getTemporalFeatureNames()[0]);
@@ -93,6 +93,25 @@ public class AggregatorAverageOutlierAwareTest {
         assertEquals(0.31f, vector.get(0), 1e-8);
         assertEquals(0.32f, vector.get(1), 1e-8);
         assertEquals(0.33f, vector.get(2), 1e-8);
+
+        agg.completeSpatial(ctx, 0, vector);
+    }
+
+    @Test
+    public void testAggregateSpatial_threeMeasurements_withNaN() {
+        final AggregatorAverageOutlierAware agg = new AggregatorAverageOutlierAware(new MyVariableContext("var"), "var", 1.2);
+
+        final GrowableVector vector = new GrowableVector(9);
+
+        agg.initSpatial(ctx, vector);
+
+        agg.aggregateSpatial(ctx, obsNT(0.53f), vector);
+        agg.aggregateSpatial(ctx, obsNT(Float.NaN), vector);
+        agg.aggregateSpatial(ctx, obsNT(0.55f), vector);
+
+        assertEquals(2, vector.size());
+        assertEquals(0.53f, vector.get(0), 1e-8);
+        assertEquals(0.55f, vector.get(1), 1e-8);
 
         agg.completeSpatial(ctx, 0, vector);
     }

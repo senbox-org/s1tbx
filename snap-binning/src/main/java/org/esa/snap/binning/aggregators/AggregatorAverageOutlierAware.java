@@ -48,7 +48,9 @@ public class AggregatorAverageOutlierAware extends AbstractAggregator {
     @Override
     public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final float value = observationVector.get(varIndex);
-        ((GrowableVector) spatialVector).add(value);
+        if (!Float.isNaN(value)) {
+            ((GrowableVector) spatialVector).add(value);
+        }
     }
 
     @Override
