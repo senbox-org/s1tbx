@@ -33,7 +33,8 @@ public class SpatialBin extends Bin {
 
     GrowableVector[] vectors;
 
-    private SpatialBin() {
+    // this constructor is noly public because it is used in Calvalus - undocumented API! tb 2018-03-26
+    public SpatialBin() {
         super();
         vectors = new GrowableVector[0];
     }
