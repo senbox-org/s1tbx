@@ -21,7 +21,7 @@ import org.csa.rstb.classification.gpf.classifiers.HAlphaWishartC2;
 import org.csa.rstb.classification.gpf.classifiers.PolClassifierBase;
 import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
-import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.Product;
