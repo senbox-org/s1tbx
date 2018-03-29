@@ -667,12 +667,6 @@
                 <version>1.6.5-1</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.jzy3d</groupId>
-                <artifactId>jzy3d-api</artifactId>
-                <version>1.0.0</version>
-            </dependency>
-
             <!-- XStream Libraries ############################################# -->
 
             <dependency>
@@ -733,11 +727,6 @@
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
-        </repository>
-        <repository>
-            <id>jzy3d-releases</id>
-            <name>Jzy3d Snapshots</name>
-            <url>http://maven.jzy3d.org/releases/</url>
         </repository>
     </repositories>
 
