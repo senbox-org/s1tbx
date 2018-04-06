@@ -52,7 +52,7 @@ public class PixelPosEstimatorTest {
         final PlanarImage lonImage = images[0];
         final PlanarImage latImage = images[1];
         final PlanarImage maskImage = images[2];
-        final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
+        final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5, false);
 
         final GeoPos g = new GeoPos();
         final PixelPos p = new PixelPos();
