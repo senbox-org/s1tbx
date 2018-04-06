@@ -145,7 +145,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         final double pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
         final double halfPixelDiagonal = Math.sqrt(pixelDiagonalSquared) / 2;
 
-        pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
+        pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5, true);
         pixelFinder = new PixelFinder(lonImage, latImage, maskImage, halfPixelDiagonal, fractionAccuracy, searchRadius);
 
         boolean useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
@@ -199,10 +199,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      */
     @Override
     public boolean canGetPixelPos() {
-//        if (pixelPosEstimator != null) {
         return pixelPosEstimator.canGetPixelPos();
-//        }
-//        return true;
     }
 
     /**

@@ -32,25 +32,22 @@ import java.awt.image.Raster;
  */
 public class PixelPosEstimator {
 
-    private static final boolean EXTRAPOLATE = false;
-
     private final GeoApproximation[] approximations;
     private final Rectangle bounds;
+    private boolean extrapolate;
 
 
     public PixelPosEstimator(GeoApproximation[] approximations, Rectangle bounds) {
         this.approximations = approximations;
         this.bounds = bounds;
+        this.extrapolate = false;
     }
 
-    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy) {
-        this(lonImage, latImage, maskImage, accuracy, new DefaultSteppingFactory());
-    }
-
-    private PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
-                              SteppingFactory steppingFactory) {
+    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy, boolean extrapolate) {
+        final DefaultSteppingFactory steppingFactory = new DefaultSteppingFactory();
         approximations = createApproximations(lonImage, latImage, maskImage, accuracy, steppingFactory);
         bounds = lonImage.getBounds();
+        this.extrapolate = extrapolate;
     }
 
     public final boolean canGetPixelPos() {
@@ -77,7 +74,7 @@ public class PixelPosEstimator {
                     approximation.g2p(p);
                     final double x = p.getX();
                     final double y = p.getY();
-                    if (!EXTRAPOLATE && (x < bounds.getMinX() || x > bounds.getMaxX() || y < bounds.getMinY() || y > bounds.getMaxY())) {
+                    if (!extrapolate && (x < bounds.getMinX() || x > bounds.getMaxX() || y < bounds.getMinY() || y > bounds.getMaxY())) {
                         p.setInvalid();
                     }
                 } else {
