@@ -1,6 +1,7 @@
 package org.esa.snap.binning;
 
 import org.esa.snap.binning.aggregators.AggregatorAverage;
+import org.esa.snap.binning.aggregators.AggregatorAverageOutlierAware;
 import org.esa.snap.binning.aggregators.AggregatorMinMax;
 import org.esa.snap.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.snap.binning.aggregators.AggregatorPercentile;
@@ -8,7 +9,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AggregatorDescriptorRegistryTest {
 
@@ -48,10 +50,18 @@ public class AggregatorDescriptorRegistryTest {
     }
 
     @Test
-    public void testGetAllRegisteredAggregatorDescriptors() throws Exception {
+    public void testDefaultAggregatorIsRegistered_AverageOutlierAware() {
+        AggregatorDescriptor descriptor = assertRegistered("AVG_OUTLIER");
+        Aggregator aggregator = descriptor.createAggregator(ctx, new AggregatorAverageOutlierAware.Config("x", "target", 1.4));
+        assertNotNull(aggregator);
+        assertEquals(AggregatorAverageOutlierAware.class, aggregator.getClass());
+    }
+
+    @Test
+    public void testGetAllRegisteredAggregatorDescriptors() {
         TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         List<AggregatorDescriptor> aggregatorDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
-        assertEquals(4, aggregatorDescriptors.size());
+        assertEquals(5, aggregatorDescriptors.size());
     }
 
     private AggregatorDescriptor assertRegistered(String name) {
@@ -61,5 +71,4 @@ public class AggregatorDescriptorRegistryTest {
         assertEquals(name, descriptor.getName());
         return descriptor;
     }
-
 }

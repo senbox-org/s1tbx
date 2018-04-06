@@ -470,20 +470,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         final double subSamplingX = latGrid.getSubSamplingX();
         final double subSamplingY = latGrid.getSubSamplingY();
 
-        // Compute number of required approximation tiles
-        //
-        int numTiles; // 10 degree sizing
-        if (h > 2) {
-            final double lonSpan = normalizedLonMax - normalizedLonMin;
-            final double latSpan = latMax - latMin;
-            final double angleSpan = Math.max(lonSpan, latSpan);
-            numTiles = (int) Math.round(angleSpan / 10.0);
-            if (numTiles < 1) {
-                numTiles = 1;
-            }
-        } else {
-            numTiles = 30;
-        }
+        // 10 points are at least required for a quadratic polynomial
+        // start with some appropriate tile number
+        int numTiles = (int) Math.ceil(numPoints / 10.0);
 
         int numTilesI = 1;
         int numTilesJ = 1;
@@ -492,7 +481,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             int newNumTilesI = tileDim.width;
             int newNumTilesJ = tileDim.height;
             int newNumTiles = newNumTilesI * newNumTilesJ;
-            // 10 points are at least required for a quadric polynomial
+            // 10 points are at least required for a quadratic polynomial
             if (numPoints / newNumTiles >= 10) {
                 numTiles = newNumTiles;
                 numTilesI = newNumTilesI;

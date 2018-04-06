@@ -46,7 +46,6 @@ public abstract class AbstractAggregator implements Aggregator {
         return name;
     }
 
-
     @Override
     public String[] getSpatialFeatureNames() {
         return spatialFeatureNames;
@@ -78,5 +77,9 @@ public abstract class AbstractAggregator implements Aggregator {
             }
         }
         return featureNames.toArray(new String[featureNames.size()]);
+    }
+
+    public boolean requiresGrowableSpatialData() {
+        return false;
     }
 }

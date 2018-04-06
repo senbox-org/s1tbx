@@ -32,9 +32,14 @@ public class AggregatorOnMaxSetTest {
     private AggregatorOnMaxSet agg;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ctx = createCtx();
         agg = new AggregatorOnMaxSet(new MyVariableContext("a", "b", "c"), "c", "Out", "a", "b");
+    }
+
+    @Test
+    public void testRequiresGrowableSpatialData() {
+        assertFalse(agg.requiresGrowableSpatialData());
     }
 
     @Test

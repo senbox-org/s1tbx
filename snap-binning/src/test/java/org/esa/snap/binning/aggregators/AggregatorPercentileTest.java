@@ -28,11 +28,18 @@ import static org.junit.Assert.*;
 
 public class AggregatorPercentileTest {
 
-    BinContext ctx;
+    private BinContext ctx;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ctx = createCtx();
+    }
+
+    @Test
+    public void testRequiresGrowableSpatialData() {
+        final AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", "target", 90);
+
+        assertFalse(agg.requiresGrowableSpatialData());
     }
 
     @Test

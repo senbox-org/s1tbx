@@ -18,6 +18,7 @@
 package org.esa.snap.binning.support;
 
 import org.esa.snap.binning.Vector;
+import org.esa.snap.binning.WritableVector;
 
 import java.util.Arrays;
 
@@ -26,7 +27,7 @@ import java.util.Arrays;
  *
  * @author Norman Fomferra
  */
-public final class GrowableVector implements Vector {
+public final class GrowableVector implements WritableVector {
     private float[] elements;
     private int size;
 
@@ -56,6 +57,11 @@ public final class GrowableVector implements Vector {
             elements = temp;
         }
         elements[size++] = element;
+    }
+
+    @Override
+    public void set(int index, float element) {
+        throw new RuntimeException("not implemented");
     }
 
     @Override
