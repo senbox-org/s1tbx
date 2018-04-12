@@ -143,7 +143,7 @@ public abstract class AbstractProductDirectory {
         return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
     }
 
-    protected static Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
+    protected Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
         final int width, height;
