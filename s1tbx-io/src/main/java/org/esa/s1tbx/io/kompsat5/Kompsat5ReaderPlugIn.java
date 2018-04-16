@@ -37,6 +37,29 @@ public class Kompsat5ReaderPlugIn extends NetCDFReaderPlugIn {
         PLUGIN_DESCRIPTION = KOMPSAT5_PLUGIN_DESCRIPTION;
     }
 
+    public static File findMetadataFile(final File folder) {
+        if(folder.isDirectory()) {
+            final File[] fileList = folder.listFiles();
+            if(fileList != null) {
+                for(File f : fileList) {
+                    if(isValidProductName(f.getName())) {
+                        return f;
+                    }
+                }
+            }
+        } else {
+            if(isValidProductName(folder.getName())) {
+                return folder;
+            }
+        }
+        return null;
+    }
+
+    public static boolean isValidProductName(final String name) {
+        final String filename = name.toUpperCase();
+        return filename.startsWith("K5_") && filename.endsWith("_AUX.XML");
+    }
+
     @Override
     protected DecodeQualification checkProductQualification(final File file) {
         final String fileName = file.getName().toLowerCase();
@@ -47,7 +70,6 @@ public class Kompsat5ReaderPlugIn extends NetCDFReaderPlugIn {
                 }
             }
         }
-
         return DecodeQualification.UNABLE;
     }
 
