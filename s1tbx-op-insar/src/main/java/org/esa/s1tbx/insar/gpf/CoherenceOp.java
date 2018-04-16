@@ -58,10 +58,10 @@ import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
 import org.jlinda.core.utils.PolyUtils;
 import org.jlinda.core.utils.SarUtils;
-import org.jlinda.nest.utils.BandUtilsDoris;
-import org.jlinda.nest.utils.CplxContainer;
-import org.jlinda.nest.utils.ProductContainer;
-import org.jlinda.nest.utils.TileUtilsDoris;
+import org.jlinda.core.utils.BandUtilsDoris;
+import org.jlinda.core.utils.CplxContainer;
+import org.jlinda.core.utils.ProductContainer;
+import org.jlinda.core.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
 import java.awt.Rectangle;
@@ -699,7 +699,7 @@ public class CoherenceOp extends Operator {
 
             DemTile demTile = null;
             if (subtractTopographicPhase) {
-                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, targetMap, dem, demNoDataValue,
+                demTile = TopoPhase.getDEMTile(tileWindow, targetMap, dem, demNoDataValue,
                         demSamplingLat, demSamplingLon, tileExtensionPercent);
 
                 if (demTile.getData().length < 3 || demTile.getData()[0].length < 3) {
@@ -736,7 +736,7 @@ public class CoherenceOp extends Operator {
                 }
 
                 if (subtractTopographicPhase) {
-                    final TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                    final TopoPhase topoPhase = TopoPhase.computeTopoPhase(
                             product, tileWindow, demTile, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
@@ -926,7 +926,7 @@ public class CoherenceOp extends Operator {
 
             DemTile demTile = null;
             if (subtractTopographicPhase) {
-                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, mstMeta, mstOrbit, dem,
+                demTile = TopoPhase.getDEMTile(tileWindow, mstMeta, mstOrbit, dem,
                         demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
 
                 if (demTile == null) {
@@ -976,7 +976,7 @@ public class CoherenceOp extends Operator {
                 }
 
                 if (subtractTopographicPhase) {
-                    TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                    TopoPhase topoPhase = TopoPhase.computeTopoPhase(
                             mstMeta, mstOrbit, slvMeta, slvOrbit, tileWindow, demTile, false);
 
                     final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(

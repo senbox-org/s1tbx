@@ -57,8 +57,7 @@ import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
-import org.jlinda.nest.gpf.coregistration.GCPManager;
-import org.jlinda.nest.utils.TileUtilsDoris;
+import org.jlinda.core.utils.TileUtilsDoris;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;

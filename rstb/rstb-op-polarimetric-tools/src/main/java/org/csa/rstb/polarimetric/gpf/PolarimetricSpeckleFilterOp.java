@@ -21,7 +21,7 @@ import org.csa.rstb.polarimetric.gpf.specklefilters.IDAN;
 import org.csa.rstb.polarimetric.gpf.specklefilters.LeeSigma;
 import org.csa.rstb.polarimetric.gpf.specklefilters.RefinedLee;
 import org.csa.rstb.polarimetric.gpf.specklefilters.SpeckleFilter;
-import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;

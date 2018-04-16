@@ -18,7 +18,7 @@ package org.csa.rstb.polarimetric.gpf.specklefilters;
 import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
-import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;

@@ -39,10 +39,10 @@ import org.jlinda.core.Window;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
 import org.jlinda.core.utils.MathUtils;
-import org.jlinda.nest.utils.BandUtilsDoris;
-import org.jlinda.nest.utils.CplxContainer;
-import org.jlinda.nest.utils.ProductContainer;
-import org.jlinda.nest.utils.TileUtilsDoris;
+import org.jlinda.core.utils.BandUtilsDoris;
+import org.jlinda.core.utils.CplxContainer;
+import org.jlinda.core.utils.ProductContainer;
+import org.jlinda.core.utils.TileUtilsDoris;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -491,7 +491,7 @@ public final class SubtRefDemOp extends Operator {
                 defineDEM();
             }
 
-            DemTile demTile = getDEMTile(
+            DemTile demTile = TopoPhase.getDEMTile(
                     tileWindow, targetMap, dem, demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
             if(demTile == null) {
                 return;
@@ -503,7 +503,7 @@ public final class SubtRefDemOp extends Operator {
 
                 ProductContainer product = targetMap.get(ifgKey);
 
-                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputElevationBand, false);
+                TopoPhase topoPhase = TopoPhase.computeTopoPhase(product, tileWindow, demTile, outputElevationBand, false);
 
                 Tile tileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
                 Tile tileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
@@ -536,7 +536,7 @@ public final class SubtRefDemOp extends Operator {
                 }
 
                 if (outputLatLonBands) {
-                    TopoPhase topoPhase1 = computeTopoPhase(product, tileWindow, demTile, false, true);
+                    TopoPhase topoPhase1 = TopoPhase.computeTopoPhase(product, tileWindow, demTile, false, true);
                     latBand = targetProduct.getBand("orthorectifiedLat");
                     Tile tileLatBand = targetTileMap.get(latBand);
                     convertToDegree(topoPhase1.latitude);
@@ -551,218 +551,6 @@ public final class SubtRefDemOp extends Operator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-    }
-
-    public static DemTile getDEMTile(final org.jlinda.core.Window tileWindow,
-                                     final Map<String, ProductContainer> targetMap,
-                                     final ElevationModel dem,
-                                     final double demNoDataValue,
-                                     final double demSamplingLat,
-                                     final double demSamplingLon,
-                                     final String tileExtensionPercent) {
-
-        ProductContainer mstContainer = targetMap.values().iterator().next();
-
-        return getDEMTile(tileWindow, mstContainer.sourceMaster.metaData, mstContainer.sourceMaster.orbit,
-                dem, demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
-    }
-
-    public static DemTile getDEMTile(final org.jlinda.core.Window tileWindow,
-                                     final SLCImage metaData,
-                                     final Orbit orbit,
-                                     final ElevationModel dem,
-                                     final double demNoDataValue,
-                                     final double demSamplingLat,
-                                     final double demSamplingLon,
-                                     final String tileExtensionPercent) {
-
-        try {
-            // compute tile geo-corners ~ work on ellipsoid
-            GeoPoint[] geoCorners = org.jlinda.core.utils.GeoUtils.computeCorners(metaData, orbit, tileWindow);
-
-            // get corners as DEM indices
-            PixelPos[] pixelCorners = new PixelPos[2];
-            pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
-            pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
-
-            final int x0DEM = (int)Math.round(pixelCorners[0].x);
-            final int y0DEM = (int)Math.round(pixelCorners[0].y);
-            final int x1DEM = (int)Math.round(pixelCorners[1].x);
-            final int y1DEM = (int)Math.round(pixelCorners[1].y);
-            final Rectangle demTileRect = new Rectangle(x0DEM, y0DEM, x1DEM - x0DEM + 1, y1DEM - y0DEM + 1);
-
-            // get max/min height of tile ~ uses 'fast' GCP based interpolation technique
-            final double[] tileHeights = computeMaxHeight(
-                    pixelCorners, demTileRect, tileExtensionPercent, dem, demNoDataValue);
-
-            // compute extra lat/lon for dem tile
-            GeoPoint geoExtent = org.jlinda.core.utils.GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
-                    tileWindow, metaData, orbit);
-
-            // extend corners
-            geoCorners = org.jlinda.core.utils.GeoUtils.extendCorners(geoExtent, geoCorners);
-
-            // update corners
-            pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
-            pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
-
-            pixelCorners[0] = new PixelPos(Math.floor(pixelCorners[0].x), Math.floor(pixelCorners[0].y));
-            pixelCorners[1] = new PixelPos(Math.ceil(pixelCorners[1].x), Math.ceil(pixelCorners[1].y));
-
-            GeoPos upperLeftGeo = dem.getGeoPos(pixelCorners[0]);
-
-            int nLatPixels = (int) Math.abs(pixelCorners[1].y - pixelCorners[0].y);
-            int nLonPixels = (int) Math.abs(pixelCorners[1].x - pixelCorners[0].x);
-
-            if(!upperLeftGeo.isValid()) {
-                return null;
-            }
-
-            DemTile demTile = new DemTile(upperLeftGeo.lat * org.jlinda.core.Constants.DTOR,
-                                          upperLeftGeo.lon * org.jlinda.core.Constants.DTOR,
-                                          nLatPixels, nLonPixels, Math.abs(demSamplingLat),
-                                          Math.abs(demSamplingLon), (long)demNoDataValue);
-
-            int startX = (int) pixelCorners[0].x;
-            int endX = startX + nLonPixels;
-            int startY = (int) pixelCorners[0].y;
-            int endY = startY + nLatPixels;
-
-            double[][] elevation = new double[nLatPixels][nLonPixels];
-            for (int y = startY, i = 0; y < endY; y++, i++) {
-                for (int x = startX, j = 0; x < endX; x++, j++) {
-                    try {
-                        double elev = dem.getSample(x, y);
-                        if (Double.isNaN(elev)) {
-                            elev = demNoDataValue;
-                        }
-                        elevation[i][j] = elev;
-                    } catch (Exception e) {
-                        elevation[i][j] = demNoDataValue;
-                    }
-                }
-            }
-
-            demTile.setData(elevation);
-
-            return demTile;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static TopoPhase computeTopoPhase(
-            final ProductContainer product, final Window tileWindow, final DemTile demTile, final boolean outputDEM, final boolean outputLatLon) {
-
-        final SLCImage mstMetaData = product.sourceMaster.metaData;
-        final Orbit mstOrbit = product.sourceMaster.orbit;
-        final SLCImage slvMetaData = product.sourceSlave.metaData;
-        final Orbit slvOrbit = product.sourceSlave.orbit;
-
-        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM, outputLatLon);
-    }
-
-    public static TopoPhase computeTopoPhase(
-            final ProductContainer product, final Window tileWindow, final DemTile demTile, final boolean outputDEM) {
-
-        final SLCImage mstMetaData = product.sourceMaster.metaData;
-        final Orbit mstOrbit = product.sourceMaster.orbit;
-        final SLCImage slvMetaData = product.sourceSlave.metaData;
-        final Orbit slvOrbit = product.sourceSlave.orbit;
-
-        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM, false);
-    }
-
-    public static TopoPhase computeTopoPhase(
-            final SLCImage mstMetaData, final Orbit mstOrbit, final SLCImage slvMetaData, final Orbit slvOrbit,
-            final Window tileWindow, final DemTile demTile, final boolean outputDEM) {
-        return computeTopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile, outputDEM, false);
-    }
-
-    public static TopoPhase computeTopoPhase(
-            final SLCImage mstMetaData, final Orbit mstOrbit, final SLCImage slvMetaData, final Orbit slvOrbit,
-            final Window tileWindow, final DemTile demTile, final boolean outputDEM, final boolean outputLatLon) {
-        // computeTopoPhase() is called separately for outputting lat/lon and outputting elevation because elevation
-        // requires sea pixels to be masked out and lat/lon do not; so outputDEM and outputLatLon cannot be true
-        // at the same time.
-        try {
-            final TopoPhase topoPhase = new TopoPhase(mstMetaData, mstOrbit, slvMetaData, slvOrbit, tileWindow, demTile);
-
-            // We do not want to use ivalidIndex if it is outputting lat/lon because we do not want to mask out the sea
-            // pixels like we do with elevation.
-            topoPhase.radarCode(!outputLatLon);
-
-            topoPhase.gridData(outputDEM, outputLatLon);
-
-            return topoPhase;
-
-        } catch (Exception e) {
-            throw new OperatorException(e);
-        }
-    }
-
-    private static double[] computeMaxHeight(
-            final PixelPos[] corners, final Rectangle rectangle, final String tileExtensionPercent,
-            final ElevationModel dem, final double demNoDataValue) throws Exception {
-
-        /* Notes:
-          - The scaling and extensions of extreme values of DEM tiles has to be performed to guarantee the overlap
-            between SAR and DEM tiles, and avoid blanks in the simulated Topo phase.
-
-          - More conservative, while also more reliable parameters are introduced that guarantee good results even
-            in some extreme cases.
-
-          - Parameters are defined for the reliability, not(!) the performance.
-         */
-
-        int tileExtPercent = Integer.parseInt(tileExtensionPercent);
-        final float extraTileX = (float) (1 + tileExtPercent / 100.0); // = 1.5f
-        final float extraTileY = (float) (1 + tileExtPercent / 100.0); // = 1.5f
-        final float scaleMaxHeight = (float) (1 + tileExtPercent/ 100.0); // = 1.25f
-
-        double[] heightArray = new double[2];
-
-        // double square root : scales with the size of tile
-        final int numberOfPoints = (int) (10 * Math.sqrt(Math.sqrt(rectangle.width * rectangle.height)));
-
-        // extend tiles for which statistics is computed
-        final int offsetX = (int) (extraTileX * rectangle.width);
-        final int offsetY = (int) (extraTileY * rectangle.height);
-
-        // define window
-        final Window window = new Window((long)(corners[0].y - offsetY),
-                                         (long)(corners[1].y + offsetY),
-                                         (long)(corners[0].x - offsetX),
-                                         (long)(corners[1].x + offsetX));
-
-        // distribute points
-        final int[][] points = MathUtils.distributePoints(numberOfPoints, window);
-        final ArrayList<Double> heights = new ArrayList();
-
-        // then for number of extra points
-        for (int[] point : points) {
-            try {
-                Double height = dem.getSample(point[1], point[0]);
-                if (!Double.isNaN(height) && !height.equals(demNoDataValue)) {
-                    heights.add(height);
-                }
-            } catch (Exception e) {
-                // don't add height
-            }
-        }
-
-        // get max/min and add extras ~ just to be sure
-        if (heights.size() > 2) {
-            // set minimum to 'zero', eg, what if there's small lake in tile?
-            // heightArray[0] = Collections.min(heights);
-            heightArray[0] = Collections.min(heights);
-            heightArray[1] = Collections.max(heights) * scaleMaxHeight;
-        } else { // if nodatavalues return 0s ~ tile in the sea
-            heightArray[0] = 0;
-            heightArray[1] = 0;
-        }
-
-        return heightArray;
     }
 
     /**

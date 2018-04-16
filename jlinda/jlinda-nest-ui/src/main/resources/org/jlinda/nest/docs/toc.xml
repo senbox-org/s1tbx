@@ -23,9 +23,6 @@
                     <tocitem text="Phase Filtering" target="PhaseFilterOp"/>
                 </tocitem>
                 <tocitem text="Unwrapping">
-                    <tocitem text="Unwrapping" target="Unwrap"/>
-                    <!--tocitem text="Unwrapping Operator" target="UnwrapOp"/-->
-                    <!--tocitem text="Stitching of unwrapped results" target="StitchOp"/-->
                     <tocitem text="Snaphu Data Export" target="SnaphuExportOp"/>
                     <tocitem text="Snaphu Data Import" target="SnaphuImportOp"/>
                 </tocitem>

@@ -48,7 +48,12 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io</artifactId>
+            <artifactId>s1tbx-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io-ephemeris</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
@@ -62,11 +67,6 @@
         <dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jlinda</groupId>
-            <artifactId>jlinda-nest</artifactId>
-            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

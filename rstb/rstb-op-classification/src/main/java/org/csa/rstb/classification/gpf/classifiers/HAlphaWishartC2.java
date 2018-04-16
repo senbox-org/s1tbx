@@ -19,7 +19,7 @@ import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
-import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;

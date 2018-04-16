@@ -17,7 +17,7 @@ package org.esa.s1tbx.io.gamma;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.s1tbx.io.FileImageOutputStreamExtImpl;
+import org.esa.s1tbx.commons.io.FileImageOutputStreamExtImpl;
 import org.esa.s1tbx.io.gamma.header.GammaConstants;
 import org.esa.s1tbx.io.gamma.header.HeaderDEMWriter;
 import org.esa.s1tbx.io.gamma.header.HeaderDiffWriter;
