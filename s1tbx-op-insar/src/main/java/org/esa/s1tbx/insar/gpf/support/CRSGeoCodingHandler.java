@@ -15,9 +15,8 @@
  */
 package org.esa.s1tbx.insar.gpf.support;
 
-import org.esa.snap.core.datamodel.CrsGeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -99,6 +98,60 @@ public class CRSGeoCodingHandler {
                 pixelSizeX, pixelSizeY);
     }
 
+    public CRSGeoCodingHandler(final GeoPos geoPosUL, final GeoPos geoPosUR, final GeoPos geoPosLL,
+                               final GeoPos geoPosLR, final GeoPos geoPosCT, final String mapProjection,
+                               final double pixelSpacingInDegree, final double pixelSpacingInMeter) throws Exception {
+
+        final boolean alignToStandardGrid = false;
+        final double standardGridOriginX = 0;
+        final double standardGridOriginY = 0;
+
+        targetCRS = getCRS(geoPosCT, mapProjection);
+
+        final OperatorUtils.ImageGeoBoundary srcImageBoundary = getGeoBoundary(geoPosUL, geoPosUR, geoPosLL, geoPosLR);
+
+        double pixelSizeX = pixelSpacingInMeter;
+        double pixelSizeY = pixelSpacingInMeter;
+        if (targetCRS.getName().getCode().equals("WGS84(DD)")) {
+            pixelSizeX = pixelSpacingInDegree;
+            pixelSizeY = pixelSpacingInDegree;
+        }
+
+        final Rectangle2D bounds = new Rectangle2D.Double();
+        double lonMin = srcImageBoundary.lonMin;
+        double lonMax = srcImageBoundary.lonMax;
+        /*
+        if(lonMin > 180)
+            lonMin -= 360;
+        if(lonMax > 180)
+            lonMax -= 360;
+        */
+        bounds.setFrameFromDiagonal(lonMin, srcImageBoundary.latMin, lonMax, srcImageBoundary.latMax);
+        final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
+        final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true, 200);
+
+        double easting = targetEnvelope.getMinimum(0);
+        double northing = targetEnvelope.getMaximum(1);
+        if (alignToStandardGrid) {
+            // Force pixels to be aligned with a specified origin point (e.g. 0,0) in the output CRS.
+            // This guarantees that the image grids are always aligned when reprojecting or resampling images.
+            easting = Math.floor((easting - standardGridOriginX) / pixelSizeX) * pixelSizeX + standardGridOriginX;
+            northing = Math.ceil((northing - standardGridOriginY) / pixelSizeY) * pixelSizeY + standardGridOriginY;
+            targetWidth = (int) Math.ceil((targetEnvelope.getMaximum(0) - easting) / pixelSizeX);
+            targetHeight = (int) Math.ceil((northing - targetEnvelope.getMinimum(1)) / pixelSizeY);
+        } else {
+            targetWidth = (int) Math.floor(targetEnvelope.getWidth() / pixelSizeX);
+            targetHeight = (int) Math.floor(targetEnvelope.getHeight() / pixelSizeY);
+        }
+
+        geoCoding = new CrsGeoCoding(targetCRS,
+                targetWidth,
+                targetHeight,
+                easting,
+                northing,
+                pixelSizeX, pixelSizeY);
+    }
+
     public static CoordinateReferenceSystem getCRS(final Product sourceProduct, String crs) throws Exception {
         try {
             if (crs == null || crs.isEmpty() || crs.equals("WGS84(DD)")) {
@@ -118,6 +171,74 @@ public class CRSGeoCodingHandler {
             // force longitude==x-axis and latitude==y-axis
             return CRS.decode(crs, true);
         }
+    }
+
+    public static CoordinateReferenceSystem getCRS(final GeoPos centerGeoPos, String crs) throws Exception {
+        try {
+            if (crs == null || crs.isEmpty() || crs.equals("WGS84(DD)")) {
+                return DefaultGeographicCRS.WGS84;
+            }
+            return CRS.parseWKT(crs);
+        } catch (Exception e) {
+            // prefix with EPSG, if there are only numbers
+            if (crs.matches("[0-9]*")) {
+                crs = "EPSG:" + crs;
+            }
+            // append center coordinates for AUTO code
+            if (crs.matches("AUTO:[0-9]*")) {
+                crs = String.format("%s,%s,%s", crs, centerGeoPos.lon, centerGeoPos.lat);
+            }
+            // force longitude==x-axis and latitude==y-axis
+            return CRS.decode(crs, true);
+        }
+    }
+
+    private OperatorUtils.ImageGeoBoundary getGeoBoundary(final GeoPos geoPosUL, final GeoPos geoPosUR,
+                                                          final GeoPos geoPosLL, final GeoPos geoPosLR) {
+
+        final OperatorUtils.ImageGeoBoundary geoBoundary = new OperatorUtils.ImageGeoBoundary();
+        final double[] lats = {geoPosUL.getLat(), geoPosUR.getLat(), geoPosLL.getLat(), geoPosLR.getLat()};
+        final double[] lons = {geoPosUL.getLon(), geoPosUR.getLon(), geoPosLL.getLon(), geoPosLR.getLon()};
+
+        geoBoundary.latMin = 90.0;
+        geoBoundary.latMax = -90.0;
+        for (double lat : lats) {
+            if (lat < geoBoundary.latMin) {
+                geoBoundary.latMin = lat;
+            }
+            if (lat > geoBoundary.latMax) {
+                geoBoundary.latMax = lat;
+            }
+        }
+
+        geoBoundary.lonMin = 180.0;
+        geoBoundary.lonMax = -180.0;
+        for (double lon : lons) {
+            if (lon < geoBoundary.lonMin) {
+                geoBoundary.lonMin = lon;
+            }
+            if (lon > geoBoundary.lonMax) {
+                geoBoundary.lonMax = lon;
+            }
+        }
+
+        if (geoBoundary.lonMax - geoBoundary.lonMin >= 180) {
+            geoBoundary.lonMin = 360.0;
+            geoBoundary.lonMax = 0.0;
+            for (double lon : lons) {
+                if (lon < 0) {
+                    lon += 360;
+                }
+                if (lon < geoBoundary.lonMin) {
+                    geoBoundary.lonMin = lon;
+                }
+                if (lon > geoBoundary.lonMax) {
+                    geoBoundary.lonMax = lon;
+                }
+            }
+        }
+
+        return geoBoundary;
     }
 
     public int getTargetWidth() {
