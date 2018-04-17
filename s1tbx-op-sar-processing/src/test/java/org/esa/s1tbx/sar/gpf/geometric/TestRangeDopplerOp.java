@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.sar.gpf.geometric;
 
-import org.esa.s1tbx.commons.S1TBXTests;
-import org.esa.s1tbx.commons.TestData;
+import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.GeoCoding;

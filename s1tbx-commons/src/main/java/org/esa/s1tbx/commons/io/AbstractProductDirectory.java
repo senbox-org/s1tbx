@@ -13,50 +13,37 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io;
+package org.esa.s1tbx.commons.io;
 
 import com.bc.ceres.core.VirtualDir;
-import org.esa.s1tbx.io.imageio.ImageIOFile;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
-import org.jdom2.Document;
-import org.jdom2.Element;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.zip.ZipFile;
 
 /**
  * This class represents a product directory.
  */
-public abstract class XMLProductDirectory {
+public abstract class AbstractProductDirectory {
 
-    private VirtualDir productDir = null;
-    private final String baseName;
-    private File baseDir;
-    private String rootFolder = null;
-    protected Document xmlDoc = null;
+    protected VirtualDir productDir = null;
+    protected String baseName;
+    protected File baseDir;
+    protected String rootFolder = null;
     protected final File productInputFile;
 
     private boolean isSLC = false;
@@ -65,18 +52,22 @@ public abstract class XMLProductDirectory {
     protected transient final Map<String, ImageIOFile> bandImageFileMap = new TreeMap<>();
     protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<>(3);
 
-    protected XMLProductDirectory(final File inputFile) {
+    protected AbstractProductDirectory(final File inputFile) {
         Guardian.assertNotNull("inputFile", inputFile);
         this.productInputFile = inputFile;
 
+        createProductDir(inputFile);
+    }
+
+    protected void createProductDir(final File inputFile) {
         if (ZipUtils.isZip(inputFile)) {
-            productDir = VirtualDir.create(inputFile);
             baseDir = inputFile;
-            baseName = inputFile.getName();
+            productDir = VirtualDir.create(baseDir);
+            baseName = baseDir.getName();
         } else {
-            productDir = VirtualDir.create(inputFile.getParentFile());
             baseDir = inputFile.getParentFile();
-            baseName = inputFile.getParentFile().getName();
+            productDir = VirtualDir.create(baseDir);
+            baseName = baseDir.getName();
         }
     }
 
@@ -102,11 +93,11 @@ public abstract class XMLProductDirectory {
         return getRootFolder();
     }
 
-    public void readProductDirectory() throws IOException {
-        xmlDoc = XMLSupport.LoadXML(getInputStream(getRootFolder() + getHeaderFileName()));
-    }
+    public abstract void readProductDirectory() throws IOException;
 
-    protected abstract String getHeaderFileName();
+    protected String getHeaderFileName() {
+        return productInputFile.getName();
+    }
 
     protected abstract void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException;
 
@@ -143,11 +134,11 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected static String getBandFileNameFromImage(final String imgPath) {
+    protected String getBandFileNameFromImage(final String imgPath) {
         return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
     }
 
-    protected static Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
+    protected Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
         final int width, height;
@@ -202,15 +193,7 @@ public abstract class XMLProductDirectory {
         return "";
     }
 
-    protected MetadataElement addMetaData() throws IOException {
-        final MetadataElement root = new MetadataElement(Product.METADATA_ROOT_NAME);
-        final Element rootElement = xmlDoc.getRootElement();
-        AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.addOriginalProductMetadata(root));
-
-        addAbstractedMetadataHeader(root);
-
-        return root;
-    }
+    protected abstract MetadataElement addMetaData() throws IOException;
 
     public String[] listFiles(final String path) throws IOException {
         try {
@@ -235,7 +218,7 @@ public abstract class XMLProductDirectory {
         try {
             final String[] files = listFiles(path);
             for (String file : files) {
-                if (file.endsWith(searchString)) {
+                if (file.contains(searchString)) {
                     list.add(file);
                 }
             }
@@ -292,11 +275,9 @@ public abstract class XMLProductDirectory {
         final MetadataElement newRoot = addMetaData();
         findImages(newRoot);
 
-        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        Dimension dim = getProductDimensions(newRoot);
 
-        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
+        final Product product = new Product(getProductName(), getProductType(), dim.width, dim.height);
         updateProduct(product, newRoot);
 
         addBands(product);
@@ -315,6 +296,13 @@ public abstract class XMLProductDirectory {
         ReaderUtils.addMetadataProductSize(product);
 
         return product;
+    }
+
+    protected Dimension getProductDimensions(final MetadataElement newRoot) {
+        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        return new Dimension(sceneWidth, sceneHeight);
     }
 
     protected static void updateProduct(final Product product, final MetadataElement newRoot) {

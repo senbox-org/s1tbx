@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import org.esa.s1tbx.commons.S1TBXTests;
-import org.esa.s1tbx.commons.TestData;
+import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
