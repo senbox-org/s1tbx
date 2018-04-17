@@ -16,9 +16,9 @@
 package org.esa.s1tbx.io.terrasarx;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.io.SARReader;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.ArrayCopy;
-import org.esa.s1tbx.io.imageio.ImageIOFile;
+import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;

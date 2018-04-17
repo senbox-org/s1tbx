@@ -15,9 +15,10 @@
  */
 package org.esa.s1tbx.io.seasat;
 
-import org.esa.s1tbx.io.SARReader;
-import org.esa.s1tbx.io.XMLProductDirectory;
-import org.esa.s1tbx.io.imageio.ImageIOFile;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
+import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -28,12 +29,15 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -78,15 +82,31 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
 
             final ImageIOFile img;
             if (isSLC()) {
-                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
                                       1, 2, ProductData.TYPE_FLOAT32, productInputFile);
             } else {
-                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream), productInputFile);
+                img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
             }
             bandImageFileMap.put(img.getName(), img);
 
             imageFile = getFile(imgPath);
         }
+    }
+
+    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
+        ImageReader reader = null;
+        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
+        while (imageReaders.hasNext()) {
+            final ImageReader iioReader = imageReaders.next();
+            if (iioReader instanceof TIFFImageReader) {
+                reader = iioReader;
+                break;
+            }
+        }
+        if (reader == null)
+            throw new IOException("Unable to open " + stream.toString());
+        reader.setInput(stream, true, true);
+        return reader;
     }
 
     @Override

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.sar.gpf;
 
-import org.esa.s1tbx.commons.TestData;
+import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;

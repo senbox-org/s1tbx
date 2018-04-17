@@ -17,10 +17,11 @@ package org.esa.s1tbx.io.terrasarx;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
-import org.esa.s1tbx.io.SARReader;
-import org.esa.s1tbx.io.XMLProductDirectory;
-import org.esa.s1tbx.io.imageio.ImageIOFile;
+import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.s1tbx.io.sunraster.SunRasterReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
@@ -45,6 +46,8 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
 import java.io.File;
@@ -53,11 +56,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class represents a product directory.
@@ -630,11 +629,27 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 if (imgStream == null)
                     throw new IOException("Unable to open " + imgPath);
 
-                final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                final ImageIOFile img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
                         1, 1, ProductData.TYPE_UINT16, productInputFile);
                 bandImageFileMap.put(img.getName(), img);
             }
         }
+    }
+
+    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
+        ImageReader reader = null;
+        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
+        while (imageReaders.hasNext()) {
+            final ImageReader iioReader = imageReaders.next();
+            if (iioReader instanceof TIFFImageReader) {
+                reader = iioReader;
+                break;
+            }
+        }
+        if (reader == null)
+            throw new IOException("Unable to open " + stream.toString());
+        reader.setInput(stream, true, true);
+        return reader;
     }
 
     private void addShiftFiles(final Product product) {

@@ -18,7 +18,7 @@ package org.esa.s1tbx.io.ceos.radarsat;
 import Jama.Matrix;
 import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.io.SARReader;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
