@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.terrasarx;
 
-import org.esa.s1tbx.commons.S1TBXTests;
+import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Test;

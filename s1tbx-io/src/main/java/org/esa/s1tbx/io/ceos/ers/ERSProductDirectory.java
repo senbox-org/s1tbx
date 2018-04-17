@@ -16,7 +16,7 @@
 package org.esa.s1tbx.io.ceos.ers;
 
 import com.bc.ceres.core.VirtualDir;
-import org.esa.s1tbx.io.SARReader;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSLeaderFile;

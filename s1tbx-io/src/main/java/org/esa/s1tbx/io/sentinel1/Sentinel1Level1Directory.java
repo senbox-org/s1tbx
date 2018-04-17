@@ -15,9 +15,10 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import org.esa.s1tbx.io.SARReader;
-import org.esa.s1tbx.io.XMLProductDirectory;
-import org.esa.s1tbx.io.imageio.ImageIOFile;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
+import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -40,6 +41,8 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
 import java.io.File;
@@ -47,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -85,10 +89,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
                 final ImageIOFile img;
                 if (isSLC()) {
-                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_INT32, productInputFile);
                 } else {
-                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_INT32, productInputFile);
                 }
                 bandImageFileMap.put(img.getName(), img);
@@ -96,6 +100,22 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 SystemUtils.LOG.severe(imgPath +" not found");
             }
         }
+    }
+
+    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
+        ImageReader reader = null;
+        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
+        while (imageReaders.hasNext()) {
+            final ImageReader iioReader = imageReaders.next();
+            if (iioReader instanceof TIFFImageReader) {
+                reader = iioReader;
+                break;
+            }
+        }
+        if (reader == null)
+            throw new IOException("Unable to open " + stream.toString());
+        reader.setInput(stream, true, true);
+        return reader;
     }
 
     @Override

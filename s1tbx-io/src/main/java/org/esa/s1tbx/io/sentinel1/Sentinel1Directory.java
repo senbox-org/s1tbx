@@ -1,6 +1,6 @@
 package org.esa.s1tbx.io.sentinel1;
 
-import org.esa.s1tbx.io.imageio.ImageIOFile;
+import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

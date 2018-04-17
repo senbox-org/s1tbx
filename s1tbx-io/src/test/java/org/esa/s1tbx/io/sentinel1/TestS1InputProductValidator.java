@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import org.esa.s1tbx.commons.TestData;
+import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.util.TestUtils;

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.imageio;
 
-import org.esa.s1tbx.commons.TestData;
+import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;

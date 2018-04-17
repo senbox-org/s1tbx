@@ -13,14 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.imageio;
+package org.esa.s1tbx.commons.io;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.ColorPaletteDef;
-import org.esa.snap.core.datamodel.ImageInfo;
-import org.esa.snap.core.datamodel.IndexCoding;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.util.ZipUtils;
@@ -34,13 +29,7 @@ import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -145,22 +134,6 @@ public class ImageIOFile {
             throw new IOException("No ImageIO reader found for " + inputFile.toString());
 
         return imageReaders.next();
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     public ImageReader getReader() throws IOException {
