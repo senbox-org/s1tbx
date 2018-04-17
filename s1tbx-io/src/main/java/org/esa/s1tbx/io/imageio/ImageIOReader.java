@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.imageio;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;

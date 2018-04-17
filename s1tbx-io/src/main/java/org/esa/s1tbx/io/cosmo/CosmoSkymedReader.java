@@ -17,7 +17,7 @@ package org.esa.s1tbx.io.cosmo;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.io.SARReader;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.netcdf.NcAttributeMap;
 import org.esa.s1tbx.io.netcdf.NcRasterDim;
 import org.esa.s1tbx.io.netcdf.NcVariableMap;

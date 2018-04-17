@@ -35,15 +35,7 @@
  */
 package org.esa.s1tbx.commons.io;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.UTFDataFormatException;
+import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 

@@ -3,7 +3,7 @@ package org.esa.s1tbx.io.sentinel1;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.esa.s1tbx.io.imageio.ImageIOFile;
+import org.esa.s1tbx.commons.io.ImageIOFile;
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;

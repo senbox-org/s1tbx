@@ -16,7 +16,7 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 
-import org.esa.s1tbx.commons.TestData;
+import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
