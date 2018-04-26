@@ -17,17 +17,7 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GcpDescriptor;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Placemark;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;

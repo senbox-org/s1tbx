@@ -19,13 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -38,12 +32,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
-import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.esa.snap.engine_utilities.gpf.*;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.SLCImage;
@@ -53,12 +42,15 @@ import org.jlinda.core.utils.CplxContainer;
 import org.jlinda.core.utils.ProductContainer;
 import org.jlinda.core.utils.TileUtilsDoris;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Estimate range and azimuth offsets for each burst using cross-correlation with a 512x512 block in

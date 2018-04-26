@@ -22,9 +22,7 @@ import org.esa.snap.productlibrary.rcp.toolviews.ProductLibraryActions;
 import org.esa.snap.productlibrary.rcp.toolviews.extensions.ProductLibraryActionExt;
 import org.esa.snap.ui.UIUtils;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * ProductLibary action extension to find related S1 slice products.

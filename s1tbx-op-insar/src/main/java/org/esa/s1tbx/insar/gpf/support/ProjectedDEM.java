@@ -15,24 +15,19 @@
  */
 package org.esa.s1tbx.insar.gpf.support;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.dem.ElevationModel;
-import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.EarthGravitationalModel96;
-import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.eo.LocalGeometry;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 
 import java.awt.*;
-import java.util.*;
 
 /**
  * Created by lveci on 12/15/2016.
