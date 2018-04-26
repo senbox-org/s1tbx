@@ -27,7 +27,7 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 

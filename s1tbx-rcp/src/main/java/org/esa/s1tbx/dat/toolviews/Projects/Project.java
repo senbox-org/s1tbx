@@ -49,17 +49,13 @@ import org.netbeans.api.progress.ProgressUtils;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Observable;
-import java.util.StringTokenizer;
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A Project helps to organize your data by storing all your work in one folder.

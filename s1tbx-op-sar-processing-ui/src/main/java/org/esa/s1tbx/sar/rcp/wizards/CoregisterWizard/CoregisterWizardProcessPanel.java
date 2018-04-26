@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.sar.rcp.wizards.CoregisterWizard;
 
-import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;

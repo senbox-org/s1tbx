@@ -1,11 +1,7 @@
 package org.jlinda.core.io;
 
 import org.jlinda.core.Window;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.nio.ByteOrder;

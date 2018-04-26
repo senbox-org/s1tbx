@@ -16,20 +16,8 @@
 package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Boxcar;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Frost;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.GammaMap;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.IDAN;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Lee;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.LeeSigma;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Median;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.RefinedLee;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.SpeckleFilter;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.*;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;

@@ -16,7 +16,6 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.junit.After;

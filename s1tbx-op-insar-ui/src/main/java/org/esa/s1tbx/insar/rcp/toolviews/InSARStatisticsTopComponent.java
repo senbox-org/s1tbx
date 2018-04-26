@@ -15,13 +15,7 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews;
 
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.InSARStatistic;
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatBaselines;
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatBaselinesChart;
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDHistogram;
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDMeasure;
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatInSARInfo;
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatResiduals;
+import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.*;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.datamodel.ProductNode;

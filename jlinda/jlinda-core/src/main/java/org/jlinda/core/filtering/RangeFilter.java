@@ -7,17 +7,11 @@ import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.jlinda.core.utils.LinearAlgebraUtils;
-import org.jlinda.core.utils.MathUtils;
-import org.jlinda.core.utils.SarUtils;
-import org.jlinda.core.utils.SpectralUtils;
-import org.jlinda.core.utils.WeightWindows;
+import org.jlinda.core.utils.*;
 
 import java.util.logging.Logger;
 
-import static org.jlinda.core.utils.LinearAlgebraUtils.dotmult;
-import static org.jlinda.core.utils.LinearAlgebraUtils.fliplr_inplace;
-import static org.jlinda.core.utils.LinearAlgebraUtils.setdata;
+import static org.jlinda.core.utils.LinearAlgebraUtils.*;
 
 public class RangeFilter extends ProductDataFilter {
 

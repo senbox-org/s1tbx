@@ -17,7 +17,6 @@ package org.esa.s1tbx.sar.gpf.ui.orbits;
 
 import org.esa.s1tbx.io.orbits.delft.DelftOrbitFile;
 import org.esa.s1tbx.io.orbits.doris.DorisOrbitFile;
-import org.esa.s1tbx.io.orbits.k5.K5OrbitFile;
 import org.esa.s1tbx.io.orbits.prare.PrareOrbitFile;
 import org.esa.s1tbx.io.orbits.sentinel1.SentinelPODOrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
