@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.logging.Logger;
 
 
 /**
@@ -42,11 +41,8 @@ import java.util.logging.Logger;
 public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
     private static AbstractNetCdfReaderPlugIn[] netCdfReaderPlugIns;
-    private static final Logger LOGGER = Logger.getLogger(GenericNetCdfReaderPlugIn.class.getName());
-
 
     // needed for creation by SPI
-
     public GenericNetCdfReaderPlugIn() {
     }
 
@@ -66,11 +62,10 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
         NetcdfFile netcdfFile = null;
         try {
             final String inputPath = input.toString();
-            final List<String> extensionList = Arrays.asList(getDefaultFileExtensions());
+            final String[] extensionList = getDefaultFileExtensions();
             for (String extension : extensionList) {
                 if (inputPath.endsWith(extension)) {
                     netcdfFile = NetcdfFileOpener.open(inputPath);
-                    LOGGER.warning("GenericNetCdfReaderPlugIn.getDecodeQualification(" + inputPath + ") extension=" + extension + " netcdfFile=" + netcdfFile);
                     break;
                 }
             }
@@ -80,8 +75,8 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
             final AbstractNetCdfReaderPlugIn[] plugIns = getAllNetCdfReaderPlugIns();
             return getDecodeQualification(plugIns, netcdfFile);
-        } catch (Throwable ignored) {
-            ignored.printStackTrace();
+        } catch (Throwable t) {
+            t.printStackTrace();
         } finally {
             try {
                 if (netcdfFile != null) {
@@ -101,8 +96,8 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
                 if (DecodeQualification.INTENDED.equals(decodeQualification) || DecodeQualification.SUITABLE.equals(decodeQualification)) {
                     return DecodeQualification.SUITABLE;
                 }
-            } catch (Exception ignore) {
-                ignore.printStackTrace();
+            } catch (Exception t) {
+                t.printStackTrace();
             }
         }
         return DecodeQualification.UNABLE;
@@ -162,7 +157,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
             String[] fileExtensions = plugIn.getDefaultFileExtensions();
             extensionSet.addAll(Arrays.asList(fileExtensions));
         }
-        return extensionSet.toArray(new String[extensionSet.size()]);
+        return extensionSet.toArray(new String[0]);
     }
 
     /**
@@ -190,8 +185,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
                     netCdfReaderPlugInList.add(netCdfReaderPlugIn);
                 }
             }
-            netCdfReaderPlugIns = netCdfReaderPlugInList.toArray(
-                    new AbstractNetCdfReaderPlugIn[netCdfReaderPlugInList.size()]);
+            netCdfReaderPlugIns = netCdfReaderPlugInList.toArray(new AbstractNetCdfReaderPlugIn[0]);
         }
         return netCdfReaderPlugIns;
     }
