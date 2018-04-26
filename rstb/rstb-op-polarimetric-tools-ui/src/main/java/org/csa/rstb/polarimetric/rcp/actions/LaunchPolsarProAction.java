@@ -26,11 +26,7 @@ import org.openide.util.NbBundle;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.prefs.Preferences;
 
 @ActionID(category = "Raster", id = "LaunchPolsarProAction" )

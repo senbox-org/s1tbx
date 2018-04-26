@@ -25,7 +25,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 
 /**
  * map tools compass component

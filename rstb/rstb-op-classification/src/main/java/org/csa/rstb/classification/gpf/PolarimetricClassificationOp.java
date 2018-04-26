@@ -16,20 +16,10 @@
 package org.csa.rstb.classification.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.classification.gpf.classifiers.CloudePottier;
-import org.csa.rstb.classification.gpf.classifiers.CloudePottierC2;
-import org.csa.rstb.classification.gpf.classifiers.FreemanDurdenWishart;
-import org.csa.rstb.classification.gpf.classifiers.GeneralWishart;
-import org.csa.rstb.classification.gpf.classifiers.HAlphaWishart;
-import org.csa.rstb.classification.gpf.classifiers.HAlphaWishartC2;
-import org.csa.rstb.classification.gpf.classifiers.PolClassifier;
+import org.csa.rstb.classification.gpf.classifiers.*;
 import org.csa.rstb.polarimetric.gpf.PolarimetricDecompositionOp;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.IndexCoding;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;

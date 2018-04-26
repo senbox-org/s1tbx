@@ -18,7 +18,6 @@ package org.esa.s1tbx.insar.gpf.ui;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;

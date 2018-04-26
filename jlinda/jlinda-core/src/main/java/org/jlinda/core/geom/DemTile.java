@@ -1,11 +1,7 @@
 package org.jlinda.core.geom;
 
 import org.esa.snap.core.util.SystemUtils;
-import org.jlinda.core.Constants;
-import org.jlinda.core.Orbit;
-import org.jlinda.core.Point;
-import org.jlinda.core.SLCImage;
-import org.jlinda.core.Window;
+import org.jlinda.core.*;
 
 import java.util.logging.Logger;
 

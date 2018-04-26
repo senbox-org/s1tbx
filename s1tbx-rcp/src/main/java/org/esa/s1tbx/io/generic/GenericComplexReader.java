@@ -16,8 +16,8 @@
 package org.esa.s1tbx.io.generic;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.dat.dialogs.ComplexBinaryDialog;
 import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
+import org.esa.s1tbx.dat.dialogs.ComplexBinaryDialog;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;

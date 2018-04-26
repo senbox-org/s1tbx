@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.insar.rcp.actions;
 
-import org.esa.s1tbx.insar.rcp.dialogs.*;
+import org.esa.s1tbx.insar.rcp.dialogs.InSARStackOverviewDialog;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;

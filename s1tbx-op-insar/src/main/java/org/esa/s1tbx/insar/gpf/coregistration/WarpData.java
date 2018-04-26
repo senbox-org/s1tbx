@@ -15,11 +15,7 @@
  */
 package org.esa.s1tbx.insar.gpf.coregistration;
 
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Placemark;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.jlinda.core.coregistration.PolynomialModel;

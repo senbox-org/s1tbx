@@ -40,9 +40,8 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
     public DecodeQualification getDecodeQualification(final Object input) {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
-            final String filename = file.getName().toLowerCase();
-            if (filename.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
-                    filename.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
+            final File metadataFile = findMetadataFile(file);
+            if (metadataFile != null) {
 
                 final File[] files = file.getParentFile().listFiles();
                 if(files != null) {
@@ -54,6 +53,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
                 return DecodeQualification.INTENDED;
             }
+            final String filename = file.getName().toLowerCase();
             if (filename.endsWith(".zip") && filename.startsWith("rs2") &&
                     ZipUtils.findInZip(file, "", Radarsat2Constants.PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
@@ -62,6 +62,34 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
         //todo zip stream
 
         return DecodeQualification.UNABLE;
+    }
+
+    public static File findMetadataFile(final File folder) {
+        if (folder.isDirectory()) {
+            final File[] fileList = folder.listFiles();
+            if (fileList != null) {
+                for (File f : fileList) {
+                    final String fileName = f.getName().toLowerCase();
+                    if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
+                            fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
+                        return f;
+                    }
+                    if (f.isDirectory()) {
+                        final File foundFile = findMetadataFile(f);
+                        if (foundFile != null) {
+                            return foundFile;
+                        }
+                    }
+                }
+            }
+        } else {
+            final String fileName = folder.getName().toLowerCase();
+            if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
+                    fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)){
+                return folder;
+            }
+        }
+        return null;
     }
 
     /**

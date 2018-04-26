@@ -27,7 +27,7 @@ import org.jlinda.core.utils.CplxContainer;
 import org.jlinda.core.utils.ProductContainer;
 import org.jlinda.core.utils.TileUtilsDoris;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.HashMap;
 
 @OperatorMetadata(alias = "PhaseToHeight",

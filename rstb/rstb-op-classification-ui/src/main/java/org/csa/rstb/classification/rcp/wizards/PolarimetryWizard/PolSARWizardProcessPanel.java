@@ -15,9 +15,9 @@
  */
 package org.csa.rstb.classification.rcp.wizards.PolarimetryWizard;
 
-import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;

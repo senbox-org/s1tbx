@@ -3,12 +3,7 @@ package org.jlinda.core.io;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.SystemUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
