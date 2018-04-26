@@ -31,13 +31,7 @@ import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.ContextAwareAction;
-import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.util.WeakListeners;
+import org.openide.util.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

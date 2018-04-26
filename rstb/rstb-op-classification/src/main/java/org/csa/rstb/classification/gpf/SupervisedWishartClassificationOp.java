@@ -43,7 +43,8 @@ import org.esa.snap.engine_utilities.util.ResourceUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Properties;
 
 /**
  * Perform supervised Wishart classification of a given polarimetric product
