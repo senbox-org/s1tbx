@@ -16,7 +16,6 @@
 package org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilterOp;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;

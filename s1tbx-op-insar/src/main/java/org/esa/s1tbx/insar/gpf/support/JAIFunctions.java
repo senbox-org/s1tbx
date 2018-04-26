@@ -15,13 +15,7 @@
  */
 package org.esa.s1tbx.insar.gpf.support;
 
-import javax.media.jai.BorderExtender;
-import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationTable;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.WarpPolynomial;
+import javax.media.jai.*;
 import javax.media.jai.operator.DFTDescriptor;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
