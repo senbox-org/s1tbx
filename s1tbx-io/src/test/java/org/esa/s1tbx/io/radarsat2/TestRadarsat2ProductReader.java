@@ -15,14 +15,10 @@
  */
 package org.esa.s1tbx.io.radarsat2;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
-import org.esa.snap.core.dataio.DecodeQualification;
-import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
-import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,74 +28,33 @@ import java.io.File;
  *
  * @author lveci
  */
-public class TestRadarsat2ProductReader {
+public class TestRadarsat2ProductReader extends ReaderTest {
 
-    static {
-        TestUtils.initTestEnvironment();
-    }
-    private Radarsat2ProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
+    private static final File folderSLC = new File("E:\\data\\RS2\\RS2_OK21594_PK225278_DK209453_FQ14_20110624_225945_HH_VV_HV_VH_SLC");
+    private static final File metadataLC = new File("E:\\data\\RS2\\product.xml");
 
     public TestRadarsat2ProductReader() {
-        readerPlugin = new Radarsat2ProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new Radarsat2ProductReaderPlugIn());
     }
 
-    /**
-     * Open all files in a folder recursively
-     *
-     * @throws Exception anything
-     */
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsRadarsat2, readerPlugin, reader, null, null);
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsRadarsat2, readerPlugIn, reader, null, null);
     }
 
     @Test
     public void testOpeningFolder() throws Exception {
-        final File inputFile = TestData.inputRS2_SQuad;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
+        testReader(folderSLC);
+    }
 
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
+    @Test
+    public void testOpeningMetadataFile() throws Exception {
+        testReader(metadataLC);
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        final File inputFile = TestData.inputRS2_SQuad;
-        if(!inputFile.exists()){
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
+        testReader(TestData.inputRS2_SQuad);
     }
-
-/*    @Test
-    public void testOpeningInputStream() throws Exception {
-        final File inputFile = new File(rs2ZipFilePath);
-        if(!inputFile.exists()){
-            TestUtils.skipTest(this);
-            return;
-        }
-
-        final InputStream inputStream = new FileInputStream(rs2ZipFilePath);
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputStream);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputStream, null);
-        Assert.assertTrue(product != null);
-    }*/
 }

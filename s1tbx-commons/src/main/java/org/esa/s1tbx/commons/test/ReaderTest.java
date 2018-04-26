@@ -14,8 +14,8 @@ import java.io.File;
 
 public class ReaderTest {
 
-    private final ProductReaderPlugIn readerPlugIn;
-    private final ProductReader reader;
+    protected final ProductReaderPlugIn readerPlugIn;
+    protected final ProductReader reader;
 
     static {
         TestUtils.initTestEnvironment();
