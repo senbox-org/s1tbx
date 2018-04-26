@@ -63,10 +63,6 @@
             <artifactId>jlinda-core</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io</artifactId>
-        </dependency>
     </dependencies>
     
     <build>
