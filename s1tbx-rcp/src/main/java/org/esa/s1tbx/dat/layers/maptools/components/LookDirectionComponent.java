@@ -17,12 +17,7 @@ package org.esa.s1tbx.dat.layers.maptools.components;
 
 import org.esa.s1tbx.dat.graphics.GraphicShape;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.awt.*;

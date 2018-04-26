@@ -10,9 +10,7 @@ import org.junit.Test;
 
 import java.nio.ByteOrder;
 
-import static org.jlinda.core.io.DataReader.readCplxDoubleData;
-import static org.jlinda.core.io.DataReader.readCplxFloatData;
-import static org.jlinda.core.io.DataReader.readFloatData;
+import static org.jlinda.core.io.DataReader.*;
 
 public class SarUtilsTest {
 

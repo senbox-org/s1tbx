@@ -16,17 +16,7 @@
 package org.csa.rstb.polarimetric.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.polarimetric.gpf.decompositions.Cloude;
-import org.csa.rstb.polarimetric.gpf.decompositions.Decomposition;
-import org.csa.rstb.polarimetric.gpf.decompositions.FreemanDurden;
-import org.csa.rstb.polarimetric.gpf.decompositions.GeneralizedFreemanDurden;
-import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
-import org.csa.rstb.polarimetric.gpf.decompositions.Pauli;
-import org.csa.rstb.polarimetric.gpf.decompositions.Sinclair;
-import org.csa.rstb.polarimetric.gpf.decompositions.Touzi;
-import org.csa.rstb.polarimetric.gpf.decompositions.Yamaguchi;
-import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
-import org.csa.rstb.polarimetric.gpf.decompositions.vanZyl;
+import org.csa.rstb.polarimetric.gpf.decompositions.*;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -45,7 +35,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**

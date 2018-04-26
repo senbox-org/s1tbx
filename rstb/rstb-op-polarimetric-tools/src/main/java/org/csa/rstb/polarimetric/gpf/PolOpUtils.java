@@ -27,7 +27,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.DoubleMatrix;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 /*
 import Jama.Matrix;

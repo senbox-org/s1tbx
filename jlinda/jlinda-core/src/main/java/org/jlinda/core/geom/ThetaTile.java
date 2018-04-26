@@ -1,11 +1,7 @@
 package org.jlinda.core.geom;
 
 import org.esa.snap.core.util.SystemUtils;
-import org.jlinda.core.Ellipsoid;
-import org.jlinda.core.Orbit;
-import org.jlinda.core.Point;
-import org.jlinda.core.SLCImage;
-import org.jlinda.core.Window;
+import org.jlinda.core.*;
 import org.jlinda.core.delaunay.TriangleInterpolator;
 
 import java.util.logging.Logger;

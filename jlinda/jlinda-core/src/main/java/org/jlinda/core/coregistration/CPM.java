@@ -25,10 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static org.jlinda.core.coregistration.utils.CPMUtils.absArgmax;
-import static org.jlinda.core.coregistration.utils.CPMUtils.diagxmat;
-import static org.jlinda.core.coregistration.utils.CPMUtils.onesEJML;
-import static org.jlinda.core.coregistration.utils.CPMUtils.scaleInputDiag;
+import static org.jlinda.core.coregistration.utils.CPMUtils.*;
 
 public class CPM implements PolynomialModel {
 
