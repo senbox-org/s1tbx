@@ -59,6 +59,10 @@
             <artifactId>s1tbx-op-insar</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
             <version>${s1tbx.version}</version>
