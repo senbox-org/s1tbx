@@ -65,7 +65,6 @@ public final class XMLSupport {
 
             final DOMBuilder domBuilder = new DOMBuilder();
             final Document doc = domBuilder.build(w3cDocument);
-            inputStream.close();
 
             return doc;
         } catch (MalformedURLException e) {
