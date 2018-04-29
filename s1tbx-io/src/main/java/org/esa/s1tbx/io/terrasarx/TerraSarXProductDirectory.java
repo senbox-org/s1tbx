@@ -158,7 +158,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         slaveHeader = findHeaderFile(slaveHeader, slaveProductName);
 
-        final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
+        final Document slaveDoc;
+        try (final InputStream is = getInputStream(slaveHeader)) {
+            slaveDoc = XMLSupport.LoadXML(is);
+        }
         final Element slaveRootElement = slaveDoc.getRootElement();
 
         final MetadataElement slaveRoot = new MetadataElement("Slave_Metadata");
@@ -180,7 +183,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         // Use the master's annotation to build the Abstracted_Metadata and Original_Product_Metadata.
 
         final MetadataElement metadataRoot = new MetadataElement(Product.METADATA_ROOT_NAME);
-        final Document masterDoc = XMLSupport.LoadXML(getInputStream(masterHeader));
+
+        final Document masterDoc;
+        try (final InputStream is = getInputStream(masterHeader)) {
+            masterDoc = XMLSupport.LoadXML(is);
+        }
+
         final Element masterRootElement = masterDoc.getRootElement();
         AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(metadataRoot));
 

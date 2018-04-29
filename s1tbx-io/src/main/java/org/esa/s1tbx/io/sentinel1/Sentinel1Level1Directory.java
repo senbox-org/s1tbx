@@ -379,7 +379,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         if (filenames != null) {
             for (String metadataFile : filenames) {
 
-                final Document xmlDoc = XMLSupport.LoadXML(getInputStream(annotFolder + '/' + metadataFile));
+                final Document xmlDoc;
+                try (final InputStream is = getInputStream(annotFolder + '/' + metadataFile)) {
+                    xmlDoc = XMLSupport.LoadXML(is);
+                }
                 final Element rootElement = xmlDoc.getRootElement();
                 final MetadataElement nameElem = new MetadataElement(metadataFile);
                 annotationElement.addElement(nameElem);
@@ -527,7 +530,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             for (String metadataFile : filenames) {
                 if (metadataFile.startsWith("calibration")) {
 
-                    final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder + '/' + metadataFile));
+                    final Document xmlDoc;
+                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
+                        xmlDoc = XMLSupport.LoadXML(is);
+                    }
                     final Element rootElement = xmlDoc.getRootElement();
                     final String name = metadataFile.replace("calibration-", "");
                     final MetadataElement nameElem = new MetadataElement(name);
@@ -552,7 +558,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             for (String metadataFile : filenames) {
                 if (metadataFile.startsWith("noise")) {
 
-                    final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder + '/' + metadataFile));
+                    final Document xmlDoc;
+                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
+                        xmlDoc = XMLSupport.LoadXML(is);
+                    }
                     final Element rootElement = xmlDoc.getRootElement();
                     final String name = metadataFile.replace("noise-", "");
                     final MetadataElement nameElem = new MetadataElement(name);
