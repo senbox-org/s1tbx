@@ -349,12 +349,10 @@ public final class BinaryDBReader {
      * @return xml document
      */
     public static Document loadDefinitionFile(final String mission, final String fileName) {
-        try {
-            final InputStream defStream = getResStream(mission, fileName);
+        try (final InputStream defStream = getResStream(mission, fileName)) {
             return XMLSupport.LoadXML(defStream);
         } catch (Exception e) {
             SystemUtils.LOG.severe("Unable to open "+fileName+": "+e.getMessage());
-
         }
         return null;
     }
