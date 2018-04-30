@@ -25,6 +25,7 @@ import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class represents a product directory.
@@ -38,7 +39,9 @@ public abstract class XMLProductDirectory extends AbstractProductDirectory {
     }
 
     public void readProductDirectory() throws IOException {
-        xmlDoc = XMLSupport.LoadXML(getInputStream(getRootFolder() + getHeaderFileName()));
+        try (final InputStream is = getInputStream(getRootFolder() + getHeaderFileName())) {
+            xmlDoc = XMLSupport.LoadXML(is);
+        }
     }
 
     protected MetadataElement addMetaData() throws IOException {

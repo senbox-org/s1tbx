@@ -203,7 +203,12 @@ public class Radarsat2ProductReader extends SARReader {
             return;
         }
 
-        final Document xmlDoc = XMLSupport.LoadXML(is);
+        final Document xmlDoc;
+        try {
+            xmlDoc = XMLSupport.LoadXML(is);
+        } finally {
+            is.close();
+        }
         final Element rootElement = xmlDoc.getRootElement();
 
         final Element offsetElem = rootElement.getChild("offset");
