@@ -175,6 +175,7 @@ public abstract class AbstractProductDirectory {
             final ImageIOFile img = bandImageFileMap.get(key);
             img.close();
         }
+        productDir.close();
     }
 
     protected abstract void addBands(final Product product);
