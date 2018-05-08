@@ -21,7 +21,7 @@
                     "lon": -36.11402647694527
                 }
             ],
-            "reverseAccuracy": 0.15
+            "reverseAccuracy": 0.5
         },
         "flagCodings": [
             {
