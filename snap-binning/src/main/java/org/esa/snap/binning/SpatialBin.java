@@ -31,7 +31,7 @@ import java.util.Arrays;
  */
 public class SpatialBin extends Bin {
 
-    GrowableVector[] vectors;
+    protected GrowableVector[] vectors;
 
     // this constructor is only public because it is used in Calvalus - undocumented API! tb 2018-03-26
     public SpatialBin() {
