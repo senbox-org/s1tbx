@@ -188,6 +188,10 @@ public class BinManager {
         return postFeatureNames;
     }
 
+    public int getGrowableAggregatorCount() {
+        return growableDataAggregators.length;
+    }
+
     public final int getResultFeatureCount() {
         if (hasPostProcessor()) {
             return postFeatureCount;
