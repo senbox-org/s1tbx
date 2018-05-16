@@ -4,6 +4,7 @@ import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.runtime.Config;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.prefs.Preferences;
 
 public class WatermaskUtils {
 
@@ -123,7 +125,8 @@ public class WatermaskUtils {
             SystemUtils.LOG.fine("Checking for '" + localZipFile.getPath() + "' ...");
             try {
                 // avoid query for length if download is disabled
-                if (Boolean.getBoolean(GPF.SNAP_GPF_ALLOW_AUXDATA_DOWNLOAD)) {
+                Preferences preferences = Config.instance().preferences();
+                if (preferences.getBoolean(GPF.SNAP_GPF_ALLOW_AUXDATA_DOWNLOAD, true)) {
                     final URL fileUrl = new URL(remotePath);
                     final URLConnection urlConnection = fileUrl.openConnection();
                     if (!localZipFile.exists() || (localZipFile.length() != urlConnection.getContentLength() &&
