@@ -149,7 +149,11 @@ class PixelFinder {
                 y0 = y1;
                 knownRectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
             }
-            pixelPos.setLocation(pixelFindingStrategy.createPixelPos(lat0, lon0, minDistance, x0, y0, bestGeoPos));
+            if (bestGeoPos != null) {
+                pixelPos.setLocation(pixelFindingStrategy.createPixelPos(lat0, lon0, minDistance, x0, y0, bestGeoPos));
+            } else {
+                pixelPos.setInvalid();
+            }
         } else {
             pixelPos.setInvalid();
         }
