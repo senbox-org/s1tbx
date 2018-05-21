@@ -31,7 +31,6 @@
                 <attr name="displayName" stringvalue="S-1 Thermal Noise Removal"/>
                 <attr name="operatorName" stringvalue="ThermalNoiseRemoval"/>
                 <attr name="dialogTitle" stringvalue="S-1 Thermal Noise Removal"/>
-                <attr name="targetProductNameSuffix" stringvalue="_Noise-Cor"/>
                 <attr name="ShortDescription" stringvalue="Apply radiometric calibration"/>
                 <attr name="helpId" stringvalue="ThermalNoiseRemoval"/>
                 <attr name="icon" stringvalue="esaIcon"/>
