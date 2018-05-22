@@ -59,18 +59,18 @@
             <file name="org-esa-s1tbx-sentinel1-gpf-TOPSCoregistration-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                <attr name="displayName" stringvalue="S1 TOPS Coregistration"/>
+                <attr name="displayName" stringvalue="S-1 TOPS Coregistration"/>
                 <attr name="graphFile" stringvalue="sentinel1/Sentinel1-TOPS-Coregistration.xml"/>
-                <attr name="dialogTitle" stringvalue="S1 TOPS Coregistration"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS Coregistration"/>
                 <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sentinel1-gpf-TOPSESDCoregistration-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                <attr name="displayName" stringvalue="S1 TOPS Coregistration with ESD"/>
+                <attr name="displayName" stringvalue="S-1 TOPS Coregistration with ESD"/>
                 <attr name="graphFile" stringvalue="sentinel1/Sentinel1-TOPS-ESD-Coregistration.xml"/>
-                <attr name="dialogTitle" stringvalue="S1 TOPS ESD Coregistration"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS ESD Coregistration"/>
                 <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration with Enhanced Spectral Diversity"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
