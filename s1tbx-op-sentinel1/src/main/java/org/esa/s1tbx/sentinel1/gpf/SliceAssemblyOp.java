@@ -1688,10 +1688,14 @@ public final class SliceAssemblyOp extends Operator {
         for (MetadataElement e : absTgtElems) {
             final String elemName = e.getName();
             if (elemName.contains("Band")) {
+                boolean containsPol = false;
                 for (String pol : selectedPolarisations) {
-                    if (!elemName.contains(pol)) {
-                        bandMetaToRemove.add(e);
+                    if (elemName.contains(pol)) {
+                        containsPol = true;
                     }
+                }
+                if(!containsPol) {
+                    bandMetaToRemove.add(e);
                 }
             }
         }

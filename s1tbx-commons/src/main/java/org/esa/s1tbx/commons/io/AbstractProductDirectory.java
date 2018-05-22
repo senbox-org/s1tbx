@@ -135,7 +135,9 @@ public abstract class AbstractProductDirectory {
     }
 
     protected String getBandFileNameFromImage(final String imgPath) {
-        return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
+        if(imgPath.contains("/"))
+            return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
+        return imgPath;
     }
 
     protected Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
