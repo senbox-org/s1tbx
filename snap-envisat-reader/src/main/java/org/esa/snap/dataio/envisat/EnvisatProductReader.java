@@ -35,6 +35,7 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.util.ArrayUtils;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.runtime.Config;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.prefs.Preferences;
 
 /**
  * The <code>EnvisatProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -387,8 +389,9 @@ public class EnvisatProductReader extends AbstractProductReader {
     private static void addGeoCodingToProduct(Product product) {
         initTiePointGeoCoding(product);
 
-        final boolean usePixeGeoCoding = Boolean.getBoolean(SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING);
-        if (usePixeGeoCoding) {
+        Preferences preferences = Config.instance("snap").preferences();
+        final boolean usePixelGeoCoding = preferences.getBoolean(SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING, false);
+        if (usePixelGeoCoding) {
             Band latBand = product.getBand(EnvisatConstants.LAT_DS_NAME);
             if (latBand == null) {
                 latBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME);
