@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
  */
 public class EsriShapeFileWriterTest {
 
-    static File testdataDir;
+    private static File testdataDir;
 
     @After
     public void tearDown() throws Exception {
@@ -72,11 +72,11 @@ public class EsriShapeFileWriterTest {
     private List<SimpleFeature> get4PixelsFeaturesWithAdaptedStatistic() {
         final URL originalShapefile = getClass().getResource("../4_pixels.shp");
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
-        final String[] algorithmNames = {"p90", "p95"};
+        final String[] measureNames = {"p90", "p95"};
 
-        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{"algal_2"}, algorithmNames));
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{"algal_2"}, measureNames));
 
-        HashMap<String, Number> statistics = new HashMap<String, Number>();
+        HashMap<String, Object> statistics = new HashMap<>();
         statistics.put("p90", 0.1);
         featureStatisticsWriter.addToOutput("algal_2", "4_pixels.1", statistics);
 
@@ -87,7 +87,7 @@ public class EsriShapeFileWriterTest {
         return featureStatisticsWriter.getFeatures();
     }
 
-    static File getTestFile(String fileName) {
+    private static File getTestFile(String fileName) {
         testdataDir.mkdirs();
         return new File(testdataDir, fileName);
     }

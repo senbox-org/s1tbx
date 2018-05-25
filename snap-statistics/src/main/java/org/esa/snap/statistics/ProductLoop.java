@@ -1,5 +1,6 @@
 package org.esa.snap.statistics;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 
@@ -18,24 +19,37 @@ public class ProductLoop {
     private ProductData.UTC newestDate;
     private ProductData.UTC oldestDate;
     private final ProductValidator productValidator;
+    private ProgressMonitor progressMonitor;
 
-    public ProductLoop(ProductLoader loader, ProductValidator productValidator, StatisticComputer statisticComputer, Logger logger) {
+    public ProductLoop(ProductLoader loader, ProductValidator productValidator, StatisticComputer statisticComputer,
+                       Logger logger) {
+        this(loader, productValidator, statisticComputer, ProgressMonitor.NULL, logger);
+    }
+
+    public ProductLoop(ProductLoader loader, ProductValidator productValidator, StatisticComputer statisticComputer,
+                       ProgressMonitor pm, Logger logger) {
         this.loader = loader;
         this.productValidator = productValidator;
         this.logger = logger;
         this.statisticComputer = statisticComputer;
+        progressMonitor = pm;
         productNames = new ArrayList<>();
         newestDate = null;
         oldestDate = null;
     }
 
     public void loop(Product[] alreadyLoadedProducts, File[] productFilesToLoad) {
-        if (alreadyLoadedProducts != null) {
-            for (Product product : alreadyLoadedProducts) {
-                compute(product);
-            }
+        int alreadyLoadedProductsLength = alreadyLoadedProducts == null ? 0 : alreadyLoadedProducts.length;
+        int productFilesToLoadLength = productFilesToLoad == null ? 0 : productFilesToLoad.length;
+        progressMonitor.beginTask("Looping over products ...", alreadyLoadedProductsLength + productFilesToLoadLength);
+        for (int i = 0; i < alreadyLoadedProductsLength; i++) {
+            Product product = alreadyLoadedProducts[i];
+            compute(product);
+            progressMonitor.worked(1);
         }
-        for (File productFile : productFilesToLoad) {
+        for (int i = 0; i < productFilesToLoadLength; i++) {
+            File productFile = productFilesToLoad[i];
+            progressMonitor.worked(1);
             if (productFile == null) {
                 continue;
             }
@@ -78,7 +92,14 @@ public class ProductLoop {
             path = product.getName();
         }
         logger.info("    current product: " + path);
-
+        if (product.getStartTime() != null && (oldestDate == null ||
+                product.getStartTime().getAsDate().before(oldestDate.getAsDate()))) {
+            oldestDate = product.getStartTime();
+        }
+        if (product.getEndTime() != null && (newestDate == null ||
+                product.getEndTime().getAsDate().after(newestDate.getAsDate()))) {
+            newestDate = product.getEndTime();
+        }
         statisticComputer.computeStatistic(product);
         productNames.add(path);
 
