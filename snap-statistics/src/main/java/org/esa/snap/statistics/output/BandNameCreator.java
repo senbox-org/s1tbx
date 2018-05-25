@@ -23,10 +23,11 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+import org.esa.snap.statistics.tools.TimeInterval;
 
 /**
- * Provides the possibility to create unique attribute names for combinations of an algorithm name and a band name.
- * Additionally, the mapping between original algorithm and band name and the resulting unique name may be written to
+ * Provides the possibility to create unique attribute names for combinations of a measure name and a band name.
+ * Additionally, the mapping between original measure and band name and the resulting unique name may be written to
  * a print stream.
  *
  * @author Thomas Storm
@@ -57,30 +58,30 @@ public class BandNameCreator {
      * Creates an unique name -- unique in the scope of each instance of this class -- from the given input parameters.
      * The unique names created are maximally 10 characters in length.
      *
-     * @param algorithmName  The name of the algorithm.
+     * @param measureName  The name of the algorithm.
      * @param sourceBandName The name of the source band.
      * @return A unique name for the combination of both.
      */
-    public String createUniqueAttributeName(String algorithmName, String sourceBandName) {
-        final String desiredAttributeName = algorithmName + "_" + sourceBandName;
+    public String createUniqueAttributeName(String measureName, String sourceBandName) {
+        final String desiredAttributeName = measureName + "_" + sourceBandName;
         if (mappedNames.containsKey(desiredAttributeName)) {
             return mappedNames.get(desiredAttributeName);
         }
         String attributeName = desiredAttributeName;
         final boolean tooLong = desiredAttributeName.length() > 10;
         if (tooLong) {
-            attributeName = algorithmName + "_" + sourceBandName.replace("_", "");
+            attributeName = measureName + "_" + sourceBandName.replace("_", "");
             attributeName = shorten(attributeName);
         }
         if (attributeName.length() > 10) {
-            final int index = getIndex(algorithmName);
-            attributeName = shorten(algorithmName) + "_" + index;
+            final int index = getIndex(measureName);
+            attributeName = shorten(measureName) + "_" + index;
             if (attributeName.length() > 10) {
                 final String indexPart = Integer.toString(index);
                 final int idxLength = indexPart.length();
                 attributeName = attributeName.substring(0, 10 - idxLength - 1) + "_" + indexPart;
             }
-            indexMap.put(algorithmName, index + 1);
+            indexMap.put(measureName, index + 1);
         }
         if (tooLong) {
             SystemUtils.LOG.warning(
@@ -89,7 +90,68 @@ public class BandNameCreator {
                             "'.");
         }
         addMapping(desiredAttributeName, attributeName);
+        print(desiredAttributeName, attributeName, null);
         return attributeName;
+    }
+
+    /**
+     * Creates an unique name -- unique in the scope of each instance of this class -- from the given input parameters.
+     * The unique names created are maximally 10 characters in length.
+     *
+     * @param measureName  The name of the algorithm.
+     * @param sourceBandName The name of the source band.
+     * @param timeInterval The time interval to which the statistics refer
+     * @return A unique name for the combination of the three.
+     */
+    public String createUniqueAttributeName(String measureName, String sourceBandName, TimeInterval timeInterval) {
+        final String desiredAttributeName = measureName + "_" + sourceBandName + "_" + timeInterval.getId();
+        if (mappedNames.containsKey(desiredAttributeName)) {
+            return mappedNames.get(desiredAttributeName);
+        }
+        String attributeName = desiredAttributeName;
+        final boolean tooLong = desiredAttributeName.length() > 10;
+        if (tooLong) {
+            attributeName = measureName + "_" + sourceBandName.replace("_", "") + "_" + timeInterval.getId();
+            attributeName = shorten(attributeName);
+        }
+        if (attributeName.length() > 10) {
+            final int index = getIndex(measureName);
+            attributeName = shorten(measureName) + "_" + index + "_" + timeInterval.getId();
+            if (attributeName.length() > 10) {
+                final String indexPart = Integer.toString(index);
+                final int idxLength = indexPart.length();
+                final String intervalIdPart = Integer.toString(timeInterval.getId());
+                final int intervalIdLength = intervalIdPart.length();
+                attributeName = attributeName.substring(0, 10 - idxLength - intervalIdLength - 2) + "_" +
+                        indexPart + "_" + intervalIdPart;
+            }
+            indexMap.put(measureName, index + 1);
+        }
+        if (tooLong) {
+            SystemUtils.LOG.warning(
+                    "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
+                            attributeName +
+                            "'.");
+        }
+        addMapping(desiredAttributeName, attributeName);
+        print(desiredAttributeName, attributeName, timeInterval);
+        return attributeName;
+    }
+
+    String getUniqueAttributeName(String measureName, String sourceBandName, TimeInterval timeInterval) {
+        final String desiredAttributeName = measureName + "_" + sourceBandName + "_" + timeInterval.getId();
+        if (mappedNames.containsKey(desiredAttributeName)) {
+            return mappedNames.get(desiredAttributeName);
+        }
+        return getUniqueAttributeName(measureName, sourceBandName);
+    }
+
+    private String getUniqueAttributeName(String measureName, String sourceBandName) {
+        final String desiredAttributeName = measureName + "_" + sourceBandName;
+        if (mappedNames.containsKey(desiredAttributeName)) {
+            return mappedNames.get(desiredAttributeName);
+        }
+        throw new IllegalArgumentException("No such attribute: " + desiredAttributeName);
     }
 
     private static String shorten(String attributeName) {
@@ -106,12 +168,23 @@ public class BandNameCreator {
     }
 
     private void addMapping(String desiredAttributeName, String attributeName) {
+        mappedNames.put(desiredAttributeName, attributeName);
+    }
+
+    private void print(String desiredAttributeName, String attributeName, TimeInterval timeInterval) {
         printStream
                 .append(attributeName)
                 .append("=")
-                .append(desiredAttributeName)
+                .append(desiredAttributeName);
+        if (timeInterval != null) {
+            printStream
+                    .append(" between ")
+                    .append(timeInterval.getIntervalStart().format())
+                    .append(" and ")
+                    .append(timeInterval.getIntervalEnd().format());
+        }
+        printStream
                 .append("\n");
-        mappedNames.put(desiredAttributeName, attributeName);
     }
 
     private static class NullOutputStream extends OutputStream {

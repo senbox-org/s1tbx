@@ -18,6 +18,8 @@ package org.esa.snap.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -26,6 +28,7 @@ import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.statistics.output.StatisticsOutputContext;
 import org.esa.snap.statistics.output.StatisticsOutputter;
+import org.esa.snap.statistics.tools.TimeInterval;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +47,7 @@ import static org.junit.Assert.*;
  */
 public class StatisticsOpTest {
 
-    static final File TESTDATA_DIR = new File("target/statistics-test-io");
+    private static final File TESTDATA_DIR = new File("target/statistics-test-io");
 
     @Before
     public void setUp() throws Exception {
@@ -75,9 +78,10 @@ public class StatisticsOpTest {
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.statisticsOutputters.add(outputter);
+        statisticsOp.allStatisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
+        statisticsOp.doExecute(ProgressMonitor.NULL);
 
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
@@ -103,9 +107,10 @@ public class StatisticsOpTest {
         statisticsOp.accuracy = 6;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.statisticsOutputters.add(outputter);
+        statisticsOp.allStatisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
+        statisticsOp.doExecute(ProgressMonitor.NULL);
 
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
@@ -132,10 +137,10 @@ public class StatisticsOpTest {
         statisticsOp.percentiles = null;
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.statisticsOutputters.add(outputter);
+        statisticsOp.allStatisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
-        
+        statisticsOp.doExecute(ProgressMonitor.NULL);
 
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
@@ -149,7 +154,7 @@ public class StatisticsOpTest {
         assertEquals(0.80447364, outputter.percentiles[0], 1E-6);
         assertEquals(0.80447364, outputter.percentiles[1], 1E-6);
         assertArrayEquals(new String[]{"minimum","maximum", "median", "average", "sigma", "p90_threshold", "p95_threshold", "max_error", "total"},
-                          outputter.algorithmNames);
+                          outputter.measureNames);
     }
 
     @Test
@@ -162,9 +167,10 @@ public class StatisticsOpTest {
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.statisticsOutputters.add(outputter);
+        statisticsOp.allStatisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
+        statisticsOp.doExecute(ProgressMonitor.NULL);
 
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2_*_PI", outputter.bandName);
@@ -190,9 +196,10 @@ public class StatisticsOpTest {
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.statisticsOutputters.add(outputter);
+        statisticsOp.allStatisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
+        statisticsOp.doExecute(ProgressMonitor.NULL);
 
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
@@ -234,7 +241,9 @@ public class StatisticsOpTest {
         parameters.put("bandConfigurations", new BandConfiguration[]{
                 bandConfiguration_1,
         });
-        GPF.createProduct("StatisticsOp", parameters, TestUtil.getTestProduct());
+        Product statisticsProduct = GPF.createProduct("StatisticsOp", parameters, TestUtil.getTestProduct());
+        GPF.writeProduct(statisticsProduct, new File(TESTDATA_DIR, "test.dim"), "BEAM-DIMAP",
+                true, true, ProgressMonitor.NULL);
 
         assertFalse(getTestFile("statisticsOutput.put").exists());
         assertTrue(getTestFile("statisticsOutput.out").exists());
@@ -253,9 +262,10 @@ public class StatisticsOpTest {
         statisticsOp.percentiles = new int[]{20, 51, 90};
 
         final MyOutputter outputter = new MyOutputter();
-        statisticsOp.statisticsOutputters.add(outputter);
+        statisticsOp.allStatisticsOutputters.add(outputter);
 
         statisticsOp.initialize();
+        statisticsOp.doExecute(ProgressMonitor.NULL);
 
         assertEquals("4_pixels.1", outputter.region);
         assertEquals("algal_2", outputter.bandName);
@@ -301,6 +311,128 @@ public class StatisticsOpTest {
         assertFalse(StatisticsOp.isProductAlreadyOpened(products, new File("other.path")));
     }
 
+    @Test
+    public void testGetTimeIntervals_no_time_info() {
+        TimeInterval[] timeIntervals = StatisticsOp.getTimeIntervals(null, null, null);
+        assertEquals(1, timeIntervals.length);
+        assertEquals(0, timeIntervals[0].getId());
+        assertEquals(new ProductData.UTC(0).getAsDate(), timeIntervals[0].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1000000).getAsDate(), timeIntervals[0].getIntervalEnd().getAsDate());
+    }
+
+    @Test
+    public void testGetTimeIntervals_no_time_interval_definition() {
+        ProductData.UTC startDate = new ProductData.UTC(10, 10, 10);
+        ProductData.UTC endDate = new ProductData.UTC(20, 10, 10);
+        TimeInterval[] timeIntervals = StatisticsOp.getTimeIntervals(null, startDate, endDate);
+        assertEquals(1, timeIntervals.length);
+        assertEquals(0, timeIntervals[0].getId());
+        assertEquals(startDate, timeIntervals[0].getIntervalStart());
+        assertEquals(endDate, timeIntervals[0].getIntervalEnd());
+    }
+
+    @Test
+    public void testGetTimeIntervals_day_increase() {
+        ProductData.UTC startDate = new ProductData.UTC(10, 10, 10);
+        ProductData.UTC endDate = new ProductData.UTC(20, 10, 10);
+        TimeIntervalDefinition timeIntervalDefinition = new TimeIntervalDefinition();
+        timeIntervalDefinition.amount = 3;
+        timeIntervalDefinition.unit = "days";
+        TimeInterval[] timeIntervals = StatisticsOp.getTimeIntervals(timeIntervalDefinition, startDate, endDate);
+        assertEquals(4, timeIntervals.length);
+        assertEquals(0, timeIntervals[0].getId());
+        assertEquals(startDate.getAsDate(), timeIntervals[0].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(13, 10, 10).getAsDate(), timeIntervals[0].getIntervalEnd().getAsDate());
+        assertEquals(1, timeIntervals[1].getId());
+        assertEquals(new ProductData.UTC(13, 10, 10).getAsDate(), timeIntervals[1].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(16, 10, 10).getAsDate(), timeIntervals[1].getIntervalEnd().getAsDate());
+        assertEquals(2, timeIntervals[2].getId());
+        assertEquals(new ProductData.UTC(16, 10, 10).getAsDate(), timeIntervals[2].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(19, 10, 10).getAsDate(), timeIntervals[2].getIntervalEnd().getAsDate());
+        assertEquals(3, timeIntervals[3].getId());
+        assertEquals(new ProductData.UTC(19, 10, 10).getAsDate(), timeIntervals[3].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(20, 10, 10).getAsDate(), timeIntervals[3].getIntervalEnd().getAsDate());
+    }
+
+    @Test
+    public void testGetTimeIntervals_week_increase() {
+        ProductData.UTC startDate = new ProductData.UTC(1000, 10, 10);
+        ProductData.UTC endDate = new ProductData.UTC(1050, 10, 10);
+        TimeIntervalDefinition timeIntervalDefinition = new TimeIntervalDefinition();
+        timeIntervalDefinition.amount = 3;
+        timeIntervalDefinition.unit = "weeks";
+        TimeInterval[] timeIntervals = StatisticsOp.getTimeIntervals(timeIntervalDefinition, startDate, endDate);
+        assertEquals(3, timeIntervals.length);
+        assertEquals(0, timeIntervals[0].getId());
+        assertEquals(startDate.getAsDate(), timeIntervals[0].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1021, 10, 10).getAsDate(), timeIntervals[0].getIntervalEnd().getAsDate());
+        assertEquals(1, timeIntervals[1].getId());
+        assertEquals(new ProductData.UTC(1021, 10, 10).getAsDate(), timeIntervals[1].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1042, 10, 10).getAsDate(), timeIntervals[1].getIntervalEnd().getAsDate());
+        assertEquals(2, timeIntervals[2].getId());
+        assertEquals(new ProductData.UTC(1042, 10, 10).getAsDate(), timeIntervals[2].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1050, 10, 10).getAsDate(), timeIntervals[2].getIntervalEnd().getAsDate());
+    }
+
+    @Test
+    public void testGetTimeIntervals_month_increase() {
+        ProductData.UTC startDate = new ProductData.UTC(1000, 10, 10);
+        ProductData.UTC endDate = new ProductData.UTC(1150, 10, 10);
+        TimeIntervalDefinition timeIntervalDefinition = new TimeIntervalDefinition();
+        timeIntervalDefinition.amount = 2;
+        timeIntervalDefinition.unit = "months";
+        TimeInterval[] timeIntervals = StatisticsOp.getTimeIntervals(timeIntervalDefinition, startDate, endDate);
+        assertEquals(3, timeIntervals.length);
+        assertEquals(0, timeIntervals[0].getId());
+        assertEquals(startDate.getAsDate(), timeIntervals[0].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1061, 10, 10).getAsDate(), timeIntervals[0].getIntervalEnd().getAsDate());
+        assertEquals(1, timeIntervals[1].getId());
+        assertEquals(new ProductData.UTC(1061, 10, 10).getAsDate(), timeIntervals[1].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1122, 10, 10).getAsDate(), timeIntervals[1].getIntervalEnd().getAsDate());
+        assertEquals(2, timeIntervals[2].getId());
+        assertEquals(new ProductData.UTC(1122, 10, 10).getAsDate(), timeIntervals[2].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1150, 10, 10).getAsDate(), timeIntervals[2].getIntervalEnd().getAsDate());
+    }
+
+    @Test
+    public void testGetTimeIntervals_year_increase() {
+        ProductData.UTC startDate = new ProductData.UTC(1000, 10, 10);
+        ProductData.UTC endDate = new ProductData.UTC(2750, 10, 10);
+        TimeIntervalDefinition timeIntervalDefinition = new TimeIntervalDefinition();
+        timeIntervalDefinition.amount = 2;
+        timeIntervalDefinition.unit = "years";
+        TimeInterval[] timeIntervals = StatisticsOp.getTimeIntervals(timeIntervalDefinition, startDate, endDate);
+        assertEquals(3, timeIntervals.length);
+        assertEquals(0, timeIntervals[0].getId());
+        assertEquals(startDate.getAsDate(), timeIntervals[0].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(1731, 10, 10).getAsDate(), timeIntervals[0].getIntervalEnd().getAsDate());
+        assertEquals(1, timeIntervals[1].getId());
+        assertEquals(new ProductData.UTC(1731, 10, 10).getAsDate(), timeIntervals[1].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(2461, 10, 10).getAsDate(), timeIntervals[1].getIntervalEnd().getAsDate());
+        assertEquals(2, timeIntervals[2].getId());
+        assertEquals(new ProductData.UTC(2461, 10, 10).getAsDate(), timeIntervals[2].getIntervalStart().getAsDate());
+        assertEquals(new ProductData.UTC(2750, 10, 10).getAsDate(), timeIntervals[2].getIntervalEnd().getAsDate());
+    }
+
+    @Test
+    public void testGetOutputFile() {
+        assertNull(StatisticsOp.getOutputFile(null, StatisticsOp.ALL_MEASURES));
+        assertNull(StatisticsOp.getOutputFile(null, StatisticsOp.QUALITATIVE_MEASURES));
+        assertNull(StatisticsOp.getOutputFile(null, StatisticsOp.QUANTITATIVE_MEASURES));
+
+        File origFile = new File("origFile.txt");
+        File expectedQualitativeFile = new File("origFile_categorical.txt");
+        File expectedQuantitativeFile = new File("origFile_quantitative.txt");
+
+        File allMeasures_outputFile = StatisticsOp.getOutputFile(origFile, StatisticsOp.ALL_MEASURES);
+        assertEquals(origFile.getAbsolutePath(), allMeasures_outputFile.getAbsolutePath());
+
+        File qualitativeMeasures_outputFile = StatisticsOp.getOutputFile(origFile, StatisticsOp.QUALITATIVE_MEASURES);
+        assertEquals(expectedQualitativeFile.getAbsolutePath(), qualitativeMeasures_outputFile.getAbsolutePath());
+
+        File quantitativeMeasures_outputFile = StatisticsOp.getOutputFile(origFile, StatisticsOp.QUANTITATIVE_MEASURES);
+        assertEquals(expectedQuantitativeFile.getAbsolutePath(), quantitativeMeasures_outputFile.getAbsolutePath());
+    }
 
     private StatisticsOp createStatisticsOp() {
         StatisticsOp statisticsOp = new StatisticsOp();
@@ -327,7 +459,7 @@ public class StatisticsOpTest {
         double[] percentiles;
         String region;
         String bandName;
-        private String[] algorithmNames;
+        private String[] measureNames;
 
         public MyOutputter() {
             percentiles = new double[2];
@@ -336,8 +468,8 @@ public class StatisticsOpTest {
         @Override
         public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
             int numPercentiles = 0;
-            algorithmNames = statisticsOutputContext.algorithmNames;
-            for (String algorithmName : algorithmNames) {
+            measureNames = statisticsOutputContext.measureNames;
+            for (String algorithmName : measureNames) {
                 if (algorithmName.matches("p\\d\\d_threshold")) {
                     numPercentiles++;
                 }
@@ -346,30 +478,35 @@ public class StatisticsOpTest {
         }
 
         @Override
-        public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
-            final TreeMap<String, Number> map = new TreeMap<>();
+        public void addToOutput(String bandName, String regionId, Map<String, Object> statistics) {
+            final TreeMap<String, Object> map = new TreeMap<>();
             map.putAll(statistics);
             region = regionId;
             this.bandName = bandName;
             int percentileIndex = 0;
-            for (Map.Entry<String, Number> entry : map.entrySet()) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
                 final String key = entry.getKey();
                 if (key.equalsIgnoreCase("total")) {
-                    pixels = entry.getValue().intValue();
+                    pixels = ((Number) entry.getValue()).intValue();
                 } else if (key.equalsIgnoreCase("minimum")) {
-                    minimum = entry.getValue().doubleValue();
+                    minimum = ((Number) entry.getValue()).doubleValue();
                 } else if (key.equalsIgnoreCase("maximum")) {
-                    maximum = entry.getValue().doubleValue();
+                    maximum = ((Number) entry.getValue()).doubleValue();
                 } else if (key.equalsIgnoreCase("average")) {
-                    average = entry.getValue().doubleValue();
+                    average = ((Number) entry.getValue()).doubleValue();
                 } else if (key.equalsIgnoreCase("median")) {
-                    median = entry.getValue().doubleValue();
+                    median = ((Number) entry.getValue()).doubleValue();
                 } else if (key.equalsIgnoreCase("sigma")) {
-                    sigma = entry.getValue().doubleValue();
+                    sigma = ((Number) entry.getValue()).doubleValue();
                 } else if (key.startsWith("p") && key.endsWith("threshold")) {
-                    percentiles[percentileIndex++] = entry.getValue().doubleValue();
+                    percentiles[percentileIndex++] = ((Number) entry.getValue()).doubleValue();
                 }
             }
+        }
+
+        @Override
+        public void addToOutput(String bandName, TimeInterval interval, String regionId, Map<String, Object> statistics) {
+            addToOutput(bandName, regionId, statistics);
         }
 
         @Override
