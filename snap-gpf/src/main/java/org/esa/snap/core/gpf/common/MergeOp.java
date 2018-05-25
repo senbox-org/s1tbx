@@ -241,7 +241,7 @@ public class MergeOp extends Operator {
         private String newName;
         private String namePattern;
 
-        private String exclRegex;
+        private transient Pattern compiledPattern;
 
         public void setProductId(String productId) {
             this.productId = productId;
@@ -249,6 +249,7 @@ public class MergeOp extends Operator {
 
         public void setName(String name) {
             this.name = name;
+            compiledPattern = null;
         }
 
         public void setNewName(String newName) {
@@ -257,13 +258,14 @@ public class MergeOp extends Operator {
 
         public void setNamePattern(String namePattern) {
             this.namePattern = namePattern;
+            compiledPattern = null;
         }
 
         private Pattern getCompiledNamePattern() {
-            if (exclRegex == null) {
-                exclRegex = StringUtils.isNotNullAndNotEmpty(name) ? name : namePattern;
+            if (compiledPattern == null) {
+                compiledPattern = Pattern.compile(StringUtils.isNotNullAndNotEmpty(name) ? name : namePattern);
             }
-            return Pattern.compile(exclRegex);
+            return compiledPattern;
         }
     }
 
