@@ -249,6 +249,6 @@ class Tile {
         final double line = line_global - (itile_line * nl_tile);
         final double samp = samp_global - (itile_samp * ns_tile);
 
-        return new IsinPoint(samp, line, itile_line, itile_samp);
+        return new IsinPoint(samp, line, itile_samp, itile_line);
     }
 }

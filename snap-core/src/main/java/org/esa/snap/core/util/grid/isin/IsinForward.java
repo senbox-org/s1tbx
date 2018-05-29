@@ -64,7 +64,6 @@ class IsinForward {
             lon_cen_mer -= TWOPI;
         }
 
-        double dcol_min = 1.0;
         this.false_east = falseEasting;
         this.false_north = falseNorth;
         this.sphere = radius;

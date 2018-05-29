@@ -11,7 +11,7 @@ public class IsinPoint {
         this(x, y, -1, -1);
     }
 
-    public IsinPoint(double x, double y, int tile_line, int tile_col) {
+    public IsinPoint(double x, double y, int tile_col, int tile_line) {
         this.x = x;
         this.y = y;
 
