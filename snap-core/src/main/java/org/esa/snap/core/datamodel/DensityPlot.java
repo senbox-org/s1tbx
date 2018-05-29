@@ -46,7 +46,7 @@ import java.util.concurrent.CancellationException;
 public class DensityPlot {
 
     /**
-     * Creates a density plot image from two raster data nodes.
+     * Creates the data for a density plot image from two raster data nodes.
      *
      * @param raster1     the first raster data node
      * @param sampleMin1  the minimum sample value to be considered in the first raster
@@ -57,7 +57,7 @@ public class DensityPlot {
      * @param roiMask     an optional mask to be used as a ROI for the computation
      * @param width       the width of the output image
      * @param height      the height of the output image
-     * @param pixelValues an which will hold the data
+     * @param pixelValues an array which will hold the data
      * @param pm          a progress monitor
      */
     public static void accumulate(final RasterDataNode raster1, final double sampleMin1, final double sampleMax1,
@@ -243,7 +243,7 @@ public class DensityPlot {
             }
         }
 
-        private RenderedImage getApplicableMaskImage(RasterDataNode raster1, RasterDataNode raster2, RenderedImage roiImage) {
+        RenderedImage getApplicableMaskImage(RasterDataNode raster1, RasterDataNode raster2, RenderedImage roiImage) {
             RenderedImage maskImage = raster1.getValidMaskImage();
             RenderedImage maskImage2 = raster2.getValidMaskImage();
             if (maskImage != null) {
