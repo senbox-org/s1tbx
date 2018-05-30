@@ -194,6 +194,130 @@ public class IsinPlanetaryGridTest {
 
     @Test
     public void testGetRowIndex_1km() {
-        // @todo 1 tb/tb continue here 2018-05-29
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 1200);
+
+        assertEquals(0, grid.getRowIndex(0));
+        assertEquals(20400, grid.getRowIndex(17));
+        assertEquals(7200, grid.getRowIndex(1606));
+        assertEquals(1356, grid.getRowIndex(1560001));
+        assertEquals(9757, grid.getRowIndex(1571808));
+        assertEquals(21599, grid.getRowIndex(119911993517L));
+    }
+
+    @Test
+    public void testGetRowIndex_500m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 2400);
+
+        assertEquals(0, grid.getRowIndex(0));
+        assertEquals(40800, grid.getRowIndex(17));
+        assertEquals(14400, grid.getRowIndex(1606));
+        assertEquals(2556, grid.getRowIndex(1560001));
+        assertEquals(19357, grid.getRowIndex(1571808));
+        assertEquals(43199, grid.getRowIndex(239923993517L));
+    }
+
+    @Test
+    public void testGetRowIndex_250m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 4800);
+
+        assertEquals(0, grid.getRowIndex(0));
+        assertEquals(81600, grid.getRowIndex(17));
+        assertEquals(28800, grid.getRowIndex(1606));
+        assertEquals(4956, grid.getRowIndex(1560001));
+        assertEquals(38557, grid.getRowIndex(1571808));
+        assertEquals(86399, grid.getRowIndex(479947993517L));
+    }
+
+    @Test
+    public void testGetNumBins_1km() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 1200);
+
+        assertEquals(933120000, grid.getNumBins());
+    }
+
+    @Test
+    public void testGetNumBins_500m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 2400);
+
+        assertEquals(3732480000L, grid.getNumBins());
+    }
+
+    @Test
+    public void testGetNumBins_250m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 4800);
+
+        assertEquals(14929920000L, grid.getNumBins());
+    }
+
+    @Test
+    public void testGetNumRows_1km() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 1200);
+
+        assertEquals(21600, grid.getNumRows());
+    }
+
+    @Test
+    public void testGetNumRows_500m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 2400);
+
+        assertEquals(43200, grid.getNumRows());
+    }
+
+    @Test
+    public void testGetNumRows_250m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 4800);
+
+        assertEquals(86400, grid.getNumRows());
+    }
+
+    @Test
+    public void testGetNumCols_1km() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 1200);
+
+        assertEquals(43200, grid.getNumCols(12));
+    }
+
+    @Test
+    public void testGetNumCols_500m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 2400);
+
+        assertEquals(86400, grid.getNumCols(13));
+    }
+
+    @Test
+    public void testGetNumCols_250m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 4800);
+
+        assertEquals(172800, grid.getNumCols(14));
+    }
+
+    @Test
+    public void testGetFirstBinIndex_1km() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 1200);
+
+        assertEquals(0, grid.getFirstBinIndex(0));
+        assertEquals(140000, grid.getFirstBinIndex(14));
+        assertEquals(6760001, grid.getFirstBinIndex(1876));
+        assertEquals(11990017, grid.getFirstBinIndex(21599));
+    }
+
+    @Test
+    public void testGetFirstBinIndex_500m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 2400);
+
+        assertEquals(0, grid.getFirstBinIndex(0));
+        assertEquals(150000, grid.getFirstBinIndex(15));
+        assertEquals(18770000, grid.getFirstBinIndex(1877));
+        assertEquals(23990017, grid.getFirstBinIndex(43199));
+    }
+
+    @Test
+    public void testGetFirstBinIndex_250m() {
+        final IsinPlanetaryGrid grid = new IsinPlanetaryGrid(18 * 4800);
+
+        assertEquals(0, grid.getFirstBinIndex(0));
+        assertEquals(160000, grid.getFirstBinIndex(16));
+        assertEquals(18780000, grid.getFirstBinIndex(1878));
+        assertEquals(47990017, grid.getFirstBinIndex(86399));
     }
 }

@@ -10,9 +10,13 @@ import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.GRID_500_M;
 
 public class IsinPlanetaryGrid implements PlanetaryGrid {
 
-    private static final int NUM_ROWS_1KM = 18 * 1200;
-    private static final int NUM_ROWS_500M = 18 * 2400;
-    private static final int NUM_ROWS_250M = 18 * 4800;
+    private static final int NUM_TILES_VERTICAL = 18;
+    private static final int NUM_TILES_HORIZONTAL = 36;
+
+    private static final int NUM_ROWS_1KM = NUM_TILES_VERTICAL * 1200;
+    private static final int NUM_ROWS_500M = NUM_TILES_VERTICAL * 2400;
+    private static final int NUM_ROWS_250M = NUM_TILES_VERTICAL * 4800;
+
     private final IsinAPI isinAPI;
 
 
@@ -37,27 +41,38 @@ public class IsinPlanetaryGrid implements PlanetaryGrid {
 
     @Override
     public int getRowIndex(long bin) {
-        throw new RuntimeException("not implemented");
+        final IsinPoint isinPoint = toIsinPoint(bin);
+        final IsinPoint tileDimensions = isinAPI.getTileDimensions();
+        return isinPoint.getTile_line() * (int) (tileDimensions.getY() + 0.5) + (int) (isinPoint.getY() + 0.5);
     }
 
     @Override
     public long getNumBins() {
-        throw new RuntimeException("not implemented");
+        final IsinPoint tileDimensions = isinAPI.getTileDimensions();
+        return (long) (tileDimensions.getX() + 0.5) * (long) (tileDimensions.getY() + 0.5) * NUM_TILES_VERTICAL * NUM_TILES_HORIZONTAL;
     }
 
     @Override
     public int getNumRows() {
-        throw new RuntimeException("not implemented");
+        final IsinPoint tileDimensions = isinAPI.getTileDimensions();
+        return (int) (tileDimensions.getY() + 0.5) * NUM_TILES_VERTICAL;
     }
 
     @Override
     public int getNumCols(int row) {
-        throw new RuntimeException("not implemented");
+        final IsinPoint tileDimensions = isinAPI.getTileDimensions();
+        return (int) (tileDimensions.getX() + 0.5) * NUM_TILES_HORIZONTAL;
     }
 
     @Override
     public long getFirstBinIndex(int row) {
-        throw new RuntimeException("not implemented");
+        final IsinPoint tileDimensions = isinAPI.getTileDimensions();
+        final int tileHeight = (int) (tileDimensions.getY() + 0.5);
+        final int tileIdx = row/tileHeight;
+        final int y = row - tileHeight * tileIdx;
+
+        final IsinPoint isinPoint = new IsinPoint(0, y, 0, tileIdx);
+        return toBinIndex(isinPoint);
     }
 
     @Override
