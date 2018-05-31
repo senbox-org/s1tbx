@@ -4,9 +4,7 @@ import org.esa.snap.binning.PlanetaryGrid;
 import org.esa.snap.core.util.grid.isin.IsinAPI;
 import org.esa.snap.core.util.grid.isin.IsinPoint;
 
-import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.GRID_1_KM;
-import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.GRID_250_M;
-import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.GRID_500_M;
+import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.*;
 
 public class IsinPlanetaryGrid implements PlanetaryGrid {
 
@@ -68,7 +66,7 @@ public class IsinPlanetaryGrid implements PlanetaryGrid {
     public long getFirstBinIndex(int row) {
         final IsinPoint tileDimensions = isinAPI.getTileDimensions();
         final int tileHeight = (int) (tileDimensions.getY() + 0.5);
-        final int tileIdx = row/tileHeight;
+        final int tileIdx = row / tileHeight;
         final int y = row - tileHeight * tileIdx;
 
         final IsinPoint isinPoint = new IsinPoint(0, y, 0, tileIdx);
@@ -90,16 +88,16 @@ public class IsinPlanetaryGrid implements PlanetaryGrid {
         final short y = (short) (point.getY() + 0.5);
         final int tile_x = point.getTile_col();
         final int tile_y = point.getTile_line();
-        return 100000000L * x + 10000 * y + 100 * tile_x + tile_y;
+        return 10000000000L * tile_y + 100000000L * tile_x + 10000L * y + x;
     }
 
     static IsinPoint toIsinPoint(long binIndex) {
-        final int x = (int) (binIndex / 100000000L);
-        long partIndex = binIndex - 100000000L * x;
-        final int y = (int) (partIndex / 10000);
-        partIndex = partIndex - 10000 * y;
-        final int tile_x = (int) (partIndex / 100);
-        final int tile_y = (int) (partIndex - 100 * tile_x);
+        final int tile_y = (int) (binIndex / 10000000000L);
+        long partIndex = binIndex - 10000000000L * tile_y;
+        final int tile_x = (int) (partIndex / 100000000L);
+        partIndex = partIndex - 100000000L * tile_x;
+        final int y = (int) (partIndex / 10000L);
+        final int x = (int) (partIndex - 10000L * y);
         return new IsinPoint(x, y, tile_x, tile_y);
     }
 }
