@@ -4,7 +4,9 @@ import org.esa.snap.binning.PlanetaryGrid;
 import org.esa.snap.core.util.grid.isin.IsinAPI;
 import org.esa.snap.core.util.grid.isin.IsinPoint;
 
-import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.*;
+import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.GRID_1_KM;
+import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.GRID_250_M;
+import static org.esa.snap.core.util.grid.isin.IsinAPI.Raster.GRID_500_M;
 
 public class IsinPlanetaryGrid implements PlanetaryGrid {
 
@@ -16,7 +18,6 @@ public class IsinPlanetaryGrid implements PlanetaryGrid {
     private static final int NUM_ROWS_250M = NUM_TILES_VERTICAL * 4800;
 
     private final IsinAPI isinAPI;
-
 
     public IsinPlanetaryGrid(int numRows) {
         if (numRows == NUM_ROWS_1KM) {
@@ -91,7 +92,8 @@ public class IsinPlanetaryGrid implements PlanetaryGrid {
         return 10000000000L * tile_y + 100000000L * tile_x + 10000L * y + x;
     }
 
-    static IsinPoint toIsinPoint(long binIndex) {
+    // this method is used in Calvalus - please keep it public tb 2018-06-08
+    public static IsinPoint toIsinPoint(long binIndex) {
         final int tile_y = (int) (binIndex / 10000000000L);
         long partIndex = binIndex - 10000000000L * tile_y;
         final int tile_x = (int) (partIndex / 100000000L);
