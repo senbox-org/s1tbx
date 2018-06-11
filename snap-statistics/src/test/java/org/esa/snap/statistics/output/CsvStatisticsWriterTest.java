@@ -55,9 +55,15 @@ public class CsvStatisticsWriterTest {
         csvStream.close();
         String actualOutput = csvOutput.toString();
         assertTrue(actualOutput.startsWith("# Region\tBand\tmax\tmin\tp90\tp95\n"));
-        assertTrue(actualOutput.contains("werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n"));
-        assertTrue(actualOutput.contains("bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n"));
-        assertTrue(actualOutput.contains("bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n"));
+        String expected_1 = "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n";
+        assertTrue(actualOutput.contains(expected_1));
+        String expected_2 = "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n";
+        assertTrue(actualOutput.contains(expected_2));
+        String expected_3 = "bielefeld\tnormalised_pig_density_index_(npdi)\t3.0000\t0.5000\t1.0000\t2.0000\n";
+        assertTrue(actualOutput.contains(expected_3));
+        assertEquals(actualOutput.indexOf(expected_1), actualOutput.lastIndexOf(expected_1));
+        assertEquals(actualOutput.indexOf(expected_2), actualOutput.lastIndexOf(expected_2));
+        assertEquals(actualOutput.indexOf(expected_3), actualOutput.lastIndexOf(expected_3));
     }
 
     @Test

@@ -290,6 +290,9 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
         }
 
         public void add(T o) {
+            if (elements.contains(o)) {
+                return;
+            }
             elements.add(o);
             Collections.sort(elements);
         }
