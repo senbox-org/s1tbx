@@ -212,10 +212,15 @@ public class CommandLineArgsTest {
         CommandLineArgs lineArgs;
 
         // test default value
-        int configuredDefaultCapacity = Config.instance().load().preferences().getInt("snap.jai.tileCacheSize", 512);
-        lineArgs = parseArgs("Reproject", "source.dim");
-        assertEquals(configuredDefaultCapacity * M, lineArgs.getTileCacheCapacity());
-        assertEquals(CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM, lineArgs.getTileSchedulerParallelism());
+        long oldCachValue = Config.instance().load().preferences().getLong("snap.jai.tileCacheSize", 512);
+        try {
+            Config.instance().load().preferences().putLong("snap.jai.tileCacheSize", 4024);
+            lineArgs = parseArgs("Reproject", "source.dim");
+            assertEquals(4219469824L, lineArgs.getTileCacheCapacity());
+            assertEquals(CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM, lineArgs.getTileSchedulerParallelism());
+        } finally {
+            Config.instance().load().preferences().putLong("snap.jai.tileCacheSize", oldCachValue);
+        }
 
         // test some valid value
         lineArgs = parseArgs("Reproject", "source.dim", "-c", "16M");
