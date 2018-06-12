@@ -18,6 +18,7 @@ package org.esa.snap.statistics.output;
 
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.FeatureUtils;
+import org.esa.snap.statistics.tools.TimeInterval;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -70,7 +71,6 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
      * @param originalShapefile An URL pointing to the original shapefile that shall is to be enriched with statistics.
      * @param targetShapefile   A file path where the target shapefile shall be written to.
      * @param bandNameCreator   An instance of {@link BandNameCreator}.
-     *
      * @return An instance of <code>FeatureStatisticsWriter</code>.
      */
     public static FeatureStatisticsWriter createFeatureStatisticsWriter(URL originalShapefile, String targetShapefile, BandNameCreator bandNameCreator) {
@@ -92,7 +92,6 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
      * @param originalFeatures The features to be enriched with statistics.
      * @param targetShapefile  A file path where the target shapefile shall be written to.
      * @param bandNameCreator  An instance of {@link org.esa.snap.statistics.output.BandNameCreator}.
-     *
      * @return An instance of <code>FeatureStatisticsWriter</code>.
      */
     public static FeatureStatisticsWriter createFeatureStatisticsWriter(FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures, String targetShapefile,
@@ -106,7 +105,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         this.targetShapefile = targetShapefile;
         this.originalFeatures = originalFeatures;
         this.bandNameCreator = bandNameCreator;
-        features = new ArrayList<SimpleFeature>();
+        features = new ArrayList<>();
     }
 
     /**
@@ -116,14 +115,31 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
      */
     @Override
     public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
-        Arrays.sort(statisticsOutputContext.algorithmNames);
+        Arrays.sort(statisticsOutputContext.measureNames);
         final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.init(originalFeatureType);
-        for (final String algorithmName : statisticsOutputContext.algorithmNames) {
+        for (final String measureName : statisticsOutputContext.measureNames) {
             for (String bandName : statisticsOutputContext.bandNames) {
-                final String attributeName = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
-                if (originalFeatureType.getDescriptor(attributeName) == null) {
-                    typeBuilder.add(attributeName, Double.class);
+                if (statisticsOutputContext.timeIntervals == null || statisticsOutputContext.timeIntervals.length == 1) {
+                    final String attributeName = bandNameCreator.createUniqueAttributeName(measureName, bandName);
+                    if (originalFeatureType.getDescriptor(attributeName) == null) {
+                        if (statisticsOutputContext.isNotNumber(measureName)) {
+                            typeBuilder.add(attributeName, String.class);
+                        } else {
+                            typeBuilder.add(attributeName, Double.class);
+                        }
+                    }
+                } else {
+                    for (TimeInterval timeInterval : statisticsOutputContext.timeIntervals) {
+                        final String attributeName = bandNameCreator.createUniqueAttributeName(measureName, bandName, timeInterval);
+                        if (originalFeatureType.getDescriptor(attributeName) == null) {
+                            if (statisticsOutputContext.isNotNumber(measureName)) {
+                                typeBuilder.add(attributeName, String.class);
+                            } else {
+                                typeBuilder.add(attributeName, Double.class);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -137,16 +153,16 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
      *
      * @param bandName   The name of the band the statistics have been computed for.
      * @param regionId   The id of the region the statistics have been computed for.
-     * @param statistics The actual statistics as map. Keys are the algorithm names, values are the actual statistical values.
+     * @param statistics The actual statistics as map. Keys are the measure names, values are the actual statistical values.
      */
     @Override
-    public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
+    public void addToOutput(String bandName, String regionId, Map<String, Object> statistics) {
         final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
         final List<SimpleFeature> markedToRemove = new ArrayList<SimpleFeature>();
         final Map<String, SimpleFeature> markedToAdd = new HashMap<String, SimpleFeature>();
         for (SimpleFeature feature : features) {
-            for (String algorithmName : statistics.keySet()) {
-                final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
+            for (String measureName : statistics.keySet()) {
+                final String name = bandNameCreator.createUniqueAttributeName(measureName, bandName);
                 if (Util.getFeatureName(feature).equals(regionId)) {
                     SimpleFeature featureToUpdate;
                     if (markedToAdd.containsKey(regionId)) {
@@ -154,7 +170,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
                     } else {
                         featureToUpdate = feature;
                     }
-                    final SimpleFeature updatedFeature = createUpdatedFeature(simpleFeatureBuilder, featureToUpdate, name, statistics.get(algorithmName));
+                    final SimpleFeature updatedFeature = createUpdatedFeature(simpleFeatureBuilder, featureToUpdate, name, statistics.get(measureName));
                     markedToRemove.add(feature);
                     markedToAdd.put(regionId, updatedFeature);
                 }
@@ -169,18 +185,57 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
         while (featureIterator.hasNext()) {
             SimpleFeature feature = featureIterator.next();
-            for (String algorithmName : statistics.keySet()) {
-                final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
-                final Number value = getValue(statistics, algorithmName, feature, regionId);
+            for (String measureName : statistics.keySet()) {
+                final String name = bandNameCreator.createUniqueAttributeName(measureName, bandName);
+                final Object value = getValue(statistics, measureName, feature, regionId);
                 feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, value);
             }
             features.add(feature);
         }
     }
 
-    private Number getValue(Map<String, Number> statistics, String algorithmName, SimpleFeature originalFeature, String regionId) {
+    @Override
+    public void addToOutput(String bandName, TimeInterval interval, String regionId, Map<String, Object> statistics) {
+        final SimpleFeatureBuilder simpleFeatureBuilder = new SimpleFeatureBuilder(updatedFeatureType);
+        final List<SimpleFeature> markedToRemove = new ArrayList<SimpleFeature>();
+        final Map<String, SimpleFeature> markedToAdd = new HashMap<String, SimpleFeature>();
+        for (SimpleFeature feature : features) {
+            for (String measureName : statistics.keySet()) {
+                final String name = bandNameCreator.getUniqueAttributeName(measureName, bandName, interval);
+                if (Util.getFeatureName(feature).equals(regionId)) {
+                    SimpleFeature featureToUpdate;
+                    if (markedToAdd.containsKey(regionId)) {
+                        featureToUpdate = markedToAdd.get(regionId);
+                    } else {
+                        featureToUpdate = feature;
+                    }
+                    final SimpleFeature updatedFeature = createUpdatedFeature(simpleFeatureBuilder, featureToUpdate, name, statistics.get(measureName));
+                    markedToRemove.add(feature);
+                    markedToAdd.put(regionId, updatedFeature);
+                }
+            }
+        }
+        features.removeAll(markedToRemove);
+        features.addAll(markedToAdd.values());
+        if (!(markedToAdd.isEmpty() && markedToRemove.isEmpty())) {
+            return;
+        }
+
+        final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
+        while (featureIterator.hasNext()) {
+            SimpleFeature feature = featureIterator.next();
+            for (String measureName : statistics.keySet()) {
+                final String name = bandNameCreator.getUniqueAttributeName(measureName, bandName, interval);
+                final Object value = getValue(statistics, measureName, feature, regionId);
+                feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, value);
+            }
+            features.add(feature);
+        }
+    }
+
+    private Object getValue(Map<String, Object> statistics, String measureName, SimpleFeature originalFeature, String regionId) {
         if (Util.getFeatureName(originalFeature).equals(regionId)) {
-            return statistics.get(algorithmName);
+            return statistics.get(measureName);
         } else {
             return FILL_VALUE;
         }
@@ -190,7 +245,6 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
      * {@inheritDoc}
      * <p>
      * This implementation writes the enriched features to the specified target shapefile.
-     *
      *
      * @throws IOException If writing fails.
      */
@@ -217,7 +271,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         return updatedFeatureType;
     }
 
-    private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Number value) {
+    private static SimpleFeature createUpdatedFeature(SimpleFeatureBuilder builder, SimpleFeature baseFeature, String name, Object value) {
         builder.init(baseFeature);
         builder.set(name, value);
         return builder.buildFeature(baseFeature.getID());

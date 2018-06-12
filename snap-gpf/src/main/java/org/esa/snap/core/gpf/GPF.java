@@ -79,7 +79,7 @@ public class GPF {
      * @see #createProduct(String, Map, Product ...)
      * @see #createProduct(String, Map, Map)
      */
-    public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<String, Object>());
+    public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<>());
 
     /**
      * An unmodifiable empty {@link Map Map}.
@@ -89,7 +89,7 @@ public class GPF {
      *
      * @see #createProduct(String, Map, Map)
      */
-    public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
+    public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<>());
 
     private static GPF defaultInstance;
 
@@ -228,8 +228,7 @@ public class GPF {
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
             if (operatorSpi == null) {
                 throw new OperatorException(
-                        String.format("Unknown operator '%s'. Note that operator aliases are case sensitive.",
-                                      operatorName));
+                        String.format("Unknown operator '%s'. Is the name correctly spelled?", operatorName));
             }
 
             sourceProductMap = new HashMap<>(sourceProducts.length * 3);

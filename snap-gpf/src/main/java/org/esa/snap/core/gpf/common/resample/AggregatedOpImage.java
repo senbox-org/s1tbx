@@ -31,9 +31,9 @@ class AggregatedOpImage extends GeometricOpImage {
     private final int dataBufferType;
 
     AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataBufferType,
-                                 AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
+                      AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
-              createBackground(noDataValue));
+                createBackground(noDataValue));
         this.noDataValue = noDataValue;
         final AffineTransform transform = new AffineTransform(referenceImageToModelTransform);
         transform.concatenate(sourceImageToModelTransform.createInverse());
@@ -80,12 +80,14 @@ class AggregatedOpImage extends GeometricOpImage {
         aggregator.init(srcAccessor, dstAccessor, noDataValue);
 
         for (int dstY = 0; dstY < dstH; dstY++) {
-            double srcYF0 = scaleY * dstY;
-            double srcYF1 = srcYF0 + scaleY;
-            int srcY0 = (int) srcYF0;
-            int srcY1 = (int) srcYF1;
-            double wy0 = 1.0 - (srcYF0 - srcY0);
-            double wy1 = srcYF1 - srcY1;
+            double srcYFO0 = offsetY + scaleY * (dstY + destRect.y);
+            double srcYFO1 = srcYFO0 + scaleY;
+            int srcYO0 = (int) srcYFO0;
+            int srcYO1 = (int) srcYFO1;
+            double wy0 = 1.0 - (srcYFO0 - srcYO0);
+            double wy1 = srcYFO1 - srcYO1;
+            int srcY0 = srcYO0 - srcRect.y;
+            int srcY1 = srcYO1 - srcRect.y;
             if (wy1 < EPS) {
                 wy1 = 1.0;
                 if (srcY1 > srcY0) {
@@ -94,12 +96,14 @@ class AggregatedOpImage extends GeometricOpImage {
             }
             final int dstYIndexOffset = dstAccessor.getBandOffset(0) + dstY * dstAccessor.getScanlineStride();
             for (int dstX = 0; dstX < dstW; dstX++) {
-                double srcXF0 = scaleX * dstX;
-                double srcXF1 = srcXF0 + scaleX;
-                int srcX0 = (int) srcXF0;
-                int srcX1 = (int) srcXF1;
-                double wx0 = 1.0 - (srcXF0 - srcX0);
-                double wx1 = srcXF1 - srcX1;
+                double srcXFO0 = offsetX + scaleX * (dstX + destRect.x);
+                double srcXFO1 = srcXFO0 + scaleX;
+                int srcXO0 = (int) srcXFO0;
+                int srcXO1 = (int) srcXFO1;
+                double wx0 = 1.0 - (srcXFO0 - srcXO0);
+                double wx1 = srcXFO1 - srcXO1;
+                int srcX0 = srcXO0 - srcRect.x;
+                int srcX1 = srcXO1 - srcRect.x;
                 if (wx1 < EPS) {
                     wx1 = 1.0;
                     if (srcX1 > srcX0) {
@@ -107,7 +111,7 @@ class AggregatedOpImage extends GeometricOpImage {
                     }
                 }
                 aggregator.aggregate(srcY0, srcY1, srcX0, srcX1, srcAccessor.getScanlineStride(), wx0, wx1, wy0, wy1,
-                                     dstYIndexOffset + dstX);
+                        dstYIndexOffset + dstX);
             }
         }
         if (dstAccessor.isDataCopy()) {

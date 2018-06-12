@@ -3,6 +3,7 @@ package org.esa.snap.statistics.output;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
+import org.esa.snap.statistics.tools.TimeInterval;
 
 /**
  * Writes some metadata about the statistics to the given instance of {@link PrintStream}.
@@ -55,6 +56,21 @@ public class MetadataWriter implements StatisticsOutputter {
                     .append(statisticsOutputContext.endDate.format())
                     .append("\n");
         }
+        if (statisticsOutputContext.timeIntervals != null) {
+            printStream
+                    .append("#\n")
+                    .append("# Time Intervals:")
+                    .append("\n");;
+            for (TimeInterval timeInterval : statisticsOutputContext.timeIntervals) {
+                printStream
+                        .append("#              From ")
+                        .append(timeInterval.getIntervalStart().format())
+                        .append(" to ")
+                        .append(timeInterval.getIntervalEnd().format())
+                        .append("\n");
+            }
+
+        }
         printStream.append("#\n");
         printStream.append("# Regions:\n");
         for (String regionId : statisticsOutputContext.regionIds) {
@@ -72,10 +88,15 @@ public class MetadataWriter implements StatisticsOutputter {
      *
      * @param bandName   The name of the band the statistics have been computed for.
      * @param regionId   The id of the region the statistics have been computed for.
-     * @param statistics The actual statistics as map. Keys are the algorithm names, values are the actual statistical values.
+     * @param statistics The actual statistics as map. Keys are the measure names, values are the actual statistical values.
      */
     @Override
-    public void addToOutput(String bandName, String regionId, Map<String, Number> statistics) {
+    public void addToOutput(String bandName, String regionId, Map<String, Object> statistics) {
+    }
+
+    @Override
+    public void addToOutput(String bandName, TimeInterval interval, String regionId, Map<String, Object> statistics) {
+
     }
 
     /**

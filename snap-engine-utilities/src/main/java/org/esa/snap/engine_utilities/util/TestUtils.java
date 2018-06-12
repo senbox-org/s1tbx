@@ -89,10 +89,14 @@ public class TestUtils {
         }
         if (product.getMetadataRoot() == null)
             throw new Exception("metadataroot is null");
-        if (product.getNumBands() == 0)
+        if (product.getNumBands() == 0 && verifyBandData)
             throw new Exception("numbands is zero");
         if (product.getProductType() == null || product.getProductType().isEmpty())
             throw new Exception("productType is null");
+        if (product.getSceneRasterWidth() == 0 || product.getSceneRasterHeight() == 0
+                || product.getSceneRasterWidth() == AbstractMetadata.NO_METADATA || product.getSceneRasterHeight() == AbstractMetadata.NO_METADATA) {
+            throw new Exception("product scene raster dimensions are " + product.getSceneRasterWidth() +" x "+ product.getSceneRasterHeight());
+        }
         if (verifyTimes) {
             if (product.getStartTime() == null)
                 throw new Exception("startTime is null");

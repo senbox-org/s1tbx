@@ -446,6 +446,13 @@ public class SystemUtils {
 
         JAI.getDefaultInstance().setRenderingHint(JAI.KEY_CACHED_TILE_RECYCLING_ENABLED, Boolean.TRUE);
         LOG.fine("JAI tile recycling enabled");
+
+        JAI.getDefaultInstance().setImagingListener((message, thrown, where, isRetryable) -> {
+            String logMsg = String.format("JAI error occurred: '%s' at %s", message, where);
+            LOG.log(Level.SEVERE, logMsg, thrown);
+            return false;
+        });
+
     }
 
     public static String getApplicationRemoteVersionUrl() {

@@ -35,14 +35,14 @@ import java.util.TreeMap;
  */
 public class CommandLineArgs {
 
-    public static final int K = 1024;
-    public static final int M = K * 1024;
-    public static final int G = M * 1024;
+    public static final long K = 1024;
+    public static final long M = K * 1024;
+    public static final long G = M * 1024;
     public static final String DEFAULT_TARGET_FILEPATH = "target.dim";
     public static final String DEFAULT_METADATA_FILEPATH = "metadata.properties";
     public static final String DEFAULT_VELOCITY_TEMPLATE_DIRPATH = ".";
     public static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
-    public static final int DEFAULT_TILE_CACHE_SIZE_IN_M = Config.instance().load().preferences().getInt("snap.jai.tileCacheSize", 512);
+    public static final long DEFAULT_TILE_CACHE_SIZE_IN_M = Config.instance().load().preferences().getLong("snap.jai.tileCacheSize", 512);
     public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Config.instance().load().preferences().getInt("snap.parallelism", Runtime.getRuntime().availableProcessors());
     public static final String VELOCITY_TEMPLATE_EXTENSION = ".vm";
 

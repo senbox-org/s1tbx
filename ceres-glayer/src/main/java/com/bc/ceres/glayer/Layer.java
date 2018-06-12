@@ -23,7 +23,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.grender.Rendering;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -31,8 +32,8 @@ import java.text.MessageFormat;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // todo - make this class thread safe!!!
@@ -94,7 +95,7 @@ public abstract class Layer extends ExtensibleObject {
         this.swipePercent = 1.0;
         this.composite = Composite.SRC_OVER;
 
-        this.layerListenerList = new ArrayList<LayerListener>(8);
+        this.layerListenerList = new ArrayList<>(8);
         this.configurationPCL = new ConfigurationPCL();
 
         configuration.addPropertyChangeListener(configurationPCL);
@@ -293,7 +294,7 @@ public abstract class Layer extends ExtensibleObject {
             if (expectedType.isAssignableFrom(descriptorType)) {
                 if (model.getValue() != null) {
                     //noinspection unchecked
-                    value = (T) model.getValue();
+                    value = model.getValue();
                 } else {
                     if (model.getDescriptor().getDefaultValue() != null) {
                         //noinspection unchecked
@@ -437,8 +438,10 @@ public abstract class Layer extends ExtensibleObject {
      * @param filter    A layer filter. May be {@code null}.
      */
     protected void renderChildren(Rendering rendering, LayerFilter filter) {
-        for (int i = children.size() - 1; i >= 0; --i) {
-            children.get(i).render(rendering, filter);
+        synchronized (children) {
+            for (int i = children.size() - 1; i >= 0; --i) {
+                children.get(i).render(rendering, filter);
+            }
         }
     }
 
@@ -502,14 +505,14 @@ public abstract class Layer extends ExtensibleObject {
      * @return This layer's listeners plus the ones of all parent layers.
      */
     LayerListener[] getReachableListeners() {
-        ArrayList<LayerListener> list = new ArrayList<LayerListener>(16);
+        ArrayList<LayerListener> list = new ArrayList<>(16);
         list.addAll(Arrays.asList(getListeners()));
         Layer currentParent = getParent();
         while (currentParent != null) {
             list.addAll(Arrays.asList(currentParent.getListeners()));
             currentParent = currentParent.getParent();
         }
-        return list.toArray(new LayerListener[list.size()]);
+        return list.toArray(new LayerListener[0]);
     }
 
     protected void fireLayerPropertyChanged(String propertyName, Object oldValue, Object newValue) {
@@ -584,7 +587,7 @@ public abstract class Layer extends ExtensibleObject {
         private final List<Layer> layerList;
 
         LayerList() {
-            this.layerList = new Vector<Layer>(8);
+            this.layerList =  Collections.synchronizedList(new ArrayList<>());
         }
 
         @Override
@@ -642,7 +645,7 @@ public abstract class Layer extends ExtensibleObject {
 
         private void dispose() {
             synchronized (layerList) {
-                final Layer[] layers = layerList.toArray(new Layer[layerList.size()]);
+                final Layer[] layers = layerList.toArray(new Layer[0]);
                 layerList.clear();
                 for (Layer layer : layers) {
                     layer.dispose();
