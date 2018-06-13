@@ -45,12 +45,12 @@ public class CommandLineArgs {
     public static final String VELOCITY_TEMPLATE_EXTENSION = ".vm";
 
     /*
-      @deprecated since 7.0, use {@link #getDefaultTileCacheSize()} instead
+      @deprecated since 6.0.4, use {@link #getDefaultTileCacheSize()} instead
      */
     @Deprecated()
     public static final long DEFAULT_TILE_CACHE_SIZE_IN_M = getDefaultTileCacheSize();
     /*
-      @deprecated since 7.0, use {@link #getDefaultTileSchedulerParallelism()} instead
+      @deprecated since 6.0.4, use {@link #getDefaultTileSchedulerParallelism()} instead
      */
     @Deprecated()
     public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = getDefaultTileSchedulerParallelism();
