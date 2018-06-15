@@ -118,7 +118,7 @@ public class N4Variable implements NVariable {
     }
 
     static String cropStringToMaxAttributeLength(String name,  String value) {
-        if(value.length() > MAX_ATTRIBUTE_LENGTH) {
+        if(value != null && value.length() > MAX_ATTRIBUTE_LENGTH) {
             value = value.substring(0, MAX_ATTRIBUTE_LENGTH);
             String msg = String.format("Metadata attribute '%s' has been cropped. Exceeded maximum length of %d", name, MAX_ATTRIBUTE_LENGTH);
             Logger.getLogger(N4Variable.class.getSimpleName()).log(Level.WARNING, msg);
