@@ -191,16 +191,6 @@ class ProductNamespaceExtenderImpl implements ProductNamespaceExtender {
         }
     }
 
-    private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env, int width, int height) {
-        RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
-        int pixelX = rasterEnv.getPixelX();
-        int pixelY = rasterEnv.getPixelY();
-        if (pixelX >= 0 && pixelX < width && pixelY >= 0 && pixelY < height) {
-            return geoCoding.getGeoPos(new PixelPos(pixelX + 0.5f, pixelY + 0.5f), null);
-        }
-        return INVALID_GEO_POS;
-    }
-
     private static String convertMethodNameToPropertyName(String s) {
         int skipCount = 0;
         if (s.startsWith("is")) {
@@ -257,8 +247,6 @@ class ProductNamespaceExtenderImpl implements ProductNamespaceExtender {
         }
     }
 
-    ;
-
     static final class PixelTimeSymbol extends AbstractSymbol.D {
         private final WeakReference<Product> productRef;
 
@@ -295,15 +283,25 @@ class ProductNamespaceExtenderImpl implements ProductNamespaceExtender {
 
         @Override
         public double evalD(EvalEnv env) throws EvalException {
-            double longitude = Double.NaN;
+            double coord = Double.NaN;
             GeoCoding geoCoding = geocodingRef.get();
             if (geoCoding != null && geoCoding.canGetGeoPos()) {
                 GeoPos geoPos = getGeoPos(geoCoding, env, width, height);
                 if (geoPos.isValid()) {
-                    longitude = getCoord(geoPos);
+                    coord = getCoord(geoPos);
                 }
             }
-            return longitude;
+            return coord;
+        }
+
+        private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env, int width, int height) {
+            RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
+            int pixelX = rasterEnv.getPixelX();
+            int pixelY = rasterEnv.getPixelY();
+            if (pixelX >= 0 && pixelX < width && pixelY >= 0 && pixelY < height) {
+                return geoCoding.getGeoPos(new PixelPos(pixelX + 0.5f, pixelY + 0.5f), null);
+            }
+            return INVALID_GEO_POS;
         }
 
         protected abstract double getCoord(GeoPos geoPos);
