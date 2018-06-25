@@ -123,7 +123,8 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         if (files != null) {
             for (File f : files) {
                 final String name = f.getName().toLowerCase();
-                if (f.isFile() && (name.startsWith("s1") || name.startsWith("asa") || name.startsWith("rs2"))) {
+                if (f.isFile() && (name.startsWith("s1") || name.startsWith("asa") || name.startsWith("rs2")
+                        || name.startsWith("iw"))) {
                     if (extension == null || name.endsWith(extension)) {
                         return true;
                     }
