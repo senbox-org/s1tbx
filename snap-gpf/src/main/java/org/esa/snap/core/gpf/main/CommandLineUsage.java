@@ -77,8 +77,8 @@ class CommandLineUsage {
                                     CommandLineTool.TOOL_NAME,
                                     CommandLineArgs.DEFAULT_TARGET_FILEPATH,
                                     CommandLineArgs.DEFAULT_FORMAT_NAME,
-                                    CommandLineArgs.DEFAULT_TILE_CACHE_SIZE_IN_M,
-                                    CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM,
+                                    CommandLineArgs.getDefaultTileCacheSize(),
+                                    CommandLineArgs.getDefaultTileSchedulerParallelism(),
                                     opListText.toString());
     }
 

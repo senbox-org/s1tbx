@@ -74,11 +74,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("geoCRS", geoCRS);
         if (latGrid.getGridWidth() != lonGrid.getGridWidth() ||
-                latGrid.getGridHeight() != lonGrid.getGridHeight() ||
-                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+            latGrid.getGridHeight() != lonGrid.getGridHeight() ||
+            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         this.latGrid = latGrid;
@@ -101,11 +101,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
         if (latGrid.getGridWidth() != lonGrid.getGridWidth() ||
-                latGrid.getGridHeight() != lonGrid.getGridHeight() ||
-                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+            latGrid.getGridHeight() != lonGrid.getGridHeight() ||
+            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         this.latGrid = latGrid;
@@ -217,7 +217,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             geoPos = new GeoPos();
         }
         if (pixelPos.x < 0 || pixelPos.x > latGrid.getRasterWidth()
-                || pixelPos.y < 0 || pixelPos.y > latGrid.getRasterHeight()) {
+            || pixelPos.y < 0 || pixelPos.y > latGrid.getRasterHeight()) {
             geoPos.setInvalid();
         } else {
             geoPos.lat = latGrid.getPixelDouble(pixelPos.x, pixelPos.y);
@@ -473,6 +473,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         // 10 points are at least required for a quadratic polynomial
         // start with some appropriate tile number
         int numTiles = (int) Math.ceil(numPoints / 10.0);
+        numTiles = Math.min(Math.max(1, numTiles), 300);
 
         int numTilesI = 1;
         int numTilesJ = 1;

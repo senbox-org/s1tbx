@@ -54,22 +54,22 @@ public class CommandLineArgsTest {
     public void testArgsCloned() throws Exception {
         String[] args = {"Reproject", "ProjTarget.dim", "UnProjSource.dim"};
         CommandLineArgs lineArgs = CommandLineArgs.parseArgs(args);
-        assertTrue(args != lineArgs.getArgs());
+        assertNotSame(args, lineArgs.getArgs());
         assertArrayEquals(args, lineArgs.getArgs());
     }
 
     @Test
     public void testNoArgsRequestsHelp() throws Exception {
         CommandLineArgs lineArgs = parseArgs();
-        assertEquals(true, lineArgs.isHelpRequested());
+        assertTrue(lineArgs.isHelpRequested());
     }
 
     @Test
     public void testHelpOption() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject", "-h");
-        assertEquals(true, lineArgs.isHelpRequested());
+        assertTrue(lineArgs.isHelpRequested());
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilePath());
+        assertNull(lineArgs.getGraphFilePath());
         assertEquals(CommandLineArgs.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineArgs.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> map = lineArgs.getSourceFilePathMap();
@@ -80,9 +80,9 @@ public class CommandLineArgsTest {
     @Test
     public void testOpOnly() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject");
-        assertEquals(false, lineArgs.isHelpRequested());
+        assertFalse(lineArgs.isHelpRequested());
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilePath());
+        assertNull(lineArgs.getGraphFilePath());
         assertEquals(CommandLineArgs.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineArgs.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> map = lineArgs.getSourceFilePathMap();
@@ -94,7 +94,7 @@ public class CommandLineArgsTest {
     public void testOpWithSource() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject", "source.dim");
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilePath());
+        assertNull(lineArgs.getGraphFilePath());
         assertEquals(CommandLineArgs.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineArgs.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
@@ -109,7 +109,7 @@ public class CommandLineArgsTest {
     public void testOpWithTargetAndSource() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject", "-t", "output.dim", "source.dim");
         assertEquals("Reproject", lineArgs.getOperatorName());
-        assertEquals(null, lineArgs.getGraphFilePath());
+        assertNull(lineArgs.getGraphFilePath());
         assertEquals("output.dim", lineArgs.getTargetFilePath());
         assertEquals(CommandLineArgs.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
@@ -123,7 +123,7 @@ public class CommandLineArgsTest {
     @Test
     public void testMinimumGraph() throws Exception {
         CommandLineArgs lineArgs = parseArgs("./map-proj.xml", "source.dim");
-        assertEquals(null, lineArgs.getOperatorName());
+        assertNull(lineArgs.getOperatorName());
         assertEquals("./map-proj.xml", lineArgs.getGraphFilePath());
         assertEquals(CommandLineArgs.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineArgs.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
@@ -137,7 +137,7 @@ public class CommandLineArgsTest {
     @Test
     public void testGraphOnly() throws Exception {
         CommandLineArgs lineArgs = parseArgs("./map-proj.xml");
-        assertEquals(null, lineArgs.getOperatorName());
+        assertNull(lineArgs.getOperatorName());
         assertEquals("./map-proj.xml", lineArgs.getGraphFilePath());
         assertEquals(CommandLineArgs.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilePath());
         assertEquals(CommandLineArgs.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
@@ -185,7 +185,7 @@ public class CommandLineArgsTest {
     @Test
     public void testMetadataFileOption() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject");
-        assertEquals(null, lineArgs.getMetadataFilePath());
+        assertNull(lineArgs.getMetadataFilePath());
         lineArgs = parseArgs("Reproject", "-m", "metadata/reproject-md.properties");
         assertEquals("metadata/reproject-md.properties", lineArgs.getMetadataFilePath());
     }
@@ -193,7 +193,7 @@ public class CommandLineArgsTest {
     @Test
     public void testVelocityDirOption() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject");
-        assertEquals(null, lineArgs.getVelocityTemplateDirPath());
+        assertNull(lineArgs.getVelocityTemplateDirPath());
         lineArgs = parseArgs("Reproject", "-v", "metadata/vml");
         assertEquals("metadata/vml", lineArgs.getVelocityTemplateDirPath());
     }
@@ -204,7 +204,7 @@ public class CommandLineArgsTest {
 
         // test default value
         lineArgs = parseArgs("Reproject", "-x");
-        assertEquals(true, lineArgs.isClearCacheAfterRowWrite());
+        assertTrue(lineArgs.isClearCacheAfterRowWrite());
     }
 
     @Test
@@ -212,15 +212,20 @@ public class CommandLineArgsTest {
         CommandLineArgs lineArgs;
 
         // test default value
-        int configuredDefaultCapacity = Config.instance().load().preferences().getInt("snap.jai.tileCacheSize", 512);
-        lineArgs = parseArgs("Reproject", "source.dim");
-        assertEquals(configuredDefaultCapacity * M, lineArgs.getTileCacheCapacity());
-        assertEquals(CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM, lineArgs.getTileSchedulerParallelism());
+        long oldCachValue = Config.instance().load().preferences().getLong("snap.jai.tileCacheSize", 512);
+        try {
+            Config.instance().load().preferences().putLong("snap.jai.tileCacheSize", 4024);
+            lineArgs = parseArgs("Reproject", "source.dim");
+            assertEquals(4219469824L, lineArgs.getTileCacheCapacity());
+            assertEquals(getDefaultTileSchedulerParallelism(), lineArgs.getTileSchedulerParallelism());
+        } finally {
+            Config.instance().load().preferences().putLong("snap.jai.tileCacheSize", oldCachValue);
+        }
 
         // test some valid value
         lineArgs = parseArgs("Reproject", "source.dim", "-c", "16M");
         assertEquals(16 * M, lineArgs.getTileCacheCapacity());
-        assertEquals(CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM, lineArgs.getTileSchedulerParallelism());
+        assertEquals(getDefaultTileSchedulerParallelism(), lineArgs.getTileSchedulerParallelism());
 
         // test some valid value
         lineArgs = parseArgs("Reproject", "source.dim", "-q", "1", "-c", "16000K");
@@ -271,14 +276,14 @@ public class CommandLineArgsTest {
     }
 
     @Test
-    public void testUsageText() throws Exception {
+    public void testUsageText() {
         String usageText = CommandLineUsage.getUsageText();
         assertNotNull(usageText);
         assertTrue(usageText.length() > 10);
     }
 
     @Test
-    public void testUsageTextForOperator() throws Exception {
+    public void testUsageTextForOperator() {
 
         final String opName = "TestOpName";
         final String opDesc = "Creates a thing";

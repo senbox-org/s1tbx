@@ -133,7 +133,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         return (int) ((180.0 + lon) * numCols / 360.0);
     }
 
-    public int getRowIndex(double lat) {
+    private int getRowIndex(double lat) {
         if (lat <= -90.0) {
             return numRows - 1;
         }
