@@ -37,7 +37,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.gpf.FilterWindow;
 
 import javax.media.jai.Histogram;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -785,7 +785,8 @@ public final class GLCMOp extends Operator {
                 final int index = srcIndex.getIndex(x);
                 for (SrcInfo srcInfo : srcInfoList) {
                     v = srcInfo.srcData.getElemDoubleAt(index);
-                    srcInfo.quantizedImage[yy][xx] = v == srcInfo.noDataValue ? -1 : quantizer.compute(v);
+                    srcInfo.quantizedImage[yy][xx] =
+                            (Double.isNaN(v) || v == srcInfo.noDataValue) ? -1 : quantizer.compute(v);
                 }
             }
         }
@@ -809,7 +810,8 @@ public final class GLCMOp extends Operator {
                 int yy = y - y0;
                 srcIndex.calculateStride(y);
                 v = srcInfo.srcData.getElemDoubleAt(srcIndex.getIndex(xNew));
-                srcInfo.quantizedImage[yy][w - 1] = (v == srcInfo.noDataValue) ? -1 : quantizer.compute(v);
+                srcInfo.quantizedImage[yy][w - 1] =
+                        (Double.isNaN(v) || v == srcInfo.noDataValue) ? -1 : quantizer.compute(v);
             }
         }
     }
