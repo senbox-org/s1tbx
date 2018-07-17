@@ -36,7 +36,7 @@ public class DownloadableArchive extends DownloadableContentImpl {
         final File archiveFile = (File)getContentFile();
 
         if(archiveFile != null) {
-            ZipUtils.unzipToFolder(archiveFile, localFile.getParentFile());
+            ZipUtils.unzip(archiveFile.toPath(), localFile.getParentFile().toPath(), true);
             archiveFile.delete();
         }
     }
