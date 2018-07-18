@@ -62,7 +62,7 @@ public class SpeckleFilterOp extends Operator {
             GAMMA_MAP_SPECKLE_FILTER, LEE_SPECKLE_FILTER, LEE_REFINED_FILTER, LEE_SIGMA_FILTER, IDAN_FILTER},
             defaultValue = LEE_SIGMA_FILTER,
             label = "Filter")
-    private String filter;
+    private String filter = LEE_SIGMA_FILTER;
 
     @Parameter(description = "The kernel x dimension", interval = "(1, 100]", defaultValue = "3", label = "Size X")
     private int filterSizeX = 3;
