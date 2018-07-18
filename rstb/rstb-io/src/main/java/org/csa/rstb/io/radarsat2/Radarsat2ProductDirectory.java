@@ -20,6 +20,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
+import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -28,7 +29,9 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -61,6 +64,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
                                                                                 ".flip.to.sar.geometry", "false").equals("true");
 
+    private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
+    private Product bandProduct = null;
     private final transient Map<String, String> polarizationMap = new HashMap<>(4);
 
     public Radarsat2ProductDirectory(final File headerFile) {
@@ -88,6 +93,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
                 if (imgStream == null)
                     throw new IOException("Unable to open " + imgPath);
+
+                if(bandProduct == null && !isCompressed()) {
+                    final ProductReader geoTiffReader = geoTiffPlugIn.createReaderInstance();
+                    bandProduct = geoTiffReader.readProductNodes(new File(getBaseDir(), imgPath), null);
+                }
 
                 final ImageIOFile img;
                 if (isSLC()) {
@@ -132,16 +142,36 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     }
 
     @Override
+
     protected void addBands(final Product product) {
 
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         String bandName;
         boolean real = true;
         Band lastRealBand = null;
         String unit;
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-        final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        final int width, height;
+        if(bandProduct != null) {
+            width = bandProduct.getSceneRasterWidth();
+            height = bandProduct.getSceneRasterHeight();
+
+            if (product.getSceneGeoCoding() == null && bandProduct.getSceneGeoCoding() != null &&
+                    product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
+                    product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
+                bandProduct.transferGeoCodingTo(product, null);
+                Dimension tileSize = bandProduct.getPreferredTileSize();
+                if (tileSize == null) {
+                    tileSize = ImageManager.getPreferredTileSize(bandProduct);
+                }
+                product.setPreferredTileSize(tileSize);
+            }
+            bandProduct.dispose();
+            bandProduct = null;
+        } else {
+            width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+            height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        }
 
         final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : keys) {
@@ -522,7 +552,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        if (product.getSceneGeoCoding() != null) {
+            return;
+        }
+
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
         final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
 
