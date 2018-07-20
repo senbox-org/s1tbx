@@ -552,11 +552,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-        if (product.getSceneGeoCoding() != null) {
-            return;
-        }
-
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
         final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
 
@@ -652,9 +648,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setSceneGeoCoding(tpGeoCoding);
-
         setLatLongMetadata(product, latGrid, lonGrid);
+
+        if (product.getSceneGeoCoding() == null) {
+            product.setSceneGeoCoding(tpGeoCoding);
+        }
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
