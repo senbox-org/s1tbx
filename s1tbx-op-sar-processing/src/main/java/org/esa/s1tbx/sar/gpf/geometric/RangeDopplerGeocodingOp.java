@@ -247,8 +247,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     private final Map<String, Boolean> targetBandApplyRadiometricNormalizationFlag = new HashMap<>();
     private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<>();
     private TiePointGrid incidenceAngle = null;
-    private TiePointGrid latitude = null;
-    private TiePointGrid longitude = null;
     private static final int INVALID_SUB_SWATH_INDEX = -1;
 
     private Resampling imgResampling = null;
@@ -292,8 +290,6 @@ public class RangeDopplerGeocodingOp extends Operator {
             getSourceImageDimension();
 
             getMetadata();
-
-            getTiePointGrid();
 
             if (useAvgSceneHeight) {
                 saveSigmaNought = false;
@@ -398,18 +394,6 @@ public class RangeDopplerGeocodingOp extends Operator {
         }
 
         incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-    }
-
-    private void getTiePointGrid() {
-        latitude = OperatorUtils.getLatitude(sourceProduct);
-        if (latitude == null) {
-            throw new OperatorException("Product without latitude tie point grid");
-        }
-
-        longitude = OperatorUtils.getLongitude(sourceProduct);
-        if (longitude == null) {
-            throw new OperatorException("Product without longitude tie point grid");
-        }
     }
 
     /**
@@ -839,7 +823,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         final int numOfDirections = 5;
         for (int i = 1; i <= numOfDirections; ++i) {
             SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections, sourceImageWidth,
-                                          sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude, longitude);
+                                          sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, sourceProduct.getSceneGeoCoding());
         }
         absTgt.addElement(lookDirectionListElem);
     }
@@ -966,7 +950,9 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             final EarthGravitationalModel96 egm = EarthGravitationalModel96.instance();
 
-            int diffLat = Math.abs(latitude.getPixelInt(0, 0) - latitude.getPixelInt(0, targetImageHeight));
+            final GeoPos posFirst = targetProduct.getSceneGeoCoding().getGeoPos(new PixelPos(0,0), null);
+            final GeoPos posLast = targetProduct.getSceneGeoCoding().getGeoPos(new PixelPos(0,targetImageHeight), null);
+            int diffLat = (int)Math.abs(posFirst.lat - posLast.lat);
 
             for (int y = y0; y < maxY; y++) {
                 final int yy = y - y0 + 1;
@@ -998,7 +984,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                     }
 
                     if (!SARGeocoding.isValidCell(posData.rangeIndex, posData.azimuthIndex, lat, lon, diffLat,
-                                                  latitude, longitude, srcMaxRange, srcMaxAzimuth, posData.sensorPos)) {
+                            sourceProduct.getSceneGeoCoding(), srcMaxRange, srcMaxAzimuth, posData.sensorPos)) {
                         saveNoDataValueToTarget(index, tgtTiles, demBuffer);
                     } else {
 

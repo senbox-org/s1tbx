@@ -616,8 +616,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
-        product.addTiePointGrid(latGrid);
-        product.addTiePointGrid(lonGrid);
+        if(product.getTiePointGrid(OperatorUtils.TPG_LATITUDE) == null) {
+            product.addTiePointGrid(latGrid);
+            product.addTiePointGrid(lonGrid);
+        }
         product.setSceneGeoCoding(tpGeoCoding);
 
         setLatLongMetadata(product, latGrid, lonGrid);

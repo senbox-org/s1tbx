@@ -286,8 +286,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
         final int numOfDirections = 5;
         for (int i = 1; i <= numOfDirections; ++i) {
             SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
-                    sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
-                    longitude);
+                    sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, sourceProduct.getSceneGeoCoding());
         }
         absTgt.addElement(lookDirectionListElem);
     }
