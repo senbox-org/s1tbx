@@ -107,6 +107,7 @@ public class Pauli extends DecompositionBase implements Decomposition {
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             PolOpUtils.getDataBuffer(op, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+            final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
             double re = 0.0, im = 0.0, v = 0.0;
             for (int y = y0; y < maxY; ++y) {
@@ -116,67 +117,83 @@ public class Pauli extends DecompositionBase implements Decomposition {
 
                     if (sourceProductType == PolBandUtils.MATRIX.FULL) {
                         PolOpUtils.getComplexScatterMatrix(srcIndex.getIndex(x), dataBuffers, Sr, Si);
+                        boolean isNoData = isNoData(Sr, Si, nodatavalue);
 
                         for (TargetInfo target : targetInfo) {
 
-                            if (target.colour == TargetBandColour.R) {
-                                re = Sr[0][0] - Sr[1][1];
-                                im = Si[0][0] - Si[1][1];
-                            } else if (target.colour == TargetBandColour.G) {
-                                re = Sr[0][1] + Sr[1][0];
-                                im = Si[0][1] + Si[1][0];
-                            } else if (target.colour == TargetBandColour.B) {
-                                re = Sr[0][0] + Sr[1][1];
-                                im = Si[0][0] + Si[1][1];
-                            }
+                            if(isNoData) {
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)nodatavalue);
+                            } else {
+                                if (target.colour == TargetBandColour.R) {
+                                    re = Sr[0][0] - Sr[1][1];
+                                    im = Si[0][0] - Si[1][1];
+                                } else if (target.colour == TargetBandColour.G) {
+                                    re = Sr[0][1] + Sr[1][0];
+                                    im = Si[0][1] + Si[1][0];
+                                } else if (target.colour == TargetBandColour.B) {
+                                    re = Sr[0][0] + Sr[1][1];
+                                    im = Si[0][0] + Si[1][1];
+                                }
 
-                            v = (re * re + im * im) / 2.0;
-                            if (v < PolOpUtils.EPS) {
-                                v = PolOpUtils.EPS;
+                                v = (re * re + im * im) / 2.0;
+                                if (v < PolOpUtils.EPS) {
+                                    v = PolOpUtils.EPS;
+                                }
+                                v = 10.0 * Math.log10(v);
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                             }
-                            v = 10.0 * Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                         }
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
                         PolOpUtils.getCovarianceMatrixC3(srcIndex.getIndex(x), dataBuffers, Cr, Ci);
+                        boolean isNoData = isNoData(Cr, Ci, nodatavalue);
 
                         for (TargetInfo target : targetInfo) {
 
-                            if (target.colour == TargetBandColour.R) { // T22 = 0.5*(C11 - 2*C13_real + C33)
-                                v = 0.5 * (Cr[0][0] - 2.0 * Cr[0][2] + Cr[2][2]);
-                            } else if (target.colour == TargetBandColour.G) { // T33 = C22
-                                v = Cr[1][1];
-                            } else if (target.colour == TargetBandColour.B) { // T11 = 0.5*(C11 + 2*C13_real + C33)
-                                v = 0.5 * (Cr[0][0] + 2.0 * Cr[0][2] + Cr[2][2]);
-                            }
+                            if(isNoData) {
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)nodatavalue);
+                            } else {
+                                if (target.colour == TargetBandColour.R) { // T22 = 0.5*(C11 - 2*C13_real + C33)
+                                    v = 0.5 * (Cr[0][0] - 2.0 * Cr[0][2] + Cr[2][2]);
+                                } else if (target.colour == TargetBandColour.G) { // T33 = C22
+                                    v = Cr[1][1];
+                                } else if (target.colour == TargetBandColour.B) { // T11 = 0.5*(C11 + 2*C13_real + C33)
+                                    v = 0.5 * (Cr[0][0] + 2.0 * Cr[0][2] + Cr[2][2]);
+                                }
 
-                            if (v < PolOpUtils.EPS) {
-                                v = PolOpUtils.EPS;
+                                if (v < PolOpUtils.EPS) {
+                                    v = PolOpUtils.EPS;
+                                }
+                                v = 10.0 * Math.log10(v);
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                             }
-                            v = 10.0 * Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                         }
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
                         PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), dataBuffers, Tr, Ti);
+                        boolean isNoData = isNoData(Tr, Ti, nodatavalue);
+
                         for (TargetInfo target : targetInfo) {
 
-                            if (target.colour == TargetBandColour.R) { // T22
-                                v = Tr[1][1];
-                            } else if (target.colour == TargetBandColour.G) { // T33
-                                v = Tr[2][2];
-                            } else if (target.colour == TargetBandColour.B) { // T11
-                                v = Tr[0][0];
-                            }
+                            if(isNoData) {
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)nodatavalue);
+                            } else {
+                                if (target.colour == TargetBandColour.R) { // T22
+                                    v = Tr[1][1];
+                                } else if (target.colour == TargetBandColour.G) { // T33
+                                    v = Tr[2][2];
+                                } else if (target.colour == TargetBandColour.B) { // T11
+                                    v = Tr[0][0];
+                                }
 
-                            if (v < PolOpUtils.EPS) {
-                                v = PolOpUtils.EPS;
+                                if (v < PolOpUtils.EPS) {
+                                    v = PolOpUtils.EPS;
+                                }
+                                v = 10.0 * Math.log10(v);
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                             }
-                            v = 10.0 * Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
                         }
                     }
                 }

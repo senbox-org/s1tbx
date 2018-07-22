@@ -112,11 +112,20 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
             PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+            final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
             double pd, pv, ps;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
+                    boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
+                    if(isNoData) {
+                        for (TargetInfo target : targetInfo) {
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
+                        }
+                        continue;
+                    }
 
                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY,srcImageWidth,
                             srcImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
