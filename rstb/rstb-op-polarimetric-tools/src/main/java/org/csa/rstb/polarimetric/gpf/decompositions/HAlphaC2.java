@@ -119,9 +119,12 @@ public class HAlphaC2 extends DecompositionBase implements Decomposition {
                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
             }
             double v = 0.0;
+            final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+            final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
                     final int index = trgIndex.getIndex(x);
 

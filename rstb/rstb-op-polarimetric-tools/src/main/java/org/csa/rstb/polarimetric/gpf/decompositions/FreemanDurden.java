@@ -107,6 +107,8 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
             PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+            final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+            final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
             //final MeanCovariance covariance = new MeanCovariance(sourceProductType, sourceTiles,
             //    dataBuffers, halfWindowSizeX, halfWindowSizeY);
@@ -114,10 +116,20 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
             double pd, pv, ps;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
 
                     PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+                    boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
+
+                    if(isNoData) {
+                        for (TargetInfo target : targetInfo) {
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
+                        }
+                        continue;
+                    }
+
                     //covariance.getMeanCovarianceMatrix(x, y, Cr, Ci);
 
                     final FDD data = getFreemanDurdenDecomposition(Cr, Ci);

@@ -297,6 +297,8 @@ public final class PolarimetricDecompositionOp extends Operator {
                         targetProduct.getSceneRasterHeight());
 
                 polDecomp.setBandUnit(targetBandName + bandList.suffix, targetBand);
+                targetBand.setNoDataValueUsed(true);
+                targetBand.setNoDataValue(0);
 
                 targetProduct.addBand(targetBand);
                 targetBands[i++] = targetBand;

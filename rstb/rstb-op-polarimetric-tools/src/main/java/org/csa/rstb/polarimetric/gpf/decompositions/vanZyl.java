@@ -111,13 +111,22 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
             PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+            final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
             double C11, C22, C33, ratio, HHHHv, VVVVv, HVHVv, HHVVvre, C13_re, C13_im, sq_rt, alp1, alp2, alp3, alpmin, FV;
             double alpha, mu, rhoRe, rhoIm, rho2, eta, delta, lambda1, lambda2, tmp1, tmp2;
             double Lambda1, Lambda2, AlphaRe, AlphaIm, BetaRe, BetaIm, Ps, Pd, Pv;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
+                    boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
+                    if(isNoData) {
+                        for (TargetInfo target : targetInfo) {
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
+                        }
+                        continue;
+                    }
 
                     if (sourceProductType == MATRIX.FULL ||
                             sourceProductType == MATRIX.C3) {
