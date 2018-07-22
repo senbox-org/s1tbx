@@ -141,10 +141,20 @@ public class Touzi extends DecompositionBase implements Decomposition {
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
             PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+            final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
+                    boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
+                    if(isNoData) {
+                        for (final Band band : bandList.targetBands) {
+                            targetTiles.get(band).getDataBuffer().setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
+                        }
+                        continue;
+                    }
+
                     final int idx = trgIndex.getIndex(x);
 
                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,

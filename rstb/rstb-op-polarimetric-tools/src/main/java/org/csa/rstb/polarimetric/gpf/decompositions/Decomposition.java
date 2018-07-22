@@ -16,6 +16,7 @@
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
@@ -55,4 +56,12 @@ public interface Decomposition {
      */
     void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                             final Operator op);
+
+    default boolean isNoData(final double[][] matrix_i, final double[][] matrix_q, final double nodatavalue) {
+        return matrix_i[0][0] == nodatavalue && matrix_q[0][0] == nodatavalue;
+    }
+
+    default boolean isNoData(final ProductData[] dataBuffers, final int index, final double nodatavalue) {
+        return dataBuffers[0].getElemDoubleAt(index) == nodatavalue && dataBuffers[1].getElemDoubleAt(index) == nodatavalue;
+    }
 }
