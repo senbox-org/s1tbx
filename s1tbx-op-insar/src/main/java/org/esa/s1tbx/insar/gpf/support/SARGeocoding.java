@@ -746,7 +746,7 @@ public final class SARGeocoding {
 
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,
                                       final double lat, final double lon, final int diffLat,
-                                      final TiePointGrid latitude, final TiePointGrid longitude,
+                                      final GeoCoding geoCoding,
                                       final int srcMaxRange, final int srcMaxAzimuth, final PosVector sensorPos) {
 
         if (rangeIndex < 0.0 || rangeIndex >= srcMaxRange || azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
@@ -770,8 +770,9 @@ public final class SARGeocoding {
             delLonMax = Math.abs(lon - sensorGeoPos.lon);
         }
 
-        final double delLat = Math.abs(lat - latitude.getPixelFloat((float)rangeIndex, (float)azimuthIndex));
-        final double srcLon = longitude.getPixelFloat((float)rangeIndex, (float)azimuthIndex);
+        final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(rangeIndex, azimuthIndex), null);
+        final double delLat = Math.abs(lat - geoPos.lat);
+        final double srcLon = geoPos.lon;
 
         double delLon;
         if (lon < 0 && srcLon > 0) {
@@ -788,8 +789,7 @@ public final class SARGeocoding {
     public static void addLookDirection(final String name, final MetadataElement lookDirectionListElem, final int index,
                                         final int num, final int sourceImageWidth, final int sourceImageHeight,
                                         final double firstLineUTC, final double lineTimeInterval,
-                                        final boolean nearRangeOnLeft, final TiePointGrid latitude,
-                                        final TiePointGrid longitude) {
+                                        final boolean nearRangeOnLeft, final GeoCoding geoCoding) {
 
         final MetadataElement lookDirectionElem = new MetadataElement(name + index);
 
@@ -812,10 +812,13 @@ public final class SARGeocoding {
             xHead = 0;
             xTail = sourceImageWidth - 1;
         }
-        lookDirectionElem.setAttributeDouble("head_lat", latitude.getPixelDouble(xHead, y));
-        lookDirectionElem.setAttributeDouble("head_lon", longitude.getPixelDouble(xHead, y));
-        lookDirectionElem.setAttributeDouble("tail_lat", latitude.getPixelDouble(xTail, y));
-        lookDirectionElem.setAttributeDouble("tail_lon", longitude.getPixelDouble(xTail, y));
+
+        final GeoPos geoPosHead = geoCoding.getGeoPos(new PixelPos(xHead, y), null);
+        final GeoPos geoPosTail = geoCoding.getGeoPos(new PixelPos(xTail, y), null);
+        lookDirectionElem.setAttributeDouble("head_lat", geoPosHead.lat);
+        lookDirectionElem.setAttributeDouble("head_lon", geoPosHead.lon);
+        lookDirectionElem.setAttributeDouble("tail_lat", geoPosTail.lat);
+        lookDirectionElem.setAttributeDouble("tail_lon", geoPosTail.lon);
         lookDirectionListElem.addElement(lookDirectionElem);
     }
 

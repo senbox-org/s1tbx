@@ -742,8 +742,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final int numOfDirections = 5;
         for (int i = 1; i <= numOfDirections; ++i) {
             SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
-                                          sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
-                                          longitude);
+                                          sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval,
+                    nearRangeOnLeft, sourceProduct.getSceneGeoCoding());
         }
         absTgt.addElement(lookDirectionListElem);
     }
@@ -1025,7 +1025,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, latitude, longitude,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, sourceProduct.getSceneGeoCoding(),
                                                   srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         if (saveDEM) {
                             demBuffer.setElemDoubleAt(index, demNoDataValue);
