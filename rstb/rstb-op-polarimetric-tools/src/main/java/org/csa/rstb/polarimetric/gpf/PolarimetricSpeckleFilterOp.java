@@ -55,7 +55,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     @Parameter(valueSet = {BOXCAR_SPECKLE_FILTER, IDAN_FILTER, REFINED_LEE_FILTER, LEE_SIGMA_FILTER},
             defaultValue = REFINED_LEE_FILTER, label = "Filter")
-    private String filter;
+    private String filter =  REFINED_LEE_FILTER;
 
     @Parameter(description = "The filter size", interval = "(1, 100]", defaultValue = "5", label = "Filter Size")
     private int filterSize = 5;
