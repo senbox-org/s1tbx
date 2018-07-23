@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-product-library</artifactId>
+            <artifactId>snap-product-library-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
