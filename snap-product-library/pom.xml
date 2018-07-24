@@ -65,6 +65,11 @@
             <artifactId>jasypt</artifactId>
             <version>1.9.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
