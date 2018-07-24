@@ -17,8 +17,8 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
-import org.esa.s1tbx.insar.gpf.support.SARUtils;
+import org.esa.s1tbx.commons.SARGeocoding;
+import org.esa.s1tbx.commons.SARUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;

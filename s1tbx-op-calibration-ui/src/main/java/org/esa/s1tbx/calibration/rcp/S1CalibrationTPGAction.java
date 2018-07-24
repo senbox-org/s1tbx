@@ -17,7 +17,7 @@ package org.esa.s1tbx.calibration.rcp;
 
 import org.esa.s1tbx.calibration.gpf.Sentinel1RemoveThermalNoiseOp;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
-import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
+import org.esa.s1tbx.commons.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

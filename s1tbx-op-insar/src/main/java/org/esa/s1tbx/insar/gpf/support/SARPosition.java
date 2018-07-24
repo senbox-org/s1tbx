@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.insar.gpf.support;
 
+import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.util.Maths;
