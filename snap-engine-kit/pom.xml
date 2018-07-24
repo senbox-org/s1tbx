@@ -93,6 +93,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-product-library</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ncsa.hdf</groupId>
             <artifactId>lib-hdf</artifactId>
             <version>${hdf.version}</version>

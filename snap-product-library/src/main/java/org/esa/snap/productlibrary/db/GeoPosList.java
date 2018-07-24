@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,18 +13,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.landcover.dataio;
+package org.esa.snap.productlibrary.db;
 
-import org.esa.snap.engine_utilities.download.DownloadableFile;
+import org.esa.snap.core.datamodel.GeoPos;
 
 /**
- * Interface for Land Cover tiles
+ * interface for AOI
  */
-public interface LandCoverTile extends DownloadableFile {
+public interface GeoPosList {
 
-    void dispose();
+    public void setPoints(final GeoPos[] selectionBox);
 
-    float getSample(int pixelX, int pixelY) throws Exception;
-
-    void clearCache();
+    public GeoPos[] getPoints();
 }
