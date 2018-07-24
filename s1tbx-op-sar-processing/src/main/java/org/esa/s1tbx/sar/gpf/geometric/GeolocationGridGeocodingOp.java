@@ -17,7 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.support.CRSGeoCodingHandler;
-import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
+import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;

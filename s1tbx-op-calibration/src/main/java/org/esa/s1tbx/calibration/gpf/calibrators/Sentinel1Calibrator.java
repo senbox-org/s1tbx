@@ -20,7 +20,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.Sentinel1RemoveThermalNoiseOp;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
+import org.esa.s1tbx.commons.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

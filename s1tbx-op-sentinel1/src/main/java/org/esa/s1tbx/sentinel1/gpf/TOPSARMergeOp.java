@@ -18,7 +18,7 @@ package org.esa.s1tbx.sentinel1.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
+import org.esa.s1tbx.commons.Sentinel1Utils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.sentinel1.gpf.ui;
 
-import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
+import org.esa.s1tbx.commons.Sentinel1Utils;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
