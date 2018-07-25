@@ -58,13 +58,11 @@
             <artifactId>jsoup</artifactId>
             <version>1.8.3</version>
         </dependency>
-
-        <dependency>
+		<dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
-
     </dependencies>
     
     <build>
