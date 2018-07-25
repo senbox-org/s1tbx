@@ -68,10 +68,6 @@
             <version>${snap.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io</artifactId>
-        </dependency>
-        <dependency>
             <groupId>edu.emory.mathcs</groupId>
             <artifactId>jtransforms</artifactId>
         </dependency>
