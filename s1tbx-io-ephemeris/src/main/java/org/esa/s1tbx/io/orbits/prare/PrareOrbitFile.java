@@ -22,7 +22,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.dataop.downloadable.FtpDownloader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
-import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableArchive;
+import org.esa.snap.engine_utilities.download.DownloadableArchive;
 import org.esa.snap.engine_utilities.util.Settings;
 
 import java.io.File;

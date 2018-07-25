@@ -56,6 +56,10 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-product-library</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
         </dependency>
         <dependency>
@@ -65,8 +69,9 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io</artifactId>
+            <artifactId>s1tbx-commons</artifactId>
         </dependency>
+
         <dependency>
             <groupId>edu.emory.mathcs</groupId>
             <artifactId>jtransforms</artifactId>

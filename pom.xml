@@ -60,7 +60,7 @@
 		<module>s1tbx-op-sar-processing</module>
         <module>s1tbx-op-sar-processing-ui</module>
 		<module>s1tbx-op-sentinel1</module>
-        <module>s1tbx-op-sentinel1-ui</module>
+        <!--module>s1tbx-op-sentinel1-ui</module-->
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
 		<module>s1tbx-rcp</module>
@@ -245,6 +245,11 @@
                 <artifactId>snap-engine-utilities</artifactId>
                 <version>${snap.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-product-library</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
 			
 			<dependency>
                 <groupId>org.esa.snap</groupId>
@@ -260,7 +265,7 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-product-library</artifactId>
+                <artifactId>snap-product-library-ui</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 

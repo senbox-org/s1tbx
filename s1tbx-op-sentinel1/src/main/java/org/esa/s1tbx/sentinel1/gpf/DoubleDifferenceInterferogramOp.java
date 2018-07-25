@@ -16,7 +16,7 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
+import org.esa.s1tbx.commons.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
