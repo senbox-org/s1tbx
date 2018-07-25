@@ -16,7 +16,7 @@
 package org.esa.s1tbx.insar.rcp.actions;
 
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.db.ProductEntry;
+import org.esa.snap.productlibrary.db.ProductEntry;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.productlibrary.rcp.toolviews.ProductLibraryActions;
 import org.esa.snap.productlibrary.rcp.toolviews.extensions.ProductLibraryActionExt;

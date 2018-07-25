@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-op-insar</artifactId>
+            <artifactId>s1tbx-commons</artifactId>
         </dependency>
 
         <dependency>
