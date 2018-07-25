@@ -86,6 +86,7 @@
         <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
+		<module>snap-product-library</module>
         <module>snap-python</module>
         <module>snap-raster</module>
         <module>snap-rtp-codec</module>
@@ -188,6 +189,11 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-product-library</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 

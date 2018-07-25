@@ -22,7 +22,7 @@ import org.esa.snap.core.dataop.dem.BaseElevationModel;
 import org.esa.snap.core.dataop.dem.ElevationFile;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableContentImpl;
+import org.esa.snap.engine_utilities.download.DownloadableContentImpl;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

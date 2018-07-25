@@ -20,7 +20,7 @@ import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.dataop.resamp.Resampling;
-import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableContent;
+import org.esa.snap.engine_utilities.download.DownloadableContent;
 
 import java.io.File;
 import java.util.ArrayList;

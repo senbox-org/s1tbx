@@ -13,18 +13,19 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.landcover.dataio;
+package org.esa.snap.engine_utilities.download;
 
-import org.esa.snap.engine_utilities.download.DownloadableFile;
+import java.io.File;
 
 /**
- * Interface for Land Cover tiles
+ * Created by lveci on 11/02/2015.
  */
-public interface LandCoverTile extends DownloadableFile {
+public class DownloadableArchiveFile extends File implements DownloadableFile {
 
-    void dispose();
+    public DownloadableArchiveFile(final File file) {
+        super(file.getAbsolutePath());
+    }
 
-    float getSample(int pixelX, int pixelY) throws Exception;
-
-    void clearCache();
+    public void dispose() {
+    }
 }
