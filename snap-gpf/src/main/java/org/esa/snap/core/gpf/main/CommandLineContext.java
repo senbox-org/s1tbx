@@ -23,10 +23,12 @@ import org.esa.snap.core.gpf.graph.GraphException;
 import org.esa.snap.core.gpf.graph.GraphProcessingObserver;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.logging.Logger;
 
-interface CommandLineContext extends SimpleFileSystem {
+public interface CommandLineContext extends SimpleFileSystem {
     Product readProduct(String productFilepath) throws IOException;
 
     void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException;

@@ -76,13 +76,13 @@ import java.util.logging.Logger;
  * The common command-line tool for the GPF.
  * For usage, see {@link org/esa/snap/core/gpf/main/CommandLineUsage.txt}.
  */
-class CommandLineTool implements GraphProcessingObserver {
+public class CommandLineTool implements GraphProcessingObserver {
 
     static final String TOOL_NAME = "gpt";
-    static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-    static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
-    static final String READ_OP_ID_PREFIX = "ReadOp@";
-    public static final String WRITE_OP_ID_PREFIX = "WriteOp@";
+    private static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
+    private static final String READ_OP_ID_PREFIX = "ReadOp@";
+    private static final String WRITE_OP_ID_PREFIX = "WriteOp@";
 
     private final CommandLineContext commandLineContext;
     //    private final VelocityContext velocityContext;
@@ -92,7 +92,7 @@ class CommandLineTool implements GraphProcessingObserver {
     /**
      * Constructs a new tool.
      */
-    CommandLineTool() {
+    public CommandLineTool() {
         this(new DefaultCommandLineContext());
     }
 
@@ -101,12 +101,12 @@ class CommandLineTool implements GraphProcessingObserver {
      *
      * @param commandLineContext The context used to run the tool.
      */
-    CommandLineTool(CommandLineContext commandLineContext) {
+    public CommandLineTool(CommandLineContext commandLineContext) {
         this.commandLineContext = commandLineContext;
         this.metadataResourceEngine = new MetadataResourceEngine(commandLineContext);
     }
 
-    void run(String... args) throws Exception {
+    public void run(String... args) throws Exception {
         boolean stackTraceDumpEnabled = CommandLineArgs.isStackTraceDumpEnabled(args);
         try {
             commandLineArgs = CommandLineArgs.parseArgs(args);
