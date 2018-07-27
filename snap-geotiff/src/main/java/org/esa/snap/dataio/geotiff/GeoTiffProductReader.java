@@ -121,14 +121,14 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (input instanceof File) {
             inputFile = (File) input;
-            if(inputFile.getName().toLowerCase().endsWith(".zip")) {
+            if (inputFile.getName().toLowerCase().endsWith(".zip")) {
                 final ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
                 // get first tif
                 final Enumeration<? extends ZipEntry> entries = productZip.entries();
-                while(entries.hasMoreElements()) {
+                while (entries.hasMoreElements()) {
                     final ZipEntry zipEntry = entries.nextElement();
                     final String name = zipEntry.getName().toLowerCase();
-                    if(name.endsWith(".tif") || name.endsWith(".tiff")) {
+                    if (name.endsWith(".tif") || name.endsWith(".tiff")) {
                         input = productZip.getInputStream(zipEntry);
                         break;
                     }
@@ -571,7 +571,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     }
 
-
     private static void applyTiePointGeoCoding(TiffFileInfo info, double[] tiePoints, Product product) {
         final SortedSet<Double> xSet = new TreeSet<>();
         final SortedSet<Double> ySet = new TreeSet<>();
@@ -609,8 +608,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
             final int idxX = xIdx.get(tiePoints[i + 0]);
             final int idxY = yIdx.get(tiePoints[i + 1]);
             final int arrayIdx = idxY * width + idxX;
-            lons[arrayIdx] = (float)tiePoints[i + 3];
-            lats[arrayIdx] = (float)tiePoints[i + 4];
+            lons[arrayIdx] = (float) tiePoints[i + 3];
+            lats[arrayIdx] = (float) tiePoints[i + 4];
         }
 
         String[] names = Utils.findSuitableLatLonNames(product);
