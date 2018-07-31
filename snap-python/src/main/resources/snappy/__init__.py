@@ -114,7 +114,7 @@ def _get_nb_user_modules_dir():
     import platform
     from os.path import expanduser
 
-    home_dir = expanduser("~")
+    home_dir = expanduser('~')
     nb_user_dir = None
     if platform.system() == 'Windows':
         if home_dir:
