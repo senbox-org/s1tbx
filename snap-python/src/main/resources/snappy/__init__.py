@@ -112,14 +112,14 @@ def _collect_snap_jvm_env(dir_path, env):
 #
 def _get_nb_user_modules_dir():
     import platform
+    from os.path import expanduser
 
+    home_dir = expanduser('~')
     nb_user_dir = None
     if platform.system() == 'Windows':
-        home_dir = os.getenv('HOMEPATH')
         if home_dir:
             nb_user_dir = os.path.join(home_dir, 'AppData\\Roaming\\SNAP')
     else:
-        home_dir = os.getenv('HOME')
         if home_dir:
             nb_user_dir = os.path.join(home_dir, '.snap/system')
 
