@@ -20,7 +20,7 @@ import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.insar.gpf.support.CRSGeoCodingHandler;
+import org.esa.s1tbx.commons.CRSGeoCodingHandler;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.commons.SARUtils;
 import org.esa.snap.core.datamodel.*;
