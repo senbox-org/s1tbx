@@ -21,7 +21,17 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
@@ -45,7 +55,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -371,14 +381,14 @@ public class CreateStackOp extends Operator {
                 for (InSARStackOverview.IfgPair slave : slaves) {
                     System.out.println("Slave: " + StackUtils.createBandTimeStamp(
                             slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1) +
-                            " prep baseline: " + slave.getPerpendicularBaseline() +
+                            " perp baseline: " + slave.getPerpendicularBaseline() +
                             " temp baseline: " + slave.getTemporalBaseline());
 
                     final MetadataElement slaveElem = new MetadataElement("Slave: " + StackUtils.createBandTimeStamp(
                             slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1));
                     masterElem.addElement(slaveElem);
 
-                    addAttrib(slaveElem, "Prep Baseline", slave.getPerpendicularBaseline());
+                    addAttrib(slaveElem, "Perp Baseline", slave.getPerpendicularBaseline());
                     addAttrib(slaveElem, "Temp Baseline", slave.getTemporalBaseline());
                     addAttrib(slaveElem, "Modelled Coherence", slave.getCoherence());
                     addAttrib(slaveElem, "Height of Ambiguity", slave.getHeightAmb());

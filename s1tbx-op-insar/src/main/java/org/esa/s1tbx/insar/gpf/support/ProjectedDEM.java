@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.insar.gpf.support;
 
+import org.esa.s1tbx.commons.CRSGeoCodingHandler;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
