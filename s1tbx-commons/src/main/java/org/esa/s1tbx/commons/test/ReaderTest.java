@@ -8,7 +8,6 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Assert;
 
 import java.io.File;
 
@@ -33,10 +32,14 @@ public class ReaderTest {
         }
 
         final DecodeQualification canRead = readerPlugIn.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
+        if(canRead != DecodeQualification.INTENDED) {
+            throw new Exception("Reader not intended");
+        }
 
         final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
+        if(product == null) {
+            throw new Exception("Unable to read product");
+        }
 
         TestUtils.verifyProduct(product, true, true);
         validateMetadata(product);
