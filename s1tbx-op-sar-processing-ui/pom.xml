@@ -60,10 +60,6 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
-		<dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-product-library</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-commons</artifactId>
@@ -77,10 +73,6 @@
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-insar</artifactId>
             <version>${s1tbx.version}</version>
-        </dependency>
-		<dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-rcp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
