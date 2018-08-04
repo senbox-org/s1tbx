@@ -46,6 +46,12 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
+		<dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-geotiff</artifactId>
+            <version>${snap.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.jsoup</groupId>
