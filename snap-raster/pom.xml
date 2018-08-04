@@ -63,12 +63,7 @@
             <artifactId>snap-dem</artifactId>
             <version>${snap.version}</version>
         </dependency>
-        <dependency>
-            <groupId>edu.emory.mathcs</groupId>
-            <artifactId>jtransforms</artifactId>
-            <version>2.3</version>
-        </dependency>
-		
+
 		<dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -21,15 +21,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>ceres-binding</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>ceres-glayer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>ceres-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
