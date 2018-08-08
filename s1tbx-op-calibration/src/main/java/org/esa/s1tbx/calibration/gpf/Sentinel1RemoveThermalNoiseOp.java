@@ -18,7 +18,12 @@ package org.esa.s1tbx.calibration.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.commons.Sentinel1Utils;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -37,7 +42,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1443,7 +1448,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 final int lastValidSample = burstBlocks[i].lastValidSample[y - firstLine];
                 if (x >= firstValidSample && x <= lastValidSample) {
                     if (y > burstBlocks[i].azimuthNoise.length-1) {
-                        System.out.println("Sentinel1RemoveThermalNoiseOp: ERROR: i = " + i + " y = " + y + "burstBlocks[i].azimuthNoise.length = " + burstBlocks[i].azimuthNoise.length);
+                        System.out.println("Sentinel1RemoveThermalNoiseOp: ERROR: i = " + i + " y = " + y + " burstBlocks[i].azimuthNoise.length = " + burstBlocks[i].azimuthNoise.length);
                     }
                     final double azimuthNoise = burstBlocks[i].azimuthNoise[y];
                     if (x > burstBlocks[i].rangeNoise.length - 1){
