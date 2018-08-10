@@ -27,44 +27,31 @@ System = jpy.get_type('java.lang.System')
 System.setProperty('com.sun.media.jai.disableMediaLib', 'true')
 
 
-def write_image(band, filename, format, scale_x, scale_y):
+def write_image(band, filename, format):
     im = ImageManager.getInstance().createColoredBandImage([band], band.getImageInfo(), 0)
-    im = resize_with_JAI(im, scale_x, scale_y)
     JAI.create("filestore", im, filename, format)
 
 
-def write_rgb_image(bands, filename, format, scale_x, scale_y):
+def write_rgb_image(bands, filename, format):
     image_info = ProductUtils.createImageInfo(bands, True, ProgressMonitor.NULL)
     im = ImageManager.getInstance().createColoredBandImage(bands, image_info, 0)
-    im = resize_with_JAI(im, scale_x, scale_y)
     JAI.create("filestore", im, filename, format)
 
 
-def resize_with_GPF(product, subsampling):
+def resize_with_Resampling(product, targetWidth, targetHeight):
     from snappy import GPF
     from snappy import HashMap
 
     parameters = HashMap()
-    # SNAP Subset supports only subsampling and not a resizing to a certain width and height.
-    parameters.put('subSamplingX', subsampling)
-    parameters.put('subSamplingY', subsampling)
-    return GPF.createProduct('Subset', parameters, product)
-
-
-def resize_with_JAI(img, scale_x, scale_y):
-    ParameterBlockJAI = jpy.get_type('javax.media.jai.ParameterBlockJAI')
-
-    params = ParameterBlockJAI("scale")
-    params.setParameter("xScale", scale_x)
-    params.setParameter("yScale", scale_y)
-    params.addSource(img)
-    return JAI.create("scale", params)
-
+    parameters.put('targetWidth', targetWidth)
+    parameters.put('targetHeight', targetHeight)
+    return GPF.createProduct('Resample', parameters, product)
 
 product = ProductIO.readProduct(file)
 
-# This can be used to resize the product
-# product = resize_with_GPF(product, 10)
+# This scales the product to the specified size
+# remove if you don't want scaling.
+product = resize_with_Resampling(product, 1000, 1000)
 
 band = product.getBand('radiance_13')
 
@@ -76,14 +63,8 @@ cpd = ColorPaletteDef(points)
 ii = ImageInfo(cpd)
 band.setImageInfo(ii)
 
-# change target_width and target_height to required values
-target_width = band.getRasterWidth()
-target_height = band.getRasterHeight()
-scale_x = target_width / band.getRasterWidth()
-scale_y = target_height / band.getRasterHeight()
-
 image_format = 'PNG'
-write_image(band, 'snappy_write_image.png', image_format, scale_x, scale_y)
+write_image(band, 'snappy_write_image.png', image_format)
 
 legend = ImageLegend(band.getImageInfo(), band)
 legend.setHeaderText(band.getName())
@@ -106,7 +87,7 @@ JAI.create("filestore", rendered_legend_image, 'snappy_write_image_legend.png', 
 red = product.getBand('radiance_13')
 green = product.getBand('radiance_5')
 blue = product.getBand('radiance_1')
-write_rgb_image([red, green, blue], 'snappy_write_image_rgb.png', image_format, scale_x, scale_y)
+write_rgb_image([red, green, blue], 'snappy_write_image_rgb.png', image_format)
 
 
 
