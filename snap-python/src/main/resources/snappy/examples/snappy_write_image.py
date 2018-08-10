@@ -38,7 +38,7 @@ def write_rgb_image(bands, filename, format):
     JAI.create("filestore", im, filename, format)
 
 
-def resize_with_Resampling(product, targetWidth, targetHeight):
+def resize(product, targetWidth, targetHeight):
     from snappy import GPF
     from snappy import HashMap
 
@@ -51,7 +51,7 @@ product = ProductIO.readProduct(file)
 
 # This scales the product to the specified size
 # remove if you don't want scaling.
-product = resize_with_Resampling(product, 1000, 1000)
+product = resize(product, 1000, 1000)
 
 band = product.getBand('radiance_13')
 
