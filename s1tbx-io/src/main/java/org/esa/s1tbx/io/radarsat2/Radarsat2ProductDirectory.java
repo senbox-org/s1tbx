@@ -90,23 +90,25 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             if (valid) {
                 final Dimension bandDimensions = getBandDimensions(newRoot, name);
                 final InputStream inStream = getInputStream(imgPath);
-                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
-                if (imgStream == null)
-                    throw new IOException("Unable to open " + imgPath);
+                if(inStream.available() > 0) {
+                    final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    if (imgStream == null)
+                        throw new IOException("Unable to open " + imgPath);
 
-                if(bandProduct == null && !isCompressed()) {
-                    final ProductReader geoTiffReader = geoTiffPlugIn.createReaderInstance();
-                    bandProduct = geoTiffReader.readProductNodes(new File(getBaseDir(), imgPath), null);
-                }
+                    if (bandProduct == null && !isCompressed()) {
+                        final ProductReader geoTiffReader = geoTiffPlugIn.createReaderInstance();
+                        bandProduct = geoTiffReader.readProductNodes(new File(getBaseDir(), imgPath), null);
+                    }
 
-                final ImageIOFile img;
-                if (isSLC()) {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
-                                          1, 2, dataType, productInputFile);
-                } else {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                    final ImageIOFile img;
+                    if (isSLC()) {
+                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                                1, 2, dataType, productInputFile);
+                    } else {
+                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                    }
+                    bandImageFileMap.put(img.getName(), img);
                 }
-                bandImageFileMap.put(img.getName(), img);
             }
         }
     }

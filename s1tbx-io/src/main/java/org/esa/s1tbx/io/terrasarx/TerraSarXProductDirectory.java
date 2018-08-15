@@ -633,13 +633,15 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
                 final Dimension bandDimensions = getBandDimensions(newRoot, name);
                 final InputStream inStream = getInputStream(imgPath);
-                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
-                if (imgStream == null)
-                    throw new IOException("Unable to open " + imgPath);
+                if(inStream.available() > 0) {
+                    final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    if (imgStream == null)
+                        throw new IOException("Unable to open " + imgPath);
 
-                final ImageIOFile img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
-                        1, 1, ProductData.TYPE_UINT16, productInputFile);
-                bandImageFileMap.put(img.getName(), img);
+                    final ImageIOFile img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                            1, 1, ProductData.TYPE_UINT16, productInputFile);
+                    bandImageFileMap.put(img.getName(), img);
+                }
             }
         }
     }
