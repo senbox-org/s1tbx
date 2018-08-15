@@ -76,20 +76,21 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
         if (name.endsWith("tif")) {
             final Dimension bandDimensions = getBandDimensions(newRoot, name);
             final InputStream inStream = getInputStream(imgPath);
-            final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
-            if (imgStream == null)
-                throw new IOException("Unable to open " + imgPath);
+            if(inStream.available() > 0) {
+                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                if (imgStream == null)
+                    throw new IOException("Unable to open " + imgPath);
 
-            final ImageIOFile img;
-            if (isSLC()) {
-                img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
-                                      1, 2, ProductData.TYPE_FLOAT32, productInputFile);
-            } else {
-                img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                final ImageIOFile img;
+                if (isSLC()) {
+                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                            1, 2, ProductData.TYPE_FLOAT32, productInputFile);
+                } else {
+                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                }
+                bandImageFileMap.put(img.getName(), img);
+                imageFile = getFile(imgPath);
             }
-            bandImageFileMap.put(img.getName(), img);
-
-            imageFile = getFile(imgPath);
         }
     }
 

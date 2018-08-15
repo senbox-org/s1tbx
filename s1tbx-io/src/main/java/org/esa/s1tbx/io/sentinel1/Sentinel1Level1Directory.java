@@ -85,17 +85,19 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             try {
                 final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
                 final InputStream inStream = getInputStream(imgPath);
-                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                if(inStream.available() > 0) {
+                    final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
 
-                final ImageIOFile img;
-                if (isSLC()) {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
-                            1, 1, ProductData.TYPE_INT32, productInputFile);
-                } else {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
-                            1, 1, ProductData.TYPE_INT32, productInputFile);
+                    final ImageIOFile img;
+                    if (isSLC()) {
+                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                                1, 1, ProductData.TYPE_INT32, productInputFile);
+                    } else {
+                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                                1, 1, ProductData.TYPE_INT32, productInputFile);
+                    }
+                    bandImageFileMap.put(img.getName(), img);
                 }
-                bandImageFileMap.put(img.getName(), img);
             } catch (Exception e) {
                 SystemUtils.LOG.severe(imgPath +" not found");
             }
