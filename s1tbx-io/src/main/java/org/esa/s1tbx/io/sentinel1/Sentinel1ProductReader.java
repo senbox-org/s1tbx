@@ -87,16 +87,16 @@ public class Sentinel1ProductReader extends SARReader {
         try {
             File fileFromInput = ReaderUtils.getFileFromInput(getInput());
             if(fileFromInput.isDirectory()) {
-                fileFromInput = new File(fileFromInput, "manifest.safe");
+                fileFromInput = new File(fileFromInput, Sentinel1Constants.PRODUCT_HEADER_NAME);
             }
             if(!fileFromInput.exists()) {
                 throw new IOException(fileFromInput.toString() + " not found");
             }
 
-            if (Sentinel1ProductReaderPlugIn.isLevel1(fileFromInput)) {
-                dataDir = new Sentinel1Level1Directory(fileFromInput);
-            } else if (Sentinel1ProductReaderPlugIn.isLevel2(fileFromInput)) {
+            if (Sentinel1ProductReaderPlugIn.isLevel2(fileFromInput)) {
                 dataDir = new Sentinel1Level2Directory(fileFromInput);
+            } else if (Sentinel1ProductReaderPlugIn.isLevel1(fileFromInput)) {
+                dataDir = new Sentinel1Level1Directory(fileFromInput);
             } else if (Sentinel1ProductReaderPlugIn.isLevel0(fileFromInput)) {
                 dataDir = new Sentinel1Level0Directory(fileFromInput);
             }
@@ -172,12 +172,12 @@ public class Sentinel1ProductReader extends SARReader {
         }
     }
 
-    public void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+    private void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
                                   final int sourceStepX, final int sourceStepY,
                                   final ProductData destBuffer,
                                   final int destOffsetX, final int destOffsetY,
                                   int destWidth, int destHeight,
-                                  final ImageIOFile.BandInfo bandInfo) throws IOException {
+                                  final ImageIOFile.BandInfo bandInfo) {
 
         int length;
         int[] srcArray;
@@ -228,7 +228,7 @@ public class Sentinel1ProductReader extends SARReader {
 
     private synchronized DataCache.Data readRect(final DataCache.DataKey datakey, final ImageIOFile.BandInfo bandInfo,
                                          int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
-                                         final Rectangle destRect) throws IOException {
+                                         final Rectangle destRect) {
         try {
             final ImageReader imageReader = bandInfo.img.getReader();
             final ImageReadParam readParam = imageReader.getDefaultReadParam();
