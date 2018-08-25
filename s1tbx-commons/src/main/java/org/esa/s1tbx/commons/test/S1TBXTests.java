@@ -43,7 +43,7 @@ public class S1TBXTests {
         if(workingPath.getParent().getParent().endsWith("s1tbx")) {
             workingPath = workingPath.getParent();
         }
-        rootPathTestProducts = workingPath.getParent().getParent().resolve("testdata").toString();
+        rootPathTestProducts = workingPath.getParent().getParent().resolve("s1tbx_testdata").toString();
     }
 
     public final static File[] rootArchivePaths = loadFilePath("test.rootArchivePaths");
