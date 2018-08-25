@@ -105,7 +105,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     // Only for TOPS SLC. Key is something like "ew1_hh"
     private HashMap<String, BurstBlock[] > burstBlockMap = new HashMap<>();
 
-    private double trgFloorValue = -0.01234567890000;
+    public static float trgFloorValue = 0.01234567890000f;
 
     private static final String PRODUCT_SUFFIX = "_NR";
 
