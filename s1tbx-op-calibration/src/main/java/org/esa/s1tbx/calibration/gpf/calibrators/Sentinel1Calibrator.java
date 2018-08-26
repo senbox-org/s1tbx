@@ -17,6 +17,7 @@ package org.esa.s1tbx.calibration.gpf.calibrators;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.calibration.gpf.Sentinel1RemoveThermalNoiseOp;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.s1tbx.commons.Sentinel1Utils;
@@ -580,6 +581,8 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                 final int[] vec0Pixels = vec0.pixels;
                 final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
 
+                float trgFloorValue = Sentinel1RemoveThermalNoiseOp.trgFloorValue;
+
                 for (int x = x0; x < maxX; ++x) {
                     srcIdx = srcIndex.getIndex(x);
 
@@ -625,6 +628,13 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     }
 
                     calValue = dn * calibrationFactor;
+
+                    if(dn == trgFloorValue) {
+                        while((float)calValue < 0.00001) {
+                            dn *= 2;
+                            calValue = dn * calibrationFactor;
+                        }
+                    }
 
                     if (isComplex && outputImageInComplex) {
                         calValue = Math.sqrt(calValue)*phaseTerm;

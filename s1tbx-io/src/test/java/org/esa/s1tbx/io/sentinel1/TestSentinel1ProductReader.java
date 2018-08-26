@@ -15,14 +15,10 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
-import org.esa.snap.core.dataio.DecodeQualification;
-import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
-import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,22 +28,17 @@ import java.io.File;
  *
  * @author lveci
  */
-public class TestSentinel1ProductReader {
+public class TestSentinel1ProductReader extends ReaderTest {
 
-    static {
-        TestUtils.initTestEnvironment();
-    }
-    private Sentinel1ProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
-
-    public final static File inputS1_AnnotGRD = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.SAFE");
-    public final static File inputS1_AnnotGRDZip = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.zip");
+    private final static File inputS1_AnnotGRD = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.SAFE");
+    private final static File inputS1_AnnotGRDZip = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.zip");
+    private final static File inputS1_meta1GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless1"+File.separator+"manifest.safe");
+    private final static File inputS1_meta2GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless2"+File.separator+"manifest.safe");
 
     private String[] productTypeExemptions = {"RAW"};
 
-    public TestSentinel1ProductReader() throws Exception {
-        readerPlugin = new Sentinel1ProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+    public TestSentinel1ProductReader() {
+        super(new Sentinel1ProductReaderPlugIn());
     }
 
     /**
@@ -58,98 +49,36 @@ public class TestSentinel1ProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsSentinel1, readerPlugin, reader, productTypeExemptions, null);
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsSentinel1, readerPlugIn, reader, productTypeExemptions, null);
     }
 
     @Test
     public void testOpeningFile() throws Exception {
-        final File inputFile = new File(inputS1_AnnotGRD, "manifest.safe");
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
+        testReader(new File(inputS1_AnnotGRD, "manifest.safe"));
+    }
 
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
+    @Test
+    public void testOpeningBandlessMetadataFile1() throws Exception {
+        testReader(inputS1_meta1GRD);
+    }
 
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
+    @Test
+    public void testOpeningBandlessMetadataFile2() throws Exception {
+        testReader(inputS1_meta2GRD);
     }
 
     @Test
     public void testOpeningFolder() throws Exception {
-        final File inputFile = inputS1_AnnotGRD;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
+        testReader(inputS1_AnnotGRD);
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        final File inputFile = TestData.inputS1_GRD;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
+        testReader(TestData.inputS1_GRD);
     }
 
     @Test
     public void testOpeningAnnotationProduct() throws Exception {
-        final File inputFile = inputS1_AnnotGRDZip;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
+        testReader(inputS1_AnnotGRDZip);
     }
-
-    @Test
-    public void testOpeningZipAnnotationProduct() throws Exception {
-        final File inputFile = TestData.inputS1_GRD;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
-    }
-
- /*   @Test
-    public void testOpeningInputStream() throws Exception {
-        final File inputFile = new File(s1ZipFilePath);
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
-        final InputStream inputStream = new FileInputStream(s1ZipFilePath);
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputStream);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputStream, null);
-        Assert.assertTrue(product != null);
-    }*/
 }
