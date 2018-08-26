@@ -25,10 +25,10 @@ public class ReaderTest {
         this.reader = readerPlugIn.createReaderInstance();
     }
 
-    protected void testReader(final File inputFile) throws Exception {
+    protected Product testReader(final File inputFile) throws Exception {
         if(!inputFile.exists()){
             TestUtils.skipTest(this, inputFile +" not found");
-            return;
+            return null;
         }
 
         final DecodeQualification canRead = readerPlugIn.getDecodeQualification(inputFile);
@@ -43,6 +43,8 @@ public class ReaderTest {
 
         TestUtils.verifyProduct(product, true, true);
         validateMetadata(product);
+
+        return product;
     }
 
     protected void validateMetadata(final Product trgProduct) throws Exception {

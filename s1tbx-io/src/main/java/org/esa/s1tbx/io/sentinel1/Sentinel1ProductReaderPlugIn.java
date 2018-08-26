@@ -18,6 +18,7 @@ package org.esa.s1tbx.io.sentinel1;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
@@ -31,6 +32,11 @@ import java.util.Locale;
  */
 public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
 
+    private static final String ANNOTATION = "annotation";
+    private static final String MEASUREMENT = "measurement";
+
+    private static String[] annotation_prefixes = new String[] {"s1", "s2-", "s3-", "s4-", "s5-", "s6-", "iw", "ew", "rs2", "asa"};
+
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
@@ -42,19 +48,21 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
             final String filename = file.getName().toLowerCase();
-            if (filename.equals("manifest.safe")) {
-                if (isLevel1(file) || isLevel2(file) || isLevel0(file))
+            if (filename.equals(Sentinel1Constants.PRODUCT_HEADER_NAME)) {
+                if (isLevel1(file) || isLevel2(file) || isLevel0(file)) {
                     return DecodeQualification.INTENDED;
+                }
             }
             if (filename.endsWith(".zip") && filename.startsWith("s1") && (ZipUtils.findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
                     ZipUtils.findInZip(file, "rs2", Sentinel1Constants.PRODUCT_HEADER_NAME))) {
                 return DecodeQualification.INTENDED;
             }
             if(filename.startsWith("s1") && filename.endsWith(".safe") && file.isDirectory()) {
-                File manifest = new File(file, "manifest.safe");
+                File manifest = new File(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
                 if(manifest.exists()) {
-                    if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest))
+                    if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest)) {
                         return DecodeQualification.INTENDED;
+                    }
                 }
             }
         }
@@ -63,7 +71,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    public static boolean isLevel1(final File file) {
+    static boolean isLevel1(final File file) {
         if (ZipUtils.isZip(file)) {
             if(ZipUtils.findInZip(file, "s1", ".tiff")) {
                 return true;
@@ -72,26 +80,22 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
             return name.contains("_1AS") || name.contains("_1AD") || name.contains("_1SS") || name.contains("_1SD");
         } else {
             final File baseFolder = file.getParentFile();
-            final File annotationFolder = new File(baseFolder, "annotation");
-            if (annotationFolder.exists()) {
-                return checkFolder(annotationFolder, ".xml");
-            }
-            final File measurementFolder = new File(baseFolder, "measurement");
-            return measurementFolder.exists() && checkFolder(measurementFolder, ".tiff");
+            final File annotationFolder = new File(baseFolder, ANNOTATION);
+            return annotationFolder.exists() && checkFolder(annotationFolder, ".xml");
         }
     }
 
-    public static boolean isLevel2(final File file) {
+    static boolean isLevel2(final File file) {
         if (ZipUtils.isZip(file)) {
             return ZipUtils.findInZip(file, "s1", ".nc");
         } else {
             final File baseFolder = file.getParentFile();
-            final File measurementFolder = new File(baseFolder, "measurement");
+            final File measurementFolder = new File(baseFolder, MEASUREMENT);
             return measurementFolder.exists() && checkFolder(measurementFolder, ".nc");
         }
     }
 
-    public static boolean isLevel0(final File file) {
+    static boolean isLevel0(final File file) {
         if (ZipUtils.isZip(file)) {
             return ZipUtils.findInZip(file, "s1", ".dat");
         } else {
@@ -107,13 +111,9 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
             }
         } else {
             final File baseFolder = file.getParentFile();
-            final File annotationFolder = new File(baseFolder, "annotation");
+            final File annotationFolder = new File(baseFolder, ANNOTATION);
             if (!annotationFolder.exists()) {
                 throw new IOException("annotation folder is missing in product");
-            }
-            final File measurementFolder = new File(baseFolder, "measurement");
-            if (!measurementFolder.exists()) {
-                throw new IOException("measurement folder is missing in product");
             }
         }
     }
@@ -123,9 +123,11 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         if (files != null) {
             for (File f : files) {
                 final String name = f.getName().toLowerCase();
-                if (f.isFile() && (name.startsWith("s1") || name.startsWith("asa") || name.startsWith("rs2"))) {
-                    if (extension == null || name.endsWith(extension)) {
-                        return true;
+                if (f.isFile()) {
+                    for(String prefix : annotation_prefixes) {
+                        if(name.startsWith(prefix) && (extension == null || name.endsWith(extension))) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -213,11 +215,9 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         public boolean accept(final File file) {
             if (super.accept(file)) {
                 final String name = file.getName().toUpperCase();
-                if (file.isDirectory() || (name.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
+                return file.isDirectory() || (name.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
                         name.endsWith(Sentinel1Constants.getIndicationKey())) ||
-                        (name.startsWith("S1") && name.endsWith(".ZIP"))) {
-                    return true;
-                }
+                        (name.startsWith("S1") && name.endsWith(".ZIP"));
             }
             return false;
         }

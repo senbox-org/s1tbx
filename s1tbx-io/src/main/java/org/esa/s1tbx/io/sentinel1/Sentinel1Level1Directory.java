@@ -182,7 +182,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         real = !real;
 
                         // add tiepointgrids and geocoding for band
-                        addTiePointGrids(band, imgName, tpgPrefix);
+                        addTiePointGrids(product, band, imgName, tpgPrefix);
 
                         // reset to null so it doesn't adopt a geocoding from the bands
                         product.setSceneGeoCoding(null);
@@ -202,7 +202,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
 
                         // add tiepointgrids and geocoding for band
-                        addTiePointGrids(band, imgName, tpgPrefix);
+                        addTiePointGrids(product, band, imgName, tpgPrefix);
                     }
                 }
             }
@@ -807,11 +807,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         // replaced by call to addTiePointGrids(band)
     }
 
-    private void addTiePointGrids(final Band band, final String imgXMLName, final String tpgPrefix) {
+    private void addTiePointGrids(final Product product, final Band band, final String imgXMLName, final String tpgPrefix) {
 
         //System.out.println("S1L1Dir.addTiePointGrids: band = " + band.getName() + " imgXMLName = " + imgXMLName + " tpgPrefix = " + tpgPrefix);
 
-        final Product product = band.getProduct();
         String pre = "";
         if (!tpgPrefix.isEmpty())
             pre = tpgPrefix + '_';
@@ -819,10 +818,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final TiePointGrid existingLatTPG = product.getTiePointGrid(pre + OperatorUtils.TPG_LATITUDE);
         final TiePointGrid existingLonTPG = product.getTiePointGrid(pre + OperatorUtils.TPG_LONGITUDE);
         if (existingLatTPG != null && existingLonTPG != null) {
-            //System.out.println("for band = " + band.getName() + ", use existing TPG");
-            // reuse geocoding
-            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(existingLatTPG, existingLonTPG);
-            band.setGeoCoding(tpGeoCoding);
+            if(band != null) {
+                // reuse geocoding
+                final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(existingLatTPG, existingLonTPG);
+                band.setGeoCoding(tpGeoCoding);
+            }
             return;
         }
         //System.out.println("add new TPG for band = " + band.getName());
@@ -934,7 +934,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-        bandGeocodingMap.put(band, tpGeoCoding);
+
+        if(band != null) {
+            bandGeocodingMap.put(band, tpGeoCoding);
+        }
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
