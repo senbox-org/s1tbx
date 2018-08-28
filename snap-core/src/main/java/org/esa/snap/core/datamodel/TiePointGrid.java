@@ -88,9 +88,9 @@ public class TiePointGrid extends RasterDataNode {
      * @param offsetX      the X co-ordinate of the first (upper-left) tie-point in pixels
      * @param offsetY      the Y co-ordinate of the first (upper-left) tie-point in pixels
      * @param subSamplingX the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                     this tie-pint grid belongs to. Must not be less than one.
+     *                     this tie-point grid belongs to. Must not be less than one.
      * @param subSamplingY the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                     this tie-pint grid belongs to. Must not be less than one.
+     *                     this tie-point grid belongs to. Must not be less than one.
      */
     public TiePointGrid(String name,
                         int gridWidth,
@@ -123,9 +123,9 @@ public class TiePointGrid extends RasterDataNode {
      * @param offsetX      the X co-ordinate of the first (upper-left) tie-point in pixels
      * @param offsetY      the Y co-ordinate of the first (upper-left) tie-point in pixels
      * @param subSamplingX the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                     this tie-pint grid belongs to. Must not be less than one.
+     *                     this tie-point grid belongs to. Must not be less than one.
      * @param subSamplingY the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                     this tie-pint grid belongs to. Must not be less than one.
+     *                     this tie-point grid belongs to. Must not be less than one.
      * @param tiePoints    the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
      */
     public TiePointGrid(String name,
@@ -148,9 +148,9 @@ public class TiePointGrid extends RasterDataNode {
      * @param offsetX        the X co-ordinate of the first (upper-left) tie-point in pixels
      * @param offsetY        the Y co-ordinate of the first (upper-left) tie-point in pixels
      * @param subSamplingX   the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                       this tie-pint grid belongs to. Must not be less than one.
+     *                       this tie-point grid belongs to. Must not be less than one.
      * @param subSamplingY   the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                       this tie-pint grid belongs to. Must not be less than one.
+     *                       this tie-point grid belongs to. Must not be less than one.
      * @param tiePoints      the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
      * @param containsAngles if true, the {@link #getDiscontinuity() angular discontinuity} is derived from the provided tie-point data values
      */
@@ -179,9 +179,9 @@ public class TiePointGrid extends RasterDataNode {
      * @param offsetX       the X co-ordinate of the first (upper-left) tie-point in pixels
      * @param offsetY       the Y co-ordinate of the first (upper-left) tie-point in pixels
      * @param subSamplingX  the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                      this tie-pint grid belongs to. Must not be less than one.
+     *                      this tie-point grid belongs to. Must not be less than one.
      * @param subSamplingY  the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                      this tie-pint grid belongs to. Must not be less than one.
+     *                      this tie-point grid belongs to. Must not be less than one.
      * @param tiePoints     the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
      * @param discontinuity the discontinuity mode, can be either {@link #DISCONT_NONE}, {@link #DISCONT_AUTO}, {@link #DISCONT_AT_180} or
      *                      {@link #DISCONT_AT_360}
@@ -234,7 +234,7 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Returns the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which this
-     * tie-pint grid belongs to.
+     * tie-point grid belongs to.
      *
      * @return the sub-sampling in X-direction, never less than one.
      */
@@ -244,7 +244,7 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Returns the sub-sampling in Y-direction given in the pixel co-ordinates of the data product to which this
-     * tie-pint grid belongs to.
+     * tie-point grid belongs to.
      *
      * @return the sub-sampling in Y-direction, never less than one.
      */
@@ -449,9 +449,9 @@ public class TiePointGrid extends RasterDataNode {
      * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @param y The Y co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     @Override
@@ -465,9 +465,9 @@ public class TiePointGrid extends RasterDataNode {
      * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @param y The Y co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public final float getPixelFloat(final float x, final float y) {
@@ -480,9 +480,9 @@ public class TiePointGrid extends RasterDataNode {
      * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @param y The Y co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     @Override
@@ -496,9 +496,9 @@ public class TiePointGrid extends RasterDataNode {
      * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @param y The Y co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     *          this tie-point grid belongs to.
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public double getPixelDouble(double x, double y) {
