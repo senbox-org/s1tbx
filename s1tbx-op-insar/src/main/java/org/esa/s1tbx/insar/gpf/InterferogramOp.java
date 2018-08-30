@@ -223,7 +223,7 @@ public class InterferogramOp extends Operator {
             validator.checkIfSARProduct();
             validator.checkIfCoregisteredStack();
             validator.checkIfSLC();
-            isTOPSARBurstProduct = !validator.isDebursted();
+            isTOPSARBurstProduct = validator.isTOPSARProduct() && !validator.isDebursted();
             System.out.println("IFG: isTOPSARBurstProduct = " + isTOPSARBurstProduct);
             if (isTOPSARBurstProduct) {
                 final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
