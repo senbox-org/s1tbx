@@ -784,7 +784,7 @@ public final class GLCMOp extends Operator {
                 int xx = x - x0;
                 final int index = srcIndex.getIndex(x);
                 for (SrcInfo srcInfo : srcInfoList) {
-                    v = srcInfo.srcData.getElemDoubleAt(index);
+                    v = srcInfo.srcData.getElemDoubleAt(index)*srcInfo.scalingFactor + srcInfo.scalingOffset;
                     srcInfo.quantizedImage[yy][xx] =
                             (Double.isNaN(v) || v == srcInfo.noDataValue) ? -1 : quantizer.compute(v);
                 }
@@ -809,7 +809,7 @@ public final class GLCMOp extends Operator {
             for (int y = y0; y < yMax; y++) {
                 int yy = y - y0;
                 srcIndex.calculateStride(y);
-                v = srcInfo.srcData.getElemDoubleAt(srcIndex.getIndex(xNew));
+                v = srcInfo.srcData.getElemDoubleAt(srcIndex.getIndex(xNew))*srcInfo.scalingFactor + srcInfo.scalingOffset;
                 srcInfo.quantizedImage[yy][w - 1] =
                         (Double.isNaN(v) || v == srcInfo.noDataValue) ? -1 : quantizer.compute(v);
             }
@@ -1001,6 +1001,8 @@ public final class GLCMOp extends Operator {
         public final TileIndex srcIndex;
         public final ProductData srcData;
         public final float noDataValue;
+        public final double scalingFactor;
+        public final double scalingOffset;
         public final TextureFeatures tfNoData;
         public TileData[] tileDataList;
         public int[][] quantizedImage;
@@ -1014,6 +1016,8 @@ public final class GLCMOp extends Operator {
             this.srcIndex = new TileIndex(sourceTile);
             this.srcData = sourceTile.getDataBuffer();
             this.noDataValue = (float) srcBand.getNoDataValue();
+            this.scalingFactor = srcBand.getScalingFactor();
+            this.scalingOffset = srcBand.getScalingOffset();
             this.tfNoData = new TextureFeatures(
                     noDataValue, noDataValue, noDataValue,
                     noDataValue, noDataValue, noDataValue,
