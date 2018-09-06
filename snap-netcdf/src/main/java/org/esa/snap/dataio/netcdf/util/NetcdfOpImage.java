@@ -232,7 +232,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         double scale = getScale();
         stride[yIndex] = (int) scale;
         stride[xIndex] = (int) scale;
-        final int halfDestWidth = (int) (halfSourceWidth / scale);
+        final int halfDestWidth = (int) Math.round(halfSourceWidth / scale);
 
         Array arrayLeft;
         Array arrayRight;
@@ -285,7 +285,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
 
     protected interface ArrayConverter {
 
-         ArrayConverter IDENTITY = array -> array;
+        ArrayConverter IDENTITY = array -> array;
 
         ArrayConverter LSB = array -> {
             final Array convertedArray = Array.factory(DataType.INT, array.getShape());
