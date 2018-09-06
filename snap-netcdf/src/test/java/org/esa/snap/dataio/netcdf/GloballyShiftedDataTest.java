@@ -29,7 +29,9 @@ import static org.junit.Assert.*;
 /**
  * @author Marco Peters
  */
+@Ignore("Fails on Linux: Unable to load library 'netcdf': libnetcdf.so: cannot open shared object file: No such file or directory")
 public class GloballyShiftedDataTest {
+    // why is it failing writing Netcdf$ files in test mode but not when SNAP is installed?
 
     private static File tempFile;
     private static final int WIDTH = 8100;
