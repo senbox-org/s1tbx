@@ -6,6 +6,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -13,7 +14,6 @@ import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
@@ -29,9 +29,9 @@ import static org.junit.Assert.*;
 /**
  * @author Marco Peters
  */
-@Ignore("Fails on Linux: Unable to load library 'netcdf': libnetcdf.so: cannot open shared object file: No such file or directory")
 public class GloballyShiftedDataTest {
-    // why is it failing writing Netcdf$ files in test mode but not when SNAP is installed?
+    // This generates data which mimics the LCCCI data for the Climate Data Store, just with a lower resolution
+    // This test relates to https://senbox.atlassian.net/browse/SNAP-950 and https://senbox.atlassian.net/browse/SNAP-951
 
     private static File tempFile;
     private static final int WIDTH = 8100;
@@ -40,23 +40,21 @@ public class GloballyShiftedDataTest {
     private static final int HALF_WIDTH = WIDTH / 2;
     private Product product;
 
-    // This generates data which mimics the LCCCI data for the Climate Data Store, just with a lower resolution
-    // This test relates to https://senbox.atlassian.net/browse/SNAP-950 and https://senbox.atlassian.net/browse/SNAP-951
     @BeforeClass
     public static void createTestDataFile() throws IOException {
-
+        // Fails on Linux: "Unable to load library 'netcdf': libnetcdf.so: cannot open shared object file: No such file or directory"
+        // why is it failing writing Netcdf files in test mode but not when SNAP is installed?
+        // Probably because we use the Nujan lib for writing usually.
+        Assume.assumeTrue(isWindows());
+        
         tempFile = File.createTempFile(GloballyShiftedDataTest.class.getSimpleName(), ".nc");
 //        tempFile = new File(String.format("%s\\%s.nc", System.getProperty("user.home"), GloballyShiftedDataTest.class.getSimpleName()));
         NetcdfFileWriter ncFile = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, tempFile.getAbsolutePath());
         ncFile.addDimension(null, "lat", HEIGHT);
         ncFile.addDimension(null, "lon", WIDTH);
         Variable lat = ncFile.addVariable(null, "lat", DataType.DOUBLE, "lat");
-        lat.addAttribute(new Attribute("units", "degrees_north"));
-        lat.addAttribute(new Attribute("standard_name", "latitude"));
 
         Variable lon = ncFile.addVariable(null, "lon", DataType.DOUBLE, "lon");
-        lon.addAttribute(new Attribute("units", "degrees_east"));
-        lon.addAttribute(new Attribute("standard_name", "longitude"));
 
         Variable data = ncFile.addVariable(null, "data", DataType.INT, "lat lon");
 
@@ -88,10 +86,10 @@ public class GloballyShiftedDataTest {
             int[] leftDataValues = new int[HALF_WIDTH * STEP_HEIGHT];
             Arrays.setAll(rightDataValues, i -> i + HALF_WIDTH);
             Arrays.setAll(leftDataValues, i -> i);
+            Array rightValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, rightDataValues);
+            Array leftValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, leftDataValues);
             for (int i = 0; i < HEIGHT; i = i + STEP_HEIGHT) {
-                Array rightValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, rightDataValues);
                 ncFile.write(data, new int[]{i, 0}, rightValues);
-                Array leftValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, leftDataValues);
                 ncFile.write(data, new int[]{i, HALF_WIDTH}, leftValues);
             }
         } catch (InvalidRangeException e) {
@@ -101,6 +99,11 @@ public class GloballyShiftedDataTest {
         ncFile.close();
     }
 
+    @Before
+    public void readProduct() throws Exception {
+        product = ProductIO.readProduct(tempFile);
+    }
+
     @AfterClass
     public static void deleteTestDataFile() {
         if (tempFile != null && tempFile.exists()) {
@@ -108,12 +111,6 @@ public class GloballyShiftedDataTest {
                 tempFile.deleteOnExit();
             }
         }
-    }
-
-
-    @Before
-    public void readProduct() throws Exception {
-        product = ProductIO.readProduct(tempFile);
     }
 
     @After
@@ -183,4 +180,9 @@ public class GloballyShiftedDataTest {
         }
 
     }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().startsWith("win");
+    }
+
 }
