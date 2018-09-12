@@ -64,6 +64,9 @@ public abstract class AbstractProductDirectory {
             baseDir = inputFile;
             productDir = VirtualDir.create(baseDir);
             baseName = baseDir.getName();
+            if(baseName.endsWith(".zip")) {
+                baseName = baseName.substring(0, baseName.lastIndexOf(".zip"));
+            }
         } else {
             baseDir = inputFile.getParentFile();
             productDir = VirtualDir.create(baseDir);
