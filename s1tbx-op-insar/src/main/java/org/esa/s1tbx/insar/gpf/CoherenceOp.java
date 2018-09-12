@@ -233,7 +233,7 @@ public class CoherenceOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
             validator.checkIfCoregisteredStack();
-            isTOPSARBurstProduct = !validator.isDebursted();
+            isTOPSARBurstProduct = validator.isTOPSARProduct() && !validator.isDebursted();
 
             isComplex = AbstractMetadata.getAbstractedMetadata(sourceProduct).
                     getAttributeString(AbstractMetadata.SAMPLE_TYPE).contains("COMPLEX");
