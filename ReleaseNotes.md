@@ -1,3 +1,8 @@
+#New in S1TBX 7.0
+
+* Support for RCM products
+* Support for S-1 on AWS
+
 #New in S1TBX 6.0
 
 ###Bugs fixed 
