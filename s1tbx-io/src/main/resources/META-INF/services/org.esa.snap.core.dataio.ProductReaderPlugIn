@@ -1,6 +1,5 @@
 org.esa.s1tbx.io.ceos.ers.ERSProductReaderPlugIn
 org.esa.s1tbx.io.ceos.jers.JERSProductReaderPlugIn
-org.esa.s1tbx.io.ceos.radarsat.RadarsatProductReaderPlugIn
 org.esa.s1tbx.io.ceos.alos.AlosPalsarProductReaderPlugIn
 org.esa.s1tbx.io.ceos.alos2.Alos2ProductReaderPlugIn
 org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn
@@ -9,7 +8,6 @@ org.esa.s1tbx.io.gamma.GammaProductReaderPlugIn
 org.esa.s1tbx.io.gtopo30.GTOPO30ReaderPlugIn
 org.esa.s1tbx.io.kompsat5.Kompsat5ReaderPlugIn
 org.esa.s1tbx.io.polsarpro.PolsarProProductReaderPlugIn
-org.esa.s1tbx.io.radarsat2.Radarsat2ProductReaderPlugIn
 org.esa.s1tbx.io.seasat.SeaSatProductReaderPlugIn
 org.esa.s1tbx.io.sentinel1.Sentinel1ProductReaderPlugIn
 org.esa.s1tbx.io.terrasarx.TerraSarXProductReaderPlugIn
