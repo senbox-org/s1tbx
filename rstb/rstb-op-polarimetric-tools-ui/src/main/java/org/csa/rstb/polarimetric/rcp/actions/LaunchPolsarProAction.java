@@ -29,17 +29,17 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.prefs.Preferences;
 
-@ActionID(category = "Raster", id = "LaunchPolsarProAction" )
-@ActionRegistration(
-        displayName = "#CTL_LaunchPolsarProAction_MenuText",
-        popupText = "#CTL_LaunchPolsarProAction_MenuText",
-        lazy = true
-)
-@ActionReference(path = "Menu/Radar/Polarimetric", position = 50, separatorAfter = 51)
-@NbBundle.Messages({
-        "CTL_LaunchPolsarProAction_MenuText=Launch PolSARPro",
-        "CTL_LaunchPolsarProAction_ShortDescription=Start PolSARPro application"
-})
+//@ActionID(category = "Raster", id = "LaunchPolsarProAction" )
+//@ActionRegistration(
+//        displayName = "#CTL_LaunchPolsarProAction_MenuText",
+//        popupText = "#CTL_LaunchPolsarProAction_MenuText",
+//        lazy = true
+//)
+//@ActionReference(path = "Menu/Radar/Polarimetric", position = 50, separatorAfter = 51)
+//@NbBundle.Messages({
+//        "CTL_LaunchPolsarProAction_MenuText=Launch PolSARPro",
+//        "CTL_LaunchPolsarProAction_ShortDescription=Start PolSARPro application"
+//})
 /**
  * This action launches PolSARPro
  */
