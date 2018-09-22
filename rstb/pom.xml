@@ -26,14 +26,14 @@
         <version>6.0.5-SNAPSHOT</version>
     </parent>
 
-    <name>RADARSAT-2 Toolbox</name>
+    <name>RADARSAT Toolbox</name>
     <groupId>org.csa.rstb</groupId>
     <artifactId>rstb</artifactId>
     <version>7.4.5-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
-    <description>RADARSAT-2 Polarimetric Toolkit</description>
+    <description>RADARSAT Polarimetric Toolkit</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

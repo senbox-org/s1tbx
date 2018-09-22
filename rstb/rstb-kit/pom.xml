@@ -11,9 +11,9 @@
     <artifactId>rstb-kit</artifactId>
     <packaging>nbm</packaging>
 
-    <name>Radarsat-2 Polarimetric Toolkit Module</name>
+    <name>Radarsat Polarimetric Toolkit Module</name>
     <description>
-        The Radarsat-2 Toolbox is a SNAP extension dedicated to polarimetric SAR processing developed via the Canadian Space Agency EOADP.
+        The Radarsat Toolbox is a SNAP extension dedicated to polarimetric SAR processing developed via the Canadian Space Agency EOADP.
     </description>
 
     <build>

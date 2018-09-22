@@ -22,9 +22,9 @@ import org.esa.s1tbx.io.ceos.CEOSConstants;
  */
 public class RadarsatConstants implements CEOSConstants {
 
-    private final String[] FORMAT_NAMES = new String[]{"RADARSAT-1 CEOS"};
+    private final String[] FORMAT_NAMES = new String[]{"RADARSAT-1"};
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{""};
-    private static final String PLUGIN_DESCRIPTION = "RADARSAT-1 CEOS Products";      /*I18N*/
+    private static final String PLUGIN_DESCRIPTION = "RADARSAT-1 Products";      /*I18N*/
 
     private final static String[] VOLUME_FILE_PREFIX = {"VDF", "VOL"};
     private static final String[] LEADER_FILE_PREFIX = {"LEA", "SARL"};
