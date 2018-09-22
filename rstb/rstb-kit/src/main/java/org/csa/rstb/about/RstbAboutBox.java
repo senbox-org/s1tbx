@@ -47,7 +47,7 @@ public class RstbAboutBox extends JPanel {
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
         final ModuleInfo moduleInfo = Modules.getDefault().ownerOf(RstbAboutBox.class);
-        panel.add(new JLabel("<html><b>Radarsat-2 Toolbox (RSTB) version " + moduleInfo.getImplementationVersion() + "</b>",
+        panel.add(new JLabel("<html><b>Radarsat Toolbox (RSTB) version " + moduleInfo.getImplementationVersion() + "</b>",
                 SwingConstants.RIGHT));
         final URI releaseNotesURI = getReleaseNotesURI();
         if (releaseNotesURI != null) {

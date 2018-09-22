@@ -39,15 +39,6 @@
                     <attr name="helpId" stringvalue="importJERSProduct"/>
                     <attr name="ShortDescription" stringvalue="Open JERS CEOS data product."/>
                 </file>
-                <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                    <attr name="displayName" stringvalue="RADARSAT-1 CEOS"/>
-                    <attr name="formatName" stringvalue="RADARSAT-1 CEOS"/>
-                    <attr name="useAllFileFilter" boolvalue="true"/>
-                    <attr name="helpId" stringvalue="importRadarsat1"/>
-                    <attr name="ShortDescription" stringvalue="Open RADARSAT-1 CEOS data product."/>
-                </file>
             </folder>
             <file name="org-esa-s1tbx-io-importCosmoSkymed.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -66,15 +57,6 @@
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importKompsat5"/>
                 <attr name="ShortDescription" stringvalue="Open Kompsat-5 data product."/>
-            </file>
-            <file name="org-esa-s1tbx-io-importRadarsat2Product.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                <attr name="displayName" stringvalue="RADARSAT-2"/>
-                <attr name="formatName" stringvalue="RADARSAT-2"/>
-                <attr name="useAllFileFilter" boolvalue="true"/>
-                <attr name="helpId" stringvalue="importRadarsat2"/>
-                <attr name="ShortDescription" stringvalue="Open RADARSAT-2 data product."/>
             </file>
             <file name="org-esa-s1tbx-io-importSeaSatProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -199,14 +181,6 @@
                     <file name="org-esa-s1tbx-io-importKompsat5.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importKompsat5.instance"/>
                         <attr name="position" intvalue="650"/>
-                    </file>
-                    <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importRadarsatProduct.instance"/>
-                        <attr name="position" intvalue="700"/>
-                    </file>
-                    <file name="org-esa-s1tbx-io-importRadarsat2Product.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importRadarsat2Product.instance"/>
-                        <attr name="position" intvalue="800"/>
                     </file>
                     <file name="org-esa-s1tbx-io-importSeaSatProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importSeaSatProduct.instance"/>

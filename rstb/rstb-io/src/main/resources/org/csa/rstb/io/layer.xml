@@ -1,0 +1,53 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Readers">
+            <folder name="Ceos">
+                <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.instance">
+                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName" stringvalue="RADARSAT-1"/>
+                    <attr name="formatName" stringvalue="RADARSAT-1"/>
+                    <attr name="useAllFileFilter" boolvalue="true"/>
+                    <attr name="helpId" stringvalue="importRadarsat1"/>
+                    <attr name="ShortDescription" stringvalue="Open RADARSAT-1 data product."/>
+                </file>
+            </folder>
+            <file name="org-esa-s1tbx-io-importRadarsat2Product.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="RADARSAT-2"/>
+                <attr name="formatName" stringvalue="RADARSAT-2"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importRadarsat2"/>
+                <attr name="ShortDescription" stringvalue="Open RADARSAT-2 data product."/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="SAR Sensors">
+                    <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importRadarsatProduct.instance"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importRadarsat2Product.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importRadarsat2Product.instance"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-csa-rstb-rstb-io-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="5112"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>
