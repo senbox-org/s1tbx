@@ -12,8 +12,6 @@
     <mapID target="ImportERSCeos" url="readers/ImportERSCeos.html"/>
     <mapID target="ImportJERSCeos" url="readers/ImportJERSCeos.html"/>
     <mapID target="ImportAlosPalsar" url="readers/ImportAlosPalsar.html"/>
-    <mapID target="ImportRadarsat1" url="readers/ImportRadarsat1.html"/>
-    <mapID target="ImportRadarsat2" url="readers/ImportRadarsat2.html"/>
     <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
     <mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
     <mapID target="ImportSeaSat" url="readers/ImportSeaSat.html"/>
