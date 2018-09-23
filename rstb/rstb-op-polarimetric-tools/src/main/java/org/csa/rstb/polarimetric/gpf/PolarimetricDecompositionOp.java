@@ -238,7 +238,7 @@ public final class PolarimetricDecompositionOp extends Operator {
                         outputLambda123);
             case H_ALPHA_DECOMPOSITION:
                 return new HAlphaC2(srcBandList, sourceProductType,
-                                   windowSize, sourceImageWidth, sourceImageHeight);
+                                   windowSize, windowSize, sourceImageWidth, sourceImageHeight);
             case TOUZI_DECOMPOSITION:
                 return new Touzi(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight,
