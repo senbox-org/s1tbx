@@ -40,8 +40,8 @@ import java.util.Map;
 public class HAlphaC2 extends DecompositionBase implements Decomposition {
 
     public HAlphaC2(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
-                    final int windowSize, final int srcImageWidth, final int srcImageHeight) {
-        super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
+                    final int windowSizeX, final int windowSizeY, final int srcImageWidth, final int srcImageHeight) {
+        super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
     }
 
     public String getSuffix() {
