@@ -2,8 +2,7 @@
 
     <folder name="Actions">
         <folder name="Readers">
-            <folder name="Ceos">
-                <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.instance">
+            <file name="org-csa-rstb-io-importRadarsatProduct.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                     <attr name="displayName" stringvalue="RADARSAT-1"/>
@@ -11,9 +10,8 @@
                     <attr name="useAllFileFilter" boolvalue="true"/>
                     <attr name="helpId" stringvalue="importRadarsat1"/>
                     <attr name="ShortDescription" stringvalue="Open RADARSAT-1 data product."/>
-                </file>
-            </folder>
-            <file name="org-esa-s1tbx-io-importRadarsat2Product.instance">
+            </file>
+            <file name="org-csa-rstb-io-importRadarsat2Product.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="RADARSAT-2"/>
@@ -22,6 +20,15 @@
                 <attr name="helpId" stringvalue="importRadarsat2"/>
                 <attr name="ShortDescription" stringvalue="Open RADARSAT-2 data product."/>
             </file>
+			<file name="org-csa-rstb-io-importRCM.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="RCM"/>
+                <attr name="formatName" stringvalue="RCM"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+                <attr name="helpId" stringvalue="importRCM"/>
+                <attr name="ShortDescription" stringvalue="Import a RADARSAT Constellation Mission product"/>
+            </file>
         </folder>
     </folder>
 
@@ -29,13 +36,17 @@
         <folder name="File">
             <folder name="Import">
                 <folder name="SAR Sensors">
-                    <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importRadarsatProduct.instance"/>
+                    <file name="org-csa-rstb-io-importRadarsatProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-csa-rstb-io-importRadarsatProduct.instance"/>
                         <attr name="position" intvalue="700"/>
                     </file>
-                    <file name="org-esa-s1tbx-io-importRadarsat2Product.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importRadarsat2Product.instance"/>
+                    <file name="org-csa-rstb-io-importRadarsat2Product.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-csa-rstb-io-importRadarsat2Product.instance"/>
                         <attr name="position" intvalue="800"/>
+                    </file>
+					<file name="org-csa-rstb-io-importRCM.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-csa-rstb-io-importRCM.instance"/>
+                        <attr name="position" intvalue="810"/>
                     </file>
                 </folder>
             </folder>
