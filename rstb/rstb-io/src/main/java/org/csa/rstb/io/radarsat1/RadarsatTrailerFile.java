@@ -29,18 +29,19 @@ class RadarsatTrailerFile extends CEOSLeaderFile {
 
     private final static String mission = "radarsat";
     private final static String trailer_recordDefinitionFile = "trailer_file.xml";
+    private final static String resourcePath = "org/csa/rstb/io/ceos_db/";
 
-    private final static Document trailerXML = BinaryDBReader.loadDefinitionFile(mission, trailer_recordDefinitionFile);
-    private final static Document sceneXML = BinaryDBReader.loadDefinitionFile(mission, scene_recordDefinitionFile);
-    private final static Document mapProjXML = BinaryDBReader.loadDefinitionFile(mission, mapproj_recordDefinitionFile);
-    private final static Document dataQualityXML = BinaryDBReader.loadDefinitionFile(mission, dataQuality_recordDefinitionFile);
-    private final static Document histogramXML = BinaryDBReader.loadDefinitionFile(mission, histogram_recordDefinitionFile);
-    private final static Document detailProcXML = BinaryDBReader.loadDefinitionFile(mission, detailedProcessing_recordDefinitionFile);
-    private final static Document platformXML = BinaryDBReader.loadDefinitionFile(mission, platformPosition_recordDefinitionFile);
-    private final static Document attitudeXML = BinaryDBReader.loadDefinitionFile(mission, attitude_recordDefinitionFile);
-    private final static Document radiometricXML = BinaryDBReader.loadDefinitionFile(mission, radiometric_recordDefinitionFile);
-    private final static Document radiometricCompXML = BinaryDBReader.loadDefinitionFile(mission, radiometric_comp_recordDefinitionFile);
-    private final static Document facilityXML = BinaryDBReader.loadDefinitionFile(mission, facility_recordDefinitionFile);
+    private final static Document trailerXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, trailer_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document sceneXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, scene_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document mapProjXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, mapproj_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document dataQualityXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, dataQuality_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document histogramXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, histogram_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document detailProcXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, detailedProcessing_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document platformXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, platformPosition_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document attitudeXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, attitude_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document radiometricXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, radiometric_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document radiometricCompXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, radiometric_comp_recordDefinitionFile, RadarsatTrailerFile.class);
+    private final static Document facilityXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, facility_recordDefinitionFile, RadarsatTrailerFile.class);
 
     public RadarsatTrailerFile(final ImageInputStream stream) throws IOException {
         final BinaryFileReader reader = new BinaryFileReader(stream);

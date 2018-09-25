@@ -83,7 +83,7 @@ public abstract class CEOSProductDirectory {
         final BinaryFileReader binaryReader = new BinaryFileReader(volumeFile[0].imgInputStream);
         final String mission = constants.getMission();
 
-        volumeDirectoryFile = new CEOSVolumeDirectoryFile(binaryReader, mission);
+        volumeDirectoryFile = createVolumeDirectoryFile(binaryReader, mission);
         volumeDirectoryFile.readFilePointersAndTextRecords(binaryReader, mission);
 
         binaryReader.close();
@@ -101,9 +101,13 @@ public abstract class CEOSProductDirectory {
         final String mission = constants.getMission();
 
         if (volumeDirectoryFile == null) {
-            volumeDirectoryFile = new CEOSVolumeDirectoryFile(binaryReader, mission);
+            volumeDirectoryFile = createVolumeDirectoryFile(binaryReader, mission);
         }
         binaryReader.close();
+    }
+
+    protected CEOSVolumeDirectoryFile createVolumeDirectoryFile(final BinaryFileReader binaryReader, final String mission) throws IOException {
+        return new CEOSVolumeDirectoryFile(binaryReader, mission);
     }
 
     public boolean isSLC() {
