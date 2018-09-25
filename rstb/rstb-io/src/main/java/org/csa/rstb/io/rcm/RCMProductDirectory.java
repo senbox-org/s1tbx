@@ -452,9 +452,9 @@ public class RCMProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static String getDataType(final MetadataElement rasterAttributes) {
-        final String dataType = rasterAttributes.getAttributeString("dataType", AbstractMetadata.NO_METADATA_STRING).toUpperCase();
-        if (dataType.contains("COMPLEX"))
+    private String getDataType(final MetadataElement rasterAttributes) {
+        //final String dataType = rasterAttributes.getAttributeString("dataType", AbstractMetadata.NO_METADATA_STRING).toUpperCase();
+        if (isSLC())
             return "COMPLEX";
         return "DETECTED";
     }
