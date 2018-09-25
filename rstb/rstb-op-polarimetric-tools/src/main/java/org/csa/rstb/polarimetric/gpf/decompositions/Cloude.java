@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -23,6 +23,7 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -31,7 +32,7 @@ import java.util.Map;
 /**
  * Perform Cloude decomposition for given tile.
  */
-public class Cloude extends DecompositionBase implements Decomposition {
+public class Cloude extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     public Cloude(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                   final int windowSize, final int srcImageWidth, final int srcImageHeight) {
@@ -102,7 +103,8 @@ public class Cloude extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+            getQuadPolDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
@@ -116,17 +118,17 @@ public class Cloude extends DecompositionBase implements Decomposition {
                 srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
                     boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
-                    if(isNoData) {
+                    if (isNoData) {
                         for (TargetInfo target : targetInfo) {
                             target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                         }
                         continue;
                     }
 
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
+                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
-                    PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
+                    EigenDecomposition.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
 
                     final double t11 = EigenVal[0] * (EigenVectRe[0][0] * EigenVectRe[0][0] + EigenVectIm[0][0] * EigenVectIm[0][0]);
                     final double t22 = EigenVal[0] * (EigenVectRe[1][0] * EigenVectRe[1][0] + EigenVectIm[1][0] * EigenVectIm[1][0]);
@@ -142,8 +144,8 @@ public class Cloude extends DecompositionBase implements Decomposition {
                             v = t11;
                         }
 
-                        if (v < PolOpUtils.EPS) {
-                            v = PolOpUtils.EPS;
+                        if (v < Constants.EPS) {
+                            v = Constants.EPS;
                         }
                         v = 10.0 * Math.log10(v);
                         target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
@@ -159,7 +161,7 @@ public class Cloude extends DecompositionBase implements Decomposition {
         final double[][] EigenVectIm = new double[3][3];
         final double[] EigenVal = new double[3];
 
-        PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
+        EigenDecomposition.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
 
         final double b = EigenVal[0] * (EigenVectRe[0][0] * EigenVectRe[0][0] + EigenVectIm[0][0] * EigenVectIm[0][0]);
         final double r = EigenVal[0] * (EigenVectRe[1][0] * EigenVectRe[1][0] + EigenVectIm[1][0] * EigenVectIm[1][0]);

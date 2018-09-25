@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -31,13 +31,13 @@ import java.util.Map;
 /**
  * Perform Generalized Freeman-Durden decomposition for given tile.
  */
-public class GeneralizedFreemanDurden extends DecompositionBase implements Decomposition {
+public class GeneralizedFreemanDurden extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     private int srcImageWidth = 0;
     private int srcImageHeight = 0;
 
     public GeneralizedFreemanDurden(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
-                         final int windowSize, final int srcImageWidth, final int srcImageHeight) {
+                                    final int windowSize, final int srcImageWidth, final int srcImageHeight) {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
         this.srcImageWidth = srcImageWidth;
         this.srcImageHeight = srcImageHeight;
@@ -62,6 +62,25 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
+    }
+
+    /**
+     * Compute min/max values of the Span image.
+     *
+     * @param op       the decomposition operator
+     * @param bandList the src band list
+     * @throws OperatorException when thread fails
+     */
+    private synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
+            throws OperatorException {
+
+        if (bandList.spanMinMaxSet) {
+            return;
+        }
+        final DecompositionBase.MinMax span = computeSpanMinMax(op, sourceProductType, halfWindowSizeX, halfWindowSizeY, bandList);
+        bandList.spanMin = span.min;
+        bandList.spanMax = span.max;
+        bandList.spanMinMaxSet = true;
     }
 
     /**
@@ -110,7 +129,8 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+            getQuadPolDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
@@ -120,14 +140,14 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
                 srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
                     boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
-                    if(isNoData) {
+                    if (isNoData) {
                         for (TargetInfo target : targetInfo) {
                             target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                         }
                         continue;
                     }
 
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY,srcImageWidth,
+                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcImageWidth,
                             srcImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     final FDD data = getGeneralizedFreemanDurdenDecomposition(Tr, Ti);
@@ -162,11 +182,11 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
     public static FDD getGeneralizedFreemanDurdenDecomposition(final double[][] Tr, final double[][] Ti) {
 
         final double mv = Tr[2][2];
-        final double tmp1 = Tr[0][0] + Tr[1][1] - 3*Tr[2][2];
+        final double tmp1 = Tr[0][0] + Tr[1][1] - 3 * Tr[2][2];
         final double tmp2 = Tr[0][0] - Tr[1][1] - Tr[2][2];
-        final double tmp3 = Math.sqrt(tmp2*tmp2 + 4.0*(Tr[0][1]*Tr[0][1] + Ti[0][1]*Ti[0][1]));
-        final double ms = 0.5*(tmp1 + tmp3); // Note md and ms calculation is different from the given in the book.
-        final double md = 0.5*(tmp1 - tmp3);
+        final double tmp3 = Math.sqrt(tmp2 * tmp2 + 4.0 * (Tr[0][1] * Tr[0][1] + Ti[0][1] * Ti[0][1]));
+        final double ms = 0.5 * (tmp1 + tmp3); // Note md and ms calculation is different from the given in the book.
+        final double md = 0.5 * (tmp1 - tmp3);
 
         /*final double alpha_d = Math.acos(Math.pow(1 + (Tr[0][1]*Tr[0][1] +
                 Ti[0][1]*Ti[0][1])/Math.pow((Tr[1][1] - Tr[2][2] - md),2), -0.5));
@@ -177,7 +197,7 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
         final double t11 = ms*Math.cos(alpha_s)*Math.cos(alpha_s) + md*Math.sin(alpha_s)*Math.sin(alpha_s) + 2.0*mv;
         final double tmp4 = t11 - Tr[0][0];*/
 
-        return new FDD(4.0*mv, md, ms);
+        return new FDD(4.0 * mv, md, ms);
     }
 
     public static class FDD {

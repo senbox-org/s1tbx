@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -23,6 +23,7 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -31,7 +32,7 @@ import java.util.Map;
 /**
  * Perform Sinclair decomposition for given tile.
  */
-public class Sinclair extends DecompositionBase implements Decomposition {
+public class Sinclair extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     public Sinclair(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                     final int windowSize, final int srcImageWidth, final int srcImageHeight) {
@@ -105,7 +106,8 @@ public class Sinclair extends DecompositionBase implements Decomposition {
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
+            getQuadPolDataBuffer(op, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
+
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
@@ -118,13 +120,13 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                     final int srcIdx = srcIndex.getIndex(x);
 
                     if (sourceProductType == PolBandUtils.MATRIX.FULL) {
-                        PolOpUtils.getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
+                        getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
                         boolean isNoData = isNoData(Sr, Si, nodatavalue);
 
                         for (TargetInfo target : targetInfo) {
 
-                            if(isNoData) {
-                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)nodatavalue);
+                            if (isNoData) {
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                             } else {
                                 if (target.colour == TargetBandColour.R) {
                                     re = Sr[1][1];
@@ -138,8 +140,8 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                                 }
 
                                 v = re * re + im * im;
-                                if (v < PolOpUtils.EPS) {
-                                    v = PolOpUtils.EPS;
+                                if (v < Constants.EPS) {
+                                    v = Constants.EPS;
                                 }
                                 v = 10.0 * Math.log10(v);
                                 target.dataBuffer.setElemFloatAt(tgtIdx, (float) v);
@@ -148,13 +150,13 @@ public class Sinclair extends DecompositionBase implements Decomposition {
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
-                        PolOpUtils.getCovarianceMatrixC3(srcIdx, dataBuffers, Cr, Ci);
+                        getCovarianceMatrixC3(srcIdx, dataBuffers, Cr, Ci);
                         boolean isNoData = isNoData(Cr, Ci, nodatavalue);
 
                         for (TargetInfo target : targetInfo) {
 
-                            if(isNoData) {
-                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)nodatavalue);
+                            if (isNoData) {
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                             } else {
                                 if (target.colour == TargetBandColour.R) { // C33
                                     v = Cr[2][2];
@@ -164,8 +166,8 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                                     v = Cr[0][0];
                                 }
 
-                                if (v < PolOpUtils.EPS) {
-                                    v = PolOpUtils.EPS;
+                                if (v < Constants.EPS) {
+                                    v = Constants.EPS;
                                 }
                                 v = 10.0 * Math.log10(v);
                                 target.dataBuffer.setElemFloatAt(tgtIdx, (float) v);
@@ -174,13 +176,13 @@ public class Sinclair extends DecompositionBase implements Decomposition {
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
-                        PolOpUtils.getCoherencyMatrixT3(srcIdx, dataBuffers, Tr, Ti);
+                        getCoherencyMatrixT3(srcIdx, dataBuffers, Tr, Ti);
                         boolean isNoData = isNoData(Tr, Ti, nodatavalue);
 
                         for (TargetInfo target : targetInfo) {
 
-                            if(isNoData) {
-                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)nodatavalue);
+                            if (isNoData) {
+                                target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                             } else {
                                 if (target.colour == TargetBandColour.R) { // 0.5*(T11+T22) - T12_real
                                     v = 0.5 * (Tr[0][0] + Tr[1][1]) - Tr[0][1];
@@ -190,8 +192,8 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                                     v = 0.5 * (Tr[0][0] + Tr[1][1]) + Tr[0][1];
                                 }
 
-                                if (v < PolOpUtils.EPS) {
-                                    v = PolOpUtils.EPS;
+                                if (v < Constants.EPS) {
+                                    v = Constants.EPS;
                                 }
                                 v = 10.0 * Math.log10(v);
                                 target.dataBuffer.setElemFloatAt(tgtIdx, (float) v);

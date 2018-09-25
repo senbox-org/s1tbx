@@ -49,7 +49,7 @@ import java.util.Map;
         version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Generates covariance or coherency matrix for given product")
-public final class PolarimetricMatricesOp extends Operator {
+public final class PolarimetricMatricesOp extends Operator implements DualPolProcessor, QuadPolProcessor {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -79,7 +79,7 @@ public final class PolarimetricMatricesOp extends Operator {
      */
     public void SetMatrixType(final String s) {
 
-        if (s.equals(C2)|| s.equals(C3) || s.equals(C4) || s.equals(T3) || s.equals(T4)) {
+        if (s.equals(C2) || s.equals(C3) || s.equals(C4) || s.equals(T3) || s.equals(T4)) {
             matrix = s;
         } else {
             throw new OperatorException(s + " is an invalid filter name.");
@@ -188,7 +188,7 @@ public final class PolarimetricMatricesOp extends Operator {
 
     private void checkSourceProductType() {
 
-        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+        if (sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
             // This check will catch products with a single pol.
             throw new OperatorException("Input should be a polarimetric product");
         }
@@ -351,17 +351,17 @@ public final class PolarimetricMatricesOp extends Operator {
                         tgtIdx = tgtIndex.getIndex(x);
 
                         if (matrixType.equals(PolBandUtils.MATRIX.C2)) {
-                            DualPolOpUtils.getScatterVector(srcIdx, dataBuffers, kr, ki);
-                            DualPolOpUtils.computeCovarianceMatrixC2(kr, ki, tempRe, tempIm);
+                            getScatterVector(srcIdx, dataBuffers, kr, ki);
+                            computeCovarianceMatrixC2(kr, ki, tempRe, tempIm);
                         } else {
                             if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
-                                PolOpUtils.getCovarianceMatrixC3(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
+                                getCovarianceMatrixC3(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
-                                PolOpUtils.getCovarianceMatrixC4(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
+                                getCovarianceMatrixC4(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             } else if (matrixType.equals(PolBandUtils.MATRIX.T3)) {
-                                PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
+                                getCoherencyMatrixT3(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             } else if (matrixType.equals(PolBandUtils.MATRIX.T4)) {
-                                PolOpUtils.getCoherencyMatrixT4(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
+                                getCoherencyMatrixT4(srcIdx, sourceProductType, dataBuffers, tempRe, tempIm);
                             }
                         }
 

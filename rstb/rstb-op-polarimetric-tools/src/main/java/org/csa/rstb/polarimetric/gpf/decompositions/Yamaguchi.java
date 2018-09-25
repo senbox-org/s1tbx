@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Perform Yamaguchi decomposition for given tile.
  */
-public class Yamaguchi extends DecompositionBase implements Decomposition {
+public class Yamaguchi extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     public Yamaguchi(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                      final int windowSize, final int srcImageWidth, final int srcImageHeight) {
@@ -57,6 +57,25 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
+    }
+
+    /**
+     * Compute min/max values of the Span image.
+     *
+     * @param op       the decomposition operator
+     * @param bandList the src band list
+     * @throws OperatorException when thread fails
+     */
+    private synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
+            throws OperatorException {
+
+        if (bandList.spanMinMaxSet) {
+            return;
+        }
+        final DecompositionBase.MinMax span = computeSpanMinMax(op, sourceProductType, halfWindowSizeX, halfWindowSizeY, bandList);
+        bandList.spanMin = span.min;
+        bandList.spanMax = span.max;
+        bandList.spanMinMaxSet = true;
     }
 
     /**
@@ -107,15 +126,14 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
-            final double nodatavalue = bandList.srcBands[0].getNoDataValue();
+            getQuadPolDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
 
             double pd, pv, ps, pc;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
 
-                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                    getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     final YDD data = getYamaguchiDecomposition(Cr, Ci);
@@ -143,14 +161,14 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
         }
     }
 
-    public static YDD getYamaguchiDecomposition(final double[][] Cr, final double[][] Ci) {
+    public YDD getYamaguchiDecomposition(final double[][] Cr, final double[][] Ci) {
 
         double ratio, d, cR, cI, c0, s, pd, pv, ps, pc, span, k1, k2, k3;
 
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
 
-        PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
+        c3ToT3(Cr, Ci, Tr, Ti);
 
         span = Tr[0][0] + Tr[1][1] + Tr[2][2];
         pc = 2 * Math.abs(Ti[1][2]);

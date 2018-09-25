@@ -52,7 +52,7 @@ import java.util.Map;
         version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Perform polarization orientation angle correction for given coherency matrix")
-public final class OrientationAngleCorrectionOp extends Operator {
+public final class OrientationAngleCorrectionOp extends Operator implements QuadPolProcessor {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -117,14 +117,14 @@ public final class OrientationAngleCorrectionOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         MetadataElement absMeta = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        if(absMeta != null) {
+        if (absMeta != null) {
             absMeta.setAttributeInt(AbstractMetadata.polsarData, 1);
         }
     }
 
     private void checkSourceProductType() {
 
-        if (sourceProductType != PolBandUtils.MATRIX.FULL &&  sourceProductType != PolBandUtils.MATRIX.T3 &&
+        if (sourceProductType != PolBandUtils.MATRIX.FULL && sourceProductType != PolBandUtils.MATRIX.T3 &&
                 sourceProductType != PolBandUtils.MATRIX.T4 && sourceProductType != PolBandUtils.MATRIX.C3 &&
                 sourceProductType != PolBandUtils.MATRIX.C4) {
 
@@ -150,14 +150,14 @@ public final class OrientationAngleCorrectionOp extends Operator {
         targetBandNameList.add("T23_imag");
         targetBandNameList.add("T33");
 
-        if(outputOrientationAngle) {
+        if (outputOrientationAngle) {
             targetBandNameList.add("Ori_Ang");
         }
 
         final String[] bandNames = targetBandNameList.toArray(new String[targetBandNameList.size()]);
         for (PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Band[] targetBands = OperatorUtils.addBands(targetProduct, bandNames, bandList.suffix);
-            if(outputOrientationAngle) {
+            if (outputOrientationAngle) {
                 targetBands[9].setUnit("radians");
             }
             bandList.addTargetBands(targetBands);
@@ -199,7 +199,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
                 final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-                PolOpUtils.getDataBuffer(this, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
+                getQuadPolDataBuffer(this, bandList.srcBands, targetRectangle, sourceProductType, sourceTiles, dataBuffers);
                 final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
                 final ProductData[] targetDataBuffers = new ProductData[10];
@@ -243,27 +243,27 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
                         if (sourceProductType == PolBandUtils.MATRIX.FULL) {
 
-                            PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, dataBuffers, T3r, T3i);
+                            getCoherencyMatrixT3(srcIdx, sourceProductType, dataBuffers, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
-                            PolOpUtils.getCoherencyMatrixT3(srcIdx, dataBuffers, T3r, T3i);
+                            getCoherencyMatrixT3(srcIdx, dataBuffers, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
 
-                            PolOpUtils.getCoherencyMatrixT4(srcIdx, dataBuffers, T4r, T4i);
-                            PolOpUtils.t4ToT3(T4r, T4i, T3r, T3i);
+                            getCoherencyMatrixT4(srcIdx, dataBuffers, T4r, T4i);
+                            t4ToT3(T4r, T4i, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
-                            PolOpUtils.getCovarianceMatrixC3(srcIdx, dataBuffers, C3r, C3i);
-                            PolOpUtils.c3ToT3(C3r, C3i, T3r, T3i);
+                            getCovarianceMatrixC3(srcIdx, dataBuffers, C3r, C3i);
+                            c3ToT3(C3r, C3i, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
 
-                            PolOpUtils.getCovarianceMatrixC4(srcIdx, dataBuffers, C4r, C4i);
-                            PolOpUtils.c4ToT4(C4r, C4i, T4r, T4i);
-                            PolOpUtils.t4ToT3(T4r, T4i, T3r, T3i);
+                            getCovarianceMatrixC4(srcIdx, dataBuffers, C4r, C4i);
+                            c4ToT4(C4r, C4i, T4r, T4i);
+                            t4ToT3(T4r, T4i, T3r, T3i);
                         }
 
                         theta = estimateOrientationAngle(T3r[1][2], T3r[1][1], T3r[2][2]);
@@ -315,7 +315,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
     }
 
     private void saveT3(final double[][] Tr, final double[][] Ti,
-                               final int idx, final double theta, final ProductData[] targetDataBuffers) {
+                        final int idx, final double theta, final ProductData[] targetDataBuffers) {
 
         targetDataBuffers[0].setElemFloatAt(idx, (float) Tr[0][0]); // T11
         targetDataBuffers[1].setElemFloatAt(idx, (float) Tr[0][1]); // T12_real
@@ -326,7 +326,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
         targetDataBuffers[6].setElemFloatAt(idx, (float) Tr[1][2]); // T23_real
         targetDataBuffers[7].setElemFloatAt(idx, (float) Ti[1][2]); // T23_imag
         targetDataBuffers[8].setElemFloatAt(idx, (float) Tr[2][2]); // T33
-        if(outputOrientationAngle) {
+        if (outputOrientationAngle) {
             targetDataBuffers[9].setElemFloatAt(idx, (float) theta); // Ori_Ang
         }
     }

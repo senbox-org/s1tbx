@@ -48,7 +48,7 @@ import java.util.Map;
         version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Compute general polarimetric parameters")
-public final class CrossChannelSNRCorrectionOp extends Operator {
+public final class CrossChannelSNRCorrectionOp extends Operator implements QuadPolProcessor {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -99,9 +99,9 @@ public final class CrossChannelSNRCorrectionOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         addSelectedBands();
 
@@ -190,10 +190,10 @@ public final class CrossChannelSNRCorrectionOp extends Operator {
                     for (int x = x0; x < maxX; ++x) {
                         final int tgtIdx = trgIndex.getIndex(x);
 
-                        PolOpUtils.getMeanCovarianceMatrixC4(x, y, halfWindowSize, halfWindowSize,
+                        getMeanCovarianceMatrixC4(x, y, halfWindowSize, halfWindowSize,
                                 sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
-                        final double gamma = Math.sqrt((Cr[1][2]*Cr[1][2] + Ci[1][2]*Ci[1][2]) / (Cr[1][1]*Cr[2][2]));
+                        final double gamma = Math.sqrt((Cr[1][2] * Cr[1][2] + Ci[1][2] * Ci[1][2]) / (Cr[1][1] * Cr[2][2]));
 
                         for (final TileData tileData : tileDataList) {
                             double v = 0.0;
@@ -206,7 +206,7 @@ public final class CrossChannelSNRCorrectionOp extends Operator {
                             } else if (tileData.bandName.contains("q_VH")) {
                                 v = dataBuffers[5].getElemDoubleAt(srcIndex.getIndex(x));
                             }
-                            tileData.dataBuffer.setElemFloatAt(tgtIdx, (float)(gamma*v));
+                            tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) (gamma * v));
                         }
                     }
                 }

@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Perform FreemanDurden decomposition for given tile.
  */
-public class FreemanDurden extends DecompositionBase implements Decomposition {
+public class FreemanDurden extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     public FreemanDurden(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                          final int windowSize, final int srcImageWidth, final int srcImageHeight) {
@@ -58,6 +58,25 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
+    }
+
+    /**
+     * Compute min/max values of the Span image.
+     *
+     * @param op       the decomposition operator
+     * @param bandList the src band list
+     * @throws OperatorException when thread fails
+     */
+    private synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
+            throws OperatorException {
+
+        if (bandList.spanMinMaxSet) {
+            return;
+        }
+        final DecompositionBase.MinMax span = computeSpanMinMax(op, sourceProductType, halfWindowSizeX, halfWindowSizeY, bandList);
+        bandList.spanMin = span.min;
+        bandList.spanMax = span.max;
+        bandList.spanMinMaxSet = true;
     }
 
     /**
@@ -106,7 +125,8 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+            getQuadPolDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
@@ -119,11 +139,11 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
                 srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
 
-                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                    getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
                     boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
 
-                    if(isNoData) {
+                    if (isNoData) {
                         for (TargetInfo target : targetInfo) {
                             target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                         }

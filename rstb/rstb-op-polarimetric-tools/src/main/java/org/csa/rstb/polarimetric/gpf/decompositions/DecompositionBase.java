@@ -15,15 +15,9 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
-import org.esa.snap.core.gpf.Operator;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 
 import java.awt.*;
 
@@ -42,7 +36,7 @@ public class DecompositionBase {
     protected final int halfWindowSizeX;
     protected final int halfWindowSizeY;
 
-    public static enum TargetBandColour {R, G, B}
+    public enum TargetBandColour {R, G, B}
 
     public DecompositionBase(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                              final int windowSizeX, final int windowSizeY, final int srcImageWidth, final int srcImageHeight) {
@@ -59,10 +53,10 @@ public class DecompositionBase {
     /**
      * Get source tile rectangle.
      *
-     * @param tx0         X coordinate for the upper left corner pixel in the target tile.
-     * @param ty0         Y coordinate for the upper left corner pixel in the target tile.
-     * @param tw          The target tile width.
-     * @param th          The target tile height.
+     * @param tx0 X coordinate for the upper left corner pixel in the target tile.
+     * @param ty0 Y coordinate for the upper left corner pixel in the target tile.
+     * @param tw  The target tile width.
+     * @param th  The target tile height.
      * @return The source tile rectangle.
      */
     protected Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
@@ -73,97 +67,6 @@ public class DecompositionBase {
         final int w = xMax - x0 + 1;
         final int h = yMax - y0 + 1;
         return new Rectangle(x0, y0, w, h);
-    }
-
-    /**
-     * Compute min/max values of the Span image.
-     *
-     * @param op       the decomposition operator
-     * @param bandList the src band list
-     * @return min max values
-     * @throws OperatorException when thread fails
-     */
-    public MinMax computeSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
-            throws OperatorException {
-
-        final MinMax minMaxValue = new MinMax();
-        final Dimension tileSize = new Dimension(256, 256);
-        final Rectangle[] tileRectangles = OperatorUtils.getAllTileRectangles(op.getSourceProduct(), tileSize, 25);
-        final double[][] Cr = new double[3][3];
-        final double[][] Ci = new double[3][3];
-
-        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Computing min max span... ", tileRectangles.length);
-
-        try {
-            final ThreadManager threadManager = new ThreadManager();
-
-            for (final Rectangle rectangle : tileRectangles) {
-
-                final Thread worker = new Thread() {
-
-                    double span = 0.0;
-                    final int xMax = rectangle.x + rectangle.width;
-                    final int yMax = rectangle.y + rectangle.height;
-                    /*
-                    System.out.println("setSpan x0 = " + rectangle.x + ", y0 = " + rectangle.y +
-                                       ", w = " + rectangle.width + ", h = " + rectangle.height);
-                    */
-
-                    final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
-                    final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-
-                    @Override
-                    public void run() {
-                        try {
-
-                            PolOpUtils.getDataBuffer(
-                                    op, bandList.srcBands, rectangle, sourceProductType, sourceTiles, dataBuffers);
-
-                            for (int y = rectangle.y; y < yMax; ++y) {
-
-                                for (int x = rectangle.x; x < xMax; ++x) {
-
-                                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeX,
-                                            sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
-
-                                    span = Cr[0][0] + Cr[1][1] + Cr[2][2];
-
-                                    if (minMaxValue.min > span) {
-                                        synchronized (minMaxValue) {
-                                            minMaxValue.min = span;
-                                        }
-                                    }
-                                    if (minMaxValue.max < span) {
-                                        synchronized (minMaxValue) {
-                                            minMaxValue.max = span;
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-                    }
-                };
-
-                threadManager.add(worker);
-
-                status.worked(1);
-            }
-
-            threadManager.finish();
-
-            if (minMaxValue.min < PolOpUtils.EPS) {
-                minMaxValue.min = PolOpUtils.EPS;
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId() + " computeMinMaxSpan ", e);
-        } finally {
-            status.done();
-        }
-        return minMaxValue;
     }
 
     /**
@@ -184,25 +87,6 @@ public class DecompositionBase {
             p = spanMax;
         }
         return 10.0 * Math.log10(p);
-    }
-
-    /**
-     * Compute min/max values of the Span image.
-     *
-     * @param op       the decomposition operator
-     * @param bandList the src band list
-     * @throws OperatorException when thread fails
-     */
-    protected synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
-            throws OperatorException {
-
-        if (bandList.spanMinMaxSet) {
-            return;
-        }
-        final MinMax span = computeSpanMinMax(op, bandList);
-        bandList.spanMin = span.min;
-        bandList.spanMax = span.max;
-        bandList.spanMinMaxSet = true;
     }
 
     public static class MinMax {

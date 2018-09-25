@@ -15,8 +15,6 @@
  */
 package org.csa.rstb.polarimetric.gpf.specklefilters;
 
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -71,7 +69,7 @@ public class LeeSigma implements SpeckleFilter {
         this.sourceProductType = sourceProductType;
         this.srcBandList = srcBandList;
         this.filterSize = filterSize;
-        this.halfFilterSize = filterSize/2;
+        this.halfFilterSize = filterSize / 2;
 
         this.numLooks = numLooks;
 
@@ -226,12 +224,12 @@ public class LeeSigma implements SpeckleFilter {
                                   final Rectangle sourceRectangle) {
 
         final int x0 = targetRectangle.x, y0 = targetRectangle.y;
-        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int w = targetRectangle.width, h = targetRectangle.height;
         final int maxY = y0 + h, maxX = x0 + w;
         // System.out.println("refinedLee x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         final int sx0 = sourceRectangle.x, sy0 = sourceRectangle.y;
-        final int sw = sourceRectangle.width,  sh = sourceRectangle.height;
+        final int sw = sourceRectangle.width, sh = sourceRectangle.height;
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(targetProduct.getBandAt(0)));
 
@@ -283,7 +281,7 @@ public class LeeSigma implements SpeckleFilter {
                     trgIdx = trgIndex.getIndex(x);
                     srcIdx = srcIndex.getIndex(x);
 
-                    DualPolOpUtils.getCovarianceMatrixC2(srcIdx, sourceProductType, dataBuffers, Cr, Ci);
+                    getCovarianceMatrixC2(srcIdx, sourceProductType, dataBuffers, Cr, Ci);
 
                     if (isPointTarget[yy][xx]) {
                         saveC2(Cr, Ci, trgIdx, targetDataBuffers);
@@ -461,7 +459,7 @@ public class LeeSigma implements SpeckleFilter {
                 xx = x - halfWindowSize + i;
                 if (yy >= sy0 && yy <= sy0 + sh - 1 && xx >= sx0 && xx <= sx0 + sw - 1) {
                     final int srcIdx = srcIndex.getIndex(xx);
-                    DualPolOpUtils.getCovarianceMatrixC2(srcIdx, sourceProductType, sourceDataBuffers, Cr, Ci);
+                    getCovarianceMatrixC2(srcIdx, sourceProductType, sourceDataBuffers, Cr, Ci);
                     windowPixelC2[j][i] = new C2(xx, yy, Cr, Ci);
                 }
             }
@@ -623,7 +621,7 @@ public class LeeSigma implements SpeckleFilter {
                     trgIdx = trgIndex.getIndex(x);
                     srcIdx = srcIndex.getIndex(x);
 
-                    PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
+                    getCoherencyMatrixT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
 
                     if (isPointTarget[yy][xx]) {
                         saveT3(Tr, Ti, trgIdx, targetDataBuffers);
@@ -673,7 +671,7 @@ public class LeeSigma implements SpeckleFilter {
     }
 
     private void computeZ98ValuesC2(final Tile sourceTile, final Rectangle sourceRectangle,
-                                  final ProductData[] sourceDataBuffers, Z98 z98) {
+                                    final ProductData[] sourceDataBuffers, Z98 z98) {
 
         final TileIndex srcIndex = new TileIndex(sourceTile);
         final int sx0 = sourceRectangle.x;
@@ -695,7 +693,7 @@ public class LeeSigma implements SpeckleFilter {
             srcIndex.calculateStride(y);
             for (int x = sx0; x < maxX; x++) {
                 final int index = srcIndex.getIndex(x);
-                DualPolOpUtils.getCovarianceMatrixC2(index, sourceProductType, sourceDataBuffers, Cr, Ci);
+                getCovarianceMatrixC2(index, sourceProductType, sourceDataBuffers, Cr, Ci);
                 c11[k] = Cr[0][0];
                 c22[k] = Cr[1][1];
                 k++;
@@ -733,7 +731,7 @@ public class LeeSigma implements SpeckleFilter {
             srcIndex.calculateStride(y);
             for (int x = sx0; x < maxX; x++) {
                 final int index = srcIndex.getIndex(x);
-                PolOpUtils.getCoherencyMatrixT3(index, sourceProductType, sourceDataBuffers, Tr, Ti);
+                getCoherencyMatrixT3(index, sourceProductType, sourceDataBuffers, Tr, Ti);
                 t11[k] = Tr[0][0];
                 t22[k] = Tr[1][1];
                 t33[k] = Tr[2][2];
@@ -783,7 +781,7 @@ public class LeeSigma implements SpeckleFilter {
                 xx = x - halfWindowSize + i;
                 if (yy >= sy0 && yy <= sy0 + sh - 1 && xx >= sx0 && xx <= sx0 + sw - 1) {
                     final int srcIdx = srcIndex.getIndex(xx);
-                    PolOpUtils.getCoherencyMatrixT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
+                    getCoherencyMatrixT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
                     windowPixelT3[j][i] = new T3(xx, yy, Tr, Ti);
                 }
             }

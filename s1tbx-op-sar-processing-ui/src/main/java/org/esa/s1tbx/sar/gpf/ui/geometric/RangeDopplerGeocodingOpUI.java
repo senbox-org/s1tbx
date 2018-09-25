@@ -56,13 +56,13 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     final JComboBox<String> imgResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
 
-    final JComboBox<String> incidenceAngleForGamma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
-            Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
-            Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
+    final JComboBox<String> incidenceAngleForGamma0 = new JComboBox<>(new String[]{SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+            SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
+            SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
-    final JComboBox<String> incidenceAngleForSigma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
-            Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
-            Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
+    final JComboBox<String> incidenceAngleForSigma0 = new JComboBox<>(new String[]{SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+            SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
+            SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
     final JComboBox<String> auxFile = new JComboBox<>(new String[]{CalibrationOp.LATEST_AUX,
             CalibrationOp.PRODUCT_AUX,
@@ -273,7 +273,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             public void itemStateChanged(ItemEvent e) {
                 saveSigmaNought = (e.getStateChange() == ItemEvent.SELECTED);
                 if (saveSigmaNought) {
-                    if (incidenceAngleForSigma0.getSelectedItem().equals(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
+                    if (incidenceAngleForSigma0.getSelectedItem().equals(SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
                         saveProjectedLocalIncidenceAngleCheckBox.setSelected(false);
                     } else {
                         saveProjectedLocalIncidenceAngleCheckBox.setSelected(true);

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.calibration.gpf.support;
 
 import org.esa.s1tbx.calibration.gpf.calibrators.*;
+import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -64,7 +65,7 @@ public class CalibrationFactory {
      */
     public static void createSigmaNoughtVirtualBand(final Product targetProduct, final String incidenceAngleForSigma0) {
 
-        if (incidenceAngleForSigma0.contains(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
+        if (incidenceAngleForSigma0.contains(SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
             return;
         }
 
@@ -80,7 +81,7 @@ public class CalibrationFactory {
             String sigmaNoughtVirtualBandName = null;
             String description = null;
 
-            if (incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
+            if (incidenceAngleForSigma0.contains(SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
 
                 expression = trgBandName +
                         "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
@@ -91,7 +92,7 @@ public class CalibrationFactory {
 
                 description = "Sigma0 image created using incidence angle from ellipsoid";
 
-            } else if (incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
+            } else if (incidenceAngleForSigma0.contains(SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
 
                 expression = trgBandName +
                         "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
@@ -129,9 +130,9 @@ public class CalibrationFactory {
             }
 
             final String incidenceAngle;
-            if (incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
+            if (incidenceAngleForGamma0.contains(SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
                 incidenceAngle = "incidenceAngleFromEllipsoid";
-            } else if (incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
+            } else if (incidenceAngleForGamma0.contains(SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
                 incidenceAngle = "localIncidenceAngle";
             } else { // USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM
                 incidenceAngle = "projectedLocalIncidenceAngle";
@@ -144,10 +145,10 @@ public class CalibrationFactory {
 
             String gammaNoughtVirtualBandName;
             String description;
-            if (incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
+            if (incidenceAngleForGamma0.contains(SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
                 gammaNoughtVirtualBandName = "_use_inci_angle_from_ellipsoid";
                 description = "Gamma0 image created using incidence angle from ellipsoid";
-            } else if (incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
+            } else if (incidenceAngleForGamma0.contains(SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
                 gammaNoughtVirtualBandName = "_use_local_inci_angle_from_dem";
                 description = "Gamma0 image created using local incidence angle from DEM";
             } else { // USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM

@@ -17,7 +17,7 @@ package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  HAlphaWishart Classifier
  */
-public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
+public class HAlphaWishart extends PolClassifierBase implements PolClassifier, QuadPolProcessor {
 
     private static final String UNSUPERVISED_WISHART_CLASS = "H_alpha_wishart_class";
 
@@ -125,7 +125,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
                 if (noDataValue.equals(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)))) {
                     targetData.setElemIntAt(index, NODATACLASS);
                 } else {
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
+                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     targetData.setElemIntAt(index, findZoneIndex(Tr, Ti, clusterCenters[targetBandIndex]));
@@ -223,7 +223,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
                                 if (noDataValue.equals(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x))))
                                     continue;
 
-                                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
+                                getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                         sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
@@ -332,7 +332,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
                                     if (noDataValue.equals(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x))))
                                         continue;
 
-                                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
+                                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                                     synchronized (counter) {

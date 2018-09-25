@@ -16,7 +16,7 @@
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
 import org.apache.commons.math3.util.FastMath;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Perform hAAlpha decomposition for given tile.
  */
-public class hAAlpha extends DecompositionBase implements Decomposition {
+public class hAAlpha extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     private final boolean outputHAAlpha;
     private final boolean outputBetaDeltaGammaLambda;
@@ -162,7 +162,8 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+            getQuadPolDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
@@ -171,7 +172,7 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
                 srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
                     boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
-                    if(isNoData) {
+                    if (isNoData) {
                         for (final Band band : bandList.targetBands) {
                             targetTiles.get(band).getDataBuffer().setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                         }
@@ -180,7 +181,7 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
 
                     final int idx = trgIndex.getIndex(x);
 
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
+                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     final HAAlpha data = computeHAAlpha(Tr, Ti);
@@ -249,7 +250,7 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
         final double[] delta = new double[3];
         final double[] gamma = new double[3];
 
-        PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
+        EigenDecomposition.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
 
         double sum = 0.0;
         for (int i = 0; i < 3; ++i) {
