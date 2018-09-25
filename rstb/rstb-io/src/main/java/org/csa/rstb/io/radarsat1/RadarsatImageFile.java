@@ -34,9 +34,10 @@ class RadarsatImageFile extends CEOSImageFile {
     private final static String mission = "radarsat";
     private final static String image_recordDefinitionFile = "image_file.xml";
     private final static String image_recordDefinition = "image_record.xml";
+    private final static String resourcePath = "org/csa/rstb/io/ceos_db/";
 
-    private final static Document imgDefXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinitionFile);
-    private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
+    private final static Document imgDefXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, image_recordDefinitionFile, RadarsatImageFile.class);
+    private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, image_recordDefinition, RadarsatImageFile.class);
 
     public RadarsatImageFile(final ImageInputStream imageStream, final BinaryRecord histogramRecord)
             throws IOException, IllegalBinaryFormatException {

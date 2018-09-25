@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * This class represents a volume directory file of a product.
  */
-public class CEOSVolumeDirectoryFile {
+public class CEOSVolumeDirectoryFile implements CEOSFile {
 
     private BinaryRecord volumeDescriptorRecord;
     private FilePointerRecord[] filePointerRecords;
@@ -44,14 +44,14 @@ public class CEOSVolumeDirectoryFile {
 
     public CEOSVolumeDirectoryFile(final BinaryFileReader binaryReader, final String mission) throws IOException {
         if (volDescXML == null)
-            volDescXML = BinaryDBReader.loadDefinitionFile(mission, volume_desc_recordDefinitionFile);
+            volDescXML = loadDefinitionFile(mission, volume_desc_recordDefinitionFile);
         volumeDescriptorRecord = new BinaryRecord(binaryReader, -1, volDescXML, volume_desc_recordDefinitionFile);
     }
 
     public void readFilePointersAndTextRecords(final BinaryFileReader binaryReader, final String mission) throws IOException {
         try {
             if (filePointerXML == null)
-                filePointerXML = BinaryDBReader.loadDefinitionFile(mission, filePointerDefinitionFile);
+                filePointerXML = loadDefinitionFile(mission, filePointerDefinitionFile);
             filePointerRecords = readFilePointers(volumeDescriptorRecord, filePointerXML, filePointerDefinitionFile);
         } catch (Exception e) {
             System.out.println("Error reading file pointer record: " + e.getMessage());
@@ -59,7 +59,7 @@ public class CEOSVolumeDirectoryFile {
 
         try {
             if (textRecXML == null)
-                textRecXML = BinaryDBReader.loadDefinitionFile(mission, text_recordDefinitionFile);
+                textRecXML = loadDefinitionFile(mission, text_recordDefinitionFile);
             textRecord = new BinaryRecord(binaryReader, -1, textRecXML, text_recordDefinitionFile);
         } catch (Exception e) {
             System.out.println("Error reading text record: " + e.getMessage());
