@@ -19,10 +19,12 @@ import Jama.Matrix;
 import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
+import org.esa.s1tbx.io.ceos.CEOSVolumeDirectoryFile;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -212,6 +214,11 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final String logicalVolumeId = getLogicalVolumeId().toUpperCase();
         return (volumeId.contains("RSAT") || volumeId.contains("RADARSAT") ||
                 logicalVolumeId.contains("RSAT") || logicalVolumeId.contains("RADARSAT"));
+    }
+
+    @Override
+    protected CEOSVolumeDirectoryFile createVolumeDirectoryFile(final BinaryFileReader binaryReader, final String mission) throws IOException {
+        return new RadarsatVolumeDirectoryFile(binaryReader, mission);
     }
 
     @Override

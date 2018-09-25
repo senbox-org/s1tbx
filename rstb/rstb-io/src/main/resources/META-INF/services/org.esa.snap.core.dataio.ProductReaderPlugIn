@@ -1,2 +1,3 @@
 org.csa.rstb.io.radarsat1.RadarsatProductReaderPlugIn
 org.csa.rstb.io.radarsat2.Radarsat2ProductReaderPlugIn
+org.csa.rstb.io.rcm.RCMProductReaderPlugIn

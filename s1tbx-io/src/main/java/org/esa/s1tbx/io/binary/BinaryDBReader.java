@@ -349,7 +349,20 @@ public final class BinaryDBReader {
      * @return xml document
      */
     public static Document loadDefinitionFile(final String mission, final String fileName) {
-        try (final InputStream defStream = getResStream(mission, fileName)) {
+        final String resourcePath = "org/esa/s1tbx/io/ceos_db/";
+        return loadDefinitionFile(resourcePath, mission, fileName, BinaryDBReader.class);
+    }
+
+    /**
+     * Read in the definition file
+     *
+     * @param mission  sub folder
+     * @param fileName definition file
+     * @return xml document
+     */
+    public static Document loadDefinitionFile(final String resourcePath, final String mission, final String fileName,
+                                              final Class resourceClass) {
+        try (final InputStream defStream = getResStream(resourcePath, mission, fileName, resourceClass)) {
             return XMLSupport.LoadXML(defStream);
         } catch (Exception e) {
             SystemUtils.LOG.severe("Unable to open "+fileName+": "+e.getMessage());
@@ -357,10 +370,9 @@ public final class BinaryDBReader {
         return null;
     }
 
-    private static InputStream getResStream(final String mission, final String fileName) throws IOException {
-
-        final String base = "org/esa/s1tbx/io/ceos_db/";
-        final String path = base + mission.toLowerCase() + "/" + fileName;
-        return ResourceUtils.getResourceAsStream(path, BinaryDBReader.class);
+    private static InputStream getResStream(final String resourcePath, final String mission, final String fileName,
+                                            final Class resourceClass) throws IOException {
+        final String path = resourcePath + mission.toLowerCase() + "/" + fileName;
+        return ResourceUtils.getResourceAsStream(path, resourceClass);
     }
 }
