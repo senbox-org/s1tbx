@@ -24,7 +24,7 @@ import org.jblas.DoubleMatrix;
 /**
  * mean covariance matrix
  */
-public class MeanCovariance {
+public class MeanCovariance implements QuadPolProcessor {
     private final double[][] tempCr, tempCi;
     private final DoubleMatrix CrMat, CiMat;
 
@@ -64,7 +64,7 @@ public class MeanCovariance {
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
-                    PolOpUtils.getCovarianceMatrixC3(srcIndex.getIndex(xx), dataBuffers, tempCr, tempCi);
+                    getCovarianceMatrixC3(srcIndex.getIndex(xx), dataBuffers, tempCr, tempCi);
                     CrMat.add(new DoubleMatrix(tempCr));
                     CiMat.add(new DoubleMatrix(tempCi));
                 }
@@ -77,8 +77,8 @@ public class MeanCovariance {
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
-                    PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(xx), dataBuffers, tempTr, tempTi);
-                    PolOpUtils.t3ToC3(tempTr, tempTi, tempCr, tempCi);
+                    getCoherencyMatrixT3(srcIndex.getIndex(xx), dataBuffers, tempTr, tempTi);
+                    t3ToC3(tempTr, tempTi, tempCr, tempCi);
                     CrMat.add(new DoubleMatrix(tempCr));
                     CiMat.add(new DoubleMatrix(tempCi));
                 }
@@ -87,17 +87,17 @@ public class MeanCovariance {
         } else if (sourceProductType == PolBandUtils.MATRIX.FULL) {
 
             DoubleMatrix matSr = new DoubleMatrix(3, 3);
-            DoubleMatrix matSi= new DoubleMatrix(3, 3);
+            DoubleMatrix matSi = new DoubleMatrix(3, 3);
             DoubleMatrix matCr = new DoubleMatrix(3, 3);
-            DoubleMatrix matCi= new DoubleMatrix(3, 3);
+            DoubleMatrix matCi = new DoubleMatrix(3, 3);
             CrMat.fill(0);
             CiMat.fill(0);
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
-                    PolOpUtils.getComplexScatterMatrix(srcIndex.getIndex(xx), dataBuffers, matSr, matSi);
-                    PolOpUtils.computeCovarianceMatrixC3(matSr, matSi, matCr, matCi);
+                    getComplexScatterMatrix(srcIndex.getIndex(xx), dataBuffers, matSr, matSi);
+                    computeCovarianceMatrixC3(matSr, matSi, matCr, matCi);
                     CrMat.addi(matCr);
                     CiMat.addi(matCi);
                 }

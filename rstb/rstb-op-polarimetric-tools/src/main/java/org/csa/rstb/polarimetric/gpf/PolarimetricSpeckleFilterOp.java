@@ -55,7 +55,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     @Parameter(valueSet = {BOXCAR_SPECKLE_FILTER, IDAN_FILTER, REFINED_LEE_FILTER, LEE_SIGMA_FILTER},
             defaultValue = REFINED_LEE_FILTER, label = "Filter")
-    private String filter =  REFINED_LEE_FILTER;
+    private String filter = REFINED_LEE_FILTER;
 
     @Parameter(description = "The filter size", interval = "(1, 100]", defaultValue = "5", label = "Filter Size")
     private int filterSize = 5;
@@ -69,7 +69,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             defaultValue = FilterWindow.SIZE_7x7, label = "Window Size")
     private String windowSize = FilterWindow.SIZE_7x7; // window size for all filters
 
-    @Parameter(valueSet = {FilterWindow.SIZE_3x3,FilterWindow.SIZE_5x5}, defaultValue = FilterWindow.SIZE_3x3,
+    @Parameter(valueSet = {FilterWindow.SIZE_3x3, FilterWindow.SIZE_5x5}, defaultValue = FilterWindow.SIZE_3x3,
             label = "Point target window Size")
     private String targetWindowSizeStr = FilterWindow.SIZE_3x3; // window size for point target determination in Lee sigma
 
@@ -165,7 +165,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         // Inside each of the 4 filters, there is a check for sourceProductType and UNKNOWN will cause an exception.
         // Without this check, we get a null pointer exception.
-        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+        if (sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
             throw new OperatorException("Input should be a polarimetric product");
         }
     }
@@ -179,14 +179,14 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             case REFINED_LEE_FILTER:
                 filterSize = FilterWindow.parseWindowSize(windowSize);
                 return new RefinedLee(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize,
-                                      numLooks);
+                        numLooks);
             case IDAN_FILTER:
                 return new IDAN(this, sourceProduct, targetProduct, sourceProductType, srcBandList, anSize,
-                                numLooks);
+                        numLooks);
             case LEE_SIGMA_FILTER:
                 filterSize = FilterWindow.parseWindowSize(windowSize);
                 return new LeeSigma(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize,
-                                    numLooks, sigmaStr, targetWindowSizeStr);
+                        numLooks, sigmaStr, targetWindowSizeStr);
             default:
                 return null;
         }
@@ -198,8 +198,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 

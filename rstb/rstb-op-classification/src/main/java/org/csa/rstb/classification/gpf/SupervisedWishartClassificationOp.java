@@ -19,8 +19,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.classification.gpf.classifiers.HAlphaWishart;
 import org.csa.rstb.classification.gpf.classifiers.HAlphaWishartC2;
 import org.csa.rstb.classification.gpf.classifiers.PolClassifierBase;
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.IndexCoding;
@@ -56,7 +56,7 @@ import java.util.Properties;
         version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Perform supervised Wishart classification")
-public final class SupervisedWishartClassificationOp extends Operator {
+public final class SupervisedWishartClassificationOp extends Operator implements DualPolProcessor, QuadPolProcessor {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -307,7 +307,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
                         trgIndex.calculateStride(y);
                         for (int x = x0; x < maxX; ++x) {
 
-                            DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSize, halfWindowSize,
+                            getMeanCovarianceMatrixC2(x, y, halfWindowSize, halfWindowSize,
                                     sourceImageWidth, sourceImageHeight, sourceProductType, sourceTiles,
                                     dataBuffers, Cr, Ci);
 
@@ -328,7 +328,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
                         trgIndex.calculateStride(y);
                         for (int x = x0; x < maxX; ++x) {
 
-                            PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, sourceImageWidth,
+                            getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, sourceImageWidth,
                                     sourceImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                             targetData.setElemIntAt(

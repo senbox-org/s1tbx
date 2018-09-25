@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.s1tbx.commons.polsar.PolBandUtils.MATRIX;
 import org.esa.snap.core.datamodel.Band;
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Perform van Zyl decomposition for given tile.
  */
-public class vanZyl extends DecompositionBase implements Decomposition {
+public class vanZyl extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     public vanZyl(final PolBandUtils.PolSourceBand[] srcBandList, final MATRIX sourceProductType,
                   final int windowSize, final int srcImageWidth, final int srcImageHeight) {
@@ -59,6 +59,25 @@ public class vanZyl extends DecompositionBase implements Decomposition {
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         targetBand.setUnit(Unit.INTENSITY_DB);
+    }
+
+    /**
+     * Compute min/max values of the Span image.
+     *
+     * @param op       the decomposition operator
+     * @param bandList the src band list
+     * @throws OperatorException when thread fails
+     */
+    private synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
+            throws OperatorException {
+
+        if (bandList.spanMinMaxSet) {
+            return;
+        }
+        final DecompositionBase.MinMax span = computeSpanMinMax(op, sourceProductType, halfWindowSizeX, halfWindowSizeY, bandList);
+        bandList.spanMin = span.min;
+        bandList.spanMax = span.max;
+        bandList.spanMinMaxSet = true;
     }
 
     /**
@@ -109,7 +128,8 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+            getQuadPolDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
@@ -121,7 +141,7 @@ public class vanZyl extends DecompositionBase implements Decomposition {
                 srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
                     boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
-                    if(isNoData) {
+                    if (isNoData) {
                         for (TargetInfo target : targetInfo) {
                             target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                         }
@@ -131,15 +151,15 @@ public class vanZyl extends DecompositionBase implements Decomposition {
                     if (sourceProductType == MATRIX.FULL ||
                             sourceProductType == MATRIX.C3) {
 
-                        PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                        getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                                 sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     } else if (sourceProductType == MATRIX.T3) {
 
-                        PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
-                              sourceImageWidth, sourceImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                        getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                                sourceImageWidth, sourceImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
-                        PolOpUtils.t3ToC3(Tr, Ti, Cr, Ci);
+                        t3ToC3(Tr, Ti, Cr, Ci);
                     }
 
                     final VDD data = getVanZylDecomposition(Cr, Ci);
@@ -176,7 +196,7 @@ public class vanZyl extends DecompositionBase implements Decomposition {
         C13_re = Cr[0][2];
         C13_im = Ci[0][2];
 
-        ratio = 10.0*Math.log10(C33/C11);
+        ratio = 10.0 * Math.log10(C33 / C11);
         if (ratio <= -2.0) {
             HHHHv = 8.0;
             VVVVv = 3.0;
@@ -194,34 +214,34 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             HHVVvre = 1.0;
         }
 
-        sq_rt = C11*VVVVv + C33*HHHHv - 2.*C13_re*HHVVvre;
-        sq_rt = sq_rt*sq_rt - 4.0*(HHVVvre*HHVVvre - HHHHv*VVVVv)*(C13_re*C13_re + C13_im*C13_im - C11*C33);
+        sq_rt = C11 * VVVVv + C33 * HHHHv - 2. * C13_re * HHVVvre;
+        sq_rt = sq_rt * sq_rt - 4.0 * (HHVVvre * HHVVvre - HHHHv * VVVVv) * (C13_re * C13_re + C13_im * C13_im - C11 * C33);
         sq_rt = Math.sqrt(sq_rt + Constants.EPS);
 
-        alp1 = 2.0*C13_re*HHVVvre - (C11*VVVVv + C33*HHHHv) + sq_rt;
-        alp1 = alp1 / 2.0 / (HHVVvre - HHHHv*VVVVv + Constants.EPS);
+        alp1 = 2.0 * C13_re * HHVVvre - (C11 * VVVVv + C33 * HHHHv) + sq_rt;
+        alp1 = alp1 / 2.0 / (HHVVvre - HHHHv * VVVVv + Constants.EPS);
 
-        alp2 = 2.0*C13_re*HHVVvre - (C11*VVVVv + C33*HHHHv) - sq_rt;
-        alp2 = alp2 / 2.0 / (HHVVvre - HHHHv*VVVVv + Constants.EPS);
+        alp2 = 2.0 * C13_re * HHVVvre - (C11 * VVVVv + C33 * HHHHv) - sq_rt;
+        alp2 = alp2 / 2.0 / (HHVVvre - HHHHv * VVVVv + Constants.EPS);
 
         alp3 = C22 / HVHVv;
 
         alpmin = Math.min(Math.min(alp1, alp2), alp3);
         if (ratio <= -2.0) {
             FV = 15.0 * alpmin;
-            C11 = C11 - 8.0*alpmin;
-            C33 = C33 - 3.0*alpmin;
-            C13_re = C13_re - 2.0*alpmin;
+            C11 = C11 - 8.0 * alpmin;
+            C33 = C33 - 3.0 * alpmin;
+            C13_re = C13_re - 2.0 * alpmin;
         } else if (ratio > 2.0) {
             FV = 15.0 * alpmin;
-            C11 = C11 - 3.0*alpmin;
-            C33 = C33 - 8.0*alpmin;
-            C13_re = C13_re - 2.0*alpmin;
+            C11 = C11 - 3.0 * alpmin;
+            C33 = C33 - 8.0 * alpmin;
+            C13_re = C13_re - 2.0 * alpmin;
         } else {
-            FV = 8.0*alpmin;
-            C11 = C11 - 3.0*alpmin;
-            C33 = C33 - 3.0*alpmin;
-            C13_re = C13_re - 1.0*alpmin;
+            FV = 8.0 * alpmin;
+            C11 = C11 - 3.0 * alpmin;
+            C33 = C33 - 3.0 * alpmin;
+            C13_re = C13_re - 1.0 * alpmin;
         }
 
         alpha = C11;
@@ -243,20 +263,20 @@ public class vanZyl extends DecompositionBase implements Decomposition {
         tmp2 = tmp1 + 4.0 * rho2;
         Lambda2 = lambda2 * tmp1 / tmp2;
 
-        AlphaRe = 2.0*rhoRe/(mu - 1.0 + delta);
-        AlphaIm = 2.0*rhoIm/(mu - 1.0 + delta);
-        BetaRe  = 2.0*rhoRe/(mu - 1.0 - delta);
-        BetaIm  = 2.0*rhoIm/(mu - 1.0 - delta);
+        AlphaRe = 2.0 * rhoRe / (mu - 1.0 + delta);
+        AlphaIm = 2.0 * rhoIm / (mu - 1.0 + delta);
+        BetaRe = 2.0 * rhoRe / (mu - 1.0 - delta);
+        BetaIm = 2.0 * rhoIm / (mu - 1.0 - delta);
 
-        tmp1 = Lambda1*((1.0 + AlphaRe)*(1.0 + AlphaRe) + AlphaIm*AlphaIm);
-        tmp2 = Lambda2*((1.0 - AlphaRe)*(1.0 - AlphaRe) + AlphaIm*AlphaIm);
+        tmp1 = Lambda1 * ((1.0 + AlphaRe) * (1.0 + AlphaRe) + AlphaIm * AlphaIm);
+        tmp2 = Lambda2 * ((1.0 - AlphaRe) * (1.0 - AlphaRe) + AlphaIm * AlphaIm);
 
         if (tmp1 > tmp2) {
-            Ps = Lambda1 * (1 + AlphaRe*AlphaRe + AlphaIm*AlphaIm);
-            Pd = Lambda2 * (1 + BetaRe*BetaRe + BetaIm*BetaIm);
+            Ps = Lambda1 * (1 + AlphaRe * AlphaRe + AlphaIm * AlphaIm);
+            Pd = Lambda2 * (1 + BetaRe * BetaRe + BetaIm * BetaIm);
         } else {
-            Pd = Lambda1 * (1 + AlphaRe*AlphaRe + AlphaIm*AlphaIm);
-            Ps = Lambda2 * (1 + BetaRe*BetaRe + BetaIm*BetaIm);
+            Pd = Lambda1 * (1 + AlphaRe * AlphaRe + AlphaIm * AlphaIm);
+            Ps = Lambda2 * (1 + BetaRe * BetaRe + BetaIm * BetaIm);
         }
 
         Pv = FV;

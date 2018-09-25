@@ -19,8 +19,8 @@ import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.csa.rstb.classification.rcp.dialogs.ProductGeometrySelectorDialog;
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
@@ -63,7 +63,7 @@ import java.util.List;
 /**
  * Supervised Training action.
  */
-public class SupervisedTrainingAction extends AbstractAction {
+public class SupervisedTrainingAction extends AbstractAction implements DualPolProcessor, QuadPolProcessor {
 
     private static final int windowSize = 5;
     private static final int halfWindowSize = windowSize / 2;
@@ -103,7 +103,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                 PolBandUtils.PolSourceBand[] srcBandList =
                         PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
-                final ProgressMonitorSwingWorker worker = new TrainingSwingWorker(sourceProduct,
+                final ProgressMonitorSwingWorker worker = new TrainingSwingWorker(this, sourceProduct,
                                                                                   dlg.getRoiProduct(),
                                                                                   dlg.getSelectedGeometries(),
                                                                                   dlg.getSaveFile(),
@@ -118,6 +118,7 @@ public class SupervisedTrainingAction extends AbstractAction {
 
     private static class TrainingSwingWorker extends ProgressMonitorSwingWorker {
 
+        private final SupervisedTrainingAction action;
         private final Product sourceProduct;
         private final Product roiProduct;
         private final String[] geometries;
@@ -127,10 +128,12 @@ public class SupervisedTrainingAction extends AbstractAction {
         private Throwable error;
         private final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
 
-        private TrainingSwingWorker(final Product sourceProduct, final Product roiProduct,
+        private TrainingSwingWorker(final SupervisedTrainingAction action,
+                                    final Product sourceProduct, final Product roiProduct,
                                     final String[] geometries, final File file,
                                     final Band[] sourceBands, final PolBandUtils.MATRIX sourceProductType) {
             super(SnapApp.getDefault().getMainFrame(), "Training...");
+            this.action = action;
             this.sourceProduct = sourceProduct;
             this.roiProduct = roiProduct;
             this.geometries = geometries;
@@ -140,7 +143,7 @@ public class SupervisedTrainingAction extends AbstractAction {
         }
 
         @Override
-        protected Boolean doInBackground(final ProgressMonitor pm) throws Exception {
+        protected Boolean doInBackground(final ProgressMonitor pm) {
 
             final double[][] Tr = new double[3][3];
             final double[][] Ti = new double[3][3];
@@ -204,7 +207,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                             for (int x = minX; x < maxX; ++x) {
                                 if (data[x - minX] != 0) {
 
-                                    getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth,
+                                    action.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth,
                                                            sourceImageHeight, sourceProductType, sourceBands, Tr, Ti);
 
                                     t11 += Tr[0][0];
@@ -264,7 +267,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                             for (int x = minX; x < maxX; ++x) {
                                 if (data[x - minX] != 0) {
 
-                                    getMeanCovarianceMatrixC2(x, y, halfWindowSize, sourceImageWidth,
+                                    action.getMeanCovarianceMatrixC2(x, y, halfWindowSize, sourceImageWidth,
                                                               sourceImageHeight, sourceProductType, sourceBands, Cr, Ci);
 
                                     c11 += Cr[0][0];
@@ -365,7 +368,7 @@ public class SupervisedTrainingAction extends AbstractAction {
         }
     }
 
-    private static void getMeanCoherencyMatrix(final int x, final int y, final int halfWindowSize,
+    private void getMeanCoherencyMatrix(final int x, final int y, final int halfWindowSize,
                                                final int sourceImageWidth, final int sourceImageHeight,
                                                final PolBandUtils.MATRIX sourceProductType,
                                                final Band[] sourceBands, final double[][] Tr, final double[][] Ti)
@@ -418,7 +421,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                 Sr[1][1] = i_vv[i];
                 Si[1][1] = q_vv[i];
 
-                PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempTr, tempTi);
+                computeCoherencyMatrixT3(Sr, Si, tempTr, tempTi);
 
                 TrMat.plusEquals(new Matrix(tempTr));
                 TiMat.plusEquals(new Matrix(tempTi));
@@ -466,7 +469,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                 tempCr[2][1] = tempCr[1][2];
                 tempCi[2][1] = -tempCi[1][2];
 
-                PolOpUtils.c3ToT3(tempCr, tempCi, tempTr, tempTi);
+                c3ToT3(tempCr, tempCi, tempTr, tempTi);
 
                 TrMat.plusEquals(new Matrix(tempTr));
                 TiMat.plusEquals(new Matrix(tempTi));
@@ -525,7 +528,7 @@ public class SupervisedTrainingAction extends AbstractAction {
         copyMatrix(TiMat, Ti);
     }
 
-    private static void getMeanCovarianceMatrixC2(final int x, final int y, final int halfWindowSize,
+    private void getMeanCovarianceMatrixC2(final int x, final int y, final int halfWindowSize,
                                                   final int sourceImageWidth, final int sourceImageHeight,
                                                   final PolBandUtils.MATRIX sourceProductType, final Band[] sourceBands,
                                                   final double[][] Cr, final double[][] Ci)
@@ -566,7 +569,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                 tempKr[1] = K1_i[i];
                 tempKi[1] = K1_q[i];
 
-                DualPolOpUtils.computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
+                computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
 
                 CrMat.plusEquals(new Matrix(tempCr));
                 CiMat.plusEquals(new Matrix(tempCi));

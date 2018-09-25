@@ -16,7 +16,7 @@
 package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.csa.rstb.polarimetric.gpf.decompositions.FreemanDurden;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -37,7 +37,7 @@ import java.util.Map;
 /**
 
  */
-public class FreemanDurdenWishart extends PolClassifierBase implements PolClassifier {
+public class FreemanDurdenWishart extends PolClassifierBase implements PolClassifier, QuadPolProcessor {
 
     private final static String TERRAIN_CLASS = "Freeman_Durden_wishart_class";
     private final int numInitialClusters; // number of initial clusters in each category
@@ -271,7 +271,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                         for (int y = y0; y < yMax; ++y) {
                             for (int x = x0; x < xMax; ++x) {
 
-                                PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                                getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                                         sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                                 final FreemanDurden.FDD data = FreemanDurden.getFreemanDurdenDecomposition(Cr, Ci);
@@ -414,7 +414,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                             srcIndex.calculateStride(y);
                             for (int x = x0; x < xMax; ++x) {
 
-                                PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
+                                getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
 
                                 synchronized (clusterCounter) {
 
@@ -803,7 +803,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                             for (int y = y0; y < yMax; ++y) {
                                 for (int x = x0; x < xMax; ++x) {
 
-                                    PolOpUtils.getMeanCoherencyMatrix(
+                                    getMeanCoherencyMatrix(
                                             x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 

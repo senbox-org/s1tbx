@@ -17,7 +17,7 @@ package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Implements CloudePottier Classifier
  */
-public class CloudePottier extends PolClassifierBase implements PolClassifier {
+public class CloudePottier extends PolClassifierBase implements PolClassifier, QuadPolProcessor {
 
     private static final String H_ALPHA_CLASS = "H_alpha_class";
     private final boolean useLeeHAlphaPlaneDefinition;
@@ -103,7 +103,7 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
             trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
+                getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                         sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);

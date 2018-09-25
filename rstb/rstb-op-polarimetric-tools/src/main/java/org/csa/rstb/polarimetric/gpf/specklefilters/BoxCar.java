@@ -15,9 +15,9 @@
  */
 package org.csa.rstb.polarimetric.gpf.specklefilters;
 
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Polarimetric Speckle Filter
  */
-public class BoxCar implements SpeckleFilter {
+public class BoxCar implements SpeckleFilter, DualPolProcessor, QuadPolProcessor {
 
     private final PolarimetricSpeckleFilterOp operator;
     private final Product sourceProduct;
@@ -49,7 +49,7 @@ public class BoxCar implements SpeckleFilter {
         this.sourceProductType = sourceProductType;
         this.srcBandList = srcBandList;
         this.filterSize = filterSize;
-        this.halfFilterSize = filterSize/2;
+        this.halfFilterSize = filterSize / 2;
     }
 
     public void computeTiles(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Rectangle sourceRectangle) {
@@ -76,7 +76,7 @@ public class BoxCar implements SpeckleFilter {
                                 final Rectangle sourceRectangle) {
 
         final int x0 = targetRectangle.x, y0 = targetRectangle.y;
-        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int w = targetRectangle.width, h = targetRectangle.height;
         final int maxY = y0 + h, maxX = x0 + w;
         final int sourceImageWidth = sourceProduct.getSceneRasterWidth();
         final int sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -100,7 +100,7 @@ public class BoxCar implements SpeckleFilter {
                 for (int x = x0; x < maxX; ++x) {
                     final int idx = trgIndex.getIndex(x);
 
-                    DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfFilterSize, halfFilterSize, sourceImageWidth,
+                    getMeanCovarianceMatrixC2(x, y, halfFilterSize, halfFilterSize, sourceImageWidth,
                             sourceImageHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     for (Band targetBand : bandList.targetBands) {
@@ -133,7 +133,7 @@ public class BoxCar implements SpeckleFilter {
                                      final Rectangle sourceRectangle) {
 
         final int x0 = targetRectangle.x, y0 = targetRectangle.y;
-        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int w = targetRectangle.width, h = targetRectangle.height;
         final int maxY = y0 + h, maxX = x0 + w;
         final int sourceImageWidth = sourceProduct.getSceneRasterWidth();
         final int sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -160,8 +160,8 @@ public class BoxCar implements SpeckleFilter {
                     final int idx = trgIndex.getIndex(x);
 
                     // todo: Here for every pixel T3 is computed 5 times if the filter size is 5, should save some result
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfFilterSize, halfFilterSize, sourceImageWidth, sourceImageHeight,
-                                                      sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                    getMeanCoherencyMatrix(x, y, halfFilterSize, halfFilterSize, sourceImageWidth, sourceImageHeight,
+                            sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     for (Band targetBand : bandList.targetBands) {
                         final String targetBandName = targetBand.getName();
@@ -202,7 +202,7 @@ public class BoxCar implements SpeckleFilter {
                                       final Rectangle sourceRectangle) {
 
         final int x0 = targetRectangle.x, y0 = targetRectangle.y;
-        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int w = targetRectangle.width, h = targetRectangle.height;
         final int maxY = y0 + h, maxX = x0 + w;
         //System.out.println("boxcar x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 

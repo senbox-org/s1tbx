@@ -16,10 +16,10 @@
 package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.awt.*;
 import java.util.Map;
@@ -133,8 +133,8 @@ public abstract class PolClassifierBase {
 
         double detR = Cr[0][0] * Cr[1][1] - Cr[0][1] * Cr[0][1] - Ci[0][1] * Ci[0][1];
 
-        if (detR < PolOpUtils.EPS) {
-            detR = PolOpUtils.EPS;
+        if (detR < Constants.EPS) {
+            detR = Constants.EPS;
         }
         return detR;
     }
@@ -164,8 +164,8 @@ public abstract class PolClassifierBase {
                 Ti[0][1] * cof01R + Tr[0][2] * cof02I + Ti[0][2] * cof02R;
 
         double det = Math.sqrt(detR * detR + detI * detI);
-        if (det < PolOpUtils.EPS) {
-            det = PolOpUtils.EPS;
+        if (det < Constants.EPS) {
+            det = Constants.EPS;
         }
         return det;
     }

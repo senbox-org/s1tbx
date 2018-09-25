@@ -16,7 +16,7 @@
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
 import org.apache.commons.math3.util.FastMath;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.s1tbx.commons.polsar.PolBandUtils.MATRIX;
 import org.esa.snap.core.datamodel.Band;
@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Perform Touzi decomposition for given tile.
  */
-public class Touzi extends DecompositionBase implements Decomposition {
+public class Touzi extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
     private final boolean outputTouziParamSet0;
     private final boolean outputTouziParamSet1;
@@ -139,7 +139,8 @@ public class Touzi extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+            getQuadPolDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
+
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
@@ -148,7 +149,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
                 srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
                     boolean isNoData = isNoData(dataBuffers, srcIndex.getIndex(x), nodatavalue);
-                    if(isNoData) {
+                    if (isNoData) {
                         for (final Band band : bandList.targetBands) {
                             targetTiles.get(band).getDataBuffer().setElemFloatAt(trgIndex.getIndex(x), (float) nodatavalue);
                         }
@@ -157,7 +158,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
 
                     final int idx = trgIndex.getIndex(x);
 
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
+                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     final TDD data = getTouziDecomposition(Tr, Ti);
@@ -225,7 +226,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
         double p1, p2, p3, psiMean, tauMean, alphaMean, phiMean;
         double phase, c, s, tmp1r, tmp1i, tmp2r, tmp2i;
 
-        PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
+        EigenDecomposition.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);
 
         for (int k = 0; k < 3; ++k) {
             for (int l = 0; l < 3; ++l) {
@@ -233,7 +234,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
                 vi[l] = EigenVectIm[l][k];
             }
 
-            phase = Math.atan2(vi[0], vr[0] + PolOpUtils.EPS);
+            phase = Math.atan2(vi[0], vr[0] + Constants.EPS);
             c = FastMath.cos(phase);
             s = FastMath.sin(phase);
             for (int l = 0; l < 3; ++l) {
@@ -243,7 +244,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
                 vi[l] = tmp1i * c - tmp1r * s;
             }
 
-            psi[k] = 0.5 * Math.atan2(vr[2], vr[1] + PolOpUtils.EPS);
+            psi[k] = 0.5 * Math.atan2(vr[2], vr[1] + Constants.EPS);
 
             tmp1r = vr[1];
             tmp1i = vi[1];
@@ -256,9 +257,9 @@ public class Touzi extends DecompositionBase implements Decomposition {
             vr[2] = -tmp1r * s + tmp2r * c;
             vi[2] = -tmp1i * s + tmp2i * c;
 
-            tau[k] = 0.5 * Math.atan2(-vi[2], vr[0] + PolOpUtils.EPS);
+            tau[k] = 0.5 * Math.atan2(-vi[2], vr[0] + Constants.EPS);
 
-            phi[k] = Math.atan2(vi[1], vr[1] + PolOpUtils.EPS);
+            phi[k] = Math.atan2(vi[1], vr[1] + Constants.EPS);
 
             alpha[k] = Math.atan(Math.sqrt((vr[1] * vr[1] + vi[1] * vi[1]) / (vr[0] * vr[0] + vi[2] * vi[2])));
 

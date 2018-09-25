@@ -195,15 +195,15 @@ public class RangeDopplerGeocodingOp extends Operator {
     @Parameter(defaultValue = "false", label = "Save Beta0 as a band")
     private boolean saveBetaNought = false;
 
-    @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID, Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
-            Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
-    private String incidenceAngleForSigma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
+    @Parameter(valueSet = {SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID, SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
+            SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM},
+            defaultValue = SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
+    private String incidenceAngleForSigma0 = SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
-    @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID, Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
-            Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
-    private String incidenceAngleForGamma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
+    @Parameter(valueSet = {SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID, SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
+            SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM},
+            defaultValue = SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label = "")
+    private String incidenceAngleForGamma0 = SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
     @Parameter(valueSet = {CalibrationOp.LATEST_AUX, CalibrationOp.PRODUCT_AUX, CalibrationOp.EXTERNAL_AUX},
             description = "The auxiliary file", defaultValue = CalibrationOp.LATEST_AUX, label = "Auxiliary File")
@@ -377,19 +377,19 @@ public class RangeDopplerGeocodingOp extends Operator {
         }
 
         if (saveBetaNought || saveGammaNought ||
-                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
-                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
+                (saveSigmaNought && incidenceAngleForSigma0.contains(SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
             saveSigmaNought = true;
             saveProjectedLocalIncidenceAngle = true;
         }
 
-        if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
-                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+        if ((saveGammaNought && incidenceAngleForGamma0.contains(SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
+                (saveSigmaNought && incidenceAngleForSigma0.contains(SARGeocoding.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveIncidenceAngleFromEllipsoid = true;
         }
 
-        if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ||
-                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
+        if ((saveGammaNought && incidenceAngleForGamma0.contains(SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ||
+                (saveSigmaNought && incidenceAngleForSigma0.contains(SARGeocoding.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
             saveLocalIncidenceAngle = true;
         }
 
@@ -732,7 +732,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             addTargetBand("incidenceAngleFromEllipsoid", Unit.DEGREES, null);
         }
 
-        if (saveSigmaNought && !incidenceAngleForSigma0.contains(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
+        if (saveSigmaNought && !incidenceAngleForSigma0.contains(SARGeocoding.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
             CalibrationFactory.createSigmaNoughtVirtualBand(targetProduct, incidenceAngleForSigma0);
         }
 

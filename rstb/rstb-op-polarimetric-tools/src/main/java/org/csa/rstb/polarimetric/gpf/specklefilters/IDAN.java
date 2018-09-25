@@ -66,7 +66,7 @@ public class IDAN implements SpeckleFilter {
                 sourceProductType == PolBandUtils.MATRIX.C3 ||
                 sourceProductType == PolBandUtils.MATRIX.T3) {
             idanFilter(targetTiles, targetRectangle, sourceRectangle);
-        } else if(sourceProductType == PolBandUtils.MATRIX.C2 ||
+        } else if (sourceProductType == PolBandUtils.MATRIX.C2 ||
                 sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
                 sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
                 sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
@@ -88,7 +88,7 @@ public class IDAN implements SpeckleFilter {
                               final Rectangle sourceRectangle) {
 
         final int x0 = targetRectangle.x, y0 = targetRectangle.y;
-        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int w = targetRectangle.width, h = targetRectangle.height;
         final int maxY = y0 + h, maxX = x0 + w;
         // System.out.println("idanFilter x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
@@ -247,17 +247,17 @@ public class IDAN implements SpeckleFilter {
     }
 
     /**
-    * Re-exam the pixels that are rejected in the region growing process and add them to AN if qualified.
-    *
-    * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
-    * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
-    * @param data11Real  Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
-    * @param data22Real  Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
-    * @param seed        The seed value for AN
-    * @param threshold   Threshold used in searching for pixels in AN
-    * @param anPixelList List of pixels in AN
-    * @param bgPixelList List of pixels rejected in searching for AN pixels
-    */
+     * Re-exam the pixels that are rejected in the region growing process and add them to AN if qualified.
+     *
+     * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param data11Real  Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
+     * @param data22Real  Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
+     * @param seed        The seed value for AN
+     * @param threshold   Threshold used in searching for pixels in AN
+     * @param anPixelList List of pixels in AN
+     * @param bgPixelList List of pixels rejected in searching for AN pixels
+     */
     private static void reExamBackgroundPixels(final int sx0, final int sy0, final double[][] data11Real,
                                                final double[][] data22Real, final Seed seed, final double threshold,
                                                final java.util.List<Pix> anPixelList, final Pix[] bgPixelList) {
@@ -395,8 +395,8 @@ public class IDAN implements SpeckleFilter {
 
             final Tile srcTile = operator.getSourceTile(bandList.srcBands[0], sourceRectangle);
             createT3SpanImage(srcTile, sourceProductType, sourceRectangle, dataBuffers,
-                              data11Real, data12Real, data12Imag, data13Real, data13Imag,
-                              data22Real, data23Real, data23Imag, data33Real, span);
+                    data11Real, data12Real, data12Imag, data13Real, data13Imag,
+                    data22Real, data23Real, data23Imag, data33Real, span);
 
             final ProductData[] targetDataBuffers = new ProductData[9];
 
@@ -431,7 +431,7 @@ public class IDAN implements SpeckleFilter {
                     final Seed seed = getInitialSeed(x, y, sx0, sy0, sw, sh, data11Real, data22Real, data33Real);
 
                     final Pix[] anPixelList = getIDANPixels(x, y, sx0, sy0, sw, sh,
-                                                            data11Real, data22Real, data33Real, seed);
+                            data11Real, data22Real, data33Real, seed);
 
                     final double b = computeFilterScaleParam(sx0, sy0, anPixelList, span);
 
@@ -570,7 +570,7 @@ public class IDAN implements SpeckleFilter {
         final double threshold50 = 2 * sigmaV;
         final java.util.List<Pix> anPixelList = new ArrayList<>(anSize);
         final Pix[] bgPixelList = regionGrowing(xc, yc, sx0, sy0, sw, sh, data11Real, data22Real, data33Real,
-                                                seed, threshold50, anPixelList);
+                seed, threshold50, anPixelList);
 
         // update seed with the pixels in AN
         final Seed newSeed = new Seed();
@@ -594,7 +594,7 @@ public class IDAN implements SpeckleFilter {
         // in the 1st run of region growing are checked and added to AN
         final double threshold95 = 6 * sigmaV;
         reExamBackgroundPixels(sx0, sy0, data11Real, data22Real, data33Real, newSeed, threshold95,
-                               anPixelList, bgPixelList);
+                anPixelList, bgPixelList);
 
         if (anPixelList.isEmpty()) {
             return new Pix[]{new Pix(xc, yc)};
