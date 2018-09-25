@@ -178,18 +178,18 @@ public final class PolarimetricDecompositionOp extends Operator {
         }
     }
 
-    private void checkSourceProductType(final PolBandUtils.MATRIX  sourceProductType) {
+    private void checkSourceProductType(final PolBandUtils.MATRIX sourceProductType) {
 
-        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+        if (sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
 
             throw new OperatorException("Input should be a polarimetric product");
         }
 
-        if(polDecomp instanceof HAlphaC2 && !PolBandUtils.isDualPol(sourceProductType)) {
+        if (polDecomp instanceof HAlphaC2 && !PolBandUtils.isDualPol(sourceProductType)) {
 
             throw new OperatorException("Input should be a dual polarimetric product");
 
-        } else if(!(polDecomp instanceof HAlphaC2) && !PolBandUtils.isQuadPol(sourceProductType) &&
+        } else if (!(polDecomp instanceof HAlphaC2) && !PolBandUtils.isQuadPol(sourceProductType) &&
                 !PolBandUtils.isFullPol(sourceProductType)) {
 
             throw new OperatorException("Input should be a full polarimetric product");
@@ -238,7 +238,7 @@ public final class PolarimetricDecompositionOp extends Operator {
                         outputLambda123);
             case H_ALPHA_DECOMPOSITION:
                 return new HAlphaC2(srcBandList, sourceProductType,
-                                   windowSize, windowSize, sourceImageWidth, sourceImageHeight);
+                        windowSize, windowSize, sourceImageWidth, sourceImageHeight);
             case TOUZI_DECOMPOSITION:
                 return new Touzi(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight,

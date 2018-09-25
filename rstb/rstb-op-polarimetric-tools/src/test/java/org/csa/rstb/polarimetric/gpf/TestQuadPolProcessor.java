@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for PolOpUtils.
  */
-public class TestPolOpUtils {
+public class TestQuadPolProcessor implements QuadPolProcessor {
 
     static {
         TestUtils.initTestEnvironment();
@@ -35,7 +35,7 @@ public class TestPolOpUtils {
      * @throws Exception general exception
      */
     @Test
-    public void testC4ToT4() throws Exception {
+    public void testC4ToT4() {
 
         final double[][] c4Re = {
                 {0.8147, 0.6324, 0.9575, 0.9572},
@@ -64,7 +64,7 @@ public class TestPolOpUtils {
         final double[][] t4Re = new double[4][4];
         final double[][] t4Im = new double[4][4];
 
-        PolOpUtils.c4ToT4(c4Re, c4Im, t4Re, t4Im);
+        c4ToT4(c4Re, c4Im, t4Re, t4Im);
 
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {

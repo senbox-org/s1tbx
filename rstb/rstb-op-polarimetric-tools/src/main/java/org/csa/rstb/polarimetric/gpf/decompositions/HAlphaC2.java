@@ -16,8 +16,7 @@
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
 import org.apache.commons.math3.util.FastMath;
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -37,7 +36,7 @@ import java.util.Map;
  * [1]	S. R. Cloude, D. G. Goodenough, H. Chen, "Compact Decomposition Theory",
  * IEEE Geoscience and Remote Sensing Letters, Vol. 9, No. 1, Jan. 2012.
  */
-public class HAlphaC2 extends DecompositionBase implements Decomposition {
+public class HAlphaC2 extends DecompositionBase implements Decomposition, DualPolProcessor {
 
     public HAlphaC2(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                     final int windowSizeX, final int windowSizeY, final int srcImageWidth, final int srcImageHeight) {
@@ -128,8 +127,8 @@ public class HAlphaC2 extends DecompositionBase implements Decomposition {
                 for (int x = x0; x < maxX; ++x) {
                     final int index = trgIndex.getIndex(x);
 
-                    DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth,
-                                                             sourceImageHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+                    getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth,
+                            sourceImageHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     HAAlpha data = computeHAAlphaByC2(Cr, Ci);
 
@@ -157,7 +156,7 @@ public class HAlphaC2 extends DecompositionBase implements Decomposition {
         final double[][] EigenVectIm = new double[2][2];
         final double[] EigenVal = new double[2];
 
-        PolOpUtils.eigenDecomposition(2, Cr, Ci, EigenVectRe, EigenVectIm, EigenVal);
+        EigenDecomposition.eigenDecomposition(2, Cr, Ci, EigenVectRe, EigenVectIm, EigenVal);
 
         final double sum = EigenVal[0] + EigenVal[1];
         final double[] p = {EigenVal[0] / sum, EigenVal[1] / sum};

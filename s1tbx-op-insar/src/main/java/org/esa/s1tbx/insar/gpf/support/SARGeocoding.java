@@ -40,6 +40,11 @@ public final class SARGeocoding {
     public static final double NonValidZeroDopplerTime = -99999.0;
     public static final double NonValidIncidenceAngle = -99999.0;
 
+    public static final String USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
+    public static final String USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM = "Use local incidence angle from DEM";
+    public static final String USE_INCIDENCE_ANGLE_FROM_ELLIPSOID = "Use incidence angle from Ellipsoid";
+
+
     public static boolean isNearRangeOnLeft(final TiePointGrid incidenceAngle, final int sourceImageWidth) {
         // for products without incidence angle tpg just assume left facing
         if (incidenceAngle == null) return true;

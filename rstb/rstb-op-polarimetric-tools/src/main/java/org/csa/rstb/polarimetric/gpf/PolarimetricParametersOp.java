@@ -53,7 +53,7 @@ import java.util.Map;
         version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Compute general polarimetric parameters")
-public final class PolarimetricParametersOp extends Operator {
+public final class PolarimetricParametersOp extends Operator implements QuadPolProcessor {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -105,7 +105,8 @@ public final class PolarimetricParametersOp extends Operator {
     private Band hhBand = null, hvBand = null, vvBand = null, vhBand = null;
 
     private final static String PRODUCT_SUFFIX = "_PP";
-    private enum BandType { Span, PedestalHeight, RVI, RFDI, CSI, VSI, BMI, ITI, HHVVRatio, HHHVRatio, VVVHRatio }
+
+    private enum BandType {Span, PedestalHeight, RVI, RFDI, CSI, VSI, BMI, ITI, HHVVRatio, HHHVRatio, VVVHRatio}
 
     @Override
     public void initialize() throws OperatorException {
@@ -123,7 +124,7 @@ public final class PolarimetricParametersOp extends Operator {
                     throw new OperatorException("A quad-pol product is expected as input.");
                 } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
                         sourceProductType == PolBandUtils.MATRIX.FULL) {
-                    if(!isComplex && (outputSpan || outputPedestalHeight)) {
+                    if (!isComplex && (outputSpan || outputPedestalHeight)) {
                         throw new OperatorException("A T3,C3, or quad-pol slc product is expected as input for span and pedistal height.");
                     }
                 } else {
@@ -181,9 +182,9 @@ public final class PolarimetricParametersOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         addSelectedBands();
 
@@ -204,7 +205,7 @@ public final class PolarimetricParametersOp extends Operator {
             bandList.addTargetBands(targetBands);
         }
 
-        if(targetProduct.getNumBands() == 0) {
+        if (targetProduct.getNumBands() == 0) {
             throw new OperatorException("No output bands selected");
         }
     }
@@ -324,29 +325,29 @@ public final class PolarimetricParametersOp extends Operator {
 
                         if (computePolarimetricParam) {
                             if (useMeanMatrix) {
-                                PolOpUtils.getMeanCoherencyMatrix(x, y,
-                                                                  window.getHalfWindowSizeX(), window.getHalfWindowSizeY(),
-                                                                  sourceImageWidth, sourceImageHeight, sourceProductType,
-                                                                  srcIndex, dataBuffers, Tr, Ti);
+                                getMeanCoherencyMatrix(x, y,
+                                        window.getHalfWindowSizeX(), window.getHalfWindowSizeY(),
+                                        sourceImageWidth, sourceImageHeight, sourceProductType,
+                                        srcIndex, dataBuffers, Tr, Ti);
                             } else {
-                                PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
+                                getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
                             }
 
                             param = computePolarimetricParameters(Tr, Ti);
                         }
 
-                        float hh=0, hv=0, vv=0, vh=0;
+                        float hh = 0, hv = 0, vv = 0, vh = 0;
                         if (hhTile != null) {
-                            hh = (float)Math.sqrt(hhTile.getSampleFloat(x, y));
+                            hh = (float) Math.sqrt(hhTile.getSampleFloat(x, y));
                         }
-                        if(hvTile != null) {
-                            hv = (float)Math.sqrt(hvTile.getSampleFloat(x, y));
+                        if (hvTile != null) {
+                            hv = (float) Math.sqrt(hvTile.getSampleFloat(x, y));
                         }
-                        if(vvTile != null) {
-                            vv = (float)Math.sqrt(vvTile.getSampleFloat(x, y));
+                        if (vvTile != null) {
+                            vv = (float) Math.sqrt(vvTile.getSampleFloat(x, y));
                         }
-                        if(vhTile != null) {
-                            vh = (float)Math.sqrt(vhTile.getSampleFloat(x, y));
+                        if (vhTile != null) {
+                            vh = (float) Math.sqrt(vhTile.getSampleFloat(x, y));
                         }
 
                         for (final TileData tileData : tileDataList) {
@@ -358,8 +359,8 @@ public final class PolarimetricParametersOp extends Operator {
                                 tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.PedestalHeight);
                             }
                             if (outputRVI && tileData.bandType.equals(BandType.RVI)) {
-                                if(param == null) {
-                                    tileData.dataBuffer.setElemFloatAt(tgtIdx, (8*hv)/(hh + vv + 2*hv));
+                                if (param == null) {
+                                    tileData.dataBuffer.setElemFloatAt(tgtIdx, (8 * hv) / (hh + vv + 2 * hv));
                                 } else {
                                     tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.RVI);
                                 }

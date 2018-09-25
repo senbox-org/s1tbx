@@ -1,113 +1,13 @@
-/*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
 package org.csa.rstb.polarimetric.gpf;
 
 import Jama.Matrix;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
-import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.*;
-
-
-/**
- * Common dual pol code used by polarimetric operators
- */
-public final class DualPolOpUtils {
-
-    public static final double EPS = Constants.EPS;
-
-
-    public static void getDataBuffer(final Operator op, final Band[] srcBands, final Rectangle sourceRectangle,
-                                     final PolBandUtils.MATRIX sourceProductType,
-                                     final Tile[] sourceTiles, final ProductData[] dataBuffers) {
-
-        for (Band band : srcBands) {
-            final String bandName = band.getName();
-            if (sourceProductType == PolBandUtils.MATRIX.C2) {
-
-                if (bandName.contains("C11")) {
-                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
-                } else if (bandName.contains("C12_real")) {
-                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
-                } else if (bandName.contains("C12_imag")) {
-                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
-                } else if (bandName.contains("C22")) {
-                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
-                }
-
-            } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV) {
-
-                if (bandName.contains("i_HH")) {
-                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
-                } else if (bandName.contains("q_HH")) {
-                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
-                } else if (bandName.contains("i_HV")) {
-                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
-                } else if (bandName.contains("q_HV")) {
-                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
-                }
-
-            } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
-
-                if (bandName.contains("i_HH")) {
-                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
-                } else if (bandName.contains("q_HH")) {
-                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
-                } else if (bandName.contains("i_VV")) {
-                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
-                } else if (bandName.contains("q_VV")) {
-                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
-                }
-
-            } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV) {
-
-                if (bandName.contains("i_VH")) {
-                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
-                } else if (bandName.contains("q_VH")) {
-                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
-                } else if (bandName.contains("i_VV")) {
-                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
-                } else if (bandName.contains("q_VV")) {
-                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
-                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
-                }
-            }
-        }
-    }
+public interface DualPolProcessor extends PolarimetricProcessor {
 
     /**
      * Get mean covariance matrix C2 for given pixel.
@@ -124,7 +24,7 @@ public final class DualPolOpUtils {
      * @param Cr                The real part of the mean covariance matrix.
      * @param Ci                The imaginary part of the mean covariance matrix.
      */
-    public static void getMeanCovarianceMatrixC2(
+    default void getMeanCovarianceMatrixC2(
             final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY, final int sourceImageWidth,
             final int sourceImageHeight, final PolBandUtils.MATRIX sourceProductType,
             final Tile[] sourceTiles, final ProductData[] dataBuffers, final double[][] Cr, final double[][] Ci) {
@@ -154,10 +54,10 @@ public final class DualPolOpUtils {
             }
 
         } else if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
-                   sourceProductType == PolBandUtils.MATRIX.RCHCP ||
-                   sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
-                   sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
-                   sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+                sourceProductType == PolBandUtils.MATRIX.RCHCP ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
 
             final double[] tempKr = new double[2];
             final double[] tempKi = new double[2];
@@ -200,8 +100,8 @@ public final class DualPolOpUtils {
      * @param Cr          Real part of the 2x2 covariance matrix
      * @param Ci          Imaginary part of the 2x2 covariance matrix
      */
-    public static void getCovarianceMatrixC2(final int index, final ProductData[] dataBuffers,
-                                             final double[][] Cr, final double[][] Ci) {
+    default void getCovarianceMatrixC2(final int index, final ProductData[] dataBuffers,
+                                       final double[][] Cr, final double[][] Ci) {
 
         Cr[0][0] = dataBuffers[0].getElemDoubleAt(index); // C11 - real
         Ci[0][0] = 0.0;                                   // C11 - imag
@@ -224,9 +124,9 @@ public final class DualPolOpUtils {
      * @param Cr          Real part of the 2x2 covariance matrix
      * @param Ci          Imaginary part of the 2x2 covariance matrix
      */
-    public static void getCovarianceMatrixC2(final int index, final PolBandUtils.MATRIX sourceProductType,
-                                             final ProductData[] dataBuffers, final double[][] Cr,
-                                             final double[][] Ci) {
+    default void getCovarianceMatrixC2(final int index, final PolBandUtils.MATRIX sourceProductType,
+                                       final ProductData[] dataBuffers, final double[][] Cr,
+                                       final double[][] Ci) {
 
         if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
                 sourceProductType == PolBandUtils.MATRIX.RCHCP ||
@@ -252,8 +152,8 @@ public final class DualPolOpUtils {
      * @param kr          Real part of the scatter vector
      * @param ki          Imaginary part of the scatter vector
      */
-    public static void getScatterVector(final int index, final ProductData[] dataBuffers,
-                                        final double[] kr, final double[] ki) {
+    default void getScatterVector(final int index, final ProductData[] dataBuffers,
+                                  final double[] kr, final double[] ki) {
 
         kr[0] = dataBuffers[0].getElemDoubleAt(index);
         ki[0] = dataBuffers[1].getElemDoubleAt(index);
@@ -264,28 +164,28 @@ public final class DualPolOpUtils {
 
     /**
      * Compute covariance matrix c2 for given dual pol or complex compact pol 2x1 scatter vector.
-     *
+     * <p>
      * For dual pol product:
-     *
+     * <p>
      * Case 1) k_DP1 = [S_HH
-     *                  S_HV]
-     *         kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_hv, ki[1] = q_hv
-     *
+     * S_HV]
+     * kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_hv, ki[1] = q_hv
+     * <p>
      * Case 2) k_DP2 = [S_VH
-     *                  S_VV]
-     *         kr[0] = i_vh, ki[0] = q_vh, kr[1] = i_vv, ki[1] = q_vv
-     *
+     * S_VV]
+     * kr[0] = i_vh, ki[0] = q_vh, kr[1] = i_vv, ki[1] = q_vv
+     * <p>
      * Case 3) k_DP3 = [S_HH
-     *                  S_VV]
-     *         kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_vv, ki[1] = q_vv
+     * S_VV]
+     * kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_vv, ki[1] = q_vv
      *
      * @param kr Real part of the scatter vector
      * @param ki Imaginary part of the scatter vector
      * @param Cr Real part of the covariance matrix
      * @param Ci Imaginary part of the covariance matrix
      */
-    public static void computeCovarianceMatrixC2(final double[] kr, final double[] ki,
-                                                 final double[][] Cr, final double[][] Ci) {
+    default void computeCovarianceMatrixC2(final double[] kr, final double[] ki,
+                                           final double[][] Cr, final double[][] Ci) {
 
         Cr[0][0] = kr[0] * kr[0] + ki[0] * ki[0];
         Ci[0][0] = 0.0;
@@ -300,7 +200,7 @@ public final class DualPolOpUtils {
         Ci[1][0] = -Ci[0][1];
     }
 
-    public static void getMeanCorrelationMatrixC2(
+    default void getMeanCorrelationMatrixC2(
             final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
             final int sourceImageWidth, final int sourceImageHeight, final PolBandUtils.MATRIX sourceProductType,
             final Tile[] sourceTiles, final ProductData[] mstDataBuffers, final ProductData[] slvDataBuffers,
@@ -318,10 +218,10 @@ public final class DualPolOpUtils {
         final Matrix CiMat = new Matrix(2, 2);
 
         if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
-            sourceProductType == PolBandUtils.MATRIX.RCHCP ||
-            sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
-            sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
-            sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+                sourceProductType == PolBandUtils.MATRIX.RCHCP ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
 
             final double[] K1r = new double[2];
             final double[] K1i = new double[2];
@@ -364,9 +264,9 @@ public final class DualPolOpUtils {
         Ci[1][1] = CiMat.get(1, 1);
     }
 
-    public static void computeCorrelationMatrixC2(final double[] k1r, final double[] k1i,
-                                                  final double[] k2r, final double[] k2i,
-                                                  final double[][] Cr, final double[][] Ci) {
+    default void computeCorrelationMatrixC2(final double[] k1r, final double[] k1i,
+                                            final double[] k2r, final double[] k2i,
+                                            final double[][] Cr, final double[][] Ci) {
 
         Cr[0][0] = k1r[0] * k2r[0] + k1i[0] * k2i[0];
         Ci[0][0] = k1i[0] * k2r[0] - k1r[0] * k2i[0];

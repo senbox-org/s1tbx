@@ -16,7 +16,7 @@
 package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
+import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Implements Cloude Pottier Classifier for dual-pol product
  */
-public class CloudePottierC2 extends PolClassifierBase implements PolClassifier {
+public class CloudePottierC2 extends PolClassifierBase implements PolClassifier, DualPolProcessor {
 
     private static final String H_ALPHA_CLASS = "H_alpha_class";
     private final boolean useLeeHAlphaPlaneDefinition;
@@ -102,7 +102,7 @@ public class CloudePottierC2 extends PolClassifierBase implements PolClassifier 
             trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
+                getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                         sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                 final HAlphaC2.HAAlpha data = HAlphaC2.computeHAAlphaByC2(Cr, Ci);

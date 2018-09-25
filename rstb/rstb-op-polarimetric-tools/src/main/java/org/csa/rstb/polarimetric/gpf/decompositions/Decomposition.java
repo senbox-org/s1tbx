@@ -55,7 +55,7 @@ public interface Decomposition {
      * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
-                            final Operator op);
+                     final Operator op);
 
     default boolean isNoData(final double[][] matrix_i, final double[][] matrix_q, final double nodatavalue) {
         return matrix_i[0][0] == nodatavalue && matrix_q[0][0] == nodatavalue;

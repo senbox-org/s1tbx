@@ -16,7 +16,7 @@
 package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
+import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
@@ -40,7 +40,7 @@ import java.util.Map;
  * [1] S. R. Cloude, D. G. Goodenough, H. Chen, "Compact Decomposition Theory",
  * IEEE Geoscience and Remote Sensing Letters, Vol. 9, No. 1, Jan. 2012.
  */
-public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier {
+public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier, DualPolProcessor {
 
     private static final String UNSUPERVISED_WISHART_CLASS = "H_alpha_wishart_class";
 
@@ -140,7 +140,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                 if (noData(noDataValue, dataBuffers, srcIndex.getIndex(x))) {
                     targetData.setElemIntAt(index, NODATACLASS);
                 } else {
-                    DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
+                    getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                                              sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     targetData.setElemIntAt(index, findZoneIndex(Cr, Ci, clusterCenters[targetBandIndex]));
@@ -242,7 +242,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                                 if (noData(noDataValue, dataBuffers, srcIndex.getIndex(x)))
                                     continue;
 
-                                DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,
+                                getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,
                                         srcHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                                 HAlphaC2.HAAlpha data = HAlphaC2.computeHAAlphaByC2(Cr, Ci);
@@ -354,7 +354,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                                     if (noData(noDataValue, dataBuffers, srcIndex.getIndex(x)))
                                         continue;
 
-                                    DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,
+                                    getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,
                                             srcHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                                     synchronized (counter) {

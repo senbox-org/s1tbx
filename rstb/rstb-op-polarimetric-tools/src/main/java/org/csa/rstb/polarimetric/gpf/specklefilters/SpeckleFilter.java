@@ -15,8 +15,8 @@
  */
 package org.csa.rstb.polarimetric.gpf.specklefilters;
 
-import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
+import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -30,14 +30,14 @@ import java.util.Map;
 /**
  * Interface for Polarimetric Speckle Filters
  */
-public interface SpeckleFilter {
+public interface SpeckleFilter extends DualPolProcessor, QuadPolProcessor {
 
     enum T3Elem {
         T11, T12_real, T12_imag, T13_real, T13_imag, T22, T23_real, T23_imag, T33
     }
 
     void computeTiles(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
-                             final Rectangle sourceRectangle);
+                      final Rectangle sourceRectangle);
 
     /**
      * Get the mean value of pixel intensities in a given rectangular region.
@@ -65,7 +65,7 @@ public interface SpeckleFilter {
      * @return var The variance value.
      * @throws OperatorException If an error occurs in computation of the variance.
      */
-    default  double getVarianceValue(final double[] neighborValues, final double mean) {
+    default double getVarianceValue(final double[] neighborValues, final double mean) {
 
         double var = 0.0;
         if (neighborValues.length > 1) {
@@ -135,8 +135,8 @@ public interface SpeckleFilter {
                     final int i = x - sx0;
                     final int index = srcIndex.getIndex(x);
 
-                    DualPolOpUtils.getScatterVector(index, dataBuffers, Kr, Ki);
-                    DualPolOpUtils.computeCovarianceMatrixC2(Kr, Ki, Cr, Ci);
+                    getScatterVector(index, dataBuffers, Kr, Ki);
+                    computeCovarianceMatrixC2(Kr, Ki, Cr, Ci);
 
                     data11Real[j][i] = Cr[0][0];
                     data12Real[j][i] = Cr[0][1];
@@ -155,7 +155,7 @@ public interface SpeckleFilter {
                     final int i = x - sx0;
                     final int index = srcIndex.getIndex(x);
 
-                    DualPolOpUtils.getCovarianceMatrixC2(index, dataBuffers, Cr, Ci);
+                    getCovarianceMatrixC2(index, dataBuffers, Cr, Ci);
 
                     data11Real[j][i] = Cr[0][0];
                     data12Real[j][i] = Cr[0][1];
@@ -177,10 +177,10 @@ public interface SpeckleFilter {
      * @param span            The span image.
      */
     default void createT3SpanImage(final Tile srcTile, final PolBandUtils.MATRIX sourceProductType,
-                                          final Rectangle sourceRectangle, final ProductData[] dataBuffers, final double[][] data11Real,
-                                          final double[][] data12Real, final double[][] data12Imag, final double[][] data13Real,
-                                          final double[][] data13Imag, final double[][] data22Real, final double[][] data23Real,
-                                          final double[][] data23Imag, final double[][] data33Real, final double[][] span) {
+                                   final Rectangle sourceRectangle, final ProductData[] dataBuffers, final double[][] data11Real,
+                                   final double[][] data12Real, final double[][] data12Imag, final double[][] data13Real,
+                                   final double[][] data13Imag, final double[][] data22Real, final double[][] data23Real,
+                                   final double[][] data23Imag, final double[][] data33Real, final double[][] span) {
 
         // The pixel value of the span image is given by the trace of the covariance or coherence matrix for the pixel.
         final int sx0 = sourceRectangle.x;
@@ -207,8 +207,8 @@ public interface SpeckleFilter {
                     final int i = x - sx0;
 
                     final int index = srcIndex.getIndex(x);
-                    PolOpUtils.getComplexScatterMatrix(index, dataBuffers, Sr, Si);
-                    PolOpUtils.computeCoherencyMatrixT3(Sr, Si, Mr, Mi);
+                    getComplexScatterMatrix(index, dataBuffers, Sr, Si);
+                    computeCoherencyMatrixT3(Sr, Si, Mr, Mi);
 
                     data11Real[j][i] = Mr[0][0];
                     data12Real[j][i] = Mr[0][1];
@@ -232,7 +232,7 @@ public interface SpeckleFilter {
                     final int i = x - sx0;
 
                     final int index = srcIndex.getIndex(x);
-                    PolOpUtils.getCoherencyMatrixT3(index, dataBuffers, Mr, Mi);
+                    getCoherencyMatrixT3(index, dataBuffers, Mr, Mi);
 
                     data11Real[j][i] = Mr[0][0];
                     data12Real[j][i] = Mr[0][1];
@@ -256,7 +256,7 @@ public interface SpeckleFilter {
                     final int i = x - sx0;
 
                     final int index = srcIndex.getIndex(x);
-                    PolOpUtils.getCovarianceMatrixC3(index, dataBuffers, Mr, Mi);
+                    getCovarianceMatrixC3(index, dataBuffers, Mr, Mi);
 
                     data11Real[j][i] = Mr[0][0];
                     data12Real[j][i] = Mr[0][1];

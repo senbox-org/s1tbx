@@ -16,8 +16,8 @@
 package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolarimetricDecompositionOp;
+import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
 import org.csa.rstb.polarimetric.gpf.decompositions.*;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -38,7 +38,7 @@ import java.util.Map;
 /**
 
  */
-public class GeneralWishart extends PolClassifierBase implements PolClassifier {
+public class GeneralWishart extends PolClassifierBase implements PolClassifier, QuadPolProcessor {
 
     private final static String TERRAIN_CLASS = "General_wishart_class";
     private int numCategories;
@@ -423,7 +423,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
         switch(decomposition) {
             case PolarimetricDecompositionOp.SINCLAIR_DECOMPOSITION:
 
-                PolOpUtils.getCovarianceMatrixC3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
+                getCovarianceMatrixC3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
 
                 final Sinclair.RGB sdd = Sinclair.getSinclairDecomposition(Mr, Mi);
 
@@ -431,7 +431,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
 
             case PolarimetricDecompositionOp.PAULI_DECOMPOSITION:
 
-                PolOpUtils.getCovarianceMatrixC3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
+                getCovarianceMatrixC3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
 
                 final Pauli.RGB pdd = Pauli.getPauliDecomposition(Mr, Mi);
 
@@ -439,7 +439,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
 
             case PolarimetricDecompositionOp.FREEMAN_DURDEN_DECOMPOSITION:
 
-                PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                         sourceProductType, sourceTiles, dataBuffers, Mr, Mi);
 
                 final FreemanDurden.FDD fdd = FreemanDurden.getFreemanDurdenDecomposition(Mr, Mi);
@@ -448,7 +448,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
 
             case PolarimetricDecompositionOp.GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION:
 
-                PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                         sourceProductType, sourceTiles, dataBuffers, Mr, Mi);
 
                 final GeneralizedFreemanDurden.FDD gfdd =
@@ -458,7 +458,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
 
             case PolarimetricDecompositionOp.VANZYL_DECOMPOSITION:
 
-                PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                         sourceProductType, sourceTiles, dataBuffers, Mr, Mi);
 
                 final vanZyl.VDD vdd = vanZyl.getVanZylDecomposition(Mr, Mi);
@@ -467,7 +467,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
 
             case PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION:
 
-                PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
+                getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
 
                 final Cloude.RGB cdd = Cloude.getCloudeDecomposition(Mr, Mi);
 
@@ -475,7 +475,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
 
             case PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION:
 
-                PolOpUtils.getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
+                getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Mr, Mi);
 
                 final hAAlpha.HAAlpha hdd = hAAlpha.computeHAAlpha(Mr, Mi);
 
@@ -483,16 +483,17 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
 
             case PolarimetricDecompositionOp.YAMAGUCHI_DECOMPOSITION:
 
-                PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                         sourceProductType, sourceTiles, dataBuffers, Mr, Mi);
 
-                final Yamaguchi.YDD ydd = Yamaguchi.getYamaguchiDecomposition(Mr, Mi);
+                Yamaguchi yamaguchi = new Yamaguchi(null, sourceProductType, 0, 0,0);
+                final Yamaguchi.YDD ydd = yamaguchi.getYamaguchiDecomposition(Mr, Mi);
 
                 return new double[]{ydd.pv, ydd.pd, ydd.ps, ydd.pc};
 
             case PolarimetricDecompositionOp.TOUZI_DECOMPOSITION:
 
-                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,
+                getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,
                         srcHeight, sourceProductType, srcIndex, dataBuffers, Mr, Mi);
 
                 final Touzi.TDD tdd = Touzi.getTouziDecomposition(Mr, Mi);
@@ -557,8 +558,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
                                     continue;
                                 }
 
-                                PolOpUtils.getCoherencyMatrixT3(
-                                        srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
+                                getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
 
                                 synchronized (clusterCenters) {
                                     clusterCenters[category[y][x]][cluster[y][x]].addElem(Tr, Ti);
@@ -805,7 +805,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier {
                             for (int y = y0; y < yMax; ++y) {
                                 for (int x = x0; x < xMax; ++x) {
 
-                                    PolOpUtils.getMeanCoherencyMatrix(
+                                    getMeanCoherencyMatrix(
                                             x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 

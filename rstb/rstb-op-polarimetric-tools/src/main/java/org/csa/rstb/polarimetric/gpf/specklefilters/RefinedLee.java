@@ -57,7 +57,7 @@ public class RefinedLee implements SpeckleFilter {
         this.srcBandList = srcBandList;
 
         this.filterSize = filterSize;
-        this.halfFilterSize = filterSize/2;
+        this.halfFilterSize = filterSize / 2;
 
         switch (filterSize) {
             case 5:
@@ -108,7 +108,7 @@ public class RefinedLee implements SpeckleFilter {
                                     final Rectangle sourceRectangle) {
 
         final int x0 = targetRectangle.x, y0 = targetRectangle.y;
-        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int w = targetRectangle.width, h = targetRectangle.height;
         final int maxY = y0 + h, maxX = x0 + w;
         //System.out.println("refinedLee x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
@@ -225,7 +225,7 @@ public class RefinedLee implements SpeckleFilter {
 
             final Tile srcTile = operator.getSourceTile(bandList.srcBands[0], sourceRectangle);
             createT3SpanImage(srcTile, sourceProductType, sourceRectangle, dataBuffers, data11Real, data12Real, data12Imag,
-                              data13Real, data13Imag, data22Real, data23Real, data23Imag, data33Real, span);
+                    data13Real, data13Imag, data22Real, data23Real, data23Imag, data33Real, span);
 
             final double[][] neighborSpanValues = new double[filterSize][filterSize];
             final double[][] neighborPixelValues = new double[filterSize][filterSize];
@@ -648,7 +648,7 @@ public class RefinedLee implements SpeckleFilter {
 
                         final int n = getNeighborValuesWithoutBorderExt
                                 (xhalf, yhalf, sx0, sy0, syMax, sxMax, neighborPixelValues, span, neighborSpanValues,
-                                 srcIndex, srcData);
+                                        srcIndex, srcData);
 
                         double v;
                         if (n < filterSize2) {
