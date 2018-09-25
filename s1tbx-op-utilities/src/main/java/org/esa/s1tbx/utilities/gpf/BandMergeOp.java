@@ -93,52 +93,13 @@ public class BandMergeOp extends Operator {
         }
 
         validateSourceProducts();
-  /*      if (sourceBandNames == null || sourceBandNames.length == 0) {
-            List<NodeDescriptor> nodeDescriptorList = new ArrayList<>();
-            for (final Product sourceProduct : sourceProducts) {
-                if (sourceProduct != sourceProducts[0]) {
-                    for (String bandName : sourceProduct.getBandNames()) {
-                        final NodeDescriptor nodeDescriptor = new NodeDescriptor();
-                        nodeDescriptor.name = bandName;
-                        nodeDescriptor.productId = getSourceProductId(sourceProduct);
-                        nodeDescriptorList.add(nodeDescriptor);
-                    }
-                }
-            }
-            includes = nodeDescriptorList.toArray(new NodeDescriptor[nodeDescriptorList.size()]);
-        }
-
-        Set<Product> allSrcProducts = new HashSet<>();
-        for (NodeDescriptor nodeDescriptor : includes) {
-            Product srcProduct = getSourceProduct(nodeDescriptor.productId);
-            if (srcProduct == targetProduct) {
-                continue;
-            }
-            if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.name)) {
-                if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.newName)) {
-                    copyBandWithFeatures(srcProduct, nodeDescriptor.name, nodeDescriptor.newName);
-                } else {
-                    copyBandWithFeatures(srcProduct, nodeDescriptor.name, nodeDescriptor.name);
-                }
-                allSrcProducts.add(srcProduct);
-            } else if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.namePattern)) {
-                Pattern pattern = Pattern.compile(nodeDescriptor.namePattern);
-                for (String bandName : srcProduct.getBandNames()) {
-                    Matcher matcher = pattern.matcher(bandName);
-                    if (matcher.matches()) {
-                        copyBandWithFeatures(srcProduct, bandName, bandName);
-                        allSrcProducts.add(srcProduct);
-                    }
-                }
-            }
-        }*/
 
         for (Product srcProduct : sourceProducts) {
-            if (srcProduct != sourceProducts[0]) {
+            //if (srcProduct != sourceProducts[0]) {  // why is this here?
                 mergeAutoGrouping(srcProduct);
                 ProductUtils.copyMasks(srcProduct, targetProduct);
                 ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
-            }
+            //}
         }
     }
 
