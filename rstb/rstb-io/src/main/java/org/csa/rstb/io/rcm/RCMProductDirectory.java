@@ -167,18 +167,18 @@ public class RCMProductDirectory extends XMLProductDirectory {
 
             for (int i = 0; i < img.getNumImages(); ++i) {
                 try {
-                    if (name.contains("hh")) {
+                    if (name.contains("_hh")) {
                         addBand(product, img, width, height, "HH");
-                    } else if (name.contains("hv")) {
+                    } else if (name.contains("_hv")) {
                         addBand(product, img, width, height, "HV");
-                    } else if (name.contains("vv")) {
+                    } else if (name.contains("_vv")) {
                         addBand(product, img, width, height, "VV");
-                    } else if (name.contains("vh")) {
+                    } else if (name.contains("_vh")) {
                         addBand(product, img, width, height, "VH");
-                    } else if (name.contains("ch")) {
-                        addBand(product, img, width, height, "CH");
-                    } else if (name.contains("cv")) {
-                        addBand(product, img, width, height, "CV");
+                    } else if (name.contains("_ch")) {
+                        addBand(product, img, width, height, "RCH");
+                    } else if (name.contains("_cv")) {
+                        addBand(product, img, width, height, "RCV");
                     }
                 } catch (IOException e) {
                     SystemUtils.LOG.severe("Unable to read band " + name);
