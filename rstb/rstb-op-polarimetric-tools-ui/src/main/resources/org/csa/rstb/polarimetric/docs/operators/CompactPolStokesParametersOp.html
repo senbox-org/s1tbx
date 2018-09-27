@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Compact Polarimetric Stokes Child Parameter Generation</title>
+
+
+
+
+
+    <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Compact Polarimetric Stokes Child Parameter Generation<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Compact Polarimetric Stokes Parameter Generation Operator</h3>&nbsp;&nbsp;&nbsp;This
+operator computes the following Stokes child parameters:<br>
+<ul>
+    <li>degree of polarization<br>
+    </li>
+    <li>degree of depolarization</li>
+    <li>degree of circularity</li>
+    <li>degree of ellipticity</li>
+    <li>circular polarization ratio</li>
+    <li>linear polarization ratio</li>
+    <li>linear relative phase<br>
+    </li>
+    <li>alphas</li>
+    <li>conformity coefficient<br>
+    </li>
+</ul>
+<h4>Input and Output</h4>
+
+<ul>
+    <li>The
+        input to this operator should be a simulated compact polarimetric SAR
+        product in complex scattering vector or complex covariance matrix
+        format.
+    </li>
+    <li>The output of this operator can be Stokes vector and user selected Stokes child parameters.</li>
+</ul>
+<ol>
+</ol>
+<h4>Parameters Used</h4>&nbsp;&nbsp; The following processing parameters are needed (see Figure 1):<br>
+<ul>
+    <li>Window Size X: X dimension of the sliding window used in computing the mean covariance matrix</li>
+  <li>Window Size Y: Y dimension of the sliding window used in computing the mean covariance matrix</li>
+
+    <li>Stokes vector check box</li>
+    <li>degree of polarization check box</li>
+    <li>degree of depolarization check box</li>
+    <li>degree of circularity check box</li>
+    <li>degree of ellipticity check box</li>
+    <li>circular polarization ratio check box</li>
+    <li>linear polarization ratio check box</li>
+    <li>linear relative phase check box</li>
+    <li>alphas check box</li>
+    <li>conformity coefficient check box<br>
+    </li>
+
+</ul>
+<br>
+<img style="width: 450px; height: 469px;" alt="" src="images/CompactPolStokesParametersOp.jpg"><br>
+
+<div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Figure 1. Dialog box for
+    Compact Polarimetric Stokes Parameter Generation operator<br></div>
+<br><br>
+
+<p> Reference:&nbsp;</p>
+
+<p>[1] R. K. Raney, P. Spudis, B. Bussey, J. R. Jensen, B. Marinelli, P. McKerracher, R. Schulze, H. Sequeira, and H.
+    Winters,
+    "Compact Polarimetry at the Moon: The Mini-RF Radars", POLinSAR, Frascati, Italy, 24-29 Jan. 2011.<br>
+    .<br>
+    <br>
+</p>
+
+<hr>
+</body></html>

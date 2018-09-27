@@ -7,10 +7,15 @@
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar" mergetype="javax.help.SortMerge">
             <tocitem text="Polarimetric" mergetype="javax.help.SortMerge">
+                <tocitem text="Compact Polarimetric">
+                    <tocitem text="Compact-Pol Data Simulation" target="CompactPolDataSimulationOp"/>
+                    <tocitem text="Compact-Pol Stokes Parameters" target="CompactPolStokesParametersOp"/>
+                    <tocitem text="Compact-Pol Decomposition" target="CompactPolDecompositionOp"/>
+                </tocitem>
                 <tocitem text="Polarimetric Matrices" target="PolarimetricMatricesOp"/>
-                <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
                 <tocitem text="Polarimetric Speckle Filtering" target="PolarimetricSpeckleFilterOp"/>
                 <tocitem text="Orientation Angle Correction" target="OrientationAngleCorrectionOp"/>
+                <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
             </tocitem>
         </tocitem>
     </tocitem>

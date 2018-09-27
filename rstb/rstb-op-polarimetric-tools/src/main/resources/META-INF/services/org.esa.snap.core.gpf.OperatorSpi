@@ -4,4 +4,6 @@ org.csa.rstb.polarimetric.gpf.OrientationAngleCorrectionOp$Spi
 org.csa.rstb.polarimetric.gpf.PolarimetricMatricesOp$Spi
 org.csa.rstb.polarimetric.gpf.PolarimetricParametersOp$Spi
 org.csa.rstb.polarimetric.gpf.CrossChannelSNRCorrectionOp$Spi
-
+org.csa.rstb.polarimetric.gpf.CompactPolDataSimulationOp$Spi
+org.csa.rstb.polarimetric.gpf.CompactPolStokesParametersOp$Spi
+org.csa.rstb.polarimetric.gpf.CompactPolDecompositionOp$Spi

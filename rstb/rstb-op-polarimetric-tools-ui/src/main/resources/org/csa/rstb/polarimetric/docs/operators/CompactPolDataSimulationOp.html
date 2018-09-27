@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Compact Polarimetry Data Simulation</title>
+
+
+
+
+
+    <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Compact Polarimetry Data Simulation<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Compact Polarimetry Data Simulation Operator</h3>&nbsp;&nbsp;&nbsp;This
+operator simulates compact pol data from quad pol data. Primarily, this
+will be applied to RADARSAT-2 Quad Pol products, but it also enable
+simulating compact pol from quad pol from other missions including
+ALOS, ALOS-2 and TerraSAR-X. The compact pol data of the following
+compact modes are simulated:<br>
+<ul>
+    <li>Right Circular Hybrid Mode<br>
+    </li>
+    <li>Left Circular Hybrid Mode</li>
+</ul><h4>Input and Output</h4>
+<ul>
+    <li>The
+        input to this operator should be a full polarimetric SAR product with 8
+        bands,
+        i.e. I and Q bands for HH, VV, HV and VH polarizations.
+    </li>
+    <li>The output of this operator can be the 2x1 complex scattering vector or the 2x2 complex covariance matrix.</li>
+</ul>
+<ol>
+</ol>
+<h4>Parameters Used</h4>&nbsp;&nbsp; The following processing parameters are needed (see Figure 1):<br>
+<ul>
+    <li>Compact Mode: the compact mode of the simulated data<br>
+    </li>
+    <li>Output Format: the format of the simulated data (scattering vector or covariance matrix)<br>
+    </li>
+</ul>
+<br>
+<img style="width: 450px; height: 450px;" alt="" src="images/CompactPolDataSimulationOp.jpg"><br>
+
+<div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Figure 1. Dialog box for
+    Compact Polarimetry Data Simulation operator<br></div>
+<br><br>
+
+<p> Reference:&nbsp;</p>
+
+<p>[1] S. R. Cloude, D. G. Goodenough and H. Chen, "Compact Decomposition Theory", IEEE
+    Geoscience and Remote Sensing Letters, Vol. 9, No. 1, Jan. 2012.<br>
+</p>
+
+<p>[2] T. L. Ainsworth, M. Peiss, N. Stacy, M. Nord, J. S. Lee,
+    "ANALYSIS OF COMPACT POLARIMETRIC SAR IMAGING MODES", Proceedings of
+    the 3rd International Workshop on Science and Applications of SAR
+    Polarimetry and Polarimetric Interferometry, by Lacoste, H.; Ouwehand,
+    L. ISBN:92-9291-208-7 . Noordwijk, Netherlands: European Space Agency,
+    2007, id.18<br>
+    .<br>
+    <br>
+</p>
+
+<hr>
+</body></html>

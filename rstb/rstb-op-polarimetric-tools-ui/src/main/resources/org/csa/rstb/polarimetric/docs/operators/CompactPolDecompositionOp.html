@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Compact Polarimetric Decomposition</title>
+
+
+
+
+
+    <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Compact Polarimetric Decomposition<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Compact Polarimetric Decomposition Operator</h3>&nbsp;&nbsp;&nbsp;This
+operator performs the following decompositions on compact pol data:<br>
+<ul>
+    <li>m-chi decomposition<br>
+    </li>
+    <li>m-delta decomposition</li>
+    <li>H-Alpha decomposition</li>
+    <li>2-layer RVOG decomposition<br>
+    </li>
+</ul>
+&nbsp;&nbsp; The operator first computes Stokes vector [g0,
+g1, g2, g3] for each pixel from the averaged covariance matrix, then
+performs user selected decomposition.<br>
+<h5>m-chi Decomposition:</h5>
+
+<div style="text-align: center;">&nbsp;<img style="width: 169px; height: 124px;" alt="" src="images/m_chi_eq1.jpg"><br>
+</div>
+where <br>
+
+<div style="text-align: center;"><img style="width: 169px; height: 92px;" alt="" src="images/m_chi_eq2.jpg"><br>
+</div>
+<h5>m-delta decomposition:</h5>
+
+<div style="text-align: center;"><img style="width: 169px; height: 124px;" alt="" src="images/m_delta_eq1.jpg"><br>
+</div>
+where<br>
+
+<div style="text-align: center;"><img style="width: 169px; height: 97px;" alt="" src="images/m_delta_eq2.jpg"><br>
+</div>
+<br>
+<h5>H-Alpha decomposition:</h5>
+<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"><span style="position: relative; top: 19pt;"><br>
+</span></span>
+
+<div style="text-align: center;"><img style="width: 164px; height: 60px;" alt="" src="images/h_alpha_eq1.jpg"><br>
+</div>
+<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"><span style="position: relative; top: 19pt;"></span></span><br>
+The wave entropy is computed from the eigen decomposition of the 2x2 covariance matrix C<sub>2</sub>. Let
+&#955;<sub>1</sub> and &#955;<sub>2</sub> be the two eigen values, the entropy is given by<br>
+<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"><span style="position: relative; top: 6pt;"><br>
+</span></span>
+
+<div style="text-align: center;"><img style="width: 219px; height: 28px;" alt="" src="images/h_alpha_eq2.jpg"><br>
+</div>
+where<br>
+
+<div style="text-align: center;"><img style="width: 148px; height: 53px;" alt="" src="images/h_alpha_eq3.jpg"><br>
+</div>
+The compact pol anisotropy is defined by<br>
+
+<div style="text-align: center;"><img style="width: 148px; height: 53px;" alt="" src="images/h_alpha_eq4.jpg"><br>
+</div>
+<br>
+<h5>RVOG decomposition:</h5>
+
+<div style="text-align: center;"><img style="width: 182px; height: 100px;" alt="" src="images/rvog_eq1.jpg"><br>
+</div>
+
+<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"><span style="position: relative; top: 19pt;"><br>
+</span></span>
+
+<h4>Input and Output</h4>
+
+<ul>
+    <li>The
+        input to this operator should be a simulated compact polarimetric SAR
+        product in complex scattering vector or complex covariance matrix
+        format.
+    </li>
+    <li>The output of this operator is the m-chi, m-delta, H-Alpha or RVOG decomposition result represented by RGB
+        colours.
+    </li>
+</ul>
+<ol>
+</ol>
+<h4>Parameters Used</h4>&nbsp;&nbsp; The following processing parameters are needed (see Figure 1):<br>
+<ul>
+    <li>Decomposition: m-chi, m-delta, H-Alpha or RVOG decomposition<br>
+    </li>
+    <li>Window Size X: X dimension of the sliding window used in computing the mean covariance matrix</li>
+  <li>Window Size Y: Y dimension of the sliding window used in computing the mean covariance matrix</li>
+
+</ul>
+<br>
+<img style="width: 450px; height: 450px;" alt="" src="images/CompactPolDecompositionOp.jpg"><br>
+
+<div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Figure 1. Dialog box for
+    Compact Polarimetric Decomposition operator<br></div>
+<br><br>
+
+<p> Reference:&nbsp;</p>
+
+<p>[1] R. K. Raney, J. T. S. Cahill, G. W. Patterson, and B. J. Bussey,
+    "The m-chi decomposition of hybrid dual-polarimetric radar data with
+    application to lunar craters", Journal of Geophysical Research, Vol.
+    117, E00H21, doi:10.1029/2011JE003986, 2012.<br>
+</p>
+
+<p>[2] R. K. Raney, "Hybrid-Polarity SAR Architecture", IEEE
+    transaction on Geoscience and Remote Sensing, Vol. 45, No. 11, Nov,
+    2007.</p>
+
+<p>[3] S. R. Cloude, D. G. Goodenough, H. Chen, "Compact Decomposition
+    Theory", IEEE Geoscience and Remote Sensing Letters, Vol. 9, No. 1,
+    Jan. 2012.<br>
+    <br>
+</p>
+
+
+<hr>
+</body></html>

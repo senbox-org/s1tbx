@@ -69,6 +69,39 @@
                 <attr name="icon" stringvalue="rstbIcon"/>
                 <attr name="helpId" stringvalue="CrossChannelSNRCorrectionOp"/>
             </file>
+			<file name="org.csa.rstb.polarimetric-gpf-CompactPolDataSimulation-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="CP Simulation"/>
+                <attr name="operatorName" stringvalue="CP-Simulation"/>
+                <attr name="dialogTitle" stringvalue="CP Simulation"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_cp"/>
+                <attr name="ShortDescription" stringvalue="Simulate Compact Pol Data from Full Pol RS2 Data"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="helpId" stringvalue="CompactPolDataSimulationOp"/>
+            </file>
+            <file name="org.csa.rstb.polarimetric-gpf-CompactPolStokesParameters-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="CP Stokes Parameters"/>
+                <attr name="operatorName" stringvalue="CP-Stokes-Parameters"/>
+                <attr name="dialogTitle" stringvalue="CP Stokes Parameters"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_Stokes"/>
+                <attr name="ShortDescription" stringvalue="Compute Compact Pol Stokes Child Parameters"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="helpId" stringvalue="CompactPolStokesParametersOp"/>
+            </file>
+            <file name="org.csa.rstb.polarimetric-gpf-CompactPolDecomposition-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="CP Decomposition"/>
+                <attr name="operatorName" stringvalue="CP-Decomposition"/>
+                <attr name="dialogTitle" stringvalue="CP Decomposition"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_Decomp"/>
+                <attr name="ShortDescription" stringvalue="Compact Pol Decompositions"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="helpId" stringvalue="CompactPolDecompositionOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -81,6 +114,21 @@
         <folder name="Radar">
             <folder name="Polarimetric">
                 <attr name="position" intvalue="500"/>
+				<folder name="Compact Polarimetry">
+                    <attr name="position" intvalue="80"/>
+					<file name="org.csa.rstb.polarimetric-gpf-CompactPolDataSimulation-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org.csa.rstb.polarimetric-gpf-CompactPolDataSimulation-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org.csa.rstb.polarimetric-gpf-CompactPolStokesParameters-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org.csa.rstb.polarimetric-gpf-CompactPolStokesParameters-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org.csa.rstb.polarimetric-gpf-CompactPolDecomposition-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org.csa.rstb.polarimetric-gpf-CompactPolDecomposition-Action.instance"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+				</folder>	
                 <file name="org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>
@@ -121,6 +169,10 @@
         <file name="org.csa.rstb.polarimetric.gpf.ui.PolarimetricParametersOpUI">
             <attr name="operatorUIClass" stringvalue="org.csa.rstb.polarimetric.gpf.ui.PolarimetricParametersOpUI"/>
             <attr name="operatorName" stringvalue="Polarimetric-Parameters"/>
+        </file>
+		<file name="org.csa.rstb.polarimetric.gpf.ui.CompactPolDecompositionOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.polarimetric.gpf.ui.CompactPolDecompositionOpUI"/>
+            <attr name="operatorName" stringvalue="CP-Decomposition"/>
         </file>
     </folder>
 
