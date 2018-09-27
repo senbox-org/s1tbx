@@ -196,7 +196,9 @@ public final class PolarimetricMatricesOp extends Operator implements DualPolPro
         if (matrix.equals(C2)) {
             if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
                     sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
-                    sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV) {
+                    sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
+                    sourceProductType != PolBandUtils.MATRIX.LCHCP &&
+                    sourceProductType != PolBandUtils.MATRIX.RCHCP) {
                 if (sourceProductType == PolBandUtils.MATRIX.FULL) {
                     throw new OperatorException("Dual-pol product is expected for C2. Use BandSelect to select polarizations");
                 } else {

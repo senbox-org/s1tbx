@@ -4,6 +4,9 @@
         "http://java.sun.com/products/javahelp/map_2_0.dtd">
 
 <map version="2.0">
+	<mapID target="CompactPolDataSimulationOp" url="operators/CompactPolDataSimulationOp.html"/>
+    <mapID target="CompactPolDecompositionOp" url="operators/CompactPolDecompositionOp.html"/>
+    <mapID target="CompactPolStokesParametersOp" url="operators/CompactPolStokesParametersOp.html"/>
     <mapID target="PolarimetricMatricesOp" url="operators/PolarimetricMatricesOp.html"/>
     <mapID target="PolarimetricDecompositionOp" url="operators/PolarimetricDecompositionOp.html"/>
     <mapID target="PolarimetricSpeckleFilterOp" url="operators/PolarimetricSpeckleFilterOp.html"/>

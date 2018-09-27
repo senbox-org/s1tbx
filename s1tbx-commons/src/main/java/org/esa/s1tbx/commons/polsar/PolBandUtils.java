@@ -77,9 +77,9 @@ public class PolBandUtils {
                 isT3 = true;
             } else if (name.contains("C22")) {
                 isC2 = true;
-            } else if (name.contains("LH")) {
+            } else if (name.contains("LH") || name.contains("LCH") || name.contains("LCV")) {
                 isLCHS2 = true;
-            } else if (name.contains("RH")) {
+            } else if (name.contains("RH") || name.contains("RCH") || name.contains("RCV")) {
                 isRCHS2 = true;
             } else if (name.contains("_HH")) {
                 isHH = true;
@@ -358,10 +358,10 @@ public class PolBandUtils {
      */
     public static String[] getLCHModeS2BandNames() {
         return new String[]{
-                "i_LH",
-                "q_LH",
-                "i_LV",
-                "q_LV",
+                "i_LCH",
+                "q_LCH",
+                "i_LCV",
+                "q_LCV",
         };
     }
 
@@ -372,10 +372,10 @@ public class PolBandUtils {
      */
     public static String[] getRCHModeS2BandNames() {
         return new String[]{
-                "i_RH",
-                "q_RH",
-                "i_RV",
-                "q_RV",
+                "i_RCH",
+                "q_RCH",
+                "i_RCV",
+                "q_RCV",
         };
     }
 
