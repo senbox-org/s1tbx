@@ -263,24 +263,28 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
             if (targetBandName.contains("i_45H") || targetBandName.contains("i_RH") ||
                     targetBandName.contains("i_RCH") ||
                     targetBandName.contains("i_LH") || targetBandName.contains("i_RR") ||
+                    targetBandName.contains("i_LCH") ||
                     targetBandName.contains("i_HH") || targetBandName.contains("i_VH")) {
                 matrixBandMap.put(band, new MatrixElem(0, 0, false));
 
             } else if (targetBandName.contains("q_45H") || targetBandName.contains("q_RH") ||
                     targetBandName.contains("q_RCH") ||
                     targetBandName.contains("q_LH") || targetBandName.contains("q_RR") ||
+                    targetBandName.contains("q_LCH") ||
                     targetBandName.contains("q_HH") || targetBandName.contains("q_VH")) {
                 matrixBandMap.put(band, new MatrixElem(0, 0, true));
 
             } else if (targetBandName.contains("i_45V") || targetBandName.contains("i_RV") ||
                     targetBandName.contains("i_RCV") ||
                     targetBandName.contains("i_LV") || targetBandName.contains("i_RL") ||
+                    targetBandName.contains("i_LCV") ||
                     targetBandName.contains("i_HV") || targetBandName.contains("i_VV")) {
                 matrixBandMap.put(band, new MatrixElem(1, 0, false));
 
             } else if (targetBandName.contains("q_45V") || targetBandName.contains("q_RV") ||
                     targetBandName.contains("q_RCV") ||
                     targetBandName.contains("q_LV") || targetBandName.contains("q_RL") ||
+                    targetBandName.contains("q_LCV") ||
                     targetBandName.contains("q_HV") || targetBandName.contains("q_VV")) {
                 matrixBandMap.put(band, new MatrixElem(1, 0, true));
             }
