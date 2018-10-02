@@ -56,7 +56,7 @@ public class MetadataWriter implements StatisticsOutputter {
                     .append(statisticsOutputContext.endDate.format())
                     .append("\n");
         }
-        if (statisticsOutputContext.timeIntervals != null) {
+        if (statisticsOutputContext.timeIntervals != null && statisticsOutputContext.timeIntervals.length > 0) {
             printStream
                     .append("#\n")
                     .append("# Time Intervals:")
