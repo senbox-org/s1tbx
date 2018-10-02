@@ -145,7 +145,7 @@ public class BandNameCreator {
         return getUniqueAttributeName(measureName, sourceBandName);
     }
 
-    String getUniqueAttributeName(String measureName, String sourceBandName) {
+    private String getUniqueAttributeName(String measureName, String sourceBandName) {
         final String desiredAttributeName = measureName + "_" + sourceBandName;
         if (mappedNames.containsKey(desiredAttributeName)) {
             return mappedNames.get(desiredAttributeName);
