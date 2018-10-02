@@ -81,7 +81,6 @@ public class BandNameCreator {
                 final int idxLength = indexPart.length();
                 attributeName = attributeName.substring(0, 10 - idxLength - 1) + "_" + indexPart;
             }
-            indexMap.put(sourceBandName, index + 1);
         }
         if (tooLong) {
             SystemUtils.LOG.warning(
@@ -154,7 +153,7 @@ public class BandNameCreator {
     }
 
     private static String shorten(String attributeName) {
-        attributeName = attributeName.replace("minimum", "min").replace("maximum", "max");
+        attributeName = attributeName.replace("minimum", "mn").replace("maximum", "mx").replace("_threshold", "");
         attributeName = attributeName.replace("a", "").replace("e", "").replace("i", "").replace("o", "").replace("u", "");
         return attributeName;
     }
