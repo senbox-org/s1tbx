@@ -120,7 +120,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
         typeBuilder.init(originalFeatureType);
         for (final String measureName : statisticsOutputContext.measureNames) {
             for (String bandName : statisticsOutputContext.bandNames) {
-                if (statisticsOutputContext.timeIntervals == null || statisticsOutputContext.timeIntervals.length == 1) {
+                if (statisticsOutputContext.timeIntervals == null || statisticsOutputContext.timeIntervals.length <= 1) {
                     final String attributeName = bandNameCreator.createUniqueAttributeName(measureName, bandName);
                     if (originalFeatureType.getDescriptor(attributeName) == null) {
                         if (statisticsOutputContext.isNotNumber(measureName)) {

@@ -85,8 +85,8 @@ public class StatisticComputer {
         };
         pm = ProgressMonitor.NULL;
         this.bandConfigurations = bandConfigurations;
-        stxOpMappingsList = new Map[timeIntervals.length];
-        for (int i = 0; i < timeIntervals.length; i++) {
+        stxOpMappingsList = new Map[Math.max(1, timeIntervals.length)];
+        for (int i = 0; i < stxOpMappingsList.length; i++) {
             stxOpMappingsList[i] = new HashMap<>();
         }
     }
@@ -95,6 +95,9 @@ public class StatisticComputer {
         if (product.getEndTime() == null) {
             // if the product has no time information but has passed product validation,
             // no start and end date have been set and there is only a single artificial time interval
+            return 0;
+        }
+        if (timeIntervals.length == 0) {
             return 0;
         }
         Date productStart = product.getStartTime().getAsDate();
