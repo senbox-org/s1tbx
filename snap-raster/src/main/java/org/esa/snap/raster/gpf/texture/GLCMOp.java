@@ -322,7 +322,7 @@ public final class GLCMOp extends Operator {
             final Band[] srcBands = sourceProduct.getBands();
             for (Band srcBand : srcBands) {
                 String bandUnit = srcBand.getUnit();
-                if (bandUnit != null && (bandUnit.contains(Unit.INTENSITY)) || bandUnit.contains(Unit.AMPLITUDE)) {
+                if (bandUnit != null && (bandUnit.contains(Unit.INTENSITY) || bandUnit.contains(Unit.AMPLITUDE))) {
                     srcBandNameList.add(srcBand.getName());
                 }
             }
