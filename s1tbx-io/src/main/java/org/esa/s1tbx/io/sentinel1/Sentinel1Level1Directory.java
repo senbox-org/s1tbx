@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.sentinel1;
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.JSONProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.snap.core.datamodel.Band;
@@ -40,14 +41,15 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -217,10 +219,27 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
 
+        addProductInfoJSON(origProdRoot);
+
         // get metadata for each band
         addBandAbstractedMetadata(absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
+    }
+
+    private void addProductInfoJSON(final MetadataElement origProdRoot) throws IOException {
+        if(productDir.exists("productInfo.json")) {
+            try {
+                final File productInfoFile = productDir.getFile("productInfo.json");
+                final BufferedReader streamReader = new BufferedReader(new FileReader(productInfoFile.getPath()));
+                final JSONParser parser = new JSONParser();
+                final JSONObject json = (JSONObject) parser.parse(streamReader);
+                json.remove("filenameMap");
+                AbstractMetadataIO.AddXMLMetadata(JSONProductDirectory.jsonToXML("ProductInfo", json), origProdRoot);
+            } catch(Exception e) {
+               throw new IOException("Unable to read productInfo " + e.getMessage(), e);
+            }
+        }
     }
 
     static void addManifestMetadata(final String productName, final MetadataElement absRoot,
@@ -754,49 +773,67 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 lastSWBandFound = true;
             }
         }
-        if (firstSWBand == null && lastSWBand == null)
-            return;
+        if (firstSWBand != null && lastSWBand != null) {
 
-        final GeoCoding firstSWBandGeoCoding = bandGeocodingMap.get(firstSWBand);
-        final int firstSWBandHeight = firstSWBand.getRasterHeight();
+            final GeoCoding firstSWBandGeoCoding = bandGeocodingMap.get(firstSWBand);
+            final int firstSWBandHeight = firstSWBand.getRasterHeight();
 
-        final GeoCoding lastSWBandGeoCoding = bandGeocodingMap.get(lastSWBand);
-        final int lastSWBandWidth = lastSWBand.getRasterWidth();
-        final int lastSWBandHeight = lastSWBand.getRasterHeight();
+            final GeoCoding lastSWBandGeoCoding = bandGeocodingMap.get(lastSWBand);
+            final int lastSWBandWidth = lastSWBand.getRasterWidth();
+            final int lastSWBandHeight = lastSWBand.getRasterHeight();
 
-        final PixelPos ulPix = new PixelPos(0, 0);
-        final PixelPos llPix = new PixelPos(0, firstSWBandHeight - 1);
-        final GeoPos ulGeo = new GeoPos();
-        final GeoPos llGeo = new GeoPos();
-        firstSWBandGeoCoding.getGeoPos(ulPix, ulGeo);
-        firstSWBandGeoCoding.getGeoPos(llPix, llGeo);
+            final PixelPos ulPix = new PixelPos(0, 0);
+            final PixelPos llPix = new PixelPos(0, firstSWBandHeight - 1);
+            final GeoPos ulGeo = new GeoPos();
+            final GeoPos llGeo = new GeoPos();
+            firstSWBandGeoCoding.getGeoPos(ulPix, ulGeo);
+            firstSWBandGeoCoding.getGeoPos(llPix, llGeo);
 
-        final PixelPos urPix = new PixelPos(lastSWBandWidth - 1, 0);
-        final PixelPos lrPix = new PixelPos(lastSWBandWidth - 1, lastSWBandHeight - 1);
-        final GeoPos urGeo = new GeoPos();
-        final GeoPos lrGeo = new GeoPos();
-        lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
-        lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
+            final PixelPos urPix = new PixelPos(lastSWBandWidth - 1, 0);
+            final PixelPos lrPix = new PixelPos(lastSWBandWidth - 1, lastSWBandHeight - 1);
+            final GeoPos urGeo = new GeoPos();
+            final GeoPos lrGeo = new GeoPos();
+            lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
+            lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
 
-        final float[] latCorners = {(float) ulGeo.getLat(), (float) urGeo.getLat(), (float) llGeo.getLat(), (float) lrGeo.getLat()};
-        final float[] lonCorners = {(float) ulGeo.getLon(), (float) urGeo.getLon(), (float) llGeo.getLon(), (float) lrGeo.getLon()};
+            final float[] latCorners = {(float) ulGeo.getLat(), (float) urGeo.getLat(), (float) llGeo.getLat(), (float) lrGeo.getLat()};
+            final float[] lonCorners = {(float) ulGeo.getLon(), (float) urGeo.getLon(), (float) llGeo.getLon(), (float) lrGeo.getLon()};
 
-        ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
+            ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, ulGeo.getLat());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, ulGeo.getLon());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, urGeo.getLat());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, urGeo.getLon());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, ulGeo.getLat());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, ulGeo.getLon());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, urGeo.getLat());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, urGeo.getLon());
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, llGeo.getLat());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, llGeo.getLon());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lrGeo.getLat());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lrGeo.getLon());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, llGeo.getLat());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, llGeo.getLon());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lrGeo.getLat());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lrGeo.getLon());
 
-        // add band geocoding
-        final Band[] bands = product.getBands();
-        for (Band band : bands) {
-            band.setGeoCoding(bandGeocodingMap.get(band));
+            // add band geocoding
+            final Band[] bands = product.getBands();
+            for (Band band : bands) {
+                band.setGeoCoding(bandGeocodingMap.get(band));
+            }
+        } else {
+            try {
+                final String annotFolder = getRootFolder() + "annotation";
+                final String[] filenames = listFiles(annotFolder);
+
+                addTiePointGrids(product, null, filenames[0], "");
+
+                latGrid = product.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
+                lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
+                if (latGrid != null && lonGrid != null) {
+                    setLatLongMetadata(product, latGrid, lonGrid);
+
+                    final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
+                    product.setSceneGeoCoding(tpGeoCoding);
+                }
+            } catch (IOException e) {
+                SystemUtils.LOG.severe("Unable to add tpg geocoding " + e.getMessage());
+            }
         }
     }
 
