@@ -255,7 +255,7 @@ public class SpatialProductBinner {
                     try {
                         variableValidExpr = BandArithmetic.getValidMaskExpression(variableExpr, product, validMaskExpression);
                     } catch (ParseException e) {
-                        throw new OperatorException("Failed to parse valid-mask expression: " + e.getMessage(), e);
+                        throw new OperatorException("Failed to parse valid-mask expression " + validMaskExpression + ": " + e.getMessage(), e);
                     }
                 }
                 if (StringUtils.isNotNullAndNotEmpty(variableValidExpr) && !variableValidExpr.equals("true")) {
