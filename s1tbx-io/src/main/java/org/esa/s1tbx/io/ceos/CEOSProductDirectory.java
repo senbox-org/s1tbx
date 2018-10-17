@@ -499,9 +499,9 @@ public abstract class CEOSProductDirectory {
 	    }
 	}
         for(String name : fileList) {
-            name = name.toUpperCase();
+            String nameUp = name.toUpperCase();
             for (String prefix : prefixList) {
-                if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
+                if (nameUp.startsWith(prefix) || nameUp.endsWith('.' + prefix)) {
                     try {
                         ImageInputStream stream;
                         if (productDir.isCompressed()) {
