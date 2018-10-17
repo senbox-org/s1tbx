@@ -19,6 +19,7 @@ import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CEOSLeaderFile;
+import org.esa.s1tbx.io.ceos.CeosRecordHeader;
 import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
@@ -46,58 +47,44 @@ class RadarsatLeaderFile extends CEOSLeaderFile {
     public RadarsatLeaderFile(final ImageInputStream stream) throws IOException {
         final BinaryFileReader reader = new BinaryFileReader(stream);
 
+        CeosRecordHeader header = new CeosRecordHeader(reader);
         final Document leaderXML = loadDefinitionFile(mission, leader_recordDefinitionFile);
         leaderFDR = new BinaryRecord(reader, -1, leaderXML, leader_recordDefinitionFile);
-        reader.seek(leaderFDR.getRecordEndPosition());
+        header.seekToEnd();
 
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of data set summary records"); ++i) {
-            sceneHeaderRecord = new BinaryRecord(reader, -1, sceneXML, scene_recordDefinitionFile);
-            reader.seek(sceneHeaderRecord.getRecordEndPosition());
-        }
 
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of map projection data records"); ++i) {
-            mapProjRecord = new BinaryRecord(reader, -1, mapProjXML, mapproj_recordDefinitionFile);
-            reader.seek(mapProjRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of platform pos. data records"); ++i) {
-            platformPositionRecord = new BinaryRecord(reader, -1, platformXML, platformPosition_recordDefinitionFile);
-            reader.seek(platformPositionRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of attitude data records"); ++i) {
-            attitudeRecord = new BinaryRecord(reader, -1, attitudeXML, attitude_recordDefinitionFile);
-            reader.seek(attitudeRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of radiometric data records"); ++i) {
-            radiometricRecord = new BinaryRecord(reader, -1, radiometricXML, radiometric_recordDefinitionFile);
-            reader.seek(radiometricRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of rad. compensation records"); ++i) {
-            radiometricCompRecord = new BinaryRecord(reader, -1, radiometricCompXML, radiometric_comp_recordDefinitionFile);
-            reader.seek(radiometricCompRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of data quality summary records"); ++i) {
-            dataQualityRecord = new BinaryRecord(reader, -1, dataQualityXML, dataQuality_recordDefinitionFile);
-            reader.seek(dataQualityRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of data histograms records"); ++i) {
-            histogramRecord = new BinaryRecord(reader, -1, histogramXML, histogram_recordDefinitionFile);
-            reader.seek(histogramRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of det. processing records"); ++i) {
-            detailedProcessingRecord = new BinaryRecord(reader, -1, detailProcXML, detailedProcessing_recordDefinitionFile);
-            reader.seek(detailedProcessingRecord.getRecordEndPosition());
-        }
-
-        for (int i = 0; i < leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
-            facilityRecord = new BinaryRecord(reader, -1, facilityXML, facility_recordDefinitionFile);
-            reader.seek(facilityRecord.getRecordEndPosition());
+        while(header.getRecordLength() > 0) {
+            header = new CeosRecordHeader(reader);
+            switch(header.getRecordTypeCode()) {
+                case 10:
+                    sceneHeaderRecord = new BinaryRecord(reader, -1, sceneXML, scene_recordDefinitionFile);
+                    break;
+                case 60:
+                    dataQualityRecord = new BinaryRecord(reader, -1, dataQualityXML, dataQuality_recordDefinitionFile);
+                    break;
+                case 70:
+                    histogramRecord = new BinaryRecord(reader, -1, histogramXML, histogram_recordDefinitionFile);
+                    break;
+                case 120:
+                    detailedProcessingRecord = new BinaryRecord(reader, -1, detailProcXML, detailedProcessing_recordDefinitionFile);
+                    break;
+                case 20:
+                    mapProjRecord = new BinaryRecord(reader, -1, mapProjXML, mapproj_recordDefinitionFile);
+                    break;
+                case 30:
+                    platformPositionRecord = new BinaryRecord(reader, -1, platformXML, platformPosition_recordDefinitionFile);
+                    break;
+                case 40:
+                    attitudeRecord = new BinaryRecord(reader, -1, attitudeXML, attitude_recordDefinitionFile);
+                    break;
+                case 50:
+                    radiometricRecord = new BinaryRecord(reader, -1, radiometricXML, radiometric_recordDefinitionFile);
+                    break;
+                case 51:
+                    radiometricCompRecord = new BinaryRecord(reader, -1, radiometricCompXML, radiometric_comp_recordDefinitionFile);
+                    break;
+            }
+            header.seekToEnd();
         }
 
         reader.close();
