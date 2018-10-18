@@ -309,6 +309,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final ProductData.UTC endTime = getUTCScanStopTime(sceneRec, detProcRec);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         if (mapProjRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
@@ -347,6 +348,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                                           sceneRec.getAttributeDouble("Line spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange(mapProjRec));
         }
 
         //sph
