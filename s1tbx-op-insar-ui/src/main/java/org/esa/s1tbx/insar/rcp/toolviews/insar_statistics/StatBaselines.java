@@ -63,6 +63,9 @@ public class StatBaselines implements InSARStatistic {
                 final List<CachedBaseline> baselines = new ArrayList<>(50);
 
                 final InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(product);
+                if(stackOverview == null)
+                    return null;
+
                 final InSARStackOverview.IfgPair[] slaves = stackOverview[0].getMasterSlave();
 
                 for (InSARStackOverview.IfgPair slave : slaves) {
@@ -80,11 +83,13 @@ public class StatBaselines implements InSARStatistic {
     public void update(final Product product) {
 
         if (InSARStatistic.isValidProduct(product)) {
-            CachedBaseline[] baselines = getBaselines(product);
-
             tableModel.clear();
-            for (CachedBaseline baseline : baselines) {
-                tableModel.addRow(baseline);
+
+            CachedBaseline[] baselines = getBaselines(product);
+            if(baselines != null) {
+                for (CachedBaseline baseline : baselines) {
+                    tableModel.addRow(baseline);
+                }
             }
             table.repaint();
         } else {

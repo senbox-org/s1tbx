@@ -25,6 +25,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -207,6 +208,11 @@ public class InSARStackOverview {
         final List<Orbit> orbList = new ArrayList<>(absRoots.length);
 
         for (MetadataElement absRoot : absRoots) {
+            final AbstractMetadata.DopplerCentroidCoefficientList[] dopplersArray = AbstractMetadata.getDopplerCentroidCoefficients(absRoot);
+            if(dopplersArray.length == 0) {
+                return null;
+            }
+
             imgList.add(new SLCImage(absRoot, null));
             orbList.add(new Orbit(absRoot, 3));
         }
