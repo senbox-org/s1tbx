@@ -93,18 +93,14 @@ public final class PrareOrbitReader {
         if (ZipUtils.isZipped(file)) {
             try {
                 // check if previously unzipped
-                final File tempFolder = new File(SystemUtils.getCacheDir()+"\\s1tbx\\orbits", file.getName());
-                tempFolder.mkdirs();
+                final File tempFolder = SystemUtils.getCacheDir();
                 final File prevFile = new File(tempFolder, FileUtils.getFilenameWithoutExtension(file));
                 if (prevFile.exists()) {
                     filePath = prevFile.getAbsolutePath();
                 } else {
                     // open zip
-                    ZipUtils.unzip(file.toPath(), tempFolder.toPath(), false);
-                    final File[] files = tempFolder.listFiles();
-                    if(files != null && files.length > 0) {
-                        filePath = files[0].getAbsolutePath();
-                    }
+                    final File[] files = ZipUtils.unzipToFolder(file, tempFolder);
+                    filePath = files[0].getAbsolutePath();
                 }
             } catch (Exception e) {
                 throw new IOException(e.getMessage() + ": " + file.getAbsolutePath());
