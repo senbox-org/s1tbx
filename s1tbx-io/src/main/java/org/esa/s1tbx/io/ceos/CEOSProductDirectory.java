@@ -328,11 +328,14 @@ public abstract class CEOSProductDirectory {
         return (Constants.lightSpeed / wavelength) / Constants.oneMillion; // MHz
     }
 
-    protected static int isGroundRange(final BinaryRecord mapProjRec) {
-        final String projDesc = mapProjRec.getAttributeString("Map projection descriptor").toLowerCase();
-        if (projDesc.contains("slant"))
-            return 0;
-        return 1;
+    protected int isGroundRange(final BinaryRecord mapProjRec) {
+        if(mapProjRec != null) {
+            final String projDesc = mapProjRec.getAttributeString("Map projection descriptor").toLowerCase();
+            if (projDesc.contains("slant"))
+                return 0;
+            return 1;
+        }
+        return isProductSLC ? 0 : 1;
     }
 
     protected void addOrbitStateVectors(final MetadataElement absRoot, final BinaryRecord platformPosRec) {
@@ -499,9 +502,9 @@ public abstract class CEOSProductDirectory {
 	    }
 	}
         for(String name : fileList) {
-            name = name.toUpperCase();
+            String nameUp = name.toUpperCase();
             for (String prefix : prefixList) {
-                if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
+                if (nameUp.startsWith(prefix) || nameUp.endsWith('.' + prefix)) {
                     try {
                         ImageInputStream stream;
                         if (productDir.isCompressed()) {

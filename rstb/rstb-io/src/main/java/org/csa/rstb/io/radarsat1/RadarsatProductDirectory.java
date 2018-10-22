@@ -309,6 +309,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final ProductData.UTC endTime = getUTCScanStopTime(sceneRec, detProcRec);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         if (mapProjRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
@@ -347,6 +348,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                                           sceneRec.getAttributeDouble("Line spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange(mapProjRec));
         }
 
         //sph
@@ -604,8 +606,12 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         for (int j = 0; j < gridHeight; j++) {
             final int y = Math.min(j * subSamplingY, sceneHeight - 1);
             final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(y); // meters
-            final double slantRangeToMidPixel = imageFiles[0].getSlantRangeToMidPixel(y);
+            double slantRangeToMidPixel = imageFiles[0].getSlantRangeToMidPixel(y);
             final double slantRangeToLastPixel = imageFiles[0].getSlantRangeToLastPixel(y);
+            if(slantRangeToMidPixel == 0.0) {
+                slantRangeToMidPixel = slantRangeToFirstPixel + ((slantRangeToLastPixel-slantRangeToFirstPixel)/2.0);
+            }
+
             final double[] polyCoef = computePolynomialCoefficients(slantRangeToFirstPixel,
                                                                     slantRangeToMidPixel,
                                                                     slantRangeToLastPixel,

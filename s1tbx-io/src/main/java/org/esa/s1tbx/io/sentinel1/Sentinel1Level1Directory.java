@@ -758,7 +758,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 numOfSubSwath = 5;
                 break;
             default:
-                return;
+                numOfSubSwath = 1;
         }
 
         String[] bandNames = product.getBandNames();

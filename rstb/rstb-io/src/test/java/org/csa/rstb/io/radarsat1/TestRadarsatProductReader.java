@@ -15,24 +15,29 @@
  */
 package org.csa.rstb.io.radarsat1;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Test;
+
+import java.io.File;
 
 /**
  * Test Radarsat 1 CEOS Product Reader.
  *
  * @author lveci
  */
-public class TestRadarsatProductReader {
+public class TestRadarsatProductReader extends ReaderTest  {
 
-    private RadarsatProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
+    private static final File zipFile = new File("E:\\data\\RS1\\Toronto\\RS1_m0700843_S7_20070802_232037_HH_SGF.zip");
 
     public TestRadarsatProductReader() {
-        readerPlugin = new RadarsatProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new RadarsatProductReaderPlugIn());
+    }
+
+    @Test
+    public void testOpeningZip() throws Exception {
+        testReader(zipFile);
     }
 
     /**
@@ -43,7 +48,7 @@ public class TestRadarsatProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsRadarsat1, readerPlugin, reader, null, null);
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsRadarsat1, readerPlugIn, reader, null, null);
     }
 
 }
