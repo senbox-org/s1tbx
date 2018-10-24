@@ -2,6 +2,7 @@ org.esa.s1tbx.io.ceos.ers.ERSProductReaderPlugIn
 org.esa.s1tbx.io.ceos.jers.JERSProductReaderPlugIn
 org.esa.s1tbx.io.ceos.alos.AlosPalsarProductReaderPlugIn
 org.esa.s1tbx.io.ceos.alos2.Alos2ProductReaderPlugIn
+org.esa.s1tbx.io.ceos.alos2.Alos2GeoTiffProductReaderPlugIn
 org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn
 org.esa.s1tbx.io.cosmo.CosmoSkymedReaderPlugIn
 org.esa.s1tbx.io.gamma.GammaProductReaderPlugIn
