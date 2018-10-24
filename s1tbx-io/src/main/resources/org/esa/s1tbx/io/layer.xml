@@ -24,8 +24,8 @@
                 <file name="org-esa-s1tbx-io-ceos-importAlos2GeoTiffProduct.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                    <attr name="displayName" stringvalue="ALOS 2 GeoTiff"/>
-                    <attr name="formatName" stringvalue="ALOS 2 GeoTiff"/>
+                    <attr name="displayName" stringvalue="ALOS2 GeoTIFF"/>
+                    <attr name="formatName" stringvalue="ALOS2 GeoTIFF"/>
                     <attr name="useAllFileFilter" boolvalue="true"/>
                     <attr name="helpId" stringvalue="ImportAlosPalsar"/>
                     <attr name="ShortDescription" stringvalue="Open ALOS 2 GeoTiff data product."/>
@@ -207,9 +207,9 @@
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTanDEMXProduct.instance"/>
                         <attr name="position" intvalue="1100"/>
                     </file>
-                    <file name="org-esa-s1tbx-io-importAlos2GeoTiffProduct.shadow">
+                    <file name="org-esa-s1tbx-io-ceos-importAlos2GeoTiffProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-ceos-importAlos2GeoTiffProduct.instance"/>
-                        <attr name="position" intvalue="1100"/>
+                        <attr name="position" intvalue="1200"/>
                     </file>
                 </folder>
                 <folder name="SAR Formats">
