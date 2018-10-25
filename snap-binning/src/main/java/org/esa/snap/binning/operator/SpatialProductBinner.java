@@ -38,7 +38,6 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.gpf.common.SubsetOp;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.ProductUtils;
