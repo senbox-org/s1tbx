@@ -18,11 +18,16 @@
 package org.esa.snap.binning.operator;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import org.esa.snap.binning.MosaickingGrid;
 import org.esa.snap.binning.PlanetaryGrid;
 import org.esa.snap.binning.ProductCustomizer;
 import org.esa.snap.binning.Reprojector;
 import org.esa.snap.binning.TemporalBinRenderer;
 import org.esa.snap.binning.TemporalBinSource;
+import org.esa.snap.binning.support.CrsGrid;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
 
@@ -53,17 +58,47 @@ public class Formatter {
         final String outputType = formatterConfig.getOutputType();
         final String outputFormat = getOutputFormat(formatterConfig, outputFile);
 
-        final Rectangle outputRegion = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
+        final Rectangle outputRegion;
+        if (planetaryGrid instanceof CrsGrid) {
+            if (roiGeometry == null) {
+                outputRegion = new Rectangle(planetaryGrid.getNumCols(0), planetaryGrid.getNumRows());
+            } else {
+                CrsGrid crsGrid = (CrsGrid) planetaryGrid;
+                if (roiGeometry instanceof LinearRing) {
+                    LinearRing linearRing = (LinearRing) roiGeometry;
+                    roiGeometry = new GeometryFactory().createPolygon(linearRing);
+                }
+                System.out.println("roiGeometry = " + roiGeometry);
+                Geometry imageGeometry = crsGrid.getImageGeometry(roiGeometry);
+                System.out.println("imageGeometry = " + imageGeometry);
+                if (imageGeometry == null) {
+                    outputRegion = new Rectangle(planetaryGrid.getNumCols(0), planetaryGrid.getNumRows());
+                } else {
+                    outputRegion = crsGrid.getBounds(imageGeometry);
+                }
+            }
+        } else {
+            outputRegion = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
+        }
+        System.out.println("outputRegion = " + outputRegion);
 
         ProductCustomizer productCustomizer = formatterConfig.getProductCustomizer();
 
         final TemporalBinRenderer temporalBinRenderer;
         if (outputType.equalsIgnoreCase("Product")) {
+            GeoCoding geoCoding;
+            if (planetaryGrid instanceof MosaickingGrid) {
+                MosaickingGrid mosaickingGrid = (MosaickingGrid) planetaryGrid;
+                geoCoding = mosaickingGrid.getGeoCoding(outputRegion);
+            } else {
+                double pixelSize = Reprojector.getRasterPixelSize(planetaryGrid);
+                geoCoding = ProductTemporalBinRenderer.createMapGeoCoding(outputRegion, pixelSize);
+            }
             temporalBinRenderer = new ProductTemporalBinRenderer(featureNames,
                                                                  outputFile,
                                                                  outputFormat,
                                                                  outputRegion,
-                                                                 Reprojector.getRasterPixelSize(planetaryGrid),
+                                                                 geoCoding,
                                                                  startTime,
                                                                  stopTime,
                                                                  productCustomizer,

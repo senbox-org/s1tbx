@@ -432,14 +432,14 @@ public class ReprojectorTest {
         return temporalBin;
     }
 
-    private static class NobsRaster implements TemporalBinRenderer {
+    static class NobsRaster implements TemporalBinRenderer {
 
         private final int w;
         private final int h;
         private final int[] nobsData;
         private final Rectangle rasterRegion;
 
-        private NobsRaster(Rectangle rasterRegion) {
+        NobsRaster(Rectangle rasterRegion) {
             this.rasterRegion = rasterRegion;
             this.w = rasterRegion.width;
             this.h = rasterRegion.height;
