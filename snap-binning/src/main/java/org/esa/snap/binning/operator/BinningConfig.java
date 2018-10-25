@@ -32,6 +32,7 @@ import org.esa.snap.binning.TypedDescriptorsRegistry;
 import org.esa.snap.binning.VariableContext;
 import org.esa.snap.binning.support.BinTracer;
 import org.esa.snap.binning.support.BinningContextImpl;
+import org.esa.snap.binning.support.CrsGrid;
 import org.esa.snap.binning.support.SEAGrid;
 import org.esa.snap.binning.support.SpatialDataPeriod;
 import org.esa.snap.binning.support.VariableContextImpl;
@@ -42,6 +43,8 @@ import org.esa.snap.core.gpf.annotations.ParameterBlockConverter;
 import org.esa.snap.core.util.converters.JtsGeometryConverter;
 
 import java.lang.reflect.Constructor;
+
+import static org.esa.snap.binning.support.SEAGrid.DEFAULT_NUM_ROWS;
 
 /**
  * Configuration for the binning.
@@ -332,7 +335,11 @@ public class BinningConfig {
             }
         } else {
             try {
-                if (numRows > 0) {
+                if (planetaryGrid.toUpperCase().startsWith("EPSG:") && numRows > 0) {
+                    return new CrsGrid(numRows, planetaryGrid);
+                } else if (planetaryGrid.toUpperCase().startsWith("EPSG:")) {
+                    return new CrsGrid(DEFAULT_NUM_ROWS, planetaryGrid);
+                } else if (numRows > 0) {
                     Constructor<?> constructor = Class.forName(planetaryGrid).getConstructor(Integer.TYPE);
                     return (PlanetaryGrid) constructor.newInstance(numRows);
                 } else {

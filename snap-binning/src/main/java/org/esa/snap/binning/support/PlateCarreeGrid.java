@@ -22,12 +22,17 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
+import org.esa.snap.binning.MosaickingGrid;
 import org.esa.snap.binning.PlanetaryGrid;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.common.reproject.ReprojectionOp;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -41,7 +46,7 @@ import java.util.List;
  *
  * @author Marco Zühlke
  */
-public class PlateCarreeGrid implements PlanetaryGrid {
+public class PlateCarreeGrid implements MosaickingGrid {
 
     private final int numRows;
     private final int numCols;
@@ -178,6 +183,11 @@ public class PlateCarreeGrid implements PlanetaryGrid {
     }
 
 
+    @Override
+    public Product reprojectToGrid(Product var1) {
+        return reprojectToPlateCareeGrid(var1);
+    }
+
     public Rectangle[] getDataSliceRectangles(Geometry productGeometry, Dimension tileSize) {
         Rectangle productBoundingBox = computeBounds(productGeometry);
         Rectangle gridAlignedBoundingBox = alignToTileGrid(productBoundingBox, tileSize);
@@ -199,6 +209,15 @@ public class PlateCarreeGrid implements PlanetaryGrid {
             }
         }
         return rectangles.toArray(new Rectangle[rectangles.size()]);
+    }
+
+    @Override
+    public GeoCoding getGeoCoding(Rectangle outputRegion) {
+        try {
+            return new CrsGeoCoding(DefaultGeographicCRS.WGS84, outputRegion.width, outputRegion.height, -180.0D + this.pixelSize * (double)outputRegion.x, 90.0D - this.pixelSize * (double)outputRegion.y, this.pixelSize, this.pixelSize, 0.0D, 0.0D);
+        } catch (TransformException | FactoryException var3) {
+            throw new IllegalArgumentException(var3);
+        }
     }
 
     private Rectangle computeBounds(Geometry roiGeometry) {

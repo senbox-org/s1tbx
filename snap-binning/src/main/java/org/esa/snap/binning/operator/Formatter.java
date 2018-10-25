@@ -18,6 +18,7 @@
 package org.esa.snap.binning.operator;
 
 import com.vividsolutions.jts.geom.Geometry;
+import org.esa.snap.binning.MosaickingGrid;
 import org.esa.snap.binning.PlanetaryGrid;
 import org.esa.snap.binning.ProductCustomizer;
 import org.esa.snap.binning.Reprojector;
@@ -64,6 +65,7 @@ public class Formatter {
                                                                  outputFormat,
                                                                  outputRegion,
                                                                  Reprojector.getRasterPixelSize(planetaryGrid),
+                                                                 ((MosaickingGrid) planetaryGrid).getGeoCoding(outputRegion),
                                                                  startTime,
                                                                  stopTime,
                                                                  productCustomizer,

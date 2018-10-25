@@ -20,6 +20,9 @@ import com.bc.ceres.core.Assert;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.geotools.geometry.jts.JTS;
 
 import java.awt.Rectangle;
@@ -74,31 +77,65 @@ public class Reprojector {
      * @return The sub-region in pixel coordinates.
      */
     public static Rectangle computeRasterSubRegion(PlanetaryGrid planetaryGrid, Geometry roiGeometry) {
-        final double pixelSize = getRasterPixelSize(planetaryGrid);
         final int gridHeight = planetaryGrid.getNumRows();
-        final int gridWidth = 2 * gridHeight;
+        //final int gridWidth = 2 * gridHeight;
+        int gridWidth = determineGridWidth(planetaryGrid);
         Rectangle outputRegion = new Rectangle(gridWidth, gridHeight);
         if (roiGeometry != null) {
-            final Coordinate[] coordinates = getBoundsCoordinates(roiGeometry);
-
-            double gxmin = Double.POSITIVE_INFINITY;
-            double gxmax = Double.NEGATIVE_INFINITY;
-            double gymin = Double.POSITIVE_INFINITY;
-            double gymax = Double.NEGATIVE_INFINITY;
-            for (Coordinate coordinate : coordinates) {
-                gxmin = Math.min(gxmin, coordinate.x);
-                gxmax = Math.max(gxmax, coordinate.x);
-                gymin = Math.min(gymin, coordinate.y);
-                gymax = Math.max(gymax, coordinate.y);
+            if (planetaryGrid instanceof MosaickingGrid) {
+                final Coordinate[] coordinates = getBoundsCoordinates(roiGeometry);
+                int gxmin = gridWidth;
+                int gxmax = 0;
+                int gymin = gridHeight;
+                int gymax = 0;
+                for (Coordinate coordinate : coordinates) {
+                    long bin = planetaryGrid.getBinIndex(coordinate.y, coordinate.x);
+                    int row = planetaryGrid.getRowIndex(bin);
+                    int col = (int)(bin - planetaryGrid.getFirstBinIndex(row));
+                    if (col < gxmin) { gxmin = col; }
+                    if (col > gxmax) { gxmax = col; }
+                    if (row < gymin) { gymin = row; }
+                    if (row > gymax) { gymax = row; }
+                }
+                final int x = gxmin;
+                final int y = gymin;
+                final int width = gxmax - gxmin + 1;
+                final int height = gymax - gymin + 1;
+                final Rectangle unclippedOutputRegion = new Rectangle(x, y, width, height);
+                outputRegion = unclippedOutputRegion.intersection(outputRegion);
+            } else {
+                final double pixelSize = getRasterPixelSize(planetaryGrid);
+                final Coordinate[] coordinates = getBoundsCoordinates(roiGeometry);
+                double gxmin = Double.POSITIVE_INFINITY;
+                double gxmax = Double.NEGATIVE_INFINITY;
+                double gymin = Double.POSITIVE_INFINITY;
+                double gymax = Double.NEGATIVE_INFINITY;
+                for (Coordinate coordinate : coordinates) {
+                    gxmin = Math.min(gxmin, coordinate.x);
+                    gxmax = Math.max(gxmax, coordinate.x);
+                    gymin = Math.min(gymin, coordinate.y);
+                    gymax = Math.max(gymax, coordinate.y);
+                }
+                final int x = (int) Math.floor((180.0 + gxmin) / pixelSize);
+                final int y = (int) Math.floor((90.0 - gymax) / pixelSize);
+                final int width = (int) Math.ceil((gxmax - gxmin) / pixelSize);
+                final int height = (int) Math.ceil((gymax - gymin) / pixelSize);
+                final Rectangle unclippedOutputRegion = new Rectangle(x, y, width, height);
+                outputRegion = unclippedOutputRegion.intersection(outputRegion);
             }
-            final int x = (int) Math.floor((180.0 + gxmin) / pixelSize);
-            final int y = (int) Math.floor((90.0 - gymax) / pixelSize);
-            final int width = (int) Math.ceil((gxmax - gxmin) / pixelSize);
-            final int height = (int) Math.ceil((gymax - gymin) / pixelSize);
-            final Rectangle unclippedOutputRegion = new Rectangle(x, y, width, height);
-            outputRegion = unclippedOutputRegion.intersection(outputRegion);
         }
         return outputRegion;
+    }
+
+    private static int determineGridWidth(PlanetaryGrid planetaryGrid) {
+        int gridWidth = 0;
+        for (int row = 0; row < planetaryGrid.getNumRows(); ++row) {
+            int width = planetaryGrid.getNumCols(0);
+            if (width > gridWidth) {
+                gridWidth = width;
+            }
+        }
+        return gridWidth;
     }
 
     private static Coordinate[] getBoundsCoordinates(Geometry roiGeometry) {
@@ -141,7 +178,8 @@ public class Reprojector {
         final int x2 = x1 + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         final int y2 = y1 + rasterRegion.height - 1;
-        final int gridWidth = planetaryGrid.getNumRows() * 2;
+        //final int gridWidth = planetaryGrid.getNumRows() * 2;
+        final int gridWidth = determineGridWidth(planetaryGrid);
         final int gridHeight = planetaryGrid.getNumRows();
 
         final List<TemporalBin> binRow = new ArrayList<TemporalBin>();
@@ -181,12 +219,15 @@ public class Reprojector {
         final int x2 = rasterRegion.x + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         Vector resultVector = null;
-        final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
+        //final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
         long lastBinIndex = -1;
         TemporalBin temporalBin = null;
         int rowIndex = -1;
         for (int x = x1; x <= x2; x++) {
-            double lon = -180.0 + (x + 0.5) * 360.0 / gridWidth;
+            //double lon = -180.0 + (x + 0.5) * 360.0 / gridWidth;
+            final double[] centerLatLon = planetaryGrid.getCenterLatLon(y * planetaryGrid.getNumCols(y) + x);
+            final double lat = centerLatLon[0];
+            final double lon = centerLatLon[1];
             long wantedBinIndex = planetaryGrid.getBinIndex(lat, lon);
             if (lastBinIndex != wantedBinIndex) {
                 // search temporalBin for wantedBinIndex
