@@ -455,6 +455,10 @@ public final class GLCMOp extends Operator {
 
             final TileIndex srcIndex = new TileIndex(srcInfoList[0].sourceTile);
             for (int ty = ty0; ty < maxY; ty++) {
+                if(pm.isCanceled()) {
+                    break;
+                }
+
                 trgIndex.calculateStride(ty);
                 final int y0 = Math.max(ty - halfWindowSize, 0);
                 final int h = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
