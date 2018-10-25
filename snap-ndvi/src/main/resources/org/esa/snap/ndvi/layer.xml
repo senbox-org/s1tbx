@@ -18,10 +18,13 @@
     <folder name="Menu">
         <folder name="Optical">
             <folder name="Thematic Land Processing">
-                <file name="org-esa-snap-ndvi-NdviOpAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-snap-ndvi-NdviOpAction.instance"/>
-                    <attr name="position" intvalue="0"/>
-                </file>
+                <folder name="Vegetation Radiometric Indices">
+                    <file name="org-esa-snap-ndvi-NdviOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-snap-ndvi-NdviOpAction.instance"/>
+                        <attr name="position" intvalue="0"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>
@@ -32,6 +35,13 @@
                 <attr name="position" intvalue="4310"/>
             </file>
         </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+    <file name="org.esa.snap.ndvi">
+        <attr name="operatorName" stringvalue="NdviOp"/>
+        <attr name="disableFromGraphBuilder" stringvalue="true"/>
+    </file>
     </folder>
 
 </filesystem>

@@ -88,8 +88,10 @@ class SparseGridAccessor extends AbstractGridAccessor {
     }
 
     @Override
-    int getBinIndexInGrid(int binIndex, int lineIndex) {
-        final int binOffset = binOffsets[lineIndex];
-        return binIndexes[indexMap.get(binOffset) + binIndex];
+    int getBinIndexInGrid(int binNumInRow, int lineIndex) {
+        final int firstBinIndexInRow = binOffsets[lineIndex];
+        int position = indexMap.get(firstBinIndexInRow);
+        int oneBasedBinIndex = binIndexes[position + binNumInRow];
+        return oneBasedBinIndex - 1;
     }
 }

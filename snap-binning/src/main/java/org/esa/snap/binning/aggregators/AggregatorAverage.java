@@ -156,9 +156,15 @@ public final class AggregatorAverage extends AbstractAggregator {
 
         int index = 0;
         if (outputSums) {
-            outputVector.set(index++, (float) sumX);
-            outputVector.set(index++, (float) sumXX);
-            outputVector.set(index++, (float) sumW);
+            if (sumW > 0.0) {
+                outputVector.set(index++, (float) sumX);
+                outputVector.set(index++, (float) sumXX);
+                outputVector.set(index++, (float) sumW);
+            } else {
+                outputVector.set(index++, Float.NaN);
+                outputVector.set(index++, Float.NaN);
+                outputVector.set(index++, Float.NaN);
+            }
         } else {
             if (sumW > 0.0) {
                 // Note: sigmaSqr may be negative but not NaN.

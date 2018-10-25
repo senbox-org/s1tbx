@@ -32,8 +32,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * The <code>AbstractProductReader</code>  class can be used as a base class for new product reader implementations. The
- * only two methods which clients must implement are <code>readProductNodes()</code> and <code>readBandData</code>
+ * The {@code AbstractProductReader}  class can be used as a base class for new product reader implementations. The
+ * only two methods which clients must implement are {@code readProductNodes()} and {@code readBandData}
  * methods.
  *
  * @author Norman Fomferra
@@ -70,7 +70,7 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Constructs a new abstract product reader.
      *
-     * @param readerPlugIn the reader plug-in which created this reader, can be <code>null</code> for internal reader
+     * @param readerPlugIn the reader plug-in which created this reader, can be {@code null} for internal reader
      *                     implementations
      */
     protected AbstractProductReader(ProductReaderPlugIn readerPlugIn) {
@@ -80,15 +80,15 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Returns the plug-in which created this product reader.
      *
-     * @return the product reader plug-in, should never be <code>null</code>
+     * @return the product reader plug-in, should never be {@code null}
      */
     public ProductReaderPlugIn getReaderPlugIn() {
         return readerPlugIn;
     }
 
     /**
-     * Retrives the current output destination object. The return value might be <code>null</code> if the
-     * <code>setInput()</code> method has not been called so far.
+     * Retrives the current output destination object. The return value might be {@code null} if the
+     * {@code setInput()} method has not been called so far.
      */
     public Object getInput() {
         return input;
@@ -101,7 +101,7 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Checks if this reader ignores metadata or not.
      *
-     * @return <code>true</code> if so
+     * @return {@code true} if so
      */
     public boolean isMetadataIgnored() {
         boolean ignoreMetadata = false;
@@ -114,7 +114,7 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Returns the subset information with which this data product is read from its physical source.
      *
-     * @return the subset information, can be <code>null</code>
+     * @return the subset information, can be {@code null}
      */
     public ProductSubsetDef getSubsetDef() {
         return subsetDef;
@@ -122,7 +122,7 @@ public abstract class AbstractProductReader implements ProductReader {
 
     /**
      * Sets the subset information. This implemetation is protected to overwrite in the inherided class to ensure that
-     * the subset information cannot be set from the <code>readProductNodes</code> method.
+     * the subset information cannot be set from the {@code readProductNodes} method.
      *
      * @param subsetDef the subset definition
      */
@@ -136,7 +136,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * accepted with respect to the optional spectral band subset. All accepted nodes will be part of the product read.
      *
      * @param name the node name
-     * @return <code>true</code> if so
+     * @return {@code true} if so
      */
     public boolean isNodeAccepted(String name) {
         return getSubsetDef() == null || getSubsetDef().isNodeAccepted(name);
@@ -144,14 +144,14 @@ public abstract class AbstractProductReader implements ProductReader {
 
     /**
      * Reads the nodes of a data product and returns an in-memory representation of it.
-     * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
+     * <p> The given subset info can be used to specify spatial and spectral portions of the original product. If the
      * subset is omitted, the complete product is read in.
      * <p> Whether the band data - the actual pixel values - is read in immediately or later when pixels are requested,
      * is up to the implementation.
      *
      * @param input     an object representing a valid output for this product reader, might be a
-     *                  <code>ImageInputStream</code> or other <code>Object</code> to use for future decoding.
-     * @param subsetDef a spectral or spatial subset (or both) of the product. If <code>null</code>, the entire product
+     *                  {@code ImageInputStream} or other {@code Object} to use for future decoding.
+     * @param subsetDef a spectral or spatial subset (or both) of the product. If {@code null}, the entire product
      *                  is read in
      * @throws IllegalArgumentException   if input type is not supported (see {@link ProductReaderPlugIn#getInputTypes()}).
      * @throws IOException                if an I/O error occurs
@@ -179,9 +179,9 @@ public abstract class AbstractProductReader implements ProductReader {
     }
 
     /**
-     * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
+     * Provides an implementation of the {@code readProductNodes} interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
-     * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
+     * <p>This method is called as a last step in the {@code readProductNodes(input, subsetInfo)} method.
      *
      * @return a new product instance
      * @throws IOException if an I/O error occurs
@@ -193,7 +193,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * and region.
      * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)}  interface definition}
      * of this method.
-     * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
+     * <p>The {@code AbstractProductReader} implements this method using the <i>Template Method</i> pattern. The
      * template method in this case is the abstract method to which the call is delegated after an optional spatial
      * subset given by {@link #getSubsetDef()} has been applied to the input parameters.
      *
@@ -205,8 +205,8 @@ public abstract class AbstractProductReader implements ProductReader {
      * @param destBuffer  the destination buffer which receives the sample values to be read
      * @param pm          a monitor to inform the user about progress
      * @throws IOException              if an I/O error occurs
-     * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
-     *                                  destHeight</code> or the destination region is out of the band's raster
+     * @throws IllegalArgumentException if the number of elements destination buffer not equals {@code destWidth *
+     *                                  destHeight} or the destination region is out of the band's raster
      * @see #readBandRasterDataImpl(int, int, int, int, int, int, Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
      * @see #getSubsetDef()
      * @see ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
@@ -265,8 +265,8 @@ public abstract class AbstractProductReader implements ProductReader {
      * The template method which is called by the method after an optional spatial subset has been applied to the input
      * parameters.
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
-     * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
-     * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
+     * the {@code destOffsetX} and {@code destOffsetY} parameters are already taken into account in the
+     * {@code sourceOffsetX} and {@code sourceOffsetY} parameters, an implementor of this method is free to
      * ignore them.
      *
      * @param sourceOffsetX the absolute X-offset in source raster co-ordinates
@@ -304,8 +304,8 @@ public abstract class AbstractProductReader implements ProductReader {
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
-     * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
+     * results of referencing an instance of this class after a call to {@code close()} are undefined.
+     * <p>Overrides of this method should always call {@code super.close();} after disposing this instance.
      *
      * @throws IOException if an I/O error occurs
      */
@@ -317,7 +317,7 @@ public abstract class AbstractProductReader implements ProductReader {
 
     /**
      * Retrieves a set of TreeNode objects that represent the physical product structure as stored on the harddrive.
-     * The tree consisty of:
+     * The tree consists of:
      * - a root node (the one returned) pointing to the directory that CONTAINS the product
      * - any number of nested children that compose the product.
      * Each TreeNod is configured as follows:
@@ -345,10 +345,10 @@ public abstract class AbstractProductReader implements ProductReader {
         if (parent == null) {
             return null;
         }
-        final TreeNode<File> result = new TreeNode<File>(parent.getName());
+        final TreeNode<File> result = new TreeNode<>(parent.getName());
         result.setContent(parent);
 
-        final TreeNode<File> productFile = new TreeNode<File>(inputFile.getName());
+        final TreeNode<File> productFile = new TreeNode<>(inputFile.getName());
         productFile.setContent(inputFile);
         result.addChild(productFile);
         return result;
@@ -358,7 +358,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * Checks if the given object is an instance of one of the valid input types for this product reader.
      *
      * @param input the input object passed to {@link #readProductNodes(Object, ProductSubsetDef)}
-     * @return <code>true</code> if so
+     * @return {@code true} if so
      * @see ProductReaderPlugIn#getInputTypes()
      */
     protected boolean isInstanceOfValidInputType(Object input) {
@@ -394,15 +394,15 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Creates a tie point grid from the given properties.
      * <p>The method uses the {@link #getGridDiscontinutity(String)} method in order to
-     * creater an appropriate angular tie-point grids.
+     * create an appropriate angular tie-point grids.
      *
      * @param gridName     the grid name
      * @param gridWidth    the grid's raster width
      * @param gridHeight   the grid's raster height
      * @param offsetX      the grid origin's X-coordinate in pixel units
      * @param offsetY      the grid origin's Y-coordinate in pixel units
-     * @param subSamplingX the grid subsampling's X in pixel units
-     * @param subSamplingY the grid subsampling's Y in pixel units
+     * @param subSamplingX the grid  X-subsampling in pixel units
+     * @param subSamplingY the grid  Y-subsampling in pixel units
      * @param tiePoints    the tie-points
      * @return the tie-point grid instance, never null
      */

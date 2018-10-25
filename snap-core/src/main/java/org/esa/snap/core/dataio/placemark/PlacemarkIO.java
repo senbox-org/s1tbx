@@ -18,6 +18,7 @@ package org.esa.snap.core.dataio.placemark;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.dimap.DimapProductConstants;
 import org.esa.snap.core.dataio.dimap.DimapProductHelpers;
 import org.esa.snap.core.datamodel.Band;
@@ -35,6 +36,10 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.XmlWriter;
 import org.esa.snap.core.util.io.SnapFileFilter;
+import org.esa.snap.core.util.kmz.ExtendedData;
+import org.esa.snap.core.util.kmz.KmlDocument;
+import org.esa.snap.core.util.kmz.KmlPlacemark;
+import org.esa.snap.core.util.kmz.KmzExporter;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -46,8 +51,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.PushbackReader;
 import java.io.Reader;
@@ -58,21 +65,26 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Utility class, that reads and writes placemarks from and to various plain text formats.
  *
  * @author Nobody wants to be responsible for this mess.
  * @since BEAM 1.0
- * @deprecated since BEAM 4.10, Placemark API is being fully renewed
  */
-@Deprecated
 public class PlacemarkIO {
 
     public static final String FILE_EXTENSION_FLAT_OLD = ".pnf";
     public static final String FILE_EXTENSION_XML_OLD = ".pnx";
     public static final String FILE_EXTENSION_FLAT_TEXT = ".txt";
     public static final String FILE_EXTENSION_PLACEMARK = ".placemark";
+    public static final String FILE_EXTENSION_KMZ = ".kmz";
+
+    public static final String TAG_FILL_COLOR = "FillColor";
+    public static final String TAG_OUTLINE_COLOR = "OutlineColor";
 
     private static final int INDEX_FOR_NAME = 0;
     private static final int INDEX_FOR_LON = 1;
@@ -353,6 +365,32 @@ public class PlacemarkIO {
         xmlWriter.close();
     }
 
+    public static void writePlacemarkKmzFile(OutputStream os, List<PlacemarkData> placemarks, ProgressMonitor pm) throws IOException {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(os)) {
+            KmlDocument kmlDocument = new KmlDocument("SNAP Placemarks", "");
+            for (PlacemarkData placemarkData : placemarks) {
+                Placemark placemark = placemarkData.getPlacemark();
+                GeoPos geoPos = placemark.getGeoPos();
+                String label = StringUtils.isNullOrEmpty(placemark.getLabel()) ? placemark.getName() : placemark.getLabel();
+                if (geoPos != null) {
+                    final Point2D.Double position = new Point2D.Double(geoPos.getLon(), geoPos.getLat());
+                    KmlPlacemark kmlPlacemark = new KmlPlacemark(label, placemark.getDescription(), position);
+                    Map<String, Object> extraData = placemarkData.getExtraData();
+                    if (extraData != null) {
+                        kmlPlacemark.setExtendedData(ExtendedData.create(extraData));
+                    }
+                    kmlDocument.addChild(kmlPlacemark);
+                } else {
+                    SystemUtils.LOG.log(Level.WARNING, String.format("Placemark %s has no geo-position and has been skipped during writing",
+                                                                     label));
+                }
+            }
+
+            KmzExporter exporter = new KmzExporter();
+            exporter.export(kmlDocument, zipOutputStream, pm);
+        }
+    }
+
     public static SnapFileFilter createTextFileFilter() {
         return new SnapFileFilter("PLACEMARK_TEXT_FILE",
                                   new String[]{FILE_EXTENSION_FLAT_TEXT, FILE_EXTENSION_FLAT_OLD},
@@ -365,12 +403,18 @@ public class PlacemarkIO {
                                   "Placemark files - XML format");
     }
 
+    public static SnapFileFilter createKmzFileFilter() {
+        return new SnapFileFilter("GOOGLE_EARTH_KMZ_FILE",
+                                  new String[]{FILE_EXTENSION_KMZ},
+                                  "KMZ file containing placemarks");
+    }
+
     /**
      * Creates a new placemark from an XML element and a given symbol.
      *
      * @param element    the element.
      * @param descriptor the descriptor of the placemark.
-     * @param geoCoding  the geoCoding to used by the placemark. Can be <code>null</code>.
+     * @param geoCoding  the geoCoding to used by the placemark. Can be {@code null}.
      * @return the placemark created.
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
@@ -439,8 +483,8 @@ public class PlacemarkIO {
 
     private static String getStyleCssFromOldFormat(Element element) {
         StringBuilder styleCss = new StringBuilder();
-        buildStyleCss(getColorProperty(element, DimapProductConstants.TAG_PLACEMARK_FILL_COLOR, "fill"), styleCss);
-        buildStyleCss(getColorProperty(element, DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, "stroke"), styleCss);
+        buildStyleCss(getColorProperty(element, TAG_FILL_COLOR, "fill"), styleCss);
+        buildStyleCss(getColorProperty(element, TAG_OUTLINE_COLOR, "stroke"), styleCss);
         return styleCss.toString();
     }
 

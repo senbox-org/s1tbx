@@ -58,7 +58,6 @@ import org.xmlpull.mxp1.MXParser;
 import javax.media.jai.JAI;
 import java.awt.Rectangle;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
@@ -77,27 +76,23 @@ import java.util.logging.Logger;
  * The common command-line tool for the GPF.
  * For usage, see {@link org/esa/snap/core/gpf/main/CommandLineUsage.txt}.
  */
-class CommandLineTool implements GraphProcessingObserver {
+public class CommandLineTool implements GraphProcessingObserver {
 
     static final String TOOL_NAME = "gpt";
-    static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-    static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
-    static final String READ_OP_ID_PREFIX = "ReadOp@";
-    public static final String WRITE_OP_ID_PREFIX = "WriteOp@";
+    private static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
+    private static final String READ_OP_ID_PREFIX = "ReadOp@";
+    private static final String WRITE_OP_ID_PREFIX = "WriteOp@";
 
     private final CommandLineContext commandLineContext;
     //    private final VelocityContext velocityContext;
     private final MetadataResourceEngine metadataResourceEngine;
     private CommandLineArgs commandLineArgs;
 
-    static {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
-    }
-
     /**
      * Constructs a new tool.
      */
-    CommandLineTool() {
+    public CommandLineTool() {
         this(new DefaultCommandLineContext());
     }
 
@@ -106,17 +101,21 @@ class CommandLineTool implements GraphProcessingObserver {
      *
      * @param commandLineContext The context used to run the tool.
      */
-    CommandLineTool(CommandLineContext commandLineContext) {
+    public CommandLineTool(CommandLineContext commandLineContext) {
         this.commandLineContext = commandLineContext;
         this.metadataResourceEngine = new MetadataResourceEngine(commandLineContext);
     }
 
-    void run(String... args) throws Exception {
+    public void run(String... args) throws Exception {
         boolean stackTraceDumpEnabled = CommandLineArgs.isStackTraceDumpEnabled(args);
         try {
             commandLineArgs = CommandLineArgs.parseArgs(args);
             if (commandLineArgs.isHelpRequested()) {
                 printHelp();
+                return;
+            }
+            if (commandLineArgs.isDiagnosticRequested()) {
+                printDiagnostics();
                 return;
             }
             run();
@@ -140,6 +139,45 @@ class CommandLineTool implements GraphProcessingObserver {
         } else {
             commandLineContext.print(CommandLineUsage.getUsageText());
         }
+    }
+
+    private void printDiagnostics() {
+        initializeSystemProperties();
+        initializeJAI();
+        final Runtime runtime = Runtime.getRuntime();
+
+        commandLineContext.print("SNAP Release version " + SystemUtils.getReleaseVersion() + '\n');
+
+        commandLineContext.print("SNAP home: " + System.getProperty("snap.home") + '\n');
+        commandLineContext.print("SNAP debug: " + System.getProperty("snap.debug") + '\n');
+        commandLineContext.print("SNAP log level: " + System.getProperty("snap.log.level") + '\n');
+
+        commandLineContext.print("Java home: " + System.getProperty("java.home") + '\n');
+        commandLineContext.print("Java version: " + System.getProperty("java.version") + '\n');
+
+        commandLineContext.print("Processors: " + runtime.availableProcessors() + '\n');
+        commandLineContext.print("Max memory: " + fromBytes(runtime.maxMemory()) + '\n');
+
+        commandLineContext.print("Cache size: " + fromBytes(JAI.getDefaultInstance().getTileCache().getMemoryCapacity()) + '\n');
+        commandLineContext.print("Tile parallelism: " + JAI.getDefaultInstance().getTileScheduler().getParallelism() + '\n');
+        commandLineContext.print("Tile size: " + (int)JAI.getDefaultTileSize().getWidth() + " x " +
+                (int)JAI.getDefaultTileSize().getHeight() + " pixels" + '\n');
+
+        commandLineContext.print("\nTo configure your gpt memory usage:\n");
+        commandLineContext.print("Edit snap/bin/gpt.vmoptions\n");
+        commandLineContext.print("\nTo configure your gpt cache size and parallelism:\n");
+        commandLineContext.print("Edit .snap/etc/snap.properties or gpt -c ${cachesize-in-GB}G -q ${parallelism} \n");
+    }
+
+    static String fromBytes(long bytes) {
+        if(bytes > CommandLineArgs.G) {
+            return String.format("%.1f GB",(double)bytes / CommandLineArgs.G);
+        } else if(bytes > CommandLineArgs.M) {
+            return String.format("%.1f MB",(double)bytes / CommandLineArgs.M);
+        } else if(bytes > CommandLineArgs.K) {
+            return String.format("%.1f KB",(double)bytes / CommandLineArgs.K);
+        }
+        return String.format("%d B", bytes);
     }
 
     private void run() throws Exception {
@@ -180,7 +218,7 @@ class CommandLineTool implements GraphProcessingObserver {
     private void initVelocityContext() throws Exception {
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         velocityContext.put("system", System.getProperties());
-        velocityContext.put("softwareName", "BEAM gpt");
+        velocityContext.put("softwareName", "SNAP gpt");
         String versionKey = String.format("%s.version", SystemUtils.getApplicationContextId());
         velocityContext.put("softwareVersion", System.getProperty(versionKey, ""));
         velocityContext.put("commandLineArgs", commandLineArgs);
@@ -420,8 +458,7 @@ class CommandLineTool implements GraphProcessingObserver {
     }
 
 
-    private Product addProduct(String sourceFilepath,
-                               Map<File, Product> fileToProductMap) throws IOException {
+    private Product addProduct(String sourceFilepath, Map<File, Product> fileToProductMap) throws IOException {
         File sourceFile = new File(sourceFilepath).getCanonicalFile();
         Product product = fileToProductMap.get(sourceFile);
         if (product == null) {
@@ -446,11 +483,11 @@ class CommandLineTool implements GraphProcessingObserver {
             velocityContext.put("parameters", commandLineArgs.getParameterMap());
 
             Resource parameterFile = metadataResourceEngine.readResource("parameterFile", parameterFilePath);
-            Map<String, String> configFilemap = parameterFile.getMap();
+            Map<String, String> configFileMap = parameterFile.getMap();
             if (!parameterFile.isXml()) {
-                configFilemap.putAll(commandLineArgs.getParameterMap());
+                configFileMap.putAll(commandLineArgs.getParameterMap());
             }
-            parameterMap = configFilemap;
+            parameterMap = configFileMap;
         } else {
             parameterMap = new HashMap<>();
         }
@@ -477,12 +514,7 @@ class CommandLineTool implements GraphProcessingObserver {
     private String addNodeId(String sourceId, String sourceFilePath,
                              Map<File, String> fileToNodeId) throws IOException {
         File sourceFile = new File(sourceFilePath).getCanonicalFile();
-        String nodeId = fileToNodeId.get(sourceFile);
-        if (nodeId == null) {
-            nodeId = READ_OP_ID_PREFIX + sourceId;
-            fileToNodeId.put(sourceFile, nodeId);
-        }
-        return nodeId;
+        return fileToNodeId.computeIfAbsent(sourceFile, k -> READ_OP_ID_PREFIX + sourceId);
     }
 
     Product readProduct(String filePath) throws IOException {
@@ -514,12 +546,7 @@ class CommandLineTool implements GraphProcessingObserver {
             velocityDirPathGiven = false;
         }
 
-        String[] templateNames = velocityDir.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(CommandLineArgs.VELOCITY_TEMPLATE_EXTENSION);
-            }
-        });
+        String[] templateNames = velocityDir.list((dir, name) -> name.toLowerCase().endsWith(CommandLineArgs.VELOCITY_TEMPLATE_EXTENSION));
 
         Logger logger = commandLineContext.getLogger();
 

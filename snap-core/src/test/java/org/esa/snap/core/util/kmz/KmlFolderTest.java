@@ -30,7 +30,7 @@ public class KmlFolderTest {
 
         kmlDocument.createKml(builder);
         String actual = builder.toString();
-        assertEquals(actual, getExpectedExportSimple());
+        assertEquals(getExpectedExportSimple(), actual);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class KmlFolderTest {
         StringBuilder builder = new StringBuilder();
         kmlFolder.createKml(builder);
         String actual = builder.toString();
-        assertEquals(actual, getExpectedExportWithChildren());
+        assertEquals(getExpectedExportWithChildren(), actual);
     }
 
     private String getExpectedExportSimple() {

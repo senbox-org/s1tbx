@@ -34,7 +34,6 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.gpf.common.support.SLDUtils;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.ProductUtils;
@@ -44,7 +43,6 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -67,7 +65,7 @@ import java.util.Arrays;
 @OperatorMetadata(alias = "Import-Vector",
         category = "Vector",
         authors = "Jun Lu, Luis Veci",
-        version = "1.0",
+        version = "1.1",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Imports a shape file into a product")
 public class ImportVectorOp extends Operator {
@@ -93,7 +91,9 @@ public class ImportVectorOp extends Operator {
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             for (String bandName : sourceProduct.getBandNames()) {
-                ProductUtils.copyBand(bandName, sourceProduct, targetProduct, true);
+                if (!targetProduct.containsBand(bandName)) {
+                    ProductUtils.copyBand(bandName, sourceProduct, targetProduct, true);
+                }
             }
 
             if (vectorFile != null) {
@@ -160,24 +160,14 @@ public class ImportVectorOp extends Operator {
             MyFeatureCrsProvider crsProvider = new MyFeatureCrsProvider(helpId);
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureUtils.loadShapefileForProduct(file,
                     product, crsProvider, pm);
-            Style[] styles = SLDUtils.loadSLD(file);
             ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
             String name = findUniqueVectorDataNodeName(featureCollection.getSchema().getName().getLocalPart(),
                     vectorDataGroup);
-            if (styles.length > 0) {
-                SimpleFeatureType featureType = SLDUtils.createStyledFeatureType(featureCollection.getSchema());
 
-                VectorDataNode vectorDataNode = new VectorDataNode(name, featureType);
-                FeatureCollection<SimpleFeatureType, SimpleFeature> styledCollection = vectorDataNode.getFeatureCollection();
-                String defaultCSS = vectorDataNode.getDefaultStyleCss();
-                SLDUtils.applyStyle(styles[0], defaultCSS, featureCollection, styledCollection);
-                return vectorDataNode;
-            } else {
-                return new VectorDataNode(name, featureCollection);
-            }
+            return new VectorDataNode(name, featureCollection);
         }
 
-        private class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
+        private static class MyFeatureCrsProvider implements FeatureUtils.FeatureCrsProvider {
 
             private final String helpId;
 

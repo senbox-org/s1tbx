@@ -330,7 +330,7 @@ public class BinnedProductReader extends AbstractProductReader {
     private int[] getXValuesForBin(int binIndexInGrid, int row) {
         int numberOfBinsInRow = planetaryGrid.getNumCols(row);
         int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
-        if (firstBinIndex > binIndexInGrid) {  // TODO check for sparse grid: >= or > ???
+        if (firstBinIndex > binIndexInGrid) {  // to handle products written with a bug in the writer
             numberOfBinsInRow = planetaryGrid.getNumCols(row - 1);
             firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row - 1) + 1;
         }
@@ -500,6 +500,9 @@ public class BinnedProductReader extends AbstractProductReader {
             return null;
         }
         String timeAsString = timeAttribute.getStringValue();
+        if (timeAsString.isEmpty()) {
+            return null;
+        }
         timeAsString = timeAsString.substring(0, timeAsString.length() - 1);
         ProductData.UTC parsedDate = null;
         try {

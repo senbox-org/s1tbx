@@ -119,4 +119,15 @@ public class StatisticsOpTest_ValidateInputTest {
         configuration.sourceBandName = "bandname";
         statisticsOp.validateInput();
     }
+    @Test
+
+    public void testWithNoPercentiles() throws IOException {
+        final BandConfiguration configuration = new BandConfiguration();
+        statisticsOp.bandConfigurations = new BandConfiguration[]{configuration};
+        configuration.expression = "algal_2 * PI";
+
+        statisticsOp.percentiles = null;
+        statisticsOp.validateInput();
+
+    }
 }

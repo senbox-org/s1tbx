@@ -22,6 +22,7 @@ import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.LineTimeCoding;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -34,6 +35,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
@@ -44,6 +46,7 @@ import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -538,14 +541,33 @@ public class ProductUtilsTest {
     }
 
     @Test
-    public void testCopyGeoCoding_forRaster() throws Exception {
-        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(
-                UNIQUE).create();
+    public void testCopyGeoCoding_fromRasterToRaster() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
         final Product targetProduct = new Product("N", "T", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
 
         final Band sourceBand = sourceProduct.getBand("band_a");
         final Band targetBand = targetProduct.addBand("targetBand", ProductData.TYPE_INT8);
         ProductUtils.copyGeoCoding(sourceBand, targetBand);
+        assertNotNull(targetBand.getGeoCoding());
+    }
+
+    @Test
+    public void testCopyGeoCoding_fromRasterToProduct() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
+        final Product targetProduct = new Product("N", "T", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+
+        final Band sourceBand = sourceProduct.getBand("band_a");
+        ProductUtils.copyGeoCoding(sourceBand, targetProduct);
+        assertNotNull(targetProduct.getSceneGeoCoding());
+    }
+
+    @Test
+    public void testCopyGeoCoding_fromProductToRaster() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
+        final Product targetProduct = new Product("N", "T", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+
+        final Band targetBand = targetProduct.addBand("targetBand", ProductData.TYPE_INT8);
+        ProductUtils.copyGeoCoding(sourceProduct, targetBand);
         assertNotNull(targetBand.getGeoCoding());
     }
 
@@ -630,6 +652,20 @@ public class ProductUtilsTest {
         double endTimeMJD = endTime.getMJD();
         assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
         assertEquals(endTimeMJD, ProductUtils.getScanLineTime(product, 9).getMJD(), 1E-6);
+    }
+
+    @Test
+    public void testGetPixelScanTime() throws Exception {
+        Product product = new Product("name", "type", 10, 10);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        Band dummyBand = product.addBand("dummy", ProductData.TYPE_INT8);
+        double startTimeMJD = startTime.getMJD();
+        double endTimeMJD = endTime.getMJD();
+        dummyBand.setTimeCoding(new LineTimeCoding(dummyBand.getRasterHeight(), startTimeMJD, endTimeMJD));
+
+        assertEquals(startTimeMJD, ProductUtils.getPixelScanTime(dummyBand, 0, 0).getMJD(), 1E-6);
+        assertEquals(endTimeMJD, ProductUtils.getPixelScanTime(dummyBand, 0, 9).getMJD(), 1E-6);
     }
 
     @Test
@@ -731,6 +767,60 @@ public class ProductUtilsTest {
             fail("Exception expected");
         } catch (IllegalArgumentException iae) {
             assertEquals("dvfgzfj is not part of myProduct", iae.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetSampleAsLong() throws Exception {
+        Band uint8 = createTestBand(ProductData.TYPE_UINT8, new byte[]{0, Byte.MAX_VALUE, (byte) (Math.pow(2, 7)), Byte.MIN_VALUE});
+
+        assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint8, 0, 0, 0));
+        assertEquals(127, ProductUtils.getGeophysicalSampleAsLong(uint8, 1, 0, 0));
+        assertEquals(128L, ProductUtils.getGeophysicalSampleAsLong(uint8, 2, 0, 0));
+        assertEquals(128, ProductUtils.getGeophysicalSampleAsLong(uint8, 3, 0, 0));
+
+        Band uint16 = createTestBand(ProductData.TYPE_UINT16, new short[]{0, Short.MAX_VALUE, (short) (Math.pow(2, 15)), Short.MIN_VALUE});
+
+        assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint16, 0, 0, 0));
+        assertEquals(32767, ProductUtils.getGeophysicalSampleAsLong(uint16, 1, 0, 0));
+        assertEquals(32768L, ProductUtils.getGeophysicalSampleAsLong(uint16, 2, 0, 0));
+        assertEquals(32768, ProductUtils.getGeophysicalSampleAsLong(uint16, 3, 0, 0));
+
+        Band uint32 = createTestBand(ProductData.TYPE_UINT32, new int[]{0, Integer.MAX_VALUE, (int) ((long)(Math.pow(2, 31)) & 0xFFFFFFFFL), Integer.MIN_VALUE});
+
+        assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint32, 0, 0, 0));
+        assertEquals(2147483647, ProductUtils.getGeophysicalSampleAsLong(uint32, 1, 0, 0));
+        assertEquals(2147483648L, ProductUtils.getGeophysicalSampleAsLong(uint32, 2, 0, 0));
+        assertEquals(2147483648L, ProductUtils.getGeophysicalSampleAsLong(uint32, 3, 0, 0));
+
+    }
+
+    @Test
+    public void testCopyVirtualBand_preserveSize() throws Exception {
+        Product target = new Product("N", "T", 100, 150);
+        VirtualBand vb = new VirtualBand("vb", ProductData.TYPE_FLOAT32, 40, 30, "1");
+        VirtualBand newVB = ProductUtils.copyVirtualBand(target, vb, "newVB");
+        assertEquals(40, newVB.getRasterWidth());
+        assertEquals(30, newVB.getRasterHeight());
+    }
+
+    @Test
+    public void testCopyVirtualBand_adaptSize() throws Exception {
+        Product target = new Product("N", "T", 100, 150);
+        VirtualBand vb = new VirtualBand("vb", ProductData.TYPE_FLOAT32, 40, 30, "1");
+        VirtualBand newVB = ProductUtils.copyVirtualBand(target, vb, "newVB", true);
+        assertEquals(100, newVB.getRasterWidth());
+        assertEquals(150, newVB.getRasterHeight());
+    }
+
+    private Band createTestBand(int dataType, Object data) {
+        if (data.getClass().isArray()) {
+            int length = Array.getLength(data);
+            Band band = new Band(ProductData.getTypeString(dataType), dataType, length, 1);
+            band.setData(ProductData.createInstance(dataType, data));
+            return band;
+        } else {
+            throw new RuntimeException("Parameter 'data' must be of type array");
         }
     }
 

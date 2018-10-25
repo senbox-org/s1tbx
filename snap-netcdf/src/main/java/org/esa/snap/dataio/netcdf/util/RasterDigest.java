@@ -59,8 +59,8 @@ public class RasterDigest {
         return scaledVariables;
     }
 
-    public static RasterDigest createRasterDigest(final Group ...groups) {
-        Map<DimKey, List<Variable>> variableListMap = new HashMap<DimKey, List<Variable>>();
+    public static RasterDigest createRasterDigest(final Group... groups) {
+        Map<DimKey, List<Variable>> variableListMap = new HashMap<>();
         for (Group group : groups) {
             collectVariableLists(group, variableListMap);
         }
@@ -74,15 +74,15 @@ public class RasterDigest {
     }
 
     private static ScaledVariable[] getScaledVariables(Map<DimKey, List<Variable>> variableListMap, DimKey rasterDim) {
-        List<ScaledVariable> scaledVariableList = new ArrayList<ScaledVariable>();
+        List<ScaledVariable> scaledVariableList = new ArrayList<>();
         for (DimKey dimKey : variableListMap.keySet()) {
-            if (!dimKey.equals(rasterDim)){
+            if (!dimKey.equals(rasterDim)) {
                 double scaleX = getScale(dimKey.getDimensionX(), rasterDim.getDimensionX());
                 double scaleY = getScale(dimKey.getDimensionY(), rasterDim.getDimensionY());
                 if (scaleX == Math.round(scaleX) && scaleX == scaleY) {
                     List<Variable> variableList = variableListMap.get(dimKey);
                     for (Variable variable : variableList) {
-                        scaledVariableList.add(new ScaledVariable((float)scaleX, variable));
+                        scaledVariableList.add(new ScaledVariable((float) scaleX, variable));
                     }
                 }
             }
@@ -130,13 +130,13 @@ public class RasterDigest {
         for (final Variable variable : variables) {
             final int rank = variable.getRank();
             if (rank >= 2 && (DataTypeUtils.isValidRasterDataType(variable.getDataType()) || variable.getDataType() == DataType.LONG)) {
-                DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new Dimension[variable.getDimensions().size()]));
+                DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new Dimension[0]));
                 final Dimension dimX = rasterDim.getDimensionX();
                 final Dimension dimY = rasterDim.getDimensionY();
                 if (dimX.getLength() > 1 && dimY.getLength() > 1) {
                     List<Variable> list = variableLists.get(rasterDim);
                     if (list == null) {
-                        list = new ArrayList<Variable>();
+                        list = new ArrayList<>();
                         variableLists.put(rasterDim, list);
                     }
                     list.add(variable);

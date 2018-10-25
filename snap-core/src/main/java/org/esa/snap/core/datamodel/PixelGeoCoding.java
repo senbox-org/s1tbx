@@ -23,7 +23,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.jexp.ParseException;
-import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
@@ -31,7 +30,6 @@ import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
 
-import javax.media.jai.DataBufferDouble;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
@@ -41,6 +39,8 @@ import javax.media.jai.RasterFactory;
 import javax.media.jai.RasterFormatTag;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ScaleDescriptor;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.ComponentSampleModel;
@@ -50,6 +50,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 
@@ -272,21 +274,39 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             latLonImage = new LatLonImage(this.latBand.getGeophysicalImage(), this.lonBand.getGeophysicalImage(),
                                           validMask, pixelPosEstimator);
         } else {
+            Mask validMask = null;
             try {
                 pm.beginTask("Preparing data for pixel based geo-coding...", 4);
                 latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
                 lonGrid = PixelGrid.create(lonBand, SubProgressMonitor.create(pm, 1));
                 if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
-                    final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
-                                                                                     SubProgressMonitor.create(pm, 1));
-                    fillInvalidGaps(new RasterDataNode.ValidMaskValidator(rasterWidth, 0, validMask),
+                    Dimension sceneSize = latBand.getProduct().getSceneRasterSize();
+                    String maskName = getUniqueMaskName(latBand.getProduct(), "_tempMask_");
+                    validMask = Mask.BandMathsType.create(maskName, "", sceneSize.width, sceneSize.height, validMaskExpr, Color.RED, 0.0);
+                    validMask.setOwner(latBand.getProduct());
+                    fillInvalidGaps(new ValidMaskValidator(rasterWidth, 0, validMask),
                                     (float[]) latGrid.getDataElems(),
                                     (float[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 pm.done();
+                if(validMask != null) {
+                    validMask.setOwner(null);
+                    validMask.dispose();
+                }
             }
         }
+    }
+
+    private String getUniqueMaskName(Product product, String startName) {
+        ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+        List<String> names = Arrays.asList(maskGroup.getNodeNames());
+        String currentName = startName;
+        int index = 1;
+        while(names.contains(currentName)) {
+            currentName = String.format("%s_%d", startName, index);
+        }
+        return currentName;
     }
 
     /**
@@ -529,8 +549,15 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             Rectangle rect = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
             Raster latLonData = latLonImage.getData(rect);
             ComponentSampleModel sampleModel = (ComponentSampleModel) latLonData.getSampleModel();
-            DataBufferDouble dataBuffer = (DataBufferDouble) latLonData.getDataBuffer();
-            double[][] bankData = dataBuffer.getBankData();
+            DataBuffer dataBufferX = latLonData.getDataBuffer();
+            double[][] bankData;
+            if(dataBufferX instanceof javax.media.jai.DataBufferDouble) {
+                bankData = ((javax.media.jai.DataBufferDouble)dataBufferX).getBankData();
+            } else if(dataBufferX instanceof java.awt.image.DataBufferDouble) {
+                bankData = ((java.awt.image.DataBufferDouble)dataBufferX).getBankData();
+            } else {
+                return Double.MAX_VALUE;
+            }
             int sampleModelTranslateX = latLonData.getSampleModelTranslateX();
             int sampleModelTranslateY = latLonData.getSampleModelTranslateY();
             int scanlineStride = sampleModel.getScanlineStride();
@@ -627,7 +654,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             try {
                 initData(latBand, lonBand, validMaskExpression, ProgressMonitor.NULL);
             } catch (IOException e) {
-                throw new IllegalStateException("Unable to initialse data for pixel geo-coding", e);
+                throw new IllegalStateException("Unable to initialise data for pixel geo-coding", e);
             }
             initialized = true;
         }
@@ -637,7 +664,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
      * Returns the latitude and longitude value for a given pixel co-ordinate.
      *
      * @param pixelPos the pixel's co-ordinates given as x,y
-     * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
+     * @param geoPos   an instance of <code>GeoPos</code> to be used as return value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
      * @return the geographical position as lat/lon.
      */
@@ -1030,13 +1057,13 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int dy = bestY - y0;
             if (Math.abs(dx) >= searchRadius || Math.abs(dy) >= searchRadius) {
                 Debug.trace("WARNING: search radius reached at " +
-                                    "(x0 = " + x0 + ", y0 = " + y0 + "), " +
-                                    "(dx = " + dx + ", dy = " + dy + "), " +
-                                    "#best = " + bestCount);
+                            "(x0 = " + x0 + ", y0 = " + y0 + "), " +
+                            "(dx = " + dx + ", dy = " + dy + "), " +
+                            "#best = " + bestCount);
             }
         } else {
             Debug.trace("WARNING: no better pixel found at " +
-                                "(x0 = " + x0 + ", y0 = " + y0 + ")");
+                        "(x0 = " + x0 + ", y0 = " + y0 + ")");
         }
     }
 
@@ -1170,10 +1197,11 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         private final RasterFormatTag maskRasterFormatTag;
         private final RasterFormatTag targetRasterFormatTag;
 
-        private static ImageLayout layout(RenderedImage source) {
-            final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_FLOAT,
-                                                                                  source.getTileWidth(),
-                                                                                  source.getTileHeight(),
+        private static ImageLayout layout(RenderedImage latSrc, RenderedImage lonSrc) {
+            int maxDataType = Math.max(latSrc.getSampleModel().getDataType(), lonSrc.getSampleModel().getDataType());
+            final SampleModel sampleModel = RasterFactory.createBandedSampleModel(maxDataType,
+                                                                                  latSrc.getTileWidth(),
+                                                                                  latSrc.getTileHeight(),
                                                                                   2);
             final ImageLayout imageLayout = new ImageLayout();
             imageLayout.setSampleModel(sampleModel);
@@ -1198,17 +1226,17 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         }
 
         private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validSrc, GeoCoding estimator) {
-            this(latSrc, lonSrc, validSrc, layout(latSrc), estimator);
+            this(latSrc, lonSrc, validSrc, layout(latSrc, lonSrc), estimator);
         }
 
-        private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage maskSrc, ImageLayout imageLayout,
+        private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validMaskSrc, ImageLayout imageLayout,
                             GeoCoding estimator) {
-            super(vector(latSrc, lonSrc, maskSrc), imageLayout, renderingHints(imageLayout), true);
+            super(vector(latSrc, lonSrc, validMaskSrc), imageLayout, renderingHints(imageLayout), true);
             this.estimator = estimator;
             latRasterFormatTag = getRasterFormatTag(latSrc.getSampleModel());
             lonRasterFormatTag = getRasterFormatTag(lonSrc.getSampleModel());
-            if (maskSrc != null) {
-                maskRasterFormatTag = getRasterFormatTag(maskSrc.getSampleModel());
+            if (validMaskSrc != null) {
+                maskRasterFormatTag = getRasterFormatTag(validMaskSrc.getSampleModel());
             } else {
                 maskRasterFormatTag = null;
             }
@@ -1226,24 +1254,24 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                                                        getSourceImage(0).getColorModel());
             RasterAccessor lonAcc = new RasterAccessor(sources[1], destRect, lonRasterFormatTag,
                                                        getSourceImage(1).getColorModel());
-            RasterAccessor maskAcc = null;
+            RasterAccessor validMaskAcc = null;
             if (maskRasterFormatTag != null) {
-                maskAcc = new RasterAccessor(sources[2], destRect, maskRasterFormatTag,
-                                             getSourceImage(2).getColorModel());
+                validMaskAcc = new RasterAccessor(sources[2], destRect, maskRasterFormatTag,
+                                                  getSourceImage(2).getColorModel());
             }
             RasterAccessor destAcc = new RasterAccessor(dest, destRect, targetRasterFormatTag, getColorModel());
 
             if (latAcc.getDataType() == DataBuffer.TYPE_DOUBLE) {
-                processDoubleLoop(latAcc, lonAcc, maskAcc, destAcc, destRect);
+                processDoubleLoop(latAcc, lonAcc, validMaskAcc, destAcc, destRect);
             } else if (latAcc.getDataType() == DataBuffer.TYPE_FLOAT) {
-                processFloatLoop(latAcc, lonAcc, maskAcc, destAcc, destRect);
+                processFloatLoop(latAcc, lonAcc, validMaskAcc, destAcc, destRect);
             } else {
                 throw new IllegalStateException("unsupported data type: " + latAcc.getDataType());
             }
             destAcc.copyDataToRaster();
         }
 
-        private void processDoubleLoop(RasterAccessor latAcc, RasterAccessor lonAcc, RasterAccessor maskAcc,
+        private void processDoubleLoop(RasterAccessor latAcc, RasterAccessor lonAcc, RasterAccessor validMaskAcc,
                                        RasterAccessor destAcc, Rectangle destRect) {
             int latLineStride = latAcc.getScanlineStride();
             int latPixelStride = latAcc.getPixelStride();
@@ -1259,11 +1287,11 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int mLineStride = 0;
             int mPixelStride = 0;
             byte[] m = null;
-            if (maskAcc != null) {
-                mLineStride = maskAcc.getScanlineStride();
-                mPixelStride = maskAcc.getPixelStride();
-                int[] mBandOffsets = maskAcc.getBandOffsets();
-                byte[][] mData = maskAcc.getByteDataArrays();
+            if (validMaskAcc != null) {
+                mLineStride = validMaskAcc.getScanlineStride();
+                mPixelStride = validMaskAcc.getPixelStride();
+                int[] mBandOffsets = validMaskAcc.getBandOffsets();
+                byte[][] mData = validMaskAcc.getByteDataArrays();
                 m = mData[0];
                 mLineOffset = mBandOffsets[0];
             }
@@ -1354,14 +1382,14 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int dLineStride = destAcc.getScanlineStride();
             int dPixelStride = destAcc.getPixelStride();
             int[] dBandOffsets = destAcc.getBandOffsets();
-            double[][] dData = destAcc.getDoubleDataArrays();
+            float[][] dData = destAcc.getFloatDataArrays();
 
             float[] lat = latData[0];
             float[] lon = lonData[0];
             @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-            double[] dLat = dData[0];
+            float[] dLat = dData[0];
             @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-            double[] dLon = dData[1];
+            float[] dLon = dData[1];
 
             int sLatLineOffset = sLatBandOffsets[0];
             int sLonLineOffset = sLonBandOffsets[0];
@@ -1391,8 +1419,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                         int y0 = y + destRect.y;
                         pixelPos.setLocation(x0, y0);
                         estimator.getGeoPos(pixelPos, geoPos);
-                        dLat[dLatPixelOffset] = geoPos.lat;
-                        dLon[dLonPixelOffset] = geoPos.lon;
+                        dLat[dLatPixelOffset] = (float) geoPos.lat;
+                        dLon[dLonPixelOffset] = (float) geoPos.lon;
                     } else {
                         dLat[dLatPixelOffset] = lat[sLatPixelOffset];
                         dLon[dLonPixelOffset] = lon[sLonPixelOffset];
@@ -1407,5 +1435,21 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             }
         }
 
+    }
+
+    static final class ValidMaskValidator implements IndexValidator {
+
+        private final int pixelOffset;
+        private final Mask validMask;
+
+        ValidMaskValidator(int rasterWidth, int lineOffset, Mask validMask) {
+            this.pixelOffset = rasterWidth * lineOffset;
+            this.validMask = validMask;
+        }
+
+        @Override
+        public boolean validateIndex(final int pixelIndex) {
+            return validMask.isPixelValid(pixelOffset + pixelIndex);
+        }
     }
 }

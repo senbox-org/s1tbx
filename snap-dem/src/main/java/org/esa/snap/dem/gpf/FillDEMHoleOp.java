@@ -54,10 +54,10 @@ public final class FillDEMHoleOp extends Operator {
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label = "Source Bands")
-    private String[] sourceBandNames;
+    private String[] sourceBands;
 
     @Parameter(label = "No Data Value", defaultValue = "0.0")
-    private double NoDataValue = 0.0;
+    private Double NoDataValue = 0.0;
 
     private int sourceImageWidth;
     private int sourceImageHeight;
@@ -78,6 +78,7 @@ public final class FillDEMHoleOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(sourceProduct);
 
         try {
             getSourceImageDimension();
@@ -119,20 +120,13 @@ public final class FillDEMHoleOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
-        if (!ProductUtils.areRastersEqualInSize(sourceBands)) {
+        final Band[] srcBands = OperatorUtils.getSourceBands(sourceProduct, sourceBands, false);
+        if (!ProductUtils.areRastersEqualInSize(srcBands)) {
             throw new OperatorException("Source bands must all be the same size");
         }
-        for (Band srcBand : sourceBands) {
+        for (Band srcBand : srcBands) {
             if (srcBand instanceof VirtualBand) {
-                final VirtualBand sourceBand = (VirtualBand) srcBand;
-                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
-                                                               sourceBand.getDataType(),
-                                                               sourceBand.getRasterWidth(),
-                                                               sourceBand.getRasterHeight(),
-                                                               sourceBand.getExpression());
-                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-                targetProduct.addBand(targetBand);
+                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
                 ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
             }
@@ -171,7 +165,7 @@ public final class FillDEMHoleOp extends Operator {
             for (int y = y0; y < maxY; ++y) {
                 for (int x = x0; x < maxX; ++x) {
                     v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x, y));
-                    if (v == NoDataValue) {
+                    if (NoDataValue.equals(v)) {
                         v = getPixelValueByInterpolation(x, y, srcData, sourceTile);
                     }
                     trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), v);

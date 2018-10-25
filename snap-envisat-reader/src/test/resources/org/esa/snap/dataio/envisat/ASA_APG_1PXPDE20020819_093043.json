@@ -21,7 +21,7 @@
                     "lon": 14.213075
                 }
             ],
-            "reverseAccuracy": 0.5
+            "reverseAccuracy": 1.0
         },
         "tiePointGrids": [
             {

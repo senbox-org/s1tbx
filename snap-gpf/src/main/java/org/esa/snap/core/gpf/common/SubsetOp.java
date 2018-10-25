@@ -17,13 +17,23 @@
 package org.esa.snap.core.gpf.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateFilter;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -39,7 +49,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.converters.JtsGeometryConverter;
 import org.esa.snap.core.util.converters.RectangleConverter;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -79,15 +89,15 @@ public class SubsetOp extends Operator {
 
     @Parameter(converter = RectangleConverter.class,
             description = "The subset region in pixel coordinates.\n" +
-                    "Use the following format: <x>,<y>,<width>,<height>\n" +
-                    "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
+                          "Use the following format: <x>,<y>,<width>,<height>\n" +
+                          "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
     private Rectangle region = null;
 
     @Parameter(converter = JtsGeometryConverter.class,
             description = "The subset region in geographical coordinates using WKT-format,\n" +
-                    "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
-                    "(make sure to quote the option due to spaces in <geometry>).\n" +
-                    "If not given, the entire scene is used.")
+                          "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
+                          "(make sure to quote the option due to spaces in <geometry>).\n" +
+                          "If not given, the entire scene is used.")
     private Geometry geoRegion;
     @Parameter(defaultValue = "1",
             description = "The pixel sub-sampling step in X (horizontal image direction)")
@@ -100,7 +110,7 @@ public class SubsetOp extends Operator {
     private boolean fullSwath = false;
 
     @Parameter(description = "The comma-separated list of names of tie-point grids to be copied. \n" +
-            "If not given, all bands are copied.")
+                             "If not given, all bands are copied.")
     private String[] tiePointGridNames;
 
     @Parameter(defaultValue = "false",
@@ -161,9 +171,7 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if(sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
+        ensureSingleRasterSize(sourceProduct);
 
         subsetReader = new ProductSubsetBuilder();
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
@@ -189,14 +197,19 @@ public class SubsetOp extends Operator {
 
         if (geoRegion != null) {
             region = computePixelRegion(sourceProduct, geoRegion, 0);
+            if (region.isEmpty()) {
+                targetProduct = new Product("Empty_" + sourceProduct.getName(), "EMPTY", 0, 0);
+                String msg = "No intersection with source product boundary " + sourceProduct.getName();
+                targetProduct.setDescription(msg);
+                getLogger().log(Level.WARNING, msg);
+                return;
+            }
         }
-        if (fullSwath) {
+        if (fullSwath && region != null) {
             region = new Rectangle(0, region.y, sourceProduct.getSceneRasterWidth(), region.height);
         }
-        if (region != null) {
-            if (region.isEmpty()) {
-                throw new OperatorException("Subset: No intersection with source product boundary " + sourceProduct.getName());
-            }
+        
+        if (region != null && !region.isEmpty()) {
             if (region.width == 0 || region.x + region.width > sourceProduct.getSceneRasterWidth()) {
                 region.width = sourceProduct.getSceneRasterWidth() - region.x;
             }
@@ -211,6 +224,7 @@ public class SubsetOp extends Operator {
 
         try {
             targetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
+            targetProduct.setName("Subset_" + targetProduct.getName());
         } catch (Throwable t) {
             throw new OperatorException(t);
         }

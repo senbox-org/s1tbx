@@ -102,25 +102,33 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
         super.close();
     }
 
-    protected void addFlagCodingsToProduct(Product product) {
-        final ProductNodeGroup<FlagCoding> flagCodingGroup = getSourceProduct().getFlagCodingGroup();
-        for (int i = 0; i < flagCodingGroup.getNodeCount(); i++) {
-            FlagCoding sourceFlagCoding = flagCodingGroup.get(i);
-            FlagCoding destFlagCoding = new FlagCoding(sourceFlagCoding.getName());
-            destFlagCoding.setDescription(sourceFlagCoding.getDescription());
-            cloneFlags(sourceFlagCoding, destFlagCoding);
-            product.getFlagCodingGroup().add(destFlagCoding);
+    protected void addFlagCodingsToProduct(Product target) {
+        ProductNodeGroup<FlagCoding> sourceGroup = getSourceProduct().getFlagCodingGroup();
+        ProductNodeGroup<FlagCoding> targetGroup = target.getFlagCodingGroup();
+        for (int i = 0; i < sourceGroup.getNodeCount(); i++) {
+            FlagCoding flagCoding = sourceGroup.get(i);
+            String flagCodingName = flagCoding.getName();
+            if(targetGroup.get(flagCodingName) == null) {
+                FlagCoding destFlagCoding = new FlagCoding(flagCodingName);
+                destFlagCoding.setDescription(flagCoding.getDescription());
+                cloneFlags(flagCoding, destFlagCoding);
+                targetGroup.add(destFlagCoding);
+            }
         }
     }
 
-    protected void addIndexCodingsToProduct(Product product) {
-        final ProductNodeGroup<IndexCoding> indexCodingGroup = getSourceProduct().getIndexCodingGroup();
+    protected void addIndexCodingsToProduct(Product target) {
+        ProductNodeGroup<IndexCoding> indexCodingGroup = getSourceProduct().getIndexCodingGroup();
+        ProductNodeGroup<IndexCoding> targetGroup = target.getIndexCodingGroup();
         for (int i = 0; i < indexCodingGroup.getNodeCount(); i++) {
             IndexCoding sourceIndexCoding = indexCodingGroup.get(i);
-            IndexCoding destIndexCoding = new IndexCoding(sourceIndexCoding.getName());
-            destIndexCoding.setDescription(sourceIndexCoding.getDescription());
-            cloneIndexes(sourceIndexCoding, destIndexCoding);
-            product.getIndexCodingGroup().add(destIndexCoding);
+            String indexCodingName = sourceIndexCoding.getName();
+            if (targetGroup.get(indexCodingName) == null) {
+                IndexCoding destIndexCoding = new IndexCoding(indexCodingName);
+                destIndexCoding.setDescription(sourceIndexCoding.getDescription());
+                cloneIndexes(sourceIndexCoding, destIndexCoding);
+                target.getIndexCodingGroup().add(destIndexCoding);
+            }
         }
     }
 

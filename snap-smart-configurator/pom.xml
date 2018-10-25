@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-smart-configurator</artifactId>
@@ -54,6 +54,10 @@
                         <publicPackage>org.esa.snap.smart.configurator</publicPackage>
                     </publicPackages>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -31,7 +31,6 @@ import org.esa.snap.binning.TemporalBin;
 import org.esa.snap.binning.TemporalBinSource;
 import org.esa.snap.binning.TemporalBinner;
 import org.esa.snap.binning.cellprocessor.CellProcessorChain;
-import org.esa.snap.binning.operator.metadata.GlobalMetaParameter;
 import org.esa.snap.binning.operator.metadata.GlobalMetadata;
 import org.esa.snap.binning.operator.metadata.MetadataAggregator;
 import org.esa.snap.binning.operator.metadata.MetadataAggregatorFactory;
@@ -50,6 +49,9 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.SubsetOp;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphContext;
+import org.esa.snap.core.gpf.graph.GraphIO;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.converters.JtsGeometryConverter;
@@ -59,6 +61,7 @@ import org.geotools.geometry.jts.JTS;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -128,13 +131,18 @@ public class BinningOp extends Operator {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
-    // TODO nf/mz 2013-11-05: this could be a common Operator parameter, it accelerates opening of products
     @Parameter(description = "The common product format of all source products.\n" +
                              "This parameter is optional and may be used in conjunction with\n" +
-                             "parameter 'sourceProductPaths' and only to speed up source product opening.\n" +
-                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.",
-            defaultValue = "")
+                             "parameter 'sourceProductPaths'. Can be set if multiple reader are \n" +
+                             "available for the source files and a specific one shall be used." +
+                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.")
     private String sourceProductFormat;
+
+    @Parameter(description = "A comma-separated list of file paths specifying the source graphs.\n" +
+            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+            "'*' (matches any character sequence in path names) and\n" +
+            "'?' (matches any single character).")
+    String[] sourceGraphPaths;
 
     @Parameter(converter = JtsGeometryConverter.class,
             description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
@@ -172,6 +180,9 @@ public class BinningOp extends Operator {
     @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels",
             defaultValue = "1")
     private Integer superSampling;
+
+    @Parameter(description = "Skips binning of sub-pixel if distance on earth to the center of the main-pixel is larger as this value. A value <=0 disables this check", defaultValue = "-1")
+    private Integer maxDistanceOnEarth;
 
     @Parameter(description = "The band maths expression used to filter input pixels")
     private String maskExpr;
@@ -309,6 +320,10 @@ public class BinningOp extends Operator {
         this.maskExpr = maskExpr;
     }
 
+    public String getSourceProductFormat() {
+        return sourceProductFormat;
+    }
+
     public void setOutputFile(String outputFile) {
         this.outputFile = outputFile;
     }
@@ -429,7 +444,7 @@ public class BinningOp extends Operator {
             if (!spatialBinMap.isEmpty()) {
                 // update region
                 if (region == null && regionArea != null) {
-                    region = JTS.shapeToGeometry(regionArea, new GeometryFactory());
+                    region = JTS.toGeometry(regionArea, new GeometryFactory());
                 }
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
                 TemporalBinList temporalBins = doTemporalBinning(spatialBinMap);
@@ -472,6 +487,7 @@ public class BinningOp extends Operator {
         final BinningConfig config = new BinningConfig();
         config.setNumRows(numRows);
         config.setSuperSampling(superSampling);
+        config.setMaxDistanceOnEarth(maxDistanceOnEarth);
         config.setMaskExpr(maskExpr);
         config.setVariableConfigs(variableConfigs);
         config.setAggregatorConfigs(aggregatorConfigs);
@@ -505,8 +521,10 @@ public class BinningOp extends Operator {
         if (timeFilterMethod == TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY && minDataHour == null) {
             throw new OperatorException("If SPATIOTEMPORAL_DATADAY filtering is used the parameters 'minDataHour' must be given");
         }
-        if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
-            String msg = "Either source products must be given or parameter 'sourceProductPaths' must be specified";
+        if (sourceProducts == null
+                && (sourceProductPaths == null || sourceProductPaths.length == 0)
+                && (sourceGraphPaths == null || sourceGraphPaths.length == 0)) {
+            String msg = "Either source products must be given or parameter 'sourceProductPaths' or parameter 'sourceGraphPaths' must be specified";
             throw new OperatorException(msg);
         }
         if (numRows < 2 || numRows % 2 != 0) {
@@ -560,13 +578,6 @@ public class BinningOp extends Operator {
     }
 
     private void initMetadataProperties() {
-        final GlobalMetaParameter parameter = new GlobalMetaParameter();
-
-        parameter.setDescriptor(getSpi().getOperatorDescriptor());
-        parameter.setOutputFile(new File(outputFile));
-        parameter.setStartDateTime(startDateTime);
-        parameter.setPeriodDuration(periodDuration);
-
         globalMetadata = GlobalMetadata.create(this);
         globalMetadata.load(metadataPropertiesFile, getLogger());
     }
@@ -611,7 +622,7 @@ public class BinningOp extends Operator {
             if (fileSet.isEmpty()) {
                 getLogger().warning("The given source file patterns did not match any files");
             } else {
-                getLogger().info("found " + fileSet.size() + " files.");
+                getLogger().info("found " + fileSet.size() + " product files.");
                 for (File file : fileSet) {
                     getLogger().info(file.getCanonicalPath());
                 }
@@ -642,6 +653,57 @@ public class BinningOp extends Operator {
                 } else {
                     String msgPattern = "Failed to read file '%s' (not a data product or reader missing)";
                     getLogger().severe(String.format(msgPattern, file));
+                }
+            }
+        }
+        if (sourceGraphPaths != null) {
+            getLogger().info("expanding sourceGraphPaths wildcards.");
+            SortedSet<File> fileSet = new TreeSet<>();
+            for (String filePattern : sourceGraphPaths) {
+                WildcardMatcher.glob(filePattern, fileSet);
+            }
+            if (fileSet.isEmpty()) {
+                getLogger().warning("The given graph file patterns did not match any files");
+            } else {
+                getLogger().info("found " + fileSet.size() + " graph files.");
+                for (File file : fileSet) {
+                    getLogger().info(file.getCanonicalPath());
+                }
+            }
+            for (File file : fileSet) {
+                Product sourceProduct = null;
+                GraphContext graphContext = null;
+                try {
+                    Graph graph = GraphIO.read(new FileReader(file));
+                    graphContext = new GraphContext(graph);
+                    Product[] outputProducts = graphContext.getOutputProducts();
+                    if (outputProducts.length != 1) {
+                        getLogger().warning("Filtered out graph '" + file + "'");
+                        getLogger().warning("            reason: graph has more than one 'outputNode'.");
+                    } else {
+                        sourceProduct = outputProducts[0];
+                    }
+                } catch (Exception e) {
+                    String msgPattern = "Failed to execute graph from file '%s'. %s: %s";
+                    getLogger().severe(String.format(msgPattern, file, e.getClass().getSimpleName(), e.getMessage()));
+                }
+                if (sourceProduct != null) {
+                    try {
+                        if (productFilter.accept(sourceProduct)) {
+                            processSource(sourceProduct, spatialBinner);
+                        } else {
+                            getLogger().warning("Filtered out result of graph '" + file + "'");
+                            getLogger().warning("                      reason: " + productFilter.getReason());
+                        }
+                    } finally {
+                        sourceProduct.dispose();
+                    }
+                } else {
+                    String msgPattern = "Failed to use graph '%s'";
+                    getLogger().severe(String.format(msgPattern, file));
+                }
+                if (graphContext != null) {
+                    graphContext.dispose();
                 }
             }
         }
@@ -923,7 +985,7 @@ public class BinningOp extends Operator {
 
         @Override
         protected boolean acceptForBinning(Product product) {
-            if (!product.isMultiSizeProduct()) {
+            if (!product.isMultiSize()) {
                 return true;
             } else {
                 setReason("Product with rasters of different size are not supported yet.");

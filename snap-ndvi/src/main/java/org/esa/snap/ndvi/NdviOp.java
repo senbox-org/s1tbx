@@ -32,7 +32,8 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**
@@ -42,8 +43,8 @@ import java.util.Map;
  */
 @OperatorMetadata(
         alias = "NdviOp",
-        version="1.3",
-        category = "Optical/Thematic Land Processing",
+        version = "1.3",
+        category = "Optical/Thematic Land Processing/Vegetation Radiometric Indices",
         description = "The retrieves the Normalized Difference Vegetation Index (NDVI).",
         authors = "Maximilian Aulinger, Thomas Storm",
         copyright = "Copyright (C) 2016 by Brockmann Consult (info@brockmann-consult.de)")
@@ -59,7 +60,7 @@ public class NdviOp extends Operator {
     public static final int NDVI_LOW_FLAG_VALUE = 1 << 1;
     public static final int NDVI_HIGH_FLAG_VALUE = 1 << 2;
 
-    @SourceProduct(alias = "source", description="The source product.")
+    @SourceProduct(alias = "source", description = "The source product.")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -71,52 +72,59 @@ public class NdviOp extends Operator {
     private float nirFactor;
 
     @Parameter(label = "Red source band",
-               description = "The red band for the NDVI computation. If not provided, the " +
-                             "operator will try to find the best fitting band.",
-               rasterDataNodeType = Band.class)
+            description = "The red band for the NDVI computation. If not provided, the " +
+                          "operator will try to find the best fitting band.",
+            rasterDataNodeType = Band.class)
     private String redSourceBand;
 
     @Parameter(label = "NIR source band",
-               description = "The near-infrared band for the NDVI computation. If not provided," +
-                             " the operator will try to find the best fitting band.",
-               rasterDataNodeType = Band.class)
+            description = "The near-infrared band for the NDVI computation. If not provided," +
+                          " the operator will try to find the best fitting band.",
+            rasterDataNodeType = Band.class)
     private String nirSourceBand;
 
+    private static final float nodatavalue = Float.NaN;
 
     @Override
     public void initialize() throws OperatorException {
         loadSourceBands(sourceProduct);
-        int sceneWidth = sourceProduct.getSceneRasterWidth();
-        int sceneHeight = sourceProduct.getSceneRasterHeight();
-        if (sourceProduct.getBand(redSourceBand).getRasterWidth() != sceneWidth ||
-                sourceProduct.getBand(redSourceBand).getRasterHeight() != sceneHeight) {
-            throw new OperatorException(redSourceBand + " is not of same size as product.");
-        }
-        if (sourceProduct.getBand(nirSourceBand).getRasterWidth() != sceneWidth ||
-                sourceProduct.getBand(nirSourceBand).getRasterHeight() != sceneHeight) {
-            throw new OperatorException(nirSourceBand + " is not of same size as product.");
-        }
-        targetProduct = new Product("ndvi", sourceProduct.getProductType() + "_NDVI", sceneWidth, sceneHeight);
+        Band band1 = sourceProduct.getBand(redSourceBand);
+        Band band2 = sourceProduct.getBand(nirSourceBand);
+        ensureSingleRasterSize(band1, band2);
 
-        Band ndviOutputBand = new Band(NDVI_BAND_NAME, ProductData.TYPE_FLOAT32, sceneWidth,
-                                       sceneHeight);
+        int targetWidth = band1.getRasterWidth();
+        int targetHeight = band1.getRasterHeight();
+
+        targetProduct = new Product("ndvi", sourceProduct.getProductType() + "_NDVI", targetWidth, targetHeight);
+        ProductUtils.copyTimeInformation(sourceProduct, targetProduct);
+
+        Band ndviOutputBand = new Band(NDVI_BAND_NAME, ProductData.TYPE_FLOAT32, targetWidth, targetHeight);
+        if(band1.isNoDataValueUsed() || band2.isNoDataValueUsed()) {
+            ndviOutputBand.setNoDataValueUsed(true);
+            ndviOutputBand.setNoDataValue(nodatavalue);
+        }
         targetProduct.addBand(ndviOutputBand);
 
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        ProductUtils.copyFlagBands(sourceProduct, targetProduct, true);
+        boolean sceneSizeRetained = sourceProduct.getSceneRasterSize().equals(targetProduct.getSceneRasterSize());
+        if (sceneSizeRetained) {
+            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+            ProductUtils.copyFlagBands(sourceProduct, targetProduct, true);
+        }
 
         FlagCoding ndviFlagCoding = createNdviFlagCoding();
         targetProduct.getFlagCodingGroup().add(ndviFlagCoding);
 
         Band ndviFlagsOutputBand = new Band(NDVI_FLAGS_BAND_NAME, ProductData.TYPE_INT32,
-                                            sceneWidth, sceneHeight);
+                                            targetWidth, targetHeight);
         ndviFlagsOutputBand.setDescription("NDVI specific flags");
         ndviFlagsOutputBand.setSampleCoding(ndviFlagCoding);
         targetProduct.addBand(ndviFlagsOutputBand);
 
-        ProductUtils.copyMasks(sourceProduct, targetProduct);
-        ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+        if (sceneSizeRetained) {
+            ProductUtils.copyMasks(sourceProduct, targetProduct);
+            ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+        }
 
         targetProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME),
                               "An arithmetic exception occurred.",
@@ -139,13 +147,25 @@ public class NdviOp extends Operator {
             Tile ndvi = targetTiles.get(targetProduct.getBand(NDVI_BAND_NAME));
             Tile ndviFlags = targetTiles.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
 
+            boolean nodataValueUsed = targetProduct.getBand(NDVI_BAND_NAME).isNoDataValueUsed();
+            Float redNoDataValue = (float)getSourceProduct().getBand(redSourceBand).getGeophysicalNoDataValue();
+            Float nirNoDataValue = (float)getSourceProduct().getBand(nirSourceBand).getGeophysicalNoDataValue();
+
             float ndviValue;
             int ndviFlagsValue;
 
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                    final float nir = nirFactor * nirTile.getSampleFloat(x, y);
-                    final float red = redFactor * redTile.getSampleFloat(x, y);
+                    final float nirSample = nirTile.getSampleFloat(x, y);
+                    final float redSample = redTile.getSampleFloat(x, y);
+                    final float nir = nirFactor * nirSample;
+                    final float red = redFactor * redSample;
+
+                    if(nodataValueUsed && (redNoDataValue.equals(redSample) || nirNoDataValue.equals(nirSample))) {
+                        ndvi.setSample(x, y, nodatavalue);
+                        ndviFlags.setSample(x, y, 0);
+                        continue;
+                    }
 
                     ndviValue = (nir - red) / (nir + red);
                     ndviFlagsValue = 0;
@@ -172,18 +192,22 @@ public class NdviOp extends Operator {
 
     private void loadSourceBands(Product product) throws OperatorException {
         if (redSourceBand == null) {
-            redSourceBand = findBand(600, 650, product);
-            getLogger().info("Using band '" + redSourceBand + "' as red input band.");
-        }
-        if (nirSourceBand == null) {
-            nirSourceBand = findBand(800, 900, product);
-            getLogger().info("Using band '" + nirSourceBand + "' as NIR input band.");
+            redSourceBand = findBand(600, 665, product);
         }
         if (redSourceBand == null) {
             throw new OperatorException("Unable to find band that could be used as red input band. Please specify band.");
+        } else {
+            getLogger().info("Using band '" + redSourceBand + "' as red input band.");
+        }
+
+        if (nirSourceBand == null) {
+            nirSourceBand = findBand(800, 900, product);
         }
         if (nirSourceBand == null) {
             throw new OperatorException("Unable to find band that could be used as nir input band. Please specify band.");
+        } else {
+            getLogger().info("Using band '" + nirSourceBand + "' as NIR input band.");
+
         }
     }
 

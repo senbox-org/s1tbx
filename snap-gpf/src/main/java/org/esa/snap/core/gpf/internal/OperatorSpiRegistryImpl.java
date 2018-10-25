@@ -18,17 +18,16 @@ package org.esa.snap.core.gpf.internal;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryListener;
-import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.util.ServiceLoader;
 import org.esa.snap.core.util.SystemUtils;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -46,11 +45,13 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
     /**
      * The constructor.
+     *
+     * @param serviceRegistry The underlying service registry used by this instance.
      */
-    public OperatorSpiRegistryImpl() {
-        serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(OperatorSpi.class);
-        classNames = new HashMap<>(20);
-        serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
+    public OperatorSpiRegistryImpl(ServiceRegistry<OperatorSpi> serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
+        classNames = new ConcurrentHashMap<>(20);
+        this.serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
             @Override
             public void serviceAdded(ServiceRegistry<OperatorSpi> registry, OperatorSpi service) {
                 registerAlias(service);
@@ -61,11 +62,11 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
                 unregisterAlias(service);
             }
         });
-        Set<OperatorSpi> services = serviceRegistry.getServices();
+        Set<OperatorSpi> services = this.serviceRegistry.getServices();
         for (OperatorSpi operatorSpi : services) {
             registerAlias(operatorSpi);
         }
-        extraOperatorSpis = new HashMap<>();
+        extraOperatorSpis = new ConcurrentHashMap<>();
     }
 
     /**
@@ -73,14 +74,11 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      */
     @Override
     public void loadOperatorSpis() {
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(getServiceRegistry());
-        }
+        ServiceLoader.loadServices(getServiceRegistry());
     }
 
     /**
      * @return The set of all registered operator SPIs.
-     *
      * @since BEAM 5
      */
     @Override
@@ -101,12 +99,12 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     }
 
     /**
-     * Gets a registered operator SPI. The given <code>operatorName</code> can be
+     * Gets a registered operator SPI. The given {@code operatorName} can be
      * either the fully qualified class name of the {@link OperatorSpi}
      * or an alias name.
      *
      * @param operatorName A name identifying the operator SPI.
-     * @return the operator SPI, or <code>null</code>
+     * @return the operator SPI, or {@code null}
      */
     @Override
     public OperatorSpi getOperatorSpi(String operatorName) {
@@ -115,12 +113,12 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
             return service;
         }
 
-        service = extraOperatorSpis.get(operatorName);
+        service = getName(extraOperatorSpis, operatorName);
         if (service != null) {
             return service;
         }
 
-        String className = classNames.get(operatorName);
+        String className = getName(classNames, operatorName);
         if (className != null) {
             service = serviceRegistry.getService(className);
             if (service != null) {
@@ -129,6 +127,11 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         }
 
         return null;
+    }
+
+    private <T> T getName(Map<String, T> tMap, String operatorName) {
+        Optional<String> optional = tMap.keySet().stream().filter(p -> p.equalsIgnoreCase(operatorName)).findFirst();
+        return optional.isPresent() ? tMap.get(optional.get()) : null;
     }
 
     /**
@@ -153,7 +156,6 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * @param operatorName an (alias) name used as key for the registration.
      * @param operatorSpi  the SPI to add
      * @return {@code true}, if the {@link OperatorSpi} could be successfully added, otherwise {@code false}
-     *
      * @since BEAM 5
      */
     @Override
@@ -180,9 +182,9 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         if (!serviceRegistry.removeService(operatorSpi)) {
             Stream<Map.Entry<String, OperatorSpi>> extraSpiStream = extraOperatorSpis.entrySet().stream();
             Optional<Map.Entry<String, OperatorSpi>> spiEntry = extraSpiStream.filter(entry -> entry.getValue() == operatorSpi).findFirst();
-            if(spiEntry.isPresent() && extraOperatorSpis.remove(spiEntry.get().getKey(), spiEntry.get().getValue())) {
+            if (spiEntry.isPresent() && extraOperatorSpis.remove(spiEntry.get().getKey(), spiEntry.get().getValue())) {
                 unregisterAlias(spiEntry.get().getValue());
-            }else {
+            } else {
                 return false;
             }
         }
@@ -229,11 +231,11 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     }
 
     private void unregisterAlias(OperatorSpi operatorSpi) {
-        String spiClassName = operatorSpi.getClass().getName();
-        for (String key : new HashSet<>(classNames.keySet())) {
-            if (classNames.get(key).equals(spiClassName)) {
-                classNames.remove(key);
-            }
+        String alias = operatorSpi.getOperatorAlias();
+        if (classNames.remove(alias) == null) {
+            String spiClassName = operatorSpi.getClass().getName();
+            Stream<String> stream = new HashSet<>(classNames.keySet()).stream();
+            stream.filter(key -> classNames.get(key).equals(spiClassName)).forEach(classNames::remove);
         }
     }
 

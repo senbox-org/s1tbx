@@ -58,18 +58,30 @@ public class N3Variable implements NVariable {
 
     @Override
     public void addAttribute(String name, Number value) {
-        variable.addAttribute(new Attribute(name, value));
+        addAttribute(name, value, false);
     }
 
     @Override
     public void addAttribute(String name, Number value, boolean isUnsigned) {
-        final Attribute attribute = new Attribute(name, value);
-        variable.addAttribute(attribute);
+        if(value instanceof Long) {
+            variable.addAttribute(new Attribute(name, value.intValue()));
+        }else {
+            variable.addAttribute(new Attribute(name, value));
+        }
     }
 
     @Override
     public void addAttribute(String name, Array value) {
-        variable.addAttribute(new Attribute(name, value));
+        if (DataType.getType(value.getElementType()) == DataType.LONG) {
+            long[] longElems = (long[]) value.get1DJavaArray(Long.class);
+            int[] intElems = new int[longElems.length];
+            for (int i = 0; i < longElems.length; i++) {
+                intElems[i] = (int) longElems[i];
+            }
+            variable.addAttribute(new Attribute(name, Array.factory(intElems)));
+        } else {
+            variable.addAttribute(new Attribute(name, value));
+        }
     }
 
     @Override

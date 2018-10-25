@@ -261,7 +261,7 @@ public class PlacemarkTest extends TestCase {
         assertEquals(pinLat, placemark.getGeoPos().lat, 1e-15f);
         assertEquals(pinLon, placemark.getGeoPos().lon, 1e-15f);
 
-        final Element fillElem = new Element(DimapProductConstants.TAG_PLACEMARK_FILL_COLOR);
+        final Element fillElem = new Element(PlacemarkIO.TAG_FILL_COLOR);
         Element colorElem = new Element(DimapProductConstants.TAG_COLOR);
         colorElem.setAttribute(DimapProductConstants.ATTRIB_RED, "255");
         colorElem.setAttribute(DimapProductConstants.ATTRIB_GREEN, "0");
@@ -270,7 +270,7 @@ public class PlacemarkTest extends TestCase {
         fillElem.addContent(colorElem);
         pinElem.addContent(fillElem);
 
-        final Element outlineElem = new Element(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR);
+        final Element outlineElem = new Element(PlacemarkIO.TAG_OUTLINE_COLOR);
         colorElem = new Element(DimapProductConstants.TAG_COLOR);
         colorElem.setAttribute(DimapProductConstants.ATTRIB_RED, "0");
         colorElem.setAttribute(DimapProductConstants.ATTRIB_GREEN, "0");

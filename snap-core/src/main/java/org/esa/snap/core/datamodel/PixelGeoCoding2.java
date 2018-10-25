@@ -49,6 +49,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     private final int rasterW;
     private final int rasterH;
+    private final int searchRadius;
     private final boolean fractionAccuracy;
     private final DataProvider dataProvider;
     private final GeoCoding formerGeocoding;
@@ -66,7 +67,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      * @param lonBand        the band providing the longitudes
      * @param maskExpression the expression defining a valid-pixel mask, may be {@code null}
      */
-    public PixelGeoCoding2(final Band latBand, final Band lonBand, String maskExpression) {
+    PixelGeoCoding2(final Band latBand, final Band lonBand, String maskExpression, int searchRadius) {
         Guardian.assertNotNull("latBand", latBand);
         Guardian.assertNotNull("lonBand", lonBand);
         final Product product = latBand.getProduct();
@@ -86,6 +87,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
 
+        this.searchRadius = searchRadius;
         fractionAccuracy = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
         this.latBand = latBand;
         this.lonBand = lonBand;
@@ -141,9 +143,10 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         final double pixelSizeX = pixelDimension.getWidth();
         final double pixelSizeY = pixelDimension.getHeight();
         final double pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
+        final double halfPixelDiagonal = Math.sqrt(pixelDiagonalSquared) / 2;
 
-        pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
-        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared, fractionAccuracy);
+        pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5, true);
+        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, halfPixelDiagonal, fractionAccuracy, searchRadius);
 
         boolean useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
         boolean disableTiling = !useTiling;
@@ -176,7 +179,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     @Override
     public int getSearchRadius() {
-        return 0;
+        return searchRadius;
     }
 
     /**
@@ -196,10 +199,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      */
     @Override
     public boolean canGetPixelPos() {
-//        if (pixelPosEstimator != null) {
         return pixelPosEstimator.canGetPixelPos();
-//        }
-//        return true;
     }
 
     /**
@@ -242,27 +242,29 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             geoPos = new GeoPos();
         }
         geoPos.setInvalid();
-        if (pixelPos.isValid() && pixelPosIsInsideRasterWH(pixelPos)) {
-            int x0 = (int) Math.floor(pixelPos.getX());
-            int y0 = (int) Math.floor(pixelPos.getY());
+        if (pixelPos.isValid()) {
+            if (pixelPosIsInsideRasterWH(pixelPos)) {
+                int x0 = (int) Math.floor(pixelPos.getX());
+                int y0 = (int) Math.floor(pixelPos.getY());
 
-            if (fractionAccuracy && !isInPixelCenter(pixelPos)) {
-                if (x0 > 0 && pixelPos.x - x0 < 0.5 || x0 == rasterW - 1) {
-                    x0 -= 1;
-                }
-                if (y0 > 0 && pixelPos.y - y0 < 0.5 || y0 == rasterH - 1) {
-                    y0 -= 1;
-                }
+                if (fractionAccuracy && !isInPixelCenter(pixelPos)) {
+                    if (x0 > 0 && pixelPos.x - x0 < 0.5 || x0 == rasterW - 1) {
+                        x0 -= 1;
+                    }
+                    if (y0 > 0 && pixelPos.y - y0 < 0.5 || y0 == rasterH - 1) {
+                        y0 -= 1;
+                    }
 
-                final double wx = pixelPos.x - (x0 + 0.5);
-                final double wy = pixelPos.y - (y0 + 0.5);
+                    final double wx = pixelPos.x - (x0 + 0.5);
+                    final double wy = pixelPos.y - (y0 + 0.5);
 
-                dataProvider.getGeoPosDouble(x0, y0, wx, wy, geoPos);
-                if (!geoPos.isValid()) {
+                    dataProvider.getGeoPosDouble(x0, y0, wx, wy, geoPos);
+                    if (!geoPos.isValid()) {
+                        dataProvider.getGeoPosInteger(x0, y0, geoPos);
+                    }
+                } else {
                     dataProvider.getGeoPosInteger(x0, y0, geoPos);
                 }
-            } else {
-                dataProvider.getGeoPosInteger(x0, y0, geoPos);
             }
             if (!geoPos.isValid()) {
                 if (formerGeocoding != null && formerGeocoding.canGetGeoPos()) {
@@ -364,7 +366,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         } catch (ParseException ignored) {
             validMaskExpression = null;
         }
-        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, validMaskExpression));
+        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, validMaskExpression, searchRadius));
 
         return true;
     }

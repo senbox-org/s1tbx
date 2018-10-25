@@ -16,6 +16,8 @@
 
 package org.esa.snap.smart.configurator;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Benchmark calcul (test one processing with a set of parameters)
  *
@@ -26,7 +28,17 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
     /**
      * tile size (px)
      */
-    private int tileSize;
+    //private int tileSize;
+
+    /**
+     * tile Width (px)
+     */
+    private String tileWidth;
+
+    /**
+     * tile Height (px)
+     */
+    private String tileHeight;
 
     /**
      * cache size (MB)
@@ -43,22 +55,94 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
      */
     private Long executionTime;
 
-    public BenchmarkSingleCalculus(int tileSize, int cacheSize, int nbThreads){
-        this.tileSize = tileSize;
+    /**
+     * hide in output or not
+     */
+    private boolean hideOutput;
+
+    /**
+     * execution order
+     */
+    private int executionOrder;
+
+    public BenchmarkSingleCalculus(String tileHeight, String tileWidth, int cacheSize, int nbThreads){
+        this(tileHeight, tileWidth, cacheSize, nbThreads, false);
+    }
+
+    public BenchmarkSingleCalculus(String dimension, int cacheSize, int nbThreads){
+        this(dimension, cacheSize, nbThreads, false);
+    }
+
+    public BenchmarkSingleCalculus(String tileHeight, String tileWidth, int cacheSize, int nbThreads, boolean hideOutput){
+        this.tileHeight = tileHeight;
+        this.tileWidth = tileWidth;
         this.cacheSize = cacheSize;
         this.nbThreads = nbThreads;
+        this.hideOutput = hideOutput;
         this.executionTime = null;
     }
 
-   public String toString(){
-       String toDiaplay = "("+this.getTileSize()+", "+this.getCacheSize()+", "+this.nbThreads+") = ";
-       if(this.executionTime != null) {
-           toDiaplay += this.executionTime+" ms";
-       } else {
-           toDiaplay += "not computed";
-       }
-       return toDiaplay;
-   }
+    public BenchmarkSingleCalculus(String dimension, int cacheSize, int nbThreads, boolean hideOutput){
+
+        this(PerformanceParameters.getHeightFromTileDimensionString(dimension),
+             PerformanceParameters.getWidthFromTileDimensionString(dimension),
+             cacheSize,
+             nbThreads,
+             hideOutput);
+    }
+
+    public String toString() {
+        String toDiaplay = "(" + this.getDimensionString() + ", " + this.getCacheSize() + ", " + this.nbThreads + ") = ";
+        if (this.executionTime != null) {
+            toDiaplay += this.executionTime + " ms";
+        } else {
+            toDiaplay += "not computed";
+        }
+        return toDiaplay;
+    }
+
+    public static String[] getColumnNames(){
+        String[] columnsNames = {"Execution Order", "Tile Width", "Tile Height", "Cache size (MB)", "Nb threads", "Execution time (ms)"};
+        return columnsNames;
+    }
+
+    public static String[] getColumnNamesWithoutTileSize(){
+        String[] columnsNames = {"Execution Order", "Cache size (MB)", "Nb threads", "Execution time (ms)"};
+        return columnsNames;
+    }
+
+    public int[] getData() {
+        int execution = -1;
+        if (this.executionTime != null) {
+            execution = this.executionTime.intValue();
+        }
+
+        int tileHeight = -1;
+        int tileWidth = -1;
+        try {
+            tileHeight = Integer.parseInt(this.tileHeight);
+        } catch (Exception e) {
+            //Ignore
+        }
+
+        try {
+            tileWidth = Integer.parseInt(this.tileWidth);
+        } catch (Exception e) {
+            //Ignore
+        }
+
+        int[] calculus = {this.executionOrder, tileWidth, tileHeight, this.cacheSize, this.nbThreads, execution};
+        return calculus;
+    }
+
+    public int[] getDataWithoutTileSize() {
+        int execution = -1;
+        if (this.executionTime != null) {
+            execution = this.executionTime.intValue();
+        }
+        int[] calculus = {this.executionOrder, this.cacheSize, this.nbThreads, execution};
+        return calculus;
+    }
 
     @Override
     public int compareTo(BenchmarkSingleCalculus compareBenchmarkSingleCalcul) {
@@ -79,9 +163,18 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
         }
         return order;
     }
+    
 
-    public int getTileSize() {
-        return tileSize;
+    public String getTileWidth() {
+        return tileWidth;
+    }
+
+    public String getTileHeight() {
+        return tileHeight;
+    }
+
+    public String getDimensionString () {
+        return PerformanceParameters.getDimensionStringFromWidthAndHeight(this.tileWidth, this.tileHeight);
     }
 
     public int getCacheSize() {
@@ -95,4 +188,43 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
     public void setExecutionTime(long executionTime) {
         this.executionTime = executionTime;
     }
+
+    public void setHideOutput(boolean hide) {
+        this.hideOutput = hide;
+    }
+
+    public boolean isHidden() {
+        return this.hideOutput;
+    }
+
+    public boolean hasIdenticalParameters(BenchmarkSingleCalculus benchmarkSingleCalculus) {
+        if(this.nbThreads != benchmarkSingleCalculus.getNbThreads()) {
+            return false;
+        }
+
+        if(this.cacheSize != benchmarkSingleCalculus.getCacheSize()) {
+            return false;
+        }
+
+
+        /*if(this.tileHeight.compareTo(benchmarkSingleCalculus.getTileHeight()) != 0 ) {
+            return false;
+        }
+
+        if(this.tileWidth.compareTo(benchmarkSingleCalculus.getTileWidth()) != 0 ) {
+            return false;
+        }*/
+
+        if(this.hideOutput != benchmarkSingleCalculus.isHidden()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void setExecutionOrder(int executionOrder) {
+        this.executionOrder = executionOrder;
+    }
+
+
 }

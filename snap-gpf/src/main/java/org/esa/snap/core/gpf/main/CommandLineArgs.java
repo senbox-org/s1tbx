@@ -35,16 +35,25 @@ import java.util.TreeMap;
  */
 public class CommandLineArgs {
 
-    private static final int K = 1024;
-    private static final int M = K * 1024;
-    private static final int G = M * 1024;
+    public static final long K = 1024;
+    public static final long M = K * 1024;
+    public static final long G = M * 1024;
     public static final String DEFAULT_TARGET_FILEPATH = "target.dim";
     public static final String DEFAULT_METADATA_FILEPATH = "metadata.properties";
     public static final String DEFAULT_VELOCITY_TEMPLATE_DIRPATH = ".";
     public static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
-    public static final int DEFAULT_TILE_CACHE_SIZE_IN_M = Config.instance().load().preferences().getInt("snap.jai.tileCacheSize", 512);
-    public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Config.instance().load().preferences().getInt("snap.parallelism", Runtime.getRuntime().availableProcessors());
     public static final String VELOCITY_TEMPLATE_EXTENSION = ".vm";
+
+    /*
+      @deprecated since 6.0.4, use {@link #getDefaultTileCacheSize()} instead
+     */
+    @Deprecated()
+    public static final long DEFAULT_TILE_CACHE_SIZE_IN_M = getDefaultTileCacheSize();
+    /*
+      @deprecated since 6.0.4, use {@link #getDefaultTileSchedulerParallelism()} instead
+     */
+    @Deprecated()
+    public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = getDefaultTileSchedulerParallelism();
 
     private String[] args;
     private String operatorName;
@@ -58,6 +67,7 @@ public class CommandLineArgs {
     private String metadataFilePath;
     private String velocityTemplateDirPath;
     private boolean helpRequested;
+    private boolean diagnosticRequested;
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
 
@@ -79,8 +89,8 @@ public class CommandLineArgs {
         sourceFilePathMap = new TreeMap<>();
         parameterMap = new TreeMap<>();
         systemPropertiesMap = new HashMap<>();
-        tileCacheCapacity = DEFAULT_TILE_CACHE_SIZE_IN_M * M;
-        tileSchedulerParallelism = DEFAULT_TILE_SCHEDULER_PARALLELISM;
+        tileCacheCapacity = getDefaultTileCacheSize();
+        tileSchedulerParallelism = getDefaultTileSchedulerParallelism();
         stackTraceDump = isStackTraceDumpEnabled(args);
     }
 
@@ -110,6 +120,8 @@ public class CommandLineArgs {
                     systemPropertiesMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
+                } else if (arg.equals("--diag")) {
+                    diagnosticRequested = true;
                 } else if (arg.equals("-x")) {
                     clearCacheAfterRowWrite = true;
                 } else if (arg.equals("-e")) {
@@ -159,7 +171,7 @@ public class CommandLineArgs {
             }
         }
 
-        if (operatorName == null && graphFilePath == null && !helpRequested) {
+        if (operatorName == null && graphFilePath == null && !helpRequested && !diagnosticRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
         if (metadataFilePath != null && metadataFilePath.isEmpty()) {
@@ -219,8 +231,16 @@ public class CommandLineArgs {
         return parameterFilePath;
     }
 
+    public static long getDefaultTileCacheSize() {
+        return Config.instance().load().preferences().getLong("snap.jai.tileCacheSize", 512) * M;
+    }
+
     public long getTileCacheCapacity() {
         return tileCacheCapacity;
+    }
+
+    public static int getDefaultTileSchedulerParallelism() {
+        return Config.instance().load().preferences().getInt("snap.parallelism", Runtime.getRuntime().availableProcessors());
     }
 
     public int getTileSchedulerParallelism() {
@@ -245,6 +265,10 @@ public class CommandLineArgs {
 
     public boolean isHelpRequested() {
         return helpRequested;
+    }
+
+    public boolean isDiagnosticRequested() {
+        return diagnosticRequested;
     }
 
     public boolean isStackTraceDump() {

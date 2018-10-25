@@ -17,6 +17,7 @@ package org.esa.snap.landcover.gpf;
 
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.IndexCoding;
@@ -35,6 +36,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.image.RasterDataNodeSampleOpImage;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.landcover.dataio.FileLandCoverModelDescriptor;
 import org.esa.snap.landcover.dataio.LandCoverFactory;
@@ -65,8 +67,8 @@ public final class AddLandCoverOp extends Operator {
     @Parameter(description = "The land cover model.", defaultValue = "AAFC Canada Sand Pct", label = "Land Cover Model")
     private String[] landCoverNames = {"AAFC Canada Sand Pct"};
 
-    @Parameter(description = "The external file.", defaultValue = "", label = "External File")
-    private File externalFile = null;
+    @Parameter(description = "The external landcover files.", defaultValue = "", label = "External Files")
+    private File[] externalFiles = null;
 
     @Parameter(defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             label = "Resampling Method")
@@ -101,6 +103,7 @@ public final class AddLandCoverOp extends Operator {
      * Create target product.
      */
     void createTargetProduct() throws Exception {
+        ensureSingleRasterSize(sourceProduct);
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),
@@ -112,50 +115,66 @@ public final class AddLandCoverOp extends Operator {
             ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
         }
 
-        for (String landCoverName : landCoverNames) {
-            final LandCoverParameters param = new LandCoverParameters(
-                    landCoverName, resamplingMethod);
+        if(landCoverNames != null) {
+            for (String landCoverName : landCoverNames) {
+                final LandCoverParameters param = new LandCoverParameters(
+                        landCoverName, resamplingMethod);
 
-            AddLandCover(targetProduct, param);
+                AddLandCover(targetProduct, param);
+            }
         }
-        if (externalFile != null && externalFile.exists()) {
-            final LandCoverParameters param = new LandCoverParameters(
-                    externalFile.getName(), externalFile, resamplingMethod);
+        if (externalFiles != null) {
+            for(File externalFile : externalFiles) {
+                if (externalFile.exists()) {
 
-            AddLandCover(targetProduct, param);
+                    final LandCoverParameters param = new LandCoverParameters(
+                            externalFile.getName(), externalFile, resamplingMethod);
+
+                    AddLandCover(targetProduct, param);
+                }
+            }
         }
     }
 
     public static void AddLandCover(final Product product, final AddLandCoverOp.LandCoverParameters param) throws Exception {
-        final String name = LandCoverFactory.getProperName(param.name);
+        String name = LandCoverFactory.getProperName(param.name);
 
         LandCoverModelDescriptor descriptor = null;
         if (param.externalFile != null) {
             descriptor = new FileLandCoverModelDescriptor(param.externalFile);
+
+            try {
+                Product extProduct = ProductIO.readProduct(param.externalFile);
+
+                // integer data should only use nearest neighbour
+                if (extProduct.getBandAt(0).getDataType() < ProductData.TYPE_FLOAT32) {
+                    param.resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
+                }
+            } catch (Exception e) {
+                SystemUtils.LOG.warning("Unable to read external file " + param.externalFile);
+            }
         } else {
             final LandCoverModelRegistry modelRegistry = LandCoverModelRegistry.getInstance();
             descriptor = modelRegistry.getDescriptor(name);
-        }
 
-        if (descriptor == null)
-            throw new OperatorException("The Land Cover '" + name + "' is not supported.");
-        if (!descriptor.isInstalled()) {
-            descriptor.installFiles();
-        }
+            if (descriptor == null)
+                throw new OperatorException("The Land Cover '" + name + "' is not supported.");
+            if (!descriptor.isInstalled()) {
+                descriptor.installFiles();
+            }
 
-        final File[] files = descriptor.getInstallDir().listFiles();
-        if (!descriptor.isInstalled() && (files == null || files.length == 0)) {
-            throw new Exception(descriptor.getName() + " needs to be installed in " + descriptor.getInstallDir().toString());
-        }
-
-        // integer data should only use nearest neighbour
-        if (descriptor.getDataType() < ProductData.TYPE_FLOAT32) {
-            param.resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
+            // integer data should only use nearest neighbour
+            if (descriptor.getDataType() < ProductData.TYPE_FLOAT32) {
+                param.resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
+            }
         }
 
         Resampling resampling = Resampling.NEAREST_NEIGHBOUR;
         if (param.resamplingMethod != null) {
             resampling = ResamplingFactory.createResampling(param.resamplingMethod);
+            if(resampling == null) {
+                throw new OperatorException("Resampling method "+ param.resamplingMethod + " is invalid");
+            }
         }
 
         final LandCoverModel landcover = descriptor.createLandCoverModel(resampling);

@@ -35,6 +35,8 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.support.BandDescriptorDomConverter;
+import org.esa.snap.core.image.LevelImageSupport;
+import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.jexp.Namespace;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.jexp.Parser;
@@ -61,10 +63,10 @@ import java.util.Map;
  * <p>
  * To reference a band of one of the source products within an expression use the following syntax:<br>
  * <br>
- * <code>$sourceProducts<b>#</b>.bandName</code><br>
+ * <code>$sourceProduct.<b>#</b>.bandName</code><br>
  * <br>
  * Where <b>#</b> means the index of the source product. The index is zero based.<br>
- * The bands of the first source product (<code>$sourceProducts<b>0</b></code>) can be referenced without this
+ * The bands of the first source product (<code>$sourceProduct.<b>0</b></code>) can be referenced without this
  * product identifier. The band name is sufficient.
  * <p>
  * <p>
@@ -261,19 +263,17 @@ public class BandMathsOp extends Operator {
         }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
-        targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
+        targetProduct = new Product(sourceProducts[0].getName() + "_BandMath", "BandMath", width, height);
         descriptorMap = new HashMap<>(targetBandDescriptors.length);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
             Term targetTerm = createTerm(bandDescriptor.expression, true);
-            if (!BandArithmetic.areRastersEqualInSize(targetTerm)) {
-                throw new OperatorException("Referenced rasters must all be the same size: " + bandDescriptor.expression);
-            }
-            final RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(targetTerm);
-            Dimension targetBandDimension = findTargetBandSize(rasterDataSymbols);
+            final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(targetTerm);
+            ensureSingleRasterSize(refRasters);
+            Dimension targetBandDimension = findTargetBandSize(refRasters);
             final Band targetBand = createBand(bandDescriptor, targetBandDimension);
             targetProduct.addBand(targetBand);
-            if (rasterDataSymbols.length > 0) {
-                ProductUtils.copyImageGeometry(rasterDataSymbols[0].getRaster(), targetBand, true);
+            if (refRasters.length > 0) {
+                ProductUtils.copyImageGeometry(refRasters[0], targetBand, true);
             }
             descriptorMap.put(targetBand, bandDescriptor);
         }
@@ -335,7 +335,8 @@ public class BandMathsOp extends Operator {
             fillSymbolWithData(symbol, rect);
         }
 
-        final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
+        final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height,
+                                                            new LevelImageSupport(band.getRasterWidth(), band.getRasterHeight(), ResolutionLevel.MAXRES));
         pm.beginTask("Evaluating expression", rect.height);
         try {
             float fv = Float.NaN;
@@ -424,6 +425,14 @@ public class BandMathsOp extends Operator {
         return targetBand;
     }
 
+    private Dimension findTargetBandSize(RasterDataNode[] rasterDataNodes) {
+        if (rasterDataNodes.length > 0) {
+            return rasterDataNodes[0].getRasterSize();
+        } else {
+            return targetProduct.getSceneRasterSize();
+        }
+    }
+
     private Dimension findTargetBandSize(RasterDataSymbol[] rasterDataSymbols) {
         if (rasterDataSymbols.length > 0) {
             RasterDataSymbol referenceSourceRaster = rasterDataSymbols[0];
@@ -448,7 +457,8 @@ public class BandMathsOp extends Operator {
 
     private Namespace createNamespace() {
         WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0,
-                                                                            new SourceProductNamespacePrefixProvider());
+                                                                            new SourceProductNamespacePrefixProvider(),
+                                                                            BandArithmetic::getProductNodeNamePrefix);
         if (variables != null) {
             for (Variable variable : variables) {
                 if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {

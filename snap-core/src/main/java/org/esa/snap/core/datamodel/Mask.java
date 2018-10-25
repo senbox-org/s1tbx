@@ -414,6 +414,36 @@ public class Mask extends Band {
             super(TYPE_NAME);
         }
 
+
+
+        @Override
+        public boolean canTransferMask(Mask mask, Product product) {
+            // At the moment we disable the transfer of masks. It causes more problems as it solves.
+            // the subsetting needs to be considered and also the different geo-codings.
+            // Finally the masks need to be stored in DIMAP (mp/20170630)
+//            return getVectorData(mask) != null;
+            return false;
+        }
+
+        @Override
+        public Mask transferMask(Mask mask, Product product) {
+            if (canTransferMask(mask, product)) {
+                final String originalMaskName = mask.getName();
+                final String maskName = ProductUtils.getAvailableNodeName(originalMaskName, product.getMaskGroup());
+                final int w = mask.getRasterWidth();
+                final int h = mask.getRasterHeight();
+                final Mask newMask = new Mask(maskName, w, h, this);
+                newMask.setDescription(mask.getDescription());
+                setImageStyle(mask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
+                setVectorData(newMask, getVectorData(mask));
+                product.getMaskGroup().add(newMask);
+
+                return newMask;
+            }
+            return null;
+        }
+
+
         /**
          * Creates the image.
          *

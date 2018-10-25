@@ -16,15 +16,22 @@
 
 package org.esa.snap.core.datamodel;
 
-import junit.framework.TestCase;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.util.Debug;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
-public class TiePointGeoCodingTest extends TestCase {
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class TiePointGeoCodingTest {
     private static final int S = 4;
     private static final int GW = 3;
     private static final int GH = 5;
@@ -41,17 +48,18 @@ public class TiePointGeoCodingTest extends TestCase {
 
     private boolean _lastDebugState;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         _lastDebugState = Debug.setEnabled(false);
         //_lastDebugState = Debug.setEnabled(true);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         Debug.setEnabled(_lastDebugState);
     }
 
+    @Test
     public void testMerisRRPositions() {
         testMerisRRPositions(0, 0, 0, false);
         testMerisRRPositions(0, -180, 0, true);
@@ -120,6 +128,7 @@ public class TiePointGeoCodingTest extends TestCase {
         testMerisRRPositions(-45, -180 + 0.5 * (60 + 20) / Math.sqrt(2) - 1, 0, true);
     }
 
+    @Test
     public void testSelf() {
         TestSet ts = createMerisRRTestSet(0, +180, 0, true);
         assertEquals(+170, ts.gp[TestSet.UL].lon, 1.e-5f);
@@ -127,6 +136,7 @@ public class TiePointGeoCodingTest extends TestCase {
         assertEquals(-170, ts.gp[TestSet.UR].lon, 1.e-5f);
     }
 
+    @Test
     public void testTransferGeoCoding() {
         final Scene srcScene = SceneFactory.createScene(createProduct());
         final Scene destScene = SceneFactory.createScene(new Product("test2", "test2", PW, PH));
@@ -143,13 +153,14 @@ public class TiePointGeoCodingTest extends TestCase {
         assertEquals(srcGeoPos, destGeoPos);
     }
 
+    @Test
     public void testTransferGeoCoding_WithSpatialSubset() throws IOException {
         final Scene srcScene = SceneFactory.createScene(createProduct());
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         subsetDef.setRegion(2, 2, PW - 4, PH - 4);
         subsetDef.setSubSampling(1,2);
         final Product destProduct = ProductSubsetBuilder.createProductSubset(new Product("test2", "test2", PW, PH),
-                                                                        subsetDef, "test2", "");
+                                                                             subsetDef, "test2", "");
         final Scene destScene = SceneFactory.createScene(destProduct);
 
         final boolean transferred = srcScene.transferGeoCodingTo(destScene, subsetDef);
@@ -159,8 +170,23 @@ public class TiePointGeoCodingTest extends TestCase {
 
         final GeoPos srcGeoPos = srcScene.getGeoCoding().getGeoPos(new PixelPos(4.5f, 6.5f), null);
         final PixelPos destPixelPos = destScene.getGeoCoding().getPixelPos(srcGeoPos, null);
-        assertEquals(2.5, destPixelPos.getX(), 1.0e-1);
-        assertEquals(1.5, destPixelPos.getY(), 1.0e-1);
+        assertEquals(2.06, destPixelPos.getX(), 1.0e-2);
+        assertEquals(4.42, destPixelPos.getY(), 1.0e-1);
+    }
+
+    @Test
+    public void testDetermineWarpParameters() {
+        int[] warpParameters = TiePointGeoCoding.determineWarpParameters(100, 100);
+        assertEquals(25, warpParameters[0]);
+        assertEquals(34, warpParameters[1]);
+        assertEquals(4, warpParameters[2]);
+        assertEquals(3, warpParameters[3]);
+
+        warpParameters = TiePointGeoCoding.determineWarpParameters(39, 2728);
+        assertEquals(20, warpParameters[0]);
+        assertEquals(39, warpParameters[1]);
+        assertEquals(2, warpParameters[2]);
+        assertEquals(70, warpParameters[3]);
     }
 
     private Product createProduct() {

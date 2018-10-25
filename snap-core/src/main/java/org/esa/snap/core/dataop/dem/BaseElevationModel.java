@@ -32,7 +32,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     protected final int NUM_Y_TILES;
     protected final int NUM_PIXELS_PER_TILE;
     private final double NUM_PIXELS_PER_TILEinv;
-    private final double NO_DATA_VALUE;
+    protected final double NO_DATA_VALUE;
     protected final int DEGREE_RES;
     private final int RASTER_WIDTH;
     protected final int RASTER_HEIGHT;
@@ -41,7 +41,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
 
     protected final ElevationModelDescriptor descriptor;
     private final ElevationFile[][] elevationFiles;
-    private final Resampling resampling;
+    protected final Resampling resampling;
     private final Resampling.Raster resamplingRaster;
 
     private final List<ElevationTile> elevationTileCache = new ArrayList<>(20);
@@ -83,12 +83,12 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         maxCacheSize = size;
     }
 
-    public final double getElevation(final GeoPos geoPos) throws Exception {
+    public double getElevation(final GeoPos geoPos) throws Exception {
         if (geoPos.lon > 180) {
             geoPos.lon -= 360;
         }
         final double pixelY = getIndexY(geoPos);
-        if (pixelY < 0) {
+        if (pixelY < 0 || Double.isNaN(pixelY)) {
             return NO_DATA_VALUE;
         }
 

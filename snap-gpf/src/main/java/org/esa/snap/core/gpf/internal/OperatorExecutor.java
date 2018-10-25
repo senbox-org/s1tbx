@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorCancelException;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
@@ -214,7 +215,7 @@ public class OperatorExecutor {
         SystemUtils.LOG.finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
                                              tileX + 1, tileCountX, tileY + 1, tileCountY, image));
 
-        checkForCancelation(pm);
+        checkForCancellation(pm);
         acquirePermits(semaphore, 1);
         if (error != null) {
             semaphore.release(parallelism);
@@ -261,9 +262,9 @@ public class OperatorExecutor {
         return images.toArray(new PlanarImage[images.size()]);
     }
 
-    private static void checkForCancelation(ProgressMonitor pm) {
+    private static void checkForCancellation(ProgressMonitor pm) {
         if (pm.isCanceled()) {
-            throw new OperatorException("Operation canceled.");
+            throw new OperatorCancelException("Operation canceled.");
         }
     }
 
@@ -273,7 +274,7 @@ public class OperatorExecutor {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (final PlanarImage image : images) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
-                    checkForCancelation(pm);
+                    checkForCancellation(pm);
                     /////////////////////////////////////////////////////////////////////
                     //
                     // Note: GPF pull-processing is triggered here!!!

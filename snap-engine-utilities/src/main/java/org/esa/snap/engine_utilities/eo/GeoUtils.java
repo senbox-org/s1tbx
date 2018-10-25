@@ -220,7 +220,6 @@ public final class GeoUtils {
         xyz[0] = radius * cosLat * FastMath.cos(lonRad);
         xyz[1] = radius * cosLat * FastMath.sin(lonRad);
         xyz[2] = radius * sinLat;
-
     }
 
     /**
@@ -250,7 +249,6 @@ public final class GeoUtils {
         phiLamHeight[0] = FastMath.asin(xyz[2] / phiLamHeight[2]);
 
     }
-
 
     /**
      * Compute accurate target position for given orbit information using Newton's method.
@@ -315,31 +313,19 @@ public final class GeoUtils {
     }
 
     /**
-     * // Given starting point GLON1,GLAT1, head1 = initial heading,and distance
-     * // in meters, calculate destination GLON2,GLAT2, and head2=initial heading
-     * // from destination to starting point
-     * <p>
-     * // Input:
-     * // lon1:	longitude
-     * // lat1:	latitude
-     * // dist:	distance in m
-     * // head1:	azimuth in degree measured in the diretion North east south west
-     * <p>
-     * // Output:
-     * // GLON2:	longitude
-     * // GLAT2:	latitude
-     * // head2:	azimuth in degree measured in the direction North east south west
-     * //			from (GLON2,GLAT2) to (GLON1, GLAT1)
+     *  Given starting point, initial heading and distance in meters,
+     *  calculate destination point and heading from destination to starting point
      *
-     * @param lon1
-     * @param lat1
-     * @param dist
-     * @param head1
-     * @return
+     * @param pos1 lat lon position
+     * @param dist distance in m
+     * @param head1 azimuth in degree measured in the diretion North east south west
+     * @return lat lon and heading
      */
-    public static LatLonHeading vincenty_direct(double lon1, double lat1, final double dist, final double head1) {
+    public static LatLonHeading vincenty_direct(final GeoPos pos1, final double dist, final double head1) {
 
-        final LatLonHeading pos = new LatLonHeading();
+        final LatLonHeading pos2 = new LatLonHeading();
+        double lat1 = pos1.lat;
+        double lon1 = pos1.lon;
 
         lat1 *= Constants.DTOR;
         lon1 *= Constants.DTOR;
@@ -384,52 +370,47 @@ public final class GeoUtils {
         BAZ = CU * CY * CF - SU * SY;
         C = R * Math.sqrt(SA * SA + BAZ * BAZ);
         D = SU * CY + CU * SY * CF;
-        pos.lat = Math.atan2(D, C);
+        pos2.lat = Math.atan2(D, C);
         C = CU * CY - SU * SY * CF;
         X = Math.atan2(SY * SF, C);
         C = ((-3.0 * C2A + 4.0) * F + 4.0) * C2A * F / 16.0;
         D = ((E * CY * C + CZ) * SY * C + Y) * SA;
-        pos.lon = lon1 + X - (1.0 - C) * D * F;
+        pos2.lon = lon1 + X - (1.0 - C) * D * F;
         BAZ = Math.atan2(SA, BAZ) + Constants.PI;
 
-        pos.lon *= Constants.RTOD;
-        pos.lat *= Constants.RTOD;
-        pos.heading = BAZ * Constants.RTOD;
+        pos2.lon *= Constants.RTOD;
+        pos2.lat *= Constants.RTOD;
+        pos2.heading = BAZ * Constants.RTOD;
 
-        while (pos.heading < 0)
-            pos.heading += 360;
+        while (pos2.heading < 0) {
+            pos2.heading += 360;
+        }
 
-        return pos;
+        return pos2;
     }
 
     /**
-     * // Given starting (GLON1,GLAT1) and end points (GLON2,GLAT2)
-     * // calculate distance in meters and initial headings from start to
-     * // end (return variable head1),
-     * // and from end to start point (return variable head2)
-     * <p>
-     * // Input:
-     * // lon1:	longitude
-     * // lat1:	latitude
-     * // lon2:	longitude
-     * // lat2:	latitude
-     * <p>
-     * // Output:
-     * // dist:	distance in m
-     * // head1:	azimuth in degrees mesured in the direction North east south west
-     * //			from (lon1,lat1) to (lon2, lat2)
-     * // head2:	azimuth in degrees mesured in the direction North east south west
-     * //			from (lon2,lat2) to (lon1, lat1)
+     * Given starting and end points
+     * calculate distance in meters and initial headings from start to
+     * end (return variable head1),
+     * and from end to start point (return variable head2)
      *
-     * @param lon1
-     * @param lat1
-     * @param lon2
-     * @param lat2
-     * @return
+     * @param pos1 first position
+     * @param pos2 second position
+     * @return distance and heading
+     * dist:	distance in m
+     * head1:	azimuth in degrees mesured in the direction North east south west
+     * 			from (lon1,lat1) to (lon2, lat2)
+     * head2:	azimuth in degrees mesured in the direction North east south west
+     * 			from (lon2,lat2) to (lon1, lat1)
      */
-    public static DistanceHeading vincenty_inverse(double lon1, double lat1, double lon2, double lat2) {
+    public static DistanceHeading vincenty_inverse(final GeoPos pos1, final GeoPos pos2) {
 
         final DistanceHeading output = new DistanceHeading();
+        double lat1 = pos1.lat;
+        double lon1 = pos1.lon;
+        double lat2 = pos2.lat;
+        double lon2 = pos2.lon;
 
         if ((Math.abs(lon1 - lon2) < EPS5) && (Math.abs(lat1 - lat2) < EPS5)) {
             output.distance = 0;
@@ -514,20 +495,20 @@ public final class GeoUtils {
         public double heading2;
     }
 
-    public static interface WGS84 {
-        public static final double a = 6378137.0; // m
-        public static final double b = 6356752.3142451794975639665996337; //6356752.31424518; // m
-        public static final double earthFlatCoef = 1.0 / ((a - b) / a); //298.257223563;
-        public static final double e2 = 2.0 / earthFlatCoef - 1.0 / (earthFlatCoef * earthFlatCoef);
-        public static final double e2inv = 1 - WGS84.e2;
-        public static final double ep2 = e2 / (1 - e2);
+    public interface WGS84 {
+        double a = 6378137.0; // m
+        double b = 6356752.3142451794975639665996337; //6356752.31424518; // m
+        double earthFlatCoef = 1.0 / ((a - b) / a); //298.257223563;
+        double e2 = 2.0 / earthFlatCoef - 1.0 / (earthFlatCoef * earthFlatCoef);
+        double e2inv = 1 - WGS84.e2;
+        double ep2 = e2 / (1 - e2);
     }
 
-    public static interface GRS80 {
-        public static final double a = 6378137; // m
-        public static final double b = 6356752.314140; // m
-        public static final double earthFlatCoef = 1.0 / ((a - b) / a); //298.257222101;
-        public static final double e2 = 2.0 / earthFlatCoef - 1.0 / (earthFlatCoef * earthFlatCoef);
-        public static final double ep2 = e2 / (1 - e2);
+    public interface GRS80 {
+        double a = 6378137; // m
+        double b = 6356752.314140; // m
+        double earthFlatCoef = 1.0 / ((a - b) / a); //298.257222101;
+        double e2 = 2.0 / earthFlatCoef - 1.0 / (earthFlatCoef * earthFlatCoef);
+        double ep2 = e2 / (1 - e2);
     }
 }

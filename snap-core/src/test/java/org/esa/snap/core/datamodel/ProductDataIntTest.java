@@ -18,6 +18,7 @@ package org.esa.snap.core.datamodel;
 import junit.framework.TestCase;
 import org.esa.snap.GlobalTestConfig;
 import org.esa.snap.core.util.io.FileUtils;
+import org.junit.Assume;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
@@ -31,10 +32,10 @@ public class ProductDataIntTest extends TestCase {
 
     @Override
     protected void setUp() throws IOException {
-        File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
-        outputFile.mkdirs();
-        File streamFile = new File(outputFile, "int.img");
-        streamFile.createNewFile();
+        File outputDir = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
+        Assume.assumeTrue(outputDir.mkdirs() || outputDir.exists());
+        File streamFile = new File(outputDir, "int.img");
+        Assume.assumeTrue(streamFile.createNewFile() || streamFile.exists());
         _inputStream = new FileImageInputStream(streamFile);
         _outputStream = new FileImageOutputStream(streamFile);
         assertNotNull(_inputStream);
@@ -46,7 +47,7 @@ public class ProductDataIntTest extends TestCase {
         try {
             _inputStream.close();
             _outputStream.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         FileUtils.deleteTree(GlobalTestConfig.getBeamTestDataOutputDirectory());
     }

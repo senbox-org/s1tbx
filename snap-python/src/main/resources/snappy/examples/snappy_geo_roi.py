@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import sys
+
 from snappy import (ProgressMonitor, VectorDataNode,
                     WKTReader, ProductIO, PlainFeatureFactory,
                     SimpleFeatureBuilder, DefaultGeographicCRS,
                     ListFeatureCollection, FeatureUtils)
-
 
 if len(sys.argv) != 3:
     print("usage: %s <inputProduct> <wkt>" % sys.argv[0])
@@ -35,7 +35,9 @@ newCollection.add(wktFeature)
 
 productFeatures = FeatureUtils.clipFeatureCollectionToProductBounds(newCollection, product, None, ProgressMonitor.NULL)
 
-node = VectorDataNode('shape', wktFeatureType)
+node = VectorDataNode('shape', productFeatures)
+print ('Num features = ', node.getFeatureCollection().size())
+
 product.getVectorDataGroup().add(node)
 
 vdGroup = product.getVectorDataGroup()

@@ -16,12 +16,13 @@
 package org.esa.snap.core.dataop.downloadable;
 
 import org.esa.snap.core.util.SystemUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * FTPDownloaderTester.
@@ -31,20 +32,36 @@ import static org.junit.Assert.assertTrue;
 public class TestFTPDownloader {
 
     @Test
+    @Ignore
     public void testConnect() throws Exception {
-        final String server = "xftp.jrc.it";
-        final String remotePath = "/pub/srtmV4/tiff/";
+        final String server = "speedtest.tele2.net";
+        final String remotePath = "";
 
         final FtpDownloader ftp = new FtpDownloader(server);
         final Map<String, Long> fileSizeMap = FtpDownloader.readRemoteFileList(ftp, server, remotePath);
 
-        final String localPath = SystemUtils.getAuxDataPath().resolve("dem/SRTM_DEM/tiff").toString();
-        final File localFile = new File(localPath, "srtm_35_03.zip");
+        final File localFile = new File(SystemUtils.getCacheDir(), "1KB.zip");
         final String remoteFileName = localFile.getName();
         final Long fileSize = fileSizeMap.get(remoteFileName);
 
-        final FtpDownloader.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
-        assertTrue(result == FtpDownloader.FTPError.OK);
+        Exception exception = null;
+        for (int i = 0; i < 5; i++) {
+            final FtpDownloader.FTPError result;
+            try {
+                result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
+                if(result == FtpDownloader.FTPError.OK) {
+                    localFile.delete();
+                    return;
+                }
+            } catch (Exception ex) {
+                exception = ex;
+            }
+        }
+        String msg = "Not able to retrieve file";
+        if(exception != null) {
+            msg += " (" + exception.getMessage() + ")";
+        }
+        fail(msg);
     }
 
 }

@@ -84,7 +84,7 @@ public class SampleCoding extends MetadataElement {
      */
     public MetadataAttribute addSamples(String name, int[] values, String description) {
         Guardian.assertNotNull("name", name);
-        final ProductData productData = ProductData.createInstance(ProductData.TYPE_INT32, values.length);
+        final ProductData productData = ProductData.createInstance(ProductData.TYPE_UINT32, values.length);
         MetadataAttribute attribute = new MetadataAttribute(name, productData, false);
         attribute.setDataElems(values);
         if (description != null) {

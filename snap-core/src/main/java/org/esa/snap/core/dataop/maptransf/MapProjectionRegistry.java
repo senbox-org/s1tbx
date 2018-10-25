@@ -17,9 +17,9 @@ package org.esa.snap.core.dataop.maptransf;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ServiceLoader;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,12 +37,10 @@ public class MapProjectionRegistry {
     private static final List<MapProjection> projectionList;
 
     static {
-        projectionList = new LinkedList<MapProjection>();
+        projectionList = new LinkedList<>();
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         descriptors = serviceRegistryManager.getServiceRegistry(MapTransformDescriptor.class);
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(descriptors);
-        }
+        ServiceLoader.loadServices(descriptors);
         Set<MapTransformDescriptor> services = descriptors.getServices();
         for (MapTransformDescriptor descriptor : services) {
             descriptor.registerProjections();               

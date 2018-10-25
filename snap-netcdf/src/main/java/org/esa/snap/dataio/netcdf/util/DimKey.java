@@ -30,8 +30,14 @@ import java.util.List;
  */
 public class DimKey {
 
-    private static final String[] TYPICAL_X_DIM_NAMES = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x", "xc", "across_track", "numRows"};
-    private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y", "yc", "along_track", "numCells"};
+    private static final String[] TYPICAL_X_DIM_NAMES = new String[]{
+            "lon", "long", "longitude", "ni", "NX", "SX", "x", "xc",
+            "across_track", "numRows", "row", "rows", "row", "rows"
+    };
+    private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{
+            "lat", "lat", "latitude", "nj", "NY", "SY", "y", "yc",
+            "along_track", "numCells", "col", "cols", "column", "columns"
+    };
 
     private final Dimension[] dims;
     private final int xDimIndex;
@@ -121,9 +127,9 @@ public class DimKey {
 
     public boolean fitsTo(final Variable varX, final Variable varY) {
         return varX.getRank() == 1 &&
-                varY.getRank() == 1 &&
-                varX.getDimension(0).getLength() == getDimensionX().getLength() &&
-                varY.getDimension(0).getLength() == getDimensionY().getLength();
+               varY.getRank() == 1 &&
+               varX.getDimension(0).getLength() == getDimensionX().getLength() &&
+               varY.getDimension(0).getLength() == getDimensionY().getLength();
     }
 
     @Override
@@ -136,7 +142,7 @@ public class DimKey {
         }
         DimKey dimKey = (DimKey) o;
         return getDimensionY().getLength() == dimKey.getDimensionY().getLength()
-                && getDimensionX().getLength() == dimKey.getDimensionX().getLength();
+               && getDimensionX().getLength() == dimKey.getDimensionX().getLength();
     }
 
     @Override
@@ -147,7 +153,7 @@ public class DimKey {
     private boolean matchesXYDimNames(final String xName, final String yName) {
         if (getDimensionX().getShortName() != null && getDimensionY().getShortName() != null) {
             return getDimensionX().getShortName().equalsIgnoreCase(xName)
-                    && getDimensionY().getShortName().equalsIgnoreCase(yName);
+                   && getDimensionY().getShortName().equalsIgnoreCase(yName);
         } else {
             return false;
         }

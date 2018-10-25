@@ -106,7 +106,7 @@ public class ProductValidator {
     }
 
     private void logSkipped(String message) {
-        logger.info("Product skipped. " + message);
+        logger.warning("Product skipped. " + message);
     }
 
 }

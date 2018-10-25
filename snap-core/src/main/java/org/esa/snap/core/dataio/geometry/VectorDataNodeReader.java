@@ -19,7 +19,6 @@ package org.esa.snap.core.dataio.geometry;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.thoughtworks.xstream.core.util.OrderRetainingMap;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -54,6 +53,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,7 +107,7 @@ public class VectorDataNodeReader {
      * @param modelCrs                    The model CRS of the target product.
      * @param delimiterChar               The separation character of the CSV data.
      * @param pm                          A progress monitor.
-     * @return A {@link VectorDataNode} containing features according to the input data, or <code>null</code> if no
+     * @return A {@link VectorDataNode} containing features according to the input data, or {@code null} if no
      *         placemark descriptor can be found.
      * @throws IOException if the vector data could not be read.
      */
@@ -128,7 +128,7 @@ public class VectorDataNodeReader {
      * @param modelCrs                    The model CRS of the target product.
      * @param delimiterChar               The separation character of the CSV data.
      * @param pm                          A progress monitor.
-     * @return A {@link VectorDataNode} containing features according to the input data, or <code>null</code> if no
+     * @return A {@link VectorDataNode} containing features according to the input data, or {@code null} if no
      *         placemark descriptor can be found.
      * @throws IOException if the vector data could not be read.
      */
@@ -195,10 +195,10 @@ public class VectorDataNodeReader {
     /**
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
      *
-     * @throws java.io.IOException
+     * @throws java.io.IOException in case of an IO-error
      */
     private void readProperties() throws IOException {
-        properties = new OrderRetainingMap();
+        properties = new LinkedHashMap<>();
         String line;
         while ((line = reader.readLine()) != null) {
             line = line.trim();
@@ -255,12 +255,15 @@ public class VectorDataNodeReader {
                 String token = tokens[i];
                 final int colonPos = token.indexOf(':');
                 String attributeName;
-                if (colonPos == -1) {
-                    attributeName = token;
-                } else if (colonPos == 0) {
-                    throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
-                } else {
-                    attributeName = token.substring(0, colonPos);
+                switch (colonPos) {
+                    case -1:
+                        attributeName = token;
+                        break;
+                    case 0:
+                        throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+                    default:
+                        attributeName = token.substring(0, colonPos);
+                        break;
                 }
 
                 if (defaultGeometry != null && attributeName.equals(defaultGeometry)) {
@@ -360,14 +363,17 @@ public class VectorDataNodeReader {
             final int colonPos = token.indexOf(':');
             String attributeTypeName;
             String attributeName;
-            if (colonPos == 0) {
-                throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
-            } else if (colonPos == -1) {
-                attributeName = token;
-                attributeTypeName = findAttributeTypeName(firstRecord == null ? "" : firstRecord[i]);
-            } else {
-                attributeTypeName = token.substring(colonPos + 1);
-                attributeName = token.substring(0, colonPos);
+            switch (colonPos) {
+                case 0:
+                    throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
+                case -1:
+                    attributeName = token;
+                    attributeTypeName = findAttributeTypeName(firstRecord == null ? "" : firstRecord[i]);
+                    break;
+                default:
+                    attributeTypeName = token.substring(colonPos + 1);
+                    attributeName = token.substring(0, colonPos);
+                    break;
             }
 
             Class<?> attributeType = getAttributeType(jtc, token, attributeTypeName);
@@ -382,6 +388,7 @@ public class VectorDataNodeReader {
 
     private String findAttributeTypeName(String entry) throws IOException {
         try {
+            //noinspection ResultOfMethodCallIgnored
             Double.parseDouble(entry);
             return "Double";
         } catch (NumberFormatException e) {
@@ -420,7 +427,7 @@ public class VectorDataNodeReader {
      */
     static FeatureCollection<SimpleFeatureType, SimpleFeature> convertPointsToVertices(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
         final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
-        List<Coordinate> coordList = new ArrayList<Coordinate>();
+        List<Coordinate> coordList = new ArrayList<>();
         while (featureIterator.hasNext()) {
             final SimpleFeature feature = featureIterator.next();
             final Point pt = (Point) feature.getDefaultGeometry();
@@ -453,8 +460,7 @@ public class VectorDataNodeReader {
                 return featureCollection;
             }
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection =
-                    new DefaultFeatureCollection(featureCollection.getID() + "_vertex", featureType);
+            DefaultFeatureCollection vertexCollection = new DefaultFeatureCollection(featureCollection.getID() + "_vertex", featureType);
             vertexCollection.add(feature);
 
             return vertexCollection;

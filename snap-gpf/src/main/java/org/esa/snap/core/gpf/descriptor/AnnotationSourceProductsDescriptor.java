@@ -66,6 +66,7 @@ public class AnnotationSourceProductsDescriptor implements SourceProductsDescrip
         return Product[].class;
     }
 
+
     private static String getNonEmptyStringOrNull(String label) {
         return label == null || label.isEmpty() ? null : label;
     }

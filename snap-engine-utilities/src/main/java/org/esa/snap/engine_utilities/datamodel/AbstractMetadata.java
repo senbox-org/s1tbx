@@ -47,7 +47,7 @@ public final class AbstractMetadata {
 
     public static final String abstracted_metadata_version = "metadata_version";
     public static final String ABSTRACT_METADATA_ROOT = "Abstracted_Metadata";
-    private static final String ORIGINAL_PRODUCT_METADATA = "Original_Product_Metadata";
+    public static final String ORIGINAL_PRODUCT_METADATA = "Original_Product_Metadata";
     public static final String BAND_PREFIX = "Band_";
 
     /**
@@ -190,8 +190,6 @@ public final class AbstractMetadata {
     // bandwidths for insar
     public static final String range_bandwidth = "range_bandwidth";
     public static final String azimuth_bandwidth = "azimuth_bandwidth";
-
-    public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static final String compact_mode = "compact_mode";
 

@@ -156,6 +156,18 @@ public class LookupTable {
         return dimensions;
     }
 
+    protected int[] getStrides() {
+        return strides;
+    }
+
+    protected int[] getOffsets() {
+        return o;
+    }
+
+    protected Array getValues() {
+        return values;
+    }
+
     /**
      * Returns the the ith dimension associated with the lookup table.
      *
@@ -244,6 +256,52 @@ public class LookupTable {
             }
         }
 
+        return v[0];
+    }
+
+    /**
+     * Returns an array of interpolated values for the given fractional indices.
+     *
+     * @param fracIndexes workspace array of length {@code coordinates - 1}.
+     *
+     * @return the interpolated values.
+     *
+     * @throws ArrayIndexOutOfBoundsException if the {@code fracIndexes} and {@code v} arrays
+     *                                        do not have proper length.
+     * @throws IllegalArgumentException       if the length of the {@code coordinates} array is
+     *                                        not exactly one less than the number of dimensions associated
+     *                                        with the lookup table.
+     * @throws NullPointerException           if {@code fracIndexes} is {@code null} or exhibits any
+     *                                        element, which is {@code null}.
+     */
+    public final double[] getValues(final FracIndex[] fracIndexes) {
+
+        if (fracIndexes.length != strides.length - 1) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "fracIndexes.length = {0} does not correspond to the expected length {1}",
+                    fracIndexes.length, strides.length - 1));
+        }
+
+        final int resultLength = strides[fracIndexes.length - 1];
+        double[][] v = new double[1 << fracIndexes.length][resultLength];
+
+        int origin = 0;
+        for (int i = 0; i < fracIndexes.length; ++i) {
+            origin += fracIndexes[i].i * strides[i];
+        }
+        for (int i = 0; i < v.length; ++i) {
+            values.copyTo(origin + o[i], v[i], 0, resultLength);
+        }
+        for (int i = fracIndexes.length; i-- > 0;) {
+            final int m = 1 << i;
+            final double f = fracIndexes[i].f;
+
+            for (int j = 0; j < m; ++j) {
+                for (int k = 0; k < resultLength; k++) {
+                    v[j][k] += f * (v[m + j][k] - v[j][k]);
+                }
+            }
+        }
         return v[0];
     }
 

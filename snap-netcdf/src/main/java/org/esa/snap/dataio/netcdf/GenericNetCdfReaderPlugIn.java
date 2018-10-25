@@ -20,7 +20,6 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductIOPlugInManager;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.dataio.netcdf.util.Constants;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
@@ -43,9 +42,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
     private static AbstractNetCdfReaderPlugIn[] netCdfReaderPlugIns;
 
-
     // needed for creation by SPI
-
     public GenericNetCdfReaderPlugIn() {
     }
 
@@ -65,10 +62,12 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
         NetcdfFile netcdfFile = null;
         try {
             final String inputPath = input.toString();
-            final List<String> extensionList = Arrays.asList(getDefaultFileExtensions());
-            String fileExtension = FileUtils.getExtension(inputPath);
-            if (fileExtension != null && extensionList.contains(fileExtension)) {
-                netcdfFile = NetcdfFileOpener.open(inputPath);
+            final String[] extensionList = getDefaultFileExtensions();
+            for (String extension : extensionList) {
+                if (inputPath.endsWith(extension)) {
+                    netcdfFile = NetcdfFileOpener.open(inputPath);
+                    break;
+                }
             }
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
@@ -76,8 +75,8 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
             final AbstractNetCdfReaderPlugIn[] plugIns = getAllNetCdfReaderPlugIns();
             return getDecodeQualification(plugIns, netcdfFile);
-        } catch (Throwable ignored) {
-            ignored.printStackTrace();
+        } catch (Throwable t) {
+            t.printStackTrace();
         } finally {
             try {
                 if (netcdfFile != null) {
@@ -90,15 +89,15 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    private DecodeQualification getDecodeQualification(AbstractNetCdfReaderPlugIn[] plugIns, NetcdfFile netcdfFile) throws IOException {
+    private DecodeQualification getDecodeQualification(AbstractNetCdfReaderPlugIn[] plugIns, NetcdfFile netcdfFile) {
         for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {
             try {
                 final DecodeQualification decodeQualification = plugIn.getDecodeQualification(netcdfFile);
                 if (DecodeQualification.INTENDED.equals(decodeQualification) || DecodeQualification.SUITABLE.equals(decodeQualification)) {
                     return DecodeQualification.SUITABLE;
                 }
-            } catch (Exception ignore) {
-                ignore.printStackTrace();
+            } catch (Exception t) {
+                t.printStackTrace();
             }
         }
         return DecodeQualification.UNABLE;
@@ -106,11 +105,11 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
-     * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
-     * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
+     * <p> Intances of the classes returned in this array are valid objects for the {@code setInput} method of the
+     * {@code ProductReader} interface (the method will not throw an {@code InvalidArgumentException} in this
      * case).
      *
-     * @return an array containing valid input types, never <code>null</code>
+     * @return an array containing valid input types, never {@code null}
      */
     @Override
     public Class[] getInputTypes() {
@@ -118,9 +117,9 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
     }
 
     /**
-     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
+     * Creates an instance of the actual product reader class. This method should never return {@code null}.
      *
-     * @return a new reader instance, never <code>null</code>
+     * @return a new reader instance, never {@code null}
      */
     @Override
     public ProductReader createReaderInstance() {
@@ -135,7 +134,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Gets the names of the product formats handled by this product I/O plug-in.
      *
-     * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
+     * @return the names of the product formats handled by this product I/O plug-in, never {@code null}
      */
     @Override
     public String[] getFormatNames() {
@@ -146,27 +145,27 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
      * Gets the default file extensions associated with each of the format names returned by the <code>{@link
      * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
      * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
-     * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
+     * always include a leading colon ('.') character, e.g. {@code ".hdf"}
      *
-     * @return the default file extensions for this product I/O plug-in, never <code>null</code>
+     * @return the default file extensions for this product I/O plug-in, never {@code null}
      */
     @Override
     public String[] getDefaultFileExtensions() {
-        Set<String> extensionSet = new HashSet<String>();
+        Set<String> extensionSet = new HashSet<>();
         AbstractNetCdfReaderPlugIn[] abstractNetCdfReaderPlugIns = getAllNetCdfReaderPlugIns();
         for (AbstractNetCdfReaderPlugIn plugIn : abstractNetCdfReaderPlugIns) {
             String[] fileExtensions = plugIn.getDefaultFileExtensions();
             extensionSet.addAll(Arrays.asList(fileExtensions));
         }
-        return extensionSet.toArray(new String[extensionSet.size()]);
+        return extensionSet.toArray(new String[0]);
     }
 
     /**
-     * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
+     * Gets a short description of this plug-in. If the given locale is set to {@code null} the default locale is
      * used.
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
-     * @param locale the local for the given decription string, if <code>null</code> the default locale is used
+     * @param locale the local for the given description string, if {@code null} the default locale is used
      * @return a textual description of this product reader/writer
      */
     @Override
@@ -178,7 +177,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
         if (netCdfReaderPlugIns == null) {
             final ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
             final Iterator<ProductReaderPlugIn> allReaderPlugIns = plugInManager.getAllReaderPlugIns();
-            List<AbstractNetCdfReaderPlugIn> netCdfReaderPlugInList = new ArrayList<AbstractNetCdfReaderPlugIn>();
+            List<AbstractNetCdfReaderPlugIn> netCdfReaderPlugInList = new ArrayList<>();
             while (allReaderPlugIns.hasNext()) {
                 ProductReaderPlugIn readerPlugIn = allReaderPlugIns.next();
                 if (readerPlugIn instanceof AbstractNetCdfReaderPlugIn) {
@@ -186,8 +185,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
                     netCdfReaderPlugInList.add(netCdfReaderPlugIn);
                 }
             }
-            netCdfReaderPlugIns = netCdfReaderPlugInList.toArray(
-                    new AbstractNetCdfReaderPlugIn[netCdfReaderPlugInList.size()]);
+            netCdfReaderPlugIns = netCdfReaderPlugInList.toArray(new AbstractNetCdfReaderPlugIn[0]);
         }
         return netCdfReaderPlugIns;
     }

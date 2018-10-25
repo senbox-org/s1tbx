@@ -40,8 +40,6 @@
                         <attr name="originalFile"
                               stringvalue="Actions/Readers/org-esa-snap-dataio-dimap-ImportBeamDimapProduct.instance"/>
                     </file>
-                </folder>
-                <folder name="Generic Formats">
                     <file name="org-esa-snap-dataio-rgb-ImportImageProduct.shadow">
                         <attr name="originalFile"
                               stringvalue="Actions/Readers/org-esa-snap-dataio-rgb-ImportImageProduct.instance"/>

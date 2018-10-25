@@ -25,8 +25,6 @@ import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.OperatorSpiRegistry;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -36,7 +34,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Marco Peters
@@ -44,29 +42,30 @@ import static junit.framework.Assert.*;
  */
 public abstract class AbstractReprojectionOpTest {
 
-    protected static final String WGS84_CODE = "EPSG:4326";
-    protected static final String UTM33N_CODE = "EPSG:32633";
+    static final String AUTO_UTM = "AUTO:42001";
+    static final String WGS84_CODE = "EPSG:4326";
+    static final String UTM33N_CODE = "EPSG:32633";
     @SuppressWarnings({"StringConcatenation"})
-    protected static final String UTM33N_WKT = "PROJCS[\"WGS 84 / UTM zone 33N\"," +
-                                               "GEOGCS[\"WGS 84\"," +
-                                               "  DATUM[\"World Geodetic System 1984\"," +
-                                               "    SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]]," +
-                                               "    AUTHORITY[\"EPSG\",\"6326\"]]," +
-                                               "  PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]]," +
-                                               "  UNIT[\"degree\", 0.017453292519943295]," +
-                                               "  AXIS[\"Geodetic longitude\", EAST]," +
-                                               "  AXIS[\"Geodetic latitude\", NORTH]," +
-                                               "  AUTHORITY[\"EPSG\",\"4326\"]]," +
-                                               "PROJECTION[\"Transverse Mercator\", AUTHORITY[\"EPSG\",\"9807\"]]," +
-                                               "PARAMETER[\"central_meridian\", 15.0]," +
-                                               "PARAMETER[\"latitude_of_origin\", 0.0]," +
-                                               "PARAMETER[\"scale_factor\", 0.9996]," +
-                                               "PARAMETER[\"false_easting\", 500000.0]," +
-                                               "PARAMETER[\"false_northing\", 0.0]," +
-                                               "UNIT[\"m\", 1.0]," +
-                                               "AXIS[\"Easting\", EAST]," +
-                                               "AXIS[\"Northing\", NORTH]," +
-                                               "AUTHORITY[\"EPSG\",\"32633\"]]";
+    static final String UTM33N_WKT = "PROJCS[\"WGS 84 / UTM zone 33N\"," +
+            "GEOGCS[\"WGS 84\"," +
+            "  DATUM[\"World Geodetic System 1984\"," +
+            "    SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]]," +
+            "    AUTHORITY[\"EPSG\",\"6326\"]]," +
+            "  PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]]," +
+            "  UNIT[\"degree\", 0.017453292519943295]," +
+            "  AXIS[\"Geodetic longitude\", EAST]," +
+            "  AXIS[\"Geodetic latitude\", NORTH]," +
+            "  AUTHORITY[\"EPSG\",\"4326\"]]," +
+            "PROJECTION[\"Transverse Mercator\", AUTHORITY[\"EPSG\",\"9807\"]]," +
+            "PARAMETER[\"central_meridian\", 15.0]," +
+            "PARAMETER[\"latitude_of_origin\", 0.0]," +
+            "PARAMETER[\"scale_factor\", 0.9996]," +
+            "PARAMETER[\"false_easting\", 500000.0]," +
+            "PARAMETER[\"false_northing\", 0.0]," +
+            "UNIT[\"m\", 1.0]," +
+            "AXIS[\"Easting\", EAST]," +
+            "AXIS[\"Northing\", NORTH]," +
+            "AUTHORITY[\"EPSG\",\"32633\"]]";
     protected static File wktFile;
 
     private static final float[] LATS = new float[]{
@@ -80,18 +79,12 @@ public abstract class AbstractReprojectionOpTest {
     protected static final String FLOAT_BAND_NAME = "floatData";
     protected static final String INT_BAND_NAME = "intData";
 
-    private static OperatorSpi spi;
-
     protected Product sourceProduct;
     protected Map<String, Object> parameterMap;
     protected static final double EPS = 1.0e-6;
 
     @BeforeClass
     public static void setup() throws URISyntaxException {
-        spi = new ReprojectionOp.Spi();
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.addOperatorSpi(spi);
-
         wktFile = new File(AbstractReprojectionOpTest.class.getResource("test.wkt").toURI());
     }
 
@@ -112,15 +105,9 @@ public abstract class AbstractReprojectionOpTest {
         intDataBand.setSynthetic(true);
     }
 
-    @AfterClass
-    public static void tearDown() {
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.removeOperatorSpi(spi);
-    }
-
     @Before
     public void setupTestMethod() throws Exception {
-        parameterMap = new HashMap<String, Object>(5);
+        parameterMap = new HashMap<>(5);
         createSourceProduct();
     }
 
@@ -137,23 +124,32 @@ public abstract class AbstractReprojectionOpTest {
 
     protected void assertPixelValidState(Band targetBand, double sourceX, double sourceY,
                                          boolean expectedValid) throws IOException {
-        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
-        final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
-        final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);
+        final PixelPos targetPP = computeTargetPP(targetBand, sourceX, sourceY);
+        assertTargetPixelValidState(targetBand, targetPP, expectedValid);
+    }
+
+    protected void assertTargetPixelValidState(Band targetBand, PixelPos targetPP, boolean expectedValid) {
         boolean pixelValid = targetBand.isPixelValid((int) Math.floor(targetPP.x), (int) Math.floor(targetPP.y));
         assertEquals(expectedValid, pixelValid);
     }
 
     protected void assertPixelValue(Band targetBand, double sourceX, double sourceY,
-                                  double expectedPixelValue, double delta) throws IOException {
-        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
-        final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
-        final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);
+                                    double expectedPixelValue, double delta) throws IOException {
+        final PixelPos targetPP = computeTargetPP(targetBand, sourceX, sourceY);
+        assertTargetPixelValue(targetBand, targetPP, expectedPixelValue, delta);
+    }
+
+    protected void assertTargetPixelValue(Band targetBand, PixelPos targetPP, double expectedPixelValue, double delta) throws IOException {
         final double[] pixels = new double[1];
         targetBand.readPixels((int) Math.floor(targetPP.x), (int) Math.floor(targetPP.y), 1, 1, pixels);
         assertEquals(expectedPixelValue, pixels[0], delta);
+    }
+
+    protected PixelPos computeTargetPP(Band targetBand, double sourceX, double sourceY) {
+        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
+        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
+        final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
+        return targetBand.getGeoCoding().getPixelPos(geoPos, null);
     }
 
     private static ProductData createDataFor(Band dataBand) {

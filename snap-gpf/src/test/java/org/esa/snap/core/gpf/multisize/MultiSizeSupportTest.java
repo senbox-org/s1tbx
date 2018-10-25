@@ -11,11 +11,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.common.BandMathsOp;
-import org.esa.snap.core.gpf.common.SubsetOp;
-import org.esa.snap.core.gpf.common.reproject.ReprojectionOp;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,31 +29,14 @@ import static junit.framework.TestCase.fail;
 
 public class MultiSizeSupportTest {
 
-    private OperatorSpi bandMathsSpi;
     private Product product;
-    private SubsetOp.Spi subsetOpSpi;
-    private ReprojectionOp.Spi reprojectionOpSpi;
 
     //This class is written to deal with the test cases described here:
     //https://senbox.atlassian.net/wiki/display/SNAP/Test+Case+Descriptions
 
     @Before
     public void setUp() {
-        //this is only for dummy reasons
         product = new Product("dummyProduct", "dummyType", 5, 5);
-        bandMathsSpi = new BandMathsOp.Spi();
-        subsetOpSpi = new SubsetOp.Spi();
-        reprojectionOpSpi = new ReprojectionOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(bandMathsSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(subsetOpSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(reprojectionOpSpi);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(bandMathsSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(subsetOpSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(reprojectionOpSpi);
     }
 
     @Test
@@ -66,10 +45,10 @@ public class MultiSizeSupportTest {
         final AffineTransform imageToModelTransform = Product.findImageToModelTransform(product.getSceneGeoCoding());
         final int height = product.getSceneRasterHeight();
         final int width = product.getSceneRasterWidth();
-        double xCoord1 = (double) width * 0.25;
-        double xCoord2 = (double) width * 0.75;
-        double yCoord1 = (double) height * 0.75;
-        double yCoord2 = (double) height * 0.75;
+        double xCoord1 = width * 0.25;
+        double xCoord2 = width * 0.75;
+        double yCoord1 = height * 0.75;
+        double yCoord2 = height * 0.75;
         final Point2D subsetCoordinate1 = imageToModelTransform.transform(new PixelPos(xCoord1, yCoord1), null);
         final Point2D subsetCoordinate2 = imageToModelTransform.transform(new PixelPos(xCoord1, yCoord2), null);
         final Point2D subsetCoordinate3 = imageToModelTransform.transform(new PixelPos(xCoord2, yCoord1), null);

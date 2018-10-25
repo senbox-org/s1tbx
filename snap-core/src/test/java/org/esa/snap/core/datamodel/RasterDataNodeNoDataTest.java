@@ -23,10 +23,18 @@ import java.util.List;
 
 
 public class RasterDataNodeNoDataTest extends TestCase {
+
+    private Product p;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        p = new Product("p", "t", 10, 10);
+    }
+
     public void testValidPixelExpression() {
         double z = 0;
 
-        Product p = new Product("p", "t", 10, 10);
         Band floatBand = p.addBand("b", ProductData.TYPE_FLOAT32);
 
         assertEquals(null, floatBand.getValidMaskExpression());
@@ -83,8 +91,17 @@ public class RasterDataNodeNoDataTest extends TestCase {
         assertEquals("u.raw != 255.0", uintBand.getValidMaskExpression());
     }
 
+    public void testIsPixelValid() throws Exception {
+        Band b = p.addBand("b", ProductData.TYPE_FLOAT32);
+
+        assertTrue(b.isPixelValid(-10, -3));
+
+        b.setNoDataValue(12.34);
+        b.setNoDataValueUsed(true);
+        assertFalse(b.isPixelValid(-10, -3));
+    }
+
     public void testNodeDataChangedEventFired() {
-        Product p = new Product("p", "t", 10, 10);
         Band b = p.addBand("b", ProductData.TYPE_FLOAT32);
 
         assertEquals(false, b.isNoDataValueUsed());
@@ -120,7 +137,6 @@ public class RasterDataNodeNoDataTest extends TestCase {
 
 
     public void testSetNoDataValue() {
-        Product p = new Product("p", "t", 10, 10);
         final Band b = createBand(p, ProductData.TYPE_UINT16, 0.005, 4, false);
 
         ChangeDetector detector = new ChangeDetector();
@@ -139,7 +155,6 @@ public class RasterDataNodeNoDataTest extends TestCase {
     }
 
     public void testSetGeophysicalNoDataValue() {
-        Product p = new Product("p", "t", 10, 10);
         final Band b = createBand(p, ProductData.TYPE_UINT16, 0.005, 4, false);
         ChangeDetector detector = new ChangeDetector();
         p.addProductNodeListener(detector);
@@ -157,7 +172,6 @@ public class RasterDataNodeNoDataTest extends TestCase {
     }
 
     public void testSetGeophysicalNoDataValueWithLogScaling() {
-        Product p = new Product("p", "t", 10, 10);
         final Band b = createBand(p, ProductData.TYPE_UINT16, 2.3, -1.8, true);
 
         final int rawValue = 0;
@@ -186,7 +200,7 @@ public class RasterDataNodeNoDataTest extends TestCase {
 
         testDataType(ProductData.TYPE_INT32, 4, 5, "b.raw != 5.0");
 
-        testDataType(ProductData.TYPE_UINT32, 4 ,Integer.MAX_VALUE, "b.raw != 2.147483647E9");
+        testDataType(ProductData.TYPE_UINT32, 4 , Integer.MAX_VALUE, "b.raw != 2.147483647E9");
         testDataType(ProductData.TYPE_UINT32, 4 ,Integer.MAX_VALUE + 1, "b.raw != 2.147483648E9");
         testDataType(ProductData.TYPE_UINT32, 4 ,-1, "b.raw != 4.294967295E9");
 
@@ -225,8 +239,8 @@ public class RasterDataNodeNoDataTest extends TestCase {
 
     private static class ChangeDetector extends ProductNodeListenerAdapter {
         int nodeDataChanges = 0;
-        List<ProductNode> sourceNodes = new ArrayList<ProductNode>();
-        List<String> propertyNames = new ArrayList<String>();
+        List<ProductNode> sourceNodes = new ArrayList<>();
+        List<String> propertyNames = new ArrayList<>();
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {

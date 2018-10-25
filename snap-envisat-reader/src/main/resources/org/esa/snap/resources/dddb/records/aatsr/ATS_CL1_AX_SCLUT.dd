@@ -1,0 +1,18 @@
+ATS_CL1_AX_SCLUT|11 Micron Spatial Coherence Test LUT
+#
+sea_max_dev          |SShort |K/100 |2|1|*|sea_max_dev|1|
+land_day_max_dev     |SShort |K/100 |2|1|*|land_day_max_dev|2|
+land_night_max_dev   |SShort |K/100 |2|1|*|land_night_max_dev|3|
+coh_reset_thresh     |SShort |K/100 |2|1|*|coherence_reset_thresh|4|
+coh_area_size        |SShort |Km    |2|1|*|coh_area_size|5|
+coh_fraction_pass    |Float  |-     |4|1|*|coh_fraction_passed|6|
+coh_adj_thresh_land  |SShort |K/100 |2|1|*|coh_adj_thresh_land|7|
+coh_adj_dif_land     |Float  |-     |4|1|*|coh_adj_dif_land|8|
+coh_area_dif_nv      |SShort |K/100 |2|1|*|coh_area_dif_nv|9|
+coh_area_dif_fv      |SShort |K/100 |2|1|*|coh_area_dif_fv|10|
+coh_min_dif_nv       |SShort |K/100 |2|1|*|coh_min_dif_nv|11|
+coh_min_dif_fv       |SShort |K/100 |2|1|*|coh_min_dif_fv|12|
+coh_area_thresh_nv   |SShort |K/100 |2|1|*|coh_area_thresh_nv|13|
+coh_area_thresh_fv   |SShort |K/100 |2|1|*|coh_area_thresh_fv|14|
+dep_test_flag        |SShort |flag  |2|1|*|Dependency Test flag (cloudy_box_thresh)|15|
+

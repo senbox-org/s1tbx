@@ -21,6 +21,7 @@ import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
@@ -116,7 +117,7 @@ public class SRTMHGTReader extends AbstractProductReader {
         return product;
     }
 
-    private void addGeoCoding(final Product product, final File inputFile) throws IOException {
+    private static void addGeoCoding(final Product product, final File inputFile) throws IOException {
 
         final SRTM1HgtFileInfo info = SRTM1HgtFileInfo.create(inputFile);
         final float northing = info.getNorthing();
@@ -145,40 +146,28 @@ public class SRTMHGTReader extends AbstractProductReader {
      * {@inheritDoc}
      */
     @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
 
-        readBandRasterData(sourceOffsetX, sourceOffsetY,
-                           sourceWidth, sourceHeight,
-                           sourceStepX, sourceStepY,
-                           0, imageInputStream,
-                           destBand, destWidth, destBuffer);
-    }
-
-    private static synchronized void readBandRasterData(final int sourceMinX, final int sourceMinY,
-                                                        final int sourceWidth, final int sourceHeight,
-                                                        final int sourceStepX, final int sourceStepY,
-                                                        final long bandOffset, final ImageInputStream imageInputStream,
-                                                        final Band destBand, final int destWidth,
-                                                        final ProductData destBuffer) throws IOException {
         try {
-            final int sourceMaxX = sourceMinX + sourceWidth;
-            final int sourceMaxY = sourceMinY + sourceHeight;
-            final int sourceRasterWidth = destBand.getRasterWidth();
+            final int sourceMaxX = sourceOffsetX + sourceWidth;
+            final int sourceMaxY = sourceOffsetY + sourceHeight;
+            final int sourceRasterWidth = destBand.getRasterWidth() + 1;
 
             final int elemSize = destBuffer.getElemSize();
+            int bandOffset = 0;
             int destPos = 0;
 
-            for (int sourceY = sourceMinY; sourceY < sourceMaxY; sourceY += sourceStepY) {
+            for (int sourceY = sourceOffsetY; sourceY < sourceMaxY; sourceY += sourceStepY) {
                 final long sourcePosY = sourceY * sourceRasterWidth;
                 if (sourceStepX == 1) {
-                    imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceMinX));
+                    imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceOffsetX));
                     destBuffer.readFrom(destPos, destWidth, imageInputStream);
                     destPos += destWidth;
                 } else {
-                    for (int sourceX = sourceMinX; sourceX < sourceMaxX; sourceX += sourceStepX) {
+                    for (int sourceX = sourceOffsetX; sourceX < sourceMaxX; sourceX += sourceStepX) {
                         imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceX));
                         destBuffer.readFrom(destPos, 1, imageInputStream);
                         destPos++;
@@ -186,7 +175,7 @@ public class SRTMHGTReader extends AbstractProductReader {
                 }
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            SystemUtils.LOG.warning("Unable to read SRTM HGT: " + e.getMessage());
         }
     }
 }

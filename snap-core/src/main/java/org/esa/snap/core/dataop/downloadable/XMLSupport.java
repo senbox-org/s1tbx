@@ -18,7 +18,9 @@ package org.esa.snap.core.dataop.downloadable;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.jdom2.Attribute;
+import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Text;
@@ -46,79 +48,61 @@ import java.util.List;
  */
 public final class XMLSupport {
 
-    public static void SaveXML(final Document doc, final String filePath) {
+    public static void SaveXML(final Document doc, final String filePath) throws IOException {
 
-        try {
-            final Format xmlFormat = Format.getPrettyFormat();
-            final XMLOutputter outputter = new XMLOutputter(xmlFormat);
+        final XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+        try (final FileWriter writer = new FileWriter(filePath)){
 
-            final FileWriter writer = new FileWriter(filePath);
             outputter.output(doc, writer);
-            //outputter.output(doc, System.out);
             writer.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
         }
     }
 
-    public static Document LoadXML(final InputStream filePath) throws IOException {
-
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        org.w3c.dom.Document w3cDocument = null;
-
-        final DOMBuilder domBuilder = new DOMBuilder();
-
+    public static Document LoadXML(final InputStream inputStream) throws IOException {
         try {
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            w3cDocument = builder.parse(filePath);
+            final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            final org.w3c.dom.Document w3cDocument = builder.parse(inputStream);
 
-            return domBuilder.build(w3cDocument);
+            final DOMBuilder domBuilder = new DOMBuilder();
+            final Document doc = domBuilder.build(w3cDocument);
+
+            return doc;
         } catch (MalformedURLException e) {
             final String msg = "Cannot parse xml file path : " + e.getMessage() +
-                    '\n' + filePath +
+                    '\n' + inputStream +
                     "\n\nPlease check the characters being used and if your operating system locale is set correctly";
-            System.out.println(msg);
+            SystemUtils.LOG.severe(msg);
             throw new IOException(msg);
         } catch (IOException e) {
-            System.out.println("Path to xml is not valid: " + e.getMessage());
+            SystemUtils.LOG.severe("Path to xml is not valid: " + e.getMessage());
             throw e;
-        } catch (SAXException e) {
-            System.out.println("cannot parse xml : " + e.getMessage());
-            throw new IOException(e.getMessage());
-        } catch (ParserConfigurationException e) {
-            System.out.println("cannot parse xml : " + e.getMessage());
+        } catch (SAXException | ParserConfigurationException e) {
+            SystemUtils.LOG.severe("cannot parse xml : " + e.getMessage());
             throw new IOException(e.getMessage());
         }
     }
 
     public static Document LoadXML(final String filePath) throws IOException {
 
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        org.w3c.dom.Document w3cDocument = null;
-
-        final DOMBuilder domBuilder = new DOMBuilder();
-
         try {
             // handle spaces in the path
             final String path = filePath.replaceAll(" ", "%20");
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            w3cDocument = builder.parse(filePath);
+            final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            final org.w3c.dom.Document w3cDocument = builder.parse(path);
 
+            final DOMBuilder domBuilder = new DOMBuilder();
             return domBuilder.build(w3cDocument);
         } catch (MalformedURLException e) {
             final String msg = "Cannot parse xml file path : " + e.getMessage() +
                     '\n' + filePath +
                     "\n\nPlease check the characters being used and if your operating system locale is set correctly";
-            System.out.println(msg);
+            SystemUtils.LOG.severe(msg);
             throw new IOException(msg);
         } catch (IOException e) {
             //System.out.println("Path to xml is not valid: " + e.getMessage());
             throw e;
-        } catch (SAXException e) {
-            System.out.println("cannot parse xml : " + e.getMessage());
-            throw new IOException(e.getMessage());
-        } catch (ParserConfigurationException e) {
-            System.out.println("cannot parse xml : " + e.getMessage());
+        } catch (SAXException | ParserConfigurationException e) {
+            SystemUtils.LOG.severe("cannot parse xml : " + e.getMessage());
             throw new IOException(e.getMessage());
         }
     }
@@ -166,11 +150,11 @@ public final class XMLSupport {
 
     private static void domElementToMetadataElement(final Element domElem, final MetadataElement metadataElem) {
 
-        final List children = domElem.getContent();
+        final List<Content> children = domElem.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
-                final List grandChildren = child.getContent();
+                final List<Content> grandChildren = child.getContent();
                 if (!grandChildren.isEmpty()) {
                     final MetadataElement newElem = new MetadataElement(child.getName());
                     domElementToMetadataElement(child, newElem);
@@ -215,7 +199,7 @@ public final class XMLSupport {
     }
 
     public static Element getElement(final Element root, final String name) throws IOException {
-        final List children = root.getContent();
+        final List<Content> children = root.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element elem = (Element) aChild;
@@ -227,7 +211,7 @@ public final class XMLSupport {
     }
 
     public static Text getElementText(final Element root) throws IOException {
-        final List children = root.getContent();
+        final List<Content> children = root.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Text) {
                 return (Text) aChild;
@@ -238,7 +222,7 @@ public final class XMLSupport {
 
     public static String[] getStringList(final Element elem) {
         final List<String> array = new ArrayList<>();
-        final List contentList = elem.getContent();
+        final List<Content> contentList = elem.getContent();
         for (Object o : contentList) {
             if (o instanceof Element) {
                 array.add(((Element) o).getName());

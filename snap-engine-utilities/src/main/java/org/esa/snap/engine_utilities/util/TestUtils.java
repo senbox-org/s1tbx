@@ -25,10 +25,11 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.gpf.main.GPT;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.db.CommonReaders;
+import org.esa.snap.engine_utilities.gpf.CommonReaders;
 
 import javax.media.jai.JAI;
 import java.io.File;
@@ -45,6 +46,7 @@ public class TestUtils {
     private static final boolean FailOnLargeTestProducts = false;
     private static final boolean FailOnAllNoData = false;
     private static final int LARGE_DIMENSION = 100;
+    private static final ProductData.UTC NO_TIME = new ProductData.UTC();
 
     private static boolean testEnvironmentInitialized = false;
     public static final String SKIPTEST = "skipTest";
@@ -56,11 +58,7 @@ public class TestUtils {
             return;
 
         try {
-            JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
-            MemUtils.configureJaiTileCache();
-
-            //disable JAI media library
-            System.setProperty("com.sun.media.jai.disableMediaLib", "true");
+            SystemUtils.init3rdPartyLibs(GPT.class);
             testEnvironmentInitialized = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,20 +90,27 @@ public class TestUtils {
         }
         if (product.getMetadataRoot() == null)
             throw new Exception("metadataroot is null");
-        if (product.getNumBands() == 0)
+        if (product.getNumBands() == 0 && verifyBandData)
             throw new Exception("numbands is zero");
         if (product.getProductType() == null || product.getProductType().isEmpty())
             throw new Exception("productType is null");
+        if (product.getSceneRasterWidth() == 0 || product.getSceneRasterHeight() == 0
+                || product.getSceneRasterWidth() == AbstractMetadata.NO_METADATA || product.getSceneRasterHeight() == AbstractMetadata.NO_METADATA) {
+            throw new Exception("product scene raster dimensions are " + product.getSceneRasterWidth() +" x "+ product.getSceneRasterHeight());
+        }
         if (verifyTimes) {
-            if (product.getStartTime() == null)
+            if (product.getStartTime() == null || product.getStartTime().getMJD() == NO_TIME.getMJD()) {
                 throw new Exception("startTime is null");
-            if (product.getEndTime() == null)
+            }
+            if (product.getEndTime() == null || product.getEndTime().getMJD() == NO_TIME.getMJD()) {
                 throw new Exception("endTime is null");
+            }
         }
         if (verifyBandData && FailOnAllNoData) {
             for (Band b : product.getBands()) {
-                if (b.getUnit() == null || b.getUnit().isEmpty())
+                if (b.getUnit() == null || b.getUnit().isEmpty()) {
                     throw new Exception("band " + b.getName() + " has null unit");
+                }
 
                 // readPixels gets computeTiles to be executed
                 final int w = b.getRasterWidth() / 2;
@@ -121,8 +126,9 @@ public class TestUtils {
                     final float[] floatValues = new float[w];
                     b.readPixels(x0, y, w, 1, floatValues, ProgressMonitor.NULL);
                     for (float f : floatValues) {
-                        if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
+                        if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN)) {
                             allNoData = false;
+                        }
                     }
                 }
                 if (allNoData) {

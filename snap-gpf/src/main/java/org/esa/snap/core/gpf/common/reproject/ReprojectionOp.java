@@ -216,10 +216,7 @@ public class ReprojectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
-
+        ensureSingleRasterSize(sourceProduct);
         validateCrsParameters();
         validateResamplingParameter();
         validateReferencingParameters();
@@ -338,8 +335,7 @@ public class ReprojectionOp extends Operator {
     }
 
     private void reprojectSourceRaster(RasterDataNode sourceRaster) {
-        final ReprojectionSettings reprojectionSettings =
-                reprojectionSettingsProvider.getReprojectionSettings(sourceRaster);
+        final ReprojectionSettings reprojectionSettings = reprojectionSettingsProvider.getReprojectionSettings(sourceRaster);
         final int targetDataType;
         MultiLevelImage sourceImage;
         if (sourceRaster.isScalingApplied()) {
@@ -381,9 +377,8 @@ public class ReprojectionOp extends Operator {
             reprojection = new Reproject(targetModel.getLevelCount());
             reprojectionSettings.setReprojection(reprojection);
         }
-        MultiLevelImage projectedImage =
-                createProjectedImage(sourceGeoCoding, sourceImage, reprojectionSettings.getSourceModel(),
-                                     targetBand, resampling, targetModel, reprojection);
+        MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, reprojectionSettings.getSourceModel(),
+                                                              targetBand, resampling, targetModel, reprojection);
         if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue.doubleValue())) {
             projectedImage = createNaNReplacedImage(projectedImage, targetModel, targetNoDataValue.doubleValue());
         }
@@ -436,18 +431,25 @@ public class ReprojectionOp extends Operator {
             targetNoDataValue = sourceRaster.getNoDataValue();
         }
         Number targetNoDataNumber;
-        if (targetDataType == ProductData.TYPE_INT8) {
-            targetNoDataNumber = (byte) targetNoDataValue;
-        } else if (targetDataType == ProductData.TYPE_INT16 ||
-                targetDataType == ProductData.TYPE_UINT8) {
-            targetNoDataNumber = (short) targetNoDataValue;
-        } else if (targetDataType == ProductData.TYPE_INT32 ||
-                targetDataType == ProductData.TYPE_UINT16) {
-            targetNoDataNumber = (int) targetNoDataValue;
-        } else if (targetDataType == ProductData.TYPE_FLOAT32) {
-            targetNoDataNumber = (float) targetNoDataValue;
-        } else {
-            targetNoDataNumber = targetNoDataValue;
+        switch (targetDataType) {
+            case ProductData.TYPE_INT8:
+                targetNoDataNumber = (byte) targetNoDataValue;
+                break;
+            case ProductData.TYPE_INT16:
+            case ProductData.TYPE_UINT8:
+                targetNoDataNumber = (short) targetNoDataValue;
+                break;
+            case ProductData.TYPE_INT32:
+            case ProductData.TYPE_UINT32:
+            case ProductData.TYPE_UINT16:
+                targetNoDataNumber = (int) targetNoDataValue;
+                break;
+            case ProductData.TYPE_FLOAT32:
+                targetNoDataNumber = (float) targetNoDataValue;
+                break;
+            default:
+                targetNoDataNumber = targetNoDataValue;
+                break;
         }
         return targetNoDataNumber;
     }
@@ -583,17 +585,7 @@ public class ReprojectionOp extends Operator {
                 try {
                     return CRS.parseWKT(crs);
                 } catch (FactoryException ignored) {
-                    // prefix with EPSG, if there are only numbers
-                    if (crs.matches("[0-9]*")) {
-                        crs = "EPSG:" + crs;
-                    }
-                    // append center coordinates for AUTO code
-                    if (crs.matches("AUTO:[0-9]*")) {
-//                        final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
-                        crs = String.format("%s,%s,%s", crs, centerGeoPos.lon, centerGeoPos.lat);
-                    }
-                    // force longitude==x-axis and latitude==y-axis
-                    return CRS.decode(crs, true);
+                    return createCRSFromCode(crs, centerGeoPos);
                 }
             }
             if (collocationProduct != null && collocationProduct.getSceneGeoCoding() != null) {
@@ -604,6 +596,19 @@ public class ReprojectionOp extends Operator {
         }
 
         throw new OperatorException("Target CRS could not be created.");
+    }
+
+    static CoordinateReferenceSystem createCRSFromCode(String crsCode, GeoPos centerGeoPos) throws FactoryException {
+        // prefix with EPSG, if there are only numbers
+        if (crsCode.matches("[0-9]*")) {
+            crsCode = "EPSG:" + crsCode;
+        }
+        // append center coordinates for AUTO code
+        if (crsCode.matches("AUTO:[0-9]*")) {
+            crsCode = String.format("%s,%s,%s", crsCode, centerGeoPos.lon, centerGeoPos.lat);
+        }
+        // force longitude==x-axis and latitude==y-axis
+        return CRS.decode(crsCode, true);
     }
 
     protected void validateCrsParameters() {

@@ -1,0 +1,33 @@
+ATS_CH1_AX_GADS|Level 1b Characterisation Table|*
+#
+cone_angle        |Float  | radians        | 4 | 1 | * |cone angle                                         |1|
+mir_off           |Float  | radians        | 4 | 1 | * |mirror offset angle                                |2|
+x_misalign_corr   |Float  | radians        | 4 | 1 | * | x misalignment correction                         |3|
+y_misalign_corr   |Float  | radians        | 4 | 1 | * | y misalignment correction                         |4|
+z_misalign_corr   |Float  | radians        | 4 | 1 | * | z misalignment correction                         |5|
+aocs_cx           |Double | deg.           | 8 | 1 | * |AOCS parameter Cx                                  |6|
+aocs_cy           |Double | deg.           | 8 | 1 | * |AOCS parameter Cy                                  |7|
+aocs_cz           |Double | deg.           | 8 | 1 | * |AOCS parameter Cz                                  |8|
+aocs_pitch_mis    |Double | deg.           | 8 | 1 | * |AOCS pitch mispointing                             |9|
+aocs_roll_mis     |Double | deg.           | 8 | 1 | * |AOCS roll mispointing                              |10|
+aocs_yaw_mis      |Double | deg.           | 8 | 1 | * |AOCS yaw mispointing                               |11|
+earth_maj_axis    |Double | km             | 8 | 1 | * |EARTH_MAJOR_AXIS                                   |12|
+atrk_samp_int     |Double | km             | 8 | 1 | * |Along-track sampling interval                      |13|
+uni_time          |Double | days           | 8 | 1 | * |Uniform time step                                  |14|
+img_row           |SLong  | -              | 4 | 1 | * |Number of image rows per granule                   |15|
+grid_row          |SLong  | -              | 4 | 1 | * |Number of grid rows                                |16|
+disp_tabl         |SLong  | -              | 4 | 1 | * |Displacement of table start before ascending node  |17|
+ecc_ellip         |Double | -              | 8 | 1 | * |Eccentricity of ellipsoid                          |18|
+geo_para          |Double | -              | 8 | 1 | * |Geodetic parameter (square of second eccentricity) |19|
+spare_1           |Double | -              | 8 | 1 | * |Spare                                              |20|
+fst_nad_pix       |SLong  | -              | 4 | 1 | * |FIRST_NADIR_PIXEL_NUMBER                           |21|
+fst_for_pix       |SLong  | -              | 4 | 1 | * |FIRST_FORWARD_PIXEL_NUMBER                         |22|
+est_scan_pos_nad  |Double | days           | 8 | 1 | * |Estimate of relative scan position, nadir scan     |23|
+est_scan_pos_for  |Double | days           | 8 | 1 | * |Estimate of relative scan position, forward scan   |24|
+algtrk_ip_int     |SShort | -              | 2 | 1 | * |Along-track interpolation interval                 |25|
+acrtrk_ip_it      |SShort | -              | 2 | 1 | * |Across-track interpolation interval                |26|
+eps_x             |SShort | m              | 2 | 1 | * |Regridding perturbation (eps_x)                    |27|
+eps_y             |SShort | m              | 2 | 1 | * |Regridding perturbation (eps_y)                    |28|
+long_off_flag     |SLong  | flag           | 4 | 1 | * |Longitude offset flag (0=no offset)                |29|
+long_off          |SLong  | (1e-6) degrees | 4 | 1 | * |Longitude offset (for system testing)              |30|
+spare_2           |Double | -              | 8 | 1 | * |Spare                                              |31|

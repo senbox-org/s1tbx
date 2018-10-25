@@ -39,6 +39,7 @@ import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.impl.Tokenizer;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.geotools.factory.Hints;
@@ -92,7 +93,7 @@ public class MosaicOp extends Operator {
     @TargetProduct
     Product targetProduct;
 
-    @Parameter(itemAlias = "variable", description = "Specifies the bands in the target product.")
+    @Parameter(itemAlias = "variable", description = "Specifies the bands in the target product.", notNull = true)
     Variable[] variables;
 
     @Parameter(itemAlias = "condition", description = "Specifies valid pixels considered in the target product.")
@@ -202,12 +203,14 @@ public class MosaicOp extends Operator {
             final ArrayList<PlanarImage> list = new ArrayList<>(reprojectedProducts.length);
             alphaImageList.add(list);
             for (final Product product : reprojectedProducts) {
-                final String validMaskExpression;
+                String validMaskExpression;
                 try {
                     validMaskExpression = createValidMaskExpression(product, variable.getExpression());
                 } catch (ParseException e) {
                     throw new OperatorException(e);
                 }
+                // in the case no valid mask expression could be retrieved, all pixels are valid.
+                validMaskExpression = validMaskExpression == null ? "True" : validMaskExpression;
                 final StringBuilder combinedExpression = new StringBuilder(validMaskExpression);
                 if (conditions != null && conditions.length > 0) {
                     combinedExpression.append(" && (");
@@ -220,7 +223,9 @@ public class MosaicOp extends Operator {
                     }
                     combinedExpression.append(")");
                 }
-                list.add(createExpressionImage(combinedExpression.toString(), product));
+                if (combinedExpression.length() > 0) {
+                    list.add(createExpressionImage(combinedExpression.toString(), product));
+                }
             }
             if (isUpdateMode()) {
                 final RenderedImage updateImage = updateProduct.getBand(getCountBandName(variable)).getSourceImage();
@@ -361,7 +366,7 @@ public class MosaicOp extends Operator {
                 getLogger().warning(msg);
                 continue;
             }
-            if (sourceProduct.isMultiSizeProduct()) {
+            if (sourceProduct.isMultiSize()) {
                 String msg = "Source product: '" + sourceProduct.getName() + "' contains rasters of different sizes. Skipped for further processing.";
                 getLogger().warning(msg);
                 continue;
@@ -423,7 +428,7 @@ public class MosaicOp extends Operator {
             Band band = product.addBand(outputVariable.getName(), ProductData.TYPE_FLOAT32);
             band.setDescription(outputVariable.getExpression());
             final String countBandName = getCountBandName(outputVariable);
-            band.setValidPixelExpression(String.format("%s > 0", countBandName));
+            band.setValidPixelExpression(String.format("%s > 0", Tokenizer.createExternalName(countBandName)));
 
             Band countBand = product.addBand(countBandName, ProductData.TYPE_INT32);
             countBand.setDescription(String.format("Count of %s", outputVariable.getName()));

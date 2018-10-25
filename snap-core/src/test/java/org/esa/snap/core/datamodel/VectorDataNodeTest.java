@@ -16,14 +16,24 @@
 
 package org.esa.snap.core.datamodel;
 
-import org.geotools.feature.FeatureCollection;
+import org.esa.snap.core.util.ObservableFeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 
 public class VectorDataNodeTest {
@@ -45,7 +55,7 @@ public class VectorDataNodeTest {
                                                              new PixelPos(10, 10), null, null);
 
         VectorDataNode vectorDataNode = new VectorDataNode("Features", Placemark.createPointFeatureType("feature"));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+        DefaultFeatureCollection featureCollection = vectorDataNode.getFeatureCollection();
         vectorDataGroup.add(vectorDataNode);        //Also: Sets the owner of the vectorDataNode
         vectorDataNode.getPlacemarkGroup();         //Also: Creates the PlacemarkGroup (owner has to be set!)
 
@@ -147,12 +157,65 @@ public class VectorDataNodeTest {
         assertEquals(defaultStyleCss, vdn.getDefaultStyleCss());
     }
 
+    @Test
+    public void testFireFeatureChanged() throws Exception {
+        SimpleFeatureType type = createFeatureType();
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
+
+        VectorDataNode vdn = new VectorDataNode("test", type);
+        Product p = new Product("dummy", "type", 10, 10);
+        p.getVectorDataGroup().add(vdn);
+        MyProductNodeListenerAdapter listener = new MyProductNodeListenerAdapter();
+        p.addProductNodeListener(listener);
+
+        SimpleFeature aFeature = fb.buildFeature("1");
+        SimpleFeature toBeRemoved = fb.buildFeature("2");
+        vdn.getFeatureCollection().add(aFeature);
+        assertEquals(VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION, listener.event.getPropertyName());
+        assertEquals(aFeature, ((SimpleFeature[]) listener.event.getNewValue())[0]);
+        vdn.getFeatureCollection().add(toBeRemoved);
+        assertEquals(VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION, listener.event.getPropertyName());
+        assertEquals(toBeRemoved, ((SimpleFeature[]) listener.event.getNewValue())[0]);
+        vdn.getFeatureCollection().remove(toBeRemoved);
+        assertEquals(VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION, listener.event.getPropertyName());
+        assertEquals(toBeRemoved, ((SimpleFeature[]) listener.event.getOldValue())[0]);
+    }
+
     private static class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
         ProductNodeEvent event;
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             this.event = event;
+        }
+    }
+
+    private static SimpleFeatureType createFeatureType() throws IOException {
+        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        ftb.add("height", Integer.class);
+        ftb.setName("my.special.typename");
+        final SimpleFeatureType ft = ftb.buildFeatureType();
+        ft.getUserData().put("trackPoints", "true");
+        return ft;
+    }
+
+    private static class MyCollectionListener implements ObservableFeatureCollection.Listener {
+
+        List<Event> eventList = new ArrayList<>();
+
+        @Override
+        public void changed(ObservableFeatureCollection.EVENT_TYPE type, SimpleFeature... features) {
+            eventList.add(new Event(type, features));
+        }
+    }
+
+    private static class Event  {
+        ObservableFeatureCollection.EVENT_TYPE type;
+        SimpleFeature[] features;
+
+        public Event(ObservableFeatureCollection.EVENT_TYPE type, SimpleFeature[] features) {
+            this.type = type;
+            this.features = features;
         }
     }
 }

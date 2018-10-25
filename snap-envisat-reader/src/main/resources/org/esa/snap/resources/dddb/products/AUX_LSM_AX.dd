@@ -1,0 +1,11 @@
+AUX_LSM_AX|Auxiliary Land/Sea Mask|
+#
+MPH                       |@/records/MPH.dd                                    |1247                            |Main Product Header
+SPH                       |@/records/SPH.dd       	                           |*                               |AATSR Browse LUT Data SPH
+DSD                       |@/records/DSD.dd                                    |*                               |Data Set Descriptor array
+surface_1_deg             |@/records/auxiliary/AUX_LSM_AX_LSM_SURF_1_DEG.dd    |ADS Surface Flag @ 1 deg res    |Surface flag, 1 degree resolution
+surface_01_deg            |@/records/auxiliary/AUX_LSM_AX_LSM_SURF_01_DEG.dd   |ADS Surface Flag @ .1 deg re    |Surface flag, 0.1 degree resolution
+surface_001_deg           |@/records/auxiliary/AUX_LSM_AX_LSM_SURF_001_DEG.dd  |ADS Surface Flag @ .01 deg r    |Surface flag, 0.01 degree resolution
+coastline_1_deg           |@/records/auxiliary/AUX_LSM_AX_LSM_COAST_1_DEG.dd   |ADS Coastline Flag @ 1 deg r    |Coastline flag, 1 degree resolution
+coastline_01_deg          |@/records/auxiliary/AUX_LSM_AX_LSM_COAST_01_DEG.dd  |ADS Coastline Flag @ .1 deg     |Coastline flag, 0.1 degree resolution
+coastline_001_deg         |@/records/auxiliary/AUX_LSM_AX_LSM_COAST_001_DEG.dd |ADS Coastline Flag @ .01 deg    |Coastline flag, 0.01 degree resolution

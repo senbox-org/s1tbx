@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ceres-metadata</artifactId>
@@ -76,6 +76,10 @@
                         <publicPackage>com.bc.ceres.resource</publicPackage>
                     </publicPackages>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

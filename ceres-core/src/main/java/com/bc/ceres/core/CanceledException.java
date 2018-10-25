@@ -17,7 +17,7 @@
 package com.bc.ceres.core;
 
 /**
- * An exception which clients can use to signal that a {@link ProgressMonitor} requested cancelation
+ * An exception which clients can use to signal that a {@link ProgressMonitor} requested cancellation
  * of a running process.
  */
 public class CanceledException extends CoreException {

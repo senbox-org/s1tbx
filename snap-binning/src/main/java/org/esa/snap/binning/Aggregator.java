@@ -72,6 +72,11 @@ public interface Aggregator {
     String[] getOutputFeatureNames();
 
     /**
+     * @return if aggregator requires a dynamic size spatial data vector or not
+     */
+    boolean requiresGrowableSpatialData();
+
+    /**
      * Initialises the spatial aggregation vector.
      *
      * @param ctx    The bin context which is shared between calls to {@link #initSpatial},

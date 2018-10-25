@@ -17,9 +17,9 @@ package org.esa.snap.core.dataio;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ServiceLoader;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -116,7 +116,7 @@ public class ProductIOPlugInManager {
 
     /**
      * Registers the specified writer plug-in by adding it to this manager. If the given writer plug-in is
-     * <code>null</code>, nothing happens.
+     * {@code null}, nothing happens.
      *
      * @param writerPlugIn the writer plug-in to be added to this manager
      */
@@ -130,28 +130,47 @@ public class ProductIOPlugInManager {
      *
      * @param writerPlugIn the writer plug-in to be removed from this manager, if present
      *
-     * @return <code>true</code> if this manager contained the specified writer plug-in
+     * @return {@code true} if this manager contained the specified writer plug-in
      */
     public boolean removeWriterPlugIn(ProductWriterPlugIn writerPlugIn) {
         return writerPlugIns.removeService(writerPlugIn);
     }
 
     /**
-     * Returns a <code>String[]</code> which contains all the product writer format strings of registered product
-     * writers, never Null. Returns never Null.
+     * Returns a {@code String[]} which contains all the product writer format strings of registered product
+     * writers, never Null.
      *
-     * @return a <code>String[]</code> which contains all the product writer format strings of registered product
+     * @return a {@code String[]} which contains all the product writer format strings of registered product
      *         writers.
      */
     public String[] getAllProductWriterFormatStrings() {
-        Iterator iterator = getAllWriterPlugIns();
-        ProductIOPlugIn writer;
-        ArrayList<String> formats = new ArrayList<String>();
-        String[] formatNames;
+        Iterator<? extends ProductIOPlugIn> iterator = getAllWriterPlugIns();
+        return getAvailableFormatNames(iterator);
+    }
+
+    /**
+     * Returns a {@code String[]} which contains all the product reader format strings of registered product
+     * readers, never Null.
+     *
+     * @return a {@code String[]} which contains all the product reader format strings of registered product
+     *         reader.
+     */
+    public String[] getAllProductReaderFormatStrings() {
+        Iterator<? extends ProductIOPlugIn> iterator = getAllReaderPlugIns();
+        return getAvailableFormatNames(iterator);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    /////// END OF PUBLIC
+    ///////////////////////////////////////////////////////////////////////////
+
+    private String[] getAvailableFormatNames(Iterator<? extends ProductIOPlugIn> iterator) {
+        ProductIOPlugIn ioPlugIn;
+        ArrayList<String> formats = new ArrayList<>();
 
         while (iterator.hasNext()) {
-            writer = (ProductIOPlugIn) iterator.next();
-            formatNames = writer.getFormatNames();
+            ioPlugIn = iterator.next();
+            String[] formatNames = ioPlugIn.getFormatNames();
             for (String formatName : formatNames) {
                 if (!formats.contains(formatName)) {
                     formats.add(formatName);
@@ -161,10 +180,6 @@ public class ProductIOPlugInManager {
 
         return formats.toArray(new String[formats.size()]);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    /////// END OF PUBLIC
-    ///////////////////////////////////////////////////////////////////////////
 
     private static <T extends ProductIOPlugIn> Iterator<T> getProductIOPlugIns(Set<T> ioPlugIns, String formatName) {
         Debug.assertNotNull(ioPlugIns);
@@ -190,10 +205,8 @@ public class ProductIOPlugInManager {
         readerPlugIns = serviceRegistryManager.getServiceRegistry(ProductReaderPlugIn.class);
         writerPlugIns = serviceRegistryManager.getServiceRegistry(ProductWriterPlugIn.class);
 
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(readerPlugIns);
-            SnapCoreActivator.loadServices(writerPlugIns);
-        }
+        ServiceLoader.loadServices(readerPlugIns);
+        ServiceLoader.loadServices(writerPlugIns);
     }
     
     // Initialization on demand holder idiom

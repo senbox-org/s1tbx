@@ -1,11 +1,19 @@
 package org.esa.snap.core.gpf.descriptor;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.converters.ClassConverter;
 import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.converters.JavaTypeConverter;
 
 import java.io.File;
 import java.io.FileReader;
@@ -132,7 +140,6 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
      * @param url         The URL pointing to a valid operator descriptor XML document.
      * @param classLoader The class loader is used to load classed specified in the xml. For example the
      *                    class defined by the {@code operatorClass} tag.
-     *
      * @return A new operator descriptor.
      */
     public static DefaultOperatorDescriptor fromXml(URL url, ClassLoader classLoader) {
@@ -154,7 +161,6 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
      * @param file        The file containing a valid operator descriptor XML document.
      * @param classLoader The class loader is used to load classed specified in the xml. For example the
      *                    class defined by the {@code operatorClass} tag.
-     *
      * @return A new operator descriptor.
      */
     public static DefaultOperatorDescriptor fromXml(File file, ClassLoader classLoader) throws OperatorException {
@@ -175,7 +181,6 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
      * @param resourceName Used in error messages
      * @param classLoader  The class loader is used to load classed specified in the xml. For example the
      *                     class defined by the {@code operatorClass} tag.
-     *
      * @return A new operator descriptor.
      */
     public static DefaultOperatorDescriptor fromXml(Reader reader, String resourceName, ClassLoader classLoader) throws OperatorException {
@@ -201,7 +206,6 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
      *
      * @param classLoader The class loader is used to load classed specified in the xml. For example the
      *                    class defined by the {@code operatorClass} tag.
-     *
      * @return A string containing valid operator descriptor XML.
      */
     public String toXml(ClassLoader classLoader) {
@@ -224,6 +228,8 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
 
         xStream.alias("parameter", DefaultParameterDescriptor.class);
         xStream.aliasField("parameters", DefaultOperatorDescriptor.class, "parameterDescriptors");
+        xStream.registerLocalConverter(DefaultParameterDescriptor.class, "dataType", new ParameterTypeConverter());
+        xStream.registerLocalConverter(DefaultParameterDescriptor.class, "valueSet", new ValueSetConverter());
 
         xStream.alias("targetProduct", DefaultTargetProductDescriptor.class);
         xStream.aliasField("targetProduct", DefaultOperatorDescriptor.class, "targetProductDescriptor");
@@ -242,4 +248,54 @@ public class DefaultOperatorDescriptor implements OperatorDescriptor {
         return String.format("Invalid operator descriptor in '%s': %s", resourceName, message);
     }
 
+    private static class ParameterTypeConverter extends AbstractSingleValueConverter {
+
+        private ClassConverter converter;
+
+        ParameterTypeConverter() {
+            converter = new JavaTypeConverter();
+        }
+
+        @Override
+        public boolean canConvert(Class aClass) {
+            return Class.class.equals(aClass);
+        }
+
+        @Override
+        public Object fromString(String s) {
+            try {
+                return converter.parse(s);
+            } catch (ConversionException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public String toString(Object obj) {
+            return converter.format((Class) obj);
+        }
+    }
+
+    private static class ValueSetConverter implements com.thoughtworks.xstream.converters.Converter {
+
+        public boolean canConvert(Class aClass) {
+            return String[].class.equals(aClass);
+        }
+
+        @Override
+        public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+            DefaultParameterDescriptor headerParameter = (DefaultParameterDescriptor) source;
+            writer.addAttribute("valueSet", StringUtils.arrayToString(headerParameter.getValueSet(), ","));
+        }
+
+        @Override
+        public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+
+            final String valueSetString = reader.getValue();
+            if (valueSetString != null) {
+                return StringUtils.toStringArray(valueSetString, ",");
+            }
+            return null;
+        }
+    }
 }

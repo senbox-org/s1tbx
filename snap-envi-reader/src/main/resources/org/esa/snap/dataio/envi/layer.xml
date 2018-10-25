@@ -11,8 +11,6 @@
                 <attr name="formatName" stringvalue="ENVI"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
             </file>
-        </folder>
-        <folder name="Readers">
             <file name="org-esa-snap-dataio-hico-ImportHicoProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>

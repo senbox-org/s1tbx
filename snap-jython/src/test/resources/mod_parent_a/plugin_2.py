@@ -21,7 +21,6 @@ class Activator:
             c = plugin.getClass()
             print('writer plugin: ' + str(c))
 
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
         it = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpis().iterator()
         while it.hasNext():
             plugin = it.next()

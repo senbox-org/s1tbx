@@ -15,29 +15,73 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
-import org.esa.snap.core.gpf.GPF;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.descriptor.SystemVariable;
+import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.runtime.Config;
 
-import java.io.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.nio.file.CopyOption;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
+import java.util.jar.Manifest;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
+
+import static org.apache.commons.lang.SystemUtils.IS_OS_UNIX;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -50,6 +94,8 @@ public class ToolAdapterIO {
     private static final Logger logger;
     private static final Map<String, String> shellExtensions;
     private static final String osFamily;
+    private static final Attributes.Name typeKey;
+    private static final String[] excludedClusters;
 
     static {
         logger = Logger.getLogger(ToolAdapterIO.class.getName());
@@ -69,6 +115,8 @@ public class ToolAdapterIO {
         } else {
             osFamily = "unsupported";
         }
+        typeKey = new Attributes.Name("OpenIDE-Module-Type");
+        excludedClusters = new String[] { "bin", "etc", "platform", "ide", "java" };
     }
 
     public static void setAdaptersPath(Path path) {
@@ -84,22 +132,31 @@ public class ToolAdapterIO {
     public static void saveVariable(String name, String value) {
         if (value != null && value.length() > 0) {
             Preferences preferences = getPreferences();
-            //if (preferences.get(name, null) == null) {
-                preferences.put(name, value);
-                try {
-                    preferences.sync();
-                } catch (BackingStoreException e) {
-                    logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
-                }
-            //}
+            preferences.put(name, value);
+            try {
+                preferences.sync();
+            } catch (BackingStoreException e) {
+                logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
+            }
         }
     }
 
-    public static String getVariableValue(String name, String defaultValue) {
+    /**
+     * Returns the value of the named variable.
+     * If the variable doesn't exist, it will be created with the given default value.
+     *
+     * @param name          The name of the variable
+     * @param defaultValue  Default value for the variable if not exists
+     * @param isShared      If this is a shared variable (i.e. shared among adapters)
+     * @return              The value (existing or default) of the variable
+     */
+    public static String getVariableValue(String name, String defaultValue, boolean isShared) {
         Preferences preferences = getPreferences();
         String retVal = preferences.get(name, null);
         if ((retVal == null || retVal.isEmpty()) && defaultValue != null) {
-            saveVariable(name, defaultValue);
+            if (isShared) {
+                saveVariable(name, defaultValue);
+            }
             retVal = defaultValue;
         }
         return retVal;
@@ -124,7 +181,7 @@ public class ToolAdapterIO {
         if (moduleFolders != null) {
             for (File moduleFolder : moduleFolders) {
                 try {
-                    ToolAdapterIO.registerAdapter(moduleFolder);
+                    ToolAdapterIO.registerAdapter(moduleFolder.toPath());
                 } catch (Exception ex) {
                     logger.severe(String.format("Failed to register module %s. Problem: %s", moduleFolder.getName(), ex.getMessage()));
                 }
@@ -140,51 +197,24 @@ public class ToolAdapterIO {
      * @return                  An SPI for the read operator.
      * @throws OperatorException
      */
-    public static ToolAdapterOpSpi createOperatorSpi(File operatorFolder) throws OperatorException {
+    public static ToolAdapterOpSpi createOperatorSpi(Path operatorFolder) throws OperatorException {
         //Look for the descriptor
         ToolAdapterOperatorDescriptor operatorDescriptor;
-        File descriptorFile = new File(operatorFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
-        if (descriptorFile.exists()) {
-            operatorDescriptor = ToolAdapterOperatorDescriptor.fromXml(descriptorFile, ToolAdapterIO.class.getClassLoader());
+        Path descriptorFile = operatorFolder.resolve(ToolAdapterConstants.DESCRIPTOR_FILE);
+        if (Files.exists(descriptorFile)) {
+            operatorDescriptor = ToolAdapterOperatorDescriptor.fromXml(descriptorFile.toFile(), ToolAdapterIO.class.getClassLoader());
+            return new ToolAdapterOpSpi(operatorDescriptor) {
+                @Override
+                public Operator createOperator() throws OperatorException {
+                    ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
+                    toolOperator.setAdapterFolder(operatorFolder.toFile());
+                    toolOperator.setParameterDefaultValues();
+                    return toolOperator;
+                }
+            };
         } else {
-            operatorDescriptor = new ToolAdapterOperatorDescriptor(operatorFolder.getName(), ToolAdapterOp.class);
-            logger.warning(String.format("Missing operator metadata file '%s'", descriptorFile));
+            throw new OperatorException(String.format("Missing operator metadata file '%s'", descriptorFile));
         }
-        return new ToolAdapterOpSpi(operatorDescriptor) {
-            @Override
-            public Operator createOperator() throws OperatorException {
-                ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
-                toolOperator.setAdapterFolder(operatorFolder);
-                toolOperator.setParameterDefaultValues();
-                return toolOperator;
-            }
-        };
-        //return new ToolAdapterOpSpi(operatorDescriptor, operatorFolder);
-    }
-
-    /**
-     * Reads the content of the operator Velocity template
-     *
-     * @param adapterName      The name of the adapter
-     *
-     * @throws IOException
-     */
-    public static String readOperatorTemplate(String adapterName) throws IOException, OperatorException {
-        File file = getTemplateFile(adapterName);
-        byte[] encoded = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
-        return new String(encoded, Charset.defaultCharset());
-    }
-
-    /**
-     * Writes the content of the operator Velocity template.
-     *
-     * @param adapterName   The name of the operator
-     * @param content       The content of the template
-     * @throws IOException
-     */
-    public static void writeOperatorTemplate(String adapterName, String content) throws IOException {
-        File file = getTemplateFile(adapterName);
-        saveFileContent(file, content);
     }
 
     /**
@@ -198,43 +228,75 @@ public class ToolAdapterIO {
     }
 
     /**
+     * Creates a copy of the adapter folder.
+     *
+     * @param operatorDescriptor    The operator descriptor for which to backup the folder
+     * @return                      The path of the backup folder
+     * @throws IOException
+     */
+    public static Path backupOperator(ToolAdapterOperatorDescriptor operatorDescriptor) throws IOException {
+        Path root = getAdaptersPath();
+        String alias = operatorDescriptor.getAlias();
+        Path modulePath = root.resolve(alias);
+        Path backupRoot = SystemUtils.getAuxDataPath();
+        Path backupPath = backupRoot.resolve(alias + "_" + String.valueOf(System.currentTimeMillis()));
+        copy(modulePath, backupPath);
+        return backupPath;
+    }
+
+    /**
+     * Restores the folder of a descriptor from a backup folder.
+     *
+     * @param operatorDescriptor    The operator descriptor for which to restore the folder
+     * @param backupPath            The path from which to restore the folder
+     * @return                      The path of the resored folder
+     * @throws IOException
+     */
+    public static Path restoreOperator(ToolAdapterOperatorDescriptor operatorDescriptor, Path backupPath) throws IOException {
+        Path root = getAdaptersPath();
+        String alias = operatorDescriptor.getAlias();
+        Path modulePath = root.resolve(alias);
+        copy(backupPath, modulePath);
+        return modulePath;
+    }
+
+    /**
      * Saves any changes to the operator and registers it (in case of newly created ones).
      *
      * @param operator          The operator descriptor
-     * @param templateContent   The content of the Velocity template
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static void saveAndRegisterOperator(ToolAdapterOperatorDescriptor operator, String templateContent) throws IOException, URISyntaxException {
-        removeOperator(operator, false);
-        File rootFolder = getUserAdapterPath();
-        File moduleFolder = new File(rootFolder, operator.getAlias());
-        if (!moduleFolder.exists()) {
-            if (!moduleFolder.mkdir()) {
-                throw new OperatorException("Operator folder " + moduleFolder + " could not be created!");
-            }
-        }
+    public static void saveAndRegisterOperator(ToolAdapterOperatorDescriptor operator) throws IOException, URISyntaxException {
+        Path rootFolder = getAdaptersPath();
+        Path moduleFolder = rootFolder.resolve(operator.getAlias());
+        removeOperator(operator, true);
+        Files.createDirectories(moduleFolder);
         ToolAdapterOpSpi operatorSpi = new ToolAdapterOpSpi(operator) {
             @Override
             public Operator createOperator() throws OperatorException {
                 ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
-                toolOperator.setAdapterFolder(moduleFolder);
+                toolOperator.setAdapterFolder(moduleFolder.toFile());
                 toolOperator.setParameterDefaultValues();
                 return toolOperator;
             }
         };
-        File descriptorFile = new File(moduleFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
-        if (!descriptorFile.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            descriptorFile.getParentFile().mkdirs();
-            if (!descriptorFile.createNewFile()) {
-                throw new OperatorException("Operator file " + descriptorFile + " could not be created!");
-            }
-        }
+        Path descriptorFile = moduleFolder.resolve(ToolAdapterConstants.DESCRIPTOR_FILE);
+        Files.createDirectories(descriptorFile.getParent());
         String xmlContent = operator.toXml(ToolAdapterIO.class.getClassLoader());
-        saveFileContent(descriptorFile, xmlContent);
+        Files.write(descriptorFile, xmlContent.getBytes(), StandardOpenOption.CREATE);
+        operator.getTemplate().save();
+        operator.getToolParameterDescriptors().stream()
+                .filter(ToolParameterDescriptor::isTemplateParameter)
+                .map(p -> (TemplateParameterDescriptor)p)
+                .forEach(p -> {
+                    try {
+                        p.getTemplate().save();
+                    } catch (IOException e) {
+                        logger.severe(String.format("Failed to save template for parameter %s [%s]", p.getName(), e.getMessage()));
+                    }
+                });
         ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
-        writeOperatorTemplate(operator.getName(), templateContent);
     }
 
     /**
@@ -243,10 +305,14 @@ public class ToolAdapterIO {
      * @param adapterFolder the folder of the tool adapter
      * @throws OperatorException in case of an error
      */
-    public static ToolAdapterOpSpi registerAdapter(File adapterFolder) throws OperatorException {
+    public static ToolAdapterOpSpi registerAdapter(Path adapterFolder) throws OperatorException {
         ToolAdapterOpSpi operatorSpi = ToolAdapterIO.createOperatorSpi(adapterFolder);
         ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
         return operatorSpi;
+    }
+
+    public static ToolAdapterOpSpi registerAdapter(File adapterFolder) throws OperatorException {
+        return registerAdapter(adapterFolder.toPath());
     }
 
     /**
@@ -256,11 +322,23 @@ public class ToolAdapterIO {
      * @throws IOException
      */
     public static List<File> scanForAdapters() throws IOException {
-        logger.log(Level.INFO, "Loading external tools...");
+        logger.info("Initializing external tool adapters");
         List<File> modules = new ArrayList<>();
-        File userModulesPath = getUserAdapterPath();
-        logger.info("Scanning for external tools adapters: " + userModulesPath.getAbsolutePath());
-        modules.addAll(scanForAdapters(userModulesPath));
+        Set<Path> modulesPath = getClusterModulesPaths();
+        for (Path clusterPath : modulesPath) {
+            final Preferences preferences = Config.instance(clusterPath.getFileName().toString()).preferences();
+            SystemVariable.addLookupReference(preferences::get);
+        }
+        modulesPath.add(getAdaptersPath());
+        for (Path path : modulesPath) {
+            logger.fine("Scanning for external tools adapters: " + path.toAbsolutePath().toString());
+            try {
+                modules.addAll(scanForAdapters(path));
+            } catch (IOException ex) {
+                logger.severe(String.format("Failed to scan %s [reason: %s]", path, ex.getMessage()));
+            }
+        }
+
         return modules;
     }
 
@@ -270,22 +348,30 @@ public class ToolAdapterIO {
      *
      * @return  The location of user-defined modules.
      */
-    public static File getUserAdapterPath() {
+    public static Path getAdaptersPath() {
         String userPath = Config.instance().load().preferences().get(ToolAdapterConstants.USER_MODULE_PATH, null);
-        File userModulePath;
+        Path userModulePath;
         if (userPath == null) {
-            //userModulePath = new File(Config.instance().userDir().toFile(), SystemUtils.getApplicationContextId());
-            userModulePath = SystemUtils.getAuxDataPath().toFile();
+            userModulePath = SystemUtils.getAuxDataPath();
             for (String subFolder : userSubfolders) {
-                userModulePath = new File(userModulePath, subFolder);
+                userModulePath = userModulePath.resolve(subFolder);
             }
         } else {
-            userModulePath = new File(userPath);
+            userModulePath = Paths.get(userPath);
         }
-        if (!userModulePath.exists() && !userModulePath.mkdirs()) {
+        try {
+            Files.createDirectories(userModulePath);
+        } catch (IOException ex) {
+            logger.severe(ex.getMessage());
+        }
+        if (!Files.exists(userModulePath)) {
             logger.severe("Cannot create user folder for external tool adapter extensions");
         }
         return userModulePath;
+    }
+
+    public static File getUserAdapterPath() {
+        return getAdaptersPath().toFile();
     }
 
     /**
@@ -312,43 +398,16 @@ public class ToolAdapterIO {
     public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
         ToolAdapterRegistry.INSTANCE.removeOperator(operator);
         if (removeOperatorFolder) {
-            File rootFolder = getUserAdapterPath();
-            File moduleFolder = new File(rootFolder, operator.getAlias());
-            if (moduleFolder.exists()) {
-                if (!FileUtils.deleteTree(moduleFolder)) {
-                    logger.warning(String.format("Folder %s cannot be deleted", moduleFolder.getAbsolutePath()));
+            Path rootFolder = getAdaptersPath();
+            Path moduleFolder = rootFolder.resolve(operator.getAlias());
+            if (Files.exists(moduleFolder)) {
+                try {
+                    deleteFolder(moduleFolder);
+                } catch (IOException e) {
+                    logger.warning(String.format("Folder %s cannot be deleted [%s]", moduleFolder.toAbsolutePath(), e.getMessage()));
                 }
             }
         }
-    }
-
-    /**
-     * In case of files that were selected via File Chooser Dialog, makes sure that a
-     * copy of the file is placed in the adapter folder. If the file is already in the adapter folder,
-     * nothing happens.
-     *
-     * @param file          The file to (potentially) copy.
-     * @param adaptorAlias  The adapter alias, which is also the folder name.
-     * @return              The file local to the adapter folder.
-     */
-    public static File ensureLocalCopy(File file, String adaptorAlias) {
-        File newFile = null;
-        File path = new File(getUserAdapterPath(), adaptorAlias);
-        if (!path.exists()) {
-            path.mkdir();
-        }
-        if (!file.isAbsolute()) {
-            newFile = new File(path, file.getName());
-        } else if (file.exists() && !file.getAbsolutePath().startsWith(path.getAbsolutePath())) {
-            try {
-                newFile = Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(path.getAbsolutePath(), file.getName()), StandardCopyOption.REPLACE_EXISTING).toFile();
-            } catch (IOException e) {
-                logger.warning(e.getMessage());
-            }
-        } else {
-            newFile = file;
-        }
-        return newFile;
     }
 
     /**
@@ -359,13 +418,100 @@ public class ToolAdapterIO {
         return shellExtensions.get(osFamily);
     }
 
+    /**
+     * Returns the current operating system.
+     */
     public static String getOsFamily() { return osFamily; }
 
-    private static List<File> scanForAdapters(File path) throws IOException {
-        if (!path.exists() || !path.isDirectory()) {
-            throw new FileNotFoundException(path.getAbsolutePath());
+    /**
+     * Converts adapter descriptor (prior to 4.0) to the new format
+     * @param modulePath    The adapter path
+     * @throws IOException
+     */
+    public static void convertAdapter(Path modulePath) throws IOException {
+        Path descriptorPath = Files.isRegularFile(modulePath) ? modulePath : modulePath.resolve("META-INF").resolve("descriptor.xml");
+        try {
+            TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setAttribute("indent-number", 2);
+            StreamSource xslStream = new StreamSource(ToolAdapterIO.class.getResourceAsStream("transform.xsl"));
+            Transformer transformer = factory.newTransformer(xslStream);
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            StreamSource input = new StreamSource(new StringReader(new String(Files.readAllBytes(descriptorPath))));
+            StringWriter writer = new StringWriter();
+            StreamResult output = new StreamResult(writer);
+            transformer.transform(input, output);
+            Files.write(descriptorPath, writer.toString().getBytes());
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-        File[] jarFiles = path.listFiles(f -> f.getName().endsWith(".jar"));
+    }
+
+    /**
+     * Deletes the given folder and its content.
+     * @param location      The folder to delete
+     * @throws IOException
+     */
+    public static void deleteFolder(Path location) throws IOException {
+        if (Files.exists(location)) {
+            Files.walkFileTree(location, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.deleteIfExists(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.deleteIfExists(file);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    /**
+     * Ensure that the given path has all the permissions set.
+     * This is especially useful for Linux/MacOsX executables.
+     *
+     * @param path  The path to fix permissions for.
+     */
+    public static void fixPermissions(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            Stream<Path> files = Files.list(path);
+            files.forEach(p -> {
+                try {
+                    fixPermissions(p);
+                } catch (IOException e) {
+                    SystemUtils.LOG.severe("OpenJPEG configuration error: failed to fix permissions on " + path);
+                }
+            });
+        } else {
+            if (IS_OS_UNIX) {
+                Set<PosixFilePermission> permissions = new HashSet<>(Arrays.asList(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE,
+                        PosixFilePermission.OWNER_EXECUTE,
+                        PosixFilePermission.GROUP_READ,
+                        PosixFilePermission.GROUP_EXECUTE,
+                        PosixFilePermission.OTHERS_READ,
+                        PosixFilePermission.OTHERS_EXECUTE));
+                try {
+                    Files.setPosixFilePermissions(path, permissions);
+                } catch (IOException e) {
+                    // can't set the permissions for this file, eg. the file was installed as root
+                    // send a warning message, user will have to do that by hand.
+                    SystemUtils.LOG.severe("Can't set execution permissions for executable " + path.toString() +
+                            ". If required, please ask an authorised user to make the file executable.");
+                }
+            }
+        }
+    }
+
+    private static List<File> scanForAdapters(Path path) throws IOException {
+        if (!Files.exists(path) || !Files.isDirectory(path)) {
+            throw new FileNotFoundException(path.toAbsolutePath().toString());
+        }
+        File[] jarFiles = path.toFile().listFiles(f -> f.getName().endsWith(".jar"));
         if (jarFiles != null) {
             for (File jarFile : jarFiles) {
                 try {
@@ -375,7 +521,7 @@ public class ToolAdapterIO {
                 }
             }
         }
-        File[] moduleFolders = path.listFiles();
+        File[] moduleFolders = path.toFile().listFiles();
         List<File> modules = new ArrayList<>();
         if (moduleFolders != null) {
             for (File moduleFolder : moduleFolders) {
@@ -388,56 +534,48 @@ public class ToolAdapterIO {
         return modules;
     }
 
-    private static File getTemplateFile(String adapterName) throws IOException, OperatorException {
-        OperatorSpi spi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(adapterName);
-        if (spi == null) {
-            throw new OperatorException("Cannot find the operator SPI");
-        }
-        ToolAdapterOperatorDescriptor operatorDescriptor = (ToolAdapterOperatorDescriptor) spi.getOperatorDescriptor();
-        if (operatorDescriptor == null) {
-            throw new OperatorException("Cannot read the operator template file");
-        }
-        String templateFile = operatorDescriptor.getTemplateFileLocation();
-        return new File(getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
-    }
-
     private static void unpackAdapterJar(File jarFile, File unpackFolder) throws IOException {
         JarFile jar = new JarFile(jarFile);
-        Enumeration enumEntries = jar.entries();
-        if (unpackFolder == null) {
-            unpackFolder = new File(getUserAdapterPath(), jarFile.getName().replace(".jar", ""));
-        }
-        if (!unpackFolder.exists())
-            if (!unpackFolder.mkdir()) {
-                logger.warning(String.format("Cannot create folder %s", unpackFolder.getAbsolutePath()));
+        Manifest manifest = jar.getManifest();
+        Attributes manifestEntries = manifest.getMainAttributes();
+        if (manifestEntries.containsKey(typeKey) && "STA".equals(manifestEntries.getValue(typeKey.toString()))) {
+            Enumeration enumEntries = jar.entries();
+            if (unpackFolder == null) {
+                unpackFolder = getAdaptersPath().resolve(jarFile.getName().replace(".jar", "")).toFile();
             }
-        while (enumEntries.hasMoreElements()) {
-            JarEntry file = (JarEntry) enumEntries.nextElement();
-            File f = new File(unpackFolder, file.getName());
-            if (file.isDirectory()) {
-                if (!f.mkdir()) {
-                    logger.warning(String.format("Cannot create folder %s", f.getAbsolutePath()));
+            if (!unpackFolder.exists())
+                if (!unpackFolder.mkdir()) {
+                    logger.warning(String.format("Cannot create folder %s", unpackFolder.getAbsolutePath()));
                 }
-                continue;
-            } else {
-                if (!f.getParentFile().mkdirs()) {
-                    logger.warning(String.format("Cannot create folder %s", f.getParentFile().getAbsolutePath()));
-                }
-            }
-            try (InputStream is = jar.getInputStream(file)) {
-                try (FileOutputStream fos = new FileOutputStream(f)) {
-                    while (is.available() > 0) {
-                        fos.write(is.read());
+            while (enumEntries.hasMoreElements()) {
+                JarEntry file = (JarEntry) enumEntries.nextElement();
+                File f = new File(unpackFolder, file.getName());
+                if (file.isDirectory()) {
+                    if (!f.mkdir()) {
+                        logger.warning(String.format("Cannot create folder %s", f.getAbsolutePath()));
                     }
-                    fos.close();
+                    continue;
+                } else {
+                    if (!f.getParentFile().mkdirs()) {
+                        logger.warning(String.format("Cannot create folder %s", f.getParentFile().getAbsolutePath()));
+                    }
                 }
-                is.close();
+                try (InputStream is = jar.getInputStream(file)) {
+                    try (FileOutputStream fos = new FileOutputStream(f)) {
+                        while (is.available() > 0) {
+                            fos.write(is.read());
+                        }
+                        fos.close();
+                    }
+                    is.close();
+                }
             }
         }
     }
 
     private static Preferences getPreferences() {
-        Path storagePath = Config.instance().storagePath();
+        Config instance = Config.instance();
+        Path storagePath = instance.storagePath();
         File file = storagePath.toFile();
         if (!file.exists()) {
             try {
@@ -448,7 +586,181 @@ public class ToolAdapterIO {
                 logger.severe("Error while creating module preferences: " + e.getMessage());
             }
         }
-        Config instance = Config.instance().load();
+        try {
+            instance = Config.instance().load();
+        } catch (Exception e) {
+            logger.severe("Cannot read preferences: " + e.getMessage());
+        }
         return instance.preferences();
+    }
+
+    public static void copy(Path source, Path destination) throws IOException{
+        Set<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+        final CopyOption[] copyOptions = new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING };
+        Files.walkFileTree(source, options, 3, new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                Path newDirectory = destination.resolve(source.relativize(dir));
+                try {
+                    Files.copy(dir, newDirectory, copyOptions);
+                } catch (FileAlreadyExistsException ignored) { }
+                catch(IOException x){
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.copy(file, destination.resolve(source.relativize(file)), copyOptions);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    public static Path zip(Path source, Path zipFile) throws IOException {
+        if (source == null || zipFile == null) {
+            throw new IllegalArgumentException("One of the arguments is null");
+        }
+        Files.deleteIfExists(zipFile);
+        zipFile = Files.createFile(zipFile);
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+            if (Files.isRegularFile(source)) {
+                ZipEntry zipEntry = new ZipEntry(source.getFileName().toString());
+                zos.putNextEntry(zipEntry);
+                zos.write(Files.readAllBytes(source));
+                zos.closeEntry();
+            } else {
+                Files.walk(source, 3)
+                        //.filter(path -> !Files.isDirectory(path))
+                        .forEach(path -> {
+                            try {
+                                if (Files.isDirectory(path)) {
+                                    zipFolder(source, path, zos);
+                                } else {
+                                    ZipEntry zipEntry = new ZipEntry(source.relativize(path).toString());
+                                    zos.putNextEntry(zipEntry);
+                                    zos.write(Files.readAllBytes(path));
+                                    zos.closeEntry();
+                                }
+                            } catch (Exception ex) {
+                                SystemUtils.LOG.warning(ex.getMessage());
+                            }
+                        });
+            }
+        }
+        return zipFile;
+    }
+
+    private static void zipFolder(Path root, Path folder, ZipOutputStream zipStream) throws IOException {
+        ZipEntry zipEntry = new ZipEntry(root.relativize(folder).toString() + "/");
+        zipStream.putNextEntry(zipEntry);
+        zipStream.closeEntry();
+    }
+
+    /**
+     * Uncompress the source zip file into the destination path.
+     *
+     * @param sourceFile    The zip file
+     * @param destination   The destination directory
+     */
+    public static void unzip(Path sourceFile, Path destination, ProgressMonitor progressMonitor, int totalTasks) throws IOException {
+        if (sourceFile == null || destination == null) {
+            throw new IllegalArgumentException("One of the arguments is null");
+        }
+        if (!Files.exists(destination)) {
+            Files.createDirectory(destination);
+        }
+        byte[] buffer;
+        try (ZipFile zipFile = new ZipFile(sourceFile.toFile())) {
+            ZipEntry entry;
+            progressMonitor.setSubTaskName(String.format("Extracting %s...", zipFile.getName()));
+            int size = zipFile.size();
+            int workUnits = 100 / totalTasks;
+            int count = 0;
+            int progress;
+            // Inspect all zip entries to see if there is a root zip folder.
+            // If yes, it will be discarded so that the uncompression root folder is
+            // the zip file name
+            LinkedHashMap<String, String> fileNames = new LinkedHashMap<>();
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                entry = entries.nextElement();
+                fileNames.put(entry.getName(), entry.getName());
+            }
+            String firstEntry = fileNames.values().iterator().next();
+            String token = firstEntry.substring(0, firstEntry.indexOf("/"));
+            if (fileNames.values().stream().allMatch(n -> n.startsWith(token))) {
+                fileNames.values().forEach(n -> n = n.substring(n.indexOf("/") + 1));
+            }
+            entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                entry = entries.nextElement();
+                Path filePath = destination.resolve(fileNames.get(entry.getName()));
+                if (!Files.exists(filePath)) {
+                    if (entry.isDirectory()) {
+                        Files.createDirectories(filePath);
+                    } else {
+                        try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                            try (BufferedOutputStream bos = new BufferedOutputStream(
+                                    new FileOutputStream(filePath.toFile()))) {
+                                buffer = new byte[4096];
+                                int read;
+                                while ((read = inputStream.read(buffer)) > 0) {
+                                    bos.write(buffer, 0, read);
+                                }
+                            }
+                        }
+                    }
+                }
+                progress = 100 - workUnits + (int) ((double)count++ / (double)size * (double)workUnits);
+                progressMonitor.worked(progress);
+            }
+        } catch (Exception ex){
+            throw ex;
+        }
+    }
+
+    static List<ProductReaderPlugIn> getReaderPlugInsByExtension(String extension) {
+        List<ProductReaderPlugIn> plugIns = new ArrayList<>();
+        final Iterator<ProductReaderPlugIn> readerPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
+        while (readerPlugIns.hasNext()) {
+            final ProductReaderPlugIn plugIn = readerPlugIns.next();
+            if (Arrays.stream(plugIn.getDefaultFileExtensions()).filter(e -> e.equalsIgnoreCase(extension)).count() > 0) {
+                plugIns.add(plugIn);
+            }
+        }
+        return plugIns;
+    }
+
+    private static Set<Path> getClusterModulesPaths() {
+        Set<Path> clusterNames = new HashSet<>();
+        Path installDir = Config.instance().installDir();
+        Path clustersFile = installDir.resolve("etc").resolve("snap.clusters");
+        if (Files.isRegularFile(clustersFile)) {
+            try {
+                clusterNames = Files.readAllLines(clustersFile).stream()
+                        .filter(name -> !name.trim().isEmpty())
+                        .map(installDir::resolve)
+                        .collect(Collectors.toSet());
+            } catch (IOException e) {
+                logger.severe(String.format("Failed to load clusters file from '%s'", clustersFile));
+            }
+        }
+        for (String clusterName : excludedClusters) {
+            clusterNames.remove(installDir.resolve(clusterName));
+        }
+        clusterNames.remove(installDir.resolve("snap"));
+        return clusterNames;
     }
 }

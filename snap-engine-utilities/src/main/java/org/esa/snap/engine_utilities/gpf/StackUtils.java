@@ -20,17 +20,22 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Helper methods for working with Stack products
  */
 public final class StackUtils {
+
+    public static final String MST = "_mst";
+    public static final String SLV = "_slv";
 
     public static boolean isCoregisteredStack(final Product product) {
         if(!AbstractMetadata.hasAbstractedMetadata(product))
@@ -64,10 +69,69 @@ public final class StackUtils {
         }
     }
 
+    public static void saveSlaveProductNames(final Product[] sourceProducts, final Product targetProduct,
+                                             final Product masterProduct, final Map<Band, Band> sourceRasterMap) {
+
+        for (Product prod : sourceProducts) {
+            if (prod != masterProduct) {
+                final String suffix = StackUtils.createBandTimeStamp(prod);
+                final List<String> bandNames = new ArrayList<>(10);
+                for (Band tgtBand : sourceRasterMap.keySet()) {
+                    // It is assumed that tgtBand is a band in targetProduct
+                    final Band srcBand = sourceRasterMap.get(tgtBand);
+                    final Product srcProduct = srcBand.getProduct();
+                    if (srcProduct == prod) {
+                        bandNames.add(tgtBand.getName());
+                        //System.out.println("StackUtils: " + prod.getName() + ": " + tgtBand.getName());
+                    }
+                }
+
+                // CompactPolStokesParametersOp.initialize() calls PolBandUtils.getSourceBands() which calls
+                // StackUtils.getSlaveBandNames() which gets the slave bands from the meta data of the stack product.
+                // The bands are passed (in the order they appear in the metadata) to
+                // DualPolOpUtils.getMeanCovarianceMatrixC2().
+                // CreateStackOp.initialize() calls this method to get the slave bands to put in Slave_bands of
+                // Slave_Metadata. So make sure the slave band names are in the same order as how the bands appear in
+                // the stack product.
+                // In particular, compact pol C2 stack product slave bands must be in the order
+                // C11, C12_real, C12_imag, C22 because CompactPolStokesParametersOp() expects them to be in that
+                // order.
+                String[] slvBandNames = new String[bandNames.size()];
+                Band[] tgtBands = targetProduct.getBands();
+                int cnt = 0;
+                for (int i = 0; i < tgtBands.length; i++) {
+                    //System.out.println("StackUtils: tgt band i = " + i + " " + tgtBands[i].getName());
+                    if (bandNames.contains(tgtBands[i].getName())) {
+                        slvBandNames[cnt++] = tgtBands[i].getName();
+                    }
+
+                    if (cnt >= slvBandNames.length) {
+                        break;
+                    }
+                }
+                /*
+                for (int i = 0; i < slvBandNames.length; i++) {
+                    System.out.println("StackUtils: " + prod.getName() + ": slv band = " + slvBandNames[i]);
+                }
+                */
+
+                final String prodName = prod.getName() + suffix;
+                //StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
+                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, slvBandNames);
+            }
+        }
+    }
+
     public static void saveSlaveProductBandNames(final Product targetProduct, final String slvProductName,
                                                  final String[] bandNames) {
-        if (bandNames.length == 0)
+        if (bandNames.length == 0) {
+            SystemUtils.LOG.warning("saveSlaveProductBandNames: bandNames is empty");
             return;
+        }
+        if(slvProductName == null) {
+            SystemUtils.LOG.warning("saveSlaveProductBandNames: slvProductName is null");
+            return;
+        }
 
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         final MetadataElement elem = targetSlaveMetadataRoot.getElement(slvProductName);
@@ -77,6 +141,21 @@ public final class StackUtils {
             value.append(' ');
         }
         elem.setAttributeString(AbstractMetadata.SLAVE_BANDS, value.toString().trim());
+    }
+
+    public static String findOriginalSlaveProductName(final Product sourceProduct, final Band slvBand) {
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
+            final String slvBandName = slvBand.getName();
+            for (MetadataElement elem : slaveMetadataRoot.getElements()) {
+                final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
+                if (slvBandNames.contains(slvBandName)) {
+                    return elem.getName();
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -95,11 +174,33 @@ public final class StackUtils {
         }
         final List<String> bandNames = new ArrayList<>();
         for(String bandName : sourceProduct.getBandNames()) {
-            if(bandName.toLowerCase().contains("mst")) {
+            if(bandName.toLowerCase().contains(MST)) {
                 bandNames.add(bandName);
             }
         }
         return bandNames.toArray(new String[bandNames.size()]);
+    }
+
+    public static boolean isMasterBand(final Band band, final Product sourceProduct) {
+        return isMasterBand(band.getName(), sourceProduct);
+    }
+
+    public static boolean isMasterBand(final String bandName, final Product sourceProduct) {
+
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+
+        if (slaveMetadataRoot != null) {
+            final String mstBandNames = slaveMetadataRoot.getAttributeString(AbstractMetadata.MASTER_BANDS, "");
+            return mstBandNames.contains(bandName);
+        }
+
+        for(String srcBandName : sourceProduct.getBandNames()) {
+            if(srcBandName.toLowerCase().contains(MST) && srcBandName.contains(bandName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -112,8 +213,8 @@ public final class StackUtils {
         String suffix = null;
         final String[] srcBandNames = sourceProduct.getBandNames();
         for(String bandName : srcBandNames) {
-            if (bandName.contains("_mst")) {
-                suffix = bandName.substring(bandName.lastIndexOf("_mst")+4);
+            if (bandName.contains(MST)) {
+                suffix = bandName.substring(bandName.lastIndexOf(MST)+4);
                 break;
             }
         }
@@ -142,11 +243,53 @@ public final class StackUtils {
         final List<String> bandNames = new ArrayList<>();
         for(String bandName : sourceProduct.getBandNames()) {
             final String name = bandName.toLowerCase();
-            if(name.contains("slv") && name.endsWith(dateSuffix)) {
+            if(name.contains(SLV) && name.endsWith(dateSuffix)) {
                 bandNames.add(bandName);
             }
         }
         return bandNames.toArray(new String[bandNames.size()]);
+    }
+
+    public static boolean isSlaveBand(final Band band, final Product sourceProduct) {
+        return isSlaveBand(band.getName(), sourceProduct);
+    }
+
+    public static boolean isSlaveBand(final String bandName, final Product sourceProduct) {
+
+        final String[] slvProductNames = StackUtils.getSlaveProductNames(sourceProduct);
+        for (String slvProductName:slvProductNames) {
+            if (isSlaveBand(bandName, sourceProduct, slvProductName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isSlaveBand(final Band band, final Product sourceProduct, final String slvProductName) {
+        return isSlaveBand(band.getName(), sourceProduct, slvProductName);
+    }
+
+    public static boolean isSlaveBand(final String bandName, final Product sourceProduct, final String slvProductName) {
+
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+
+        if (slaveMetadataRoot != null) {
+            final MetadataElement elem = slaveMetadataRoot.getElement(slvProductName);
+            final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
+            if(!slvBandNames.isEmpty()) {
+                return slvBandNames.contains(bandName);
+            }
+        }
+
+        String dateSuffix = slvProductName.substring(slvProductName.lastIndexOf('_'), slvProductName.length()).toLowerCase();
+        for(String srcBandName : sourceProduct.getBandNames()) {
+            final String name = srcBandName.toLowerCase();
+            if(name.contains(SLV) && name.endsWith(dateSuffix) && srcBandName.contains(bandName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String[] getSlaveProductNames(final Product sourceProduct) {
@@ -159,10 +302,10 @@ public final class StackUtils {
     }
 
     public static String getBandNameWithoutDate(final String bandName) {
-        if (bandName.contains("_mst")) {
-            return bandName.substring(0, bandName.lastIndexOf("_mst"));
-        } else if (bandName.contains("_slv")) {
-            return bandName.substring(0, bandName.lastIndexOf("_slv"));
+        if (bandName.contains(MST)) {
+            return bandName.substring(0, bandName.lastIndexOf(MST));
+        } else if (bandName.contains(SLV)) {
+            return bandName.substring(0, bandName.lastIndexOf(SLV));
         } else if (bandName.contains("_")) {
             return bandName.substring(0, bandName.lastIndexOf('_'));
         }
@@ -179,10 +322,10 @@ public final class StackUtils {
 
     public static String getBandSuffix(final String bandName) {
         final String suffix;
-        if (bandName.contains("_mst")) {
-            suffix = bandName.substring(bandName.lastIndexOf("_mst"), bandName.length());
-        } else if (bandName.contains("_slv")) {
-            suffix = bandName.substring(bandName.lastIndexOf("_slv"), bandName.length());
+        if (bandName.contains(MST)) {
+            suffix = bandName.substring(bandName.lastIndexOf(MST), bandName.length());
+        } else if (bandName.contains(SLV)) {
+            suffix = bandName.substring(bandName.lastIndexOf(SLV), bandName.length());
         } else if (bandName.contains("_")) {
             suffix = bandName.substring(bandName.lastIndexOf('_'), bandName.length());
         } else {

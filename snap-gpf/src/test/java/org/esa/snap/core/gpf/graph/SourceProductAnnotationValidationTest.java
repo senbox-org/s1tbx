@@ -42,8 +42,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        wrongTypeOpSpi = new WrongTypeOperator.Spi();
         final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        wrongTypeOpSpi = new WrongTypeOperator.Spi();
         spiRegistry.addOperatorSpi(wrongTypeOpSpi);
         wrongBandsOpSpi = new WrongBandsOperator.Spi();
         spiRegistry.addOperatorSpi(wrongBandsOpSpi);
@@ -81,7 +81,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         try {
             new GraphContext(graph);
             fail("GraphException expected caused by wrong type of source product");
-        } catch (GraphException ge) {
+        } catch (GraphException ignored) {
         }
     }
 
@@ -97,7 +97,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         try {
             new GraphContext(graph);
             fail("GraphException expected, caused by missing bands");
-        } catch (GraphException ge) {
+        } catch (GraphException ignored) {
         }
     }
 
@@ -113,7 +113,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         try {
             new GraphContext(graph);
             fail("GraphException expected, caused by missing bands, even if optional");
-        } catch (GraphException ge) {
+        } catch (GraphException ignored) {
         }
     }
 
@@ -139,7 +139,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         try {
             new GraphContext(graph);
             fail("GraphException expected, because input1 is not initialized");
-        } catch (GraphException ge) {
+        } catch (GraphException ignored) {
         }
     }
 

@@ -891,15 +891,15 @@ public class ImageManager {
     public static MultiLevelImage createMaskedGeophysicalImage(final RasterDataNode node, Number maskValue) {
         MultiLevelImage varImage = node.getGeophysicalImage();
         if (node.getValidPixelExpression() != null) {
-            varImage = replaceInvalidValuesByNaN(node, varImage, node.getValidMaskImage(), maskValue);
+            varImage = replaceInvalidValues(node, varImage, node.getValidMaskImage(), maskValue);
         } else if (node.isNoDataValueSet() && node.isNoDataValueUsed() && Double.compare(maskValue.doubleValue(), node.getGeophysicalNoDataValue()) != 0) {
-            varImage = replaceNoDataValueByNaN(node, varImage, node.getGeophysicalNoDataValue(), maskValue);
+            varImage = replaceNoDataValue(node, varImage, node.getGeophysicalNoDataValue(), maskValue);
         }
         return varImage;
     }
 
-    private static MultiLevelImage replaceInvalidValuesByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
-                                                             final MultiLevelImage maskImage, final Number fillValue) {
+    private static MultiLevelImage replaceInvalidValues(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                        final MultiLevelImage maskImage, final Number fillValue) {
 
         final MultiLevelModel multiLevelModel = rasterDataNode.getMultiLevelModel();
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
@@ -911,8 +911,8 @@ public class ImageManager {
         });
     }
 
-    private static MultiLevelImage replaceNoDataValueByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
-                                                           final double noDataValue, final Number newValue) {
+    private static MultiLevelImage replaceNoDataValue(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                      final double noDataValue, final Number newValue) {
 
         final MultiLevelModel multiLevelModel = rasterDataNode.getMultiLevelModel();
         final int targetDataType = ImageManager.getDataBufferType(rasterDataNode.getGeophysicalDataType());

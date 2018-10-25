@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.text.MessageFormat.format;
+import static java.text.MessageFormat.*;
 
 /**
  * This operator is used to spatially collocate two data products. It requires two source products,
@@ -186,6 +186,8 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(masterProduct);
+        ensureSingleRasterSize(slaveProduct);
 
         validateProduct(masterProduct);
         validateProduct(slaveProduct);
@@ -238,7 +240,7 @@ public class CollocateOp extends Operator {
         // Add slave bands
         for (Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();
-            if (renameSlaveComponents) {
+            if (renameSlaveComponents || targetProduct.containsBand(targetBandName) || targetProduct.containsTiePointGrid(targetBandName)) {
                 targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
             Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
@@ -260,7 +262,7 @@ public class CollocateOp extends Operator {
         // Add slave tie-point grids as bands
         for (TiePointGrid sourceGrid : slaveProduct.getTiePointGrids()) {
             String targetBandName = sourceGrid.getName();
-            if (renameSlaveComponents) {
+            if (renameSlaveComponents || targetProduct.containsBand(targetBandName) || targetProduct.containsTiePointGrid(targetBandName)) {
                 targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
             originalSlaveNames.put(sourceGrid.getName(), targetBandName);
@@ -317,12 +319,8 @@ public class CollocateOp extends Operator {
     }
 
     private void validateProduct(Product product) {
-        if (product.getSceneGeoCoding() == null) {
-            throw new OperatorException(format("Product ''{0}'' has no geo-coding.", product.getName()));
-        }
-        if (product.isMultiSizeProduct()) {
-            throw createMultiSizeException(product);
-        }
+        ensureSceneGeoCoding(product);
+        ensureSingleRasterSize(product);
     }
 
     @Override
@@ -626,7 +624,13 @@ public class CollocateOp extends Operator {
                 String last = clone[clone.length - 1];
                 if (!last.endsWith("*")) {
                     last += "*";
+                    // If an asterisk has been added also one is needed at the beginning.
+                    // If it is not added the node name must start with the pattern.
+                    if (!last.startsWith("*")) {
+                        last = "*" + last;
+                    }
                 }
+
                 last = componentPattern.replace(SOURCE_NAME_REFERENCE, last);
                 clone[clone.length - 1] = last;
             }

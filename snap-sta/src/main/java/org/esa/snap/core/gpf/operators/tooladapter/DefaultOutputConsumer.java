@@ -31,9 +31,9 @@ import java.util.regex.Pattern;
  *
  * @author Cosmin Cara
  */
-class DefaultOutputConsumer implements ProcessOutputConsumer {
+public class DefaultOutputConsumer implements ProcessOutputConsumer {
 
-    private Pattern error;
+    protected Pattern error;
     private Pattern progress;
     private Pattern step;
     private Logger logger;
@@ -87,7 +87,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
     public void consumeOutput(String line) {
         Matcher matcher;
         try {
-            if (progress != null && (matcher = progress.matcher(line)).matches()) {
+            if (progress != null && (matcher = progress.matcher(line)).find()) {
                 int worked;
                 try {
                     worked = Integer.parseInt(matcher.group(1));
@@ -97,11 +97,11 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
                 progressMonitor.worked(Math.min(worked, MAX_UNITS));
                 progressMonitor.setSubTaskName(line);
             }
-            if (step != null && (matcher = step.matcher(line)).matches()) {
+            if (step != null && (matcher = step.matcher(line)).find()) {
                 progressMonitor.setTaskName(matcher.group(1));
             }
-            if (error != null && (matcher = error.matcher(line)).matches()) {
-                getLogger().severe(matcher.group(1));
+            if (error != null && (error.matcher(line)).find()) {
+                getLogger().severe(line);
             } else {
                 getLogger().info(line);
             }

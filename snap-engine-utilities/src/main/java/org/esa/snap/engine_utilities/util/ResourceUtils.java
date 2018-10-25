@@ -17,6 +17,7 @@ package org.esa.snap.engine_utilities.util;
 
 import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.TreeCopier;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,11 +39,6 @@ public final class ResourceUtils {
                 deleteFile(new File(file, aChild));
             }
         }
-        //final Product prod = ProductCache.instance().getProduct(file);
-        //if (prod != null) {
-        //    ProductCache.instance().removeProduct(file);
-        //    prod.dispose();
-        //}
         if (!file.delete())
             System.out.println("Could not delete " + file.getName());
     }
@@ -84,6 +80,24 @@ public final class ResourceUtils {
 
     public static File getResFolder() {
         return new File(SystemUtils.getApplicationHomeDir(), "resource");
+    }
+
+    public static void installGraphs(final Class callingClass, final String path) {
+        installFiles(callingClass, path, getGraphFolder(""));
+    }
+
+    public static void installFiles(final Class callingClass, final String srcResPath, final Path dstPath) {
+        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(callingClass);
+        final Path srcGraphPath = moduleBasePath.resolve(srcResPath);
+
+        try {
+            if (!Files.exists(dstPath)) {
+                Files.createDirectories(dstPath);
+            }
+            TreeCopier.copy(srcGraphPath, dstPath);
+        } catch (IOException e) {
+            SystemUtils.LOG.severe("Unable to install files "+srcGraphPath+" to "+dstPath+' '+e.getMessage());
+        }
     }
 
     public static void sortFileList(final File[] filelist) {

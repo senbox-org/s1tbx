@@ -1,10 +1,9 @@
 import sys
 
 import snappy
-from snappy import ProductIO
+from snappy import ProductIO, WKTReader
 
 SubsetOp = snappy.jpy.get_type('org.esa.snap.core.gpf.common.SubsetOp')
-WKTReader = snappy.jpy.get_type('com.vividsolutions.jts.io.WKTReader')
 
 if len(sys.argv) != 3:
     print("usage: %s <file> <geometry-wkt>" % sys.argv[0])

@@ -16,36 +16,42 @@
 
 package org.esa.snap.core.dataop.projection;
 
+import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.referencing.operation.MathTransformProvider;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This is not testing our implementation of Azimuthal_Equidistant projection but the one of geotools.
+ * Our implementation is not in use anymore and has been removed in SNAP 6.
+ *
  * Test data is taken from Proj.4: trac.osgeo.org/proj (version 4.4.6)
  */
 
-public final class AzimuthalEquidistantAdvancedTest extends
-        AbstractProjectionTest<AzimuthalEquidistant.Provider> {
+public final class AzimuthalEquidistantAdvancedTest extends AbstractProjectionTest {
 
     @Override
-    protected AzimuthalEquidistant.Provider createProvider() {
-        return new AzimuthalEquidistant.Provider();
+    protected ReferenceIdentifier getProjectionIdentifier() {
+        return new NamedIdentifier(Citations.OGC, "Azimuthal_Equidistant");
     }
 
+
     @Override
-    public MathTransform createMathTransform(
-            AzimuthalEquidistant.Provider provider) {
-        final ParameterGroup params = new ParameterGroup(
-                provider.getParameters());
+    public MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException {
+        final ParameterGroup params = new ParameterGroup(provider.getParameters());
         params.parameter("semi_major").setValue(6370997.0);
         params.parameter("semi_minor").setValue(6370997.0);
         params.parameter("central_meridian").setValue(-35.2);
         params.parameter("latitude_of_origin").setValue(48.3);
         params.parameter("false_easting").setValue(0.0);
         params.parameter("false_northing").setValue(0.0);
-        return provider.createMathTransform(params);
+        return createParameterizedTransform(params);
     }
 
     @Override

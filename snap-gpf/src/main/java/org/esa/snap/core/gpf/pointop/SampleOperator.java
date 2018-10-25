@@ -39,8 +39,8 @@ public abstract class SampleOperator extends PointOperator {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException
+     * @param pm         A progress monitor which should be used to determine computation cancellation requests.
+     * @throws OperatorException If an error occurs during computation of the target raster
      */
     @Override
     public final void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -59,6 +59,7 @@ public abstract class SampleOperator extends PointOperator {
         try {
             pm.beginTask(getId(), targetTile.getHeight());
             if (sourceMaskSamples != null) {
+                checkForCancellation();
                 for (location.y = y1; location.y <= y2; location.y++) {
                     for (location.x = x1; location.x <= x2; location.x++) {
                         if (sourceMaskSamples.getBoolean()) {

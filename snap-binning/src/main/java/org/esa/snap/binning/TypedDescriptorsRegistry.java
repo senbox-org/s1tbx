@@ -18,7 +18,7 @@ package org.esa.snap.binning;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
+import org.esa.snap.core.util.ServiceLoader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +38,7 @@ public class TypedDescriptorsRegistry {
     private final Map<Class, SpecificRegistry> map;
 
     protected TypedDescriptorsRegistry() {
-        map = new HashMap<Class, SpecificRegistry>();
+        map = new HashMap<>();
     }
 
     private synchronized <TD extends TypedDescriptor> SpecificRegistry getSpecificRegistry(Class<TD> klass) {
@@ -76,15 +76,13 @@ public class TypedDescriptorsRegistry {
         SpecificRegistry(Class<TD> klass) {
             ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
             ServiceRegistry<TD> serviceRegistry = serviceRegistryManager.getServiceRegistry(klass);
-            if (!SnapCoreActivator.isStarted()) {
-                SnapCoreActivator.loadServices(serviceRegistry);
-            }
+            ServiceLoader.loadServices(serviceRegistry);
 
             nameMap = createNameMap(serviceRegistry);
         }
 
         private Map<String, TD> createNameMap(ServiceRegistry<TD> serviceRegistry) {
-            Map<String, TD> map = new HashMap<String, TD>();
+            Map<String, TD> map = new HashMap<>();
             final Set<TD> descriptors = serviceRegistry.getServices();
 
             for (TD descriptor : descriptors) {
@@ -98,7 +96,7 @@ public class TypedDescriptorsRegistry {
         }
 
         List<TD> getDescriptors() {
-            return Collections.unmodifiableList(new ArrayList<TD>(nameMap.values()));
+            return Collections.unmodifiableList(new ArrayList<>(nameMap.values()));
         }
 
     }

@@ -88,16 +88,8 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     public DefaultFigureStyle(String name, FigureStyle parentStyle) {
         this.name = name != null ? name : (parentStyle != null ? parentStyle.getName() : "");
         this.parentStyle = parentStyle != null ? parentStyle : PROTOTYPE;
-        this.values = new HashMap<String, Object>();
+        this.values = new HashMap<>();
         addPropertyChangeListener(new EffectivePropertyNuller());
-    }
-
-    /**
-     * @deprecated Since Ceres 0.13, use {@link #createFromCss}
-     */
-    @Deprecated
-    public static FigureStyle createFromCSS(String css) {
-        return createFromCss(css);
     }
 
     public static FigureStyle createFromCss(String css) {
@@ -390,7 +382,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     private synchronized Map<String, Property> getOrderedPropertyMap() {
         // Using a TreeMap makes sure that entries are ordered by key
-        Map<String, Property> propertyMap = new TreeMap<String, Property>();
+        Map<String, Property> propertyMap = new TreeMap<>();
         if (parentStyle != PROTOTYPE) {
             collectProperties(parentStyle.getProperties(), propertyMap);
         }

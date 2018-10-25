@@ -79,10 +79,10 @@ public class BandNameCreatorTest {
 
         assertEquals("mdn_rdnc12", attributeName1);
         assertEquals("mdn_rdnc13", attributeName2);
-        assertEquals("p90_thrs_0", attributeName3);
-        assertEquals("p90_thrs_1", attributeName4);
-        assertEquals("p90_thrs_2", attributeName5);
-        assertEquals("p90_thrs_3", attributeName6);
+        assertEquals("p90_rdnc12", attributeName3);
+        assertEquals("p90_rdnc13", attributeName4);
+        assertEquals("p90_lgl2", attributeName5);
+        assertEquals("p90_lgl1", attributeName6);
         assertEquals("mx_lgl1", attributeName7);
         assertEquals("mn_lgl1", attributeName8);
         assertEquals("mdn_0", attributeName9);
@@ -107,10 +107,10 @@ public class BandNameCreatorTest {
         bandNameCreator.createUniqueAttributeName("total", "CHL");
 
         assertEquals("mdn_0=median_saharan_dust_index_a\n" +
-                     "mdn_1=median_saharan_dust_index_b\n" +
-                     "mx_0=maximum_far_too_long_band_name\n" +
-                     "mn_0=minimum_far_too_long_band_name\n" +
-                     "total_CHL=total_CHL\n",
-                     stringBuilder.toString());
+                        "mdn_1=median_saharan_dust_index_b\n" +
+                        "mx_2=maximum_far_too_long_band_name\n" +
+                        "mn_2=minimum_far_too_long_band_name\n" +
+                        "total_CHL=total_CHL\n",
+                stringBuilder.toString());
     }
 }

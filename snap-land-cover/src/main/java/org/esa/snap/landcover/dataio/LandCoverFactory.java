@@ -16,6 +16,7 @@
 package org.esa.snap.landcover.dataio;
 
 import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
@@ -54,7 +55,11 @@ public class LandCoverFactory {
             throw new OperatorException("The land cover '" + name + "' is not supported.");
         }
 
-        final LandCoverModel landcover = descriptor.createLandCoverModel(ResamplingFactory.createResampling(resamplingMethod));
+        Resampling resampling = ResamplingFactory.createResampling(resamplingMethod);
+        if(resampling == null) {
+            throw new OperatorException("Resampling method "+ resamplingMethod + " is invalid");
+        }
+        final LandCoverModel landcover = descriptor.createLandCoverModel(resampling);
         if (landcover == null) {
             throw new OperatorException("The land cover '" + name + "' has not been installed.");
         }

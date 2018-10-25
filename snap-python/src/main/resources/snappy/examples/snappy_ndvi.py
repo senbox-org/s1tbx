@@ -63,7 +63,7 @@ for y in range(height):
     ndviBand.writePixels(0, y, width, 1, ndvi)
     ndviLow = ndvi < 0.0
     ndviHigh = ndvi > 1.0
-    ndviFlags = ndviLow + 2 * ndviHigh
+    ndviFlags = numpy.array(ndviLow + 2 * ndviHigh, dtype=numpy.int32)
     ndviFlagsBand.writePixels(0, y, width, 1, ndviFlags)
 
 ndviProduct.closeIO()

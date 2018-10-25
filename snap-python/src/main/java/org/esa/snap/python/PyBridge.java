@@ -27,6 +27,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -115,7 +117,7 @@ public class PyBridge {
      * @param snappyParentDir   The directory into which the 'snappy' Python module will be installed and configured.
      * @param forcePythonConfig If {@code true}, any existing installation / configuration will be overwritten.
      * @return The path to the configured 'snappy' Python module.
-     * @throws IOException
+     * @throws IOException if something went wrong during file access
      */
     public synchronized static Path installPythonModule(Path pythonExecutable,
                                                         Path snappyParentDir,
@@ -149,7 +151,7 @@ public class PyBridge {
         if (!Files.exists(jpyConfigFile)) {
             throw new IOException(String.format("SNAP-Python configuration incomplete.\n" +
                                                         "Missing file '%s'.\n" +
-                                                        "Please check log file '%s'.",
+                                                        "Please check the log file '%s'.",
                                                 jpyConfigFile,
                                                 snappyPath.resolve(SNAPPYUTIL_LOG_FILENAME)));
         }
@@ -197,6 +199,13 @@ public class PyBridge {
             command.add("--log_level");
             command.add("DEBUG");
         }
+
+        String defaultJvmHeapSpace = getDefaultJvmHeapSpace();
+        if (defaultJvmHeapSpace != null) {
+            command.add("--jvm_max_mem");
+            command.add(defaultJvmHeapSpace);
+        }
+
         // "java.home" should always be present
         String javaHome = System.getProperty("java.home");
         if (javaHome != null) {
@@ -219,11 +228,40 @@ public class PyBridge {
                     .directory(snappyDir.toFile()).start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new IOException(String.format("Python configuration failed.\nCommand [%s]\nfailed with return code %s.", commandLine, exitCode));
+                throw new IOException(
+                        String.format("Python configuration failed.\n" +
+                                              "Command [%s]\nfailed with return code %s.\n" +
+                                              "Please check the log file '%s'.",
+                                      commandLine, exitCode, snappyDir.resolve(SNAPPYUTIL_LOG_FILENAME)));
             }
         } catch (InterruptedException e) {
-            throw new IOException(String.format("Python configuration failed.\nCommand [%s]\nfailed with exception %s.", commandLine, e.getMessage()), e);
+            throw new IOException(
+                    String.format("Python configuration failed.\n" +
+                                          "Command [%s]\nfailed with exception %s.\n" +
+                                          "Please check the log file '%s'.",
+                                  commandLine, e.getMessage(), snappyDir.resolve(SNAPPYUTIL_LOG_FILENAME)), e);
         }
+    }
+
+    private static String getDefaultJvmHeapSpace() {
+        long totalMemory = getTotalPhysicalMemory();
+        if (totalMemory > 0) {
+            long memory = (long) (totalMemory * 0.7);
+            long heapSpace = memory / (1024 * 1024 * 1024);
+            return heapSpace+"G";
+        } else {
+            return null;
+        }
+
+    }
+
+    private static long getTotalPhysicalMemory() {
+        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        if (operatingSystemMXBean instanceof com.sun.management.OperatingSystemMXBean) {
+            com.sun.management.OperatingSystemMXBean sunMXBean = (com.sun.management.OperatingSystemMXBean) operatingSystemMXBean;
+            return sunMXBean.getTotalPhysicalMemorySize();
+        }
+        return -1L;
     }
 
     private static String toCommandLine(List<String> command) {

@@ -19,11 +19,9 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import net.coobird.thumbnailator.makers.FixedSizeThumbnailMaker;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.ImageInfo;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
@@ -33,6 +31,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -43,7 +42,7 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
- * Created by luis on 16/01/2016.
+ * Generates Quicklook images
  */
 public class QuicklookGenerator {
 
@@ -63,7 +62,9 @@ public class QuicklookGenerator {
     private static final int MULTILOOK_FACTOR = 2;
     private static final double DTOR = Math.PI / 180.0;
 
-    private static final String[] defaultQuickLookBands = new String[] {
+    private static final RGBImageProfile[] registeredProfiles = RGBImageProfileManager.getInstance().getAllProfiles();
+
+    private static final String[] defaultQuickLookBands = new String[]{
             "intensity", "band", "sigma0",
             "t11", "t22", "t33", "c11", "c22", "c33"
     };
@@ -106,12 +107,12 @@ public class QuicklookGenerator {
     }
 
     public BufferedImage createQuickLookImage(final Product product, Band[] quicklookBands,
-                                              final ProgressMonitor pm) throws IOException {
+                                       final ProgressMonitor pm) throws IOException {
         Product productSubset = product;
 
         final boolean subsample = true;
         if (subsample) {
-            final int width = maxWidth*2;// * (MULTILOOK_FACTOR * 2);
+            final int width = maxWidth * 2;// * (MULTILOOK_FACTOR * 2);
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
             int scaleFactor = Math.round(Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / (float) width);
             if (scaleFactor < 1) {
@@ -122,19 +123,24 @@ public class QuicklookGenerator {
             productSubset = product.createSubset(productSubsetDef, null, null);
 
             final List<Band> bandList = new ArrayList<>();
-            for(Band band : quicklookBands) {
-                if(productSubset.getBand(band.getName()) != null) {
+            for (Band band : quicklookBands) {
+                if (productSubset.getBand(band.getName()) != null) {
                     bandList.add(productSubset.getBand(band.getName()));
-                } else if(band instanceof VirtualBand) {
-                    copyVirtualBand(productSubset, (VirtualBand)band);
+                } else if (band instanceof VirtualBand) {
+                    ProductUtils.copyVirtualBand(productSubset, (VirtualBand) band, band.getName());
                     bandList.add(productSubset.getBand(band.getName()));
                 }
             }
             quicklookBands = bandList.toArray(new Band[bandList.size()]);
         }
 
-        final ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 20));
-        final BufferedImage image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 80));
+        final BufferedImage image;
+        if(quicklookBands.length < 3 && quicklookBands[0].getIndexCoding() != null) {
+            image = ProductUtils.createColorIndexedImage(quicklookBands[0], ProgressMonitor.NULL);
+        } else {
+            final ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 20));
+            image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 80));
+        }
 
         if (subsample) {
             productSubset.dispose();
@@ -147,34 +153,23 @@ public class QuicklookGenerator {
                 .make(image);
     }
 
-    private static Band copyVirtualBand(final Product product, final VirtualBand origBand) {
-        final VirtualBand virtBand = new VirtualBand(origBand.getName(),
-                                                     ProductData.TYPE_FLOAT32,
-                                                     product.getSceneRasterWidth(),
-                                                     product.getSceneRasterHeight(),
-                                                     origBand.getExpression());
-        virtBand.setUnit(origBand.getUnit());
-        virtBand.setDescription(origBand.getDescription());
-        virtBand.setNoDataValueUsed(origBand.isNoDataValueUsed());
-        virtBand.setNoDataValue(origBand.getNoDataValue());
-        virtBand.setOwner(product);
-        product.addBand(virtBand);
-
-        return virtBand;
-    }
-
     public static Band[] findQuicklookBands(final Product product) {
+
+        Band[] rgbBands = findSuitableRGBProfileBands(product);
+        if (rgbBands != null && rgbBands.length > 0) {
+            return rgbBands;
+        }
 
         String bandName = product.getQuicklookBandName();
         if (bandName != null && product.containsBand(bandName)) {
-            return new Band[] { product.getBand(bandName) };
+            return new Band[]{product.getBand(bandName)};
         }
 
         final String[] bandNames = product.getBandNames();
         final List<Band> bandList = new ArrayList<>(3);
-        for(String name : bandNames) {
+        for (String name : bandNames) {
             name = name.toLowerCase();
-            for(String qlBand : defaultQuickLookBands) {
+            for (String qlBand : defaultQuickLookBands) {
                 if (name.startsWith(qlBand)) {
                     bandList.add(product.getBand(name));
                     break;
@@ -186,10 +181,58 @@ public class QuicklookGenerator {
         }
 
         String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
-        if(bandList.size() > 1 && !bandList.get(0).equals(quicklookBandName)) {
+        if (bandList.size() > 1 && !bandList.get(0).getName().equals(quicklookBandName)) {
             return bandList.toArray(new Band[bandList.size()]);
         }
-        return new Band[] { product.getBand(quicklookBandName)};
+        if(quicklookBandName == null) {
+            return null;
+        }
+        return new Band[]{product.getBand(quicklookBandName)};
+    }
+
+    private static Band[] findSuitableRGBProfileBands(final Product product) {
+        if (product.isMultiSize()) {
+            return null;
+        }
+        for (RGBImageProfile profile : registeredProfiles) {
+            if (profile.isApplicableTo(product)) {
+
+                Band r = createBand(product, "r", profile.getRedExpression());
+                Band g = createBand(product, "g", profile.getGreenExpression());
+                Band b = createBand(product, "b", profile.getBlueExpression());
+
+                return new Band[]{r, g, b};
+            }
+        }
+        return null;
+    }
+
+    private static Dimension determineDimensions(final Product product, final String expression) {
+        int width = product.getSceneRasterWidth();
+        int height = product.getSceneRasterHeight();
+        try {
+            if (product.isMultiSize()) {
+                final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(expression, product);
+                if (refRasters.length > 0) {
+                    width = refRasters[0].getRasterWidth();
+                    height = refRasters[0].getRasterHeight();
+                }
+            }
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Invalid expression: " + expression);
+        }
+        return new Dimension(width, height);
+    }
+
+    private static Band createBand(final Product product, final String name, final String expression) {
+        Band band = product.getBand(expression);
+        if (band == null) {
+            Dimension dim = determineDimensions(product, expression);
+            band = new VirtualBand(name, ProductData.TYPE_FLOAT32, dim.width, dim.height, expression);
+            band.setOwner(product);
+            band.setModified(false);
+        }
+        return band;
     }
 
     private static Band average(final Product product, final Band srcBand, final ProgressMonitor pm) {
@@ -282,7 +325,7 @@ public class QuicklookGenerator {
         return b;
     }
 
-    public static BufferedImage loadImage(final File quickLookFile) {
+    static BufferedImage loadImage(final File quickLookFile) {
         if (quickLookFile.exists()) {
             try {
                 try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(quickLookFile))) {

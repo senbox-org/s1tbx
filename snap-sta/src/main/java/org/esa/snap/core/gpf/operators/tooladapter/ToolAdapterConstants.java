@@ -40,14 +40,16 @@ public interface ToolAdapterConstants {
     String OPERATOR_TEMP_FILES_SEPARATOR = "_";
     String TOOL_VELO_TEMPLATE_SUFIX = "-template.vm";
 
-    String TEMPLATE_PARAM_MASK = "TemplateParamater";
+    String TEMPLATE_PARAM_MASK = "TemplateParameter";
     String TEMPLATE_BEFORE_MASK = "TemplateBeforeExecution";
     String TEMPLATE_AFTER_MASK = "TemplateAfterExecution";
     String REGULAR_PARAM_MASK = "RegularParameter";
+    String FOLDER_PARAM_MASK = "FolderParameter";
 
     String DEFAULT_PARAM_NAME = "DefaultParameter";
     String MAIN_TOOL_FILE_LOCATION = "mainToolFileLocation";
     String WORKING_DIR = "workingDir";
+    String TEMPLATE_TYPE = "templateType";
     String PROGRESS_PATTERN = "progressPattern";
     String ERROR_PATTERN = "errorPattern";
     String STEP_PATTERN = "stepPattern";
@@ -65,4 +67,5 @@ public interface ToolAdapterConstants {
     String PROCESSING_WRITER = "processingWriter";
     String PREPROCESSOR_EXTERNAL_TOOL = "preprocessorExternalTool";
     String USER_MODULE_PATH = "user.module.path";
+    String BUNDLE = "bundle";
 }

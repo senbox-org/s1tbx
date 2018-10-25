@@ -29,11 +29,18 @@ import static org.junit.Assert.*;
 
 public class AggregatorAverageMLTest {
 
-    BinContext ctx;
+    private BinContext ctx;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp(){
         ctx = createCtx();
+    }
+
+    @Test
+    public void testRequiresGrowableSpatialData() {
+        final AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", "b", 0.5, false);
+
+        assertFalse(agg.requiresGrowableSpatialData());
     }
 
     @Test

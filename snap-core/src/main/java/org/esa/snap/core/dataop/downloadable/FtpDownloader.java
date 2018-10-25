@@ -22,6 +22,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.esa.snap.core.datamodel.ProgressListenerList;
 import org.esa.snap.core.util.SystemUtils;
 import org.jdom2.Attribute;
+import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -40,6 +41,8 @@ public final class FtpDownloader {
     private final String password;
     private boolean ftpClientConnected = false;
     private ProgressListenerList progressListenerList = new ProgressListenerList();
+
+    private static final String elemPrefix = "file_";
 
     public enum FTPError {FILE_NOT_FOUND, OK, READ_ERROR}
 
@@ -81,12 +84,12 @@ public final class FtpDownloader {
         BufferedOutputStream fos = null;
         InputStream fis = null;
         try {
-            System.out.println("ftp retrieving " + remotePath);
+            SystemUtils.LOG.info("ftp retrieving " + remotePath);
 
             fis = ftpClient.retrieveFileStream(remotePath);
             if (fis == null) {
                 final int code = ftpClient.getReplyCode();
-                System.out.println("error code:" + code + " on " + remotePath);
+                SystemUtils.LOG.severe("error code:" + code + " on " + remotePath);
                 if (code == 550)
                     return FTPError.FILE_NOT_FOUND;
                 else
@@ -118,11 +121,11 @@ public final class FtpDownloader {
             return FTPError.OK;
 
         } catch (SocketException e) {
-            System.out.println(e.getMessage());
+            SystemUtils.LOG.severe(e.getMessage());
             connect();
             throw new SocketException(e.getMessage() + "\nPlease verify that FTP is not blocked by your firewall.");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            SystemUtils.LOG.severe(e.getMessage());
             connect();
             return FTPError.READ_ERROR;
         } finally {
@@ -134,7 +137,7 @@ public final class FtpDownloader {
                     fos.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                SystemUtils.LOG.severe("Unable to close input stream " + e.getMessage());
             }
         }
     }
@@ -158,7 +161,7 @@ public final class FtpDownloader {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Unable to get remote file list " + e.getMessage());
+            SystemUtils.LOG.warning("Unable to get remote file list " + e.getMessage());
         }
 
         return fileSizeMap;
@@ -171,8 +174,7 @@ public final class FtpDownloader {
     public static Map<String, Long> readRemoteFileList(final FtpDownloader ftp, final String server, final String remotePath) {
 
         boolean useCachedListing = true;
-        final String tmpDirUrl = SystemUtils.getApplicationDataDir().getAbsolutePath();
-        final File listingFile = new File(tmpDirUrl + "//" + server + ".listing.xml");
+        final File listingFile = new File(SystemUtils.getCacheDir(), server + ".listing.xml");
         if (!listingFile.exists())
             useCachedListing = false;
 
@@ -190,21 +192,21 @@ public final class FtpDownloader {
                 final Element root = doc.getRootElement();
                 boolean listingFound = false;
 
-                final List children1 = root.getContent();
+                final List<Content> children1 = root.getContent();
                 for (Object c1 : children1) {
                     if (!(c1 instanceof Element)) continue;
                     final Element remotePathElem = (Element) c1;
                     final Attribute pathAttrib = remotePathElem.getAttribute("path");
                     if (pathAttrib != null && pathAttrib.getValue().equalsIgnoreCase(remotePath)) {
                         listingFound = true;
-                        final List children2 = remotePathElem.getContent();
+                        final List<Content> children2 = remotePathElem.getContent();
                         for (Object c2 : children2) {
                             if (!(c2 instanceof Element)) continue;
                             final Element fileElem = (Element) c2;
                             final Attribute attrib = fileElem.getAttribute("size");
                             if (attrib != null) {
                                 try {
-                                    fileSizeMap.put(fileElem.getName(), attrib.getLongValue());
+                                    fileSizeMap.put(getFileName(fileElem.getName()), attrib.getLongValue());
                                 } catch (Exception e) {
                                     //
                                 }
@@ -227,11 +229,18 @@ public final class FtpDownloader {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Unable to get remote file list " + e.getMessage());
+                SystemUtils.LOG.warning("Unable to get remote file list " + e.getMessage());
             }
         }
 
         return fileSizeMap;
+    }
+
+    private static String getFileName(String elemName) {
+        if(elemName.startsWith(elemPrefix)) {
+            return elemName.substring(elemPrefix.length(), elemName.length());
+        }
+        return elemName;
     }
 
     private static void writeRemoteFileList(final FTPFile[] remoteFileList, final String server,
@@ -246,11 +255,16 @@ public final class FtpDownloader {
         root.addContent(remotePathElem);
 
         for (FTPFile ftpFile : remoteFileList) {
-            final Element fileElem = new Element(ftpFile.getName());
+            // add prefix just in case file name starts with a digit
+            final Element fileElem = new Element(elemPrefix + ftpFile.getName());
             fileElem.setAttribute("size", String.valueOf(ftpFile.getSize()));
             remotePathElem.addContent(fileElem);
         }
-        XMLSupport.SaveXML(doc, file.getAbsolutePath());
+        try {
+            XMLSupport.SaveXML(doc, file.getAbsolutePath());
+        } catch (IOException e) {
+            SystemUtils.LOG.warning("Unable to save " + file.getAbsolutePath());
+        }
     }
 
     public static boolean testFTP(final String remoteFTP, final String remotePath) throws IOException {

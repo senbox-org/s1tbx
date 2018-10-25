@@ -74,11 +74,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("geoCRS", geoCRS);
         if (latGrid.getGridWidth() != lonGrid.getGridWidth() ||
-                latGrid.getGridHeight() != lonGrid.getGridHeight() ||
-                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+            latGrid.getGridHeight() != lonGrid.getGridHeight() ||
+            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         this.latGrid = latGrid;
@@ -101,11 +101,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
         if (latGrid.getGridWidth() != lonGrid.getGridWidth() ||
-                latGrid.getGridHeight() != lonGrid.getGridHeight() ||
-                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+            latGrid.getGridHeight() != lonGrid.getGridHeight() ||
+            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         this.latGrid = latGrid;
@@ -217,7 +217,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             geoPos = new GeoPos();
         }
         if (pixelPos.x < 0 || pixelPos.x > latGrid.getRasterWidth()
-                || pixelPos.y < 0 || pixelPos.y > latGrid.getRasterHeight()) {
+            || pixelPos.y < 0 || pixelPos.y > latGrid.getRasterHeight()) {
             geoPos.setInvalid();
         } else {
             geoPos.lat = latGrid.getPixelDouble(pixelPos.x, pixelPos.y);
@@ -467,33 +467,30 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         final int numPoints = latGrid.getGridData().getNumElems();
         final int w = latGrid.getGridWidth();
         final int h = latGrid.getGridHeight();
+        final double subSamplingX = latGrid.getSubSamplingX();
+        final double subSamplingY = latGrid.getSubSamplingY();
 
-        // Compute number of required approximation tiles
-        //
-        int numTiles; // 10 degree sizing
-        if (h > 2) {
-            final double lonSpan = normalizedLonMax - normalizedLonMin;
-            final double latSpan = latMax - latMin;
-            final double angleSpan = Math.max(lonSpan, latSpan);
-            numTiles = (int) Math.round(angleSpan / 10.0);
-            if (numTiles < 1) {
-                numTiles = 1;
-            }
-        } else {
-            numTiles = 30;
-        }
+        // 10 points are at least required for a quadratic polynomial
+        // start with some appropriate tile number
+        int numTiles = (int) Math.ceil(numPoints / 10.0);
+        numTiles = Math.min(Math.max(1, numTiles), 300);
+
+        int numTilesI = 1;
+        int numTilesJ = 1;
         while (numTiles > 1) {
-            // 10 points are at least required for a quadric polynomial
-            if (numPoints / numTiles >= 10) {
+            final Dimension tileDim = MathUtils.fitDimension(numTiles, w * subSamplingX, h * subSamplingY);
+            int newNumTilesI = tileDim.width;
+            int newNumTilesJ = tileDim.height;
+            int newNumTiles = newNumTilesI * newNumTilesJ;
+            // 10 points are at least required for a quadratic polynomial
+            if (numPoints / newNumTiles >= 10) {
+                numTiles = newNumTiles;
+                numTilesI = newNumTilesI;
+                numTilesJ = newNumTilesJ;
                 break;
             }
             numTiles--;
         }
-
-        final Dimension tileDim = MathUtils.fitDimension(numTiles, w, h);
-        int numTilesI = tileDim.width;
-        int numTilesJ = tileDim.height;
-        numTiles = numTilesI * numTilesJ;
 
         Debug.trace("TiePointGeoCoding.numTiles =  " + numTiles);
         Debug.trace("TiePointGeoCoding.numTilesI = " + numTilesI);
@@ -561,7 +558,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         return index >= 0 ? potentialPolynomials[index] : null;
     }
 
-
     private double[][] createWarpPoints(TiePointGrid lonGrid, Rectangle subsetRect) {
         final TiePointGrid latGrid = getLatGrid();
         final int w = latGrid.getGridWidth();
@@ -577,40 +573,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace("  index i: " + i1 + " to " + i2);
         Debug.trace("  index j: " + j1 + " to " + j2);
 
-        // Determine stepI and stepJ so that maximum number of warp points is not exceeded,
-        // numU * numV shall be less than _MAX_NUM_POINTS_PER_TILE.
-        //
-        int numU = sw;
-        int numV = sh;
-        int stepI = 1;
-        int stepJ = 1;
-
-        // Adjust number of hor/ver (numU,numV) tie-points to be considered
-        // so that a maximum of circa numPointsMax points is not exceeded
-        boolean adjustStepI = true;
-        while (numU * numV > MAX_NUM_POINTS_PER_TILE) {
-            if (adjustStepI) {
-                stepI++;
-                numU = sw / stepI;
-            } else {
-                stepJ++;
-                numV = sh / stepJ;
-            }
-            adjustStepI = !adjustStepI;
-        }
-        numU = Math.max(1, numU);
-        numV = Math.max(1, numV);
-
-        // Make sure we include the right border tie-points
-        // if sw/stepI not divisible without remainder
-        if (sw % stepI != 0) {
-            numU++;
-        }
-        // Make sure we include the bottom border tie-points
-        // if sh/stepJ not divisible without remainder
-        if (sh % stepJ != 0) {
-            numV++;
-        }
+        final int[] warpParameters = determineWarpParameters(sw, sh);
+        int numU = warpParameters[0];
+        int numV = warpParameters[1];
+        int stepI = warpParameters[2];
+        int stepJ = warpParameters[3];
 
         // Collect numU * numV warp points
         //
@@ -647,6 +614,39 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace("TiePointGeoCoding: numV=" + numV + ", stepJ=" + stepJ);
 
         return data;
+    }
+
+    //package local for testing
+    //maybe use this method later
+    static int[] determineWarpParameters(int sw, int sh) {
+        // Determine stepI and stepJ so that maximum number of warp points is not exceeded,
+        // numU * numV shall be less than _MAX_NUM_POINTS_PER_TILE.
+        //
+        int numU = sw;
+        int numV = sh;
+        int stepI = 1;
+        int stepJ = 1;
+
+        // Adjust number of hor/ver (numU,numV) tie-points to be considered
+        // so that a maximum of circa numPointsMax points is not exceeded
+        boolean adjustStepI = numU >= numV;
+        while (numU * numV > MAX_NUM_POINTS_PER_TILE) {
+            if (adjustStepI) {
+                stepI++;
+                numU = sw / stepI;
+                while (numU * stepI < sw) {
+                    numU++;
+                }
+            } else {
+                stepJ++;
+                numV = sh / stepJ;
+                while (numV * stepJ < sh) {
+                    numV++;
+                }
+            }
+            adjustStepI = numU >= numV;
+        }
+        return new int[]{numU, numV, stepI, stepJ};
     }
 
     private Approximation createApproximation(TiePointGrid normalizedLonGrid, Rectangle subsetRect) {

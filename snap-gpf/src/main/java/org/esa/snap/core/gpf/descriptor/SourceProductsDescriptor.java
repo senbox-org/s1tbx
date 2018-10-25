@@ -35,4 +35,5 @@ public interface SourceProductsDescriptor extends DataElementDescriptor {
      * Defaults to {@link Product}[].
      */
     Class<? extends Product[]> getDataType();
+
 }

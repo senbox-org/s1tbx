@@ -109,8 +109,10 @@ public class DefaultNetCdfWriter extends AbstractProductWriter {
     }
 
     private boolean shallWriteVariable(String variableName) {
-        final NVariable variable = writeable.findVariable(variableName);
-        return variable != null;
+        if (writeable == null) {
+            throw new IllegalStateException("NetCdf writer not properly initialised. Consider calling writeProductNodes() before writing data.");
+        }
+        return writeable.findVariable(variableName) != null;
     }
 
     @Override

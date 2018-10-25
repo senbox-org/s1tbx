@@ -139,17 +139,20 @@ public class ProductIO {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
 
         for (String formatName : formatNames) {
-            final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
-
             ProductReaderPlugIn selectedPlugIn = null;
-            while (it.hasNext()) {
-                ProductReaderPlugIn plugIn = it.next();
-                DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
-                if (decodeQualification == DecodeQualification.INTENDED) {
-                    selectedPlugIn = plugIn;
-                    break;
-                } else if (decodeQualification == DecodeQualification.SUITABLE) {
-                    selectedPlugIn = plugIn;
+            if (formatName != null) {
+                final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
+
+                selectedPlugIn = null;
+                while (it.hasNext()) {
+                    ProductReaderPlugIn plugIn = it.next();
+                    DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+                    if (decodeQualification == DecodeQualification.INTENDED) {
+                        selectedPlugIn = plugIn;
+                        break;
+                    } else if (decodeQualification == DecodeQualification.SUITABLE) {
+                        selectedPlugIn = plugIn;
+                    }
                 }
             }
             if (selectedPlugIn != null) {
@@ -267,7 +270,7 @@ public class ProductIO {
                     selectedPlugIn = plugIn;
                 }
             } catch (Exception e) {
-                logger.severe("Error attempting to read "+input+" with plugin reader "+plugIn.toString()+": "+e.getMessage());
+                logger.severe("Error attempting to read " + input + " with plugin reader " + plugIn.toString() + ": " + e.getMessage());
             }
         }
         final long endTimeTotal = System.currentTimeMillis();
@@ -381,7 +384,11 @@ public class ProductIO {
         }
         ProductWriter productWriter = getProductWriter(formatName);
         if (productWriter == null) {
-            throw new ProductIOException("no product writer for the '" + formatName + "' format available");
+            throw new ProductIOException("No product writer for the '" + formatName + "' format available.");
+        }
+        final EncodeQualification encodeQualification = productWriter.getWriterPlugIn().getEncodeQualification(product);
+        if (encodeQualification.getPreservation() == EncodeQualification.Preservation.UNABLE) {
+            throw new ProductIOException("Product writer is unable to write product:\n" + encodeQualification.getInfoString());
         }
         productWriter.setIncrementalMode(incremental);
 
@@ -396,7 +403,8 @@ public class ProductIO {
             ioException = e;
         } finally {
             try {
-                product.closeProductWriter();
+                productWriter.flush();
+                productWriter.close();
             } catch (IOException e) {
                 if (ioException == null) {
                     ioException = e;

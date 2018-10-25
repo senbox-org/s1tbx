@@ -34,6 +34,10 @@ public class BeamNetCdfWriterPlugIn extends AbstractNetCdfWriterPlugIn {
 
     @Override
     public EncodeQualification getEncodeQualification(Product product) {
+        if (product.isMultiSize()) {
+            return new EncodeQualification(EncodeQualification.Preservation.UNABLE,
+                                           "Cannot write multisize products. Consider resampling the product first.");
+        }
         return EncodeQualification.FULL;
     }
 

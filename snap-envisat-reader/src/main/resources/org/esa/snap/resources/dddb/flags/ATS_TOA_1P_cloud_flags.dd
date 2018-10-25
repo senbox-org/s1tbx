@@ -13,3 +13,5 @@ CLOUDY_FOG_LOW_STRATUS_11_37 |  9 | 11/3.7 micron fog/low stratus test shows pix
 CLOUDY_VW_DIFF_11_12         | 10 | 11/12 micron view-difference test shows pixel cloudy
 CLOUDY_VW_DIFF_37_11         | 11 | 3.7/11 micron view-difference test shows pixel cloudy (night-time only)
 CLOUDY_THERM_HIST_11_12      | 12 | 11/12 micron thermal histogram test shows pixel cloudy
+CLOUDY_VIS_CHANNEL           | 13 | Visible channel cloud test shows pixel cloudy
+CLOUDY_NDSI                  | 14 | NDSI snow flag

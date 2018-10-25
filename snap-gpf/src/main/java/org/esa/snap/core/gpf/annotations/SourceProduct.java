@@ -73,4 +73,5 @@ public @interface SourceProduct {
      *         Defaults to the empty string (= not set).
      */
     String label() default "";
+
 }

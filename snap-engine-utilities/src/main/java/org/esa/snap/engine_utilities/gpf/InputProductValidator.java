@@ -46,6 +46,9 @@ public class InputProductValidator {
     private final static String SHOULD_NOT_BE_CALIBRATED = "Source product has already been calibrated.";
     private final static String SHOULD_BE_MAP_PROJECTED = "Source product should be map projected.";
     private final static String SHOULD_NOT_BE_MAP_PROJECTED = "Source product should not be map projected.";
+    private final static String SHOULD_BE_COMPATIBLE = "Source products do not have compatible dimensions and geocoding.";
+
+    private final static float geographicError = 1.0e-3f;
 
     public InputProductValidator(final Product product) throws OperatorException {
         this.product = product;
@@ -58,7 +61,7 @@ public class InputProductValidator {
     }
 
     public void checkIfSARProduct() {
-        if("RAW".equals(product.getProductType()) || "Level-0".equals(product.getProductType())) {
+        if("RAW".equals(product.getProductType())) {
             throw new OperatorException(SHOULD_NOT_BE_LEVEL0);
         }
         if(!isSARProduct()) {
@@ -111,8 +114,17 @@ public class InputProductValidator {
         }
     }
 
+    public void checkMission(final String[] validMissions) throws OperatorException {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION, "").toUpperCase();
+        for (String validMission : validMissions) {
+            if (mission.startsWith(validMission.toUpperCase()))
+                return;
+        }
+        throw new OperatorException(mission + " is not a valid mission from: " + StringUtils.arrayToString(validMissions, ","));
+    }
+
     public void checkProductType(final String[] validProductTypes) throws OperatorException {
-        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE, "");
         for (String validProductType : validProductTypes) {
             if (productType.equals(validProductType))
                 return;
@@ -237,14 +249,13 @@ public class InputProductValidator {
         }
     }
 
-    public static boolean isCalibrated(final Product product) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+    public boolean isCalibrated() {
         return (absRoot != null &&
                 absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean());
     }
 
     public void checkIfCalibrated(final boolean shouldBe) throws OperatorException {
-        final boolean isCalibrated = isCalibrated(product);
+        final boolean isCalibrated = isCalibrated();
         if (!shouldBe && isCalibrated) {
             throw new OperatorException(SHOULD_NOT_BE_CALIBRATED);
         } else if (shouldBe && !isCalibrated) {
@@ -259,4 +270,11 @@ public class InputProductValidator {
         }
     }
 
+    public void checkIfCompatibleProducts(final Product[] sourceProducts) {
+        for(Product srcProduct : sourceProducts) {
+            if(!product.isCompatibleProduct(srcProduct, geographicError)) {
+                throw new OperatorException(SHOULD_BE_COMPATIBLE);
+            }
+        }
+    }
 }

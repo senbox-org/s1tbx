@@ -27,7 +27,7 @@ import java.awt.Rectangle;
  */
 public class RectangleConverterTest extends TestCase {
 
-    public void testSuccess() throws ConversionException {
+    public void testParseSuccess() throws ConversionException {
         final RectangleConverter rectConverter = new RectangleConverter();
 
         final Rectangle rect = rectConverter.parse("1,2,3,4");
@@ -38,7 +38,13 @@ public class RectangleConverterTest extends TestCase {
         assertEquals(4, rect.height);
     }
 
-    public void testFailure()  {
+    public void testFormatSuccess() throws ConversionException {
+        final RectangleConverter rectConverter = new RectangleConverter();
+
+        assertEquals("1,2,3,4", rectConverter.format(new Rectangle(1,2,3,4)));
+    }
+
+    public void testFailure() {
         final RectangleConverter rectConverter = new RectangleConverter();
 
         try {

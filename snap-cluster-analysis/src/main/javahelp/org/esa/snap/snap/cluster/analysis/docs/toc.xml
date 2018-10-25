@@ -6,8 +6,8 @@
 
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Raster">
-            <tocitem text="Image Analysis">
-                <tocitem text="Cluster Analysis Tools" target="clusterAnalysis">
+            <tocitem text="Classification">
+                <tocitem text="Unsupervised Classification" target="clusterAnalysis">
                     <tocitem text="K-Means Cluster Analysis" target="clusterAnalysisKMeans"/>
                     <tocitem text="Expectation Maximization (EM) Cluster Analysis" target="clusterAnalysisEM"/>
                 </tocitem>

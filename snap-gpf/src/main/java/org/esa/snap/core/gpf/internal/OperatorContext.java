@@ -42,6 +42,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorCancelException;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
@@ -296,7 +297,7 @@ public class OperatorContext {
 
     public void checkForCancellation() throws OperatorException {
         if (isCancelled()) {
-            throw new OperatorException("Operation canceled.");
+            throw new OperatorCancelException("Operation canceled.");
         }
     }
 
@@ -459,7 +460,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                || !Operator.class.isAssignableFrom(aClass)) {
+                    || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -793,8 +794,8 @@ public class OperatorContext {
         Dimension tileSize = null;
         for (final Product sourceProduct : sourceProductList) {
             if (sourceProduct.getPreferredTileSize() != null &&
-                sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                 tileSize = sourceProduct.getPreferredTileSize();
                 break;
             }
@@ -912,7 +913,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-                                                                                                       OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             String productMapName = declaredField.getName();
             Product sourceProduct = getSourceProduct(productMapName);
@@ -945,7 +946,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-                                                                                                          OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
             if (sourceProducts != null) {
@@ -993,12 +994,12 @@ public class OperatorContext {
         final Field[] sourceProductFields = getAnnotatedSourceProductFields(operator);
         for (Field sourceProductField : sourceProductFields) {
             Product product = sourceProductMap.get(sourceProductField.getName());
-            if(product != null) {
+            if (product != null) {
                 srcProductList.remove(product);
             }
             final SourceProduct annotation = sourceProductField.getAnnotation(SourceProduct.class);
             product = sourceProductMap.get(annotation.alias());
-            if(product != null) {
+            if (product != null) {
                 srcProductList.remove(product);
             }
         }
@@ -1239,7 +1240,7 @@ public class OperatorContext {
 
     public synchronized void executeOperator(ProgressMonitor pm) {
         if (!executed) {
-            getOperator().doExecute(ProgressMonitor.NULL);
+            getOperator().doExecute(pm);
             executed = true;
         }
     }

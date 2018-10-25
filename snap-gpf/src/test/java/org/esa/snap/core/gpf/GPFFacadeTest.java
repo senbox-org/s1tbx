@@ -54,7 +54,6 @@ public class GPFFacadeTest {
 
     @BeforeClass
     public static void loadSpis() {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(foo);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(foos);
     }

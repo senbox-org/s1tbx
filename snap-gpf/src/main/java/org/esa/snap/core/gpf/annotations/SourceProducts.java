@@ -71,4 +71,9 @@ public @interface SourceProducts {
      *         Defaults to the empty string (= not set).
      */
     String label() default "";
+
+    /**
+     * @return If true, the operator supports multisize-products
+     */
+    boolean canBeMultisize() default true;
 }

@@ -17,13 +17,15 @@ package org.esa.snap.core.datamodel;
 
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventObject;
-import java.util.Vector;
+import java.util.List;
 
 
 /**
- * A type-safe container for elements of the type <code>Product</code>. ProductListeners can be added to inform if a
- * <code>Product</code> was added or removed.
+ * A type-safe container for elements of the type {@code Product}. ProductListeners can be added to inform if a
+ * {@code Product} was added or removed.
  *
  * @author Norman Fomferra
  */
@@ -32,7 +34,7 @@ public class ProductManager {
     private static final int PRODUCT_ADDED = 1;
     private static final int PRODUCT_REMOVED = 2;
 
-    private Vector<Listener> listeners;
+    private List<Listener> listeners;
 
     private final ProductNodeList<Product> productList;
     private ProductNodeNameChangeListener productNodeNameChangeListener;
@@ -66,7 +68,7 @@ public class ProductManager {
     /**
      * Returns the display names of all products currently managed.
      *
-     * @return an array containing the display names, never <code>null</code>, but the array can have zero length
+     * @return an array containing the display names, never {@code null}, but the array can have zero length
      * @see ProductNode#getDisplayName()
      */
     public String[] getProductDisplayNames() {
@@ -76,7 +78,7 @@ public class ProductManager {
     /**
      * Returns the names of all products currently managed.
      *
-     * @return an array containing the names, never <code>null</code>, but the array can have zero length
+     * @return an array containing the names, never {@code null}, but the array can have zero length
      */
     public String[] getProductNames() {
         return productList.getNames();
@@ -85,7 +87,7 @@ public class ProductManager {
     /**
      * Returns an array of all products currently managed.
      *
-     * @return an array containing the products, never <code>null</code>, but the array can have zero length
+     * @return an array containing the products, never {@code null}, but the array can have zero length
      */
     public Product[] getProducts() {
         return productList.toArray(new Product[getProductCount()]);
@@ -152,7 +154,7 @@ public class ProductManager {
      * Adds the given product to this product manager if it does not already exists and sets it's reference number one
      * biger than the greatest reference number in this product manager.
      *
-     * @param product the product to be added, ignored if <code>null</code>
+     * @param product the product to be added, ignored if {@code null}
      */
     public void addProduct(Product product) {
         if (product != null) {
@@ -185,7 +187,7 @@ public class ProductManager {
     /**
      * Removes the given product from this product manager if it exists.
      *
-     * @param product the product to be removed, ignored if <code>null</code>
+     * @param product the product to be removed, ignored if {@code null}
      * @return true, if the product was removed
      */
     public boolean removeProduct(Product product) {
@@ -248,7 +250,7 @@ public class ProductManager {
     // Product listener support
 
     /**
-     * Adds a <code>ProductManagerListener</code> to this product manager. The <code>ProductManagerListener</code> is
+     * Adds a {@code ProductManagerListener} to this product manager. The {@code ProductManagerListener} is
      * informed each time a product was added or removed.
      *
      * @param listener the listener to be added.
@@ -259,7 +261,7 @@ public class ProductManager {
             return false;
         }
         if (listeners == null) {
-            listeners = new Vector<>(8);
+            listeners = Collections.synchronizedList(new ArrayList<>());
         }
         for (Listener l : listeners) {
             if (listener == l) {
@@ -271,7 +273,7 @@ public class ProductManager {
     }
 
     /**
-     * Removes a <code>ProductManagerListener</code> from this product manager.
+     * Removes a {@code ProductManagerListener} from this product manager.
      *
      * @param listener The listener.
      * @return true, if the listener was removed, otherwise false.

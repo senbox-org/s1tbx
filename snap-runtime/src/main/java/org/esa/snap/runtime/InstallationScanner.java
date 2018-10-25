@@ -69,6 +69,19 @@ class InstallationScanner {
         Collections.addAll(excludedClusterNames, config.excludedClusterNames());
 
         ArrayList<Path> clusterPaths = new ArrayList<>();
+
+        // first put the modules on the classpath which are found in system resp. AppData\Roaming\SNAP
+        // in those directories module updates can be stored an should have precedence over those initially
+        // installed in the installation directory
+        Path unixNbUserDir = config.userDir().resolve("system");
+        if (Files.isDirectory(unixNbUserDir)) {
+            clusterPaths.add(unixNbUserDir);
+        }
+        Path windowsNbUserDir = Paths.get(System.getProperty("user.home")).resolve("AppData").resolve("Roaming").resolve("SNAP");
+        if (Files.isDirectory(windowsNbUserDir)) {
+            clusterPaths.add(windowsNbUserDir);
+        }
+
         try {
             List<String> clusterNames = Files.readAllLines(clustersFile);
             clusterNames.stream().filter(clusterName -> !excludedClusterNames.contains(clusterName)).forEach(clusterName -> {
@@ -81,20 +94,12 @@ class InstallationScanner {
             fail(e);
         }
         for (String pathName : config.preferences().get("snap.extraClusters", "").split(File.pathSeparator)) {
-            Path clusterPath = Paths.get(pathName);
-            if (Files.isDirectory(clusterPath)) {
-                clusterPaths.add(clusterPath);
+            if (!pathName.isEmpty()) {
+                Path clusterPath = Paths.get(pathName);
+                if (Files.isDirectory(clusterPath)) {
+                    clusterPaths.add(clusterPath);
+                }
             }
-        }
-
-        Path unixNbUserDir = config.userDir().resolve("system");
-        if (Files.isDirectory(unixNbUserDir)) {
-            clusterPaths.add(unixNbUserDir);
-        }
-
-        Path windowsNbUserDir = Paths.get(System.getProperty("user.home")).resolve("AppData").resolve("Roaming").resolve("SNAP");
-        if (Files.isDirectory(windowsNbUserDir)) {
-            clusterPaths.add(windowsNbUserDir);
         }
 
         Set<String> excludedModuleNames = new HashSet<>();
@@ -129,8 +134,11 @@ class InstallationScanner {
         List<Path> moduleJarFiles = Files.list(modulesDir)
                 .filter(path -> Files.isRegularFile(path))
                 .filter(path -> {
-                    String name = path.getFileName().toString();
-                    return name.endsWith(JAR_EXT) && !excludedModuleNames.contains(name);
+                    Path fileName = path.getFileName();
+                    String name = fileName.toString();
+                    return name.endsWith(JAR_EXT) && !excludedModuleNames.contains(name) &&
+                           // if already present don't consider this module
+                           !scanResult.classPathEntries.stream().filter(path2 -> path2.endsWith(fileName)).findAny().isPresent();
                 })
                 .collect(Collectors.toList());
         for (Path moduleJarFile : moduleJarFiles) {
@@ -180,9 +188,9 @@ class InstallationScanner {
         List<Path> entries = Files.list(dir).collect(Collectors.toList());
 
         scanResult.classPathEntries.addAll(entries.stream()
-                .filter(path -> Files.isRegularFile(path))
-                .filter(path -> path.getFileName().toString().endsWith(JAR_EXT))
-                .collect(Collectors.toList()));
+                                                   .filter(path -> Files.isRegularFile(path))
+                                                   .filter(path -> path.getFileName().toString().endsWith(JAR_EXT))
+                                                   .collect(Collectors.toList()));
 
         for (Path entry : entries) {
             if (Files.isDirectory(entry)) {
@@ -200,6 +208,7 @@ class InstallationScanner {
     }
 
     static class ScanResult {
+
         List<Path> classPathEntries;
         List<Path> libraryPathEntries;
 

@@ -17,18 +17,37 @@ package org.esa.snap.core.gpf.descriptor;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.descriptor.dependency.Bundle;
+import org.esa.snap.core.gpf.descriptor.dependency.BundleType;
+import org.esa.snap.core.gpf.descriptor.template.FileTemplate;
+import org.esa.snap.core.gpf.descriptor.template.MemoryTemplate;
+import org.esa.snap.core.gpf.descriptor.template.Template;
+import org.esa.snap.core.gpf.descriptor.template.TemplateConverter;
+import org.esa.snap.core.gpf.descriptor.template.TemplateEngine;
+import org.esa.snap.core.gpf.descriptor.template.TemplateException;
+import org.esa.snap.core.gpf.descriptor.template.TemplateType;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.utils.PrivilegedAccessor;
+import org.esa.snap.core.util.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -43,8 +62,11 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public static final String SOURCE_PACKAGE = "package";
     public static final String SOURCE_USER = "user";
     public static final Class[] annotatedClasses = new Class[] {
-            ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class, SystemVariable.class, SystemDependentVariable.class
+            ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class,
+            SystemVariable.class, SystemDependentVariable.class, FileTemplate.class,
+            MemoryTemplate.class
     };
+    private static final Logger logger = Logger.getLogger(ToolAdapterOperatorDescriptor.class.getName());
 
     private String name;
     private Class<? extends Operator> operatorClass;
@@ -61,36 +83,49 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private String preprocessorExternalTool;
     private Boolean writeForProcessing = false;
     private String processingWriter;
-    private File mainToolFileLocation;
-    private File workingDir;
-    private String templateFileLocation;
+    private String mainToolFileLocation;
+    private String workingDir;
+    private FileTemplate template;
     private String progressPattern;
     private String errorPattern;
     private String stepPattern;
     @XStreamAlias("variables")
     private List<SystemVariable> variables;
     @XStreamAlias("parameters")
-    private List<TemplateParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
+    private List<ToolParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
     private String source;
     private boolean isSystem;
     private boolean isHandlingOutputName;
+    @XStreamAlias("windowsBundle")
+    private Bundle windowsBundle;
+    @XStreamAlias("linuxBundle")
+    private Bundle linuxBundle;
+    @XStreamAlias("macosxBundle")
+    private Bundle macosxBundle;
+    private String helpID;
 
-    private DefaultSourceProductDescriptor[] sourceProductDescriptors;
+    private SimpleSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
     private DefaultTargetProductDescriptor targetProductDescriptor;
     private DefaultTargetPropertyDescriptor[] targetPropertyDescriptors;
 
     private int numSourceProducts;
 
+    private TemplateType templateType;
+
+    @XStreamOmitField
+    private TemplateEngine templateEngine;
+
     ToolAdapterOperatorDescriptor() {
-        this.sourceProductDescriptors = new DefaultSourceProductDescriptor[] { new DefaultSourceProductDescriptor() };
-        try {
-            PrivilegedAccessor.setValue(this.sourceProductDescriptors[0], "name", ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.sourceProductDescriptors = new SimpleSourceProductDescriptor[] {
+                new SimpleSourceProductDescriptor(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID)
+        };
         this.variables = new ArrayList<>();
         this.toolParameterDescriptors = new ArrayList<>();
+        this.templateType = TemplateType.VELOCITY;
+        this.windowsBundle = new Bundle(this, BundleType.NONE, null);
+        this.linuxBundle = new Bundle(this, BundleType.NONE, null);
+        this.macosxBundle = new Bundle(this, BundleType.NONE, null);
     }
 
     public ToolAdapterOperatorDescriptor(String name, Class<? extends Operator> operatorClass) {
@@ -125,8 +160,23 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         this.processingWriter = obj.processingWriter;
         this.mainToolFileLocation = obj.mainToolFileLocation;
         this.workingDir = obj.workingDir;
-        this.templateFileLocation = obj.templateFileLocation;
-
+        this.templateType = obj.templateType;
+        if (obj.template != null) {
+            try {
+                this.template = (FileTemplate) obj.template.copy();
+                this.template.associateWith(getTemplateEngine());
+            } catch (IOException ioex) {
+                this.template = new FileTemplate();
+                try {
+                    this.template.associateWith(getTemplateEngine());
+                    this.template.setContents("Error: " + ioex.getMessage(), false);
+                } catch (TemplateException e) {
+                    logger.warning(e.getMessage());
+                }
+            } catch (TemplateException e) {
+                logger.warning(e.getMessage());
+            }
+        }
         this.progressPattern = obj.progressPattern;
         this.errorPattern = obj.errorPattern;
         this.stepPattern = obj.stepPattern;
@@ -134,20 +184,20 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         List<SystemVariable> variableList = obj.getVariables();
         if (variableList != null) {
             this.variables.addAll(variableList.stream()
-                    .filter(systemVariable -> systemVariable != null)
+                    .filter(Objects::nonNull)
                     .map(SystemVariable::createCopy).collect(Collectors.toList()));
         }
 
-        this.sourceProductDescriptors = new DefaultSourceProductDescriptor[obj.getSourceProductDescriptors().length];
+        this.sourceProductDescriptors = new SimpleSourceProductDescriptor[obj.getSourceProductDescriptors().length];
         for (int i = 0; i < obj.getSourceProductDescriptors().length; i++) {
-            this.sourceProductDescriptors[i] = ((DefaultSourceProductDescriptor) (obj.getSourceProductDescriptors()[i]));
+            this.sourceProductDescriptors[i] = ((SimpleSourceProductDescriptor) (obj.getSourceProductDescriptors()[i]));
         }
 
         this.sourceProductsDescriptor = (DefaultSourceProductsDescriptor) obj.getSourceProductsDescriptor();
 
-        for (TemplateParameterDescriptor parameter : obj.getToolParameterDescriptors()) {
-            this.toolParameterDescriptors.add(new TemplateParameterDescriptor(parameter));
-        }
+        this.toolParameterDescriptors.addAll(obj.getToolParameterDescriptors().stream().map(parameter -> !parameter.isTemplateParameter() ?
+                new ToolParameterDescriptor(parameter) :
+                new TemplateParameterDescriptor((TemplateParameterDescriptor) parameter)).collect(Collectors.toList()));
 
         this.targetProductDescriptor = (DefaultTargetProductDescriptor) obj.getTargetProductDescriptor();
 
@@ -157,6 +207,19 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
 
         this.isHandlingOutputName = obj.isHandlingOutputName;
+        if (obj.windowsBundle != null) {
+            this.windowsBundle = new Bundle(obj.windowsBundle);
+            this.windowsBundle.setParent(this);
+        }
+        if (obj.linuxBundle != null) {
+            this.linuxBundle = new Bundle(obj.linuxBundle);
+            this.linuxBundle.setParent(this);
+        }
+        if (obj.macosxBundle != null) {
+            this.macosxBundle = new Bundle(obj.macosxBundle);
+            this.macosxBundle.setParent(this);
+        }
+        this.helpID = obj.helpID;
     }
 
     /**
@@ -175,7 +238,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Removes the given parameter descriptor from the internal parameter descriptor list
      * @param descriptor    The descriptor to be removed
      */
-    public void removeParamDescriptor(TemplateParameterDescriptor descriptor) {
+    public void removeParamDescriptor(ToolParameterDescriptor descriptor) {
         this.toolParameterDescriptors.remove(descriptor);
     }
 
@@ -183,7 +246,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Removes the given descriptors from the internal parameter descriptor list
      * @param descriptors    The list of descriptors to be removed
      */
-    public void removeParamDescriptors(List<TemplateParameterDescriptor> descriptors) {
+    public void removeParamDescriptors(List<ToolParameterDescriptor> descriptors) {
         if(descriptors != null && descriptors.size() > 0) {
             descriptors.forEach(this.toolParameterDescriptors::remove);
         }
@@ -193,11 +256,25 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Gets all the parameter descriptors
      * @return  The list of parameter descriptors
      */
-    public List<TemplateParameterDescriptor> getToolParameterDescriptors() {
+    public List<ToolParameterDescriptor> getToolParameterDescriptors() {
         if(this.toolParameterDescriptors == null){
             this.toolParameterDescriptors = new ArrayList<>();
         }
         return this.toolParameterDescriptors;
+    }
+
+    public TemplateEngine getTemplateEngine() {
+        if (templateEngine == null) {
+            templateEngine = TemplateEngine.createInstance(this, getTemplateType());
+        }
+        return templateEngine;
+    }
+
+    TemplateType getTemplateType() {
+        if (templateType == null) {
+            templateType = TemplateType.VELOCITY;
+        }
+        return templateType;
     }
 
     /**
@@ -331,6 +408,10 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      */
     public void setHandlingOutputName(boolean value) { isHandlingOutputName = value; }
 
+    public String getHelpID() { return helpID; }
+
+    public void setHelpID(String value) { helpID = value; }
+
     @Override
     public Class<? extends Operator> getOperatorClass() {
         return operatorClass != null ? operatorClass : Operator.class;
@@ -365,51 +446,56 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     /**
      * Getter for the Template File Location field
      */
-    public String getTemplateFileLocation() {
-        return templateFileLocation;
+    public FileTemplate getTemplate() {
+        //return this.template;
+        return template;
     }
     /**
      * Setter for the Template File Location field
      */
-    public void setTemplateFileLocation(String templateFileLocation) {
-        this.templateFileLocation = templateFileLocation;
+    public void setTemplate(FileTemplate value) throws TemplateException {
+        if (value != null) {
+            if (!getTemplateType().equals(value.getType())) {
+                throw new TemplateException("Incompatible template type");
+            }
+            this.template = value;
+            this.template.associateWith(getTemplateEngine());
+        }
     }
     /**
      * Getter for the Working Directory field
      */
-    public File getWorkingDir() {
-        return workingDir;
+    public String getWorkingDir() {
+        return workingDir != null ?
+                workingDir.replace("\\", "/") : null;
     }
     /**
      * Setter for the Working Directory field
      */
-    public void setWorkingDir(File workingDir) {
+    public void setWorkingDir(String workingDir) {
         this.workingDir = workingDir;
     }
     /**
      * Getter for the Tool File Location field
      */
-    public File getMainToolFileLocation() {
-        return mainToolFileLocation;
+    public String getMainToolFileLocation() {
+        return mainToolFileLocation != null ?
+                mainToolFileLocation.replace("\\", "/") : null;
     }
     /**
      * Setter for the Tool File Location field
      */
-    public void setMainToolFileLocation(File mainToolFileLocation) {
+    public void setMainToolFileLocation(String mainToolFileLocation) {
         this.mainToolFileLocation = mainToolFileLocation;
     }
 
-    public File resolveVariables(File location) {
-        /*String expandedValue = null;
-        if (location != null) {
-            expandedValue = location.getPath();
-            Map<String, String> lookupVars = variables.stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
-            for (String key : lookupVars.keySet()) {
-                expandedValue = expandedValue.replace("$" + key, lookupVars.get(key));
-            }
-        }
-        return expandedValue == null ? null : new File(expandedValue);*/
+    public File resolveVariables(String location) {
         return VariableResolver.newInstance(this).resolve(location);
+    }
+
+    public File resolveVariables(File file) {
+        return file != null ?
+                VariableResolver.newInstance(this).resolve(file.toString()) : null;
     }
     /**
      * Setter for the Progress Pattern field. The pattern is a regular expression.
@@ -483,6 +569,85 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public void setPreprocessTool(Boolean preprocessTool) {
         this.preprocessTool = preprocessTool;
     }
+
+    public Bundle getWindowsBundle() { return this.windowsBundle; }
+
+    public void setWindowsBundle(Bundle bundle) {
+        this.windowsBundle = bundle;
+        if (bundle != null && !this.equals(bundle.getParent())) {
+            this.windowsBundle.setParent(this);
+        }
+    }
+
+    public Bundle getLinuxBundle() { return this.linuxBundle; }
+
+    public void setLinuxBundle(Bundle bundle) {
+        this.linuxBundle = bundle;
+        if (bundle != null && !this.equals(bundle.getParent())) {
+            this.linuxBundle.setParent(this);
+        }
+    }
+
+    public Bundle getMacosxBundle() { return this.macosxBundle; }
+
+    public void setMacosxBundle(Bundle bundle) {
+        this.macosxBundle = bundle;
+        if (bundle != null && !this.equals(bundle.getParent())) {
+            this.macosxBundle.setParent(this);
+        }
+    }
+
+    public Bundle getBundle() {
+        return getBundle(Bundle.getCurrentOS());
+    }
+
+    public void setBundles(Map<OSFamily, Bundle> bundles) {
+        if (bundles != null) {
+            for (Map.Entry<OSFamily, Bundle> entry : bundles.entrySet()) {
+                switch (entry.getKey()) {
+                    case windows:
+                        this.windowsBundle = entry.getValue();
+                        break;
+                    case linux:
+                        this.linuxBundle = entry.getValue();
+                        break;
+                    case macosx:
+                        this.macosxBundle = entry.getValue();
+                        break;
+                }
+            }
+        }
+    }
+
+    public Map<OSFamily, Bundle> getBundles() {
+        return new HashMap<OSFamily, Bundle>() {{
+            put(OSFamily.windows, windowsBundle);
+            put(OSFamily.linux, linuxBundle);
+            put(OSFamily.macosx, macosxBundle);
+        }};
+    }
+
+    public Bundle getBundle(OSFamily osFamily) {
+        Bundle bundle;
+        switch (osFamily) {
+            case windows:
+                bundle = windowsBundle;
+                break;
+            case linux:
+                bundle = linuxBundle;
+                break;
+            case macosx:
+                bundle = macosxBundle;
+                break;
+            default:
+                throw new IllegalArgumentException("Operating system not supported");
+        }
+        if (bundle.getParent() == null) {
+            bundle.setParent(this);
+        }
+        return bundle;
+    }
+
     /**
      * Gets the list of user-defined system variables
      */
@@ -518,18 +683,13 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public void setSourceProductCount(int value) {
         numSourceProducts = value;
         if (sourceProductDescriptors == null) {
-            sourceProductDescriptors = new DefaultSourceProductDescriptor[numSourceProducts];
+            sourceProductDescriptors = new SimpleSourceProductDescriptor[numSourceProducts];
         } else {
             sourceProductDescriptors = Arrays.copyOf(sourceProductDescriptors, numSourceProducts);
         }
         for (int i = 0; i < numSourceProducts; i++) {
             if (sourceProductDescriptors[i] == null) {
-                sourceProductDescriptors[i] = new DefaultSourceProductDescriptor();
-                try {
-                    PrivilegedAccessor.setValue(sourceProductDescriptors[i], "name", ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID + " " + String.valueOf(i+1));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                sourceProductDescriptors[i] = new SimpleSourceProductDescriptor(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID + " " + String.valueOf(i+1));
             }
         }
     }
@@ -583,8 +743,19 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             try (FileReader reader = new FileReader(file)) {
                 return ToolAdapterOperatorDescriptor.fromXml(reader, resourceName, classLoader);
             }
-        } catch (IOException e) {
-            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+        } catch (Exception e) {
+            try {
+                ToolAdapterIO.convertAdapter(file.toPath());
+                String name = FileUtils.getFilenameWithoutExtension(file.getParentFile() != null ? file.getParentFile() : file);
+                logger.fine(String.format("Adapter %s has been automatically converted to the new format", name));
+            } catch (IOException e1) {
+                throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+            }
+            try (FileReader reader = new FileReader(file)) {
+                return ToolAdapterOperatorDescriptor.fromXml(reader, resourceName, classLoader);
+            } catch (IOException e1) {
+                throw new OperatorException(formatReadExceptionText(resourceName, e1), e1);
+            }
         }
     }
 
@@ -607,8 +778,27 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             if (StringUtils.isNullOrEmpty(descriptor.getAlias())) {
                 throw new OperatorException(formatInvalidExceptionMessage(resourceName, "missing 'alias' element"));
             }
+            if (descriptor.template != null) {
+                descriptor.template.associateWith(descriptor.getTemplateEngine());
+            }
+            descriptor.getToolParameterDescriptors().stream().filter(ToolParameterDescriptor::isTemplateParameter).forEach(t -> {
+                try {
+                    TemplateParameterDescriptor param = (TemplateParameterDescriptor) t;
+                    Template template = param.getTemplate();
+                    if (template != null) {
+                        //param.getTemplate().setType(descriptor.getTemplateType());
+                        TemplateType templateType = template.getType();
+                        //param.setTemplateEngine(descriptor.getTemplateEngine());
+                        param.setTemplateEngine(TemplateEngine.createInstance(descriptor, templateType));
+                    }
+                } catch (TemplateException e) {
+                    logger.severe(e.getMessage());
+                }
+            });
         } catch (StreamException e) {
             throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+        } catch (TemplateException e) {
+            throw new OperatorException(e.getMessage());
         }
         return descriptor;
     }
@@ -627,6 +817,11 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private static XStream createXStream(ClassLoader classLoader) {
         XStream xStream = new XStream();
         xStream.setClassLoader(classLoader);
+        xStream.registerConverter(new TemplateConverter(
+                xStream.getConverterLookup().lookupConverterForType(Template.class),
+                xStream.getReflectionProvider()));
+        xStream.addDefaultImplementation(MemoryTemplate.class, Template.class);
+        xStream.addDefaultImplementation(FileTemplate.class, Template.class);
         xStream.processAnnotations(annotatedClasses);
         return xStream;
     }

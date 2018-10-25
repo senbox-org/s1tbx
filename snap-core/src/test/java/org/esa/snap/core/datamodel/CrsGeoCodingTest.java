@@ -30,7 +30,12 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class CrsGeoCodingTest {
 
@@ -164,23 +169,22 @@ public class CrsGeoCodingTest {
     }
 
     @Test
-    public void testCustomSpheroidDatum() throws TransformException, FactoryException {
+    public void testCustomSpheroidDatum() throws TransformException, FactoryException, InterruptedException {
         String wkt = "PROJCS[\"MODIS_Sinusoidal\", \n" +
-                     "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
-                     "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
-                     "      SPHEROID[\"Custom spheroid\", 6371007.181, 0.0]], \n" +
-                     "    PRIMEM[\"Greenwich\", 0.0], \n" +
-                     "    UNIT[\"degree\", 0.017453292519943295], \n" +
-                     "    AXIS[\"Longitude\", EAST], \n" +
-                     "    AXIS[\"Latitude\", NORTH]], \n" +
-                     "  PROJECTION[\"Sinusoidal\"], \n" +
-                     "  PARAMETER[\"central_meridian\", 0.0], \n" +
-                     "  PARAMETER[\"scale_factor\", 1.0], \n" +
-                     "  PARAMETER[\"false_easting\", 0.0], \n" +
-                     "  PARAMETER[\"false_northing\", 0.0], \n" +
-                     "  UNIT[\"m\", 1.0], \n" +
-                     "  AXIS[\"x\", EAST], \n" +
-                     "  AXIS[\"y\", NORTH]]";
+                "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
+                "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
+                "      SPHEROID[\"Custom spheroid\", 6371007.181, 0.0]], \n" +
+                "    PRIMEM[\"Greenwich\", 0.0], \n" +
+                "    UNIT[\"degree\", 0.017453292519943295], \n" +
+                "    AXIS[\"Longitude\", EAST], \n" +
+                "    AXIS[\"Latitude\", NORTH]], \n" +
+                "  PROJECTION[\"Sinusoidal\"], \n" +
+                "  PARAMETER[\"central_meridian\", 0.0], \n" +
+                "  PARAMETER[\"false_easting\", 0.0], \n" +
+                "  PARAMETER[\"false_northing\", 0.0], \n" +
+                "  UNIT[\"m\", 1.0], \n" +
+                "  AXIS[\"x\", EAST], \n" +
+                "  AXIS[\"y\", NORTH]]";
         CoordinateReferenceSystem crs = CRS.parseWKT(wkt);
         CrsGeoCoding geoCoding = new CrsGeoCoding(crs, new Rectangle(10, 10, 10, 10), new AffineTransform());
         DefaultGeographicCRS defaultCrs = (DefaultGeographicCRS) geoCoding.getGeoCRS();
@@ -196,15 +200,15 @@ public class CrsGeoCodingTest {
     @Test
     public void testWgs84() throws TransformException, FactoryException {
         String testedWkt = "GEOGCS[\"WGS 84\",\n" +
-                           "    DATUM[\"WGS_1984\",\n" +
-                           "        SPHEROID[\"WGS 84\",6378137,298.257223563,\n" +
-                           "            AUTHORITY[\"EPSG\",\"7030\"]],\n" +
-                           "        AUTHORITY[\"EPSG\",\"6326\"]],\n" +
-                           "    PRIMEM[\"Greenwich\",0,\n" +
-                           "        AUTHORITY[\"EPSG\",\"8901\"]],\n" +
-                           "    UNIT[\"degree\",0.01745329251994328,\n" +
-                           "        AUTHORITY[\"EPSG\",\"9122\"]],\n" +
-                           "    AUTHORITY[\"EPSG\",\"4326\"]]";
+                "    DATUM[\"WGS_1984\",\n" +
+                "        SPHEROID[\"WGS 84\",6378137,298.257223563,\n" +
+                "            AUTHORITY[\"EPSG\",\"7030\"]],\n" +
+                "        AUTHORITY[\"EPSG\",\"6326\"]],\n" +
+                "    PRIMEM[\"Greenwich\",0,\n" +
+                "        AUTHORITY[\"EPSG\",\"8901\"]],\n" +
+                "    UNIT[\"degree\",0.01745329251994328,\n" +
+                "        AUTHORITY[\"EPSG\",\"9122\"]],\n" +
+                "    AUTHORITY[\"EPSG\",\"4326\"]]";
 
         CoordinateReferenceSystem testedCrs = CRS.parseWKT(testedWkt);
         GeoCoding geoCoding = new CrsGeoCoding(testedCrs, new Rectangle(10, 10, 10, 10), new AffineTransform());
@@ -215,6 +219,62 @@ public class CrsGeoCodingTest {
         assertTrue(wgs84Spheroid.getSemiMinorAxis() == testedSpheroid.getSemiMinorAxis());
         assertTrue(wgs84Spheroid.getSemiMajorAxis() == testedSpheroid.getSemiMajorAxis());
         assertSame(DefaultGeographicCRS.WGS84.getCoordinateSystem(), testedDefaultCrs.getCoordinateSystem());
+    }
+
+    @Test
+    public void testGetPixels() throws FactoryException, TransformException {
+        int numPixels = 10000;
+        // SR-ORG:6965
+        String wkt = "PROJCS[\"MODIS_Sinusoidal\", \n" +
+                     "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
+                     "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
+                     "      SPHEROID[\"Custom spheroid\", 6371007.181, 0.0]], \n" +
+                     "    PRIMEM[\"Greenwich\", 0.0], \n" +
+                     "    UNIT[\"degree\", 0.017453292519943295], \n" +
+                     "    AXIS[\"Longitude\", EAST], \n" +
+                     "    AXIS[\"Latitude\", NORTH]], \n" +
+                     "  PROJECTION[\"Sinusoidal\"], \n" +
+                     "  PARAMETER[\"central_meridian\", 0.0], \n" +
+                     "  PARAMETER[\"false_easting\", 1000.0], \n" +
+                     "  PARAMETER[\"false_northing\", 500000.0], \n" +
+                     "  PARAMETER[\"semi_minor\",6371007.0], \n" +
+                     "  UNIT[\"m\", 1.0], \n" +
+                     "  AXIS[\"x\", EAST], \n" +
+                     "  AXIS[\"y\", NORTH]]";
+        CoordinateReferenceSystem testedCrs = CRS.parseWKT(wkt);
+        CrsGeoCoding geoCoding = new CrsGeoCoding(testedCrs, new Rectangle(100, 100, 100, 100), new AffineTransform());
+
+        double[] latPixels_1 = new double[numPixels];
+        double[] latPixels_2 = new double[numPixels];
+        double[] latPixels_3 = new double[numPixels];
+        double[] lonPixels_1 = new double[numPixels];
+        double[] lonPixels_2 = new double[numPixels];
+        double[] lonPixels_3 = new double[numPixels];
+
+        GeoPos geoPos = new GeoPos();
+        final PixelPos pixelPos = new PixelPos();
+        int entryCount = 0;
+        for (int y = 0; y < 100; y++) {
+            double yp = y + 0.5;
+            for (int x = 0; x < 100; x++) {
+                pixelPos.setLocation(x + 0.5, yp);
+                geoCoding.getGeoPos(pixelPos, geoPos);
+                latPixels_3[entryCount] = (float) geoPos.getLat();
+                lonPixels_3[entryCount] = (float) geoPos.getLon();
+                entryCount++;
+            }
+        }
+
+        geoCoding.getPixelsOneByOne(0, 0, 100, 100, latPixels_2, lonPixels_2);
+
+        geoCoding.getPixels(0, 0, 100, 100, latPixels_1, lonPixels_1);
+
+        for (int i = 0; i < numPixels; i++) {
+            assertEquals(latPixels_1[i], latPixels_2[i], 1e-8);
+            assertEquals(latPixels_1[i], latPixels_3[i], 1e-6);
+            assertEquals(lonPixels_1[i], lonPixels_2[i], 1e-8);
+            assertEquals(lonPixels_1[i], lonPixels_3[i], 1e-6);
+        }
     }
 
     private void comparePixelPos(GeoCoding destGeoCoding, PixelPos pixelPos, PixelPos pixelPos1) {

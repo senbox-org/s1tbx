@@ -9,7 +9,12 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -60,7 +65,7 @@ public class EngineConfig extends Config {
     public static final String PROPERTY_LOG_LEVEL = "snap.log.level";
 
     static String[] DEFAULT_EXCLUDED_CLUSTER_NAMES = new String[]{
-            "etc", "platform", "ide"
+            "bin", "etc", "platform", "ide", "java"
     };
 
     static String[] DEFAULT_EXCLUDED_MODULE_NAMES = new String[]{
@@ -115,9 +120,9 @@ public class EngineConfig extends Config {
     public Path installDir() {
         String value = preferences().get(PROPERTY_INSTALL_DIR, null);
         if (value != null) {
-            return Paths.get(value);
+            return Paths.get(value).normalize();
         }
-        return Paths.get(System.getProperty("user.dir"));
+        return Paths.get(System.getProperty("user.dir")).normalize();
     }
 
     public EngineConfig userDir(Path value) {
@@ -267,6 +272,9 @@ public class EngineConfig extends Config {
     }
 
     private void initLogger() {
+        // This prevents our logger to be reconfigured by hsqldb (used by geotools)
+        // see documentation of org.hsqldb.lib.FrameworkLogger
+        System.setProperty("hsqldb.reconfig_logging", "false");
         setLogger(loggerName(), logLevel());
     }
 

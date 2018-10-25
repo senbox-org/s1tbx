@@ -20,6 +20,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import java.awt.Color;
+
 public class ProductNodeTest extends TestCase {
 
     public ProductNodeTest(String testName) {
@@ -109,6 +111,33 @@ public class ProductNodeTest extends TestCase {
         numberOfExceptionsTrown = tryToSetValidNames(productNode, validNames);
         expectedNumberOfExceptions = 0;
         assertEquals(expectedNumberOfExceptions, numberOfExceptionsTrown);
+    }
+
+    public void testSetName_NodeInProduct() {
+        Product product = new Product("P", "T", 10, 10);
+        product.addBand("band", ProductData.TYPE_INT16);
+        product.addTiePointGrid(new TiePointGrid("tpg", 5,5, 0,0,2,2));
+        product.addMask("mask", "True", "test", Color.CYAN, 0.6);
+
+        Band productNode = new Band("valid", ProductData.TYPE_INT8, 10, 10);
+        product.addBand(productNode);
+
+        try {
+            productNode.setName("band");
+            fail("Band with name 'band' already exists!");
+        } catch (IllegalArgumentException ignore) {}
+
+        try {
+            productNode.setName("tpg");
+            fail("Tie-point grid with name 'tpg' already exists!");
+        } catch (IllegalArgumentException ignore) {}
+
+        try {
+            productNode.setName("mask");
+            fail("mask with name 'mask' already exists!");
+        } catch (IllegalArgumentException ignore) {}
+
+        productNode.setName("valid");
     }
 
     public void testIsValidNodeName(){

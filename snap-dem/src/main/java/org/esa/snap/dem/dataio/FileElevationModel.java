@@ -15,8 +15,6 @@
  */
 package org.esa.snap.dem.dataio;
 
-import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
@@ -25,6 +23,7 @@ import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.engine_utilities.gpf.CommonReaders;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     private int RASTER_WIDTH;
     private int RASTER_HEIGHT;
-    private double noDataValue = 0;
+    private Double noDataValue = 0.0;
 
     public FileElevationModel(final File file, final String resamplingMethodName, final Double demNoDataValue) throws IOException {
 
@@ -50,11 +49,10 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
     }
 
     private void init(final File file, final Resampling resamplingMethod, Double demNoDataValue) throws IOException {
-        final ProductReader productReader = ProductIO.getProductReaderForInput(file);
-        if(productReader == null) {
+        final Product product = CommonReaders.readProduct(file);
+        if(product == null) {
             throw new IOException("No product reader found for "+file.toString());
         }
-        final Product product = productReader.readProductNodes(file, null);
         RASTER_WIDTH = product.getBandAt(0).getRasterWidth();
         RASTER_HEIGHT = product.getBandAt(0).getRasterHeight();
         if (demNoDataValue == null)
@@ -118,7 +116,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
     public double getSample(double pixelX, double pixelY) throws IOException {
 
         final double sample = fileElevationTile.getSample((int) pixelX, (int) pixelY);
-        if (sample == noDataValue) {
+        if (noDataValue.equals(sample)) {
             return Double.NaN;
         }
         return sample;
@@ -137,7 +135,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         for (int i = 0; i < y.length; i++) {
             for (int j = 0; j < x.length; j++) {
                 samples[i][j] = fileElevationTile.getSample(x[j], y[i]);
-                if (samples[i][j] == noDataValue) {
+                if (noDataValue.equals(samples[i][j])) {
                     samples[i][j] = Double.NaN;
                     allValid = false;
                 }

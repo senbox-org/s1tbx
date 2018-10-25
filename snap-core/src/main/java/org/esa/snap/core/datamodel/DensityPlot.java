@@ -20,11 +20,14 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.math.MathUtils;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.PixelAccessor;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.UnpackedImageData;
 import javax.media.jai.operator.MinDescriptor;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.image.DataBuffer;
@@ -43,7 +46,7 @@ import java.util.concurrent.CancellationException;
 public class DensityPlot {
 
     /**
-     * Creates a density plot image from two raster data nodes.
+     * Creates the data for a density plot image from two raster data nodes.
      *
      * @param raster1     the first raster data node
      * @param sampleMin1  the minimum sample value to be considered in the first raster
@@ -54,7 +57,7 @@ public class DensityPlot {
      * @param roiMask     an optional mask to be used as a ROI for the computation
      * @param width       the width of the output image
      * @param height      the height of the output image
-     * @param pixelValues an which will hold the data
+     * @param pixelValues an array which will hold the data
      * @param pm          a progress monitor
      */
     public static void accumulate(final RasterDataNode raster1, final double sampleMin1, final double sampleMax1,
@@ -136,27 +139,7 @@ public class DensityPlot {
             PixelAccessor dataAccessor1 = new PixelAccessor(dataImage1.getSampleModel(), null);
             PixelAccessor dataAccessor2 = new PixelAccessor(dataImage2.getSampleModel(), null);
 
-            RenderedImage maskImage = raster1.getValidMaskImage();
-            RenderedImage maskImage2 = raster2.getValidMaskImage();
-            if (maskImage != null) {
-                if (maskImage2 != null && !(maskImage == maskImage2)) {
-                    maskImage = MinDescriptor.create(maskImage, maskImage2, null);
-                }
-                if (roiImage != null) {
-                    maskImage = MinDescriptor.create(maskImage, roiImage, null);
-                }
-            } else {
-                if (maskImage2 != null) {
-                    maskImage = maskImage2;
-                }
-                if (maskImage != null) {
-                    if (roiImage != null) {
-                        maskImage = MinDescriptor.create(maskImage, roiImage, null);
-                    }
-                } else if (roiImage != null) {
-                    maskImage = roiImage;
-                }
-            }
+            RenderedImage maskImage = getApplicableMaskImage(raster1, raster2, roiImage);
             Shape validShape1 = raster1.getValidShape();
             Shape validShape2 = raster2.getValidShape();
             Shape effectiveShape = validShape1;
@@ -258,6 +241,39 @@ public class DensityPlot {
             } finally {
                 pm.done();
             }
+        }
+
+        RenderedImage getApplicableMaskImage(RasterDataNode raster1, RasterDataNode raster2, RenderedImage roiImage) {
+            RenderedImage maskImage = raster1.getValidMaskImage();
+            RenderedImage maskImage2 = raster2.getValidMaskImage();
+            if (maskImage != null) {
+                if (maskImage2 != null && !(maskImage == maskImage2)) {
+                    maskImage = MinDescriptor.create(maskImage, maskImage2, createRenderingHints(maskImage));
+                }
+                if (roiImage != null) {
+                    maskImage = MinDescriptor.create(maskImage, roiImage, createRenderingHints(maskImage));
+                }
+            } else {
+                if (maskImage2 != null) {
+                    maskImage = maskImage2;
+                }
+                if (maskImage != null) {
+                    if (roiImage != null) {
+                        maskImage = MinDescriptor.create(maskImage, roiImage, createRenderingHints(maskImage));
+                    }
+                } else if (roiImage != null) {
+                    maskImage = roiImage;
+                }
+            }
+            return maskImage;
+        }
+
+        private RenderingHints createRenderingHints(RenderedImage refImage) {
+            final ImageLayout imageLayout = new ImageLayout();
+            imageLayout.setTileWidth(refImage.getTileWidth());
+            imageLayout.setTileHeight(refImage.getTileHeight());
+            // the tiling of refImage shall be preserved
+            return new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
         }
 
         private void accumulateDataUByte(Raster dataTile1, PixelAccessor dataAccessor1,

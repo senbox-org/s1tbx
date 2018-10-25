@@ -16,7 +16,6 @@
 package org.esa.snap.engine_utilities.gpf;
 
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.engine_utilities.db.CommonReaders;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.engine_utilities.util.TestUtils;
 

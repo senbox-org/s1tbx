@@ -36,25 +36,27 @@ public class Benchmark {
      */
     private List<BenchmarkSingleCalculus> benchmarkCalculus;
 
-    public Benchmark(List<Integer> tileSizes, List<Integer> cacheSizes, List<Integer> nbThreads){
+    public Benchmark(/*List<Integer> tileSizes, */List<String> readerTileDimension, List<Integer> cacheSizes, List<Integer> nbThreads){
 
-        if(tileSizes.isEmpty() || cacheSizes.isEmpty() || nbThreads.isEmpty()){
+        if(readerTileDimension.isEmpty() || cacheSizes.isEmpty() || nbThreads.isEmpty()){
             throw new IllegalArgumentException("All benchmark parameters need to be filled");
         }
 
         benchmarkCalculus = new ArrayList<>();
 
-        // duplicate the first values, as the first run is allways slower
-        benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSizes.get(0), cacheSizes.get(0), nbThreads.get(0)));
+        // duplicate the first values, as the first run is always slower, but do not show the output
+        benchmarkCalculus.add(new BenchmarkSingleCalculus(readerTileDimension.get(0), cacheSizes.get(0), nbThreads.get(0), true));
 
-        //generate possible calculs list
-        for(Integer tileSize : tileSizes){
-            for(Integer cacheSize : cacheSizes){
-                for(Integer nbThread : nbThreads){
-                    benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSize, cacheSize, nbThread));
+        //generate possible calculus list
+
+        for (String dim : readerTileDimension) {
+            for (Integer cacheSize : cacheSizes) {
+                for (Integer nbThread : nbThreads) {
+                    benchmarkCalculus.add(new BenchmarkSingleCalculus(dim, cacheSize, nbThread));
                 }
             }
         }
+
     }
 
     /**
@@ -75,9 +77,13 @@ public class Benchmark {
     public void loadBenchmarkPerfParams(BenchmarkSingleCalculus benchmarkSingleCalculus){
         ConfigurationOptimizer confOptimizer = ConfigurationOptimizer.getInstance();
         PerformanceParameters benchmarkPerformanceParameters = confOptimizer.getActualPerformanceParameters();
-        benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalculus.getTileSize());
+        //benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalculus.getTileSize());
+        benchmarkPerformanceParameters.setTileWidth(benchmarkSingleCalculus.getTileWidth());
+        benchmarkPerformanceParameters.setTileHeight(benchmarkSingleCalculus.getTileHeight());
         benchmarkPerformanceParameters.setCacheSize(benchmarkSingleCalculus.getCacheSize());
         benchmarkPerformanceParameters.setNbThreads(benchmarkSingleCalculus.getNbThreads());
+
+
         confOptimizer.updateCustomisedParameters(benchmarkPerformanceParameters);
         try {
             confOptimizer.saveCustomisedParameters();
@@ -88,11 +94,84 @@ public class Benchmark {
 
     public String toString(){
         String benchmarksPrint = "Benchmark results sorted by execution time\n";
-        benchmarksPrint += "(Tile size, Cache size, Nb threads) = Execution time \n\n";
+        benchmarksPrint += "(Tile dimension, Cache size, Nb threads) = Execution time \n\n";
         for(BenchmarkSingleCalculus benchmarkSingleCalcul : this.benchmarkCalculus){
+            if(benchmarkSingleCalcul.isHidden()) {
+                continue;
+            }
             benchmarksPrint += benchmarkSingleCalcul.toString() + "\n";
         }
         return benchmarksPrint;
+    }
+
+    public String[] getColumnsNames(){
+        return BenchmarkSingleCalculus.getColumnNames();
+    }
+
+    public String[] getColumnsNamesWithoutTileSize(){
+        return BenchmarkSingleCalculus.getColumnNamesWithoutTileSize();
+    }
+
+    public int[][] getRows(){
+        int numRows = this.benchmarkCalculus.size();
+        int numColumns = getColumnsNames().length;
+        if (numRows == 0 || numColumns == 0) {
+            return null;
+        }
+        int[][] rows = new int[numRows][numColumns];
+        for(int i = 0 ; i < numRows ; i++) {
+            rows[i] = this.benchmarkCalculus.get(i).getData();
+        }
+
+        return rows;
+    }
+
+    public int[][] getRowsToShow() {
+        int numRows = 0;
+        int numColumns = getColumnsNames().length;
+
+        for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
+            if (!this.benchmarkCalculus.get(i).isHidden()) {
+                numRows++;
+            }
+        }
+        if (numRows == 0 || numColumns == 0) {
+            return null;
+        }
+        int[][] rows = new int[numRows][numColumns];
+        int index = 0;
+        for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
+            if (!this.benchmarkCalculus.get(i).isHidden()) {
+                rows[index] = this.benchmarkCalculus.get(i).getData();
+                index++;
+            }
+        }
+
+        return rows;
+    }
+
+    public int[][] getRowsToShowWhitoutTileSize() {
+        int numRows = 0;
+        int numColumns = getColumnsNamesWithoutTileSize().length;
+
+        for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
+            if (!this.benchmarkCalculus.get(i).isHidden()) {
+                numRows++;
+            }
+        }
+        if (numRows == 0 || numColumns == 0) {
+            return null;
+        }
+        int[][] rows = new int[numRows][numColumns];
+        int index = 0;
+        for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
+            if (!this.benchmarkCalculus.get(i).isHidden()) {
+                rows[index] = this.benchmarkCalculus.get(i).getDataWithoutTileSize();
+                index++;
+            }
+        }
+
+        return rows;
     }
 
     public List<BenchmarkSingleCalculus> getBenchmarkCalculus() {
@@ -101,5 +180,14 @@ public class Benchmark {
 
     public void addBenchmarkCalcul(BenchmarkSingleCalculus benchmarkSingleCalcul){
         this.benchmarkCalculus.add(benchmarkSingleCalcul);
+    }
+
+    public boolean isAlreadyInList(BenchmarkSingleCalculus benchmarkSingleCalculNew) {
+        for(BenchmarkSingleCalculus benchmarkSingleCalcul : this.benchmarkCalculus){
+            if(benchmarkSingleCalcul.hasIdenticalParameters(benchmarkSingleCalculNew)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

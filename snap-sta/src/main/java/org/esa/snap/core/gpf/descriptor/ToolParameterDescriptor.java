@@ -15,6 +15,10 @@
  */
 package org.esa.snap.core.gpf.descriptor;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 
 import java.lang.reflect.Method;
@@ -22,6 +26,7 @@ import java.lang.reflect.Method;
 /**
  * @author Ramona Manda
  */
+@XStreamAlias("parameter")
 public class ToolParameterDescriptor extends DefaultParameterDescriptor {
 
     protected String parameterType = ToolAdapterConstants.REGULAR_PARAM_MASK;
@@ -53,7 +58,11 @@ public class ToolParameterDescriptor extends DefaultParameterDescriptor {
         super.setConverterClass(object.getConverterClass());
         super.setDomConverterClass(object.getDomConverterClass());
         super.setItemAlias(object.getItemAlias());
-        parameterType = ToolAdapterConstants.REGULAR_PARAM_MASK;
+        if (object instanceof ToolParameterDescriptor) {
+            parameterType = ((ToolParameterDescriptor) object).getParameterType();
+        } else {
+            parameterType =  ToolAdapterConstants.REGULAR_PARAM_MASK;
+        }
     }
 
     public ToolParameterDescriptor(DefaultParameterDescriptor object, String parameterTypeMask) {
@@ -97,7 +106,9 @@ public class ToolParameterDescriptor extends DefaultParameterDescriptor {
     }
 
     public boolean isTemplateParameter() {
-        return getParameterType().equals(ToolAdapterConstants.TEMPLATE_PARAM_MASK);
+        return ToolAdapterConstants.TEMPLATE_PARAM_MASK.equals(parameterType) ||
+                ToolAdapterConstants.TEMPLATE_BEFORE_MASK.equals(parameterType) ||
+                ToolAdapterConstants.TEMPLATE_AFTER_MASK.equals(parameterType);
     }
 
     public boolean isTemplateBefore() {
@@ -109,11 +120,52 @@ public class ToolParameterDescriptor extends DefaultParameterDescriptor {
     }
 
     public boolean isParameter() {
-        return getParameterType().equals(ToolAdapterConstants.REGULAR_PARAM_MASK);
+        return getParameterType().equals(ToolAdapterConstants.REGULAR_PARAM_MASK) ||
+                getParameterType().equals(ToolAdapterConstants.FOLDER_PARAM_MASK);
     }
 
     public void setParameterType(String type) {
         this.parameterType = type;
     }
 
+    public Object getDefaultTypedValue() {
+        Object value = null;
+        String defaultValue = getDefaultValue();
+        Class<?> dataType = getDataType();
+        if (isSimple(dataType)) {
+            try {
+                Converter<Object> converter = ConverterRegistry.getInstance().getConverter(dataType);
+                value = converter.parse(defaultValue);
+            } catch (ConversionException e) {
+                e.printStackTrace();
+            }
+        } else {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public void copyFrom(ToolParameterDescriptor source) {
+        setName(source.getName());
+        setAlias(source.getAlias());
+        setDataType(source.getDataType());
+        setDefaultValue(source.getDefaultValue());
+        setDescription(source.getDescription());
+        setLabel(source.getLabel());
+        setUnit(source.getUnit());
+        setInterval(source.getInterval());
+        setValueSet(source.getValueSet());
+        setCondition(source.getCondition());
+        setPattern(source.getPattern());
+        setFormat(source.getFormat());
+        setNotNull(source.isNotNull());
+        setNotEmpty(source.isNotEmpty());
+        setRasterDataNodeClass(source.getRasterDataNodeClass());
+        setValidatorClass(source.getValidatorClass());
+        setConverterClass(source.getConverterClass());
+        setDomConverterClass(source.getDomConverterClass());
+        setItemAlias(source.getItemAlias());
+        setDeprecated(source.isDeprecated());
+        setParameterType(source.getParameterType());
+    }
 }

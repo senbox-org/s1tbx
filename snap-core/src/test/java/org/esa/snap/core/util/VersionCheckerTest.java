@@ -17,64 +17,54 @@ package org.esa.snap.core.util;
 
 import org.junit.Test;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.Assert.*;
 
 public class VersionCheckerTest {
 
-
-//    @Test
-    public void testLocalVersion() throws IOException {
-        VersionChecker vc = new VersionChecker();
-        assertNotNull(vc.getRemoteVersionUrlString());
-        assertNotNull(vc.getLocalVersionFile());
-        if (vc.getLocalVersionFile().exists()) {
-            final String localVersion = vc.getLocalVersion();
-            assertNotNull(localVersion);
-            assertTrue(localVersion.startsWith("VERSION 0.5-SNAPSHOT"));
-            // Failed? --> Adapt current version number here.
-        }
+    @Test
+    public void testVersions() throws IOException {
+        VersionChecker vc = new VersionChecker(asInputStream("5.0"), asInputStream("4.9.12"));
+        String actual = vc.getLocalVersion().toString();
+        assertEquals("5.0", actual);
+        assertEquals("4.9.12", vc.getRemoteVersion().toString());
     }
 
     @Test
-    public void testRemoteVersion() throws IOException {
-        VersionChecker vc = new VersionChecker(new File("./VERSION.txt"),
-                                               getClass().getResource("version.txt").toExternalForm());
-        assertNotNull(vc.getRemoteVersionUrlString());
-        assertNotNull(vc.getLocalVersionFile());
-        assertEquals("VERSION 4.9.12", vc.getRemoteVersion());
+    public void mustCheck() throws Exception {
+        assertFalse(VersionChecker.mustCheck(VersionChecker.CHECK.NEVER, LocalDateTime.now()));
+        assertFalse(VersionChecker.mustCheck(VersionChecker.CHECK.NEVER, LocalDateTime.now().minus(100, ChronoUnit.DAYS)));
+        assertTrue(VersionChecker.mustCheck(VersionChecker.CHECK.ON_START, LocalDateTime.now()));
+        assertTrue(VersionChecker.mustCheck(VersionChecker.CHECK.ON_START, LocalDateTime.now().minus(100, ChronoUnit.DAYS)));
+        assertTrue(VersionChecker.mustCheck(VersionChecker.CHECK.DAILY, LocalDateTime.now().minus(100, ChronoUnit.DAYS)));
+        assertFalse(VersionChecker.mustCheck(VersionChecker.CHECK.DAILY, LocalDateTime.now()));
+        assertTrue(VersionChecker.mustCheck(VersionChecker.CHECK.WEEKLY, LocalDateTime.now().minus(100, ChronoUnit.DAYS)));
+        assertFalse(VersionChecker.mustCheck(VersionChecker.CHECK.WEEKLY, LocalDateTime.now().minus(3, ChronoUnit.DAYS)));
+        assertTrue(VersionChecker.mustCheck(VersionChecker.CHECK.MONTHLY, LocalDateTime.now().minus(100, ChronoUnit.DAYS)));
+        assertFalse(VersionChecker.mustCheck(VersionChecker.CHECK.MONTHLY, LocalDateTime.now().minus(15, ChronoUnit.DAYS)));
     }
 
     @Test
-    public void testSettingLocalVersion() throws IOException {
-        VersionChecker vc = new VersionChecker(new File("./VERSION.txt"),
-                                               getClass().getResource("version.txt").toExternalForm());
-        vc.setLocalVersion("VERSION 4.8");
-        assertNotNull(vc.getRemoteVersionUrlString());
-        assertNotNull(vc.getLocalVersionFile());
-        assertNotNull(vc.getLocalVersion());
-        assertEquals("VERSION 4.8", vc.getLocalVersion());
-        assertEquals("VERSION 4.9.12", vc.getRemoteVersion());
+    public void testCheckForNewRelease_WithRemoteGreater() throws Exception {
+
+        VersionChecker vc = new VersionChecker(asInputStream("5.0"), asInputStream("6.0"));
+        assertTrue(vc.checkForNewRelease());
     }
 
     @Test
-    public void testCompare() {
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7", "VERSION 4.7") == 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7", "VERSION 3.7") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7", "VERSION 4.7-SNAPSHOT") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.2.0", "VERSION 4.2") == 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.2", "VERSION 4.2.0") == 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.6.999", "VERSION 4.7") < 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7", "VERSION 4.7-RC1") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7-RC1", "VERSION 4.7") < 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7-RC1", "VERSION 4.7-RC2") < 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7.1", "VERSION 4.7-RC2") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.7.2", "VERSION 4.7-RC1") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.9.1", "VERSION 4.9.0") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.9.0.1", "VERSION 4.9.0") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.9.0.1", "VERSION 4.9") > 0);
-        assertTrue(VersionChecker.compareVersions("VERSION 4.9.0.1", "VERSION 4.9.1") < 0);
+    public void testCheckForNewRelease_WithRemoteLower() throws Exception {
+        VersionChecker vc = new VersionChecker(asInputStream("5.0"), asInputStream("4.0"));
+        assertFalse(vc.checkForNewRelease());
+    }
+
+
+    private InputStream asInputStream(String text) {
+        return new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
     }
 }

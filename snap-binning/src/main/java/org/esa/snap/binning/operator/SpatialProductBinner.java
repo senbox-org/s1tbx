@@ -75,13 +75,11 @@ public class SpatialProductBinner {
     /**
      * Processes a source product and generated spatial bins.
      *
-     * @param product         The source product.
-     * @param spatialBinner   The spatial binner to be used.
-     * @param addedVariableBands      A container for the bands that are added during processing.
-     * @param progressMonitor A progress monitor.
-     *
+     * @param product            The source product.
+     * @param spatialBinner      The spatial binner to be used.
+     * @param addedVariableBands A container for the bands that are added during processing.
+     * @param progressMonitor    A progress monitor.
      * @return The total number of observations processed.
-     *
      * @throws IOException If an I/O error occurs.
      */
     public static long processProduct(Product product,
@@ -142,12 +140,22 @@ public class SpatialProductBinner {
         return numObsTotal;
     }
 
-    private static MultiLevelImage[] getVariableImages(Product product, VariableContext variableContext) {
+    private static MultiLevelImage[] getVariableImages(Product product, VariableContext variableContext)
+            throws OperatorException {
         final MultiLevelImage[] varImages = new MultiLevelImage[variableContext.getVariableCount()];
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             final String nodeName = variableContext.getVariableName(i);
-            final RasterDataNode node = getRasterDataNode(product, nodeName);
-            varImages[i] = ImageManager.createMaskedGeophysicalImage(node, Float.NaN);
+            final RasterDataNode rasterDataNode = getRasterDataNode(product, nodeName);
+            varImages[i] = ImageManager.createMaskedGeophysicalImage(rasterDataNode, Float.NaN);
+        }
+        if (varImages.length > 1) {
+            MultiLevelImage varImage0 = varImages[0];
+            for (MultiLevelImage image : varImages) {
+                if (varImage0.getWidth() != image.getWidth() && varImage0.getHeight() != image.getHeight()) {
+                    throw new OperatorException("Some source rasters have different size.\n" +
+                                                        "Consider resampling source products to same size first.");
+                }
+            }
         }
         return varImages;
     }
@@ -156,7 +164,6 @@ public class SpatialProductBinner {
     private static MultiLevelImage getMaskImage(Product product, String maskExpr) {
         MultiLevelImage maskImage = null;
         if (StringUtils.isNotNullAndNotEmpty(maskExpr)) {
-            // todo - [multisize_products] fix: rasterDataNode arg is null --> default product scene raster image layout will be used!! (nf)
             maskImage = product.getMaskImage(maskExpr, null);
         }
         return maskImage;
@@ -240,10 +247,12 @@ public class SpatialProductBinner {
 
     private static void addVariablesToProduct(VariableContext variableContext, Product product,
                                               Map<Product, List<Band>> addedVariableBands) {
+        final String validMaskExpression = variableContext.getValidMaskExpression();
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             String variableName = variableContext.getVariableName(i);
             String variableExpr = variableContext.getVariableExpression(i);
-            String validMaskExpression = variableContext.getValidMaskExpression();
+            String variableValidExpr = variableContext.getVariableValidExpression(i);
+
             if (variableExpr != null) {
                 VirtualBand band = new VirtualBand(variableName,
                                                    ProductData.TYPE_FLOAT32,
@@ -251,13 +260,15 @@ public class SpatialProductBinner {
                                                    product.getSceneRasterHeight(),
                                                    variableExpr);
 
-                try {
-                    validMaskExpression = BandArithmetic.getValidMaskExpression(variableExpr, product, validMaskExpression);
-                } catch (ParseException e) {
-                    throw new OperatorException("Failed to parse valid-mask expression: " + e.getMessage(), e);
+                if (StringUtils.isNullOrEmpty(variableValidExpr)) {
+                    try {
+                        variableValidExpr = BandArithmetic.getValidMaskExpression(variableExpr, product, validMaskExpression);
+                    } catch (ParseException e) {
+                        throw new OperatorException("Failed to parse valid-mask expression: " + e.getMessage(), e);
+                    }
                 }
-                if (StringUtils.isNotNullAndNotEmpty(validMaskExpression)) {
-                    band.setValidPixelExpression(validMaskExpression);
+                if (StringUtils.isNotNullAndNotEmpty(variableValidExpr) && !variableValidExpr.equals("true")) {
+                    band.setValidPixelExpression(variableValidExpr);
                 }
                 product.addBand(band);
                 if (!addedVariableBands.containsKey(product)) {

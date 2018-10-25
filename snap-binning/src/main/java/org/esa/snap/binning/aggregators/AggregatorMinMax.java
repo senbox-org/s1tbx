@@ -64,8 +64,10 @@ public class AggregatorMinMax extends AbstractAggregator {
     @Override
     public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final float value = observationVector.get(varIndex);
-        spatialVector.set(0, Math.min(spatialVector.get(0), value));
-        spatialVector.set(1, Math.max(spatialVector.get(1), value));
+        if (!Float.isNaN(value)) {
+            spatialVector.set(0, Math.min(spatialVector.get(0), value));
+            spatialVector.set(1, Math.max(spatialVector.get(1), value));
+        }
     }
 
     @Override
@@ -81,6 +83,8 @@ public class AggregatorMinMax extends AbstractAggregator {
 
     @Override
     public void completeTemporal(BinContext ctx, int numTemporalObs, WritableVector temporalVector) {
+        temporalVector.set(0, Float.isInfinite(temporalVector.get(0)) ? Float.NaN : temporalVector.get(0));
+        temporalVector.set(1, Float.isInfinite(temporalVector.get(1)) ? Float.NaN : temporalVector.get(1));
     }
 
     @Override

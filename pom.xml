@@ -22,7 +22,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-engine</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>SNAP Engine Project</name>
@@ -38,12 +38,11 @@
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= snap.version).
         -->
         <snap.version>${project.version}</snap.version>
-        <snap.nbmSpecVersion>3.0.0.0</snap.nbmSpecVersion>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
         <slf4j.version>1.6.6</slf4j.version> <!-- used by netcdf, yes we hate that! -->
-        <geotools.version>2.7.4</geotools.version>
+        <geotools.version>17.1</geotools.version>
         <jide.version>3.6.1</jide.version>
     </properties>
 
@@ -70,6 +69,7 @@
         <module>snap-arcbingrid-reader</module>
         <module>snap-bigtiff</module>
         <module>snap-binning</module>
+        <module>snap-classification</module>
         <module>snap-cluster-analysis</module>
         <module>snap-collocation</module>
         <module>snap-csv-dataio</module>
@@ -80,19 +80,21 @@
         <module>snap-geotiff</module>
         <module>snap-hdf5-writer</module>
         <module>snap-jython</module>
-		<module>snap-land-cover</module>
+        <module>snap-land-cover</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
         <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
+		<module>snap-product-library</module>
         <module>snap-python</module>
-		<module>snap-raster</module>
+        <module>snap-raster</module>
         <module>snap-rtp-codec</module>
         <module>snap-smart-configurator</module>
         <module>snap-statistics</module>
         <module>snap-temporal-percentile</module>
         <module>snap-unmix</module>
+        <module>snap-watermask</module>
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
         <module>snap-sta</module>
@@ -184,9 +186,14 @@
                 <artifactId>snap-gpf</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-product-library</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
@@ -247,6 +254,11 @@
                 <artifactId>htmlparser</artifactId>
                 <version>1.6</version>
             </dependency>
+            <dependency>
+                <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+                <artifactId>core</artifactId>
+                <version>0.26</version>
+            </dependency>
 
             <!-- JDOM Library ############################################# -->
 
@@ -287,7 +299,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2</version>
+                <version>3.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -364,6 +376,11 @@
                     <exclusion>
                         <groupId>javax.media</groupId>
                         <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                    <!-- this lib is also used in snap-cluster-analysis and in jlinda-core -->
+                    <exclusion>
+                        <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+                        <artifactId>core</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -523,6 +540,10 @@
                         <groupId>it.geosolutions.imageio-ext</groupId>
                         <artifactId>imageio-ext-utilities</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -625,7 +646,7 @@
             <dependency>
                 <groupId>com.google.jimfs</groupId>
                 <artifactId>jimfs</artifactId>
-                <version>1.0</version>
+                <version>1.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -641,7 +662,7 @@
 
             <dependency>
                 <groupId>com.jidesoft</groupId>
-                <artifactId>jide-common</artifactId>
+                <artifactId>jide-oss</artifactId>
                 <version>${jide.version}</version>
             </dependency>
 
@@ -657,7 +678,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.2</version>
+                <version>1.4.8</version>
             </dependency>
             <dependency>
                 <groupId>xpp3</groupId>
@@ -668,12 +689,22 @@
             <!-- JFreeChart Libraries ############################################# -->
 
             <dependency>
-                <groupId>jfree</groupId>
+                <groupId>org.jfree</groupId>
                 <artifactId>jfreechart</artifactId>
                 <version>1.0.14</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.lowagie</groupId>
+                        <artifactId>itext</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
-                <groupId>jfree</groupId>
+                <groupId>org.jfree</groupId>
                 <artifactId>jcommon</artifactId>
                 <version>1.0.17</version>
             </dependency>
@@ -856,8 +887,8 @@
                         <!--<excludePackageNames>org.esa.snap.core.gpf.internal:*.internal:*.impl:*.experimental</excludePackageNames>-->
                         <additionalparam>-exclude com.bc.ceres.core.runtime:com.bc.ceres.swing:org.esa.snap.core.param.validators:org.esa.snap.core.param.editors:org.esa.snap.core.param:org.esa.snap.core.draw:org.esa.snap.core.dataop.projection:com.bc.ceres.binio.internal:com.bc.ceres.compiler:com.bc.ceres.swing.binding.internal:com.bc.ceres.core.runtime.internal:com.bc.ceres.jai.js:com.bc.ceres.launcher:com.bc.ceres.launcher.internal:com.bc.ceres.metadata:com.bc.ceres.nbmgen:com.bc.ceres.resource:com.bc.ceres.standalone:org.esa.snap.core.dataop.downloadable:org.esa.snap.core.dataop.maptransf.geotools:org.esa.snap.core.dataop.maptransf:org.esa.snap.core.gpf.doclet:org.esa.snap.core.gpf.internal:org.esa.snap.core.gpf.experimental:org.esa.snap.core.gpf.operators.tooladapter:org.esa.snap.core.jexp.impl</additionalparam>
                         <maxmemory>512M</maxmemory>
-                        <doctitle>SNAP Engine 2.0 API</doctitle>
-                        <windowtitle>SNAP Engine 2.0 API</windowtitle>
+                        <doctitle>SNAP Engine API</doctitle>
+                        <windowtitle>SNAP Engine API</windowtitle>
                         <quiet>true</quiet> <!-- show only warnings and errors -->
                         <failOnError>false</failOnError> <!-- Actually we should fix the errors -->
                         <author>false</author>
@@ -903,7 +934,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
-                    <version>3.14</version>
+                    <version>4.1</version>
                     <extensions>true</extensions>
                     <dependencies>
                         <dependency>
@@ -926,11 +957,35 @@
                         <sourceManifestFile>target/nbm/manifest.mf</sourceManifestFile>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.10</version>
+                    <executions>
+                        <execution>
+                            <id>regex-property</id>
+                            <goals>
+                                <goal>regex-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>snap.nbmSpecVersion</name>
+                                <value>${project.version}</value>
+                                <regex>-SNAPSHOT</regex>
+                                <replacement>.0</replacement>
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
 
             </plugins>
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
@@ -958,6 +1013,29 @@
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.1.0</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.8</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

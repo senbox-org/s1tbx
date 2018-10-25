@@ -27,9 +27,11 @@ import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.prefs.Preferences;
 
@@ -51,7 +53,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     private final boolean productCanAppendFiles;
     private final boolean saveWithProduct;
 
-
+    private String quicklookLink = null;
 
     public Quicklook(final File productFile) {
         this(null, DEFAULT_QUICKLOOK_NAME);
@@ -69,7 +71,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product    the source product
      * @param name       the name of the quicklook
@@ -80,7 +82,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product    the source product
      * @param name       the name of the quicklook
@@ -91,7 +93,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product                the source product
      * @param name                   the name of the quicklook
@@ -138,6 +140,10 @@ public class Quicklook extends ProductNode implements Thumbnail {
      */
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         return 0;
+    }
+
+    public void setQuicklookLink(final String link) {
+         this.quicklookLink = link;
     }
 
     /**
@@ -196,19 +202,23 @@ public class Quicklook extends ProductNode implements Thumbnail {
                     } else {
                         if(product != null) {
                             if(quicklookBands == null) {
-                                quicklookBands = QuicklookGenerator.findQuicklookBands(product);
+                                quicklookBands = qlGen.findQuicklookBands(product);
                             }
-                            image = qlGen.createQuickLookImage(product, quicklookBands, pm);
+                            if(quicklookBands != null) {
+                                image = qlGen.createQuickLookImage(product, quicklookBands, pm);
+                            }
                         } else {
                             throw new IOException("Quicklook: product not set");
                         }
                     }
-                    saveQuicklook(image);
-                } catch (IOException e) {
+                    if(image != null) {
+                        saveQuicklook(image);
+                        notifyImageUpdated();
+                    }
+                } catch (Throwable e) {
                     SystemUtils.LOG.severe("Quicklook: Unable to generate quicklook: " + e.getMessage());
                 }
             }
-            notifyImageUpdated();
         }
         return image;
     }
@@ -228,11 +238,20 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     private void loadQuicklook() {
+        //System.out.println("Quicklook.loadQuicklook: called");
         if (productQuicklookFolder != null) {
             // load from product
 
             final File quickLookFile = productQuicklookFolder.resolve(getQLFileName(0)).toFile();
             image = QuicklookGenerator.loadImage(quickLookFile);
+        }
+        if (quicklookLink != null) {
+            try {
+                URL url = new URL(quicklookLink);
+                image = ImageIO.read(url);
+            } catch (Exception e) {
+                SystemUtils.LOG.warning("Quicklook URL ERROR " + e.getMessage() + "; link = " + quicklookLink);
+            }
         }
         if (image == null) {
             // load from database

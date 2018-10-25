@@ -26,17 +26,17 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,18 +55,18 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     private static final String FILE_NAME_PATTERN = "bins-%05d.tmp"; // at least 5 digits; zero padded
 
     private final int numBinsPerFile;
-    private final SortedMap<Long, List<SpatialBin>> map;
+    private final List<SpatialBin> binList;
     private final AtomicBoolean consumingCompleted;
     private final File tempDir;
-    private long currentFileIndex;
+    private int currentFileIndex;
     private long numBinsComsumed;
 
-    public FileBackedSpatialBinCollector(long maximumNumberOfBins) throws IOException {
+    FileBackedSpatialBinCollector(long maximumNumberOfBins) throws IOException {
         Assert.argument(maximumNumberOfBins > 0, "maximumNumberOfBins > 0");
         numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         tempDir = VirtualDir.createUniqueTempDir();
         Runtime.getRuntime().addShutdownHook(new DeleteDirThread(tempDir));
-        map = new TreeMap<Long, List<SpatialBin>>();
+        binList = new ArrayList<>();
         consumingCompleted = new AtomicBoolean(false);
         currentFileIndex = 0;
         numBinsComsumed = 0;
@@ -77,23 +77,17 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         if (consumingCompleted.get()) {
             throw new IllegalStateException("Consuming of bins has already been completed.");
         }
-        synchronized (map) {
+        synchronized (binList) {
             for (SpatialBin spatialBin : spatialBins) {
                 numBinsComsumed++;
                 long spatialBinIndex = spatialBin.getIndex();
                 int nextFileIndex = calculateNextFileIndex(spatialBinIndex);
                 if (nextFileIndex != currentFileIndex) {
                     // write map back to file, if it contains data
-                    writeMapToFile(currentFileIndex);
-                    readFromFile(nextFileIndex);
+                    writeListToFile(currentFileIndex);
                     currentFileIndex = nextFileIndex;
                 }
-                List<SpatialBin> spatialBinList = map.get(spatialBinIndex);
-                if (spatialBinList == null) {
-                    spatialBinList = new ArrayList<SpatialBin>();
-                    map.put(spatialBinIndex, spatialBinList);
-                }
-                spatialBinList.add(spatialBin);
+                binList.add(spatialBin);
             }
         }
     }
@@ -101,43 +95,41 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     @Override
     public void consumingCompleted() throws IOException {
         consumingCompleted.set(true);
-        synchronized (map) {
-            writeMapToFile(currentFileIndex);
+        synchronized (binList) {
+            writeListToFile(currentFileIndex);
         }
     }
 
     @Override
     public SpatialBinCollection getSpatialBinCollection() throws IOException {
-        return new FileBackedBinCollection(numBinsComsumed);
+        List<File> cacheFiles = getCacheFiles(tempDir);
+        return new FileBackedBinCollection(cacheFiles, numBinsComsumed);
     }
 
     public void close() {
         FileUtils.deleteTree(tempDir);
     }
 
-    static void writeToStream(SortedMap<Long, List<SpatialBin>> map, DataOutputStream dos) throws IOException {
-        for (Map.Entry<Long, List<SpatialBin>> entry : map.entrySet()) {
-            dos.writeLong(entry.getKey());
-            List<SpatialBin> binList = entry.getValue();
-            dos.writeInt(binList.size());
-            for (SpatialBin spatialBin : binList) {
-                spatialBin.write(dos);
-            }
+    static void writeToStream(List<SpatialBin> spatialBins, DataOutputStream dos) throws IOException {
+        for (SpatialBin spatialBin : spatialBins) {
+            dos.writeLong(spatialBin.getIndex());
+            spatialBin.write(dos);
         }
     }
 
     static void readFromStream(DataInputStream dis, SortedMap<Long, List<SpatialBin>> map) throws IOException {
-        while (dis.available() != 0) {
-            long binIndex = dis.readLong();
-            int numBins = dis.readInt();
-            List<SpatialBin> spatialBins = map.get(binIndex);
-            if (spatialBins == null) {
-                spatialBins = new ArrayList<SpatialBin>(numBins);
-            }
-            for (int i = numBins; i > 0; i--) {
+        while (true) {
+            try {
+                long binIndex = dis.readLong();
+                List<SpatialBin> spatialBins = map.get(binIndex);
+                if (spatialBins == null) {
+                    spatialBins = new ArrayList<>();
+                    map.put(binIndex, spatialBins);
+                }
                 spatialBins.add(SpatialBin.read(binIndex, dis));
+            } catch (EOFException eof) {
+                return;
             }
-            map.put(binIndex, spatialBins);
         }
     }
 
@@ -148,44 +140,29 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         return Math.max(DEFAULT_NUM_BINS_PER_FILE, binsPerFile);
     }
 
-    private void writeMapToFile(long fileIndex) throws IOException {
-        if (!map.isEmpty()) {
+    private void writeListToFile(int fileIndex) throws IOException {
+        if (!binList.isEmpty()) {
             File file = getFile(fileIndex);
-            writeToFile(map, file);
-            map.clear();
+            writeToFile(binList, file);
+            binList.clear();
         }
     }
 
-    private void writeToFile(SortedMap<Long, List<SpatialBin>> map, File file) throws IOException {
-        FileOutputStream fos = new FileOutputStream(file);
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 5 * 1024 * 1024));
-        try {
-            writeToStream(map, dos);
-        } finally {
-            dos.close();
-        }
-    }
-
-    private void readFromFile(long nextFileIndex) throws IOException {
-        File file = getFile(nextFileIndex);
-        if (file.exists()) {
-            readIntoMap(file, map);
-        } else {
-            map.clear();
+    private void writeToFile(List<SpatialBin> spatialBins, File file) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file, true);
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 5 * 1024 * 1024))) {
+            writeToStream(spatialBins, dos);
         }
     }
 
     private static void readIntoMap(File file, SortedMap<Long, List<SpatialBin>> map) throws IOException {
         FileInputStream fis = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
-        try {
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024))) {
             readFromStream(dis, map);
-        } finally {
-            dis.close();
         }
     }
 
-    private File getFile(long fileIndex) throws IOException {
+    private File getFile(int fileIndex) throws IOException {
         return new File(tempDir, String.format(FILE_NAME_PATTERN, fileIndex));
     }
 
@@ -193,12 +170,30 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         return (int) (binIndex / numBinsPerFile);
     }
 
-    private class FileBackedBinCollection implements SpatialBinCollection {
+    private static List<File> getCacheFiles(File cacheFileDir) {
+        File[] files = cacheFileDir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                String fileName = file.getName();
+                return file.isFile() && fileName.startsWith("bins-") && fileName.endsWith(".tmp");
+            }
+        });
+        if (files == null) {
+            return Collections.emptyList();
+        }
+        Arrays.sort(files);
+        List<File> fileList = new ArrayList<>(files.length);
+        Collections.addAll(fileList, files);
+        return fileList;
+    }
 
+    private static class FileBackedBinCollection implements SpatialBinCollection {
 
+        private final List<File> cacheFiles;
         private final long size;
 
-        public FileBackedBinCollection(long size) {
+        private FileBackedBinCollection(List<File> cacheFiles, long size) {
+            this.cacheFiles = cacheFiles;
             this.size = size;
         }
 
@@ -207,7 +202,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             return new Iterable<List<SpatialBin>>() {
                 @Override
                 public Iterator<List<SpatialBin>> iterator() {
-                    return new FileBackedBinIterator(tempDir);
+                    return new FileBackedBinIterator(cacheFiles.iterator());
                 }
             };
         }
@@ -221,86 +216,49 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         public boolean isEmpty() {
             return false;
         }
-
-
-        private class FileBackedBinIterator implements Iterator<List<SpatialBin>> {
-
-            private final List<File> cacheFiles;
-            private final List<List<SpatialBin>> currentList;
-
-            private FileBackedBinIterator(File tempCacheDir) {
-                this.cacheFiles = getCacheFiles(tempCacheDir);
-                // We use a linked list here because we use the remove method, which is expensive for an ArrayList
-                currentList = new LinkedList<List<SpatialBin>>();
-            }
-
-            @Override
-            public boolean hasNext() {
-                return !(currentList.isEmpty() && cacheFiles.isEmpty());
-            }
-
-            @Override
-            public List<SpatialBin> next() {
-                if (currentList.isEmpty()) {
-                    File currentFile = cacheFiles.remove(0);
-                    if (currentFile.exists()) {
-                        try {
-                            readIntoList(currentFile, currentList);
-                        } catch (IOException e) {
-                            throw new IllegalStateException(e.getMessage(), e);
-                        }
-                        if (!currentFile.delete()) {
-                            currentFile.deleteOnExit();
-                        }
-                    }
-                }
-                return currentList.remove(0);
-
-            }
-
-            private List<File> getCacheFiles(File cacheFileDir) {
-                File[] files = cacheFileDir.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File file) {
-                        String fileName = file.getName();
-                        return file.isFile() && fileName.startsWith("bins-") && fileName.endsWith(".tmp");
-                    }
-                });
-                List<File> fileList = new LinkedList<File>();
-                Collections.addAll(fileList, files);
-                Collections.sort(fileList);
-                return fileList;
-
-            }
-
-            private void readIntoList(File file, List<List<SpatialBin>> lists) throws IOException {
-                FileInputStream fis = new FileInputStream(file);
-                DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
-                try {
-                    readIntoList(dis, lists);
-                } finally {
-                    dis.close();
-                }
-            }
-
-            private void readIntoList(DataInputStream dis, List<List<SpatialBin>> list) throws IOException {
-                while (dis.available() != 0) {
-                    long binIndex = dis.readLong();
-                    int numBins = dis.readInt();
-                    List<SpatialBin> spatialBins = new ArrayList<SpatialBin>(numBins);
-                    for (int i = numBins; i > 0; i--) {
-                        spatialBins.add(SpatialBin.read(binIndex, dis));
-                    }
-                    list.add(spatialBins);
-                }
-            }
-
-
-            @Override
-            public void remove() {
-                // nothing to do
-            }
-        }
     }
 
+    private static class FileBackedBinIterator implements Iterator<List<SpatialBin>> {
+
+        private final Iterator<File> binFiles;
+        private Iterator<List<SpatialBin>> binIterator;
+
+        private FileBackedBinIterator(Iterator<File> binFiles) {
+            this.binFiles = binFiles;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iteratorHasBins() || binFiles.hasNext();
+        }
+
+        @Override
+        public List<SpatialBin> next() {
+            if (!iteratorHasBins()) {
+                File currentFile = binFiles.next();
+                if (currentFile.exists()) {
+                    final SortedMap<Long, List<SpatialBin>> map = new TreeMap<>();
+                    try {
+                        readIntoMap(currentFile, map);
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e.getMessage(), e);
+                    }
+                    if (!currentFile.delete()) {
+                        currentFile.deleteOnExit();
+                    }
+                    binIterator = map.values().iterator();
+                }
+            }
+            return binIterator.next();
+        }
+
+        private boolean iteratorHasBins() {
+            return binIterator != null && binIterator.hasNext();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
 }

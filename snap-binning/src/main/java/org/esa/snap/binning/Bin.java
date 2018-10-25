@@ -36,11 +36,11 @@ public abstract class Bin implements BinContext {
     // Not serialized for Hadoop
     private transient HashMap<String, Object> contextMap;
 
-    public Bin() {
+    Bin() {
         this.index = -1;
     }
 
-    public Bin(long index, int numFeatures) {
+    Bin(long index, int numFeatures) {
         this.index = index;
         setNumFeatures(numFeatures);
     }
@@ -86,7 +86,7 @@ public abstract class Bin implements BinContext {
     @Override
     public void put(String name, Object value) {
         if (contextMap == null) {
-            contextMap = new HashMap<String, Object>();
+            contextMap = new HashMap<>();
         }
         contextMap.put(name, value);
     }

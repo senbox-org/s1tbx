@@ -52,6 +52,9 @@ import java.lang.reflect.Constructor;
 @SuppressWarnings({"UnusedDeclaration"})
 public class BinningConfig {
 
+    private static final int MAX_DISTANCE_ON_EARTH_DEFAULT = -1;
+    private static final int SUPER_SAMPLING_DEFAULT = 1;
+    
     /**
      * Specifies the planetary grid used for the binning. It must be the fully qualified
      * name of a class implementing the {@link PlanetaryGrid} interface.
@@ -83,6 +86,10 @@ public class BinningConfig {
      */
     @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels", defaultValue = "1")
     private Integer superSampling;
+
+
+    @Parameter(description = "Skips binning of sub-pixel if distance on earth to the center of the main-pixel is larger as this value. A value <=0 disables this check", defaultValue = "-1")
+    private Integer maxDistanceOnEarth;
 
     /**
      * The band maths expression used to filter input pixels.
@@ -189,6 +196,14 @@ public class BinningConfig {
         this.superSampling = superSampling;
     }
 
+    public Integer getMaxDistanceOnEarth() {
+        return maxDistanceOnEarth;
+    }
+
+    public void setMaxDistanceOnEarth(Integer maxDistanceOnEarth) {
+        this.maxDistanceOnEarth = maxDistanceOnEarth;
+    }
+
     public CompositingType getCompositingType() {
         return compositingType;
     }
@@ -290,10 +305,13 @@ public class BinningConfig {
         BinManager binManager = createBinManager(variableContext, aggregators);
         binManager.setBinTracer(BinTracer.create(binManager, planetaryGridInst, outputFile));
         DataPeriod dataPeriod = createDataPeriod(startDate, periodDuration, minDataHour);
+        int effSuperSampling = getSuperSampling() != null ? getSuperSampling() : SUPER_SAMPLING_DEFAULT;
+        int effMaxDistanceOnEarth = getMaxDistanceOnEarth() != null ? getMaxDistanceOnEarth() : MAX_DISTANCE_ON_EARTH_DEFAULT;
         return new BinningContextImpl(planetaryGridInst,
                                       binManager,
                                       compositingType,
-                                      getSuperSampling() != null ? getSuperSampling() : 1,
+                                      effSuperSampling,
+                                      effMaxDistanceOnEarth,
                                       dataPeriod,
                                       region);
     }
@@ -355,8 +373,8 @@ public class BinningConfig {
         // define declared variables
         //
         if (variableConfigs != null) {
-            for (VariableConfig variableConfig : variableConfigs) {
-                variableContext.defineVariable(variableConfig.getName(), variableConfig.getExpr());
+            for (VariableConfig varConfig : variableConfigs) {
+                variableContext.defineVariable(varConfig.getName(), varConfig.getExpr(), varConfig.getValidExpr());
             }
         }
 

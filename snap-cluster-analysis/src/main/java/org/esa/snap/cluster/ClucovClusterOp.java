@@ -39,7 +39,7 @@ import java.util.Set;
  * Implements a cluster analysis using the CLUCOV algorithm.
  */
 @OperatorMetadata(alias = "ClucovClusterAnalysis",
-                  category = "Classification/Clustering",
+                  category = "Raster/Classification/Unsupervised Classification",
                   version = "1.0",
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
@@ -65,9 +65,6 @@ public class ClucovClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
 
         featureBands = new Band[sourceBandNames.length];
         for (int i = 0; i < sourceBandNames.length; i++) {
@@ -78,9 +75,13 @@ public class ClucovClusterOp extends Operator {
             }
             featureBands[i] = band;
         }
+        if (featureBands.length == 0) {
+            throw new OperatorException("Need at least a single feature band.");
+        }
+        ensureSingleRasterSize(featureBands);
 
-        int width = sourceProduct.getSceneRasterWidth();
-        int height = sourceProduct.getSceneRasterHeight();
+        int width = featureBands[0].getRasterWidth();
+        int height = featureBands[0].getRasterHeight();
         targetProduct = new Product("clucov", "clucov", width, height);
 // todo - use option to decide if to output probability bands         
 //        for (int i = 0; i < featureBands.length; i++) {

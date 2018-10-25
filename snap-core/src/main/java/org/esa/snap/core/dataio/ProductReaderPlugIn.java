@@ -17,13 +17,12 @@ package org.esa.snap.core.dataio;
 
 /**
  * The <code>ProductReaderPlugIn</code> interface is implemented by data product reader plug-ins.
- * <p>XMLDecoder plug-ins are used to provide meta-information about a particular data format and to create instances of
+ * <p>ProductReaderPlugIn plug-ins are used to provide meta-information about a particular data format and to create instances of
  * the actual reader objects.
  * <p> A plug-in can register itself in the <code>ProductIO</code> plug-in registry or it is automatically found during
  * a classpath scan.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  * @see ProductWriterPlugIn
  */
 public interface ProductReaderPlugIn extends ProductIOPlugIn {

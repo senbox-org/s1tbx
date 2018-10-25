@@ -16,6 +16,7 @@
 
 package org.esa.snap.core.gpf.internal;
 
+import com.bc.ceres.core.DefaultServiceRegistry;
 import com.bc.ceres.core.ServiceRegistry;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
@@ -34,11 +35,7 @@ public class OperatorSpiRegistryImplTest {
 
     @Before
     public void setUp() throws Exception {
-        registry = new OperatorSpiRegistryImpl();
-        Set<OperatorSpi> alreadyRegisteredSpis = registry.getOperatorSpis();
-        for (OperatorSpi alreadyRegisteredSpi : alreadyRegisteredSpis) {
-            registry.removeOperatorSpi(alreadyRegisteredSpi);
-        }
+        registry = new OperatorSpiRegistryImpl(new DefaultServiceRegistry<>(OperatorSpi.class));
     }
 
     @Test
@@ -92,6 +89,22 @@ public class OperatorSpiRegistryImplTest {
         assertTrue(operatorSpis.contains(heino1));
         assertTrue(operatorSpis.contains(heino2));
         assertTrue(operatorSpis.contains(heino3));
+    }
+
+
+    @Test
+    public void testInSensentiveOperator() {
+        DummyOp.Spi heino1 = new DummyOp.Spi();
+        DummyOp.Spi heino2 = new DummyOp.Spi();
+        DummyOp.Spi heino3 = new DummyOp.Spi();
+
+        assertTrue(registry.addOperatorSpi("heino1", heino1));
+        assertTrue(registry.addOperatorSpi("HEino2", heino2));
+        assertTrue(registry.addOperatorSpi("HeINo3", heino3));
+
+        assertSame(heino1, registry.getOperatorSpi("HEINO1"));
+        assertSame(heino2, registry.getOperatorSpi("HeinO2"));
+        assertSame(heino3, registry.getOperatorSpi("HEinO3"));
     }
 
     @Test

@@ -36,7 +36,7 @@ public class MetadataWriterTest {
 
         metadataWriter.initialiseOutput(StatisticsOutputContext.create(sourceProducts, null, null, startDate, endDate, regionIds));
 
-        assertEquals("# BEAM Statistics export\n" +
+        assertEquals("# SNAP Statistics export\n" +
                              "#\n" +
                              "# Products:\n" +
                              "#              MER_RR__2PBCMsomething\n" +
@@ -45,6 +45,9 @@ public class MetadataWriterTest {
                              "#\n" +
                              "# End Date: 01-JAN-2011 00:00:00.000000\n" +
                              "#\n" +
+                             "# Time Intervals:\n" +
+                             "#              From 01-JAN-2010 00:00:00.000000 to 01-JAN-2011 00:00:00.000000\n" +
+                              "#\n" +
                              "# Regions:\n" +
                              "#              bullerbue\n" +
                              "#              bielefeld\n"

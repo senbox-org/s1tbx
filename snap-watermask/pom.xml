@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>snap-engine</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>7.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>snap-watermask</artifactId>
+    <packaging>nbm</packaging>
+
+    <name>SNAP Watermask Operator</name>
+    <description>Provides an API as well as an operator for creating an accurate and fractional land-water mask.
+    </description>
+	
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-core</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-glayer</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-jai</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-ui</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-binding</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-engine-utilities</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.geotools</groupId>-->
+            <!--<artifactId>gt-render</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.geotools</groupId>-->
+            <!--<artifactId>gt-shapefile</artifactId>-->
+        <!--</dependency>-->
+		
+		<dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.esa.snap.watermask.operator.*</publicPackage>
+                        <publicPackage>org.esa.snap.watermask.util.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

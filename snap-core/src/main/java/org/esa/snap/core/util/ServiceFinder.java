@@ -1,10 +1,13 @@
 package org.esa.snap.core.util;
 
 import com.bc.ceres.core.ResourceLocator;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.runtime.Config;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,38 +31,68 @@ public class ServiceFinder {
 
     private final String servicesPath;
     private final List<Path> searchPaths;
-    private boolean searchClassPath;
+    private boolean useClassPath;
+    private boolean useZipFiles;
 
+    /**
+     * Constructor.
+     *
+     * @param serviceType The service type or service provider interface (SPI).
+     */
+    public ServiceFinder(Class serviceType) {
+        this(serviceType.getName());
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param serviceName The service's name.
+     */
     public ServiceFinder(String serviceName) {
         servicesPath = "META-INF/services/" + serviceName;
         searchPaths = new ArrayList<>();
     }
 
     /**
-     * The module containing the services.
+     * @return The service's path.
      */
-    public static class Module {
-        private final Path path;
-        private final List<String> serviceNames;
+    public String getServicesPath() {
+        return servicesPath;
+    }
 
-        private Module(Path path, List<String> serviceNames) {
-            this.path = path;
-            this.serviceNames = serviceNames;
-        }
+    /**
+     * @return {@code true} if this ServiceFinder uses the JVM's class path´to find modules.
+     */
+    public boolean getUseClassPath() {
+        return useClassPath;
+    }
 
-        /**
-         * The module's path.
-         */
-        public Path getPath() {
-            return path;
-        }
+    /**
+     * @param value If {@code true}, the JVM's class path shall be searched as well
+     */
+    public void setUseClassPath(boolean value) {
+        this.useClassPath = value;
+    }
 
-        /**
-         * The service names parsed from the module's service registry file.
-         */
-        public List<String> getServiceNames() {
-            return Collections.unmodifiableList(serviceNames);
-        }
+    /**
+     * @return {@code true} if this ServiceFinder uses the JVM's class path to find modules.
+     */
+    public boolean getUseZipFiles() {
+        return useZipFiles;
+    }
+
+    /**
+     * @param value If {@code true}, any ZIP and JAR files are searched as well
+     */
+    public void setUseZipFiles(boolean value) {
+        this.useZipFiles = value;
+    }
+
+    /**
+     * @return The list of search paths.
+     */
+    public List<Path> getSearchPaths() {
+        return Collections.unmodifiableList(searchPaths);
     }
 
     /**
@@ -102,13 +135,6 @@ public class ServiceFinder {
     }
 
     /**
-     * @param searchClassPath {@code true}, if the Java classpath shall be searched as well
-     */
-    public void searchClassPath(boolean searchClassPath) {
-        this.searchClassPath = searchClassPath;
-    }
-
-    /**
      * Finds services based on the current search path configuration.
      *
      * @return List of modules providing the services.
@@ -118,7 +144,7 @@ public class ServiceFinder {
         for (Path directory : searchPaths) {
             scanPath(directory, modules);
         }
-        if (searchClassPath) {
+        if (useClassPath) {
             scanClassPath(modules);
         }
         return modules;
@@ -144,8 +170,20 @@ public class ServiceFinder {
         try {
             LOG.fine("Searching for SPIs " + servicesPath + " in " + directory);
             Files.list(directory).forEach(entry -> {
-                // Note we may allow for zip/jar files here later!
-                parseServiceRegistry(entry.resolve(servicesPath), modules);
+                if (Files.isDirectory(entry)) {
+                    parseServiceRegistry(entry.resolve(servicesPath), modules);
+                } else if (useZipFiles) {
+                    String extension = FileUtils.getExtension(entry.toString());
+                    if (".jar".compareToIgnoreCase(extension) == 0 || ".zip".compareToIgnoreCase(extension) == 0) {
+                        try {
+                            try (FileSystem fs = FileSystems.newFileSystem(entry, null)) {
+                                parseServiceRegistry(fs.getPath(servicesPath), modules);
+                            }
+                        } catch (IOException e) {
+                            LOG.log(Level.SEVERE, "Failed to open file : " + entry, e);
+                        }
+                    }
+                }
             });
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Failed to list directory: " + directory, e);
@@ -190,4 +228,37 @@ public class ServiceFinder {
         moduleRoot = moduleRoot.normalize();
         return moduleRoot;
     }
+
+    @Deprecated
+    public void searchClassPath(boolean value) {
+        this.useClassPath = value;
+    }
+
+    /**
+     * The module containing the services.
+     */
+    public static class Module {
+        private final Path path;
+        private final List<String> serviceNames;
+
+        private Module(Path path, List<String> serviceNames) {
+            this.path = path;
+            this.serviceNames = serviceNames;
+        }
+
+        /**
+         * The module's path.
+         */
+        public Path getPath() {
+            return path;
+        }
+
+        /**
+         * The service names parsed from the module's service registry file.
+         */
+        public List<String> getServiceNames() {
+            return Collections.unmodifiableList(serviceNames);
+        }
+    }
+
 }

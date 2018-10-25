@@ -33,7 +33,6 @@ import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.SingleBandedOpImage;
 import org.esa.snap.core.transform.MathTransform2D;
-import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ObjectUtils;
 import org.esa.snap.core.util.ProductUtils;
@@ -41,7 +40,6 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.jai.SingleBandedSampleModel;
 import org.esa.snap.core.util.math.Histogram;
-import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.core.util.math.Quantizer;
 import org.esa.snap.core.util.math.Range;
@@ -171,13 +169,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     protected RasterDataNode(String name, int dataType, long numElems) {
         super(name, dataType, numElems);
         if (dataType != ProductData.TYPE_INT8
-                && dataType != ProductData.TYPE_INT16
-                && dataType != ProductData.TYPE_INT32
-                && dataType != ProductData.TYPE_UINT8
-                && dataType != ProductData.TYPE_UINT16
-                && dataType != ProductData.TYPE_UINT32
-                && dataType != ProductData.TYPE_FLOAT32
-                && dataType != ProductData.TYPE_FLOAT64) {
+            && dataType != ProductData.TYPE_INT16
+            && dataType != ProductData.TYPE_INT32
+            && dataType != ProductData.TYPE_UINT8
+            && dataType != ProductData.TYPE_UINT16
+            && dataType != ProductData.TYPE_UINT32
+            && dataType != ProductData.TYPE_FLOAT32
+            && dataType != ProductData.TYPE_FLOAT64) {
             throw new IllegalArgumentException("dataType is invalid");
         }
 
@@ -424,7 +422,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
             // If our product has no geo-coding yet, it is set to the current one, if any
             if (this.geoCoding != null) {
                 final Product product = getProduct();
-                if (product != null && product.getSceneGeoCoding() == null) {
+                if (product != null && product.getSceneGeoCoding() == null && product.getSceneRasterSize().equals(getRasterSize())) {
                     product.setSceneGeoCoding(this.geoCoding);
                 }
             }
@@ -716,6 +714,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @return the no-data value. It is returned as a <code>double</code> in order to cover all other numeric types.
      * @see #setNoDataValue(double)
      * @see #isNoDataValueSet()
+     * @see #isNoDataValueUsed()
      */
     public double getNoDataValue() {
         return isNoDataValueSet() ? noData.getElemDouble() : 0.0;
@@ -1033,8 +1032,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
      * @return <code>true</code> if the pixel is valid
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      * @see #isPixelValid(int, int, javax.media.jai.ROI)
+     * @see #isPixelValid(int)
      * @see #setNoDataValueUsed(boolean)
      * @see #setNoDataValue(double)
      * @see #setValidPixelExpression(String)
@@ -1096,8 +1097,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      *
      * @param pixelIndex the linear pixel index in the range 0 to width * height - 1
      * @return <code>true</code> if the pixel is valid
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      * @see #isPixelValid(int, int, javax.media.jai.ROI)
+     * @see #isPixelValid(int, int)
      * @see #setNoDataValueUsed(boolean)
      * @see #setNoDataValue(double)
      * @see #setValidPixelExpression(String)
@@ -1121,11 +1124,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @param y   the Y co-ordinate of the pixel location
      * @param roi the ROI, if null the method returns {@link #isPixelValid(int, int)}
      * @return <code>true</code> if the pixel is valid
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      * @see #isPixelValid(int, int)
+     * @see #isPixelValid(int)
      * @see #setNoDataValueUsed(boolean)
      * @see #setNoDataValue(double)
      * @see #setValidPixelExpression(String)
+     * @see #readValidMask(int, int, int, int, boolean[]) 
      */
     public boolean isPixelValid(int x, int y, ROI roi) {
         return isPixelValid(x, y) && (roi == null || roi.contains(x, y));
@@ -1243,7 +1249,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
 
     /**
-     * @see {@link #getPixels(int, int, int, int, float[], ProgressMonitor)}
+     * @see #getPixels(int, int, int, int, float[], ProgressMonitor)
      */
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1402,7 +1408,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @throws IllegalStateException if this object has no attached {@link Product#setProductReader(ProductReader) product reader}
      */
     public abstract float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
-            IOException;
+                                                                                                       IOException;
 
     /**
      * @see #readPixels(int, int, int, int, double[], ProgressMonitor)
@@ -1428,7 +1434,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @throws IllegalStateException if this object has no attached {@link Product#setProductReader(ProductReader) product reader}
      */
     public abstract double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
-            IOException;
+                                                                                                         IOException;
 
     /**
      * @see #writePixels(int, int, int, int, int[], ProgressMonitor)
@@ -1495,8 +1501,27 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @throws IOException           if an I/O error occurs
      */
     public abstract void writePixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
-            IOException;
+                                                                                                      IOException;
 
+    /**
+     * Reads the valid mask values for the specified area. The mask indicates if a pixel is valid or not.
+     * The values are retrieved from the {@link #getValidMaskImage()}.
+     * For a single pixel it is also possible to us {@link #isPixelValid(int, int)}
+     *
+     * @param x         x offset into the band
+     * @param y         y offset into the band
+     * @param w         width of the pixel array to be written
+     * @param h         height of the pixel array to be written
+     * @param validMask mask for the specified area if the pixels are valid. Can be {@code null}, then a new array
+     *                  will be created and returned. If the array is provided it must have the size ({@code w * h})
+     * @return the valid mask. Either the provided array or a newly created.
+     *
+     * @throws IOException if an I/O error occurs
+     *
+     * @see #getValidMaskImage()
+     * @see #getValidPixelExpression()
+     * @see #isPixelValid(int, int)
+     */
     public boolean[] readValidMask(int x, int y, int w, int h, boolean[] validMask) throws IOException {
         if (validMask == null) {
             validMask = new boolean[w * h];
@@ -1669,8 +1694,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      */
     public boolean isCompatibleRasterData(ProductData rasterData, int w, int h) {
         return rasterData != null
-                && rasterData.getType() == getDataType()
-                && rasterData.getNumElems() == w * h;
+               && rasterData.getType() == getDataType()
+               && rasterData.getNumElems() == w * h;
     }
 
     /**
@@ -2301,9 +2326,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     }
 
     /**
-     * Returns wether the valid mask image is set on this {@code RasterDataNode}.
+     * Returns whether the valid mask image is set on this {@code RasterDataNode}.
      *
-     * @return Wether the source image is set.
+     * @return Whether the source image is set.
      * @since BEAM 4.5
      */
     public boolean isValidMaskImageSet() {
@@ -2312,6 +2337,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
 
     /**
      * Gets the valid-mask image associated with this {@code RasterDataNode}.
+     * The image is based on the {@link #getValidMaskExpression()}
      *
      * @return The rendered image.
      * @since BEAM 4.2
@@ -2600,7 +2626,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @param pm        a progress monitor
      */
     public void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
-            IOException {
+                                                                                                     IOException {
         Debug.trace("RasterDataNode.processRasterData: " + message);
         int readBufferLineCount = getReadBufferLineCount();
         ProductData readBuffer = null;
@@ -2648,22 +2674,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
          * @param pm       a progress monitor
          */
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
-    }
-
-    static final class ValidMaskValidator implements IndexValidator {
-
-        private final int pixelOffset;
-        private final BitRaster validMask;
-
-        ValidMaskValidator(int rasterWidth, int lineOffset, BitRaster validMask) {
-            this.pixelOffset = rasterWidth * lineOffset;
-            this.validMask = validMask;
-        }
-
-        @Override
-        public boolean validateIndex(final int pixelIndex) {
-            return validMask.isSet(pixelOffset + pixelIndex);
-        }
     }
 
     private class AncillaryBandRemover extends ProductNodeListenerAdapter {

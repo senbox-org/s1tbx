@@ -19,6 +19,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.io.FileUtils;
 
@@ -111,6 +113,20 @@ public class RGBImageProfile implements ConfigurableExtension {
         this(name, rgbaExpressions, null);
     }
 
+    /**
+     * Creates a new RGB profile.
+     * In the pattern you can simply use '*' for a sequence of characters or use '?' for a single character.
+     * For Example:
+     * {@code new String[]{ "MER_*_2*", "MER_*_2*", ""}}
+     *
+     * @param name The name of the profile
+     * @param rgbaExpressions the expressions for the RGBA channels. Only RGB expressions are mandatory, the one for the alpha
+     *                        channel can be missing
+     * @param pattern Pattern to check if this profile can be applied to a certain product. Three patterns need to be provided.
+     *                1. Will be matched against the product type
+     *                2. Will be matched against the product name
+     *                3. Will be matched against the description of the product
+     */
     public RGBImageProfile(final String name, String[] rgbaExpressions, String pattern[]) {
         Assert.argument(name != null, "name != null");
         Assert.argument(rgbaExpressions != null, "rgbaExpressions != null");
@@ -257,6 +273,16 @@ public class RGBImageProfile implements ConfigurableExtension {
                 }
             }
         }
+
+        //check if raster size is the same in all the expressions
+        try {
+            if(!BandArithmetic.areRastersEqualInSize(product, expressions)) {
+                return false;
+            }
+        } catch (ParseException e) {
+            return false;
+        }
+
         return true;
     }
 

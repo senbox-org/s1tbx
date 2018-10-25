@@ -1,0 +1,11 @@
+ATS_INS_AX|Instrument characterization file|
+#
+MPH                                  |@/records/MPH.dd                      |1247                          |Main Product Header
+SPH                                  |@/records/SPH.dd       				 |*                             |AATSR Browse LUT Data SPH
+DSD                                  |@/records/DSD.dd                      |*                             |Data Set Descriptor array
+General_Parameters                   |@/records/aatsr/ATS_INS_AX_GP.dd	     |General parameters            |General Parameters GADS
+Master_Unpacking_Definition_Table    |@/records/aatsr/ATS_INS_AX_MUT.dd     |Master unpacking table        |Master Unpacking Definition Table GADS
+Conversion_Parameters                |@/records/aatsr/ATS_INS_AX_CP.dd      |Conversion parameters         |Conversion Parameters GADS
+Limits                               |@/records/aatsr/ATS_INS_AX_L.dd     |Validation limit checks       |Limits GADS
+Surveillance_Limits                  |@/records/aatsr/ATS_INS_AX_SL.dd     |Surveillance limit checks     |Surveillance Limits GADS
+Validation_Parameters                |@/records/aatsr/ATS_INS_AX_VP.dd    |Specialised limit checks      |Validation Parameters GADS

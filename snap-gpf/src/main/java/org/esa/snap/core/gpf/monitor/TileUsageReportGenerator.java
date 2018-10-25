@@ -38,7 +38,7 @@ import java.util.Set;
 
 /**
  * A tile observer which produces tile usage reports from Velocity template files.
- * May be used as a value for the 'beam.config' variable 'beam.gpf.tileComputationObserver'.
+ * May be used as a value for the 'snap.config' variable 'snap.gpf.tileComputationObserver'.
  *
  * @author Norman Fomferra
  * @since BEAM 4.9
@@ -113,11 +113,8 @@ public class TileUsageReportGenerator extends TileComputationObserver {
             String outputName = templateName.substring(0, templateName.lastIndexOf('.'));
             try {
                 Template temp = ve.getTemplate(templateName);
-                Writer writer = new FileWriter(outputName);
-                try {
+                try (Writer writer = new FileWriter(outputName)) {
                     temp.merge(context, writer);
-                } finally {
-                    writer.close();
                 }
                 getLogger().info(String.format("%s written.", outputName));
             } catch (Exception e) {
@@ -149,11 +146,11 @@ public class TileUsageReportGenerator extends TileComputationObserver {
     }
 
     private Map<String, Set<Task>> getSameTasksMap(Task[] tasks) {
-        Map<String, Set<Task>> sameTasksMap = new HashMap<String, Set<Task>>();
+        Map<String, Set<Task>> sameTasksMap = new HashMap<>();
         for (Task task : tasks) {
             Set<Task> sameTasks = sameTasksMap.get(task.getTileId());
             if (sameTasks == null) {
-                sameTasks = new HashSet<Task>();
+                sameTasks = new HashSet<>();
                 sameTasksMap.put(task.getTileId(), sameTasks);
             }
             sameTasks.add(task);

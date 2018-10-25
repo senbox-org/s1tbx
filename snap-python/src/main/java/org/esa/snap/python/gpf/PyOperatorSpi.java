@@ -35,10 +35,12 @@ public class PyOperatorSpi extends OperatorSpi {
     }
 
     static {
-        ServiceFinder serviceFinder = new ServiceFinder(PyOperatorSpi.class.getName());
-        serviceFinder.addSearchPath(PyBridge.PYTHON_CONFIG_DIR);
+        ServiceFinder serviceFinder = new ServiceFinder(PyOperatorSpi.class);
+        if (Files.isDirectory(PyBridge.PYTHON_CONFIG_DIR)) {
+            serviceFinder.addSearchPath(PyBridge.PYTHON_CONFIG_DIR);
+        }
         serviceFinder.addSearchPathsFromPreferences(PyBridge.PYTHON_EXTRA_PATHS_PROPERTY);
-        serviceFinder.searchClassPath(true);
+        serviceFinder.setUseClassPath(true);
         for (ServiceFinder.Module module : serviceFinder.findServices()) {
             for (String pythonClassName : module.getServiceNames()) {
                 registerPythonOp(module.getPath(), pythonClassName);

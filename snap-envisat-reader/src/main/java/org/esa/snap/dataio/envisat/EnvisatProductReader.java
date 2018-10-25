@@ -35,6 +35,7 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.util.ArrayUtils;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.runtime.Config;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.prefs.Preferences;
 
 /**
  * The <code>EnvisatProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -202,8 +204,6 @@ public class EnvisatProductReader extends AbstractProductReader {
 
     private Product createProduct() throws IOException {
         Debug.assertNotNull(getProductFile());
-        Debug.assertTrue(getSceneRasterWidth() > 0);
-        Debug.assertTrue(getSceneRasterHeight() > 0);
 
         File file = getProductFile().getFile();
         String productName;
@@ -214,10 +214,11 @@ public class EnvisatProductReader extends AbstractProductReader {
         }
         productName = FileUtils.createValidFilename(productName);
 
+        int sceneRasterHeight = getSceneRasterHeight();
         Product product = new Product(productName,
                                       getProductFile().getProductType(),
                                       getSceneRasterWidth(),
-                                      getSceneRasterHeight(),
+                                      sceneRasterHeight,
                                       this);
 
         product.setFileLocation(getProductFile().getFile());
@@ -226,8 +227,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         final ProductData.UTC endTime = getProductFile().getSceneRasterStopTime();
         product.setStartTime(startTime);
         product.setEndTime(endTime);
-        if (startTime != null && endTime != null) {
-            product.setSceneTimeCoding(new LineTimeCoding(getSceneRasterHeight(), startTime.getMJD(), endTime.getMJD()));
+        if (startTime != null && endTime != null && sceneRasterHeight > 0) {
+            product.setSceneTimeCoding(new LineTimeCoding(sceneRasterHeight, startTime.getMJD(), endTime.getMJD()));
         }
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
@@ -388,8 +389,9 @@ public class EnvisatProductReader extends AbstractProductReader {
     private static void addGeoCodingToProduct(Product product) {
         initTiePointGeoCoding(product);
 
-        final boolean usePixeGeoCoding = Boolean.getBoolean(SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING);
-        if (usePixeGeoCoding) {
+        Preferences preferences = Config.instance("snap").preferences();
+        final boolean usePixelGeoCoding = preferences.getBoolean(SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING, false);
+        if (usePixelGeoCoding) {
             Band latBand = product.getBand(EnvisatConstants.LAT_DS_NAME);
             if (latBand == null) {
                 latBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME);
@@ -482,16 +484,20 @@ public class EnvisatProductReader extends AbstractProductReader {
             if (dsdType == EnvisatConstants.DS_TYPE_ANNOTATION
                     || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
                 final RecordReader recordReader = productFile.getRecordReader(datasetName);
-                final int numRecords = recordReader.getNumRecords();
-                if (numRecords > 1) {
-                    final MetadataElement group = createMetadataTableGroup(datasetName, recordReader);
-                    metaRoot.addElement(group);
-                } else if (numRecords == 1) {
-                    final MetadataElement table = createDatasetTable(datasetName, recordReader);
-                    metaRoot.addElement(table);
-                }
+                MetadataElement element = createMetadataElement(datasetName, recordReader);
+                metaRoot.addElement(element);
             }
         }
+    }
+
+    static MetadataElement createMetadataElement(String datasetName, RecordReader recordReader) throws IOException {
+        final int numRecords = recordReader.getNumRecords();
+        if (numRecords > 1) {
+            return createMetadataTableGroup(datasetName, recordReader);
+        } else if (numRecords == 1) {
+            return createDatasetTable(datasetName, recordReader);
+        }
+        return null;
     }
 
     private TiePointGrid createTiePointGrid(BandLineReader bandLineReader) throws IOException {
@@ -595,8 +601,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         return tiePointGrid;
     }
 
-    private MetadataElement createDatasetTable(String name, RecordReader recordReader) throws IOException {
-        Debug.assertTrue(productFile != null);
+    static MetadataElement createDatasetTable(String name, RecordReader recordReader) throws IOException {
         Debug.assertTrue(name != null);
         Debug.assertTrue(recordReader != null);
 
@@ -604,8 +609,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         return createMetadataGroup(name, record);
     }
 
-    private MetadataElement createMetadataTableGroup(String name, RecordReader recordReader) throws IOException {
-        Debug.assertTrue(productFile != null);
+    static MetadataElement createMetadataTableGroup(String name, RecordReader recordReader) throws IOException {
         Debug.assertTrue(name != null);
         Debug.assertTrue(recordReader != null);
 

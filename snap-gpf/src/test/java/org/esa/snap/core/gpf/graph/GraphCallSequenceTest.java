@@ -115,10 +115,10 @@ public class GraphCallSequenceTest extends TestCase {
                 "N2:Product.construct",
                 "N2:Operator.computeBand",
                 "N1:Operator.computeBand",
-                "N2:Operator.dispose",
                 "N2:Product.dispose",
-                "N1:Operator.dispose",
+                "N2:Operator.dispose",
                 "N1:Product.dispose",
+                "N1:Operator.dispose",
         };
 
         assertEquals(expectedRecordStrings.length, callRecordList.size());
@@ -171,12 +171,12 @@ public class GraphCallSequenceTest extends TestCase {
                 "N3:Operator.computeBand",
                 "N2:Operator.computeBand",
                 "N1:Operator.computeBand",
-                "N3:Operator.dispose",
                 "N3:Product.dispose",
-                "N2:Operator.dispose",
+                "N3:Operator.dispose",
                 "N2:Product.dispose",
-                "N1:Operator.dispose",
+                "N2:Operator.dispose",
                 "N1:Product.dispose",
+                "N1:Operator.dispose",
         };
 
         assertEquals(expectedRecordStrings.length, callRecordList.size());

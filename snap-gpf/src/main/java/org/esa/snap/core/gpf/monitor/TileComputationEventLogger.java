@@ -26,7 +26,7 @@ import java.util.logging.Level;
  * It prints out immediately when a tile computation has happened.
  * Re-computations are indicated.
  *
- * May be used as a value for the 'beam.config' variable 'beam.gpf.tileComputationObserver'.
+ * May be used as a value for the 'snap.config' variable 'snap.gpf.tileComputationObserver'.
  *
  * @author marco Zuehlke
  */
@@ -107,6 +107,6 @@ public class TileComputationEventLogger extends TileComputationObserver {
     @Override
     public void stop() {
         recordedEventSet.clear();
-        getLogger().log(Level.INFO, "Stoping TileComputationPrinter");
+        getLogger().log(Level.INFO, "Stopping TileComputationPrinter");
     }
 }

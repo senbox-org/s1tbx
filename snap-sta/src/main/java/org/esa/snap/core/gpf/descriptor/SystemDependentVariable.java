@@ -15,24 +15,28 @@ import java.util.Map;
 @XStreamAlias("osvariable")
 public class SystemDependentVariable extends SystemVariable {
     @XStreamOmitField
-    private volatile Map<OS, String> values;
+    private volatile Map<OSFamily, String> values;
     @XStreamOmitField
-    private OS currentOS;
-    String windows;
-    String linux;
-    String macosx;
+    private OSFamily currentOS;
+    private String windows;
+    private String linux;
+    private String macosx;
     private boolean isTransient;
 
-    enum OS {
-        windows,
-        linux,
-        macosx,
-        unsupported
-    }
-
-    public SystemDependentVariable() {
-        super();
-        initialize();
+    private SystemDependentVariable(String key, String value, Map<OSFamily, String> values, OSFamily currentOS,
+                                   String windows, String linux, String macosx, boolean isTransient) {
+        super(key, value);
+        this.currentOS = currentOS;
+        this.windows = windows;
+        this.linux = linux;
+        this.macosx = macosx;
+        this.isTransient = isTransient;
+        if (values == null) {
+            initialize();
+        } else {
+            this.values = new HashMap<>();
+            this.values.putAll(values);
+        }
     }
 
     public SystemDependentVariable(String key, String value) {
@@ -50,8 +54,9 @@ public class SystemDependentVariable extends SystemVariable {
         if (values == null) {
             initialize();
         }
+        this.value = getCurrentOSValue();
         String retVal = resolve();
-        return retVal != null ? retVal : values.getOrDefault(currentOS, null);
+        return (retVal != null && !retVal.isEmpty()) ? retVal : values.getOrDefault(currentOS, null);
     }
     /**
      * Gets the property value for the current OS
@@ -59,43 +64,29 @@ public class SystemDependentVariable extends SystemVariable {
     @Override
     public void setValue(String value) {
         values.put(currentOS, value);
-        switch (currentOS) {
-            case windows:
-                this.windows = value;
-                break;
-            case linux:
-                this.linux = value;
-                break;
-            case macosx:
-                this.macosx = value;
-                break;
-        }
-        if (!isTransient && value != null && !value.isEmpty()) {
+        this.value = value;
+
+        if (!isTransient && value != null && !value.isEmpty() && this.isShared) {
             ToolAdapterIO.saveVariable(this.key, value);
         }
     }
 
     @Override
     public SystemVariable createCopy() {
-        SystemDependentVariable copy = new SystemDependentVariable();
-        copy.setKey(this.getKey());
-        copy.setValue(this.getValue());
-        copy.setWindows(this.getWindows());
-        copy.setLinux(this.getLinux());
-        copy.setMacosx(this.getMacosx());
-        return copy;
+        return new SystemDependentVariable(this.key, this.value, this.values, this.currentOS,
+                                           this.windows, this.linux, this.macosx, this.isTransient);
     }
 
     /**
      * Gets the property value for Windows
      */
-    public String getWindows() { return windows == null ? values.get(OS.windows) : windows; }
+    public String getWindows() { return windows == null ? values.get(OSFamily.windows) : windows; }
     /**
      * Sets the property value for Windows
      */
     public void setWindows(String value) {
-        windows = value;
-        if (currentOS == OS.windows) {
+        this.windows = value;
+        if (currentOS == OSFamily.windows) {
             setValue(value);
         }
     }
@@ -103,56 +94,48 @@ public class SystemDependentVariable extends SystemVariable {
      * Gets the property value for Linux
      */
     public String getLinux() {
-        return linux == null ? values.get(OS.linux) : linux;
+        return linux == null ? values.get(OSFamily.linux) : linux;
     }
     /**
      * Sets the property value for Linux
      */
     public void setLinux(String value) {
-        linux = value;
-        if (currentOS == OS.linux) {
+        this.linux = value;
+        if (currentOS == OSFamily.linux) {
             setValue(value);
         }
     }
     /**
      * Gets the property value for MacOSX
      */
-    public String getMacosx() { return macosx == null ? values.get(OS.macosx) : macosx; }
+    public String getMacosx() { return macosx == null ? values.get(OSFamily.macosx) : macosx; }
     /**
      * Sets the property value for MacOSX
      */
     public void setMacosx(String value) {
-        macosx = value;
-        if (currentOS == OS.macosx) {
+        this.macosx = value;
+        if (currentOS == OSFamily.macosx) {
             setValue(value);
         }
     }
 
     public void setTransient(boolean value) { this.isTransient = value; }
 
+    public String getCurrentOSValue(){
+        return values.get(currentOS);
+    }
+
     private void initialize() {
         values = new HashMap<>();
+        values.put(OSFamily.windows, windows == null ? "" : windows);
+        values.put(OSFamily.linux, linux == null ? "" : linux);
+        values.put(OSFamily.macosx, macosx == null ? "" : macosx);
+        values.put(OSFamily.unsupported, "");
         try {
-            currentOS = Enum.valueOf(OS.class, ToolAdapterIO.getOsFamily());
+            currentOS = Enum.valueOf(OSFamily.class, ToolAdapterIO.getOsFamily());
         } catch (IllegalArgumentException ignored) {
-            currentOS = OS.unsupported;
+            currentOS = OSFamily.unsupported;
         }
-        values.keySet().stream().filter(key -> key != currentOS).forEach(key -> {
-            switch (key) {
-                case windows:
-                    values.put(key, windows == null ? "" : windows);
-                    break;
-                case linux:
-                    values.put(key, linux == null ? "" : linux);
-                    break;
-                case macosx:
-                    values.put(key, macosx == null ? "" : macosx);
-                    break;
-                case unsupported:
-                    values.put(key, "");
-                    break;
-            }
-        });
-        values.put(currentOS, resolve());
+        //values.put(currentOS, resolve());
     }
 }

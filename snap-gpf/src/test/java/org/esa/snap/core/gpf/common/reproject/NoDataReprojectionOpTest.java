@@ -35,11 +35,14 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
     public void testNoDataIsPreservedFloat() throws IOException {
         parameterMap.put("crs", UTM33N_CODE);
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
-        srcBand.setNoDataValue(299);
+        int xIndex = 23;
+        int yIndex = 13;
+        int dataValue = xIndex * yIndex;
+        srcBand.setNoDataValue(dataValue);
         srcBand.setNoDataValueUsed(true);
-        final Product targetPoduct = createReprojectedProduct();
+        final Product targetProduct = createReprojectedProduct();
 
-        assertNoDataValue(targetPoduct.getBand(FLOAT_BAND_NAME), new PixelPos(23.5f, 13.5f), 299.0, 299.0);
+        assertNoDataValue(targetProduct.getBand(FLOAT_BAND_NAME), new PixelPos(xIndex + 0.5f, yIndex + 0.5f), dataValue, 299.0);
     }
 
     @Test
@@ -155,8 +158,9 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
         boolean expectedValidState = !Double.isNaN(noDataValue) && noDataValue != expectedValue;
         assertPixelValidState(targetBand, sourcePixelPos.x, sourcePixelPos.y, expectedValidState);
         // upper left pixel has no source pixel -> should be no-data
-        assertPixelValue(targetBand, 0.5f, 0.5f, noDataValue, EPS);
-        assertPixelValidState(targetBand, 0.5f, 0.5f, false);
+        PixelPos upperLeft = new PixelPos(0.5f, 0.5f);
+        assertTargetPixelValue(targetBand, upperLeft, noDataValue, EPS);
+        assertTargetPixelValidState(targetBand, upperLeft, false);
     }
 
 

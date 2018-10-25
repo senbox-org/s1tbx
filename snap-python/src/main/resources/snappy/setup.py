@@ -1,10 +1,10 @@
 SNAPPY_NAME = 'snappy'
-SNAPPY_VERSION = '2.0.0'
+SNAPPY_VERSION = '${snappy.version}'
 SNAPPY_SUMMARY = 'snappy - The SNAP Python API'
 SNAPPY_AUTHOR = 'SNAP Development Team, Brockmann Consult GmbH'
 
-from distutils.core import setup
 import os
+from distutils.core import setup
 
 old_cwd = os.getcwd()
 new_cwd = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))

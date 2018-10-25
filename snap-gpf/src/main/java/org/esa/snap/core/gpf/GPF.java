@@ -16,8 +16,11 @@
 
 package org.esa.snap.core.gpf;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
@@ -51,6 +54,8 @@ public class GPF {
     public static final String DISABLE_TILE_CACHE_PROPERTY = "snap.gpf.disableTileCache";
     public static final String USE_FILE_TILE_CACHE_PROPERTY = "snap.gpf.useFileTileCache";
     public static final String TILE_COMPUTATION_OBSERVER_PROPERTY = "snap.gpf.tileComputationObserver";
+    public static final String BEEP_AFTER_PROCESSING_PROPERTY = "snap.gpf.beepAfterProcessing";
+    public static final String SNAP_GPF_ALLOW_AUXDATA_DOWNLOAD = "snap.gpf.allowAuxdataDownload";
 
     public static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
     public static final String TARGET_PRODUCT_FIELD_NAME = "targetProduct";
@@ -62,12 +67,7 @@ public class GPF {
      * both width and height positive.
      */
     public static final RenderingHints.Key KEY_TILE_SIZE =
-            new RenderingKey<>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
-                @Override
-                public boolean isValid(Dimension val) {
-                    return val.width > 0 && val.height > 0;
-                }
-            });
+            new RenderingKey<>(1, Dimension.class, val -> val.width > 0 && val.height > 0);
 
     /**
      * An unmodifiable empty {@link Map Map}.
@@ -79,7 +79,7 @@ public class GPF {
      * @see #createProduct(String, Map, Product ...)
      * @see #createProduct(String, Map, Map)
      */
-    public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<String, Object>());
+    public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<>());
 
     /**
      * An unmodifiable empty {@link Map Map}.
@@ -89,17 +89,25 @@ public class GPF {
      *
      * @see #createProduct(String, Map, Map)
      */
-    public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
+    public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<>());
 
-    private static GPF defaultInstance = new GPF();
+    private static GPF defaultInstance;
+
+    static {
+        defaultInstance = new GPF();
+        defaultInstance.spiRegistry.loadOperatorSpis();
+    }
 
     private OperatorSpiRegistry spiRegistry;
+
+    private ProductManager productManager;
 
     /**
      * Constructor.
      */
     protected GPF() {
-        spiRegistry = new OperatorSpiRegistryImpl();
+        ServiceRegistryManager registryManager = ServiceRegistryManager.getInstance();
+        spiRegistry = new OperatorSpiRegistryImpl(registryManager.getServiceRegistry(OperatorSpi.class));
     }
 
     /**
@@ -220,8 +228,7 @@ public class GPF {
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
             if (operatorSpi == null) {
                 throw new OperatorException(
-                        String.format("Unknown operator '%s'. Note that operator aliases are case sensitive.",
-                                      operatorName));
+                        String.format("Unknown operator '%s'. Is the name correctly spelled?", operatorName));
             }
 
             sourceProductMap = new HashMap<>(sourceProducts.length * 3);
@@ -375,7 +382,7 @@ public class GPF {
      *
      * @param product     the product
      * @param file        the product file
-     * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
+     * @param formatName  the name of a supported product format, e.g. "HDF5". If {@code null}, the default format
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
      * @param pm          a monitor to inform the user about progress
@@ -389,7 +396,7 @@ public class GPF {
       *
       * @param product     the product
       * @param file        the product file
-      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
+      * @param formatName  the name of a supported product format, e.g. "HDF5". If {@code null}, the default format
       *                    "BEAM-DIMAP" will be used
       * @param clearCacheAfterRowWrite if true, the internal tile cache is cleared after a tile row has been written.
       * @param incremental switch the product writer in incremental mode or not.
@@ -403,6 +410,32 @@ public class GPF {
          writeOp.setIncremental(incremental);
          writeOp.writeProduct(pm);
      }
+
+    /**
+     * Gets the context product manager which can be used to exchange product instances across operators
+     * or allow (reading) operators to check if a given product is already opened.
+     *
+     * @return The context product manager.
+     * @since SNAP 3.0
+     */
+    public synchronized ProductManager getProductManager() {
+        if (productManager == null) {
+            productManager = new ProductManager();
+        }
+        return productManager;
+    }
+
+    /**
+     * Sets the context product manager which can be used to exchange product instances across operators
+     * or allow (reading) operators to check if a given product is already opened.
+     *
+     * @param productManager The new context product manager.
+     * @since SNAP 3.0
+     */
+    public synchronized void setProductManager(ProductManager productManager) {
+        Assert.notNull(productManager, "productManager");
+        this.productManager = productManager;
+    }
 
     static class RenderingKey<T> extends RenderingHints.Key {
 

@@ -154,7 +154,6 @@ public class DimapProductReader extends AbstractProductReader {
             readVectorData(product.getSceneCRS(), false);
             DimapProductHelpers.addMaskUsages(dom, this.product);
         }
-        this.product.setProductReader(this);
         this.product.setFileLocation(inputFile);
         this.product.setModified(false);
         return this.product;

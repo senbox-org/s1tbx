@@ -305,6 +305,10 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
         return parameterDescriptors.toArray(new ParameterDescriptor[parameterDescriptors.size()]);
     }
 
+    /**
+     * @deprecated Class has no usage and has no API doc. It might be deleted without further notice.
+     */
+    @Deprecated
     public static class XStreamConverter implements com.thoughtworks.xstream.converters.Converter {
 
         public boolean canConvert(Class aClass) {

@@ -24,6 +24,7 @@ import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class DEMFactory {
 
     public static final String LAST_EXTERNAL_DEM_DIR_KEY = "snap.externalDEMDir";
     public static final String AUTODEM = " (Auto Download)";
-    static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
+    public static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 
     private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
     private static final String[] demNameList;
@@ -76,8 +77,12 @@ public class DEMFactory {
         final ElevationModelDescriptor demDescriptor = getDemDescriptor(demName);
 
         Resampling resampleMethod = null;
-        if (!demResamplingMethod.equals(DELAUNAY_INTERPOLATION))               // resampling not actual used for Delaunay
+        if (!demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {              // resampling not actual used for Delaunay
             resampleMethod = ResamplingFactory.createResampling(demResamplingMethod);
+            if(resampleMethod == null) {
+                throw new OperatorException("Resampling method "+ demResamplingMethod + " is invalid");
+            }
+        }
 
         final ElevationModel dem = demDescriptor.createDem(resampleMethod);
         if (dem == null) {
@@ -156,7 +161,7 @@ public class DEMFactory {
         final int maxX = x0 + tileWidth + 1;
         final GeoPos geoPos = new GeoPos();
 
-        double alt;
+        Double alt;
         boolean valid = false;
         final double[][] v = new double[4][4];
         for (int y = y0 - 1; y < maxY; y++) {
@@ -176,11 +181,11 @@ public class DEMFactory {
 
                 alt = dem.getElevation(geoPos);
 
-                if (alt == demNoDataValue && !nodataValueAtSea) {
-                    alt = EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon, v);
+                if (alt.equals(demNoDataValue) && !nodataValueAtSea) {
+                    alt = (double)EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon, v);
                 }
 
-                if (!valid && alt != demNoDataValue) {
+                if (!valid && !alt.equals(demNoDataValue)) {
                     valid = true;
                 }
 

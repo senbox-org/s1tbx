@@ -1,7 +1,5 @@
 package org.esa.snap.core.datamodel;
 
-import java.io.IOException;
-
 /**
  * A time-coding based on an Array of modified julian days as double values. One MDJ per raster line.
  *
@@ -14,11 +12,11 @@ public class LineTimeCoding implements TimeCoding {
     private final double minY;
     private final double maxY;
 
-    public LineTimeCoding(int sceneRasterHeight, double mjdStart, double mjdEnd) throws IOException {
-        this(createMJDs(sceneRasterHeight, mjdStart, mjdEnd));
+    public LineTimeCoding(int numLines, double mjdStart, double mjdEnd) {
+        this(createMJDs(numLines, mjdStart, mjdEnd));
     }
 
-    public LineTimeCoding(double[] mjDs) throws IOException {
+    public LineTimeCoding(double[] mjDs) {
         assert mjDs != null;
         assert mjDs.length > 0;
         this.mjDs = mjDs;
@@ -44,9 +42,9 @@ public class LineTimeCoding implements TimeCoding {
         return mjDs[indexY];
     }
 
-    private static double[] createMJDs(int sceneRasterHeight, double mjdStart, double mjdEnd) {
-        final double part = (mjdEnd - mjdStart) / (sceneRasterHeight - 1);
-        final double[] MJDs = new double[sceneRasterHeight];
+    private static double[] createMJDs(int numLines, double mjdStart, double mjdEnd) {
+        final double part = (mjdEnd - mjdStart) / (numLines - 1);
+        final double[] MJDs = new double[numLines];
         MJDs[0] = mjdStart;
         MJDs[MJDs.length - 1] = mjdEnd;
         for (int i = 1; i < MJDs.length - 1; i++) {

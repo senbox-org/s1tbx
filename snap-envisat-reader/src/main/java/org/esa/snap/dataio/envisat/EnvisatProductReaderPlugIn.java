@@ -22,6 +22,7 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.RGBImageProfile;
 import org.esa.snap.core.datamodel.RGBImageProfileManager;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
@@ -114,7 +115,8 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                     return DecodeQualification.INTENDED;
                 }
             }
-            if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ"))
+
+            if (!fileName.endsWith(".ZIP") && !fileName.endsWith(".GZ") && FileUtils.getExtension(inputFile) != null)
                 return DecodeQualification.UNABLE;
 
             if (ProductFile.getProductType(inputFile) != null) {
@@ -255,11 +257,18 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                                                        "reflec_1"
                                                }
         ));
-        manager.addProfile(new RGBImageProfile("AATSR L1b - Forward, Day",
+        manager.addProfile(new RGBImageProfile("AATSR L1b - False colour",
                                                new String[]{
-                                                       "reflec_fward_0870",
-                                                       "reflec_fward_0670",
-                                                       "reflec_fward_0550"
+                                                   "reflec_nadir_1600",
+                                                   "reflec_nadir_0870",
+                                                   "reflec_nadir_0670",
+                                               }
+        ));
+        manager.addProfile(new RGBImageProfile("AATSR L1b - False colour (logarithmic scale)",
+                                               new String[]{
+                                                   "log(reflec_nadir_1600)",
+                                                   "log(reflec_nadir_0870)",
+                                                   "log(reflec_nadir_0670)",
                                                }
         ));
         manager.addProfile(new RGBImageProfile("AATSR L1b - Nadir, Day",
@@ -269,6 +278,13 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                                                        "reflec_nadir_0550"
                                                }
         ));
-    }
+        manager.addProfile(new RGBImageProfile("AATSR L1b - Forward, Day",
+                                               new String[]{
+                                                   "reflec_fward_0870",
+                                                   "reflec_fward_0670",
+                                                   "reflec_fward_0550"
+                                               }
+        ));
+   }
 
 }

@@ -33,6 +33,7 @@ import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -144,12 +145,12 @@ public class BandArithmetic {
      * @param products            the array of source products which form the valid namespace for the expression
      * @param contextProductIndex the index of the context product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     * @param prefixProvider      a product prefix provider
+     * @param prefixProviders     a list of product prefix providers
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products,
                                                            int contextProductIndex,
-                                                           ProductNamespacePrefixProvider prefixProvider) {
+                                                           ProductNamespacePrefixProvider... prefixProviders) {
         Assert.argument(products.length > 0, "products.length > 0");
         Assert.argument(contextProductIndex >= 0, "contextProductIndex >= 0");
         Assert.argument(contextProductIndex < products.length, "contextProductIndex < products.length");
@@ -160,11 +161,21 @@ public class BandArithmetic {
         // Register symbols for default product without name prefix
         namespaceExtender.extendNamespace(products[contextProductIndex], "", namespace);
 
-        // If the namespace comprises multple products...
+        // If the namespace comprises multiple products...
         if (products.length > 1) {
+            boolean allSet = Arrays.stream(products).allMatch(p -> p.getRefNo() != 0);
+            if (!allSet) {
+                int cnt = 1;
+                for (Product product : products) {
+                    product.resetRefNo();
+                    product.setRefNo(cnt++);
+                }
+            }
             // ... register symbols using a name prefix
             for (Product product : products) {
-                namespaceExtender.extendNamespace(product, prefixProvider.getPrefix(product), namespace);
+                for (ProductNamespacePrefixProvider prefixProvider : prefixProviders) {
+                    namespaceExtender.extendNamespace(product, prefixProvider.getPrefix(product), namespace);
+                }
             }
         }
 
@@ -175,8 +186,8 @@ public class BandArithmetic {
      * Utility method which returns all raster data nodes referenced in the given
      * band math expressions.
      *
-     * @param expression          the expression
-     * @param products            the array of source products which form the valid namespace for the expression
+     * @param expression the expression
+     * @param products   the array of source products which form the valid namespace for the expression
      * @return the array of raster data nodes, which may be empty
      */
     public static RasterDataNode[] getRefRasters(String expression, Product... products) throws ParseException {
@@ -207,7 +218,7 @@ public class BandArithmetic {
      * @param terms the array of terms to be analysed
      * @return the array of raster data nodes, which may be empty
      */
-    public static RasterDataNode[] getRefRasters(Term...terms) {
+    public static RasterDataNode[] getRefRasters(Term... terms) {
         RasterDataSymbol[] symbols = getRefRasterDataSymbols(terms);
         return getRefRasters(symbols);
     }
@@ -340,43 +351,44 @@ public class BandArithmetic {
      * @param product     The product to which the expressions can refer
      * @param expressions the expressions in question
      * @return true if all referenced rasters are compatible
+     * @throws ParseException if a parse error occurs
      */
-    public static boolean areRastersEqualInSize(Product product, String... expressions) {
+    public static boolean areRastersEqualInSize(Product product, String... expressions) throws ParseException {
         return areRastersEqualInSize(new Product[]{product}, 0, expressions);
     }
 
     /**
      * Determines whether all rasters which are referenced in the given expressions are compatible.
      *
-     * @param products     The product to which the expressions can refer
-     * @param defaultProductIndex     The index of the default product
-     * @param expressions the expressions in question
+     * @param products            The product to which the expressions can refer
+     * @param defaultProductIndex The index of the default product
+     * @param expressions         the expressions in question
      * @return true if all referenced rasters are compatible
+     * @throws ParseException if a parse error occurs
      */
-    public static boolean areRastersEqualInSize(Product[] products, int defaultProductIndex, String... expressions) {
+    public static boolean areRastersEqualInSize(Product[] products, int defaultProductIndex, String... expressions) throws ParseException {
         if (expressions.length == 0) {
             return true;
         }
-        try {
-            int referenceWidth = -1;
-            int referenceHeight = -1;
-            for (String expression : expressions) {
-                final RasterDataNode[] refRasters = getRefRasters(expression, products, defaultProductIndex);
-                if (refRasters.length > 0) {
-                    if (!areRastersEqualInSize(parseExpression(expression, products, defaultProductIndex))) {
-                        return false;
-                    }
-                    if (referenceWidth == -1) {
-                        referenceWidth = refRasters[0].getRasterWidth();
-                        referenceHeight = refRasters[0].getRasterHeight();
-                    } else if (refRasters[0].getRasterWidth() != referenceWidth ||
-                            refRasters[0].getRasterHeight() != referenceHeight) {
-                        return false;
-                    }
+        int referenceWidth = -1;
+        int referenceHeight = -1;
+        for (String expression : expressions) {
+            final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
+            final Parser parser = new ParserImpl(namespace, false);
+            final Term term = parser.parse(expression);
+            final RasterDataNode[] refRasters = getRefRasters(term);
+            if (refRasters.length > 0) {
+                if (!areRastersEqualInSize(term)) {
+                    return false;
+                }
+                if (referenceWidth == -1) {
+                    referenceWidth = refRasters[0].getRasterWidth();
+                    referenceHeight = refRasters[0].getRasterHeight();
+                } else if (refRasters[0].getRasterWidth() != referenceWidth ||
+                        refRasters[0].getRasterHeight() != referenceHeight) {
+                    return false;
                 }
             }
-        } catch (ParseException e) {
-            return false;
         }
         return true;
     }

@@ -47,6 +47,7 @@ import javax.media.jai.TileScheduler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.StringReader;
+import java.nio.file.Files;
 
 import static junit.framework.TestCase.*;
 
@@ -57,16 +58,13 @@ public class WriteOpTest {
     private static final int RASTER_HEIGHT = 40;
 
     private AlgoOp.Spi algoSpi = new AlgoOp.Spi();
-    private WriteOp.Spi writeSpi = new WriteOp.Spi();
     private File outputFile;
     private int oldParallelism;
 
     @Before
     public void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(algoSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(writeSpi);
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("WriteOpTest/writtenProduct.dim");
-        outputFile.getParentFile().mkdirs();
 
         TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         oldParallelism = tileScheduler.getParallelism();
@@ -76,7 +74,6 @@ public class WriteOpTest {
     @After
     public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(algoSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
         FileUtils.deleteTree(parentFile);
 
@@ -134,6 +131,24 @@ public class WriteOpTest {
         // assertEquals(40, placemarkProductNodeGroup.getNodeCount());
 
         productOnDisk.dispose();
+    }
+
+    @Test
+    public void testWritingEmptyProduct() throws Exception {
+        Product product = new Product("empty", "EMPTY", 0, 0);
+
+        File testDir = Files.createTempDirectory("WriteOpTestDir").toFile();
+        try {
+            File testOuptutFile = new File(testDir, "file.dim");
+            WriteOp writeOp = new WriteOp(product, testOuptutFile, "BEAM-DIMAP");
+            writeOp.writeProduct(ProgressMonitor.NULL);
+
+            // assert that it is not written
+            assertFalse(testOuptutFile.isFile());
+        } finally {
+            testDir.deleteOnExit();
+        }
+
     }
 
     @Test

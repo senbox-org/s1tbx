@@ -90,6 +90,13 @@ public class NetcdfOpImage extends SingleBandedOpImage {
     private NetcdfOpImage(Variable variable, int[] imageOrigin, boolean flipY, Object readLock, int dataBufferType,
                           int sourceWidth, int sourceHeight,
                           Dimension tileSize, ResolutionLevel level, ArrayConverter arrayConverter) {
+        this(variable, imageOrigin, flipY, readLock, dataBufferType, sourceWidth, sourceHeight, tileSize, level,
+             arrayConverter, computeDefaultDimensionIndices(variable));
+    }
+
+    protected NetcdfOpImage(Variable variable, int[] imageOrigin, boolean flipY, Object readLock, int dataBufferType,
+                          int sourceWidth, int sourceHeight, Dimension tileSize, ResolutionLevel level,
+                          ArrayConverter arrayConverter, DimensionIndices indices) {
         super(dataBufferType, sourceWidth, sourceHeight, tileSize, null, level);
         this.variable = variable;
         this.imageOrigin = imageOrigin.clone();
@@ -98,13 +105,11 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         this.halfSourceWidth = sourceWidth / 2;
         this.sourceHeight = sourceHeight;
         this.arrayConverter = arrayConverter;
-
-        List<ucar.nc2.Dimension> variableDimensions = variable.getDimensions();
-        DimKey rasterDim = new DimKey(variableDimensions.toArray(new ucar.nc2.Dimension[variableDimensions.size()]));
-        xIndex = rasterDim.findXDimensionIndex();
-        yIndex = rasterDim.findYDimensionIndex();
-        startIndexToCopy = DimKey.findStartIndexOfBandVariables(variableDimensions);
+        this.xIndex = indices.getIndexX();
+        this.yIndex = indices.getIndexY();
+        this.startIndexToCopy = indices.getStartIndexToCopy();
     }
+
 
     @Override
     protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {
@@ -227,7 +232,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         double scale = getScale();
         stride[yIndex] = (int) scale;
         stride[xIndex] = (int) scale;
-        final int halfDestWidth = (int) (halfSourceWidth / scale);
+        final int halfDestWidth = (int) Math.round(halfSourceWidth / scale);
 
         Array arrayLeft;
         Array arrayRight;
@@ -278,35 +283,24 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         }
     }
 
-    private interface ArrayConverter {
+    protected interface ArrayConverter {
 
-        public ArrayConverter IDENTITY = new ArrayConverter() {
-            @Override
-            public Array convert(Array array) {
-                return array;
+        ArrayConverter IDENTITY = array -> array;
+
+        ArrayConverter LSB = array -> {
+            final Array convertedArray = Array.factory(DataType.INT, array.getShape());
+            for (int i = 0; i < convertedArray.getSize(); i++) {
+                convertedArray.setInt(i, (int) (array.getLong(i) & 0x00000000FFFFFFFFL));
             }
+            return convertedArray;
         };
 
-        public ArrayConverter LSB = new ArrayConverter() {
-            @Override
-            public Array convert(Array array) {
-                final Array convertedArray = Array.factory(DataType.INT, array.getShape());
-                for (int i = 0; i < convertedArray.getSize(); i++) {
-                    convertedArray.setInt(i, (int) (array.getLong(i) & 0x00000000FFFFFFFFL));
-                }
-                return convertedArray;
+        ArrayConverter MSB = array -> {
+            final Array convertedArray = Array.factory(DataType.INT, array.getShape());
+            for (int i = 0; i < convertedArray.getSize(); i++) {
+                convertedArray.setInt(i, (int) (array.getLong(i) >>> 32));
             }
-        };
-
-        public ArrayConverter MSB = new ArrayConverter() {
-            @Override
-            public Array convert(Array array) {
-                final Array convertedArray = Array.factory(DataType.INT, array.getShape());
-                for (int i = 0; i < convertedArray.getSize(); i++) {
-                    convertedArray.setInt(i, (int) (array.getLong(i) >>> 32));
-                }
-                return convertedArray;
-            }
+            return convertedArray;
         };
 
         Array convert(Array array);
@@ -318,5 +312,39 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         int sourceWidth = getSourceWidth(rect.width);
         int sourceHeight = getSourceHeight(rect.height);
         return new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight);
+    }
+
+    private static DimensionIndices computeDefaultDimensionIndices(Variable variable) {
+        List<ucar.nc2.Dimension> variableDimensions = variable.getDimensions();
+        DimKey rasterDim = new DimKey(variableDimensions.toArray(new ucar.nc2.Dimension[variableDimensions.size()]));
+        int xDimensionIndex = rasterDim.findXDimensionIndex();
+        int yDimensionIndex = rasterDim.findYDimensionIndex();
+        int startIndexOfBandVariables = DimKey.findStartIndexOfBandVariables(variableDimensions);
+        return new DimensionIndices(xDimensionIndex, yDimensionIndex, startIndexOfBandVariables);
+    }
+
+    protected static class DimensionIndices {
+
+        private final int xIndex;
+        private final int yIndex;
+        private final int startIndexToCopy;
+
+        public DimensionIndices(int xDimensionIndex, int yDimensionIndex, int startIndexOfBandVariables) {
+            this.xIndex = xDimensionIndex;
+            this.yIndex = yDimensionIndex;
+            this.startIndexToCopy = startIndexOfBandVariables;
+        }
+
+        protected int getIndexX() {
+            return xIndex;
+        }
+
+        protected int getIndexY() {
+            return yIndex;
+        }
+
+        protected int getStartIndexToCopy() {
+            return startIndexToCopy;
+        }
     }
 }

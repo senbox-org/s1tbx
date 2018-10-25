@@ -45,7 +45,7 @@ public abstract class AbstractMeasurementFactory implements MeasurementFactory {
                         bandValues[i] = temp == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
                     } else {
                         if (raster.getDataType() == ProductData.TYPE_UINT32) {
-                            bandValues[i] = temp & 0xffffL;
+                            bandValues[i] = temp & 0xffffffffL;
                         } else {
                             bandValues[i] = temp;
                         }

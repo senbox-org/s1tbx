@@ -28,6 +28,8 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhVariable}.
@@ -35,6 +37,10 @@ import java.util.Set;
  * @author MarcoZ
  */
 public class N4Variable implements NVariable {
+
+    // MAX_ATTRIBUTE_LENGTH taken from
+    // https://github.com/bcdev/nujan/blob/master/src/main/java/edu/ucar/ral/nujan/hdf/MsgAttribute.java#L185
+    public static final int MAX_ATTRIBUTE_LENGTH = 65535 - 1000;
 
     private final NhVariable variable;
     private final Dimension tileSize;
@@ -58,7 +64,7 @@ public class N4Variable implements NVariable {
 
     @Override
     public void addAttribute(String name, String value) throws IOException {
-        addAttributeImpl(name, value, NhVariable.TP_STRING_VAR);
+        addAttributeImpl(name, cropStringToMaxAttributeLength(name, value), NhVariable.TP_STRING_VAR);
     }
 
     @Override
@@ -77,6 +83,7 @@ public class N4Variable implements NVariable {
     public void addAttribute(String name, Array value) throws IOException {
         DataType dataType = DataType.getType(value.getElementType());
         int nhType = N4DataType.convert(dataType, value.isUnsigned());
+
         addAttributeImpl(name, value.getStorage(), nhType);
     }
 
@@ -108,6 +115,15 @@ public class N4Variable implements NVariable {
             writer = createWriter(isYFlipped);
         }
         writer.write(x, y, width, height, data);
+    }
+
+    static String cropStringToMaxAttributeLength(String name,  String value) {
+        if(value != null && value.length() > MAX_ATTRIBUTE_LENGTH) {
+            value = value.substring(0, MAX_ATTRIBUTE_LENGTH);
+            String msg = String.format("Metadata attribute '%s' has been cropped. Exceeded maximum length of %d", name, MAX_ATTRIBUTE_LENGTH);
+            Logger.getLogger(N4Variable.class.getSimpleName()).log(Level.WARNING, msg);
+        }
+        return value;
     }
 
     private ChunkWriter createWriter(boolean isYFlipped) {

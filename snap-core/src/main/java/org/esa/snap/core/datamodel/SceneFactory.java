@@ -58,18 +58,22 @@ public final class SceneFactory {
         }
         return false;
     }
-
+    
     private static boolean transferGeoCodingBandwise(final Scene sourceScene,
                                                      final Scene targetScene,
                                                      final ProductSubsetDef subsetDef) {
-        final String[] rasterNames = StringUtils.addArrays(sourceScene.getProduct().getBandNames(),
-                                                           sourceScene.getProduct().getTiePointGridNames());
+        boolean sceneTransferred = transferGeoCoding(sourceScene, targetScene, subsetDef);
+
+        Product sourceProduct = sourceScene.getProduct();
+        Product targetProduct = targetScene.getProduct();
+        final String[] rasterNames = StringUtils.addArrays(sourceProduct.getBandNames(),
+                                                           sourceProduct.getTiePointGridNames());
         int numTransferred = 0;
         for (String rasterName : rasterNames) {
-            final RasterDataNode sourceRaster = sourceScene.getProduct().getRasterDataNode(rasterName);
+            final RasterDataNode sourceRaster = sourceProduct.getRasterDataNode(rasterName);
             if (sourceRaster != null) {
                 final Scene sourceRasterScene = SceneFactory.createScene(sourceRaster);
-                final RasterDataNode targetRaster = targetScene.getProduct().getRasterDataNode(rasterName);
+                final RasterDataNode targetRaster = targetProduct.getRasterDataNode(rasterName);
                 if (targetRaster != null) {
                     final Scene targetRasterScene = SceneFactory.createScene(targetRaster);
                     if (transferGeoCoding(sourceRasterScene, targetRasterScene, subsetDef)) {
@@ -81,11 +85,8 @@ public final class SceneFactory {
                 }
             }
         }
-        if (numTransferred == 0) {
-            return transferGeoCoding(sourceScene, targetScene, subsetDef);
-        } else {
-            return numTransferred > 0;
-        }
+
+        return numTransferred > 0 || sceneTransferred;
     }
 
     private static class ProductScene implements Scene {
@@ -156,7 +157,16 @@ public final class SceneFactory {
         }
 
         public Product getProduct() {
-            return raster.getProduct();
+            Product product = raster.getProduct();
+            if (product == null) {
+                // product can be null if e.g. raster is a mask and is contained in a group
+                ProductNode owner = raster.getOwner(); // the group which contains the mask
+                if (owner != null) {
+                    product = owner.getProduct();
+                }
+            }
+
+            return product;
         }
     }
 }

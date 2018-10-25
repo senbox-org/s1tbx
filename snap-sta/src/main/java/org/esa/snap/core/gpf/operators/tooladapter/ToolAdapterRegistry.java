@@ -21,8 +21,8 @@ import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Registry (map) class for mapping ToolAdapterOpSpi-s to adapter names.
@@ -36,9 +36,11 @@ public enum ToolAdapterRegistry {
     INSTANCE;
 
     private final Map<String, ToolAdapterOpSpi> registeredAdapters;
+    private final Set<ToolAdapterListener> listeners;
 
     ToolAdapterRegistry() {
         registeredAdapters = new HashMap<>();
+        listeners = new HashSet<>();
     }
 
     /**
@@ -58,17 +60,15 @@ public enum ToolAdapterRegistry {
      */
     public void registerOperator(ToolAdapterOpSpi operatorSpi) {
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-        String operatorName = operatorDescriptor.getName() != null ? operatorDescriptor.getName() : operatorDescriptor.getAlias();
+        String operatorAlias = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        if (operatorSpiRegistry.getOperatorSpi(operatorName) == null) {
-            operatorSpiRegistry.addOperatorSpi(operatorName, operatorSpi);
+        OperatorSpi gpfOp = operatorSpiRegistry.getOperatorSpi(operatorAlias);
+        if (gpfOp != null) {
+            operatorSpiRegistry.removeOperatorSpi(gpfOp);
         }
-        if (registeredAdapters.containsKey(operatorName)) {
-            registeredAdapters.remove(operatorName);
-            registeredAdapters.put(operatorName, operatorSpi);
-            //Logger.getGlobal().warning(String.format("An operator with the name %s was already registered", operatorName));
-        }
-        registeredAdapters.put(operatorName, operatorSpi);
+        operatorSpiRegistry.addOperatorSpi(operatorAlias, operatorSpi);
+        registeredAdapters.put(operatorAlias, operatorSpi);
+        notifyAdapterAdded((ToolAdapterOperatorDescriptor) operatorSpi.getOperatorDescriptor());
     }
 
     /**
@@ -77,20 +77,64 @@ public enum ToolAdapterRegistry {
      * @param operatorDescriptor    The descriptor of the operator to be removed
      */
     public void removeOperator(ToolAdapterOperatorDescriptor operatorDescriptor) {
-        //if (!operatorDescriptor.isSystem()) {
-            String operatorDescriptorName = operatorDescriptor.getName();
-            if (registeredAdapters.containsKey(operatorDescriptorName)) {
-                registeredAdapters.remove(operatorDescriptorName);
+        String operatorDescriptorName = operatorDescriptor.getName();
+        if (registeredAdapters.containsKey(operatorDescriptorName)) {
+            registeredAdapters.remove(operatorDescriptorName);
+        }
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        OperatorSpi spi = operatorSpiRegistry.getOperatorSpi(operatorDescriptor.getAlias());
+        if (spi == null) {
+            spi = operatorSpiRegistry.getOperatorSpi(operatorDescriptorName);
+        }
+        if (spi != null) {
+            operatorSpiRegistry.removeOperatorSpi(spi);
+            notifyAdapterRemoved(operatorDescriptor);
+        }
+    }
+
+    public ToolAdapterOperatorDescriptor findByAlias(String alias) {
+        ToolAdapterOperatorDescriptor result = null;
+        if (alias != null) {
+            List<ToolAdapterOpSpi> filtered = registeredAdapters.values().stream()
+                    .filter(d -> alias.equals(d.getOperatorAlias()) || alias.equals(d.getOperatorDescriptor().getName()))
+                    .collect(Collectors.toList());
+            if (filtered.size() > 0) {
+                OperatorDescriptor operatorDescriptor = filtered.get(0).getOperatorDescriptor();
+                if (operatorDescriptor instanceof ToolAdapterOperatorDescriptor) {
+                    result = (ToolAdapterOperatorDescriptor) operatorDescriptor;
+                }
             }
-            OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-            OperatorSpi spi = operatorSpiRegistry.getOperatorSpi(operatorDescriptor.getName());
-            if (spi != null) {
-                operatorSpiRegistry.removeOperatorSpi(spi);
-            }
-        //}
+        }
+        return result;
     }
 
     void clear() {
         registeredAdapters.clear();
+    }
+
+    public void addListener(ToolAdapterListener listener) {
+        if (listener != null) {
+            this.listeners.add(listener);
+        }
+    }
+
+    public void removeListener(ToolAdapterListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    private void notifyAdapterAdded(final ToolAdapterOperatorDescriptor adapterOperatorDescriptor) {
+        if (adapterOperatorDescriptor == null)
+            return;
+        for (ToolAdapterListener listener : listeners) {
+            listener.adapterAdded(adapterOperatorDescriptor);
+        }
+    }
+
+    private void notifyAdapterRemoved(final ToolAdapterOperatorDescriptor adapterOperatorDescriptor) {
+        if (adapterOperatorDescriptor == null)
+            return;
+        for (ToolAdapterListener listener : listeners) {
+            listener.adapterRemoved(adapterOperatorDescriptor);
+        }
     }
 }

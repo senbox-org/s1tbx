@@ -18,7 +18,7 @@ package org.esa.snap.core.gpf.graph;
 
 /**
  * A <code>NodeSource</code> represents a mapping from an nodeId to a
- * <code>Node</code> instance. The <code>GraphIO</code> uses sorces to
+ * <code>Node</code> instance. The <code>GraphIO</code> uses sources to
  * simplify the xml deserialization. Use this class to set the sources of
  * <code>Node</code>s to a <code>Node</code> with the given nodeId. The
  * <code>GraphProcessor</code> will resolve the nodeId to the respective
@@ -26,7 +26,7 @@ package org.esa.snap.core.gpf.graph;
  */
 public class NodeSource {
 
-    private final String name;
+    private String name;
     private final String sourceNodeId;
 
     // todo - move to NodeContext
@@ -77,5 +77,9 @@ public class NodeSource {
      */
     void setSourceNode(Node sourceNode) {
         this.sourceNode = sourceNode;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 }

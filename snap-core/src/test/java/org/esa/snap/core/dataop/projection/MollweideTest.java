@@ -16,38 +16,53 @@
 
 package org.esa.snap.core.dataop.projection;
 
+import org.esa.snap.core.util.SystemUtils;
+import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.referencing.operation.MathTransformProvider;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This is not testing our implementation of Mollweide projection but the one of geotools.
+ * Our implementation is not in use anymore and has been removed in SNAP 6.
+ *
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
-public final class MollweideTest extends AbstractProjectionTest<Mollweide.Provider> {
-
+public final class MollweideTest extends AbstractProjectionTest {
 
     @Override
-    protected Mollweide.Provider createProvider() {
-        return new Mollweide.Provider();
+    public void setUp() {
+        super.setUp();
+        SystemUtils.initGeoTools();
     }
 
     @Override
-    public MathTransform createMathTransform(Mollweide.Provider provider) {
+    protected ReferenceIdentifier getProjectionIdentifier() {
+        return new NamedIdentifier(Citations.OGC, "Mollweide");
+    }
+
+    @Override
+    public MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(provider.getParameters());
         params.parameter("semi_major").setValue(6378206.400);
         params.parameter("semi_minor").setValue(6378206.400);
         params.parameter("central_meridian").setValue(-100.000);
         params.parameter("false_easting").setValue(0.0);
         params.parameter("false_northing").setValue(0.0);
-        return provider.createMathTransform(params);
+        return createParameterizedTransform(params);
     }
+
 
     @Override
     protected List<ProjTestData> createTestData() {
-        List<ProjTestData> dataList = new ArrayList<ProjTestData>(13);
+        List<ProjTestData> dataList = new ArrayList<>(13);
         dataList.add(new ProjTestData(-180.0, -90, 0.0, -9020145.99445, -100.0, -90.0));
         dataList.add(new ProjTestData(-180.0, -75.0, -3392851.08440, -8172751.64401, 180, -75));
         dataList.add(new ProjTestData(-165.0, 0.0, -6514549.88492, 0.00000));

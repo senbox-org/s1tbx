@@ -57,6 +57,7 @@ import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffMetadata2CRSAdapter;
 import org.geotools.coverage.grid.io.imageio.geotiff.PixelScale;
 import org.geotools.coverage.grid.io.imageio.geotiff.TiePoint;
+import org.geotools.factory.Hints;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
@@ -120,14 +121,14 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (input instanceof File) {
             inputFile = (File) input;
-            if(inputFile.getName().toLowerCase().endsWith(".zip")) {
+            if (inputFile.getName().toLowerCase().endsWith(".zip")) {
                 final ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
                 // get first tif
                 final Enumeration<? extends ZipEntry> entries = productZip.entries();
-                while(entries.hasMoreElements()) {
+                while (entries.hasMoreElements()) {
                     final ZipEntry zipEntry = entries.nextElement();
                     final String name = zipEntry.getName().toLowerCase();
-                    if(name.endsWith(".tif") || name.endsWith(".tiff")) {
+                    if (name.endsWith(".tif") || name.endsWith(".tiff")) {
                         input = productZip.getInputStream(zipEntry);
                         break;
                     }
@@ -307,11 +308,12 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
 
         if (product == null) {            // without DIMAP header
-            final String productName;
+            String productName = null;
             if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
                 final TIFFField field1 = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
-                productName = field1.getAsString(0);
-            } else if (inputFile != null) {
+                productName = field1.getAsString(0).trim();
+            }
+            if ((productName == null || productName.isEmpty()) && inputFile != null) {
                 productName = FileUtils.getFilenameWithoutExtension(inputFile);
             } else {
                 productName = "geotiff";
@@ -470,7 +472,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private static void applyGeoCodingFromGeoTiff(TIFFImageMetadata metadata, Product product) throws Exception {
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
         final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(metadata);
-        final GeoTiffMetadata2CRSAdapter geoTiff2CRSAdapter = new GeoTiffMetadata2CRSAdapter(null);
+        Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, true);
+        final GeoTiffMetadata2CRSAdapter geoTiff2CRSAdapter = new GeoTiffMetadata2CRSAdapter(hints);
         // todo reactivate the following line if geotools has fixed the problem. (see BEAM-1510)
         // final MathTransform toModel = GeoTiffMetadata2CRSAdapter.getRasterToModel(metadataDecoder, false);
         final MathTransform toModel = getRasterToModel(metadataDecoder);
@@ -568,7 +571,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     }
 
-
     private static void applyTiePointGeoCoding(TiffFileInfo info, double[] tiePoints, Product product) {
         final SortedSet<Double> xSet = new TreeSet<>();
         final SortedSet<Double> ySet = new TreeSet<>();
@@ -606,8 +608,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
             final int idxX = xIdx.get(tiePoints[i + 0]);
             final int idxY = yIdx.get(tiePoints[i + 1]);
             final int arrayIdx = idxY * width + idxX;
-            lons[arrayIdx] = (float)tiePoints[i + 3];
-            lats[arrayIdx] = (float)tiePoints[i + 4];
+            lons[arrayIdx] = (float) tiePoints[i + 3];
+            lats[arrayIdx] = (float) tiePoints[i + 4];
         }
 
         String[] names = Utils.findSuitableLatLonNames(product);
@@ -625,6 +627,26 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     private static boolean canCreateGcpGeoCoding(final double[] tiePoints) {
         int numTiePoints = tiePoints.length / 6;
+
+        // check if positions are valid
+        for (int i = 0; i < numTiePoints; i++) {
+            final int offset = i * 6;
+
+            final float x = (float) tiePoints[offset + 0];
+            final float y = (float) tiePoints[offset + 1];
+            final float lon = (float) tiePoints[offset + 3];
+            final float lat = (float) tiePoints[offset + 4];
+
+            if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(lon) || Double.isNaN(lat)) {
+                return false;
+            }
+            final PixelPos pixelPos = new PixelPos(x, y);
+            final GeoPos geoPos = new GeoPos(lat, lon);
+
+            if (!pixelPos.isValid() || !geoPos.isValid()) {
+                return false;
+            }
+        }
 
         if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL3.getTermCountP()) {
             return true;

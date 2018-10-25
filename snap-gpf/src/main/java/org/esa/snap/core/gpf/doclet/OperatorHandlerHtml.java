@@ -18,60 +18,53 @@ package org.esa.snap.core.gpf.doclet;
 
 import com.sun.javadoc.RootDoc;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 // todo - use template engine, e.g. apache velocity (nf)
-public class OperatorHandlerHtml implements OperatorHandler {
+class OperatorHandlerHtml implements OperatorHandler {
 
-    ArrayList<OperatorDesc> operatorDescs;
-    private File baseDir;
+    private final Path outputDir;
+    private ArrayList<OperatorDesc> operatorDescs;
+    private Path baseDir;
 
-    public OperatorHandlerHtml() {
+    OperatorHandlerHtml(Path outputDir) {
+        this.outputDir = outputDir;
         operatorDescs = new ArrayList<>();
     }
 
     @Override
     public void start(RootDoc root) throws IOException, URISyntaxException {
-        final URL location = OperatorHandlerHtml.class.getProtectionDomain().getCodeSource().getLocation();
-        baseDir = new File(new File(location.toURI()), "org/esa/snap/core/gpf/docs/gpf");
+        baseDir = outputDir.resolve("org/esa/snap/core/gpf/docs/gpf");
         System.out.println("Output goes to " + baseDir);
-        if (!baseDir.isDirectory()) {
-            if (!baseDir.mkdirs()) {
-                throw new IOException("Failed to create base directory " + baseDir);
-            }
+        if (!Files.isDirectory(baseDir)) {
+            Files.createDirectories(baseDir);
         }
     }
 
     @Override
     public void stop(RootDoc root) throws IOException {
-        Collections.sort(operatorDescs, new Comparator<OperatorDesc>() {
-            @Override
-            public int compare(OperatorDesc od1, OperatorDesc od2) {
-                return od1.getName().compareTo(od2.getName());
-            }
-        });
+        Collections.sort(operatorDescs, (od1, od2) -> od1.getName().compareTo(od2.getName()));
 
-        File indexFile = new File(baseDir, "OperatorIndex.html");
-        try (PrintWriter writer = new PrintWriter(new FileWriter(indexFile))) {
+        Path indexFile = baseDir.resolve("OperatorIndex.html");
+        try (PrintWriter writer = new PrintWriter(new FileWriter(indexFile.toFile()))) {
             writeIndex(writer);
         }
     }
 
     @Override
     public void processOperator(OperatorDesc operatorDesc) throws IOException {
-        File file = getOperatorPageFile(operatorDesc);
-        if (file.exists()) {
-            System.out.println("Warning: File exists and will be overwritten: " + file);
+        Path pageFile = getOperatorPageFile(operatorDesc);
+        if (Files.exists(pageFile)) {
+            System.out.println("Warning: File exists and will be overwritten: " + pageFile);
         }
-        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(pageFile))) {
             writeOperatorPage(operatorDesc, writer);
             operatorDescs.add(operatorDesc);
         }
@@ -83,7 +76,8 @@ public class OperatorHandlerHtml implements OperatorHandler {
         writer.println("<table>");
         for (OperatorDesc operatorDesc : operatorDescs) {
             writer.println("  <tr>");
-            writer.println("    <td><b><code><a href=\"" + getOperatorPageName(operatorDesc) + "\">" + operatorDesc.getName() + "</a></code></b></td>");
+            writer.println(
+                    "    <td><b><code><a href=\"" + getOperatorPageName(operatorDesc) + "\">" + operatorDesc.getName() + "</a></code></b></td>");
             writer.println("    <td>" + operatorDesc.getShortDescription() + "</td>");
             writer.println("  </tr>");
         }
@@ -127,7 +121,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
                 writer.println("  <td>" + getFullDescription(sourceProduct) + "</td>");
                 writer.println("</tr>");
             }
-            if(sourceProductsField != null) {
+            if (sourceProductsField != null) {
                 writer.println("<tr>");
                 writer.println("  <td><code>" + sourceProductsField.getName() + "</code></td>");
                 writer.println("  <td>" + getFullDescription(sourceProductsField) + "</td>");
@@ -176,26 +170,26 @@ public class OperatorHandlerHtml implements OperatorHandler {
 
     private static void writeHeader(String title, PrintWriter writer) {
         writer.println("<!DOCTYPE HTML PUBLIC " +
-                "\"-//W3C//DTD HTML 4.01//EN\" " +
-                "\"http://www.w3.org/TR/html4/strict.dtd\">");
+                       "\"-//W3C//DTD HTML 4.01//EN\" " +
+                       "\"http://www.w3.org/TR/html4/strict.dtd\">");
         writer.println("<html>");
         writer.println("" +
-                "<head>\n" +
-                "    <title>"+title+"</title>\n" +
-                "    <link rel=\"stylesheet\" href=\"../style.css\">\n" +
-                "</head>");
+                       "<head>\n" +
+                       "    <title>" + title + "</title>\n" +
+                       "    <link rel=\"stylesheet\" href=\"../style.css\">\n" +
+                       "</head>");
         writer.println("<body>");
 
         writer.println("" +
-                "<table class=\"header\">\n" +
-                "    <tr class=\"header\">\n" +
-                "        <td class=\"header\">&nbsp;"+title+"</td>\n" +
-                "        <td class=\"header\" align=\"right\">\n" +
-                "           <a href=\"../general/BeamOverview.html\">" +
-                "             <img src=\"images/snap_header.jpg\" border=\"0\"/></a>\n" +
-                "        </td>\n" +
-                "    </tr>\n" +
-                "</table>");
+                       "<table class=\"header\">\n" +
+                       "    <tr class=\"header\">\n" +
+                       "        <td class=\"header\">&nbsp;" + title + "</td>\n" +
+                       "        <td class=\"header\" align=\"right\">\n" +
+                       "          <a href=\"../general/overview/SnapOverview.html\">" +
+                       "             <img src=\"images/snap_header.jpg\" border=\"0\"/></a>\n" +
+                       "        </td>\n" +
+                       "    </tr>\n" +
+                       "</table>");
     }
 
     private static void writeFooter(PrintWriter writer) {
@@ -216,8 +210,8 @@ public class OperatorHandlerHtml implements OperatorHandler {
         return shortDescription + "<br/>" + longDescription;
     }
 
-    private File getOperatorPageFile(OperatorDesc operatorDesc) {
-        return new File(baseDir, getOperatorPageName(operatorDesc));
+    private Path getOperatorPageFile(OperatorDesc operatorDesc) {
+        return baseDir.resolve(getOperatorPageName(operatorDesc));
     }
 
     private static String getOperatorPageName(OperatorDesc operatorDesc) {

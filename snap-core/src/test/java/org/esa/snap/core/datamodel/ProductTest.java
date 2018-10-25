@@ -26,21 +26,18 @@ import org.esa.snap.core.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
-import org.esa.snap.core.jexp.ParseException;
-import org.esa.snap.core.jexp.Term;
-import org.esa.snap.core.util.BeamConstants;
-import org.esa.snap.core.util.BitRaster;
-import org.esa.snap.core.util.ObjectUtils;
 import org.esa.snap.core.util.ProductUtilsTest;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -93,7 +90,7 @@ public class ProductTest {
 
     @Test
     public void testSetAndGetReader() {
-        Product product = new Product("name", BeamConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME, 312, 213);
+        Product product = new Product("name", "MER_RR__1P", 312, 213);
 
         assertNull(product.getProductReader());
 
@@ -129,6 +126,29 @@ public class ProductTest {
         assertEquals("band1", product.getBandAt(0).getName());
         assertNotNull(product.getBand("band1"));
         assertEquals("band1", product.getBand("band1").getName());
+    }
+
+    @Test
+    public void addMask() {
+        final Mask mask = product.addMask("maskName", "sin(X)", "description", Color.BLUE, 0.5);
+        assertNotNull(mask);
+        assertEquals("maskName", mask.getName());
+        assertEquals("sin(X)", Mask.BandMathsType.getExpression(mask));
+        assertEquals("description", mask.getDescription());
+        assertEquals(Color.BLUE, mask.getImageColor());
+        assertEquals(0.5, mask.getImageTransparency(), 1e-12);
+    }
+
+    @Test
+    public void addMask_FailsWithExpressionInvolvingBandsOfDifferentSizes() {
+        product.addBand(new Band("band1", ProductData.TYPE_INT8, _sceneWidth + 5, _sceneHeight + 5));
+        product.addBand(new Band("band2", ProductData.TYPE_INT8, _sceneWidth + 10, _sceneHeight + 10));
+        try {
+            product.addMask("mask", "band1 + band2", "description", Color.BLUE, 0.5);
+            fail("Exception expected");
+        } catch (Exception e) {
+            assertEquals("Expression must not reference rasters of different sizes", e.getMessage());
+        }
     }
 
     @Test
@@ -191,27 +211,27 @@ public class ProductTest {
         band.getRasterData().setElems(elems);
         product.setModified(false);
 
-        final boolean[] F1_MASK = new boolean[]{
-                false, true, false, false,
-                true, false, true, true,
-                false, true, false, false,
-                false, true, false, false
+        final int[] F1_MASK = new int[]{
+                0, 255, 0, 0,
+                255, 0, 255, 255,
+                0, 255, 0, 0,
+                0, 255, 0, 0
         };
         testBitmaskHandling(product, "flags.F1", F1_MASK);
 
-        final boolean[] F1_AND_F2_MASK = new boolean[]{
-                false, false, false, false,
-                false, false, true, false,
-                false, true, false, false,
-                false, false, false, false
+        final int[] F1_AND_F2_MASK = new int[]{
+                0, 0, 0, 0,
+                0, 0, 255, 0,
+                0, 255, 0, 0,
+                0, 0, 0, 0
         };
         testBitmaskHandling(product, "flags.F1 AND flags.F2", F1_AND_F2_MASK);
 
-        final boolean[] F1_AND_F2_OR_F3_MASK = new boolean[]{
-                false, false, false, true,
-                false, false, true, true,
-                false, true, false, true,
-                true, true, true, false
+        final int[] F1_AND_F2_OR_F3_MASK = new int[]{
+                0, 0, 0, 255,
+                0, 0, 255, 255,
+                0, 255, 0, 255,
+                255, 255, 255, 0
         };
         testBitmaskHandling(product, "(flags.F1 AND flags.F2) OR flags.F3", F1_AND_F2_OR_F3_MASK);
     }
@@ -246,80 +266,58 @@ public class ProductTest {
         band.setRasterData(data);
         product.setModified(false);
 
-        final boolean[] F1_MASK = new boolean[]{
-                false, true, false, false,
-                true, false, true, true,
-                false, true, false, false,
-                false, true, false, false
+        final int[] F1_MASK = new int[]{
+                0, 255, 0, 0,
+                255, 0, 255, 255,
+                0, 255, 0, 0,
+                0, 255, 0, 0
         };
         testBitmaskHandling(product, "flags.F1", F1_MASK);
 
-        final boolean[] F1_AND_F2_MASK = new boolean[]{
-                false, false, false, false,
-                false, false, true, false,
-                false, true, false, false,
-                false, false, false, false
+        final int[] F1_AND_F2_MASK = new int[]{
+                0, 0, 0, 0,
+                0, 0, 255, 0,
+                0, 255, 0, 0,
+                0, 0, 0, 0
         };
         testBitmaskHandling(product, "flags.F1 AND flags.F2", F1_AND_F2_MASK);
 
-        final boolean[] F1_AND_F2_OR_F3_MASK = new boolean[]{
-                false, false, false, true,
-                false, false, true, true,
-                false, true, false, true,
-                true, true, true, false
+        final int[] F1_AND_F2_OR_F3_MASK = new int[]{
+                0, 0, 0, 255,
+                0, 0, 255, 255,
+                0, 255, 0, 255,
+                255, 255, 255, 0
         };
         testBitmaskHandling(product, "(flags.F1 AND flags.F2) OR flags.F3", F1_AND_F2_OR_F3_MASK);
     }
 
-    private void testBitmaskHandling(Product product, String expr, boolean[] expected) {
+    private void testBitmaskHandling(Product product, String expr, int[] expected) {
         testBitmaskHandlingFullRaster(product, expr, expected);
         testBitmaskHandlingLineWise(product, expr, expected);
     }
 
-    private static void testBitmaskHandlingFullRaster(Product product, String expr, boolean[] expected) {
+    private static void testBitmaskHandlingFullRaster(Product product, String expr, int[] expected) {
 
-        boolean[] res = new boolean[4 * 4];
-        Term term = null;
-
-        try {
-            term = product.parseExpression(expr);
-        } catch (ParseException e) {
-            fail("unexpected BitmaskExpressionParseException: " + e.getMessage());
-        }
-
-        try {
-            product.readBitmask(0, 0, 4, 4, term, res, ProgressMonitor.NULL);
-        } catch (IOException e) {
-            fail("unexpected IOException: " + e.getMessage());
-        }
-
-        assertEquals(true, Arrays.equals(expected, res));
+        int[] res = new int[4 * 4];
+        RenderedImage maskImage = product.getMaskImage(expr, null).getImage(0);
+        maskImage.getData(new Rectangle(0, 0, 4, 4)).getSamples(0, 0, 4, 4, 0, res);
+        
+        assertArrayEquals(expected, res);
     }
 
-    private void testBitmaskHandlingLineWise(Product product, String expr, boolean[] expected) {
+    private void testBitmaskHandlingLineWise(Product product, String expr, int[] expected) {
 
-        boolean[] res = new boolean[4 * 4];
-        Term term = null;
-
-        try {
-            term = product.parseExpression(expr);
-        } catch (ParseException e) {
-            fail("unexpected BitmaskExpressionParseException: " + e.getMessage());
-        }
-
-        try {
-            readBitmaskLineWise(product, term, res);
-        } catch (IOException e) {
-            fail("unexpected IOException: " + e.getMessage());
-        }
-
-        assertEquals(true, Arrays.equals(expected, res));
+        int[] res = new int[4 * 4];
+        readBitmaskLineWise(product, expr, res);
+        
+        assertArrayEquals(expected, res);
     }
 
-    private static void readBitmaskLineWise(Product product, Term term, boolean[] res) throws IOException {
-        boolean[] line = new boolean[4];
+    private static void readBitmaskLineWise(Product product, String expr, int[] res) {
+        int[] line = new int[4];
+        RenderedImage maskImage = product.getMaskImage(expr, null).getImage(0);
         for (int y = 0; y < 4; y++) {
-            product.readBitmask(0, y, 4, 1, term, line, ProgressMonitor.NULL);
+            maskImage.getData(new Rectangle(0, y, 4, 1)).getSamples(0, y, 4, 1, 0, line);
             System.arraycopy(line, 0, res, y * 4, 4);
         }
     }
@@ -724,7 +722,6 @@ public class ProductTest {
         final Product p = new Product("n", "t", 10, 10);
         final ProductNodeGroup<ProductNodeGroup> groups = p.getGroups();
         assertNotNull(groups);
-        int n = groups.getNodeCount();
 
         assertNotNull(p.getGroup("bands"));
         assertSame(p.getGroup("bands"), groups.get("bands"));
@@ -755,7 +752,7 @@ public class ProductTest {
         final TracingProductNodeListener listener = new TracingProductNodeListener();
         final int eventCount0 = listener.events.size();
         p.addProductNodeListener(listener);
-        final ProductNodeGroup<MetadataElement> spectra = new ProductNodeGroup<MetadataElement>(p, "spectra", true);
+        final ProductNodeGroup<MetadataElement> spectra = new ProductNodeGroup<>(p, "spectra", true);
         groups.add(spectra);
         assertEquals(groups.getNodeCount(), nodeCount0 + 1);
         assertEquals(listener.events.size(), eventCount0 + 1);
@@ -812,121 +809,6 @@ public class ProductTest {
         assertFalse(p.containsPixel(-1, -1));
 
         p.dispose();
-    }
-
-    @Test
-    public void testReadBitmaskWithByteValues() throws ParseException,
-            IOException {
-        Product product = new Product("Y", "X", 4, 4);
-        Band band = product.addBand("flags", ProductData.TYPE_INT8);
-
-        final byte F1 = 0x01;
-        final byte F2 = 0x02;
-        final byte F3 = 0x04;
-
-        FlagCoding flagCoding = new FlagCoding("flags");
-        flagCoding.addFlag("F1", F1, null);
-        flagCoding.addFlag("F2", F2, null);
-        flagCoding.addFlag("F3", F3, null);
-
-        product.getFlagCodingGroup().add(flagCoding);
-        band.setSampleCoding(flagCoding);
-
-        band.ensureRasterData();
-        final byte[] elems = new byte[]{
-                0, F1, F2, F3,
-                F1, 0, F1 + F2, F1 + F3,
-                F2, F1 + F2, 0, F2 + F3,
-                F3, F1 + F3, F2 + F3, 0,
-        };
-        band.getRasterData().setElems(elems);
-        product.setModified(false);
-
-
-        final byte TRUE = 23;
-        final byte FALSE = 45;
-
-        final Term termF1 = product.parseExpression("flags.F1");
-        final byte[] F1_MASK = new byte[]{
-                FALSE, TRUE, FALSE, FALSE,
-                TRUE, FALSE, TRUE, TRUE,
-                FALSE, TRUE, FALSE, FALSE,
-                FALSE, TRUE, FALSE, FALSE
-        };
-        final byte[] F1_MASK_SUB = new byte[]{
-                FALSE, TRUE,
-                TRUE, FALSE,
-        };
-        final byte[] currentF1 = new byte[4 * 4];
-        final byte[] currentF1Sub = new byte[2 * 2];
-        product.readBitmask(0, 0, 4, 4, termF1, currentF1, TRUE, FALSE, ProgressMonitor.NULL);
-        product.readBitmask(1, 1, 2, 2, termF1, currentF1Sub, TRUE, FALSE, ProgressMonitor.NULL);
-        assertEquals(true, ObjectUtils.equalObjects(currentF1, F1_MASK));
-        assertEquals(true, ObjectUtils.equalObjects(currentF1Sub, F1_MASK_SUB));
-
-
-        final Term termF1AF2 = product.parseExpression("flags.F1 AND flags.F2");
-        final byte[] F1_AND_F2_MASK = new byte[]{
-                FALSE, FALSE, FALSE, FALSE,
-                FALSE, FALSE, TRUE, FALSE,
-                FALSE, TRUE, FALSE, FALSE,
-                FALSE, FALSE, FALSE, FALSE
-        };
-        final byte[] F1_AND_F2_MASK_SUB = new byte[]{
-                FALSE, TRUE,
-                TRUE, FALSE,
-        };
-        final byte[] currentF1AF2 = new byte[4 * 4];
-        final byte[] currentF1AF2Sub = new byte[2 * 2];
-        product.readBitmask(0, 0, 4, 4, termF1AF2, currentF1AF2, TRUE, FALSE, ProgressMonitor.NULL);
-        product.readBitmask(1, 1, 2, 2, termF1AF2, currentF1AF2Sub, TRUE, FALSE, ProgressMonitor.NULL);
-        assertEquals(true, ObjectUtils.equalObjects(currentF1AF2, F1_AND_F2_MASK));
-        assertEquals(true, ObjectUtils.equalObjects(currentF1AF2Sub, F1_AND_F2_MASK_SUB));
-
-
-        final Term termF1AF2OF3 = product.parseExpression("(flags.F1 AND flags.F2) OR flags.F3");
-        final byte[] F1_AND_F2_OR_F3_MASK = new byte[]{
-                FALSE, FALSE, FALSE, TRUE,
-                FALSE, FALSE, TRUE, TRUE,
-                FALSE, TRUE, FALSE, TRUE,
-                TRUE, TRUE, TRUE, FALSE
-        };
-        final byte[] F1_AND_F2_OR_F3_MASK_SUB = new byte[]{
-                FALSE, TRUE,
-                TRUE, FALSE
-        };
-        final byte[] currentF1AF2OF3 = new byte[4 * 4];
-        final byte[] currentF1AF2OF3Sub = new byte[2 * 2];
-        product.readBitmask(0, 0, 4, 4, termF1AF2OF3, currentF1AF2OF3, TRUE, FALSE, ProgressMonitor.NULL);
-        product.readBitmask(1, 1, 2, 2, termF1AF2OF3, currentF1AF2OF3Sub, TRUE, FALSE, ProgressMonitor.NULL);
-        assertEquals(true, ObjectUtils.equalObjects(currentF1AF2OF3, F1_AND_F2_OR_F3_MASK));
-        assertEquals(true, ObjectUtils.equalObjects(currentF1AF2OF3Sub, F1_AND_F2_OR_F3_MASK_SUB));
-    }
-
-    @Test
-    public void testEnsureValidMask() throws ParseException,
-            IOException {
-        final Product product = new Product("n", "t", 18, 2);
-        final Band flagsBand = product.addBand("flags", ProductData.TYPE_INT8);
-        final FlagCoding flagCoding = new FlagCoding("fc");
-        final int f1Mask = 1;
-        flagCoding.addFlag("f1", f1Mask, "");
-        flagsBand.setSampleCoding(flagCoding);
-        product.getFlagCodingGroup().add(flagCoding);
-        final byte[] elems = new byte[]{
-                0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0,
-                1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1,
-        };
-        flagsBand.setDataElems(elems);
-        product.setModified(false);
-
-
-        final Term term = product.parseExpression("flags.f1");
-        final BitRaster validMask = product.createValidMask(term, ProgressMonitor.NULL);
-
-        for (int i = 0; i < elems.length; i++) {
-            assertEquals(elems[i] == 1, validMask.isSet(i));
-        }
     }
 
     @Test

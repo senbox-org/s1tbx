@@ -25,6 +25,7 @@ import org.esa.snap.core.util.io.FileUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -152,10 +153,12 @@ public abstract class ElevationFile {
             downloadFile(new URL(remotePath), localZipFile);
 
             return true;
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
             // no need to alarm the user. Tiles may not be found because they are in the ocean or outside valid areas
             SystemUtils.LOG.warning("http error:" + e.getMessage() + " on " + remotePath);
             remoteFileExists = false;
+        } catch (Exception e) {
+            throw e;
         }
         return false;
     }

@@ -15,33 +15,50 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.descriptor.*;
-import org.esa.snap.core.gpf.internal.OperatorContext;
+import org.esa.snap.core.gpf.descriptor.ParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.SystemVariable;
+import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.template.FileTemplate;
+import org.esa.snap.core.gpf.descriptor.template.Template;
+import org.esa.snap.core.gpf.descriptor.template.TemplateContext;
+import org.esa.snap.core.gpf.descriptor.template.TemplateException;
+import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.utils.PrivilegedAccessor;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -62,7 +79,7 @@ public class ToolAdapterOp extends Operator {
 
     private static final String INTERMEDIATE_PRODUCT_NAME = "interimProduct";
     private static final String[] DEFAULT_EXTENSIONS = { ".tif", ".tiff", ".nc", ".hdf", ".pgx", ".png", ".gif", ".jpg", ".bmp", ".pnm", ".pbm", ".pgm", ".ppm", ".jp2" };
-    public static final String VELOCITY_LINE_SEPARATOR = "\r\n|\n";
+
     /**
      * Consume the output created by a tool.
      */
@@ -81,15 +98,15 @@ public class ToolAdapterOp extends Operator {
 
     private List<File> intermediateProductFiles;
 
-    /**
-     * The folder where the tool descriptors reside.
-     */
-    private File adapterFolder;
-    private OperatorContext accessibleContext;
-
     private List<String> errorMessages;
 
-    private VelocityContext lastPostContext;
+    private TemplateContext lastPostContext;
+
+    private boolean isInitialised;
+
+    private ProcessExecutor executor;
+
+    private Set<String> filesToDelete;
 
     /**
      * Constructor.
@@ -98,16 +115,11 @@ public class ToolAdapterOp extends Operator {
         super();
         errorMessages = new ArrayList<>();
         this.consumer = null;
+        isInitialised = false;
         Logger logger = getLogger();
-        try {
-            accessibleContext = (OperatorContext) PrivilegedAccessor.getValue(this, "context");
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-        }
         Velocity.init();
-        //this.progressMonitor = ProgressMonitor.NULL;
-        //this.descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
         intermediateProductFiles = new ArrayList<>();
+        filesToDelete = new HashSet<>();
         logger.addHandler(new Handler() {
             @Override
             public void publish(LogRecord record) {
@@ -125,7 +137,7 @@ public class ToolAdapterOp extends Operator {
     }
 
     /**
-     * Set a consumer for the tool's output.
+     * Registers a consumer for the tool's output.
      *
      * @param consumer the output consumer.
      */
@@ -146,22 +158,16 @@ public class ToolAdapterOp extends Operator {
      */
     public void stop() {
         this.isStopped = true;
-    }
-
-    /**
-     * Check if a isStopped command was issued.
-     * <p>
-     * This method is synchronized.
-     * </p>
-     *
-     * @return true if the execution of the tool must be stopped.
-     */
-    private boolean isStopped() {
-        return this.isStopped;
+        if (this.executor != null) {
+            this.executor.stop();
+        }
     }
 
     public void setAdapterFolder(File folder) {
-        this.adapterFolder = folder;
+        /*
+      The folder where the tool descriptors reside.
+     */
+        File adapterFolder = folder;
     }
 
     /**
@@ -184,9 +190,10 @@ public class ToolAdapterOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         Date currentTime = new Date();
+        int ret = -1;
         try {
             if (descriptor == null) {
-                descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
+                descriptor = ((ToolAdapterOperatorDescriptor) getSpi().getOperatorDescriptor());
             }
             if (this.progressMonitor != null) {
                 this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
@@ -203,7 +210,9 @@ public class ToolAdapterOp extends Operator {
                 beforeExecute();
             }
             if (!isStopped) {
-                execute();
+                if ((ret = execute()) != 0) {
+                    this.consumer.consumeOutput(String.format("Process exited with value %d", ret));
+                }
             }
             if (this.consumer != null) {
                 Date finalDate = new Date();
@@ -212,11 +221,20 @@ public class ToolAdapterOp extends Operator {
         } finally {
             try {
                 if (!wasCancelled) {
-                    postExecute();
+                    isInitialised = (postExecute() == 0);
+                } else {
+                    isInitialised = true;
                 }
             } finally {
                 if (this.progressMonitor != null) {
                     this.progressMonitor.done();
+                }
+                for (String fileName : filesToDelete) {
+                    try {
+                        Files.deleteIfExists(Paths.get(fileName));
+                    } catch (IOException e) {
+                        getLogger().fine(e.getMessage());
+                    }
                 }
             }
         }
@@ -226,10 +244,7 @@ public class ToolAdapterOp extends Operator {
         return this.consumer.getProcessOutput();
     }
 
-    public Product getResult() {
-        return accessibleContext.isInitialized() ?
-            accessibleContext.getTargetProduct() : null;
-    }
+    public Product getResult() { return isInitialised ? getTargetProduct() : null; }
 
     /**
      * Verify that the data provided withing the operator descriptor is valid.
@@ -247,30 +262,6 @@ public class ToolAdapterOp extends Operator {
         if (!toolFile.exists() || !toolFile.isFile()) {
             throw new OperatorException(String.format("Invalid tool file: '%s'!", toolFile.getAbsolutePath()));
         }
-
-        //Get the tool's working directory
-        /*File toolWorkingDirectory = descriptor.resolveVariables(descriptor.getWorkingDir());
-        if (toolWorkingDirectory == null) {
-            throw new OperatorException("Tool working directory not defined!");
-        }
-        if (!toolWorkingDirectory.exists() || !toolWorkingDirectory.isDirectory()) {
-            throw new OperatorException(String.format("Invalid tool working directory: '%s'!", toolWorkingDirectory.getAbsolutePath()));
-        }*/
-
-        ParameterDescriptor[] parameterDescriptors = descriptor.getParameterDescriptors();
-        if (parameterDescriptors != null && parameterDescriptors.length > 0) {
-            for (ParameterDescriptor parameterDescriptor : parameterDescriptors) {
-                Class<?> dataType = parameterDescriptor.getDataType();
-                String defaultValue = parameterDescriptor.getDefaultValue();
-                if (File.class.isAssignableFrom(dataType) &&
-                        (parameterDescriptor.isNotNull() || parameterDescriptor.isNotEmpty()) &&
-                        (defaultValue == null || defaultValue.isEmpty() || !Files.exists(Paths.get(defaultValue)))) {
-                    throw new OperatorException(String.format("Parameter %s is marked as %s, but the value is missing",
-                            parameterDescriptor.getName(), parameterDescriptor.isNotNull() ? "NotNull" : "NotEmpty"));
-                }
-            }
-        }
-
     }
 
     /**
@@ -283,8 +274,8 @@ public class ToolAdapterOp extends Operator {
         descriptor.getToolParameterDescriptors().stream().filter(parameter -> parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_BEFORE_MASK))
                 .forEach(parameter -> {
                     try {
-                        transformTemplateParameter(parameter);
-                    } catch (IOException e) {
+                        filesToDelete.add(transformTemplateParameter((TemplateParameterDescriptor) parameter));
+                    } catch (IOException | TemplateException e) {
                         getLogger().severe(String.format("Error processing template before execution for parameter [%s]", parameter.getName()));
                     }
                 });
@@ -298,39 +289,40 @@ public class ToolAdapterOp extends Operator {
                 final Product[] selectedProducts = getSourceProducts();
                 String sourceDefaultExtension = writerPlugIn.getDefaultFileExtensions()[0];
                 for (Product selectedProduct : selectedProducts) {
-                    File outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
-                    boolean hasDeleted = false;
-                    while (outFile.exists() && !hasDeleted) {
-                        hasDeleted = outFile.canWrite() && outFile.delete();
-                        if (!hasDeleted) {
-                            getLogger().warning(String.format("Could not delete previous temporary image %s", outFile.getName()));
-                            outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
+                    if (!sourceDefaultExtension.equalsIgnoreCase(selectedProduct.getProductReader().getReaderPlugIn().getDefaultFileExtensions()[0])) {
+                        File outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
+                        boolean hasDeleted = false;
+                        while (outFile.exists() && !hasDeleted) {
+                            hasDeleted = outFile.canWrite() && outFile.delete();
+                            if (!hasDeleted) {
+                                getLogger().warning(String.format("Could not delete previous temporary image %s", outFile.getName()));
+                                outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
+                            }
                         }
-                    }
-                    Product interimProduct = new Product(outFile.getName(), selectedProduct.getProductType(),
-                            selectedProduct.getSceneRasterWidth(), selectedProduct.getSceneRasterHeight());
-                    try {
-                        ProductUtils.copyProductNodes(selectedProduct, interimProduct);
-                        for (Band sourceBand : selectedProduct.getBands()) {
-                            ProductUtils.copyBand(sourceBand.getName(), selectedProduct, interimProduct, true);
-                        }
-                        ProductIO.writeProduct(interimProduct, outFile, sourceFormatName, true, SubProgressMonitor.create(progressMonitor, 50));
-                    } catch (IOException e) {
-                        getLogger().severe(String.format("Cannot write to %s format", sourceFormatName));
-                        stop();
-                    } finally {
+                        Product interimProduct = new Product(outFile.getName(), selectedProduct.getProductType(),
+                                selectedProduct.getSceneRasterWidth(), selectedProduct.getSceneRasterHeight());
                         try {
-                            interimProduct.closeIO();
-                            interimProduct.dispose();
-                        } catch (IOException ignored) {
+                            ProductUtils.copyProductNodes(selectedProduct, interimProduct);
+                            for (Band sourceBand : selectedProduct.getBands()) {
+                                ProductUtils.copyBand(sourceBand.getName(), selectedProduct, interimProduct, true);
+                            }
+                            ProductIO.writeProduct(interimProduct, outFile, sourceFormatName, true, SubProgressMonitor.create(progressMonitor, 50));
+                        } catch (IOException e) {
+                            getLogger().severe(String.format("Cannot write to %s format", sourceFormatName));
+                            stop();
+                        } finally {
+                            try {
+                                interimProduct.closeIO();
+                                interimProduct.dispose();
+                            } catch (IOException ignored) {
+                            }
+                            reportProgress("Product conversion finished");
                         }
-                        interimProduct = null;
-                        reportProgress("Product conversion finished");
-                    }
-                    if (outFile.exists()) {
-                        intermediateProductFiles.add(outFile);
-                    } else {
-                        stop();
+                        if (outFile.exists()) {
+                            intermediateProductFiles.add(outFile);
+                        } else {
+                            stop();
+                        }
                     }
                 }
             }
@@ -344,76 +336,23 @@ public class ToolAdapterOp extends Operator {
      * @throws OperatorException in case of an error.
      */
     private int execute() throws OperatorException {
-        Process process = null;
-        BufferedReader outReader = null;
         int ret = -1;
         try {
+            if (this.executor == null) {
+                this.executor = new ProcessExecutor();
+            }
+            this.executor.setConsumer(this.consumer);
             reportProgress("Starting tool execution");
             List<String> cmdLine = getCommandLineTokens();
             logCommandLine(cmdLine);
-            ProcessBuilder pb = new ProcessBuilder(cmdLine);
-            //redirect the error of the tool to the standard output
-            pb.redirectErrorStream(true);
-            //set the working directory
-            pb.directory(descriptor.resolveVariables(descriptor.getWorkingDir()));
-            pb.environment().putAll(descriptor.getVariables()
-                                                .stream()
-                                                .collect(Collectors.toMap(
-                                                        SystemVariable::getKey,
-                                                        SystemVariable::getValue))
-            );
-            //start the process
-            process = pb.start();
-            //get the process output
-            outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while (!isStopped()) {
-                while (!isStopped && outReader.ready()) {
-                    //read the process output line by line
-                    String line = outReader.readLine();
-                    //consume the line if possible
-                    if (line != null && !"".equals(line.trim())) {
-                        this.consumer.consumeOutput(line);
-                    }
-                }
-                // check if the project finished execution
-                if (!process.isAlive()) {
-                    //isStopped the loop
-                    stop();
-                } else {
-                    //yield the control to other threads
-                    Thread.yield();
-                }
-            }
-            if (process.exitValue() != 0) {
-                throw new IOException(String.format("Process exited with value %d", process.exitValue()));
-            }
+            ret = this.executor.execute(cmdLine,
+                                        this.descriptor.getVariables().stream()
+                                            .collect(Collectors.toMap(SystemVariable::getKey,SystemVariable::getValue)),
+                                        this.descriptor.resolveVariables(this.descriptor.getWorkingDir()));
         } catch (IOException e) {
-            wasCancelled = true;
+            this.wasCancelled = true;
             throw new OperatorException(String.format("%s execution was interrupted [%s]",descriptor.getName(), e));
-        } finally {
-            if (process != null) {
-                // if the process is still running, force it to isStopped
-                if (process.isAlive()) {
-                    //destroy the process
-                    process.destroyForcibly();
-                }
-                try {
-                    //wait for the project to end.
-                    ret = process.waitFor();
-                } catch (InterruptedException e) {
-                    //noinspection ThrowFromFinallyBlock
-                    throw new OperatorException(String.format("Error stopping %s [%s]", descriptor.getName(), e));
-                }
-
-                //close the reader
-                closeStream(outReader);
-                //close all streams
-                closeStream(process.getErrorStream());
-                closeStream(process.getInputStream());
-                closeStream(process.getOutputStream());
-            }
         }
-
         return ret;
     }
 
@@ -422,23 +361,30 @@ public class ToolAdapterOp extends Operator {
      *
      * @throws OperatorException in case of an error
      */
-    private void postExecute() throws OperatorException {
-        for(TemplateParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
+    private int postExecute() throws OperatorException {
+        for(ToolParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
             if(parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_AFTER_MASK)){
                 try {
-                    transformTemplateParameter(parameter);
-                } catch (IOException e) {
+                    filesToDelete.add(transformTemplateParameter((TemplateParameterDescriptor) parameter));
+                } catch (IOException | TemplateException e) {
                     throw new OperatorException("Error processing template after execution for parameter: '" + parameter.getName() + "'");
                 }
             }
         }
         reportProgress("Trying to open the new product");
-        File input = descriptor.resolveVariables((File) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
+        Object targetFileObj = getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE);
+        File input = null;
+        if(targetFileObj instanceof File){
+            input = (File) targetFileObj;
+        } else if (targetFileObj != null){
+            input = descriptor.resolveVariables(targetFileObj.toString());
+        }
         if (input == null) {
-            input = descriptor.resolveVariables((File) this.lastPostContext.get(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
+            input = descriptor.resolveVariables((File) this.lastPostContext.getValue(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         }
         this.lastPostContext = null;
         if (input != null) {
+            getLogger().fine(String.format("Target product: %s", input.getAbsolutePath()));
             try {
                 intermediateProductFiles.stream().filter(intermediateProductFile -> intermediateProductFile != null && intermediateProductFile.exists())
                                                  .filter(intermediateProductFile -> !(intermediateProductFile.canWrite() && intermediateProductFile.delete()))
@@ -446,12 +392,28 @@ public class ToolAdapterOp extends Operator {
                 if (input.isDirectory()) {
                     input = selectCandidateRasterFile(input);
                 }
-                getLogger().info(String.format("Trying to open %s", input.getAbsolutePath()));
-                Product target = ProductIO.readProduct(input);
-                /*for (Band band : target.getBands()) {
-                    ImageManager.getInstance().getSourceImage(band, 0);
-                }*/
-                setTargetProduct(target);
+                if (!input.exists()) {
+                    getLogger().warning("Tool may not have produced an output");
+                    return -1;
+                }
+                getLogger().fine(String.format("Trying to open %s", input.getAbsolutePath()));
+                Product target;
+                try {
+                    target = ProductIO.readProduct(input);
+                    for (Band band : target.getBands()) {
+                        ImageManager.getInstance().getSourceImage(band, 0);
+                    }
+                    setTargetProduct(target);
+                } catch (Exception inner) {
+                    getLogger().warning(String.format("Opening target product by guessing the plugin failed [%s]. Trying by extension.", inner.getMessage()));
+                    List<ProductReaderPlugIn> plugInsByExtension = ToolAdapterIO.getReaderPlugInsByExtension(FileUtils.getExtension(input));
+                    ProductReaderPlugIn readerPlugIn;
+                    if (plugInsByExtension.size() > 0 && (readerPlugIn = plugInsByExtension.get(0)) != null) {
+                        ProductReader productReader = readerPlugIn.createReaderInstance();
+                        target = productReader.readProductNodes(input, null);
+                        setTargetProduct(target);
+                    }
+                }
             } catch (IOException e) {
                 throw new OperatorException("Error reading product '" + input.getPath() + "'");
             }
@@ -459,21 +421,7 @@ public class ToolAdapterOp extends Operator {
         if (this.consumer != null && this.consumer instanceof DefaultOutputConsumer) {
             ((DefaultOutputConsumer) this.consumer).close();
         }
-    }
-
-    /**
-     * Close any stream without triggering exceptions.
-     *
-     * @param stream input or output stream.
-     */
-    private void closeStream(Closeable stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                //nothing to do.
-            }
-        }
+        return 0;
     }
 
     /**
@@ -504,51 +452,55 @@ public class ToolAdapterOp extends Operator {
      */
     private List<String> getCommandLineTokens() throws OperatorException {
         final List<String> tokens = new ArrayList<>();
-        String templateFile = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplateFileLocation();
-        if (templateFile != null) {
+        FileTemplate template = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplate();
+        if (template != null) {
             tokens.add(descriptor.resolveVariables(descriptor.getMainToolFileLocation()).getAbsolutePath());
-            if (templateFile.endsWith(ToolAdapterConstants.TOOL_VELO_TEMPLATE_SUFIX)) {
-                tokens.addAll(transformTemplate(new File(this.adapterFolder, templateFile)));
-            } else {
-                throw new OperatorException("Invalid Velocity template");
+            try {
+                tokens.addAll(descriptor.getTemplateEngine().getLines(template, extractParameters()));
+            } catch (TemplateException e) {
+                throw new OperatorException(e);
             }
+        } else {
+            throw new OperatorException("Invalid template [null]");
         }
         return tokens;
     }
 
-    private void putParametersToVeloContext(VelocityContext context, boolean transformTemplates){
-        Property[] params = accessibleContext.getParameterSet().getProperties();
-        for (Property param : params) {
-            boolean foundTemplateParam = false;
-            if(transformTemplates) {
-                for (TemplateParameterDescriptor paramDescriptor : descriptor.getToolParameterDescriptors()) {
-                    if (paramDescriptor.getName().equals(param.getName()) && paramDescriptor.isTemplateParameter()) {
-                        foundTemplateParam = true;
-                        try {
-                            String transformedFile = transformTemplateParameter(paramDescriptor);
-                            context.put(param.getName(), transformedFile);
-                            break;
-                        } catch (IOException ex) {
-                            throw new OperatorException("Error on transforming template for parameter '" + paramDescriptor.getName());
-                        }
-                    }
-                }
+    private Map<String, Object> extractParameters(){
+        Map<String, Object> parameters = new HashMap<>();
+        //Property[] params = accessibleContext.getParameterSet().getProperties();
+        ParameterDescriptor[] parameterDescriptors = descriptor.getParameterDescriptors();
+        for (ParameterDescriptor param : parameterDescriptors) {
+            String paramName = param.getName();
+            Optional<ToolParameterDescriptor> descriptor = this.descriptor.getToolParameterDescriptors().stream().filter(d -> d.getName().equals(paramName)).findFirst();
+            if (!descriptor.isPresent()) {
+                throw new OperatorException("Unexpected parameter: " + paramName);
             }
-            if(!foundTemplateParam) {
-                String paramName = param.getName();
-                Object paramValue = param.getValue();
-                if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
-                    paramValue = getNextFileName(descriptor.resolveVariables((File) paramValue));
+            ToolParameterDescriptor paramDescriptor = descriptor.get();
+            if (paramDescriptor.isTemplateParameter()) {
+                try {
+                    String transformedFile = transformTemplateParameter((TemplateParameterDescriptor) paramDescriptor);
+                    parameters.put(paramName, transformedFile);
+                    filesToDelete.add(transformedFile);
+                } catch (IOException | TemplateException ex) {
+                    throw new OperatorException("Error on transforming template for parameter '" + paramDescriptor.getName());
                 }
-                if (param.getType().isArray()) {
+            } else {
+                Object paramValue = getParameter(paramName);
+                if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
+                    paramValue = getNextFileName(this.descriptor.resolveVariables((File) paramValue));
+                }
+                if (param.getDataType().isArray()) {
                     paramValue = StringUtils.arrayToString(paramValue, "\n");
                 }
-                context.put(paramName, paramValue);
+                if (paramDescriptor.isNotEmpty() || paramDescriptor.isNotNull() || (paramValue != null && !paramValue.toString().isEmpty())) {
+                    parameters.put(paramName, paramValue);
+                }
             }
         }
 
         Product[] sourceProducts = getSourceProducts();
-        context.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID,
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID,
                 sourceProducts.length == 1 ? sourceProducts[0] : sourceProducts);
         File[] rasterFiles = new File[sourceProducts.length];
         for (int i = 0; i < sourceProducts.length; i++) {
@@ -557,30 +509,40 @@ public class ToolAdapterOp extends Operator {
                                     sourceProducts[i].getFileLocation();
             rasterFiles[i] = productFile.isFile() ? productFile : selectCandidateRasterFile(productFile);
         }
-        context.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_FILE,
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_FILE,
                 rasterFiles.length == 1 ? rasterFiles[0] : rasterFiles);
+        return parameters;
     }
 
-    private String transformTemplateParameter(TemplateParameterDescriptor parameter) throws IOException{
-        File templateFile = accessibleContext.getParameterSet().getProperty(parameter.getName()).getValue();
-        // make sure for now the template is loaded from adapter's folder
-        templateFile = ToolAdapterIO.ensureLocalCopy(templateFile, descriptor.getAlias());
-        VelocityEngine veloEngine = new VelocityEngine();
-        veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
-        for(SystemVariable variable : descriptor.getVariables()) {
-            veloEngine.addProperty(variable.getKey(), variable.getValue());
+    private String transformTemplateParameter(TemplateParameterDescriptor parameter) throws IOException, TemplateException {
+        Map<String, Object> parameters = new HashMap<>();
+        ParameterDescriptor[] params = descriptor.getParameterDescriptors();
+        for (ParameterDescriptor param : params) {
+            String paramName = param.getName();
+            Object paramValue = getParameter(paramName);
+            if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
+                paramValue = getNextFileName(this.descriptor.resolveVariables((File) paramValue));
+            }
+            if (param.getDataType().isArray()) {
+                paramValue = StringUtils.arrayToString(paramValue, "\n");
+            }
+            parameters.put(paramName, paramValue);
         }
-        veloEngine.init();
-        Template veloTemplate = veloEngine.getTemplate(templateFile.getName());
-        VelocityContext veloContext = new VelocityContext();
-        for (ToolParameterDescriptor param : parameter.getToolParameterDescriptors()) {
-            veloContext.put(param.getName(), param.getDefaultValue());
-        }
-        putParametersToVeloContext(veloContext, false);
 
-        StringWriter writer = new StringWriter();
-        veloTemplate.merge(veloContext, writer);
-        String result = writer.toString();
+        Product[] sourceProducts = getSourceProducts();
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID,
+                sourceProducts.length == 1 ? sourceProducts[0] : sourceProducts);
+        File[] rasterFiles = new File[sourceProducts.length];
+        for (int i = 0; i < sourceProducts.length; i++) {
+            File productFile = intermediateProductFiles.size() == sourceProducts.length ?
+                    intermediateProductFiles.get(i) :
+                    sourceProducts[i].getFileLocation();
+            rasterFiles[i] = productFile.isFile() ? productFile : selectCandidateRasterFile(productFile);
+        }
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_FILE,
+                rasterFiles.length == 1 ? rasterFiles[0] : rasterFiles);
+
+        String result = parameter.executeTemplate(parameters);
         String separatorChar = ToolAdapterConstants.OPERATOR_TEMP_FILES_SEPARATOR;
         String dateFormatted = DateFormat.getDateInstance(
                 DateFormat.SHORT,
@@ -589,33 +551,18 @@ public class ToolAdapterOp extends Operator {
                 DateFormat.DEFAULT,
                 Locale.ENGLISH).format(new Date()).replace(":", separatorChar);
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
-        String newFileName = templateFile.getName() + "_result_" + dateFormatted;
-        ToolAdapterIO.saveFileContent(new File(descriptor.resolveVariables(descriptor.getWorkingDir()), newFileName), result);
-        this.lastPostContext = veloContext;
-        return newFileName;
-    }
-
-    private List<String> transformTemplate(File templateFile) throws OperatorException {
-        VelocityEngine veloEngine = new VelocityEngine();
-        veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
-        List<SystemVariable> variables = descriptor.getVariables();
-        for(SystemVariable variable : variables) {
-            veloEngine.addProperty(variable.getKey(), variable.getValue());
+        Template template = parameter.getTemplate();
+        String newFileName;
+        File parameterOutputFile = parameter.getOutputFile();
+        if (parameterOutputFile != null) {
+            newFileName = parameterOutputFile.getName();
+        } else {
+            newFileName = template.getName() + "_result_" + dateFormatted;
         }
-        veloEngine.init();
-        Template veloTemplate = veloEngine.getTemplate(templateFile.getName());
-        VelocityContext veloContext = new VelocityContext();
-        putParametersToVeloContext(veloContext, true);
-
-        for (SystemVariable variable : variables) {
-            veloContext.put(variable.getKey(), variable.getValue());
-        }
-
-        StringWriter writer = new StringWriter();
-        veloTemplate.merge(veloContext, writer);
-        String result = writer.toString();
-
-        return Arrays.asList(result.split(VELOCITY_LINE_SEPARATOR));
+        File writeLocation = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), newFileName);
+        ToolAdapterIO.saveFileContent(writeLocation, result);
+        this.lastPostContext = parameter.getLastContext();
+        return parameterOutputFile == null ? newFileName : writeLocation.toString();
     }
 
     private File selectCandidateRasterFile(File folder) {
@@ -625,7 +572,7 @@ public class ToolAdapterOp extends Operator {
         if (numFiles >= 0) {
             candidates.sort(Comparator.comparingLong(File::length));
             rasterFile = candidates.get(numFiles);
-            getLogger().info(rasterFile.getName() + " was selected as raster file");
+            getLogger().fine(rasterFile.getName() + " was selected as raster file");
         }
         return rasterFile;
     }
@@ -639,10 +586,12 @@ public class ToolAdapterOp extends Operator {
             }
         }
         File[] subFolders = folder.listFiles(File::isDirectory);
-        for(File subFolder : subFolders) {
-            List<File> subCandidates = getRasterFiles(subFolder);
-            if (subCandidates != null) {
-                rasters.addAll(subCandidates);
+        if (subFolders != null) {
+            for (File subFolder : subFolders) {
+                List<File> subCandidates = getRasterFiles(subFolder);
+                if (subCandidates != null) {
+                    rasters.addAll(subCandidates);
+                }
             }
         }
         return rasters;

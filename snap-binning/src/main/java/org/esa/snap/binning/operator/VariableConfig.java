@@ -28,15 +28,24 @@ public class VariableConfig {
     @Parameter(description = "The name of the variable", notEmpty = true, notNull = true)
     private String name;
 
-    @Parameter(description = "The expression of the variable")
+    @Parameter(description = "The expression of the variable", notEmpty = true, notNull = true)
     private String expr;
+
+    @Parameter(description = "The valid-expression of the variable. " +
+            "If empty, it will be the combination of all variables used in the expression itself.")
+    private String validExpr;
 
     public VariableConfig() {
     }
 
     public VariableConfig(String name, String expr) {
+        this(name, expr, null);
+    }
+
+    public VariableConfig(String name, String expr, String validExpr) {
         this.name = name;
         this.expr = expr;
+        this.validExpr = validExpr;
     }
 
     public String getName() {
@@ -55,6 +64,14 @@ public class VariableConfig {
         this.expr = expr;
     }
 
+    public String getValidExpr() {
+        return validExpr;
+    }
+
+    public void setValidExpr(String validExpr) {
+        this.validExpr = validExpr;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -62,16 +79,16 @@ public class VariableConfig {
 
         VariableConfig that = (VariableConfig) o;
 
-        if (!name.equals(that.name)) return false;
-        if (!expr.equals(that.expr)) return false;
-
-        return true;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (expr != null ? !expr.equals(that.expr) : that.expr != null) return false;
+        return validExpr != null ? validExpr.equals(that.validExpr) : that.validExpr == null;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + expr.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (expr != null ? expr.hashCode() : 0);
+        result = 31 * result + (validExpr != null ? validExpr.hashCode() : 0);
         return result;
     }
 }

@@ -1,9 +1,9 @@
 import sys
 
-from snappy import ProductIO
 from snappy import GPF
+from snappy import HashMap
+from snappy import ProductIO
 from snappy import jpy
-
 
 if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0])
@@ -24,7 +24,6 @@ print("Bands:   %s" % (list(band_names)))
 
 GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
 
-HashMap = jpy.get_type('java.util.HashMap')
 BandDescriptor = jpy.get_type('org.esa.snap.core.gpf.common.BandMathsOp$BandDescriptor')
 
 targetBand1 = BandDescriptor()
