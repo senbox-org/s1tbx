@@ -86,7 +86,7 @@
         <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
-		<module>snap-product-library</module>
+        <module>snap-product-library</module>
         <module>snap-python</module>
         <module>snap-raster</module>
         <module>snap-rtp-codec</module>
@@ -1016,7 +1016,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
+                <version>3.0.0-M2</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -1026,7 +1026,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>[3.1.0,3.3.9]</version>
+                                    <version>[3.1.0,3.5.2]</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
                                     <version>1.8</version>
