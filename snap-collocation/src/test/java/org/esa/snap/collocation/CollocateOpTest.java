@@ -81,9 +81,9 @@ public class CollocateOpTest {
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
 
-        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT",
+        assertEquals("!l1_flags_S.INVALID && radiance_1_S > 10",
                      targetProduct.getBandAt(16 + 1).getValidMaskExpression());
-        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT",
+        assertEquals("!l1_flags_S.INVALID && radiance_1_S > 10",
                      targetProduct.getBandAt(16 + 2).getValidMaskExpression());
 
         assertEquals(4, targetProduct.getMaskGroup().getNodeCount());
@@ -172,9 +172,9 @@ public class CollocateOpTest {
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
 
-        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT",
+        assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1",
                      targetProduct.getBandAt(16 + 1).getValidMaskExpression());
-        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT",
+        assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1",
                      targetProduct.getBandAt(16 + 2).getValidMaskExpression());
 
         assertEquals(3, targetProduct.getMaskGroup().getNodeCount());

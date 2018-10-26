@@ -95,6 +95,12 @@ public class MergeOp extends Operator {
                                     masterProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
+        // make sure all sourceImages of the master product are created
+        Band[] bands = masterProduct.getBands();
+        for (Band band : bands) {
+            // trigger creation
+            band.getSourceImage();
+        }
 
         validateSourceProducts();
 

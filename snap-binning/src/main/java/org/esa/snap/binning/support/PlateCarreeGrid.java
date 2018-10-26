@@ -177,23 +177,12 @@ public class PlateCarreeGrid implements MosaickingGrid {
         return targetProduct;
     }
 
-    @Override
-    public GeoCoding getGeoCoding(Rectangle outputRegion) {
-        try {
-            return new CrsGeoCoding(DefaultGeographicCRS.WGS84,
-                                    outputRegion.width,
-                                    outputRegion.height,
-                                    -180.0 + pixelSize * outputRegion.x,
-                                    90.0 - pixelSize * outputRegion.y,
-                                    pixelSize,
-                                    pixelSize,
-                                    0.0, 0.0);
-        } catch (FactoryException | TransformException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
 
     @Override
+    public Product reprojectToGrid(Product var1) {
+        return reprojectToPlateCareeGrid(var1);
+    }
+
     public Rectangle[] getDataSliceRectangles(Geometry productGeometry, Dimension tileSize) {
         Rectangle productBoundingBox = computeBounds(productGeometry);
         Rectangle gridAlignedBoundingBox = alignToTileGrid(productBoundingBox, tileSize);
@@ -215,6 +204,15 @@ public class PlateCarreeGrid implements MosaickingGrid {
             }
         }
         return rectangles.toArray(new Rectangle[rectangles.size()]);
+    }
+
+    @Override
+    public GeoCoding getGeoCoding(Rectangle outputRegion) {
+        try {
+            return new CrsGeoCoding(DefaultGeographicCRS.WGS84, outputRegion.width, outputRegion.height, -180.0D + this.pixelSize * (double)outputRegion.x, 90.0D - this.pixelSize * (double)outputRegion.y, this.pixelSize, this.pixelSize, 0.0D, 0.0D);
+        } catch (TransformException | FactoryException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private Rectangle computeBounds(Geometry roiGeometry) {
@@ -268,4 +266,45 @@ public class PlateCarreeGrid implements MosaickingGrid {
     private double tileYToDegree(int tileY, int tileHeight) {
         return  90.0 - (tileY * tileHeight * 180.0 / numRows);
     }
+
+    // TODO Compare with implementation in SubsetOp
+    public Geometry computeProductGeometry(Product product) {
+        try {
+            final GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(product);
+            final Polygon[] polygons = new Polygon[paths.length];
+
+            for (int i = 0; i < paths.length; i++) {
+                polygons[i] = convertToJtsPolygon(paths[i].getPathIterator(null));
+            }
+            final DouglasPeuckerSimplifier peuckerSimplifier = new DouglasPeuckerSimplifier(
+                    polygons.length == 1 ? polygons[0] : geometryFactory.createMultiPolygon(polygons));
+            return peuckerSimplifier.getResultGeometry();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private Polygon convertToJtsPolygon(PathIterator pathIterator) {
+        ArrayList<double[]> coordList = new ArrayList<double[]>();
+        int lastOpenIndex = 0;
+        while (!pathIterator.isDone()) {
+            final double[] coords = new double[6];
+            final int segType = pathIterator.currentSegment(coords);
+            if (segType == PathIterator.SEG_CLOSE) {
+                // we should only detect a single SEG_CLOSE
+                coordList.add(coordList.get(lastOpenIndex));
+                lastOpenIndex = coordList.size();
+            } else {
+                coordList.add(coords);
+            }
+            pathIterator.next();
+        }
+        final Coordinate[] coordinates = new Coordinate[coordList.size()];
+        for (int i1 = 0; i1 < coordinates.length; i1++) {
+            final double[] coord = coordList.get(i1);
+            coordinates[i1] = new Coordinate(coord[0], coord[1]);
+        }
+        return geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
+    }
+
 }

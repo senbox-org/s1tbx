@@ -101,6 +101,17 @@ public class Reprojector {
         return outputRegion;
     }
 
+    private static int determineGridWidth(PlanetaryGrid planetaryGrid) {
+        int gridWidth = 0;
+        for (int row = 0; row < planetaryGrid.getNumRows(); ++row) {
+            int width = planetaryGrid.getNumCols(0);
+            if (width > gridWidth) {
+                gridWidth = width;
+            }
+        }
+        return gridWidth;
+    }
+
     private static Coordinate[] getBoundsCoordinates(Geometry roiGeometry) {
         // do not use ShapeWriter.toShape(Geometry) here, because it rounds
         GeneralPath shape = new GeneralPath();
@@ -141,6 +152,9 @@ public class Reprojector {
         final int x2 = x1 + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         final int y2 = y1 + rasterRegion.height - 1;
+        //final int gridWidth = planetaryGrid.getNumRows() * 2;
+        final int gridWidth = determineGridWidth(planetaryGrid);
+        final int gridHeight = planetaryGrid.getNumRows();
 
         final List<TemporalBin> binRow = new ArrayList<TemporalBin>();
         int yUltimate = -1;

@@ -133,6 +133,7 @@ public class Formatter {
         if (!outputFormat.startsWith("NetCDF")
                 && !outputFormat.equalsIgnoreCase("BEAM-DIMAP")
                 && !outputFormat.equalsIgnoreCase("GeoTIFF")
+                && !outputFormat.startsWith("GeoTIFF")
                 && !outputFormat.equalsIgnoreCase("PNG")
                 && !outputFormat.equalsIgnoreCase("JPEG")) {
             throw new IllegalArgumentException("Unknown output format: " + outputFormat);

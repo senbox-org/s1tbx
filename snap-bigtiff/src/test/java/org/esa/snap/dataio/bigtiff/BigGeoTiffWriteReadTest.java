@@ -405,6 +405,41 @@ public class BigGeoTiffWriteReadTest {
         performTest(2.0e-5f);
     }
 
+    @Test
+    public void testWriteReadWithNetCDFIntermediate() throws IOException, FactoryException, TransformException {
+        //setTiePointGeoCoding(outProduct);
+        setGeoCoding(outProduct, WGS_84);
+        final Band bandFloat32 = outProduct.addBand("float32", ProductData.TYPE_FLOAT32);
+        bandFloat32.setDataElems(createFloats(getProductSize(), 2.343f));
+
+        try {
+            Config.instance().preferences().put("snap.dataio.bigtiff.support.pushprocessing", "true");
+            Config.instance().preferences().put("snap.dataio.bigtiff.force.bigtiff", "true");
+            Config.instance().preferences().put("snap.dataio.bigtiff.compression.type", "LZW");
+            Config.instance().preferences().put("snap.dataio.bigtiff.compression.quality", "0.8");
+            performTest(2.0e-5f);
+        } finally {
+            Config.instance().preferences().remove("snap.dataio.bigtiff.support.pushprocessing");
+            Config.instance().preferences().remove("snap.dataio.bigtiff.force.bigtiff");
+            Config.instance().preferences().remove("org.esa.snap.dataio.bigtiff.compression.type");
+            Config.instance().preferences().remove("org.esa.snap.dataio.bigtiff.compression.quality");
+        }
+    }
+
+    @Test
+    public void testWriteReadTiePointGeoCoding_withArcGisAux() throws IOException {
+        setTiePointGeoCoding(outProduct);
+        final Band bandFloat32 = outProduct.addBand("float32", ProductData.TYPE_FLOAT32);
+        bandFloat32.setDataElems(createFloats(getProductSize(), 2.343f));
+
+        try {
+            Config.instance().preferences().put("snap.dataio.bigtiff.write.arcgisaux", "true");
+            performTest(2.0e-5f);
+        } finally {
+            Config.instance().preferences().remove("snap.dataio.bigtiff.write.arcgisaux");
+        }
+    }
+
     private void performTest(float accuracy) throws IOException {
         final Product inProduct = writeReadProduct();
 
