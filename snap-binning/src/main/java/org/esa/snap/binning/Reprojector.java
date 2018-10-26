@@ -152,9 +152,6 @@ public class Reprojector {
         final int x2 = x1 + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         final int y2 = y1 + rasterRegion.height - 1;
-        //final int gridWidth = planetaryGrid.getNumRows() * 2;
-        final int gridWidth = determineGridWidth(planetaryGrid);
-        final int gridHeight = planetaryGrid.getNumRows();
 
         final List<TemporalBin> binRow = new ArrayList<TemporalBin>();
         int yUltimate = -1;
