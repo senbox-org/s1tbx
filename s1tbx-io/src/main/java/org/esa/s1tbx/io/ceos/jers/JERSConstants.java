@@ -26,10 +26,10 @@ public class JERSConstants implements CEOSConstants {
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{""};
     private final static String PLUGIN_DESCRIPTION = "JERS CEOS Products";      /*I18N*/
 
-    private final static String[] VOLUME_FILE_PREFIX = {"VDF", "VOL"};
-    private static final String[] LEADER_FILE_PREFIX = {"LEA", "SARL"};
-    private static final String[] IMAGE_FILE_PREFIX = {"DAT_", "IM"};
-    private static final String[] TRAILER_FILE_PREFIX = {"TR", "SART"};
+    private final static String[] VOLUME_FILE_PREFIX = {"VDF", "VOL", "01"};
+    private static final String[] LEADER_FILE_PREFIX = {"LEA", "SARL", "02"};
+    private static final String[] IMAGE_FILE_PREFIX = {"DAT_", "IM", "03"};
+    private static final String[] TRAILER_FILE_PREFIX = {"TR", "SART", "04"};
 
     private final static String MISSION = "jers";
 
