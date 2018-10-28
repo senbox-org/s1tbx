@@ -45,8 +45,15 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
+        File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
+            if(file.isDirectory()) {
+                file = new File(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
+                if(!file.exists()) {
+                    return DecodeQualification.UNABLE;
+                }
+            }
+
             final String filename = file.getName().toLowerCase();
             if (filename.equals(Sentinel1Constants.PRODUCT_HEADER_NAME)) {
                 if (isLevel1(file) || isLevel2(file) || isLevel0(file)) {
