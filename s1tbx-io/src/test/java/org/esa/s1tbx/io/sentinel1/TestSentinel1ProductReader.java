@@ -35,6 +35,8 @@ public class TestSentinel1ProductReader extends ReaderTest {
     private final static File inputS1_meta1GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless1"+File.separator+"manifest.safe");
     private final static File inputS1_meta2GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless2"+File.separator+"manifest.safe");
 
+    private final static File inputGRDFolder = new File("E:\\data\\S1\\aws\\S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
+
     private String[] productTypeExemptions = {"RAW"};
 
     public TestSentinel1ProductReader() {
@@ -68,7 +70,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     }
 
     @Test
-    public void testOpeningFolder() throws Exception {
+    public void testOpeningAnnotFolder() throws Exception {
         testReader(inputS1_AnnotGRD);
     }
 
@@ -80,5 +82,10 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpeningAnnotationProduct() throws Exception {
         testReader(inputS1_AnnotGRDZip);
+    }
+
+    @Test
+    public void testOpeningFolder() throws Exception {
+        testReader(inputGRDFolder);
     }
 }

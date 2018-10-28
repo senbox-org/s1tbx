@@ -232,6 +232,7 @@ public final class TerrainFlatteningOp extends Operator {
             } else if (demName.contains("GETASSE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
                 overSamplingFactor = Math.round(1000.0 / minSpacing);
             }
+            overSamplingFactor *= 2;
         }
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
@@ -808,6 +809,39 @@ public final class TerrainFlatteningOp extends Operator {
         return data.rangeIndex >= x0 - 1 && data.rangeIndex <= x0 + w;
     }
 
+    private boolean getPixPos(final double lat, final double lon, final double alt, final PixelPos endPixelPos) {
+
+        final PosVector earthPoint = new PosVector();
+        GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
+
+        final Double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
+                lineTimeInterval, wavelength, earthPoint, orbit);
+
+        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+            return false;
+        }
+
+        final PosVector sensorPos = new PosVector();
+        final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
+
+        final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
+
+        double rangeIndex;
+        if (!srgrFlag) {
+            rangeIndex = (slantRange - nearEdgeSlantRange) / rangeSpacing;
+        } else {
+            rangeIndex = SARGeocoding.computeExtendedRangeIndex(
+                    srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
+                    zeroDopplerTime, slantRange, nearEdgeSlantRange, srgrConvParams);
+        }
+
+        if (!nearRangeOnLeft) {
+            rangeIndex = sourceImageWidth - 1 - rangeIndex;
+        }
+
+        endPixelPos.setLocation(rangeIndex, azimuthIndex);
+        return true;
+    }
 
     /**
      * Output normalized image.
@@ -1028,35 +1062,16 @@ public final class TerrainFlatteningOp extends Operator {
             throws Exception {
 
         final PixelPos pixPos = new PixelPos();
-        final GeoPos geoPos = new GeoPos();
-        PositionData posData = new PositionData();
+        final GeoCoding sourceGeoCoding = sourceProduct.getSceneGeoCoding();
 
         double tileOverlapUp = 0.0, tileOverlapDown = 0.0, tileOverlapLeft = 0.0, tileOverlapRight = 0.0;
         for (int y = y0; y < y0 + h; y += 20) {
             for (int x = x0; x < x0 + w; x += 20) {
-                pixPos.setLocation(x, y);
-                targetGeoCoding.getGeoPos(pixPos, geoPos);
-                final double alt = dem.getElevation(geoPos);
-                if (noDataValue.equals(alt))
-                    continue;
-
-                if (!getPosition(geoPos.lat, geoPos.lon, alt, x0, y0, w, h, posData))
-                    continue;
-
-                final double azTileOverlapPercentage = (posData.azimuthIndex - y) / (double) h;
-                if (azTileOverlapPercentage > tileOverlapUp) {
-                    tileOverlapUp = azTileOverlapPercentage;
-                } else if (azTileOverlapPercentage < -tileOverlapDown) {
-                    tileOverlapDown = -azTileOverlapPercentage;
-                }
-
-                final double rgTileOverlapPercentage = (posData.rangeIndex - x) / (double) w;
-                if (posData.rangeIndex != -1) {
-                    if (rgTileOverlapPercentage > tileOverlapLeft) {
-                        tileOverlapLeft = rgTileOverlapPercentage;
-                    } else if (rgTileOverlapPercentage < -tileOverlapRight) {
-                        tileOverlapRight = -rgTileOverlapPercentage;
-                    }
+                if (getTruePixelPos(x, y, pixPos, sourceGeoCoding)) {
+                    tileOverlapUp = Math.max((y - pixPos.y) / h, tileOverlapUp);
+                    tileOverlapDown = Math.max((pixPos.y - y) / h, tileOverlapDown);
+                    tileOverlapLeft = Math.max((x - pixPos.x) / w, tileOverlapLeft);
+                    tileOverlapRight = Math.max((pixPos.x - x) / w, tileOverlapRight);
                 }
             }
         }
@@ -1067,6 +1082,91 @@ public final class TerrainFlatteningOp extends Operator {
         tileOverlapRight += 0.1;
 
         return new OverlapPercentage(tileOverlapUp, tileOverlapDown, tileOverlapLeft, tileOverlapRight);
+    }
+
+    private boolean getTruePixelPos(
+            final double x0, final double y0, final PixelPos pixelPos, final GeoCoding srcGeoCoding)
+            throws Exception {
+
+        final int maxIterations = 100;
+        final double errThreshold = 2.0;
+
+        PixelPos startPixelPos = new PixelPos(x0, y0);
+        PixelPos endPixelPos = new PixelPos();
+        GeoPos currentGeoPos = new GeoPos();
+
+        int numIter;
+        for (numIter = 0; numIter < maxIterations; ++numIter) {
+
+            final double err2 = computeError(startPixelPos, currentGeoPos, endPixelPos, srcGeoCoding, x0, y0);
+            if (err2 == -1) return false;
+            if (err2 < errThreshold) {
+                break;
+            }
+
+            double errX = x0 - endPixelPos.x;
+            double errY = y0 - endPixelPos.y;
+
+            double alpha = 1.0;
+            double tmpErr2 = err2;
+            for (int i = 0; i < 4; i++) {
+                final double tmpErrX = alpha*errX;
+                final double tmpErrY = alpha*errY;
+                final PixelPos tmpStartPixelPos = new PixelPos(startPixelPos.x + tmpErrX, startPixelPos.y + tmpErrY);
+                final PixelPos tmpEndPixelPos = new PixelPos();
+                final GeoPos tmpGeoPos = new GeoPos();
+                tmpErr2 = computeError(tmpStartPixelPos, tmpGeoPos, tmpEndPixelPos, srcGeoCoding, x0, y0);
+                if (tmpErr2 == -1) continue;
+                if (tmpErr2 < err2) {
+                    errX = tmpErrX;
+                    errY = tmpErrY;
+                    break;
+                } else {
+                    alpha /= 2.0;
+                }
+            }
+
+            if (tmpErr2 < err2) {
+                startPixelPos.x += errX;
+                startPixelPos.y += errY;
+            } else {
+                double r1 = Math.random();
+                double r2 = Math.random();
+                startPixelPos.x += r1*errX;
+                startPixelPos.y += r2*errY;
+            }
+        }
+
+        if (numIter == maxIterations) {
+            System.out.println("getGeoPos: Maximum number of iterations reached for pixel (" + x0 + ", " + y0 + ")");
+            return false;
+        }
+        getPixPos(currentGeoPos.lat, currentGeoPos.lon, dem.getElevation(currentGeoPos), endPixelPos);
+        System.out.println("x = " + x0 +", y = " + y0 + ", lat = " + currentGeoPos.lat + ", lon = " +
+                currentGeoPos.lon + ", iter = " + numIter + ", x' = " + endPixelPos.x + ", y' = " + endPixelPos.y);
+
+        pixelPos.x = startPixelPos.x;
+        pixelPos.y = startPixelPos.y;
+        return true;
+    }
+
+    private double computeError(final PixelPos startPixelPos, final GeoPos geoPos, final PixelPos endPixelPos,
+                                final GeoCoding srcGeoCoding, final double x0, final double y0) throws Exception {
+
+        startPixelPos.x = Math.min(Math.max(startPixelPos.x, 0), sourceImageWidth - 1);
+        startPixelPos.y = Math.min(Math.max(startPixelPos.y, 0), sourceImageHeight - 1);
+
+        srcGeoCoding.getGeoPos(startPixelPos, geoPos);
+        final double alt = dem.getElevation(geoPos);
+        if (noDataValue.equals(alt))
+            return -1;
+
+        if (!getPixPos(geoPos.lat, geoPos.lon, alt, endPixelPos))
+            return -1;
+
+        final double errX = x0 - endPixelPos.x;
+        final double errY = y0 - endPixelPos.y;
+        return errX*errX + errY*errY;
     }
 
     /**

@@ -43,7 +43,7 @@ public class JERSProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(File file) {
         final String name = file.getName().toUpperCase();
-        if(name.endsWith(".ZIP") && (name.startsWith("J1_"))) {
+        if(name.endsWith(".ZIP") && (name.startsWith("J1"))) {
             return DecodeQualification.INTENDED;
         }
         for (String prefix : constants.getVolumeFilePrefix()) {
@@ -51,6 +51,10 @@ public class JERSProductReaderPlugIn extends CEOSProductReaderPlugIn {
                 final JERSProductReader reader = new JERSProductReader(this);
                 return reader.checkProductQualification(file);
             }
+        }
+        if(name.startsWith("J1") && name.endsWith(".01")) {
+            final JERSProductReader reader = new JERSProductReader(this);
+            return reader.checkProductQualification(file);
         }
         return DecodeQualification.UNABLE;
     }
