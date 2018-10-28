@@ -372,6 +372,71 @@ public final class SARGeocoding {
         }
     }
 
+    public static double computeExtendedRangeIndex(
+            final boolean srgrFlag, final int sourceImageWidth, final double firstLineUTC, final double lastLineUTC,
+            final double rangeSpacing, final double zeroDopplerTime, final double slantRange,
+            final double nearEdgeSlantRange, final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
+
+        if (zeroDopplerTime < Math.min(firstLineUTC, lastLineUTC) ||
+                zeroDopplerTime > Math.max(firstLineUTC, lastLineUTC)) {
+            return -1.0;
+        }
+
+        if (srgrFlag) { // ground detected image
+
+            double groundRange;
+
+            if (srgrConvParams.length == 1 || zeroDopplerTime < srgrConvParams[0].timeMJD) {
+                groundRange = computeGroundRange(sourceImageWidth, rangeSpacing, slantRange,
+                        srgrConvParams[0].coefficients, srgrConvParams[0].ground_range_origin);
+                if (groundRange < 0.0) {
+                    return -1.0;
+                } else {
+                    return (groundRange - srgrConvParams[0].ground_range_origin) / rangeSpacing;
+                }
+            }
+
+            if (zeroDopplerTime > srgrConvParams[srgrConvParams.length - 1].timeMJD) {
+                groundRange = computeGroundRange(sourceImageWidth, rangeSpacing, slantRange,
+                        srgrConvParams[srgrConvParams.length - 1].coefficients,
+                        srgrConvParams[srgrConvParams.length - 1].ground_range_origin);
+                if (groundRange < 0.0) {
+                    return -1.0;
+                } else {
+                    return (groundRange - srgrConvParams[srgrConvParams.length - 1].ground_range_origin) / rangeSpacing;
+                }
+            }
+
+            int idx = 0;
+            for (int i = 0; i < srgrConvParams.length && zeroDopplerTime >= srgrConvParams[i].timeMJD; i++) {
+                idx = i;
+            }
+
+            final double[] srgrCoefficients = new double[srgrConvParams[idx].coefficients.length];
+            if (idx == srgrConvParams.length - 1) {
+                idx--;
+            }
+
+            final double mu = (zeroDopplerTime - srgrConvParams[idx].timeMJD) /
+                    (srgrConvParams[idx + 1].timeMJD - srgrConvParams[idx].timeMJD);
+            for (int i = 0; i < srgrCoefficients.length; i++) {
+                srgrCoefficients[i] = Maths.interpolationLinear(srgrConvParams[idx].coefficients[i],
+                        srgrConvParams[idx + 1].coefficients[i], mu);
+            }
+            groundRange = computeGroundRange(sourceImageWidth, rangeSpacing, slantRange,
+                    srgrCoefficients, srgrConvParams[idx].ground_range_origin);
+            if (groundRange < 0.0) {
+                return -1.0;
+            } else {
+                return (groundRange - srgrConvParams[idx].ground_range_origin) / rangeSpacing;
+            }
+
+        } else { // slant range image
+
+            return (slantRange - nearEdgeSlantRange) / rangeSpacing;
+        }
+    }
+
     /**
      * Compute ground range for given slant range.
      *
