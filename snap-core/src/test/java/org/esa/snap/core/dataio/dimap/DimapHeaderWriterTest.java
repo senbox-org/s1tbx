@@ -38,6 +38,7 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -48,9 +49,16 @@ import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 public class DimapHeaderWriterTest {
+
+
+    @BeforeClass
+    public static void setUpTest() {
+        // ensures that latitude and longitude are written in expected order
+        SystemUtils.initGeoTools();
+    }
 
     private static final String LS = SystemUtils.LS;
     private static final String header =
@@ -1032,8 +1040,8 @@ public class DimapHeaderWriterTest {
                "                 AUTHORITY[\"EPSG\",\"6326\"]], " + LS +
                "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], " + LS +
                "               UNIT[\"degree\", 0.017453292519943295], " + LS +
-               "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
                "               AXIS[\"Geodetic longitude\", EAST], " + LS +
+               "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
                "               AUTHORITY[\"EPSG\",\"4326\"]]" + LS +
                "        </WKT>" + LS +
                "    </Coordinate_Reference_System>" + LS +
@@ -1077,8 +1085,8 @@ public class DimapHeaderWriterTest {
                "                 AUTHORITY[\"EPSG\",\"6326\"]], " + LS +
                "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], " + LS +
                "               UNIT[\"degree\", 0.017453292519943295], " + LS +
-               "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
                "               AXIS[\"Geodetic longitude\", EAST], " + LS +
+               "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
                "               AUTHORITY[\"EPSG\",\"4326\"]]" + LS +
                "        </WKT>" + LS +
                "    </Coordinate_Reference_System>" + LS +
@@ -1094,8 +1102,8 @@ public class DimapHeaderWriterTest {
                "                 AUTHORITY[\"EPSG\",\"6326\"]], " + LS +
                "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], " + LS +
                "               UNIT[\"degree\", 0.017453292519943295], " + LS +
-               "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
                "               AXIS[\"Geodetic longitude\", EAST], " + LS +
+               "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
                "               AUTHORITY[\"EPSG\",\"4326\"]]" + LS +
                "        </WKT>" + LS +
                "    </Coordinate_Reference_System>" + LS +
