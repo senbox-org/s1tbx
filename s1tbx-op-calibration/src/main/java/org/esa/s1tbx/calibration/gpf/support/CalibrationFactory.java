@@ -43,6 +43,8 @@ public class CalibrationFactory {
             return new ERSCalibrator();
         } else if (mission.equals("ALOS") || mission.equals("ALOS2")) {
             return new ALOSCalibrator();
+        } else if (mission.equals("RCM")) {
+            return new RCMCalibrator();
         } else if (mission.equals("RS2")) {
             return new Radarsat2Calibrator();
         } else if (mission.contains("TSX") || mission.contains("TDX")) {
