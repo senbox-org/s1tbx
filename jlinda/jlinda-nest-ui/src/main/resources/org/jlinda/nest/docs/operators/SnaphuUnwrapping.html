@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Snaphu Unwrapping</title>
+
+
+
+    <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Snaphu Unwrapping</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Unwrapping with SNAPHU</h3>After creating a wrapped interferogram stack, use the SNAPHU Export to prepare the data for unwrapping with SNAPHU.<br>
+<br>
+
+
+<p>
+    The main purpose of SNAPHU data export functionality is three-fold:
+</p><ol>
+    <li>
+        To export data (bands) in the format compatible for SNAPHU processing,
+    </li>
+    <li>
+        To build a SNAPHU configuration file (snaphu.conf), the file where processing parameters for SNAPHU are
+        being stored,
+    </li>
+    <li>
+        To construct a <i>container</i> product that will store metadata and bands to be used when SNAPHU results
+        are being ingested back into the Toolbox.
+    </li>
+</ol>Next, run SNAPHU-Unwrapping.<br>
+<br>
+If SNAPHU hasn't been installed, SNAP will download and install the
+software on Linux and Windows. You can also download and install it
+yourself from <a href="http://step.esa.int/main/third-party-plugins-2/snaphu/">http://step.esa.int/main/third-party-plugins-2/snaphu/</a><br>
+<br>
+Select you input product and output folder and press Run to execute the SNAPHU command.<br>
+<br>
+<span style="color: black; font-family: Verdana,sans-serif; font-size: 12px; font-style: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; background-color: rgb(255, 255, 255); display: inline ! important; float: none;">After
+the phase is unwrapped it can be imported to SNAP for further analysis
+using Radar-&gt;Interferometric-&gt;Unwrapping-&gt; SNAPHU Import.</span><br>
+<h4>About SNAPHU<br>
+<em></em></h4>
+<p style="color: black;"><span style="font-family: Verdana,sans-serif; font-size: 12px; font-style: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; background-color: rgb(255, 255, 255); display: inline ! important; float: none;">Two-dimensional
+phase unwrapping is the process of recovering unambiguous phase data
+from a 2-D array of phase values known only modulo 2pi rad. SNAPHU is
+an implementation of the Statistical-cost, Network-flow Algorithm for
+Phase Unwrapping proposed by Chen and Zebker. This algorithm poses
+phase unwrapping as a maximum a posteriori probability (MAP) estimation
+problem, the objective of which is to compute the most likely unwrapped
+solution given the observable input data. Because the statistics
+relating the input data to the solution depend on the measured
+quantity, SNAPHU incorporates three built-in statistical models, for
+topography data, deformation data, and smooth generic data. The posed
+optimization problem is solved approximately with use of network-flow
+techniques. As SNAPHU uses an iterative optimization procedure, its
+execution time depends on the difficulty of the interferogram</span>
+</p>
+
+
+
+<br>
+<hr>
+</body></html>
