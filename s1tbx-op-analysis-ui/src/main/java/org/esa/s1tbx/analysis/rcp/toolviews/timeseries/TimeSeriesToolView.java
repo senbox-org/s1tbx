@@ -77,7 +77,7 @@ import java.util.Set;
         openAtStartup = false,
         position = 1
 )
-@ActionID(category = "Window", id = "array.rstb.analysis.rcp.toolviews.timeseries.TimeSeriesToolView")
+@ActionID(category = "Window", id = "org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesToolView")
 @ActionReferences({
         @ActionReference(path = "Menu/View/Tool Windows/Radar"),
         @ActionReference(path = "Toolbars/Analysis")
