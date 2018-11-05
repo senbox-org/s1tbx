@@ -534,19 +534,21 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final double yVelECI = platformPosRec.getAttributeDouble("Velocity vector Y' " + num) / 1000.0;
         final double zVelECI = platformPosRec.getAttributeDouble("Velocity vector Z' " + num) / 1000.0;
 
-        final double thetaInRd = theta * Constants.DTOR;
-        final double cosTheta = FastMath.cos(thetaInRd);
-        final double sinTheta = FastMath.sin(thetaInRd);
+        final double timeJD = getOrbitTime(platformPosRec, num).getMJD() + 2451545.0 - 0.5;
+        final double timeGMST = getGMST(timeJD);
+        final double angleGMST = getAngleGMST(timeGMST);
+        final double cosTheta = Math.cos(angleGMST);
+        final double sinTheta = Math.sin(angleGMST);
 
-        final double xPosECEF = cosTheta * xPosECI + sinTheta * yPosECI;
-        final double yPosECEF = -sinTheta * xPosECI + cosTheta * yPosECI;
-        final double zPosECEF = zPosECI;
-
-        double t = getOrbitTime(platformPosRec, num).getMJD() / 36525.0; // Julian centuries
+        double t = timeJD / 36525.0; // Julian centuries
         double a1 = 876600.0 * 3600.0 + 8640184.812866;
         double a2 = 0.093104;
         double a3 = -6.2e-6;
         double thp = ((a1 + 2.0 * a2 * t + 3.0 * a3 * t * t) / 240.0 * Constants.PI / 180.0) / (36525.0 * Constants.secondsInDay);
+
+        final double xPosECEF = cosTheta * xPosECI + sinTheta * yPosECI;
+        final double yPosECEF = -sinTheta * xPosECI + cosTheta * yPosECI;
+        final double zPosECEF = zPosECI;
 
         final double xVelECEF = -sinTheta * thp * xPosECI + cosTheta * thp * yPosECI + cosTheta * xVelECI + sinTheta * yVelECI;
         final double yVelECEF = -cosTheta * thp * xPosECI - sinTheta * thp * yPosECI - sinTheta * xVelECI + cosTheta * yVelECI;
