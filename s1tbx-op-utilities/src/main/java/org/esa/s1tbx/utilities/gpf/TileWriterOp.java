@@ -76,11 +76,14 @@ public class TileWriterOp extends Operator {
             description = "The number of output tiles")
     private String numberOfTiles = "4";
 
-    @Parameter(description = "Tile pixel size", label = "Pixel size X", defaultValue = "200")
+    @Parameter(description = "Tile pixel width", label = "Pixel width", defaultValue = "200")
     private int pixelSizeX = 200;
 
-    @Parameter(description = "Tile pixel size", label = "Pixel size Y", defaultValue = "200")
+    @Parameter(description = "Tile pixel height", label = "Pixel height", defaultValue = "200")
     private int pixelSizeY = 200;
+
+    @Parameter(description = "Tile overlap", label = "Overlap", defaultValue = "0")
+    private int overlap = 0;
 
     private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<>();
 
@@ -119,7 +122,9 @@ public class TileWriterOp extends Operator {
                     final ProductSubsetDef subsetDef = new ProductSubsetDef();
                     subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
                     subsetDef.addNodeNames(sourceProduct.getBandNames());
-                    subsetDef.setRegion(c * width, r * height, width, height);
+                    subsetDef.setRegion(Math.max(0, c * width - overlap),
+                                        Math.max(0, r * height - overlap),
+                                        width+overlap+overlap, height+overlap+overlap);
                     subsetDef.setSubSampling(1, 1);
                     subsetDef.setIgnoreMetadata(false);
 
