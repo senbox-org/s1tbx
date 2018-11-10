@@ -73,12 +73,12 @@ public class SnaphuExportOp extends Operator {
     private int numberOfProcessors = 4;
 
     @Parameter(description = "Overlap, in pixels, between neighboring tiles.",
-            defaultValue = "0", label = "Row Overlap")
-    private int rowOverlap = 0;
+            defaultValue = "200", label = "Row Overlap")
+    private int rowOverlap = 200;
 
     @Parameter(description = "Overlap, in pixels, between neighboring tiles.",
-            defaultValue = "0", label = "Column Overlap")
-    private int colOverlap = 0;
+            defaultValue = "200", label = "Column Overlap")
+    private int colOverlap = 200;
 
     @Parameter(description = "Cost threshold to use for determining boundaries of reliable regions\n" +
             " (long, dimensionless; scaled according to other cost constants).\n" +
