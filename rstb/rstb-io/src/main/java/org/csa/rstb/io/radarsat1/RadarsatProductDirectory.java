@@ -36,6 +36,7 @@ import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
@@ -61,7 +62,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
     private RadarsatImageFile[] imageFiles = null;
     private RadarsatLeaderFile leaderFile = null;
     private RadarsatTrailerFile trailerFile = null;
-
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
     private final transient Map<String, RadarsatImageFile> bandImageFileMap = new HashMap<>(1);
 
     public RadarsatProductDirectory(final VirtualDir dir) {
@@ -563,6 +564,56 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel, zVelECEF);
 
         orbitVectorListElem.addElement(orbitVectorElem);
+    }
+
+    protected ProductData.UTC getOrbitTime(BinaryRecord platformPosRec, int num) {
+
+        final int year = platformPosRec.getAttributeInt("Year of data point");
+        final int month = platformPosRec.getAttributeInt("Month of data point");
+        final int day = platformPosRec.getAttributeInt("Day of data point");
+        Double secondsOfDay = platformPosRec.getAttributeDouble("Seconds of day");
+        if (secondsOfDay == null)
+            secondsOfDay = 0.0;
+        final double hoursf = secondsOfDay / 3600f;
+        final int hour = (int) hoursf;
+        final double minutesf = (hoursf - hour) * 60f;
+        int minute = (int) minutesf;
+        float second = ((float) minutesf - minute) * 60f;
+
+        Double interval = platformPosRec.getAttributeDouble("Time interval between DATA points");
+        if (interval == null || interval <= 0.0) {
+            SystemUtils.LOG.info("CEOSProductDirectory: Time interval between DATA points in Platform Position Data is " + interval);
+            interval = 0.0;
+        }
+
+        final double secondsSinceFirstPoint = interval * (num - 1);
+        final int minuteSinceFirstPoint = (int)(secondsSinceFirstPoint / 60.0);
+        minute += minuteSinceFirstPoint;
+        second += secondsSinceFirstPoint - minuteSinceFirstPoint * 60;
+
+        return AbstractMetadata.parseUTC(String.valueOf(year) + '-' + month + '-' + day + ' ' +
+                hour + ':' + minute + ':' + second, standardDateFormat);
+    }
+
+    private double getGMST(final double timeJMD) {
+
+        final double midnight = (int)(timeJMD) + 0.5; // J0 in days
+        final double daysSinceMidnight = timeJMD - midnight; // in days
+        final double hoursSinceMidnight = daysSinceMidnight * 24.0; // in hrs
+        final double daysSinceEpoch = timeJMD - 2451545.0; // in days
+        final double centuriesSinceEpoch = daysSinceEpoch / 35625.0; // no unit
+        final double wholeDaysSinceEpoch = midnight - 2451545.0; // in days
+
+        final double GMST = 6.697374558 + 0.06570982441908 * wholeDaysSinceEpoch + 1.00273790935 * hoursSinceMidnight
+                + 0.000026 * centuriesSinceEpoch*centuriesSinceEpoch; // in hrs
+
+        final double GMST_hours = GMST % 24;
+
+        return GMST_hours*3600;
+    }
+
+    private double getAngleGMST(final double timeGMST) {
+        return 7.2921151467e-5 * timeGMST; // in radian
     }
 
     protected static void addSRGRCoefficients(final MetadataElement absRoot, final BinaryRecord detailedProcRec) {
