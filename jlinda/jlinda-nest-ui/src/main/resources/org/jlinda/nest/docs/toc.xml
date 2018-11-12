@@ -23,6 +23,7 @@
                     <tocitem text="Phase Filtering" target="PhaseFilterOp"/>
                 </tocitem>
                 <tocitem text="Unwrapping">
+					<tocitem text="Snaphu Unwrapping" target="SnaphuUnwrapping"/>
                     <tocitem text="Snaphu Data Export" target="SnaphuExportOp"/>
                     <tocitem text="Snaphu Data Import" target="SnaphuImportOp"/>
                 </tocitem>

@@ -18,6 +18,7 @@
     <mapID target="CrossResamplingOp" url="operators/CrossResamplingOp.html"/>
 
     <!--Unwrapping Operators-->
+	<mapID target="SnaphuUnwrapping" url="operators/SnaphuUnwrapping.html"/>
     <mapID target="SnaphuExportOp" url="operators/SnaphuExportOp.html"/>
     <mapID target="SnaphuImportOp" url="operators/SnaphuImportOp.html"/>
 

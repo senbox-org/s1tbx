@@ -449,11 +449,11 @@ public class SnaphuWriter extends AbstractProductWriter {
         temp = masterRoot.getAttributeString("snaphu_init_mode", "MST");
         parameters.setSnaphuInit(temp);
 
-        parameters.setnTileRow(masterRoot.getAttributeInt("snaphu_numberOfTileRows", 1));
-        parameters.setnTileCol(masterRoot.getAttributeInt("snaphu_numberOfTileCols", 1));
-        parameters.setNumProcessors(masterRoot.getAttributeInt("snaphu_numberOfProcessors", 1));
-        parameters.setRowOverlap(masterRoot.getAttributeInt("snaphu_rowOverlap", 0));
-        parameters.setColumnOverlap(masterRoot.getAttributeInt("snaphu_colOverlap", 0));
+        parameters.setnTileRow(masterRoot.getAttributeInt("snaphu_numberOfTileRows", 10));
+        parameters.setnTileCol(masterRoot.getAttributeInt("snaphu_numberOfTileCols", 10));
+        parameters.setNumProcessors(masterRoot.getAttributeInt("snaphu_numberOfProcessors", 4));
+        parameters.setRowOverlap(masterRoot.getAttributeInt("snaphu_rowOverlap", 200));
+        parameters.setColumnOverlap(masterRoot.getAttributeInt("snaphu_colOverlap", 200));
         parameters.setTileCostThreshold(masterRoot.getAttributeInt("snaphu_tileCostThreshold", 500));
 
         parameters.setLogFileName("snaphu.log");

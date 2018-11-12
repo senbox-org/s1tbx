@@ -48,6 +48,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
 
     private TiePointGrid incidenceAngle = null;
     private double offset = 0.0;
+    private double stepSize = 1.0;
     private double[] gains = null;
     private final Map<String, Double[]> gainsMap = new HashMap<>();
 
@@ -144,13 +145,14 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
 
             if (lutSigmaElem != null) {
                 offset = lutSigmaElem.getAttributeDouble("offset", 0);
+                stepSize = lutSigmaElem.getAttributeDouble("stepSize", 1);
 
                 final MetadataAttribute gainsAttrib = lutSigmaElem.getAttribute("gains");
                 if (gainsAttrib != null) {
                     gains = StringUtils.toDoubleArray(gainsAttrib.getData().getElemString(), " ");
                 }
 
-                if (gains.length < sourceProduct.getSceneRasterWidth()) {
+                if (gains.length * stepSize < sourceProduct.getSceneRasterWidth()) {
                     throw new OperatorException("Calibration LUT is smaller than source product width");
                 }
             }
@@ -260,9 +262,10 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("RCM Calibration: unhandled unit");
                 }
 
+                final int gainIndex = Math.min(gains.length-1, (int)(x + subsetOffsetX / stepSize));
                 if (isSLC) {
                     if (gains != null) {
-                        sigma = dn / (gains[x + subsetOffsetX] * gains[x + subsetOffsetX]);
+                        sigma = dn / (gains[gainIndex] * gains[gainIndex]);
                         if (outputImageInComplex) {
                             sigma = Math.sqrt(sigma) * phaseTerm;
                         }
@@ -270,7 +273,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                 } else {
                     sigma = dn + offset;
                     if (gains != null) {
-                        sigma /= gains[x + subsetOffsetX];
+                        sigma /= gains[gainIndex];
                     }
                 }
 
@@ -303,14 +306,15 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
+        final int gainIndex = (int)(rangeIndex / stepSize);
         if (isSLC) {
             if (gains != null) {
-                sigma /= (gains[(int) rangeIndex] * gains[(int) rangeIndex]);
+                sigma /= (gains[gainIndex] * gains[gainIndex]);
             }
         } else {
             sigma += offset;
             if (gains != null) {
-                sigma /= gains[(int) rangeIndex];
+                sigma /= gains[gainIndex];
             }
         }
 
