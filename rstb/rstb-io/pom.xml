@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.csa.rstb</groupId>
         <artifactId>rstb</artifactId>
-        <version>7.4.5-SNAPSHOT</version>
+        <version>7.4.5</version>
     </parent>
 
     <artifactId>rstb-io</artifactId>
