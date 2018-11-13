@@ -25,6 +25,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.measure.unit.NonSI;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -59,7 +60,7 @@ public class CRSGeoCodingHandler {
 
         double pixelSizeX = pixelSpacingInMeter;
         double pixelSizeY = pixelSpacingInMeter;
-        if (targetCRS.getName().getCode().equals("WGS84(DD)")) {
+        if (targetCRS.getCoordinateSystem().getAxis(0).getUnit().equals(NonSI.DEGREE_ANGLE)) {
             pixelSizeX = pixelSpacingInDegree;
             pixelSizeY = pixelSpacingInDegree;
         }
