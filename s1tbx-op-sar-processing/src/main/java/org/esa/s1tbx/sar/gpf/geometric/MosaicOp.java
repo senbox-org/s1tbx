@@ -44,6 +44,7 @@ import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.measure.unit.NonSI;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.text.MessageFormat;
@@ -276,7 +277,8 @@ public class MosaicOp extends Operator {
 
         double pixelSizeX = pixelSize;
         double pixelSizeY = pixelSize;
-        if (targetCRS.getName().getCode().equals("WGS84(DD)")) {
+        if (targetCRS.getName().getCode().equals("WGS84(DD)") ||
+                targetCRS.getCoordinateSystem().getAxis(0).getUnit().equals(NonSI.DEGREE_ANGLE)) {
             pixelSizeX = pixelSpacingInDegree;
             pixelSizeY = pixelSpacingInDegree;
         }
