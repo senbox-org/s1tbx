@@ -59,7 +59,8 @@ public class CRSGeoCodingHandler {
 
         double pixelSizeX = pixelSpacingInMeter;
         double pixelSizeY = pixelSpacingInMeter;
-        if (targetCRS.getCoordinateSystem().getAxis(0).getUnit().equals(NonSI.DEGREE_ANGLE)) {
+        if (targetCRS.getName().getCode().equals("WGS84(DD)") ||
+                targetCRS.getCoordinateSystem().getAxis(0).getUnit().equals(NonSI.DEGREE_ANGLE)) {
             pixelSizeX = pixelSpacingInDegree;
             pixelSizeY = pixelSpacingInDegree;
         }
@@ -113,7 +114,8 @@ public class CRSGeoCodingHandler {
 
         double pixelSizeX = pixelSpacingInMeter;
         double pixelSizeY = pixelSpacingInMeter;
-        if (targetCRS.getName().getCode().equals("WGS84(DD)")) {
+        if (targetCRS.getName().getCode().equals("WGS84(DD)") ||
+                targetCRS.getCoordinateSystem().getAxis(0).getUnit().equals(NonSI.DEGREE_ANGLE)) {
             pixelSizeX = pixelSpacingInDegree;
             pixelSizeY = pixelSpacingInDegree;
         }
