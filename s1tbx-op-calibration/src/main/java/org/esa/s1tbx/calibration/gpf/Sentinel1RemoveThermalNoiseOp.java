@@ -91,7 +91,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private List<String> selectedPolList = null;
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
-    //==============VVV=========================
     // For after IPF 2.9.0 ...
     private double version = 0.0f;
     private boolean isTOPS = false;
@@ -113,7 +112,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     public static float trgFloorValue = 0.01234567890000f;
 
     private static final String PRODUCT_SUFFIX = "_NR";
-    //================^^^=====================
 
     /**
      * Default constructor. The graph processing framework
@@ -146,9 +144,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
-            //==============VVV=========================
             getIPFVersion();
-            //================^^^=====================
 
             getProductType();
 
@@ -158,11 +154,9 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             setSelectedPolarisations();
 
-            //==============VVV=========================
             if (version < 2.9 || !isTOPS) { // SM SLC/GRD do not have noise azimuth vectors
                 noise = getThermalNoiseVectors(origMetadataRoot, selectedPolList, numOfSubSwath);
             }
-            //================^^^=====================
 
             getSampleType();
 
@@ -190,15 +184,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         isTOPSARSLC = productType.contains("SLC") && (mode.contains("IW") || mode.contains("EW"));
 
-        //==============VVV=========================
         final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
         final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
         final String imageName = annotationDataSetListElem[0].getName();
         isTOPS = mode.contains("IW") || mode.contains("EW");
         isGRD = productType.contains("GRD");
-
-        //System.out.println("Sentinel1RemoveThermalNoiseOp: productType = " + productType + " isTOPS = " + isTOPS + " isGRD = " + isGRD + " isTOPSARSLC = " + isTOPSARSLC);
-        //================^^^=====================
     }
 
     /**
@@ -268,13 +258,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             }
 
             MetadataElement noiseVectorListElem = noiElem.getElement("noiseVectorList");
-            //==============VVV=========================
             // Called by S1CalibrationTPGAction
             if (noiseVectorListElem == null) {
                 noiseVectorListElem = noiElem.getElement("noiseRangeVectorList");
             }
-            //System.out.println("noiseVectorListElem is null = " + (noiseVectorListElem == null));
-            //================^^^=====================
             final String subSwath = adsHeaderElem.getAttributeString("swath");
 
             noise[dataSetIndex] = new ThermalNoiseInfo(pol, subSwath,
@@ -488,7 +475,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
-    //================vvv=====================
     private double[][] populateNoiseAzimuthBlock(
             final int x0, final int y0, final int w, final int h, final String targetBandName) {
 
@@ -501,7 +487,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
         return null;
     }
-    //================^^^=====================
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -525,12 +510,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         try {
             final String targetBandName = targetBand.getName();
 
-            //================vvv=====================
             double[][] noiseBlock = null;
             if (version >= 2.9) {
                 noiseBlock = populateNoiseAzimuthBlock(x0, y0, w, h, targetBandName);
             }
-            //================^^^=====================
 
             Tile sourceRaster1 = null;
             ProductData srcData1 = null;
@@ -561,7 +544,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
 
-            //================vvv=====================
             String key = "";
             if (version >= 2.9 && isTOPS) {
                 if (complexData) { // SLC
@@ -570,8 +552,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     key = getBandPol(targetBandName);
                 }
             }
-            //System.out.println("key = " + key);
-            //================^^^=====================
 
             Sentinel1Calibrator.CalibrationInfo calInfo = null;
             Sentinel1Calibrator.CALTYPE calType = null;
@@ -587,7 +567,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 tgtIndex.calculateStride(y);
 
                 double[] lut = new double[w];
-                //================vvv=====================
                 if (version < 2.9 || !isTOPS) {
                     lut = new double[w];
                     final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
@@ -607,7 +586,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         computeTileNoiseLUT(y, x0, w, noiseInfo, lut);
                     }
                 }
-                //================^^^=====================
 
                 for (int x = x0; x < maxX; ++x) {
                     final int xx = x - x0;
@@ -626,7 +604,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         throw new OperatorException("Unhandled unit");
                     }
 
-                    //================vvv=====================
                     if(dn2 == srcNoDataValue) {
                         trgData.setElemDoubleAt(tgtIdx, srcNoDataValue);
                         continue;
@@ -646,7 +623,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         // Eq-1 in Section 6 of MPC-0392 DI-MPC-TN Issue 1.1 2017,Nov.28 "Thermal Denoising of Products Generated by the S-1 IPF"
                         value = trgFloorValue;
                     }
-                    //================^^^=====================
                     trgData.setElemDoubleAt(tgtIdx, value);
                 }
             }
@@ -855,7 +831,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         return noiseVector.pixels.length - 2;
     }
 
-    //================vvv=====================
     private void getIPFVersion() {
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
@@ -1465,7 +1440,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         return (int) ((azimTime - t0) / lineTimeInterval);
     }
-    //================^^^=====================
 
     public static class ThermalNoiseInfo {
         public String polarization;
@@ -1492,7 +1466,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
-    //================vvv=====================
     private final static class NoiseAzimuthBlock {
         final int firstAzimuthLine;
         final int firstRangeSample;
@@ -1568,7 +1541,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         return array;
     }
-    //================^^^=====================
 
     /**
      * The SPI is used to register this operator in the graph processing framework
