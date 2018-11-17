@@ -91,6 +91,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private List<String> selectedPolList = null;
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
+    //==============VVV=========================
     // For after IPF 2.9.0 ...
     private double version = 0.0f;
     private boolean isTOPS = false;
@@ -102,7 +103,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     // The key to these maps is pol, e.g. "HH"
     private HashMap<String, NoiseAzimuthBlock[] > noiseAzimuthBlockMap = new HashMap<>();
-    private boolean noiseAzimuthBlockPopulated = false;
 
     // key is pol+swath, e.g. "HH+IW1" or "HH+EW1"
     private HashMap<String, double[]> swathStartEndTimesMap = new HashMap<>();
@@ -113,6 +113,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     public static float trgFloorValue = 0.01234567890000f;
 
     private static final String PRODUCT_SUFFIX = "_NR";
+    //================^^^=====================
 
     /**
      * Default constructor. The graph processing framework
@@ -145,7 +146,9 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
+            //==============VVV=========================
             getIPFVersion();
+            //================^^^=====================
 
             getProductType();
 
@@ -155,9 +158,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             setSelectedPolarisations();
 
+            //==============VVV=========================
             if (version < 2.9 || !isTOPS) { // SM SLC/GRD do not have noise azimuth vectors
                 noise = getThermalNoiseVectors(origMetadataRoot, selectedPolList, numOfSubSwath);
             }
+            //================^^^=====================
 
             getSampleType();
 
@@ -185,6 +190,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         isTOPSARSLC = productType.contains("SLC") && (mode.contains("IW") || mode.contains("EW"));
 
+        //==============VVV=========================
         final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
         final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
         final String imageName = annotationDataSetListElem[0].getName();
@@ -192,6 +198,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         isGRD = productType.contains("GRD");
 
         //System.out.println("Sentinel1RemoveThermalNoiseOp: productType = " + productType + " isTOPS = " + isTOPS + " isGRD = " + isGRD + " isTOPSARSLC = " + isTOPSARSLC);
+        //================^^^=====================
     }
 
     /**
@@ -261,11 +268,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             }
 
             MetadataElement noiseVectorListElem = noiElem.getElement("noiseVectorList");
+            //==============VVV=========================
             // Called by S1CalibrationTPGAction
             if (noiseVectorListElem == null) {
                 noiseVectorListElem = noiElem.getElement("noiseRangeVectorList");
             }
             //System.out.println("noiseVectorListElem is null = " + (noiseVectorListElem == null));
+            //================^^^=====================
             final String subSwath = adsHeaderElem.getAttributeString("swath");
 
             noise[dataSetIndex] = new ThermalNoiseInfo(pol, subSwath,
@@ -479,17 +488,20 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
-    private synchronized void populateNoiseAzimuthBlock() {
-        if (version >= 2.9 && !noiseAzimuthBlockPopulated) {
-            if (isTOPS && isGRD) {
-                buildNoiseLUTForTOPSGRD();
-            } else if (isTOPSARSLC) {
-                buildNoiseLUTForTOPSSLC();
-            }
+    //================vvv=====================
+    private double[][] populateNoiseAzimuthBlock(
+            final int x0, final int y0, final int w, final int h, final String targetBandName) {
 
-            noiseAzimuthBlockPopulated = true;
+        if (version >= 2.9) {
+            if (isTOPS && isGRD) {
+                return buildNoiseLUTForTOPSGRD(x0, y0, w, h, targetBandName);
+            } else if (isTOPSARSLC) {
+                return buildNoiseLUTForTOPSSLC(x0, y0, w, h, targetBandName);
+            }
         }
+        return null;
     }
+    //================^^^=====================
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -511,18 +523,21 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
 
         try {
-            if (version >= 2.9 && !noiseAzimuthBlockPopulated) {
-                populateNoiseAzimuthBlock();
-            }
-
             final String targetBandName = targetBand.getName();
+
+            //================vvv=====================
+            double[][] noiseBlock = null;
+            if (version >= 2.9) {
+                noiseBlock = populateNoiseAzimuthBlock(x0, y0, w, h, targetBandName);
+            }
+            //================^^^=====================
 
             Tile sourceRaster1 = null;
             ProductData srcData1 = null;
             ProductData srcData2 = null;
             Band sourceBand1 = null;
 
-            final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
+            final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBandName);
             if (srcBandNames.length == 1) {
                 sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
                 sourceRaster1 = getSourceTile(sourceBand1, targetTileRectangle);
@@ -546,15 +561,17 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
 
+            //================vvv=====================
             String key = "";
             if (version >= 2.9 && isTOPS) {
                 if (complexData) { // SLC
-                    key = targetBand.getName().substring(10).toLowerCase();
+                    key = targetBandName.substring(10).toLowerCase();
                 } else { // GRD
-                    key = getBandPol(targetBand);
+                    key = getBandPol(targetBandName);
                 }
             }
             //System.out.println("key = " + key);
+            //================^^^=====================
 
             Sentinel1Calibrator.CalibrationInfo calInfo = null;
             Sentinel1Calibrator.CALTYPE calType = null;
@@ -570,6 +587,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 tgtIndex.calculateStride(y);
 
                 double[] lut = new double[w];
+                //================vvv=====================
                 if (version < 2.9 || !isTOPS) {
                     lut = new double[w];
                     final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
@@ -589,6 +607,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         computeTileNoiseLUT(y, x0, w, noiseInfo, lut);
                     }
                 }
+                //================^^^=====================
 
                 for (int x = x0; x < maxX; ++x) {
                     final int xx = x - x0;
@@ -607,18 +626,17 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         throw new OperatorException("Unhandled unit");
                     }
 
+                    //================vvv=====================
                     if(dn2 == srcNoDataValue) {
                         trgData.setElemDoubleAt(tgtIdx, srcNoDataValue);
                         continue;
                     }
 
-                    double noise = 0;
-                    if (version < 2.9 || !isTOPS) {
+                    double noise;
+                    if (version < 2.9) {
                         noise = lut[xx];
-                    } else if (noiseAzimuthBlockMap.containsKey(key)) {
-                        noise = getNoiseValue(x, y, noiseAzimuthBlockMap.get(key));
-                    } else if (burstBlockMap.containsKey(key)) { // should be TOPS SLC and after IPF 2.9.0
-                        noise = getNoiseValue(x, y, burstBlockMap.get(key));
+                    } else {
+                        noise = noiseBlock[y - y0][x - x0];
                     }
 
                     double value = dn2 - noise;
@@ -628,6 +646,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         // Eq-1 in Section 6 of MPC-0392 DI-MPC-TN Issue 1.1 2017,Nov.28 "Thermal Denoising of Products Generated by the S-1 IPF"
                         value = trgFloorValue;
                     }
+                    //================^^^=====================
                     trgData.setElemDoubleAt(tgtIdx, value);
                 }
             }
@@ -836,14 +855,18 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         return noiseVector.pixels.length - 2;
     }
 
+    //================vvv=====================
     private void getIPFVersion() {
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
         //System.out.println("Sentinel1RemoveThermalNoiseOp: IPF version = " + version);
     }
 
-    private void buildNoiseLUTForTOPSSLC() {
+    private double[][] buildNoiseLUTForTOPSSLC(
+            final int x0, final int y0, final int w, final int h, final String targetBandName) {
 
+        final String targetBandPol = getBandPol(targetBandName).toLowerCase();
+        final String targetBandSwath = getBandSwath(targetBandName).toLowerCase();
         final MetadataElement noiseElem = origMetadataRoot.getElement("noise");
         final MetadataElement[] noiseDataSetListElem = noiseElem.getElements();
 
@@ -853,124 +876,72 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         for (MetadataElement dataSetListElem : noiseDataSetListElem) {
 
             final String imageName = dataSetListElem.getName();
+            if (!imageName.toLowerCase().contains(targetBandPol) || !imageName.toLowerCase().contains(targetBandSwath)){
+                continue;
+            }
 
             getT0andDeltaTS(imageName);
 
             final MetadataElement noiElem = dataSetListElem.getElement("noise");
 
-            // get the noise azimuth vectors
             MetadataElement noiseAzimuthVectorListElem = noiElem.getElement("noiseAzimuthVectorList");
             noiseAzimuthVectors = Sentinel1Utils.getAzimuthNoiseVector(noiseAzimuthVectorListElem);
 
-            // get the noise range vectors
             MetadataElement noiseRangeVectorListElem = noiElem.getElement("noiseRangeVectorList");
             noiseRangeVectors = Sentinel1Utils.getNoiseVector(noiseRangeVectorListElem);
 
-            //System.out.println("buildNoiseLUTForTOPSSLC: noiseRangeVectors.length = " + noiseRangeVectors.length);
+            // create noise matrix for the tile
+            double[][] noiseMatrix = new double[h][w];
+            populateNoiseMatrixForTOPSSLC(noiseAzimuthVectors[0], noiseRangeVectors, x0, y0, w, h, noiseMatrix);
+
+            return noiseMatrix;
         }
+        return null;
+    }
 
-        final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
-        final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
+    private void populateNoiseMatrixForTOPSSLC(final Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector,
+                                               final Sentinel1Utils.NoiseVector[] noiseRangeVectors,
+                                               final int x0, final int y0, final int w, final int h,
+                                               final double[][] noiseMatrix) {
 
-        for (MetadataElement elem : annotationDataSetListElem) {
-            final String imageName = elem.getName();
+        final int xMax = x0 + w - 1;
+        final int yMax = y0 + h - 1;
+        final int[] noiseRangeVecIndices = getNoiseRangeVectorIndices(y0, h, noiseRangeVectors);
 
-            final MetadataElement productElem = elem.getElement("product");
-            final MetadataElement swathTimingElem = productElem.getElement("swathTiming");
+        if (noiseRangeVecIndices != null && noiseRangeVecIndices.length > 0) {
 
-            final int linesPerBurst = swathTimingElem.getAttributeInt("linesPerBurst");
-            final int samplesPerBurst = swathTimingElem.getAttributeInt("samplesPerBurst");
+            double[][] interpolatedRangeVectors = new double[noiseRangeVecIndices.length][w];
+            int noiseRangeVectorLine[] = new int[noiseRangeVecIndices.length];
+            for (int j = 0; j < noiseRangeVecIndices.length; j++) {
 
-            final MetadataElement burstListElem = swathTimingElem.getElement("burstList");
-            final MetadataElement[] burstListArray = burstListElem.getElements();
-            /*
-            System.out.println("buildNoiseLUTForTOPSSLC: linesPerBurst = " + linesPerBurst
-                    + " samplesPerBurst = " + samplesPerBurst
-                    + " burstListArray.length = " + burstListArray.length);
-            */
-            BurstBlock burstBlocks[] = new BurstBlock[burstListArray.length];
+                noiseRangeVectorLine[j] = noiseRangeVectors[noiseRangeVecIndices[j]].line;
 
-            final String key = getKey(imageName);
-            String bandElemName = "Band_" + key.toUpperCase();
-            //System.out.println("buildNoiseLUTForTOPSSLC: key = " + key + " bandElemName = " + bandElemName);
-
-            // For TOPS SLC product, only one noise azimuth vector for the entire subswath; same one for all bursts
-            Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector;
-            if (noiseAzimuthVectors[0].firstAzimuthLine < 0) { // just in case; sample TOPS EW SLC product was missing firstAzimuthLine etc.
-                MetadataElement bandElem = absRoot.getElement(bandElemName);
-                final int lastAzimuthLine = bandElem.getAttributeInt("num_output_lines") - 1;
-                //System.out.println("buildNoiseLUTForTOPSSLC: lastAzimuthLine = " + lastAzimuthLine);
-                // swath, firstRangeSample and lastRangeSample are not used by interpolNoiseAzimuthVector()
-                noiseAzimuthVector =
-                        new  Sentinel1Utils.NoiseAzimuthVector("", 0, -1,
-                                lastAzimuthLine, -1,
-                                noiseAzimuthVectors[0].lines, noiseAzimuthVectors[0].noiseAzimuthLUT);
-            } else {
-                noiseAzimuthVector =  noiseAzimuthVectors[0];
-            }
-            final double azimuthNoise[] = interpolNoiseAzimuthVector(noiseAzimuthVector);
-
-            for (int i = 0; i < burstListArray.length; i++) {
-                /*
-                MetadataElement[] elements = burstListArray[i].getElements();
-                for (int j = 0; j < elements.length; j++) {
-                    System.out.println("buildNoiseLUTForTOPSSLC: j = " + j + " elem name = " + elements[j].getName());
-                }
-                String[] strings = burstListArray[i].getAttributeNames();
-                for (String s : strings) {
-                    System.out.println("buildNoiseLUTForTOPSSLC: attr name = " + s);
-                }
-                */
-                final double timeOfFirstLineInBurst = Sentinel1Utils.getTime(burstListArray[i], "azimuthTime").getMJD();
-                final MetadataElement firstValidSampleElem = burstListArray[i].getElement("firstValidSample");
-                final int firstValidSample[] = getIntArray(firstValidSampleElem, "firstValidSample");
-                final MetadataElement lastValidSampleElem = burstListArray[i].getElement("lastValidSample");
-                final int lastValidSample[] = getIntArray(lastValidSampleElem, "lastValidSample");
-                /*
-                System.out.println("buildNoiseLUTForTOPSSLC: i = " + i + " firstLineTime = " + firstLineTime
-                    + " firstValidSample.length = " + firstValidSample.length
-                    + " lastValidSample.length = " + lastValidSample.length);
-                for (int j = 0; j < 20; j++) {
-                    System.out.println("buildNoiseLUTForTOPSSLC: i = " + i + ": j = " + j + " " + firstValidSample[j] + " " + lastValidSample[j]);
-                }
-                */
-
-                final int firstLineInBurst = getLineFromTime(imageName, timeOfFirstLineInBurst);
-                // Get the closet range noise vector
-                final double deltaT = deltaTsMap.get(imageName);
-                final double burstCentreTime = timeOfFirstLineInBurst + deltaT * (linesPerBurst/2);
-
-                int closest = 0;
-                if (noiseRangeVectors != null) {
-                    for (int j = 1; j < noiseRangeVectors.length; j++) {
-                        //System.out.println("buildNoiseLUTForTOPSSLC: i = " + i + " j = " + j + " time = " + noiseRangeVectors[j].timeMJD);
-                        if (Math.abs(burstCentreTime - noiseRangeVectors[j].timeMJD) <
-                                Math.abs(burstCentreTime - noiseRangeVectors[closest].timeMJD)) {
-                            closest = j;
-                        }
-                    }
-                }
-                //System.out.println("buildNoiseLUTForTOPSSLC: i = " + i + " burstCentreTime = " + burstCentreTime + " closet = " + closest);
-
-                double rangeNoise[] = new double[samplesPerBurst];
-                interpolNoiseRangeVector(noiseRangeVectors[closest], 0 , samplesPerBurst - 1, rangeNoise);
-
-                burstBlocks[i] = new BurstBlock(linesPerBurst, samplesPerBurst,
-                        timeOfFirstLineInBurst, firstValidSample, lastValidSample, firstLineInBurst, firstLineInBurst + linesPerBurst - 1,
-                        rangeNoise, azimuthNoise);
-                /*
-                System.out.println("buildNoiseLUTForTOPSSLC: i = " + i + " linesPerBurst = " + linesPerBurst
-                    + " samplesPerBurst = " + samplesPerBurst + " timeOfFirstLineInBurst = " + timeOfFirstLineInBurst
-                    + " firstLineInBurst = " + firstLineInBurst + " lastLineInBurst = " + (firstLineInBurst + linesPerBurst - 1));
-                */
+                interpolNoiseRangeVector(
+                        noiseRangeVectors[noiseRangeVecIndices[j]], x0, xMax, interpolatedRangeVectors[j]);
             }
 
-            burstBlockMap.put(key, burstBlocks);
+            final double[] interpolatedAzimuthVector = new double[h];
+            interpolNoiseAzimuthVector(noiseAzimuthVector, y0, yMax, interpolatedAzimuthVector);
+
+            computeNoiseMatrix(x0, y0, x0, xMax, y0, yMax, noiseRangeVectorLine, interpolatedRangeVectors,
+                    interpolatedAzimuthVector, noiseMatrix);
+
+        } else {
+
+            for (int y = y0; y <= yMax; y++) {
+                for (int x = x0; x <= xMax; x++) {
+                    noiseMatrix[y - y0][x - x0] = 1.0;
+                }
+            }
         }
     }
 
-    private void buildNoiseLUTForTOPSGRD() {
+    private double[][] buildNoiseLUTForTOPSGRD(
+            final int x0, final int y0, final int w, final int h, final String targetBandName) {
 
+        final int xMax = x0 + w - 1;
+        final int yMax = y0 + h - 1;
+        final String targetBandPol = getBandPol(targetBandName);
         final MetadataElement noiseElem = origMetadataRoot.getElement("noise");
         final MetadataElement[] noiseDataSetListElem = noiseElem.getElements();
 
@@ -978,14 +949,14 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         for (MetadataElement dataSetListElem : noiseDataSetListElem) {
 
             // imageName is s1a-iw-grd-hh-... or s1a-ew1-slc-hh-...
-            final String imageName = dataSetListElem.getName();
-            getT0andDeltaTS(imageName);
-            final double firstLineTime = t0Map.get(imageName);
-            final double lineTimeInterval = deltaTsMap.get(imageName);
-
             final MetadataElement noiElem = dataSetListElem.getElement("noise");
             final MetadataElement adsHeaderElem = noiElem.getElement("adsHeader");
             final String pol = adsHeaderElem.getAttributeString("polarisation");
+            if (!pol.equals(targetBandPol)) {
+                continue;
+            }
+
+            final String imageName = dataSetListElem.getName();
 
             // get the noise azimuth vectors
             MetadataElement noiseAzimuthVectorListElem = noiElem.getElement("noiseAzimuthVectorList");
@@ -997,88 +968,76 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             final Sentinel1Utils.NoiseAzimuthVector[] noiseAzimuthVectors =
                     Sentinel1Utils.getAzimuthNoiseVector(noiseAzimuthVectorListElem);
-            //noiseAzimuthVectorMap.put(pol, noiseAzimuthVectors);
-
-            //System.out.println("getThermalNoiseVectors: # azim noise vectors = " + noiseAzimuthVectors.length);
 
             // get the noise range vectors
             MetadataElement noiseRangeVectorListElem = noiElem.getElement("noiseRangeVectorList");
             final Sentinel1Utils.NoiseVector[] noiseRangeVectors =
                     Sentinel1Utils.getNoiseVector(noiseRangeVectorListElem);
-            /*
-            for (int i = 0; i < noiseRangeVectors.length; i++) {
-                System.out.println(pol + ": noiseRangeVectors[" + i + "].line = " + noiseRangeVectors[i].line
-                    + "; azim time = " + noiseRangeVectors[i].timeMJD);
-            }
-            */
-            //noiseRangeVectorMap.put(pol, noiseRangeVectors);
 
-            NoiseAzimuthBlock[] noiseAzimuthBlocks = new NoiseAzimuthBlock[noiseAzimuthVectors.length];
-            for (int i = 0; i < noiseAzimuthBlocks.length; i++) {
+            // create noise matrix for the tile
+            double[][] noiseMatrix = new double[h][w];
+            for (int i = 0; i < noiseAzimuthVectors.length; i++) {
+                final int nx0 = Math.max(x0, noiseAzimuthVectors[i].firstRangeSample);
+                final int nxMax = Math.min(xMax, noiseAzimuthVectors[i].lastRangeSample);
+                final int ny0 = Math.max(y0, noiseAzimuthVectors[i].firstAzimuthLine);
+                final int nyMax = Math.min(yMax, noiseAzimuthVectors[i].lastAzimuthLine);
 
-                //noiseAzimuthBlocks[i] = getNoiseAzimuthBlock(noiseAzimuthVectors[i]); // can be null but should never be
-                double interpolatedAzimuthVector[] = interpolNoiseAzimuthVector(noiseAzimuthVectors[i]);
-
-                final double startAzimTime = firstLineTime + noiseAzimuthVectors[i].firstAzimuthLine * lineTimeInterval;
-                final double endAzimTime = firstLineTime + noiseAzimuthVectors[i].lastAzimuthLine * lineTimeInterval;
-                final String swath = noiseAzimuthVectors[i].swath;
-                int[] noiseRangeVecIndices = getNoiseRangeVectorIndices(
-                        pol, swath, startAzimTime, endAzimTime, noiseRangeVectors,
-                        noiseAzimuthVectors[i].firstAzimuthLine, noiseAzimuthVectors[i].lastAzimuthLine);
-                /*
-                System.out.println("pol = " + pol + " swath = " + swath + " firstAzimuthLine = " + noiseAzimuthVectors[i].firstAzimuthLine
-                        + " lastAzimuthLine = " + noiseAzimuthVectors[i].lastAzimuthLine
-                        + " startAzimTime = " + startAzimTime + " endAzimTime = " + endAzimTime
-                        + " noiseRangeVecIdx.length = "
-                        + ((noiseRangeVecIndices == null) ? "null" : noiseRangeVecIndices.length));
-                */
-                final int numLines = noiseAzimuthVectors[i].lastAzimuthLine
-                        - noiseAzimuthVectors[i].firstAzimuthLine + 1;
-                final int numSamples = noiseAzimuthVectors[i].lastRangeSample
-                        - noiseAzimuthVectors[i].firstRangeSample + 1;
-
-                double interpNoiseRangeMatrix[][] = new double[numLines][numSamples];
-
-                if (noiseRangeVecIndices != null && noiseRangeVecIndices.length > 0) {
-
-                    double interpolatedRangeVectors[][] = new double[noiseRangeVecIndices.length][numSamples];
-                    int noiseRangeVectorLine[] = new int[noiseRangeVecIndices.length];
-                    for (int j = 0; j < noiseRangeVecIndices.length; j++) {
-                        //System.out.println("   noiseRangeVecIdx[" + j + "] = " + noiseRangeVecIndices[j]);
-                        noiseRangeVectorLine[j] = noiseRangeVectors[noiseRangeVecIndices[j]].line;
-                        interpolNoiseRangeVector(noiseRangeVectors[noiseRangeVecIndices[j]],
-                                noiseAzimuthVectors[i].firstRangeSample, noiseAzimuthVectors[i].lastRangeSample,
-                                interpolatedRangeVectors[j]);
-                    }
-
-                    computeNoiseRangeMatrix(noiseAzimuthVectors[i].firstAzimuthLine,
-                            noiseAzimuthVectors[i].lastAzimuthLine, noiseRangeVectorLine,
-                            interpolatedRangeVectors, interpNoiseRangeMatrix);
-                } else {
-                    for (int row = 0; row < numLines; row++) {
-                        for (int col = 0; col < numSamples; col++) {
-                            interpNoiseRangeMatrix[row][col] = 1.0;
-                        }
-                    }
+                if (nx0 >= nxMax || ny0 >= nyMax) {
+                    continue;
                 }
 
-                final double noiseMatrix[][] = new double[numLines][numSamples];
-
-                for (int row = 0; row < numLines; row++) {
-                    for (int col = 0; col < numSamples; col++) {
-                        noiseMatrix[row][col] = interpolatedAzimuthVector[row] * interpNoiseRangeMatrix[row][col];
-                    }
-                }
-
-                noiseAzimuthBlocks[i] = new NoiseAzimuthBlock(noiseAzimuthVectors[i].firstAzimuthLine,
-                        noiseAzimuthVectors[i].firstRangeSample, noiseAzimuthVectors[i].lastAzimuthLine,
-                        noiseAzimuthVectors[i].lastRangeSample, noiseMatrix);
+                populateNoiseMatrixForTOPSGRD(pol, imageName, noiseAzimuthVectors[i], noiseRangeVectors,
+                        x0, y0, nx0, nxMax, ny0, nyMax, noiseMatrix);
             }
 
-            noiseAzimuthBlockMap.put(pol, noiseAzimuthBlocks);
+            return noiseMatrix;
         }
+        return null;
+    }
 
-        //System.out.println("getThermalNoiseVectors DONE");
+    private void populateNoiseMatrixForTOPSGRD(final String pol, final String imageName,
+                                     final Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector,
+                                     final Sentinel1Utils.NoiseVector[] noiseRangeVectors,
+                                     final int x0, final int y0,
+                                     final int nx0, final int nxMax, final int ny0, final int nyMax,
+                                     final double[][] noiseMatrix) {
+
+        getT0andDeltaTS(imageName);
+        final double firstLineTime = t0Map.get(imageName);
+        final double lineTimeInterval = deltaTsMap.get(imageName);
+        final double startAzimTime = firstLineTime + noiseAzimuthVector.firstAzimuthLine * lineTimeInterval;
+        final double endAzimTime = firstLineTime + noiseAzimuthVector.lastAzimuthLine * lineTimeInterval;
+        final String swath = noiseAzimuthVector.swath;
+
+        int[] noiseRangeVecIndices = getNoiseRangeVectorIndices(pol, swath, startAzimTime, endAzimTime,
+                noiseRangeVectors, noiseAzimuthVector.firstAzimuthLine, noiseAzimuthVector.lastAzimuthLine);
+
+        if (noiseRangeVecIndices != null && noiseRangeVecIndices.length > 0) {
+
+            final double[][] interpolatedRangeVectors = new double[noiseRangeVecIndices.length][nxMax - nx0 + 1];
+            int noiseRangeVectorLine[] = new int[noiseRangeVecIndices.length];
+            for (int j = 0; j < noiseRangeVecIndices.length; j++) {
+
+                noiseRangeVectorLine[j] = noiseRangeVectors[noiseRangeVecIndices[j]].line;
+
+                interpolNoiseRangeVector(
+                        noiseRangeVectors[noiseRangeVecIndices[j]], nx0, nxMax, interpolatedRangeVectors[j]);
+            }
+
+            final double[] interpolatedAzimuthVector = new double[nyMax - ny0 + 1];
+            interpolNoiseAzimuthVector(noiseAzimuthVector, ny0, nyMax, interpolatedAzimuthVector);
+
+            computeNoiseMatrix(x0, y0, nx0, nxMax, ny0, nyMax, noiseRangeVectorLine, interpolatedRangeVectors,
+                    interpolatedAzimuthVector, noiseMatrix);
+
+        } else {
+
+            for (int y = ny0; y <= nyMax; y++) {
+                for (int x = nx0; x <= nxMax; x++) {
+                    noiseMatrix[y - y0][x - x0] = 1.0;
+                }
+            }
+        }
     }
 
     private void interpolNoiseRangeVector(final Sentinel1Utils.NoiseVector noiseRangeVector,
@@ -1118,95 +1077,61 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
-    private double[] interpolNoiseAzimuthVector(final Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector) {
-        final int numberOfLines = noiseAzimuthVector.lastAzimuthLine - noiseAzimuthVector.firstAzimuthLine + 1;
-        if (numberOfLines < 0) {
-            SystemUtils.LOG.warning("######### noise vector has no lines");
-            return null;
-        }
-        final double[] interpNoiseAzimVec = new double[numberOfLines];
+    private void interpolNoiseAzimuthVector(final Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector,
+                                            final int firstAzimuthLine, final int lastAzimuthLine,
+                                            final double[] interpNoiseAzimVec) {
 
-        int i = 0;
         if (noiseAzimuthVector.lines.length < 2) { // This is possible
-            //SystemUtils.LOG.warning("######### noise azimuth vector has length 1");
-            for (int line = noiseAzimuthVector.firstAzimuthLine;
-                 line <= noiseAzimuthVector.lastAzimuthLine;
-                 line++)  {
-                interpNoiseAzimVec[i++] = noiseAzimuthVector.noiseAzimuthLUT[0];
+            for (int line = firstAzimuthLine; line <= lastAzimuthLine; line++)  {
+                interpNoiseAzimVec[line - firstAzimuthLine] = noiseAzimuthVector.noiseAzimuthLUT[0];
             }
         }  else {
-            int lineIdx = getLineIndex(noiseAzimuthVector.firstAzimuthLine, noiseAzimuthVector.lines);
-            for (int line = noiseAzimuthVector.firstAzimuthLine;
-                 line <= noiseAzimuthVector.lastAzimuthLine;
-                 line++) {
+            int lineIdx = getLineIndex(firstAzimuthLine, noiseAzimuthVector.lines);
+            for (int line = firstAzimuthLine; line <= lastAzimuthLine; line++) {
 
-                if (line > noiseAzimuthVector.lines[lineIdx + 1]
-                        && lineIdx < noiseAzimuthVector.lines.length - 2) {
+                if (line > noiseAzimuthVector.lines[lineIdx + 1] && lineIdx < noiseAzimuthVector.lines.length - 2) {
                     lineIdx++;
                 }
 
-                interpNoiseAzimVec[i++] = interpol(noiseAzimuthVector.lines[lineIdx],
+                interpNoiseAzimVec[line - firstAzimuthLine] = interpol(
+                        noiseAzimuthVector.lines[lineIdx],
                         noiseAzimuthVector.lines[lineIdx + 1],
                         noiseAzimuthVector.noiseAzimuthLUT[lineIdx],
                         noiseAzimuthVector.noiseAzimuthLUT[lineIdx + 1],
                         line);
             }
         }
-
-        if (i != numberOfLines) {
-            System.out.println("Sentinel1RemoveThermalNoiseOp: ERROR i = " + i + " numberOfLines = " + numberOfLines + " ");
-        }
-        /*
-        System.out.println("i = " + i + "; firstAzimuthLine = " + noiseAzimuthVector.firstAzimuthLine);
-        if (i == 51) {
-            for (int j = 0; j < interpNoiseAzimVec.length; j++) {
-                System.out.println("interpNoiseAzimVec[" + j + "] = " + interpNoiseAzimVec[j]);
-            }
-        }
-        */
-
-        return interpNoiseAzimVec;
     }
 
-    private void computeNoiseRangeMatrix(final int firstAzimuthLine, // input
-                                         final int lastAzimuthLine, // input
-                                         final int noiseRangeVectorLine[], // input
-                                         final double interpolatedRangeVectors[][], // input
-                                         final double noiseRangeMatrix[][] // output
-    ) {
-        /*
-        System.out.println("computeNoiseRangeMatrix: firstAzimuthLine = " + firstAzimuthLine
-            + " lastAzimuthLine = " + lastAzimuthLine);
-        for (int i = 0; i < noiseRangeVectorLine.length; i++) {
-            System.out.println("computeNoiseRangeMatrix: noiseRangeVectorLine[" + i + "] = " + noiseRangeVectorLine[i]);
-        }
-        */
-
-        final int numSamples = noiseRangeMatrix[0].length;
+    private void computeNoiseMatrix(final int x0, final int y0,
+                                    final int nx0, final int nxMax, final int ny0, final int nyMax,
+                                    final int[] noiseRangeVectorLine, final double[][] interpolatedRangeVectors,
+                                    final double[] interpolatedAzimuthVector, final double[][] noiseMatrix) {
 
         if (noiseRangeVectorLine.length == 1) {
-            final int lastLine = (lastAzimuthLine - firstAzimuthLine + 1);
-            for (int sample = 0; sample < numSamples; sample++) {
-                for (int line = 0; line < lastLine; line++) {
-                    noiseRangeMatrix[line][sample] = interpolatedRangeVectors[0][sample];
+            for (int x = nx0; x <= nxMax; x++) {
+                final int xx = x - nx0;
+                for (int y = ny0; y <= nyMax; y++) {
+                    noiseMatrix[y - y0][x - x0] = interpolatedRangeVectors[0][xx];
                 }
             }
+
         } else {
-            final int line0Idx = getLineIndex(firstAzimuthLine, noiseRangeVectorLine);
 
-            for (int sample = 0; sample < numSamples; sample++) {
-                int i = 0;
+            final int line0Idx = getLineIndex(ny0, noiseRangeVectorLine);
+
+            for (int x = nx0; x <= nxMax; x++) {
+                final int xx = x - nx0;
                 int lineIdx = line0Idx;
-                for (int line = firstAzimuthLine; line <= lastAzimuthLine; line++) {
 
-                    if (line > noiseRangeVectorLine[lineIdx + 1]
-                            && lineIdx < noiseRangeVectorLine.length - 2) {
+                for (int y = ny0; y <= nyMax; y++) {
+                    if (y > noiseRangeVectorLine[lineIdx + 1] && lineIdx < noiseRangeVectorLine.length - 2) {
                         lineIdx++;
                     }
-                    //System.out.println("computeNoiseRangeMatrix: i = " + i + " sample = " + sample);
-                    noiseRangeMatrix[i++][sample] = interpol(noiseRangeVectorLine[lineIdx],
-                            noiseRangeVectorLine[lineIdx + 1], interpolatedRangeVectors[lineIdx][sample],
-                            interpolatedRangeVectors[lineIdx + 1][sample], line);
+
+                    noiseMatrix[y - y0][x - x0] = interpolatedAzimuthVector[y - ny0] *
+                            interpol(noiseRangeVectorLine[lineIdx], noiseRangeVectorLine[lineIdx + 1],
+                            interpolatedRangeVectors[lineIdx][xx], interpolatedRangeVectors[lineIdx + 1][xx], y);
                 }
             }
         }
@@ -1273,6 +1198,26 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 return null;
             } else {
                 list.add(idx);
+            }
+        }
+
+        int[] indices = new int[list.size()];
+        for (int i = 0; i < indices.length; i++) {
+            indices[i] = list.get(i);
+        }
+
+        return indices;
+    }
+
+    private int[] getNoiseRangeVectorIndices(
+            final int y0, final int h, final Sentinel1Utils.NoiseVector[] noiseRangeVectors) {
+
+        final List<Integer> list = new ArrayList<>();
+
+        for (int i = 0; i < noiseRangeVectors.length; i++) {
+            final int line = noiseRangeVectors[i].line;
+            if (line <= y0 && line + 1 > y0 || line >= y0 && line < y0 + h || line >= y0 + h - 1 && line - 1 < y0 + h) {
+                list.add(i);
             }
         }
 
@@ -1394,8 +1339,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
-    private String getBandPol(final Band band) {
-        final String bandName = band.getName();
+    private String getBandPol(final String bandName) {
+
         if (bandName.contains("HH")) {
             return "HH";
         } else if (bandName.contains("HV")) {
@@ -1404,6 +1349,28 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             return "VV";
         } else if (bandName.contains("VH")) {
             return "VH";
+        }
+        return "";
+    }
+
+    private String getBandSwath(final String bandName) {
+
+        if (bandName.contains("IW1")) {
+            return "IW1";
+        } else if (bandName.contains("IW2")) {
+            return "IW2";
+        } else if (bandName.contains("IW3")) {
+            return "IW3";
+        } else if (bandName.contains("EW1")) {
+            return "EW1";
+        } else if (bandName.contains("EW2")) {
+            return "EW2";
+        } else if (bandName.contains("EW3")) {
+            return "EW3";
+        } else if (bandName.contains("EW4")) {
+            return "EW4";
+        } else if (bandName.contains("EW5")) {
+            return "EW5";
         }
         return "";
     }
@@ -1498,6 +1465,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         return (int) ((azimTime - t0) / lineTimeInterval);
     }
+    //================^^^=====================
 
     public static class ThermalNoiseInfo {
         public String polarization;
@@ -1524,6 +1492,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
+    //================vvv=====================
     private final static class NoiseAzimuthBlock {
         final int firstAzimuthLine;
         final int firstRangeSample;
@@ -1599,6 +1568,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         return array;
     }
+    //================^^^=====================
 
     /**
      * The SPI is used to register this operator in the graph processing framework
