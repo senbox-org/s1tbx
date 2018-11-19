@@ -21,7 +21,7 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.s1tbx.dat.graphics.GraphicShape;
-import org.esa.s1tbx.dat.graphics.GraphicText;
+import org.esa.s1tbx.commons.graphics.GraphicText;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.s1tbx.fex.gpf.oceantools.ObjectDiscriminationOp;
 import org.esa.snap.core.datamodel.Band;
