@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.layers;
 
-import org.esa.s1tbx.dat.graphics.GraphicText;
+import org.esa.s1tbx.commons.graphics.GraphicText;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
