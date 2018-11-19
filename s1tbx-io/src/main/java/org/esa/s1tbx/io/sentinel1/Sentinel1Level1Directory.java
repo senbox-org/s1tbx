@@ -227,17 +227,19 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         addNoiseAbstractedMetadata(origProdRoot);
     }
 
-    private void addProductInfoJSON(final MetadataElement origProdRoot) throws IOException {
+    private void addProductInfoJSON(final MetadataElement origProdRoot) {
         if(productDir.exists("productInfo.json")) {
             try {
                 final File productInfoFile = productDir.getFile("productInfo.json");
-                final BufferedReader streamReader = new BufferedReader(new FileReader(productInfoFile.getPath()));
-                final JSONParser parser = new JSONParser();
-                final JSONObject json = (JSONObject) parser.parse(streamReader);
-                json.remove("filenameMap");
-                AbstractMetadataIO.AddXMLMetadata(JSONProductDirectory.jsonToXML("ProductInfo", json), origProdRoot);
+                if(productInfoFile.length() > 0) {
+                    final BufferedReader streamReader = new BufferedReader(new FileReader(productInfoFile.getPath()));
+                    final JSONParser parser = new JSONParser();
+                    final JSONObject json = (JSONObject) parser.parse(streamReader);
+                    json.remove("filenameMap");
+                    AbstractMetadataIO.AddXMLMetadata(JSONProductDirectory.jsonToXML("ProductInfo", json), origProdRoot);
+                }
             } catch(Exception e) {
-               throw new IOException("Unable to read productInfo " + e.getMessage(), e);
+               //throw new IOException("Unable to read productInfo " + e.getMessage(), e);
             }
         }
     }
