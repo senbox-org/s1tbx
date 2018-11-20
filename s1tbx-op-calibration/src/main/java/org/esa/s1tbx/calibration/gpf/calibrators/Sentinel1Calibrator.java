@@ -60,6 +60,8 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
     private boolean outputBetaBand = false;
     private boolean outputDNBand = false;
     private CALTYPE dataType = null;
+    private int subsetOffsetX = 0;
+    private int subsetOffsetY = 0;
 
     public enum CALTYPE {SIGMA0, BETA0, GAMMA, DN}
 
@@ -154,6 +156,8 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                 dataType = getCalibrationType(sourceProduct.getBandAt(0).getName());
             }
 
+            getSubsetOffset();
+
             getVectors();
 
             createTargetBandToCalInfoMap();
@@ -171,6 +175,14 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
         return (version < 2.34f);
+    }
+
+    /**
+     * Get subset x and y offsets from abstract metadata.
+     */
+    private void getSubsetOffset() {
+        subsetOffsetX = absRoot.getAttributeInt(AbstractMetadata.subset_offset_x);
+        subsetOffsetY = absRoot.getAttributeInt(AbstractMetadata.subset_offset_y);
     }
 
     private void getVectors() throws IOException {
@@ -565,7 +577,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                 srcIndex.calculateStride(y);
                 trgIndex.calculateStride(y);
 
-                final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
+                final int calVecIdx = calInfo.getCalibrationVectorIndex(subsetOffsetY + y);
                 final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
                 final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
                 final float[] vec0LUT = getVector(calType, vec0);
@@ -576,7 +588,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     retroVec0LUT = getVector(dataType, vec0);
                     retroVec1LUT = getVector(dataType, vec1);
                 }
-                final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
+                final double azTime = calInfo.firstLineTime + (subsetOffsetY + y) * calInfo.lineTimeInterval;
                 final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
                 final int[] vec0Pixels = vec0.pixels;
                 final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
@@ -592,8 +604,9 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
 //                        continue;
 //                    }
 
-                    final int pixelIdx = calVec.getPixelIndex(x);
-                    muX = (x - vec0Pixels[pixelIdx]) / (double)(vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
+                    final int pixelIdx = calVec.getPixelIndex(subsetOffsetX + x);
+                    muX = (subsetOffsetX + x - vec0Pixels[pixelIdx]) /
+                            (double)(vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
 
                     lutVal = (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) +
                             muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
