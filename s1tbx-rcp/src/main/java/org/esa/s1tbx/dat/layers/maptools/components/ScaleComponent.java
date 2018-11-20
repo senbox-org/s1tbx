@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.layers.maptools.components;
 
-import org.esa.s1tbx.dat.graphics.GraphicText;
+import org.esa.s1tbx.commons.graphics.GraphicText;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;

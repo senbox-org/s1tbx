@@ -19,7 +19,7 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
-import org.esa.s1tbx.dat.graphics.GraphicText;
+import org.esa.s1tbx.commons.graphics.GraphicText;
 import org.esa.s1tbx.dat.layers.LayerSelection;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.core.datamodel.*;
