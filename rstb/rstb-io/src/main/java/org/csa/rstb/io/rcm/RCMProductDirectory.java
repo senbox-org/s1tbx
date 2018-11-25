@@ -378,6 +378,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
         }
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, prf);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRate);
+        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
 
         final MetadataElement geographicInformation = imageReferenceAttributes.getElement("geographicInformation");
         if (geographicInformation != null) {

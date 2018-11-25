@@ -406,9 +406,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         mission = getMissionType(absRoot);
 
-        if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
-            skipBistaticCorrection = true;
-        }
+        skipBistaticCorrection = absRoot.getAttributeInt("bistatic_correction_applied", 0) == 1;
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 

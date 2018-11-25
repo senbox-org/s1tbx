@@ -409,6 +409,8 @@ public class CosmoSkymedReader extends SARReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
         }
 
+        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
+
         addOrbitStateVectors(absRoot, globalElem);
     }
 

@@ -421,6 +421,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.replica_power_corr_flag, 0);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 0);
+        //AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
 
         addOrbitStateVectors(absRoot, leaderFile.getPlatformPositionRecord());
         if (facilityRec != null)
