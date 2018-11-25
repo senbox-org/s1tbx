@@ -89,6 +89,10 @@ public final class TerrainFlatteningOp extends Operator {
     @Parameter(defaultValue = "false", label = "Output Simulated Image")
     private Boolean outputSimulatedImage = false;
 
+    @Parameter(description = "The additional overlap percentage", interval = "[0, 1]", label = "Additional Overlap",
+            defaultValue = "0.1")
+    private double additionalOverlap = 0.1;
+
     @Parameter(defaultValue = "true", label = "Re-grid method")
     private Boolean reGridMethod = true;
 
@@ -1076,10 +1080,10 @@ public final class TerrainFlatteningOp extends Operator {
             }
         }
 
-        tileOverlapUp += 0.1;
-        tileOverlapDown += 0.1;
-        tileOverlapLeft += 0.1;
-        tileOverlapRight += 0.1;
+        tileOverlapUp += additionalOverlap;
+        tileOverlapDown += additionalOverlap;
+        tileOverlapLeft += additionalOverlap;
+        tileOverlapRight += additionalOverlap;
 
         return new OverlapPercentage(tileOverlapUp, tileOverlapDown, tileOverlapLeft, tileOverlapRight);
     }

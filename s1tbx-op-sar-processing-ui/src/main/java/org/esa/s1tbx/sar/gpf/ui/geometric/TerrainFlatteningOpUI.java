@@ -49,6 +49,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
+    private final JTextField additionalOverlap = new JTextField("");
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
@@ -138,6 +139,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         if(reGridMethod != null) {
             reGridMethodCheckBox.setSelected(reGridMethod);
         }
+
+        additionalOverlap.setText(String.valueOf(paramMap.get("additionalOverlap")));
     }
 
     @Override
@@ -162,6 +165,11 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
 
         //paramMap.put("outputSimulatedImage", outputSimulatedImage);
         paramMap.put("reGridMethod", reGridMethod);
+
+        final String additionalOverlapStr = additionalOverlap.getText();
+        if (additionalOverlapStr != null && !additionalOverlapStr.isEmpty())
+            paramMap.put("additionalOverlap", Double.parseDouble(additionalOverlapStr));
+
     }
 
     private JComponent createPanel() {
@@ -187,6 +195,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
         //gbc.gridy++;
         //contentPane.add(outputSimulatedImageCheckBox, gbc);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Additional Overlap Percentage[0,1]:", additionalOverlap);
         gbc.gridy++;
         contentPane.add(reGridMethodCheckBox, gbc);
 
