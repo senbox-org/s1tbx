@@ -354,7 +354,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
 
         final MetadataElement slantRangeToGroundRange = imageGenerationParameters.getElement("slantRangeToGroundRange");
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel, Constants.halfLightSpeed *
                 slantRangeToGroundRange.getElement("slantRangeTimeToFirstRangeSample").getAttributeDouble("slantRangeTimeToFirstRangeSample"));
 
         // add Range and Azimuth bandwidth
