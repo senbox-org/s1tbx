@@ -299,7 +299,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
 
         productType = generalProcessingInformation.getAttributeString("productType");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-        if(productType.equals("SLC")) {
+        if(productType.equals("SLC") || productType.equals("GRC")) {
             setSLC(true);
         }
 
