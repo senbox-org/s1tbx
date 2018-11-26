@@ -350,7 +350,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
                 getFlag(sarProcessingInformation, "elevationPatternCorrection"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
                 getFlag(sarProcessingInformation, "rangeSpreadingLossCorrection"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isSLC() ? 0 : 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, productType.equals("SLC") ? 0 : 1);
 
         final MetadataElement slantRangeToGroundRange = imageGenerationParameters.getElement("slantRangeToGroundRange");
 
