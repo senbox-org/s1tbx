@@ -350,11 +350,11 @@ public class RCMProductDirectory extends XMLProductDirectory {
                 getFlag(sarProcessingInformation, "elevationPatternCorrection"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
                 getFlag(sarProcessingInformation, "rangeSpreadingLossCorrection"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, productType.equals("SLC") ? 0 : 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isSLC() ? 0 : 1);
 
         final MetadataElement slantRangeToGroundRange = imageGenerationParameters.getElement("slantRangeToGroundRange");
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel, Constants.halfLightSpeed *
                 slantRangeToGroundRange.getElement("slantRangeTimeToFirstRangeSample").getAttributeDouble("slantRangeTimeToFirstRangeSample"));
 
         // add Range and Azimuth bandwidth
