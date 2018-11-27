@@ -522,6 +522,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                                       azimuthSpacingTotal / (double) numBands);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height, heightSum / filenames.length);
+
+        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
     }
 
     private double getBandTerrainHeight(final MetadataElement prodElem) {
