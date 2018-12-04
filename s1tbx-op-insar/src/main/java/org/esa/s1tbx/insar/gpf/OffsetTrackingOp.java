@@ -96,16 +96,16 @@ public class OffsetTrackingOp extends Operator {
             label = "Cross-Correlation Threshold")
     private double xCorrThreshold = 0.1;
 
-    //    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
-//            defaultValue = "16", label = "Search Window Accuracy in Azimuth Direction")
+    //@Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
+    //        defaultValue = "16", label = "Search Window Accuracy in Azimuth Direction")
     private String registrationWindowAccAzimuth = "16";
 
-    //    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
-//            defaultValue = "16", label = "Search Window Accuracy in Range Direction")
+    //@Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
+    //        defaultValue = "16", label = "Search Window Accuracy in Range Direction")
     private String registrationWindowAccRange = "16";
 
-    //    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
-//            label = "Window oversampling factor")
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256", "512"}, defaultValue = "16",
+            label = "Window oversampling factor")
     private String registrationOversampling = "16";
 
     @Parameter(valueSet = {"3", "5", "9", "11"}, defaultValue = "5",
