@@ -51,6 +51,8 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
             new String[]{"32", "64", "128", "256", "512", "1024", "2048"});
     private final JComboBox<String> registrationWindowHeight = new JComboBox(
             new String[]{"32", "64", "128", "256", "512", "1024", "2048"});
+    private final JComboBox<String> registrationOversampling = new JComboBox(
+            new String[]{"2", "4", "8", "16", "32", "64", "128", "256", "512"});
     private final JTextField xCorrThreshold = new JTextField("");
 
     // Post processing parameters
@@ -98,6 +100,7 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
 
         registrationWindowWidth.setSelectedItem(paramMap.get("registrationWindowWidth"));
         registrationWindowHeight.setSelectedItem(paramMap.get("registrationWindowHeight"));
+        registrationOversampling.setSelectedItem(paramMap.get("registrationOversampling"));
         xCorrThreshold.setText(String.valueOf(paramMap.get("xCorrThreshold")));
 
         averageBoxSize.setSelectedItem(paramMap.get("averageBoxSize"));
@@ -157,6 +160,7 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
 
         paramMap.put("registrationWindowWidth", registrationWindowWidth.getSelectedItem());
         paramMap.put("registrationWindowHeight", registrationWindowHeight.getSelectedItem());
+        paramMap.put("registrationOversampling", registrationOversampling.getSelectedItem());
         paramMap.put("xCorrThreshold", Double.parseDouble(xCorrThreshold.getText()));
 
         paramMap.put("averageBoxSize", averageBoxSize.getSelectedItem());
@@ -211,6 +215,8 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(registrationPanel, gbc3, "Registration Window Width:", registrationWindowWidth);
         gbc3.gridy++;
         DialogUtils.addComponent(registrationPanel, gbc3, "Registration Window Height:", registrationWindowHeight);
+        gbc3.gridy++;
+        DialogUtils.addComponent(registrationPanel, gbc3, "Registration Oversampling:", registrationOversampling);
         gbc3.gridy++;
         DialogUtils.addComponent(registrationPanel, gbc3, "Cross-Correlation Threshold:", xCorrThreshold);
         gbc3.gridy++;
