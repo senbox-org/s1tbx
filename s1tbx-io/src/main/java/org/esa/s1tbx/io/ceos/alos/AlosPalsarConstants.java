@@ -74,7 +74,7 @@ public class AlosPalsarConstants implements CEOSConstants {
         return FORMAT_NAMES;
     }
 
-    public String[] getForamtFileExtensions() {
+    public String[] getFormatFileExtensions() {
         return FORMAT_FILE_EXTENSIONS;
     }
 
