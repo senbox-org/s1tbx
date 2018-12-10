@@ -136,7 +136,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return Radarsat2Constants.getForamtFileExtensions();
+        return Radarsat2Constants.getFormatFileExtensions();
     }
 
     /**
@@ -157,7 +157,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
         public FileFilter() {
             super();
             setFormatName(Radarsat2Constants.getFormatNames()[0]);
-            setExtensions(Radarsat2Constants.getForamtFileExtensions());
+            setExtensions(Radarsat2Constants.getFormatFileExtensions());
             setDescription(Radarsat2Constants.getPluginDescription());
         }
 

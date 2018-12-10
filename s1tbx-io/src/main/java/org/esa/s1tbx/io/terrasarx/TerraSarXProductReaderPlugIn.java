@@ -94,7 +94,7 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return TerraSarXConstants.getForamtFileExtensions();
+        return TerraSarXConstants.getFormatFileExtensions();
     }
 
     /**
@@ -115,7 +115,7 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
         public FileFilter() {
             super();
             setFormatName(TerraSarXConstants.getFormatNames()[0]);
-            setExtensions(TerraSarXConstants.getForamtFileExtensions());
+            setExtensions(TerraSarXConstants.getFormatFileExtensions());
             setDescription(TerraSarXConstants.getPluginDescription());
         }
 
