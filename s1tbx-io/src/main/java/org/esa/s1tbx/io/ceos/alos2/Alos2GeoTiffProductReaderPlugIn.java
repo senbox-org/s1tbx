@@ -1,6 +1,5 @@
 package org.esa.s1tbx.io.ceos.alos2;
 
-import org.esa.s1tbx.io.gamma.GammaProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;

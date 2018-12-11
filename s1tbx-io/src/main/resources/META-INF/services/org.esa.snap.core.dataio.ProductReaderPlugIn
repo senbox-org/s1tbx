@@ -8,6 +8,7 @@ org.esa.s1tbx.io.cosmo.CosmoSkymedReaderPlugIn
 org.esa.s1tbx.io.gamma.GammaProductReaderPlugIn
 org.esa.s1tbx.io.gtopo30.GTOPO30ReaderPlugIn
 org.esa.s1tbx.io.kompsat5.Kompsat5ReaderPlugIn
+org.esa.s1tbx.io.paz.PazProductReaderPlugIn
 org.esa.s1tbx.io.pcidsk.PCIReaderPlugIn
 org.esa.s1tbx.io.polsarpro.PolsarProProductReaderPlugIn
 org.esa.s1tbx.io.seasat.SeaSatProductReaderPlugIn

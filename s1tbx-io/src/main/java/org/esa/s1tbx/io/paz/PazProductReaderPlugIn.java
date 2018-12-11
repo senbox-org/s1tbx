@@ -1,34 +1,19 @@
-/*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
-package org.csa.rstb.io.radarsat2;
+package org.esa.s1tbx.io.paz;
 
+import org.esa.s1tbx.io.terrasarx.TerraSarXProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
-import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
 import java.util.Locale;
 
 /**
- * The ReaderPlugIn for Radarsat2 products.
+ * The ReaderPlugIn for PAZ products.
  */
-public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
+public class PazProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -39,62 +24,21 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
         final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            final File metadataFile = findMetadataFile(file);
-            if (metadataFile != null) {
-
-                final File[] files = file.getParentFile().listFiles();
-                if(files != null) {
-                    for (File f : files) {
-                        if (f.getName().toLowerCase().endsWith("ntf")) {
-                            return DecodeQualification.SUITABLE;
-                        }
-                    }
-                }
-                return DecodeQualification.INTENDED;
-            }
-            final String filename = file.getName().toLowerCase();
-            if (filename.endsWith(".zip") && filename.startsWith("rs2") &&
-                    ZipUtils.findInZip(file, "", Radarsat2Constants.PRODUCT_HEADER_NAME)) {
+        if (file == null) {
+            return DecodeQualification.UNABLE;
+        }
+        final String filename = file.getName().toUpperCase();
+        for (String header : PazConstants.HEADER_PREFIX) {
+            if (filename.startsWith(header) && filename.endsWith(".XML")) {
                 return DecodeQualification.INTENDED;
             }
         }
-        //todo zip stream
-
         return DecodeQualification.UNABLE;
-    }
-
-    public static File findMetadataFile(final File folder) {
-        if (folder.isDirectory()) {
-            final File[] fileList = folder.listFiles();
-            if (fileList != null) {
-                for (File f : fileList) {
-                    final String fileName = f.getName().toLowerCase();
-                    if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
-                            fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
-                        return f;
-                    }
-                    if (f.isDirectory()) {
-                        final File foundFile = findMetadataFile(f);
-                        if (foundFile != null) {
-                            return foundFile;
-                        }
-                    }
-                }
-            }
-        } else {
-            final String fileName = folder.getName().toLowerCase();
-            if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
-                    fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)){
-                return folder;
-            }
-        }
-        return null;
     }
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
-     * <p>
+     * <p/>
      * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
@@ -102,7 +46,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return an array containing valid input types, never <code>null</code>
      */
     public Class[] getInputTypes() {
-        return Radarsat2Constants.VALID_INPUT_TYPES;
+        return PazConstants.VALID_INPUT_TYPES;
     }
 
     /**
@@ -111,7 +55,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a new reader instance, never <code>null</code>
      */
     public ProductReader createReaderInstance() {
-        return new Radarsat2ProductReader(this);
+        return new PazProductReader(this);
     }
 
     public SnapFileFilter getProductFileFilter() {
@@ -124,7 +68,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        return Radarsat2Constants.getFormatNames();
+        return PazConstants.getFormatNames();
     }
 
     /**
@@ -136,29 +80,29 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return Radarsat2Constants.getFormatFileExtensions();
+        return PazConstants.getFormatFileExtensions();
     }
 
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p>
+     * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
-        return Radarsat2Constants.getPluginDescription();
+        return PazConstants.getPluginDescription();
     }
 
     public static class FileFilter extends SnapFileFilter {
 
         public FileFilter() {
             super();
-            setFormatName(Radarsat2Constants.getFormatNames()[0]);
-            setExtensions(Radarsat2Constants.getFormatFileExtensions());
-            setDescription(Radarsat2Constants.getPluginDescription());
+            setFormatName(PazConstants.getFormatNames()[0]);
+            setExtensions(PazConstants.getFormatFileExtensions());
+            setDescription(PazConstants.getPluginDescription());
         }
 
         /**
@@ -172,13 +116,15 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
         public boolean accept(final File file) {
             if (super.accept(file)) {
                 final String name = file.getName().toUpperCase();
-                if (file.isDirectory() ||
-                        (name.startsWith(Radarsat2Constants.PRODUCT_HEADER_PREFIX) && name.endsWith(Radarsat2Constants.getIndicationKey())) ||
-                        (name.startsWith("RS2") && name.endsWith(".ZIP"))) {
+                if (file.isDirectory())
                     return true;
+                for (String header : PazConstants.HEADER_PREFIX) {
+                    if (name.startsWith(header))
+                        return true;
                 }
             }
             return false;
         }
+
     }
 }
