@@ -15,20 +15,11 @@
                 <file name="org-esa-s1tbx-io-ceos-importAlos2Product.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                    <attr name="displayName" stringvalue="ALOS 2 CEOS"/>
+                    <attr name="displayName" stringvalue="ALOS-2 CEOS"/>
                     <attr name="formatName" stringvalue="ALOS 2 CEOS"/>
                     <attr name="useAllFileFilter" boolvalue="true"/>
                     <attr name="helpId" stringvalue="ImportAlosPalsar"/>
-                    <attr name="ShortDescription" stringvalue="Open ALOS 2 CEOS data product."/>
-                </file>
-                <file name="org-esa-s1tbx-io-ceos-importAlos2GeoTiffProduct.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                    <attr name="displayName" stringvalue="ALOS2 GeoTIFF"/>
-                    <attr name="formatName" stringvalue="ALOS2 GeoTIFF"/>
-                    <attr name="useAllFileFilter" boolvalue="true"/>
-                    <attr name="helpId" stringvalue="ImportAlosPalsar"/>
-                    <attr name="ShortDescription" stringvalue="Open ALOS 2 GeoTiff data product."/>
+                    <attr name="ShortDescription" stringvalue="Open ALOS-2 CEOS data product."/>
                 </file>
                 <file name="org-esa-s1tbx-io-ceos-importERSProduct.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -49,6 +40,15 @@
                     <attr name="ShortDescription" stringvalue="Open JERS CEOS data product."/>
                 </file>
             </folder>
+            <file name="org-esa-s1tbx-io-importAlos2GeoTiffProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="ALOS2 GeoTIFF"/>
+                <attr name="formatName" stringvalue="ALOS2 GeoTIFF"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="ImportAlosPalsar"/>
+                <attr name="ShortDescription" stringvalue="Open ALOS-2 GeoTiff data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importCosmoSkymed.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -61,7 +61,7 @@
             <file name="org-esa-s1tbx-io-importKompsat5.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                <attr name="displayName" stringvalue="Kompsat-5"/>
+                <attr name="displayName" stringvalue="KOMPSAT-5"/>
                 <attr name="formatName" stringvalue="Kompsat5"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importKompsat5"/>
@@ -106,8 +106,8 @@
             <file name="org-esa-s1tbx-io-importPazProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                <attr name="displayName" stringvalue="Paz"/>
-                <attr name="formatName" stringvalue="Paz"/>
+                <attr name="displayName" stringvalue="PAZ"/>
+                <attr name="formatName" stringvalue="PAZ"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="ImportPaz"/>
                 <attr name="ShortDescription" stringvalue="Open Paz data product."/>
@@ -183,6 +183,10 @@
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importAlos2Product.instance"/>
                         <attr name="position" intvalue="200"/>
                     </file>
+                    <file name="org-esa-s1tbx-io-importAlos2GeoTiffProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importAlos2GeoTiffProduct.instance"/>
+                        <attr name="position" intvalue="210"/>
+                    </file>
                     <file name="org-esa-s1tbx-io-importCosmoSkymed.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importCosmoSkymed.instance"/>
                         <attr name="position" intvalue="300"/>
@@ -218,10 +222,6 @@
                     <file name="org-esa-s1tbx-io-importTanDEMXProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTanDEMXProduct.instance"/>
                         <attr name="position" intvalue="1100"/>
-                    </file>
-                    <file name="org-esa-s1tbx-io-ceos-importAlos2GeoTiffProduct.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-ceos-importAlos2GeoTiffProduct.instance"/>
-                        <attr name="position" intvalue="1200"/>
                     </file>
                 </folder>
                 <folder name="SAR Formats">
