@@ -20,19 +20,22 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Created by luis on 12/08/2016.
  */
 public class K5GeoTiff implements K5Format {
-
-    private final ProductReaderPlugIn readerPlugIn;
     private final Kompsat5Reader reader;
+    private final ProductReaderPlugIn readerPlugIn;
+    //private final Kompsat5Reader reader;
     private Product product;
     private final ProductReader geoTiffReader;
 
@@ -49,24 +52,140 @@ public class K5GeoTiff implements K5Format {
         product.setFileLocation(inputFile);
         addAuxXML(product);
         addExtraBands(inputFile, product);
+        product.setStartTime(getStartTime(product));
+        product.setEndTime(getEndTime(product));
 
         return product;
     }
+    private String getTime(final Product product, final String tag){
+        final MetadataElement m = product.getMetadataRoot();
+        MetadataElement eAux  = m.getElement("Auxiliary");
+        MetadataElement eRoot = eAux.getElement("Root");
+
+        //final String time = m.getElement("Auxilliary").getElement("Root").getAttributeString(tag);
+        return eRoot.getAttributeString(tag);
+    }
+    private ProductData.UTC getStartTime(final Product product) {
+        final String startTime = getTime(product, "DownlinkStartUTC");
+        try{
+            final ProductData.UTC utc = ProductData.UTC.parse(startTime, "yyyy-MM-dd HH:mm:ss");
+            return utc;
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private ProductData.UTC getEndTime(final Product product){
+        final String endTime = getTime(product, "DownlinkStopUTC");
+        try{
+            final ProductData.UTC utc = ProductData.UTC.parse(endTime, "yyyy-MM-dd HH:mm:ss");
+            return utc;
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private String getPolarization(String fname){
+        for (String p: new String [] {"HH", "HV", "VH", "VV"}) {
+            if (fname.contains(p)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+
 
     private void addExtraBands(final File inputFile, final Product product) throws IOException {
-        final String name = inputFile.getName().toLowerCase();
+        final String name = inputFile.getName().toUpperCase();
+        Band [] bands = product.getBands();
+        final String [] polarizations = {"HH", "HV", "VH", "VV"};
 
-        if(name.contains("I_SCS") || name.contains("I_SCS")) {
+        String polarization = getPolarization(name);
+        HashMap<String, Band []> polarizationGroupedBands = new HashMap<>();
+        product.setName(name);
+        if(name.contains("I_SCS") ) {
+            polarizationGroupedBands.put(polarization, new Band[]{bands[0], null});
+
+            bands[0].setName("i_" + polarization);
+            bands[0].setNoDataValue(0);
+
             final File[] files = inputFile.getParentFile().listFiles();
-            if(files != null) {
-                for(File file : files) {
-                    final String fname = inputFile.getName().toLowerCase();
-                    if(fname.endsWith(".tif") && !fname.equals(name)) {
+            if (files != null) {
+                for (File file : files) {
+                    final String fname = file.getName().toUpperCase();
+                    if (fname.endsWith(".TIF") && !fname.equals(name)) {
                         Product product2 = geoTiffReader.readProductNodes(file, null);
-                        //todo
+                        String polarization2 = getPolarization(fname);
+                        Band b = product2.getBands()[0];
+                        String bname = "";
+                        if (fname.contains("I_SCS")){
+                            bname = "i_" + polarization2;
+                        } else if (fname.contains("Q_SCS")){
+                            bname = "q_" + polarization2;
+                        }
+                        b.setName(bname);
+                        product.addBand(b);
+                        if(polarizationGroupedBands.containsKey(polarization2)){
+                            Band [] b2 = polarizationGroupedBands.get(polarization2);
+                            b2[1] = b;
+                            polarizationGroupedBands.put(polarization2, b2);
+                        }else{
+                            Band [] b2 = new Band[]{b, null};
+                            polarizationGroupedBands.put(polarization2, b2);
+                        }
                     }
                 }
+                for (String p : polarizationGroupedBands.keySet()){
+                    Band [] bandGroup = polarizationGroupedBands.get(p);
+                    bandGroup[0].setNoDataValue(0);
+                    bandGroup[1].setNoDataValue(0);
+
+                    ReaderUtils.createVirtualIntensityBand(product, bandGroup[0], bandGroup[1], p);
+                }
             }
+        } else if (name.contains("Q_SCS")){
+            polarizationGroupedBands.put(polarization, new Band[]{bands[0], null});
+            bands[0].setName("q_" + polarization);
+
+            final File[] files = inputFile.getParentFile().listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    final String fname = file.getName().toUpperCase();
+                    if (fname.endsWith(".TIF") && !fname.equals(name)) {
+                        Product product2 = geoTiffReader.readProductNodes(file, null);
+                        String polarization2 = getPolarization(fname);
+                        Band b = product2.getBands()[0];
+                        String bname = "";
+                        if (fname.contains("I_SCS")){
+                            bname = "i_" + polarization2;
+                        } else if (fname.contains("Q_SCS")){
+                            bname = "q_" + polarization2;
+                        }
+                        b.setName(bname);
+                        product.addBand(b);
+                        if(polarizationGroupedBands.containsKey(polarization2)){
+                            Band [] b2 = polarizationGroupedBands.get(polarization2);
+                            b2[1] = b;
+                            polarizationGroupedBands.put(polarization2, b2);
+                        }else{
+                            Band [] b2 = new Band[]{b, null};
+                            polarizationGroupedBands.put(polarization2, b2);
+                        }
+                    }
+                }
+                for (String p : polarizationGroupedBands.keySet()){
+                    Band [] bandGroup = polarizationGroupedBands.get(p);
+                    ReaderUtils.createVirtualIntensityBand(product, bandGroup[0], bandGroup[1], p);
+                }
+            }
+        }
+        else if (name.contains("_GEC_") ||name.contains("_GTC_") ){
+
+            bands[0].setName("Amplitude_" + polarization);
+            reader.createVirtualIntensityBand(product, bands[0],"_" + polarization);
         }
     }
 
