@@ -1,19 +1,5 @@
-/*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
-package org.csa.rstb.io.radarsat2;
+
+package org.esa.s1tbx.io.risat1;
 
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
@@ -26,9 +12,9 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * The ReaderPlugIn for Radarsat2 products.
+ * The ReaderPlugIn for RISAT-1 products.
  */
-public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
+public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -42,20 +28,11 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
         if (file != null) {
             final File metadataFile = findMetadataFile(file);
             if (metadataFile != null) {
-
-                final File[] files = file.getParentFile().listFiles();
-                if(files != null) {
-                    for (File f : files) {
-                        if (f.getName().toLowerCase().endsWith("ntf")) {
-                            return DecodeQualification.SUITABLE;
-                        }
-                    }
-                }
                 return DecodeQualification.INTENDED;
             }
             final String filename = file.getName().toLowerCase();
             if (filename.endsWith(".zip") && filename.startsWith("rs2") &&
-                    ZipUtils.findInZip(file, "", Radarsat2Constants.PRODUCT_HEADER_NAME)) {
+                    ZipUtils.findInZip(file, "", Risat1Constants.PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -70,8 +47,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             if (fileList != null) {
                 for (File f : fileList) {
                     final String fileName = f.getName().toLowerCase();
-                    if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
-                            fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
+                    if (fileName.equals(Risat1Constants.PRODUCT_HEADER_NAME)) {
                         return f;
                     }
                     if (f.isDirectory()) {
@@ -84,8 +60,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             }
         } else {
             final String fileName = folder.getName().toLowerCase();
-            if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
-                    fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)){
+            if (fileName.equals(Risat1Constants.PRODUCT_HEADER_NAME)){
                 return folder;
             }
         }
@@ -102,7 +77,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return an array containing valid input types, never <code>null</code>
      */
     public Class[] getInputTypes() {
-        return Radarsat2Constants.VALID_INPUT_TYPES;
+        return Risat1Constants.VALID_INPUT_TYPES;
     }
 
     /**
@@ -111,7 +86,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a new reader instance, never <code>null</code>
      */
     public ProductReader createReaderInstance() {
-        return new Radarsat2ProductReader(this);
+        return new Risat1ProductReader(this);
     }
 
     public SnapFileFilter getProductFileFilter() {
@@ -124,7 +99,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        return Radarsat2Constants.getFormatNames();
+        return Risat1Constants.getFormatNames();
     }
 
     /**
@@ -136,7 +111,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return Radarsat2Constants.getFormatFileExtensions();
+        return Risat1Constants.getFormatFileExtensions();
     }
 
     /**
@@ -149,16 +124,16 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
-        return Radarsat2Constants.getPluginDescription();
+        return Risat1Constants.getPluginDescription();
     }
 
     public static class FileFilter extends SnapFileFilter {
 
         public FileFilter() {
             super();
-            setFormatName(Radarsat2Constants.getFormatNames()[0]);
-            setExtensions(Radarsat2Constants.getFormatFileExtensions());
-            setDescription(Radarsat2Constants.getPluginDescription());
+            setFormatName(Risat1Constants.getFormatNames()[0]);
+            setExtensions(Risat1Constants.getFormatFileExtensions());
+            setDescription(Risat1Constants.getPluginDescription());
         }
 
         /**
@@ -173,7 +148,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             if (super.accept(file)) {
                 final String name = file.getName().toUpperCase();
                 if (file.isDirectory() ||
-                        (name.startsWith(Radarsat2Constants.PRODUCT_HEADER_PREFIX) && name.endsWith(Radarsat2Constants.getIndicationKey())) ||
+                        (name.startsWith(Risat1Constants.PRODUCT_HEADER_PREFIX) && name.endsWith(Risat1Constants.getIndicationKey())) ||
                         (name.startsWith("RS2") && name.endsWith(".ZIP"))) {
                     return true;
                 }

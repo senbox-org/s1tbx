@@ -94,7 +94,7 @@ public class TerraSarXProductReader extends SARReader {
         Product product = null;
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            dataDir = new TerraSarXProductDirectory(fileFromInput);
+            dataDir = createProductDirectory(fileFromInput);
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
             product.setFileLocation(fileFromInput);
@@ -117,6 +117,10 @@ public class TerraSarXProductReader extends SARReader {
         }
 
         return product;
+    }
+
+    protected TerraSarXProductDirectory createProductDirectory(final File fileFromInput) {
+        return new TerraSarXProductDirectory(fileFromInput);
     }
 
     private void addQuicklooks(final Product product) {

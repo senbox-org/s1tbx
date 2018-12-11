@@ -38,7 +38,7 @@ public interface CEOSConstants {
 
     String[] getFormatNames();
 
-    String[] getForamtFileExtensions();
+    String[] getFormatFileExtensions();
 
     String getMission();
 }

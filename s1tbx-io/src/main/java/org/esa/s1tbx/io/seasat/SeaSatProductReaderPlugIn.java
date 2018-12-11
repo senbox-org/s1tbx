@@ -100,7 +100,7 @@ public class SeaSatProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return SeaSatConstants.getForamtFileExtensions();
+        return SeaSatConstants.getFormatFileExtensions();
     }
 
     /**
@@ -121,7 +121,7 @@ public class SeaSatProductReaderPlugIn implements ProductReaderPlugIn {
         public FileFilter() {
             super();
             setFormatName(SeaSatConstants.getFormatNames()[0]);
-            setExtensions(SeaSatConstants.getForamtFileExtensions());
+            setExtensions(SeaSatConstants.getFormatFileExtensions());
             setDescription(SeaSatConstants.getPluginDescription());
         }
 

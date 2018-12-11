@@ -102,7 +102,7 @@ public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return constants.getForamtFileExtensions();
+        return constants.getFormatFileExtensions();
     }
 
     /**
