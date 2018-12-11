@@ -103,7 +103,15 @@
                 <attr name="helpId" stringvalue="ImportTerraSarX"/>
                 <attr name="ShortDescription" stringvalue="Open TanDEM-X data product."/>
             </file>
-
+            <file name="org-esa-s1tbx-io-importPazProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="Paz"/>
+                <attr name="formatName" stringvalue="Paz"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="ImportPaz"/>
+                <attr name="ShortDescription" stringvalue="Open Paz data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importGammaProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -190,6 +198,10 @@
                     <file name="org-esa-s1tbx-io-importKompsat5.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importKompsat5.instance"/>
                         <attr name="position" intvalue="650"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importPazProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importPazProduct.instance"/>
+                        <attr name="position" intvalue="675"/>
                     </file>
                     <file name="org-esa-s1tbx-io-importSeaSatProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importSeaSatProduct.instance"/>

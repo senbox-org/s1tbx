@@ -306,7 +306,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
                 generalHeader.getAttributeString("itemName", defStr));
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "TSX");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 ReaderUtils.getTime(generalHeader, "generationTime", standardDateFormat));
 
@@ -1059,7 +1059,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
             final boolean polsUnique = arePolarizationsUnique();
             String extraInfo = "";         // if pols not unique add the extra info
-            final String mission = absRoot.getAttributeString("MISSION");
+            final String mission = getMission();
 
             for (final File file : cosarFileList) {
 
@@ -1318,6 +1318,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final ImageInputStream img = cosarBandMap.get(key);
             img.close();
         }
+    }
+
+    protected String getMission() {
+        if (getHeaderFileName().startsWith("TSX")) {
+            return "TSX";
+        } else if(getHeaderFileName().startsWith("TDX")) {
+            return "TDX";
+        } else if (getHeaderFileName().startsWith("TDM")) {
+            return "TDM";
+        }
+        return "TSX";
     }
 
     @Override
