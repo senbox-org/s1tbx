@@ -1146,8 +1146,8 @@ public final class TerrainFlatteningOp extends Operator {
             return false;
         }
         getPixPos(currentGeoPos.lat, currentGeoPos.lon, dem.getElevation(currentGeoPos), endPixelPos);
-        System.out.println("x = " + x0 +", y = " + y0 + ", lat = " + currentGeoPos.lat + ", lon = " +
-                currentGeoPos.lon + ", iter = " + numIter + ", x' = " + endPixelPos.x + ", y' = " + endPixelPos.y);
+        //System.out.println("x = " + x0 +", y = " + y0 + ", lat = " + currentGeoPos.lat + ", lon = " +
+        //        currentGeoPos.lon + ", iter = " + numIter + ", x' = " + endPixelPos.x + ", y' = " + endPixelPos.y);
 
         pixelPos.x = startPixelPos.x;
         pixelPos.y = startPixelPos.y;
