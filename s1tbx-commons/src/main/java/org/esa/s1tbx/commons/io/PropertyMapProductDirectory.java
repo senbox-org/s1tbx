@@ -26,15 +26,16 @@ public abstract class PropertyMapProductDirectory extends AbstractProductDirecto
 
     protected MetadataElement addMetaData() throws IOException {
         final MetadataElement root = new MetadataElement(Product.METADATA_ROOT_NAME);
-        AbstractMetadataIO.AddXMLMetadata(propertyMapToXML(propertyMap), AbstractMetadata.addOriginalProductMetadata(root));
+        AbstractMetadataIO.AddXMLMetadata(propertyMapToXML("ProductMetadata", propertyMap),
+                AbstractMetadata.addOriginalProductMetadata(root));
 
         addAbstractedMetadataHeader(root);
 
         return root;
     }
 
-    protected static Element propertyMapToXML(final PropertyMap propertyMap) {
-        Element root = new Element("ProductMetadata");
+    protected Element propertyMapToXML(final String elementName, final PropertyMap propertyMap) {
+        Element root = new Element(elementName);
         for (String key : propertyMap.getPropertyKeys()) {
             root.setAttribute(key, propertyMap.getPropertyString(key));
         }
