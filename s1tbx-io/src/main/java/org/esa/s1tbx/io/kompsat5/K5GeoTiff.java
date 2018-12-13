@@ -182,10 +182,28 @@ public class K5GeoTiff implements K5Format {
                 }
             }
         }
-        else if (name.contains("_GEC_") ||name.contains("_GTC_") ){
+        else if (name.contains("_GEC_") ||name.contains("_GTC_") || name.contains("_WEC_") || name.contains("_WTC_")  ){
 
             bands[0].setName("Amplitude_" + polarization);
             reader.createVirtualIntensityBand(product, bands[0],"_" + polarization);
+            final File[] files = inputFile.getParentFile().listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    final String fname = file.getName().toUpperCase();
+                    if (fname.endsWith(".TIF") && !fname.equals(name)) {
+                        Product product2 = geoTiffReader.readProductNodes(file, null);
+                        String polarization2 = getPolarization(fname);
+                        Band b = product2.getBands()[0];
+                        String bname = "Amplitude_" + polarization2;
+
+                        b.setName(bname);
+                        product.addBand(b);
+                        reader.createVirtualIntensityBand(product, b, "_" + polarization2);
+
+                    }
+                }
+
+            }
         }
     }
 
