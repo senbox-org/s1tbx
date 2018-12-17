@@ -11,7 +11,7 @@ public class Risat1Constants {
     private final static String[] FORMAT_NAMES = new String[]{"RISAT-1"};
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"txt", "zip"};
     private final static String PLUGIN_DESCRIPTION = "RISAT-1 Products";
-    public final static String PRODUCT_HEADER_NAME = "band_meta.txt";
+    public final static String PRODUCT_HEADER_NAME = "BAND_META.txt";
     public final static String PRODUCT_HEADER_PREFIX = "PRODUCT";
 
     private final static String INDICATION_KEY = "txt";

@@ -17,6 +17,8 @@ public class TestRisat1ProductReader extends ReaderTest {
     private final static File inputFolder = new File("D:\\EO\\RISAT\\SampleData\\FRS1_LEVEL1_GROUND_RANGE");
     private final static File inputMetaXML = new File("D:\\EO\\RISAT\\SampleData\\FRS1_LEVEL1_GROUND_RANGE\\BAND_META.txt");
 
+    private final static File inputGeoTiffFolder = new File("D:\\EO\\RISAT\\SampleData\\L2A_154074911_FRS1_Geotiff");
+
     public TestRisat1ProductReader() {
         super(new Risat1ProductReaderPlugIn());
     }
@@ -34,5 +36,10 @@ public class TestRisat1ProductReader extends ReaderTest {
     @Test
     public void testOpeningZip() throws Exception {
         testReader(inputZip);
+    }
+
+    @Test
+    public void testGeoTiffFolder() throws Exception {
+        testReader(inputGeoTiffFolder);
     }
 }

@@ -55,12 +55,19 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         return Risat1Constants.PRODUCT_HEADER_NAME;
     }
 
+    @Override
+    protected void findImages(final MetadataElement newRoot) throws IOException {
+        final String parentPath = getRelativePathToImageFolder();
+        findImages(parentPath + "\\scene_HH", newRoot);
+        findImages(parentPath + "\\scene_HV", newRoot);
+    }
+
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
         final String name = getBandFileNameFromImage(imgPath);
         if ((name.endsWith("tif") || name.endsWith("tiff"))) {
             boolean valid = false;
             int dataType = ProductData.TYPE_INT32;
-            if (name.startsWith("image")) {
+            if (name.startsWith("imagery")) {
                 valid = true;
             } else if (name.startsWith("rh") || name.startsWith("rv")) {
                 valid = true;
@@ -215,160 +222,132 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement productElem = origProdRoot.getElement("product");
+        final MetadataElement productElem = origProdRoot.getElement("ProductMetadata");
 
-        // sourceAttributes
-        final MetadataElement sourceAttributes = productElem.getElement("sourceAttributes");
-
-        final MetadataElement radarParameters = sourceAttributes.getElement("radarParameters");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
-                                      radarParameters.getAttributeString("acquisitionType", defStr));
-        final String aquisitionMode = radarParameters.getAttributeString("acquisitionType", defStr);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, aquisitionMode);
+                productElem.getAttributeString("ProductType", defStr));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE,
+                productElem.getAttributeString("ImagingMode", defStr));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,
-                                      radarParameters.getAttributeString("antennaPointing", defStr).toLowerCase());
+                productElem.getAttributeString("SensorOrientation", defStr).toLowerCase());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS,
-                                      radarParameters.getAttributeString("beams", defStr));
+                productElem.getAttributeString("NumberOfBeams", defStr));
 
-        final MetadataElement radarCenterFrequency = radarParameters.getElement("radarCenterFrequency");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                                      radarCenterFrequency.getAttributeDouble("radarCenterFrequency", defInt) / Constants.oneMillion);
+//        final MetadataElement radarCenterFrequency = productElem.getElement("radarCenterFrequency");
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
+//                                      radarCenterFrequency.getAttributeDouble("radarCenterFrequency", defInt) / Constants.oneMillion);
 
-        final MetadataElement orbitAndAttitude = sourceAttributes.getElement("orbitAndAttitude");
-        final MetadataElement orbitInformation = orbitAndAttitude.getElement("orbitInformation");
-        final String pass = orbitInformation.getAttributeString("passDirection", defStr).toUpperCase();
+        final String pass = productElem.getAttributeString("Node", defStr).toUpperCase();
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, pass);
-        final String orbitFile = orbitInformation.getAttributeString("orbitDataFile", defStr);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.orbit_state_vector_file, orbitFile);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT,
-                                      Integer.parseInt(orbitFile.substring(0, orbitFile.indexOf('_')).trim()));
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, productElem.getAttributeDouble("Node", defInt));
 
-        // imageGenerationParameters
-        final MetadataElement imageGenerationParameters = productElem.getElement("imageGenerationParameters");
-        final MetadataElement generalProcessingInformation = imageGenerationParameters.getElement("generalProcessingInformation");
-        final MetadataElement sarProcessingInformation = imageGenerationParameters.getElement("sarProcessingInformation");
+//        productType = generalProcessingInformation.getAttributeString("productType", defStr);
+//        if (productType.contains("SLC"))
+//            setSLC(true);
 
-        productType = generalProcessingInformation.getAttributeString("productType", defStr);
-        if (productType.contains("SLC"))
-            setSLC(true);
+//        final String productId = productElem.getAttributeString("productId", defStr);
+//        final String beamMode = productElem.getAttributeString("beamModeMnemonic", defStr);
+//        String passStr = "DES";
+//        if (pass.equals("ASCENDING")) {
+//            passStr = "ASC";
+//        }
+//
+//        ProductData.UTC startTime = null;
+//        ProductData.UTC stopTime = null;
+//        if (flipToSARGeometry && pass.equals("ASCENDING")) {
+//            stopTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeFirstLine", standardDateFormat);
+//            startTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeLastLine", standardDateFormat);
+//        } else {
+//            startTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeFirstLine", standardDateFormat);
+//            stopTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeLastLine", standardDateFormat);
+//        }
+//
+//        final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy_HH.mm");
+//        final Date date = startTime.getAsDate();
+//        final String dateString = dateFormat.format(date);
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
+//
+//        productName = getMission() + '-' + productType + '-' + beamMode + '-' + passStr + '-' + dateString + '-' + productId;
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
+//                productElem.getAttributeString("processingFacility", defStr) + '-' +
+//                        productElem.getAttributeString("softwareVersion", defStr));
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
+//                                      ReaderUtils.getTime(productElem, "processingTime", standardDateFormat));
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
+//                                      getFlag(productElem, "elevationPatternCorrection"));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
+//                                      getFlag(productElem, "rangeSpreadingLossCorrection"));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isSLC() ? 0 : 1);
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+//                productElem.getAttributeInt("numberOfRangeLooks", defInt));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+//                productElem.getAttributeInt("numberOfAzimuthLooks", defInt));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+//                productElem.getElement("slantRangeNearEdge").getAttributeDouble("slantRangeNearEdge"));
+//
+//        // add Range and Azimuth bandwidth
+//        final MetadataElement totalProcessedRangeBandwidth = productElem.getElement("totalProcessedRangeBandwidth");
+//        final MetadataElement totalProcessedAzimuthBandwidth = productElem.getElement("totalProcessedAzimuthBandwidth");
+//        final double rangeBW = totalProcessedRangeBandwidth.getAttributeDouble("totalProcessedRangeBandwidth"); // Hz
+//        final double azimuthBW = totalProcessedAzimuthBandwidth.getAttributeDouble("totalProcessedAzimuthBandwidth"); // Hz
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth, rangeBW / Constants.oneMillion);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth, azimuthBW);
+//
+//        verifyProductFormat(productElem);
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getDataType(productElem));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
+//                productElem.getAttributeInt("numberOfLines", defInt));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
+//                productElem.getAttributeInt("numberOfSamplesPerLine", defInt));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+//                                      ReaderUtils.getLineTimeInterval(startTime, stopTime,
+//                                                                      absRoot.getAttributeInt(AbstractMetadata.num_output_lines)));
+//
+//        final MetadataElement sampledPixelSpacing = productElem.getElement("sampledPixelSpacing");
+//        final double rangeSpacing = sampledPixelSpacing.getAttributeDouble("sampledPixelSpacing", defInt);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, rangeSpacing);
+//        final MetadataElement sampledLineSpacing = productElem.getElement("sampledLineSpacing");
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
+//                                      sampledLineSpacing.getAttributeDouble("sampledLineSpacing", defInt));
+//
+//        final MetadataElement pulseRepetitionFrequency = productElem.getElement("pulseRepetitionFrequency");
+//        double prf = pulseRepetitionFrequency.getAttributeDouble("pulseRepetitionFrequency", defInt);
+//        final MetadataElement adcSamplingRate = productElem.getElement("adcSamplingRate");
+//        double rangeSamplingRate = adcSamplingRate.getAttributeDouble("adcSamplingRate", defInt) / Constants.oneMillion;
+//
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, prf);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRate);
+//        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
 
-        final String productId = productElem.getAttributeString("productId", defStr);
-        final String beamMode = sourceAttributes.getAttributeString("beamModeMnemonic", defStr);
-        String passStr = "DES";
-        if (pass.equals("ASCENDING")) {
-            passStr = "ASC";
-        }
-
-        ProductData.UTC startTime = null;
-        ProductData.UTC stopTime = null;
-        if (flipToSARGeometry && pass.equals("ASCENDING")) {
-            stopTime = ReaderUtils.getTime(sarProcessingInformation,
-                                           "zeroDopplerTimeFirstLine", standardDateFormat);
-            startTime = ReaderUtils.getTime(sarProcessingInformation,
-                                            "zeroDopplerTimeLastLine", standardDateFormat);
-        } else {
-            startTime = ReaderUtils.getTime(sarProcessingInformation,
-                                            "zeroDopplerTimeFirstLine", standardDateFormat);
-            stopTime = ReaderUtils.getTime(sarProcessingInformation,
-                                           "zeroDopplerTimeLastLine", standardDateFormat);
-        }
-
-        final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy_HH.mm");
-        final Date date = startTime.getAsDate();
-        final String dateString = dateFormat.format(date);
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-
-        productName = getMission() + '-' + productType + '-' + beamMode + '-' + passStr + '-' + dateString + '-' + productId;
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                                      generalProcessingInformation.getAttributeString("processingFacility", defStr) + '-' +
-                                              generalProcessingInformation.getAttributeString("softwareVersion", defStr)
-        );
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                                      ReaderUtils.getTime(generalProcessingInformation, "processingTime", standardDateFormat));
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
-                                      getFlag(sarProcessingInformation, "elevationPatternCorrection"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
-                                      getFlag(sarProcessingInformation, "rangeSpreadingLossCorrection"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isSLC() ? 0 : 1);
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                                      sarProcessingInformation.getAttributeInt("numberOfRangeLooks", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                                      sarProcessingInformation.getAttributeInt("numberOfAzimuthLooks", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                                      sarProcessingInformation.getElement("slantRangeNearEdge").getAttributeDouble("slantRangeNearEdge"));
-
-        // add Range and Azimuth bandwidth
-        final MetadataElement totalProcessedRangeBandwidth = sarProcessingInformation.getElement("totalProcessedRangeBandwidth");
-        final MetadataElement totalProcessedAzimuthBandwidth = sarProcessingInformation.getElement("totalProcessedAzimuthBandwidth");
-        final double rangeBW = totalProcessedRangeBandwidth.getAttributeDouble("totalProcessedRangeBandwidth"); // Hz
-        final double azimuthBW = totalProcessedAzimuthBandwidth.getAttributeDouble("totalProcessedAzimuthBandwidth"); // Hz
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth, rangeBW / Constants.oneMillion);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth, azimuthBW);
-
-        // imageAttributes
-        final MetadataElement imageAttributes = productElem.getElement("imageAttributes");
-        final MetadataElement rasterAttributes = imageAttributes.getElement("rasterAttributes");
-
-        verifyProductFormat(imageAttributes);
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getDataType(rasterAttributes));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                                      rasterAttributes.getAttributeInt("numberOfLines", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                                      rasterAttributes.getAttributeInt("numberOfSamplesPerLine", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                                      ReaderUtils.getLineTimeInterval(startTime, stopTime,
-                                                                      absRoot.getAttributeInt(AbstractMetadata.num_output_lines)));
-
-        final MetadataElement sampledPixelSpacing = rasterAttributes.getElement("sampledPixelSpacing");
-        final double rangeSpacing = sampledPixelSpacing.getAttributeDouble("sampledPixelSpacing", defInt);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, rangeSpacing);
-        final MetadataElement sampledLineSpacing = rasterAttributes.getElement("sampledLineSpacing");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                                      sampledLineSpacing.getAttributeDouble("sampledLineSpacing", defInt));
-
-        final MetadataElement pulseRepetitionFrequency = radarParameters.getElement("pulseRepetitionFrequency");
-        double prf = pulseRepetitionFrequency.getAttributeDouble("pulseRepetitionFrequency", defInt);
-        final MetadataElement adcSamplingRate = radarParameters.getElement("adcSamplingRate");
-        double rangeSamplingRate = adcSamplingRate.getAttributeDouble("adcSamplingRate", defInt) / Constants.oneMillion;
-
-        if (aquisitionMode.equalsIgnoreCase("UltraFine")) {
-            prf *= 2.0;
-            rangeSamplingRate *= 2.0;
-        }
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, prf);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRate);
-        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
-
-        final MetadataElement geographicInformation = imageAttributes.getElement("geographicInformation");
-        if (geographicInformation != null) {
-            final MetadataElement referenceEllipsoidParameters = geographicInformation.getElement("referenceEllipsoidParameters");
-            if (referenceEllipsoidParameters != null) {
-                final MetadataElement geodeticTerrainHeight = referenceEllipsoidParameters.getElement("geodeticTerrainHeight");
-                if (geodeticTerrainHeight != null) {
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
-                                                  geodeticTerrainHeight.getAttributeDouble("geodeticTerrainHeight", defInt));
-                }
-            }
-        }
+//        if (geographicInformation != null) {
+//            final MetadataElement referenceEllipsoidParameters = geographicInformation.getElement("referenceEllipsoidParameters");
+//            if (referenceEllipsoidParameters != null) {
+//                final MetadataElement geodeticTerrainHeight = referenceEllipsoidParameters.getElement("geodeticTerrainHeight");
+//                if (geodeticTerrainHeight != null) {
+//                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
+//                                                  geodeticTerrainHeight.getAttributeDouble("geodeticTerrainHeight", defInt));
+//                }
+//            }
+//        }
 
         // polarizations
-        getPolarizations(absRoot, imageAttributes);
-
-        addOrbitStateVectors(absRoot, orbitInformation);
-        addSRGRCoefficients(absRoot, imageGenerationParameters);
-        addDopplerCentroidCoefficients(absRoot, imageGenerationParameters);
+//        getPolarizations(absRoot, productElem);
+//
+//        addOrbitStateVectors(absRoot, productElem);
+//        addSRGRCoefficients(absRoot, productElem);
+//        addDopplerCentroidCoefficients(absRoot, productElem);
     }
 
     protected void verifyProductFormat(final MetadataElement imageAttributes) throws IOException {

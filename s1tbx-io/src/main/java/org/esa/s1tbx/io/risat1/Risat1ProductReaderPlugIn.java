@@ -31,8 +31,7 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.INTENDED;
             }
             final String filename = file.getName().toLowerCase();
-            if (filename.endsWith(".zip") && filename.startsWith("rs2") &&
-                    ZipUtils.findInZip(file, "", Risat1Constants.PRODUCT_HEADER_NAME)) {
+            if (filename.endsWith(".zip") && ZipUtils.findInZip(file, "", Risat1Constants.PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -46,8 +45,7 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
             final File[] fileList = folder.listFiles();
             if (fileList != null) {
                 for (File f : fileList) {
-                    final String fileName = f.getName().toLowerCase();
-                    if (fileName.equals(Risat1Constants.PRODUCT_HEADER_NAME)) {
+                    if (f.getName().equals(Risat1Constants.PRODUCT_HEADER_NAME)) {
                         return f;
                     }
                     if (f.isDirectory()) {
@@ -59,8 +57,7 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
             }
         } else {
-            final String fileName = folder.getName().toLowerCase();
-            if (fileName.equals(Risat1Constants.PRODUCT_HEADER_NAME)){
+            if (folder.getName().equals(Risat1Constants.PRODUCT_HEADER_NAME)){
                 return folder;
             }
         }
