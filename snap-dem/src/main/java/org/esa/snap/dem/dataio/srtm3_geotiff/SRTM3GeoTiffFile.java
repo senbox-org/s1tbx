@@ -32,8 +32,7 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
     private final SRTM3GeoTiffElevationModel demModel;
 
     private static final String remoteHTTP1 = "http://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/";
-    private static final String remoteHTTP2 = "http://srtm.geog.kcl.ac.uk/portal/srtm41/srtm_data_geotiff/";
-    private static final String remoteHTTP3 = "http://gis-lab.info/data/srtm-tif/";
+    private static final String remoteHTTP2 = "http://cgiar-csi-srtm.openterrain.org.s3.amazonaws.com/source/";
 
     private static final String remoteFTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP", "xftp.jrc.it");
     private static final String remotePath = Settings.getPath("DEM.srtm3GeoTiffDEM_remotePath");
@@ -57,9 +56,6 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
                 found = getRemoteHttpFile(remoteHTTP1);
                 if(!found) {
                     found = getRemoteHttpFile(remoteHTTP2);
-                    if(!found) {
-                        found = getRemoteHttpFile(remoteHTTP3);
-                    }
                 }
             }
             return found;
@@ -67,11 +63,7 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
             try {
                 return getRemoteHttpFile(remoteHTTP1);
             } catch (Exception e2) {
-                try {
-                    return getRemoteHttpFile(remoteHTTP2);
-                } catch (Exception e3) {
-                    return getRemoteHttpFile(remoteHTTP3);
-                }
+                return getRemoteHttpFile(remoteHTTP2);
             }
         }
     }
