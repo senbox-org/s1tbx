@@ -31,7 +31,7 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
 
     private final SRTM3GeoTiffElevationModel demModel;
 
-    private static final String remoteHTTP1 = "http://srtm.csi.cgiar.org/SRT-ZIP/SRTM_V41/SRTM_Data_GeoTiff/";
+    private static final String remoteHTTP1 = "http://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/";
     private static final String remoteHTTP2 = "http://srtm.geog.kcl.ac.uk/portal/srtm41/srtm_data_geotiff/";
     private static final String remoteHTTP3 = "http://gis-lab.info/data/srtm-tif/";
 
@@ -52,7 +52,17 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
 
     protected Boolean getRemoteFile() throws IOException {
         try {
-            return getRemoteHttpFile(remoteHTTP);
+            boolean found = getRemoteHttpFile(remoteHTTP);
+            if(!found) {
+                found = getRemoteHttpFile(remoteHTTP1);
+                if(!found) {
+                    found = getRemoteHttpFile(remoteHTTP2);
+                    if(!found) {
+                        found = getRemoteHttpFile(remoteHTTP3);
+                    }
+                }
+            }
+            return found;
         } catch (Exception e) {
             try {
                 return getRemoteHttpFile(remoteHTTP1);
