@@ -86,7 +86,10 @@ public class Risat1ProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
+            File fileFromInput = ReaderUtils.getFileFromInput(getInput());
+            if(fileFromInput.isDirectory()) {
+                fileFromInput = new File(fileFromInput, Risat1Constants.PRODUCT_HEADER_NAME);
+            }
             dataDir = createDirectory(fileFromInput);
             dataDir.readProductDirectory();
             final Product product = dataDir.createProduct();
