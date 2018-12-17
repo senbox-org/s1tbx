@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>s1tbx-kit</artifactId>
-    <packaging>nbm</packaging>
 
     <name>Sentinel-1 Toolbox Kit Module</name>
     <description>
@@ -19,20 +18,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>nbm</goal>
-                            <goal>cluster</goal>
-                            <goal>autoupdate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

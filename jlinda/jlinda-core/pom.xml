@@ -11,7 +11,6 @@
     <name>jLinda Core Libs</name>
     <artifactId>jlinda-core</artifactId>
 
-    <packaging>nbm</packaging>
     
     <dependencies>
         <dependency>
@@ -63,19 +62,6 @@
     
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>org.jlinda.*</publicPackage>
-                        <publicPackage>org.jblas.*</publicPackage>
-                        <publicPackage>gnu.trove.*</publicPackage>
-                        <publicPackage>edu.emory.mathcs.jtransforms.*</publicPackage>
-                        <publicPackage>org.apache.commons.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

@@ -12,7 +12,6 @@
     <artifactId>s1tbx-io</artifactId>
     <name>S1TBX IO</name>
 	
-    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
@@ -73,18 +72,6 @@
     
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>org.esa.s1tbx.*</publicPackage>
-                        <publicPackage>org.joda.*</publicPackage>
-                        <publicPackage>org.slf4j.*</publicPackage>
-						<publicPackage>com.google.common.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

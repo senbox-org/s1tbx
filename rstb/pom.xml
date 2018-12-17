@@ -112,31 +112,6 @@
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <dependencies>
-                    <dependency>
-                        <groupId>javax.help</groupId>
-                        <artifactId>javahelp</artifactId>
-                        <version>${javahelp.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <moduleType>normal</moduleType>
-                    <licenseName>GPL 3</licenseName>
-                    <licenseFile>${project.basedir}/../../LICENSE.html</licenseFile>
-                    <cluster>${brandingToken}</cluster>
-                    <brandingToken>${brandingToken}</brandingToken>
-                    <useOSGiDependencies>false</useOSGiDependencies>
-                    <requiresRestart>true</requiresRestart>
-                    <keystore>${project.basedir}/../../keystore/s1tbx.ks</keystore>
-                    <keystorealias>snap</keystorealias>
-                    <keystorepassword>snap-123</keystorepassword>
-                    <sourceManifestFile>target/nbm/manifest.mf</sourceManifestFile>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>

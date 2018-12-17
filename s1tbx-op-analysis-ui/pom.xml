@@ -14,7 +14,6 @@
     <name>S1TBX Analysis Tools UI</name>
     <artifactId>s1tbx-op-analysis-ui</artifactId>
 
-    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
@@ -82,15 +81,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>org.esa.s1tbx.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

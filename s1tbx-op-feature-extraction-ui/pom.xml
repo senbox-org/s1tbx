@@ -27,7 +27,6 @@
     <artifactId>s1tbx-op-feature-extraction-ui</artifactId>
     <name>S1TBX Feature Extraction Tools UI</name>
 
-    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
@@ -88,15 +87,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>org.esa.s1tbx.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

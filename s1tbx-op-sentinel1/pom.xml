@@ -27,7 +27,6 @@
     <artifactId>s1tbx-op-sentinel1</artifactId>
     <name>S1TBX Sentinel-1 Tools</name>
 
-    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
@@ -81,15 +80,6 @@
     
     <build>
         <plugins>           
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>org.esa.s1tbx.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
