@@ -27,6 +27,7 @@
     <name>S1TBX Utility Operators</name>
     <description>Provides various operators for general processing of EO data</description>
 
+    <packaging>nbm</packaging>
     
     <dependencies>
         <dependency>
@@ -61,6 +62,15 @@
 
     <build>
         <plugins>           
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.esa.s1tbx.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

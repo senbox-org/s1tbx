@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>rstb-kit</artifactId>
+    <packaging>nbm</packaging>
 
     <name>Radarsat Polarimetric Toolkit Module</name>
     <description>
@@ -17,6 +18,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

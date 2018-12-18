@@ -29,6 +29,7 @@
     <name>RSTB Polarimetric SAR Tools UI</name>
     <artifactId>rstb-op-polarimetric-tools-ui</artifactId>
 
+    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
@@ -108,6 +109,15 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.csa.rstb.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
