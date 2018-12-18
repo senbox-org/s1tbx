@@ -15,12 +15,12 @@
  */
 package org.esa.snap.dem.dataio;
 
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.download.DownloadableContentImpl;
 import org.esa.snap.engine_utilities.util.Maths;
+import org.esa.snap.engine_utilities.util.Settings;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
@@ -70,6 +70,8 @@ public final class EarthGravitationalModel96 {
     private final float[][] egm = new float[NUM_LATS][NUM_LONS];
     private static EarthGravitationalModel96 theInstance = null;
 
+    private static final String remoteHTTP = Settings.instance().get("DEM.egm96_HTTP", "http://step.esa.int/auxdata/dem/egm96/");
+
     public static EarthGravitationalModel96 instance() throws IOException {
         if (theInstance == null) {
             theInstance = new EarthGravitationalModel96();
@@ -79,66 +81,65 @@ public final class EarthGravitationalModel96 {
 
     private EarthGravitationalModel96() throws IOException {
 
-        final URL egmDataPath = getClass().getClassLoader().getResource("org/esa/snap/auxdata/egm96/" + NAME);
-        if(egmDataPath == null) {
-            throw new IOException("Unable to load EGM96 " + NAME);
+        final File demInstallDir = new File(SystemUtils.getAuxDataPath().resolve("dem").toFile(), "egm96");
+        if(!demInstallDir.exists()) {
+            demInstallDir.mkdirs();
         }
+        File localZipFile = new File(demInstallDir, ZIPNAME);
 
-        InputStream inputStream = null;
-        try {
-            if(NAME.endsWith(".zip")) {
-                try (final ZipFile zipFile = new ZipFile(egmDataPath.getFile())) {
-                    final ZipEntry entry = zipFile.getEntry(NAME);
-                    inputStream = zipFile.getInputStream(entry);
-                }
-            } else {
-                inputStream = egmDataPath.openStream();
+        if(!localZipFile.exists()) {
+                final URL remoteURL = new URL(remoteHTTP);
+                localZipFile = DownloadableContentImpl.getRemoteHttpFile(remoteURL, localZipFile);
+            if(localZipFile == null) {
+                throw new IOException("Unable to download " + remoteURL + " to " + localZipFile);
             }
-        } catch (Exception e) {
-            throw new IOException("EarthGravitationalModel96 file not found: " + egmDataPath, e);
         }
 
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+        try (final ZipFile zipFile = new ZipFile(localZipFile)) {
+            final ZipEntry entry = zipFile.getEntry(NAME);
+            try (final InputStream inputStream = zipFile.getInputStream(entry)) {
 
-            // read data from file and save them in 2-D array
-            String line = "";
-            StringTokenizer st;
-            int rowIdx = 0;
-            int colIdx = 0;
+                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
-            final int numLatLinesToSkip = 0;
-            final int numCharInHeader = NUM_CHAR_PER_NORMAL_LINE + NUM_CHAR_PER_EMPTY_LINE;
-            final int numCharInEachLatLine = NUM_OF_BLOCKS_PER_LAT * BLOCK_HEIGHT * NUM_CHAR_PER_NORMAL_LINE +
-                    (NUM_OF_BLOCKS_PER_LAT + 1) * NUM_CHAR_PER_EMPTY_LINE +
-                    NUM_CHAR_PER_SHORT_LINE;
+                    // read data from file and save them in 2-D array
+                    String line = "";
+                    StringTokenizer st;
+                    int rowIdx = 0;
+                    int colIdx = 0;
 
-            final int totalCharToSkip = numCharInHeader + numCharInEachLatLine * numLatLinesToSkip;
-            reader.skip(totalCharToSkip);
+                    final int numLatLinesToSkip = 0;
+                    final int numCharInHeader = NUM_CHAR_PER_NORMAL_LINE + NUM_CHAR_PER_EMPTY_LINE;
+                    final int numCharInEachLatLine = NUM_OF_BLOCKS_PER_LAT * BLOCK_HEIGHT * NUM_CHAR_PER_NORMAL_LINE +
+                            (NUM_OF_BLOCKS_PER_LAT + 1) * NUM_CHAR_PER_EMPTY_LINE +
+                            NUM_CHAR_PER_SHORT_LINE;
 
-            // get the lat lines from 90 deg to -90 deg 45 min
-            final int numLinesInEachLatLine = NUM_OF_BLOCKS_PER_LAT * (BLOCK_HEIGHT + 1) + 2;
-            final int numLinesToRead = NUM_LATS * numLinesInEachLatLine;
-            int linesRead = 0;
-            for (int i = 0; i < numLinesToRead - 1; i++) { // -1 because the last line read from file is null
+                    final int totalCharToSkip = numCharInHeader + numCharInEachLatLine * numLatLinesToSkip;
+                    reader.skip(totalCharToSkip);
 
-                line = reader.readLine();
-                linesRead++;
-                if (!line.equals("")) {
-                    st = new StringTokenizer(line);
-                    final int numCols = st.countTokens();
-                    for (int j = 0; j < numCols; j++) {
-                        egm[rowIdx][colIdx] = Float.parseFloat(st.nextToken());
-                        colIdx++;
+                    // get the lat lines from 90 deg to -90 deg 45 min
+                    final int numLinesInEachLatLine = NUM_OF_BLOCKS_PER_LAT * (BLOCK_HEIGHT + 1) + 2;
+                    final int numLinesToRead = NUM_LATS * numLinesInEachLatLine;
+                    int linesRead = 0;
+                    for (int i = 0; i < numLinesToRead - 1; i++) { // -1 because the last line read from file is null
+
+                        line = reader.readLine();
+                        linesRead++;
+                        if (!line.equals("")) {
+                            st = new StringTokenizer(line);
+                            final int numCols = st.countTokens();
+                            for (int j = 0; j < numCols; j++) {
+                                egm[rowIdx][colIdx] = Float.parseFloat(st.nextToken());
+                                colIdx++;
+                            }
+                        }
+
+                        if (linesRead % numLinesInEachLatLine == 0) {
+                            rowIdx++;
+                            colIdx = 0;
+                        }
                     }
                 }
-
-                if (linesRead % numLinesInEachLatLine == 0) {
-                    rowIdx++;
-                    colIdx = 0;
-                }
             }
-        } finally {
-            inputStream.close();
         }
     }
 
