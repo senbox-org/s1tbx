@@ -31,7 +31,7 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.INTENDED;
             }
             final String filename = file.getName().toLowerCase();
-            if (filename.endsWith(".zip") && ZipUtils.findInZip(file, "", Risat1Constants.PRODUCT_HEADER_NAME)) {
+            if (filename.endsWith(".zip") && ZipUtils.findInZip(file, "", Risat1Constants.BAND_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -43,10 +43,11 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
     public static File findMetadataFile(final File folder) {
         if (folder.isDirectory()) {
             final File[] fileList = folder.listFiles();
+            File bandMetaFile = null;
             if (fileList != null) {
                 for (File f : fileList) {
-                    if (f.getName().equals(Risat1Constants.PRODUCT_HEADER_NAME)) {
-                        return f;
+                    if (f.getName().equals(Risat1Constants.BAND_HEADER_NAME)) {
+                        bandMetaFile = f;
                     }
                     if (f.isDirectory()) {
                         final File foundFile = findMetadataFile(f);
@@ -56,12 +57,10 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
                     }
                 }
             }
+            return bandMetaFile;
         } else {
-            if (folder.getName().equals(Risat1Constants.PRODUCT_HEADER_NAME)){
-                return folder;
-            }
+            return findMetadataFile(folder.getParentFile());
         }
-        return null;
     }
 
     /**

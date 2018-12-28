@@ -88,7 +88,7 @@ public class Risat1ProductReader extends SARReader {
         try {
             File fileFromInput = ReaderUtils.getFileFromInput(getInput());
             if(fileFromInput.isDirectory()) {
-                fileFromInput = new File(fileFromInput, Risat1Constants.PRODUCT_HEADER_NAME);
+                fileFromInput = new File(fileFromInput, Risat1Constants.BAND_HEADER_NAME);
             }
             dataDir = createDirectory(fileFromInput);
             dataDir.readProductDirectory();
