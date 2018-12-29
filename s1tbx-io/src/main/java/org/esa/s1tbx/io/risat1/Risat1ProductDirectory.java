@@ -2,7 +2,6 @@
 package org.esa.s1tbx.io.risat1;
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.PropertyMapProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
@@ -38,63 +37,56 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
     private final String productDescription = "";
     private boolean compactPolMode = false;
 
-    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy HH:mm:ss");
 
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
-                                                                                ".flip.to.sar.geometry", "false").equals("true");
+            ".flip.to.sar.geometry", "false").equals("true");
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
-    private Product bandProduct = null;
-    private final transient Map<String, String> polarizationMap = new HashMap<>(4);
+    private List<Product> bandProductList = new ArrayList<>();
 
     public Risat1ProductDirectory(final File headerFile) {
         super(headerFile);
     }
 
     protected String getHeaderFileName() {
-        return Risat1Constants.PRODUCT_HEADER_NAME;
+        return Risat1Constants.BAND_HEADER_NAME;
     }
 
     @Override
     protected void findImages(final MetadataElement newRoot) throws IOException {
         final String parentPath = getRelativePathToImageFolder();
-        findImages(parentPath + "\\scene_HH", newRoot);
-        findImages(parentPath + "\\scene_HV", newRoot);
+        findImages(parentPath + "\\scene_HH\\", newRoot);
+        findImages(parentPath + "\\scene_HV\\", newRoot);
+        findImages(parentPath + "\\scene_VV\\", newRoot);
+        findImages(parentPath + "\\scene_VH\\", newRoot);
+        findImages(parentPath + "\\scene_RH\\", newRoot);
+        findImages(parentPath + "\\scene_RV\\", newRoot);
     }
 
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
         final String name = getBandFileNameFromImage(imgPath);
-        if ((name.endsWith("tif") || name.endsWith("tiff"))) {
-            boolean valid = false;
-            int dataType = ProductData.TYPE_INT32;
-            if (name.startsWith("imagery")) {
-                valid = true;
-            } else if (name.startsWith("rh") || name.startsWith("rv")) {
-                valid = true;
-                dataType = ProductData.TYPE_FLOAT32;
-            }
-            if (valid) {
-                final Dimension bandDimensions = getBandDimensions(newRoot, name);
-                final InputStream inStream = getInputStream(imgPath);
-                if(inStream.available() > 0) {
-                    final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
-                    if (imgStream == null)
-                        throw new IOException("Unable to open " + imgPath);
+        if (((name.endsWith("tif") || name.endsWith("tiff"))) && name.contains("imagery")) {
+            final InputStream inStream = getInputStream(imgPath);
+            if (inStream.available() > 0) {
+                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, getBandDimensions(newRoot, name));
+                if (imgStream == null)
+                    throw new IOException("Unable to open " + imgPath);
 
-                    if (bandProduct == null && !isCompressed()) {
-                        final ProductReader geoTiffReader = geoTiffPlugIn.createReaderInstance();
-                        bandProduct = geoTiffReader.readProductNodes(new File(getBaseDir(), imgPath), null);
-                    }
-
-                    final ImageIOFile img;
-                    if (isSLC()) {
-                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
-                                1, 2, dataType, productInputFile);
-                    } else {
-                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
-                    }
-                    bandImageFileMap.put(img.getName(), img);
+                if (!isCompressed()) {
+                    final ProductReader geoTiffReader = geoTiffPlugIn.createReaderInstance();
+                    Product bProduct = geoTiffReader.readProductNodes(new File(getBaseDir(), imgPath), null);
+                    bandProductList.add(bProduct);
                 }
+
+                final ImageIOFile img;
+                if (isSLC()) {
+                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                            1, 2, ProductData.TYPE_INT32, productInputFile);
+                } else {
+                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                }
+                bandImageFileMap.put(img.getName(), img);
             }
         }
     }
@@ -115,18 +107,24 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         return reader;
     }
 
-    private String getPol(final String imgName) {
-        String pol = polarizationMap.get(imgName);
-        if (pol == null) {
-            if (imgName.contains("rh")) {
-                compactPolMode = true;
-                return "RH";
-            } else if (imgName.contains("rv")) {
-                compactPolMode = true;
-                return "RV";
-            }
+    private String getPol(String imgName) {
+        imgName = imgName.toUpperCase();
+        if (imgName.contains("RH")) {
+            compactPolMode = true;
+            return "RH";
+        } else if (imgName.contains("RV")) {
+            compactPolMode = true;
+            return "RV";
+        } else if (imgName.contains("HH")) {
+            return "HH";
+        } else if (imgName.contains("HV")) {
+            return "HV";
+        } else if (imgName.contains("VV")) {
+            return "VV";
+        } else if (imgName.contains("VH")) {
+            return "VH";
         }
-        return pol;
+        return null;
     }
 
     @Override
@@ -140,7 +138,8 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         String unit;
 
         final int width, height;
-        if(bandProduct != null) {
+        if (!bandProductList.isEmpty()) {
+            final Product bandProduct = bandProductList.get(0);
             width = bandProduct.getSceneRasterWidth();
             height = bandProduct.getSceneRasterHeight();
 
@@ -154,8 +153,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 }
                 product.setPreferredTileSize(tileSize);
             }
-            bandProduct.dispose();
-            bandProduct = null;
         } else {
             width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
             height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
@@ -169,12 +166,12 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 
                 if (isSLC()) {
                     for (int b = 0; b < img.getNumBands(); ++b) {
-                        final String imgName = img.getName().toLowerCase();
+                        final String pol = getPol(img.getName());
                         if (real) {
-                            bandName = "i_" + getPol(imgName);
+                            bandName = "i_" + pol;
                             unit = Unit.REAL;
                         } else {
-                            bandName = "q_" + getPol(imgName);
+                            bandName = "q_" + pol;
                             unit = Unit.IMAGINARY;
                         }
 
@@ -187,21 +184,23 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                         if (real) {
                             lastRealBand = band;
                         } else {
-                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_' + getPol(imgName));
+                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_' + pol);
                         }
                         real = !real;
                     }
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
-                        final String imgName = img.getName().toLowerCase();
-                        bandName = "Amplitude_" + getPol(imgName);
+                        final String pol = getPol(img.getName());
+                        bandName = "Amplitude_" + pol;
                         final Band band = new Band(bandName, ProductData.TYPE_UINT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
+                        band.setNoDataValue(0);
+                        band.setNoDataValueUsed(true);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
-                        SARReader.createVirtualIntensityBand(product, band, '_' + getPol(imgName));
+                        SARReader.createVirtualIntensityBand(product, band, '_' + pol);
                     }
                 }
             }
@@ -240,58 +239,60 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         final String pass = productElem.getAttributeString("Node", defStr).toUpperCase();
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, pass);
 
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, productElem.getAttributeDouble("Node", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, productElem.getAttributeDouble("ImagingOrbitNo", defInt));
 
-//        productType = generalProcessingInformation.getAttributeString("productType", defStr);
-//        if (productType.contains("SLC"))
-//            setSLC(true);
+        productType = productElem.getAttributeString("ProductType", defStr);
+        if (productType.contains("SLC")) {
+            setSLC(true);
+        }
 
-//        final String productId = productElem.getAttributeString("productId", defStr);
-//        final String beamMode = productElem.getAttributeString("beamModeMnemonic", defStr);
-//        String passStr = "DES";
-//        if (pass.equals("ASCENDING")) {
-//            passStr = "ASC";
-//        }
-//
-//        ProductData.UTC startTime = null;
-//        ProductData.UTC stopTime = null;
-//        if (flipToSARGeometry && pass.equals("ASCENDING")) {
-//            stopTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeFirstLine", standardDateFormat);
-//            startTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeLastLine", standardDateFormat);
-//        } else {
-//            startTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeFirstLine", standardDateFormat);
-//            stopTime = ReaderUtils.getTime(productElem, "zeroDopplerTimeLastLine", standardDateFormat);
-//        }
-//
-//        final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy_HH.mm");
-//        final Date date = startTime.getAsDate();
-//        final String dateString = dateFormat.format(date);
-//
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-//
-//        productName = getMission() + '-' + productType + '-' + beamMode + '-' + passStr + '-' + dateString + '-' + productId;
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-//                productElem.getAttributeString("processingFacility", defStr) + '-' +
-//                        productElem.getAttributeString("softwareVersion", defStr));
-//
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-//                                      ReaderUtils.getTime(productElem, "processingTime", standardDateFormat));
-//
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
-//                                      getFlag(productElem, "elevationPatternCorrection"));
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
-//                                      getFlag(productElem, "rangeSpreadingLossCorrection"));
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isSLC() ? 0 : 1);
-//
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-//
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-//                productElem.getAttributeInt("numberOfRangeLooks", defInt));
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-//                productElem.getAttributeInt("numberOfAzimuthLooks", defInt));
+        final String productId = productElem.getAttributeString("productId", defStr);
+        final String beamMode = productElem.getAttributeString("beamModeMnemonic", defStr);
+        final String passStr;
+        if (pass.equals("ASCENDING")) {
+            passStr = "ASC";
+        } else {
+            passStr = "DSC";
+        }
+
+        ProductData.UTC startTime, stopTime;
+        if (flipToSARGeometry && pass.equals("ASCENDING")) {
+            stopTime = getTime(productElem, "SceneStartTime", standardDateFormat);
+            startTime = getTime(productElem, "SceneEndTime", standardDateFormat);
+        } else {
+            startTime = getTime(productElem, "SceneStartTime", standardDateFormat);
+            stopTime = getTime(productElem, "SceneEndTime", standardDateFormat);
+        }
+
+        final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy_HH.mm");
+        final Date date = startTime.getAsDate();
+        final String dateString = dateFormat.format(date);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
+
+        productName = getMission() + '-' + productType + '-' + beamMode + '-' + passStr + '-' + dateString + '-' + productId;
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
+                productElem.getAttributeString("processingFacility", defStr) + '-' +
+                        productElem.getAttributeString("softwareVersion", defStr));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
+                ReaderUtils.getTime(productElem, "processingTime", standardDateFormat));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
+                getFlag(productElem, "elevationPatternCorrection"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
+                getFlag(productElem, "rangeSpreadingLossCorrection"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isSLC() ? 0 : 1);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                productElem.getAttributeDouble("RangeLooks", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                productElem.getAttributeDouble("AzimuthLooks", defInt));
 //        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
 //                productElem.getElement("slantRangeNearEdge").getAttributeDouble("slantRangeNearEdge"));
 //
@@ -307,20 +308,19 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 //        verifyProductFormat(productElem);
 //
 //        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getDataType(productElem));
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-//                productElem.getAttributeInt("numberOfLines", defInt));
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-//                productElem.getAttributeInt("numberOfSamplesPerLine", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
+                productElem.getAttributeInt("NoScans", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
+                productElem.getAttributeInt("NoPixels", defInt));
 //        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
 //                                      ReaderUtils.getLineTimeInterval(startTime, stopTime,
 //                                                                      absRoot.getAttributeInt(AbstractMetadata.num_output_lines)));
 //
-//        final MetadataElement sampledPixelSpacing = productElem.getElement("sampledPixelSpacing");
-//        final double rangeSpacing = sampledPixelSpacing.getAttributeDouble("sampledPixelSpacing", defInt);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, rangeSpacing);
-//        final MetadataElement sampledLineSpacing = productElem.getElement("sampledLineSpacing");
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-//                                      sampledLineSpacing.getAttributeDouble("sampledLineSpacing", defInt));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
+                productElem.getAttributeDouble("OutputPixelSpacing", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
+                productElem.getAttributeDouble("OutputLineSpacing", defInt));
 //
 //        final MetadataElement pulseRepetitionFrequency = productElem.getElement("pulseRepetitionFrequency");
 //        double prf = pulseRepetitionFrequency.getAttributeDouble("pulseRepetitionFrequency", defInt);
@@ -343,11 +343,18 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 //        }
 
         // polarizations
-//        getPolarizations(absRoot, productElem);
+        getPolarizations(absRoot, productElem);
 //
 //        addOrbitStateVectors(absRoot, productElem);
 //        addSRGRCoefficients(absRoot, productElem);
 //        addDopplerCentroidCoefficients(absRoot, productElem);
+    }
+
+    private static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
+        if (elem == null)
+            return AbstractMetadata.NO_METADATA_UTC;
+        final String timeStr = elem.getAttributeString(tag, " ").toUpperCase().trim();
+        return AbstractMetadata.parseUTC(timeStr, timeFormat);
     }
 
     protected void verifyProductFormat(final MetadataElement imageAttributes) throws IOException {
@@ -366,17 +373,19 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         return -1;
     }
 
-    private void getPolarizations(final MetadataElement absRoot, final MetadataElement imageAttributes) {
-        final MetadataElement[] imageAttribElems = imageAttributes.getElements();
+    private void getPolarizations(final MetadataElement absRoot, final MetadataElement prodElem) {
         int i = 0;
-        for (MetadataElement elem : imageAttribElems) {
-            if (elem.getName().equals("fullResolutionImageData")) {
-
-                final String pol = elem.getAttributeString("pole", "").toUpperCase();
-                polarizationMap.put(elem.getAttributeString("fullResolutionImageData", "").toLowerCase(), pol);
-                absRoot.setAttributeString(AbstractMetadata.polarTags[i], pol);
-                ++i;
-            }
+        String pol = prodElem.getAttributeString("TxRxPol1", null);
+        if (pol != null) {
+            pol = pol.toUpperCase();
+            absRoot.setAttributeString(AbstractMetadata.polarTags[i], pol);
+            ++i;
+        }
+        pol = prodElem.getAttributeString("TxRxPol2", null);
+        if (pol != null) {
+            pol = pol.toUpperCase();
+            absRoot.setAttributeString(AbstractMetadata.polarTags[i], pol);
+            ++i;
         }
     }
 
@@ -400,35 +409,35 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                                          ReaderUtils.getTime(stateVectorElems[0], "timeStamp", standardDateFormat));
+                    ReaderUtils.getTime(stateVectorElems[0], "timeStamp", standardDateFormat));
         }
     }
 
     private void addVector(String name, MetadataElement orbitVectorListElem,
-                                  MetadataElement srcElem, int num) {
+                           MetadataElement srcElem, int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                                        ReaderUtils.getTime(srcElem, "timeStamp", standardDateFormat));
+                ReaderUtils.getTime(srcElem, "timeStamp", standardDateFormat));
 
         final MetadataElement xpos = srcElem.getElement("xPosition");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                                           xpos.getAttributeDouble("xPosition", 0));
+                xpos.getAttributeDouble("xPosition", 0));
         final MetadataElement ypos = srcElem.getElement("yPosition");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                                           ypos.getAttributeDouble("yPosition", 0));
+                ypos.getAttributeDouble("yPosition", 0));
         final MetadataElement zpos = srcElem.getElement("zPosition");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                                           zpos.getAttributeDouble("zPosition", 0));
+                zpos.getAttributeDouble("zPosition", 0));
         final MetadataElement xvel = srcElem.getElement("xVelocity");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                                           xvel.getAttributeDouble("xVelocity", 0));
+                xvel.getAttributeDouble("xVelocity", 0));
         final MetadataElement yvel = srcElem.getElement("yVelocity");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                                           yvel.getAttributeDouble("yVelocity", 0));
+                yvel.getAttributeDouble("yVelocity", 0));
         final MetadataElement zvel = srcElem.getElement("zVelocity");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                                           zvel.getAttributeDouble("zVelocity", 0));
+                zvel.getAttributeDouble("zVelocity", 0));
 
         orbitVectorListElem.addElement(orbitVectorElem);
     }
@@ -448,7 +457,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 
                 final double grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
                 AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                                                        ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
+                        ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
                 AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, grOrigin);
 
                 final String coeffStr = elem.getAttributeString("groundToSlantRangeCoefficients", "");
@@ -462,7 +471,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                         srgrListElem.addElement(coefElem);
                         ++cnt;
                         AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
-                                                                ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
+                                ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
                         AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, coefValue);
                     }
                 }
@@ -488,7 +497,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 final double refTime = elem.getElement("dopplerCentroidReferenceTime").
                         getAttributeDouble("dopplerCentroidReferenceTime", 0) * 1e9; // s to ns
                 AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
-                                                        ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+                        ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
                 AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
                 final String coeffStr = elem.getAttributeString("dopplerCentroidCoefficients", "");
@@ -502,7 +511,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                         dopplerListElem.addElement(coefElem);
                         ++cnt;
                         AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                                                                ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                                ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
                         AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
                     }
                 }
@@ -513,109 +522,109 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
-        final MetadataElement productElem = origProdRoot.getElement("product");
-        final MetadataElement imageAttributes = productElem.getElement("imageAttributes");
-        final MetadataElement geographicInformation = imageAttributes.getElement("geographicInformation");
-        final MetadataElement geolocationGrid = geographicInformation.getElement("geolocationGrid");
-
-        final MetadataElement[] geoGrid = geolocationGrid.getElements();
-
-        float[] latList = new float[geoGrid.length];
-        float[] lngList = new float[geoGrid.length];
-
-        int gridWidth = 0, gridHeight = 0;
-        int i = 0;
-        for (MetadataElement imageTiePoint : geoGrid) {
-            final MetadataElement geodeticCoordinate = imageTiePoint.getElement("geodeticCoordinate");
-            final MetadataElement latitude = geodeticCoordinate.getElement("latitude");
-            final MetadataElement longitude = geodeticCoordinate.getElement("longitude");
-            latList[i] = (float) latitude.getAttributeDouble("latitude", 0);
-            lngList[i] = (float) longitude.getAttributeDouble("longitude", 0);
-
-            final MetadataElement imageCoordinate = imageTiePoint.getElement("imageCoordinate");
-            final double pix = imageCoordinate.getAttributeDouble("pixel", 0);
-            if (pix == 0) {
-                if (gridWidth == 0)
-                    gridWidth = i;
-                ++gridHeight;
-            }
-
-            ++i;
-        }
-
-        if (flipToSARGeometry) {
-            float[] flippedLatList = new float[geoGrid.length];
-            float[] flippedLonList = new float[geoGrid.length];
-            int is, id;
-            if (isAscending) {
-                if (isAntennaPointingRight) { // flip upside down
-                    for (int r = 0; r < gridHeight; r++) {
-                        is = r * gridWidth;
-                        id = (gridHeight - r - 1) * gridWidth;
-                        for (int c = 0; c < gridWidth; c++) {
-                            flippedLatList[id + c] = latList[is + c];
-                            flippedLonList[id + c] = lngList[is + c];
-                        }
-                    }
-                } else { // flip upside down then left to right
-                    for (int r = 0; r < gridHeight; r++) {
-                        is = r * gridWidth;
-                        id = (gridHeight - r) * gridWidth;
-                        for (int c = 0; c < gridWidth; c++) {
-                            flippedLatList[id - c - 1] = latList[is + c];
-                            flippedLonList[id - c - 1] = lngList[is + c];
-                        }
-                    }
-                }
-
-            } else { // descending
-
-                if (isAntennaPointingRight) {  // flip left to right
-                    for (int r = 0; r < gridHeight; r++) {
-                        is = r * gridWidth;
-                        id = r * gridWidth + gridWidth;
-                        for (int c = 0; c < gridWidth; c++) {
-                            flippedLatList[id - c - 1] = latList[is + c];
-                            flippedLonList[id - c - 1] = lngList[is + c];
-                        }
-                    }
-                } else { // no flipping is needed
-                    flippedLatList = latList;
-                    flippedLonList = lngList;
-                }
-            }
-
-            latList = flippedLatList;
-            lngList = flippedLonList;
-        }
-
-        double subSamplingX = (double) (product.getSceneRasterWidth() - 1) / (gridWidth - 1);
-        double subSamplingY = (double) (product.getSceneRasterHeight() - 1) / (gridHeight - 1);
-
-        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                                                      subSamplingX, subSamplingY, latList);
-        latGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                                                      subSamplingX, subSamplingY, lngList, TiePointGrid.DISCONT_AT_180);
-        lonGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-
-        if(product.getTiePointGrid(OperatorUtils.TPG_LATITUDE) == null) {
-            product.addTiePointGrid(latGrid);
-            product.addTiePointGrid(lonGrid);
-        }
-        setLatLongMetadata(product, latGrid, lonGrid);
-
-        if (product.getSceneGeoCoding() == null) {
-            product.setSceneGeoCoding(tpGeoCoding);
-        }
+//        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+//        final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+//        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
+//
+//        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+//        final MetadataElement productElem = origProdRoot.getElement("product");
+//        final MetadataElement imageAttributes = productElem.getElement("imageAttributes");
+//        final MetadataElement geographicInformation = imageAttributes.getElement("geographicInformation");
+//        final MetadataElement geolocationGrid = geographicInformation.getElement("geolocationGrid");
+//
+//        final MetadataElement[] geoGrid = geolocationGrid.getElements();
+//
+//        float[] latList = new float[geoGrid.length];
+//        float[] lngList = new float[geoGrid.length];
+//
+//        int gridWidth = 0, gridHeight = 0;
+//        int i = 0;
+//        for (MetadataElement imageTiePoint : geoGrid) {
+//            final MetadataElement geodeticCoordinate = imageTiePoint.getElement("geodeticCoordinate");
+//            final MetadataElement latitude = geodeticCoordinate.getElement("latitude");
+//            final MetadataElement longitude = geodeticCoordinate.getElement("longitude");
+//            latList[i] = (float) latitude.getAttributeDouble("latitude", 0);
+//            lngList[i] = (float) longitude.getAttributeDouble("longitude", 0);
+//
+//            final MetadataElement imageCoordinate = imageTiePoint.getElement("imageCoordinate");
+//            final double pix = imageCoordinate.getAttributeDouble("pixel", 0);
+//            if (pix == 0) {
+//                if (gridWidth == 0)
+//                    gridWidth = i;
+//                ++gridHeight;
+//            }
+//
+//            ++i;
+//        }
+//
+//        if (flipToSARGeometry) {
+//            float[] flippedLatList = new float[geoGrid.length];
+//            float[] flippedLonList = new float[geoGrid.length];
+//            int is, id;
+//            if (isAscending) {
+//                if (isAntennaPointingRight) { // flip upside down
+//                    for (int r = 0; r < gridHeight; r++) {
+//                        is = r * gridWidth;
+//                        id = (gridHeight - r - 1) * gridWidth;
+//                        for (int c = 0; c < gridWidth; c++) {
+//                            flippedLatList[id + c] = latList[is + c];
+//                            flippedLonList[id + c] = lngList[is + c];
+//                        }
+//                    }
+//                } else { // flip upside down then left to right
+//                    for (int r = 0; r < gridHeight; r++) {
+//                        is = r * gridWidth;
+//                        id = (gridHeight - r) * gridWidth;
+//                        for (int c = 0; c < gridWidth; c++) {
+//                            flippedLatList[id - c - 1] = latList[is + c];
+//                            flippedLonList[id - c - 1] = lngList[is + c];
+//                        }
+//                    }
+//                }
+//
+//            } else { // descending
+//
+//                if (isAntennaPointingRight) {  // flip left to right
+//                    for (int r = 0; r < gridHeight; r++) {
+//                        is = r * gridWidth;
+//                        id = r * gridWidth + gridWidth;
+//                        for (int c = 0; c < gridWidth; c++) {
+//                            flippedLatList[id - c - 1] = latList[is + c];
+//                            flippedLonList[id - c - 1] = lngList[is + c];
+//                        }
+//                    }
+//                } else { // no flipping is needed
+//                    flippedLatList = latList;
+//                    flippedLonList = lngList;
+//                }
+//            }
+//
+//            latList = flippedLatList;
+//            lngList = flippedLonList;
+//        }
+//
+//        double subSamplingX = (double) (product.getSceneRasterWidth() - 1) / (gridWidth - 1);
+//        double subSamplingY = (double) (product.getSceneRasterHeight() - 1) / (gridHeight - 1);
+//
+//        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+//                                                      subSamplingX, subSamplingY, latList);
+//        latGrid.setUnit(Unit.DEGREES);
+//
+//        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+//                                                      subSamplingX, subSamplingY, lngList, TiePointGrid.DISCONT_AT_180);
+//        lonGrid.setUnit(Unit.DEGREES);
+//
+//        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
+//
+//        if(product.getTiePointGrid(OperatorUtils.TPG_LATITUDE) == null) {
+//            product.addTiePointGrid(latGrid);
+//            product.addTiePointGrid(lonGrid);
+//        }
+//        setLatLongMetadata(product, latGrid, lonGrid);
+//
+//        if (product.getSceneGeoCoding() == null) {
+//            product.setSceneGeoCoding(tpGeoCoding);
+//        }
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
@@ -638,96 +647,96 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
     @Override
     protected void addTiePointGrids(final Product product) {
 
-        final int sourceImageWidth = product.getSceneRasterWidth();
-        final int sourceImageHeight = product.getSceneRasterHeight();
-        final int gridWidth = 11;
-        final int gridHeight = 11;
-        final int subSamplingX = (int) ((float) sourceImageWidth / (float) (gridWidth - 1));
-        final int subSamplingY = (int) ((float) sourceImageHeight / (float) (gridHeight - 1));
-
-        double a = Constants.semiMajorAxis; // WGS 84: equatorial Earth radius in m
-        double b = Constants.semiMinorAxis; // WGS 84: polar Earth radius in m
-
-        // get slant range to first pixel and pixel spacing
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final double slantRangeToFirstPixel = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel, 0); // in m
-        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0); // in m
-        final boolean srgrFlag = absRoot.getAttributeInt(AbstractMetadata.srgr_flag) != 0;
-        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
-        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-
-        // get scene center latitude
-        final GeoPos sceneCenterPos =
-                product.getSceneGeoCoding().getGeoPos(new PixelPos(sourceImageWidth / 2.0f, sourceImageHeight / 2.0f), null);
-        double sceneCenterLatitude = sceneCenterPos.lat; // in deg
-
-        // get near range incidence angle
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
-        final MetadataElement productElem = origProdRoot.getElement("product");
-        final MetadataElement imageGenerationParameters = productElem.getElement("imageGenerationParameters");
-        final MetadataElement sarProcessingInformation = imageGenerationParameters.getElement("sarProcessingInformation");
-        final MetadataElement incidenceAngleNearRangeElem = sarProcessingInformation.getElement("incidenceAngleNearRange");
-        final double nearRangeIncidenceAngle = (float) incidenceAngleNearRangeElem.getAttributeDouble("incidenceAngleNearRange", 0);
-
-        final double alpha1 = nearRangeIncidenceAngle * Constants.DTOR;
-        final double lambda = sceneCenterLatitude * Constants.DTOR;
-        final double cos2 = FastMath.cos(lambda) * FastMath.cos(lambda);
-        final double sin2 = FastMath.sin(lambda) * FastMath.sin(lambda);
-        final double e2 = (b * b) / (a * a);
-        final double rt = a * Math.sqrt((cos2 + e2 * e2 * sin2) / (cos2 + e2 * sin2));
-        final double rt2 = rt * rt;
-
-        double groundRangeSpacing;
-        if (srgrFlag) { // detected
-            groundRangeSpacing = rangeSpacing;
-        } else {
-            groundRangeSpacing = rangeSpacing / FastMath.sin(alpha1);
-        }
-
-        double deltaPsi = groundRangeSpacing / rt; // in radian
-        final double r1 = slantRangeToFirstPixel;
-        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * FastMath.cos(alpha1));
-        final double rtPlusH2 = rtPlusH * rtPlusH;
-        final double theta1 = FastMath.acos((r1 + rt * FastMath.cos(alpha1)) / rtPlusH);
-        final double psi1 = alpha1 - theta1;
-        double psi = psi1;
-        float[] incidenceAngles = new float[gridWidth];
-        final int n = gridWidth * subSamplingX;
-        int k = 0;
-        for (int i = 0; i < n; i++) {
-            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * FastMath.cos(psi));
-            final double alpha = FastMath.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
-            if (i % subSamplingX == 0) {
-                int index = k++;
-
-                if (!flipToSARGeometry && (isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight))) {// flip
-                    index = gridWidth - 1 - index;
-                }
-
-                incidenceAngles[index] = (float) (alpha * Constants.RTOD);
-            }
-
-            if (!srgrFlag) { // complex
-                groundRangeSpacing = rangeSpacing / FastMath.sin(alpha);
-                deltaPsi = groundRangeSpacing / rt;
-            }
-            psi = psi + deltaPsi;
-        }
-
-        float[] incidenceAngleList = new float[gridWidth * gridHeight];
-        for (int j = 0; j < gridHeight; j++) {
-            System.arraycopy(incidenceAngles, 0, incidenceAngleList, j * gridWidth, gridWidth);
-        }
-
-        final TiePointGrid incidentAngleGrid = new TiePointGrid(
-                OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, incidenceAngleList);
-
-        incidentAngleGrid.setUnit(Unit.DEGREES);
-
-        product.addTiePointGrid(incidentAngleGrid);
-
-        addSlantRangeTime(product, imageGenerationParameters);
+//        final int sourceImageWidth = product.getSceneRasterWidth();
+//        final int sourceImageHeight = product.getSceneRasterHeight();
+//        final int gridWidth = 11;
+//        final int gridHeight = 11;
+//        final int subSamplingX = (int) ((float) sourceImageWidth / (float) (gridWidth - 1));
+//        final int subSamplingY = (int) ((float) sourceImageHeight / (float) (gridHeight - 1));
+//
+//        double a = Constants.semiMajorAxis; // WGS 84: equatorial Earth radius in m
+//        double b = Constants.semiMinorAxis; // WGS 84: polar Earth radius in m
+//
+//        // get slant range to first pixel and pixel spacing
+//        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+//        final double slantRangeToFirstPixel = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel, 0); // in m
+//        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0); // in m
+//        final boolean srgrFlag = absRoot.getAttributeInt(AbstractMetadata.srgr_flag) != 0;
+//        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
+//        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
+//
+//        // get scene center latitude
+//        final GeoPos sceneCenterPos =
+//                product.getSceneGeoCoding().getGeoPos(new PixelPos(sourceImageWidth / 2.0f, sourceImageHeight / 2.0f), null);
+//        double sceneCenterLatitude = sceneCenterPos.lat; // in deg
+//
+//        // get near range incidence angle
+//        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+//        final MetadataElement productElem = origProdRoot.getElement("product");
+//        final MetadataElement imageGenerationParameters = productElem.getElement("imageGenerationParameters");
+//        final MetadataElement sarProcessingInformation = imageGenerationParameters.getElement("sarProcessingInformation");
+//        final MetadataElement incidenceAngleNearRangeElem = sarProcessingInformation.getElement("incidenceAngleNearRange");
+//        final double nearRangeIncidenceAngle = (float) incidenceAngleNearRangeElem.getAttributeDouble("incidenceAngleNearRange", 0);
+//
+//        final double alpha1 = nearRangeIncidenceAngle * Constants.DTOR;
+//        final double lambda = sceneCenterLatitude * Constants.DTOR;
+//        final double cos2 = FastMath.cos(lambda) * FastMath.cos(lambda);
+//        final double sin2 = FastMath.sin(lambda) * FastMath.sin(lambda);
+//        final double e2 = (b * b) / (a * a);
+//        final double rt = a * Math.sqrt((cos2 + e2 * e2 * sin2) / (cos2 + e2 * sin2));
+//        final double rt2 = rt * rt;
+//
+//        double groundRangeSpacing;
+//        if (srgrFlag) { // detected
+//            groundRangeSpacing = rangeSpacing;
+//        } else {
+//            groundRangeSpacing = rangeSpacing / FastMath.sin(alpha1);
+//        }
+//
+//        double deltaPsi = groundRangeSpacing / rt; // in radian
+//        final double r1 = slantRangeToFirstPixel;
+//        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * FastMath.cos(alpha1));
+//        final double rtPlusH2 = rtPlusH * rtPlusH;
+//        final double theta1 = FastMath.acos((r1 + rt * FastMath.cos(alpha1)) / rtPlusH);
+//        final double psi1 = alpha1 - theta1;
+//        double psi = psi1;
+//        float[] incidenceAngles = new float[gridWidth];
+//        final int n = gridWidth * subSamplingX;
+//        int k = 0;
+//        for (int i = 0; i < n; i++) {
+//            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * FastMath.cos(psi));
+//            final double alpha = FastMath.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
+//            if (i % subSamplingX == 0) {
+//                int index = k++;
+//
+//                if (!flipToSARGeometry && (isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight))) {// flip
+//                    index = gridWidth - 1 - index;
+//                }
+//
+//                incidenceAngles[index] = (float) (alpha * Constants.RTOD);
+//            }
+//
+//            if (!srgrFlag) { // complex
+//                groundRangeSpacing = rangeSpacing / FastMath.sin(alpha);
+//                deltaPsi = groundRangeSpacing / rt;
+//            }
+//            psi = psi + deltaPsi;
+//        }
+//
+//        float[] incidenceAngleList = new float[gridWidth * gridHeight];
+//        for (int j = 0; j < gridHeight; j++) {
+//            System.arraycopy(incidenceAngles, 0, incidenceAngleList, j * gridWidth, gridWidth);
+//        }
+//
+//        final TiePointGrid incidentAngleGrid = new TiePointGrid(
+//                OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
+//                subSamplingX, subSamplingY, incidenceAngleList);
+//
+//        incidentAngleGrid.setUnit(Unit.DEGREES);
+//
+//        product.addTiePointGrid(incidentAngleGrid);
+//
+//        addSlantRangeTime(product, imageGenerationParameters);
     }
 
     private void addSlantRangeTime(final Product product, final MetadataElement imageGenerationParameters) {
@@ -814,7 +823,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
-                                                             gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTime);
+                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTime);
 
         product.addTiePointGrid(slantRangeGrid);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);

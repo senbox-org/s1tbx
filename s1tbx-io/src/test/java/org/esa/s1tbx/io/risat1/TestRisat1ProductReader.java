@@ -13,29 +13,29 @@ import java.io.File;
  */
 public class TestRisat1ProductReader extends ReaderTest {
 
-    private final static File inputZip = new File("D:\\EO\\RISAT\\SampleData\\FRS1_LEVEL1_GROUND_RANGE.zip");
-    private final static File inputFolder = new File("D:\\EO\\RISAT\\SampleData\\FRS1_LEVEL1_GROUND_RANGE");
-    private final static File inputMetaXML = new File("D:\\EO\\RISAT\\SampleData\\FRS1_LEVEL1_GROUND_RANGE\\BAND_META.txt");
+    private final static File inputCEOSZip = new File("D:\\EO\\RISAT\\SampleData\\CEOS\\FRS1_LEVEL1_GROUND_RANGE.zip");
+    private final static File inputCEOSFolder = new File("D:\\EO\\RISAT\\SampleData\\CEOS\\FRS1_LEVEL1_GROUND_RANGE");
+    private final static File inputCEOSMetaXML = new File("D:\\EO\\RISAT\\SampleData\\CEOS\\FRS1_LEVEL1_GROUND_RANGE\\BAND_META.txt");
 
-    private final static File inputGeoTiffFolder = new File("D:\\EO\\RISAT\\SampleData\\L2A_154074911_FRS1_Geotiff");
+    private final static File inputGeoTiffFolder = new File("D:\\EO\\RISAT\\SampleData\\GeoTiff\\L2A_154074911_FRS1_Geotiff");
 
     public TestRisat1ProductReader() {
         super(new Risat1ProductReaderPlugIn());
     }
 
     @Test
-    public void testOpeningFolder() throws Exception {
-        testReader(inputFolder);
+    public void testOpeningCEOSFolder() throws Exception {
+        testReader(inputCEOSFolder);
     }
 
     @Test
-    public void testOpeningMetadata() throws Exception {
-        testReader(inputMetaXML);
+    public void testOpeningCEOSMetadata() throws Exception {
+        testReader(inputCEOSMetaXML);
     }
 
     @Test
-    public void testOpeningZip() throws Exception {
-        testReader(inputZip);
+    public void testOpeningCEOSZip() throws Exception {
+        testReader(inputCEOSZip);
     }
 
     @Test
