@@ -181,7 +181,7 @@ public class DInSAR {
 
         // check whether any NaNs are coming from unwrapped data
         for (int i = 0; i < defoData.length; i++) {
-            if (defoData.data[i] == Double.NaN) {
+            if (Double.isNaN(defoData.data[i])) {
                 defoData.data[i] = 0.0d;
             }
         }
@@ -274,7 +274,7 @@ public class DInSAR {
 
         // check whether any NaNs are coming from unwrapped data
         for (int i = 0; i < defoData.length; i++) {
-            if (defoData.data[i] == Double.NaN) {
+            if (Double.isNaN(defoData.data[i])) {
                 defoData.data[i] = 0.0d;
             }
         }
