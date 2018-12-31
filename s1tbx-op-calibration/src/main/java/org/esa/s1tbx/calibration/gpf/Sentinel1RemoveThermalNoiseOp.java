@@ -1087,7 +1087,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             for (int x = nx0; x <= nxMax; x++) {
                 final int xx = x - nx0;
                 for (int y = ny0; y <= nyMax; y++) {
-                    noiseMatrix[y - y0][x - x0] = interpolatedRangeVectors[0][xx];
+                    noiseMatrix[y - y0][x - x0] = interpolatedAzimuthVector[y - ny0] * interpolatedRangeVectors[0][xx];
                 }
             }
 
