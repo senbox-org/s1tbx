@@ -5,9 +5,11 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.PropertyMapProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -43,6 +45,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             ".flip.to.sar.geometry", "false").equals("true");
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
+    private static final BasicCeosProductReaderPlugIn ceosPlugIn = new BasicCeosProductReaderPlugIn();
     private List<Product> bandProductList = new ArrayList<>();
 
     public Risat1ProductDirectory(final File headerFile) {
@@ -88,6 +91,13 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 }
                 bandImageFileMap.put(img.getName(), img);
             }
+        } else if(name.endsWith(".001") && name.contains("vdf_")) {
+            final ProductReader ceosReader = ceosPlugIn.createReaderInstance();
+            Product bProduct = ceosReader.readProductNodes(new File(getBaseDir(), imgPath), null);
+            int idx = imgPath.indexOf("scene_") + 6;
+            String pol = imgPath.substring(idx, idx +2);
+            bProduct.setName(bProduct.getName() +"_"+ pol);
+            bandProductList.add(bProduct);
         }
     }
 
@@ -142,6 +152,46 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             final Product bandProduct = bandProductList.get(0);
             width = bandProduct.getSceneRasterWidth();
             height = bandProduct.getSceneRasterHeight();
+
+            if(bandImageFileMap.isEmpty()) {
+                if (isSLC()) {
+//                    for (int b = 0; b < img.getNumBands(); ++b) {
+//                        final String pol = getPol(img.getName());
+//                        if (real) {
+//                            bandName = "i_" + pol;
+//                            unit = Unit.REAL;
+//                        } else {
+//                            bandName = "q_" + pol;
+//                            unit = Unit.IMAGINARY;
+//                        }
+//
+//                        final Band band = new Band(bandName, img.getDataType(), width, height);
+//                        band.setUnit(unit);
+//
+//                        product.addBand(band);
+//                        bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
+//
+//                        if (real) {
+//                            lastRealBand = band;
+//                        } else {
+//                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_' + pol);
+//                        }
+//                        real = !real;
+//                    }
+                } else {
+                    for (Product bProduct : bandProductList) {
+                        final String pol = getPol(bProduct.getName());
+                        bandName = "Amplitude_" + pol;
+                        Band trgBand = ProductUtils.copyBand(bProduct.getBandAt(0).getName(), bProduct,
+                                bandName, product, true);
+                        trgBand.setUnit(Unit.AMPLITUDE);
+                        trgBand.setNoDataValue(0);
+                        trgBand.setNoDataValueUsed(true);
+
+                        SARReader.createVirtualIntensityBand(product, trgBand, '_' + pol);
+                    }
+                }
+            }
 
             if (product.getSceneGeoCoding() == null && bandProduct.getSceneGeoCoding() != null &&
                     product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
