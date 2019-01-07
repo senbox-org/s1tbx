@@ -34,11 +34,6 @@ public class TestRisat1ProductReader extends ReaderTest {
     }
 
     @Test
-    public void testOpeningCEOSZip() throws Exception {
-        testReader(inputCEOSZip);
-    }
-
-    @Test
     public void testGeoTiffFolder() throws Exception {
         testReader(inputGeoTiffFolder);
     }

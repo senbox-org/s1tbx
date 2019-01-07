@@ -40,7 +40,7 @@ class RadarsatImageFile extends CEOSImageFile {
     private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(resourcePath, mission, image_recordDefinition, RadarsatImageFile.class);
 
     public RadarsatImageFile(final ImageInputStream imageStream, final BinaryRecord histogramRecord)
-            throws IOException, IllegalBinaryFormatException {
+            throws IOException {
         binaryReader = new BinaryFileReader(imageStream);
         imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_recordDefinitionFile);
         binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));

@@ -40,7 +40,7 @@ class BasicCeosImageFile extends CEOSImageFile {
     private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
 
     public BasicCeosImageFile(final ImageInputStream imageStream, final BinaryRecord histogramRecord)
-            throws IOException, IllegalBinaryFormatException {
+            throws IOException {
         binaryReader = new BinaryFileReader(imageStream);
         imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_recordDefinitionFile);
         binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
