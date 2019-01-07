@@ -19,6 +19,7 @@ import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
+import org.esa.s1tbx.io.ceos.CEOSConstants;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.jdom2.Document;
 
@@ -31,7 +32,7 @@ import java.io.IOException;
  */
 class BasicCeosImageFile extends CEOSImageFile {
 
-    private final static String mission = "radarsat";
+    private final static String mission = BasicCeosConstants.MISSION;
     private final static String image_recordDefinitionFile = "image_file.xml";
     private final static String image_recordDefinition = "image_record.xml";
 
