@@ -23,7 +23,7 @@ import java.io.IOException;
 
 class BasicCeosLeaderFile extends CEOSLeaderFile {
 
-    private final static String mission = "radarsat";
+    private final static String mission = BasicCeosConstants.MISSION;
     private final static String leader_recordDefinitionFile = "leader_file.xml";
 
     public BasicCeosLeaderFile(final ImageInputStream stream) throws IOException {

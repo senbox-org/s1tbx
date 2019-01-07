@@ -5,9 +5,11 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.PropertyMapProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -43,6 +45,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             ".flip.to.sar.geometry", "false").equals("true");
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
+    private static final BasicCeosProductReaderPlugIn ceosPlugIn = new BasicCeosProductReaderPlugIn();
     private List<Product> bandProductList = new ArrayList<>();
 
     public Risat1ProductDirectory(final File headerFile) {
@@ -88,6 +91,13 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 }
                 bandImageFileMap.put(img.getName(), img);
             }
+        } else if (name.endsWith(".001") && name.contains("vdf_")) {
+            final ProductReader ceosReader = ceosPlugIn.createReaderInstance();
+            Product bProduct = ceosReader.readProductNodes(new File(getBaseDir(), imgPath), null);
+            int idx = imgPath.indexOf("scene_") + 6;
+            String pol = imgPath.substring(idx, idx + 2);
+            bProduct.setName(bProduct.getName() + "_" + pol);
+            bandProductList.add(bProduct);
         }
     }
 
@@ -111,10 +121,10 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         imgName = imgName.toUpperCase();
         if (imgName.contains("RH")) {
             compactPolMode = true;
-            return "RH";
+            return "RCH";
         } else if (imgName.contains("RV")) {
             compactPolMode = true;
-            return "RV";
+            return "RCV";
         } else if (imgName.contains("HH")) {
             return "HH";
         } else if (imgName.contains("HV")) {
@@ -132,16 +142,48 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
     protected void addBands(final Product product) {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        String bandName;
-        boolean real = true;
-        Band lastRealBand = null;
-        String unit;
 
         final int width, height;
         if (!bandProductList.isEmpty()) {
             final Product bandProduct = bandProductList.get(0);
             width = bandProduct.getSceneRasterWidth();
             height = bandProduct.getSceneRasterHeight();
+
+            if (bandImageFileMap.isEmpty()) {
+                if (isSLC()) {
+                    for (Product bProduct : bandProductList) {
+                        final String pol = getPol(bProduct.getName());
+
+                        Band iBand = bProduct.getBandAt(0);
+                        Band iTrgBand = ProductUtils.copyBand(iBand.getName(), bProduct,
+                                iBand.getName() + "_" + pol, product, true);
+                        iTrgBand.setUnit(Unit.REAL);
+                        iTrgBand.setNoDataValue(0);
+                        iTrgBand.setNoDataValueUsed(true);
+
+                        Band qBand = bProduct.getBandAt(1);
+                        Band qTrgBand = ProductUtils.copyBand(qBand.getName(), bProduct,
+                                qBand.getName() + "_" + pol, product, true);
+                        qTrgBand.setUnit(Unit.IMAGINARY);
+                        qTrgBand.setNoDataValue(0);
+                        qTrgBand.setNoDataValueUsed(true);
+
+                        ReaderUtils.createVirtualIntensityBand(product, iTrgBand, qTrgBand, '_' + pol);
+                    }
+                } else {
+                    for (Product bProduct : bandProductList) {
+                        final String pol = getPol(bProduct.getName());
+                        String bandName = "Amplitude_" + pol;
+                        Band trgBand = ProductUtils.copyBand(bProduct.getBandAt(0).getName(), bProduct,
+                                bandName, product, true);
+                        trgBand.setUnit(Unit.AMPLITUDE);
+                        trgBand.setNoDataValue(0);
+                        trgBand.setNoDataValueUsed(true);
+
+                        SARReader.createVirtualIntensityBand(product, trgBand, '_' + pol);
+                    }
+                }
+            }
 
             if (product.getSceneGeoCoding() == null && bandProduct.getSceneGeoCoding() != null &&
                     product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
@@ -165,6 +207,11 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             for (int i = 0; i < img.getNumImages(); ++i) {
 
                 if (isSLC()) {
+                    boolean real = false;
+                    String bandName;
+                    String unit;
+                    Band lastRealBand = null;
+
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         final String pol = getPol(img.getName());
                         if (real) {
@@ -191,7 +238,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         final String pol = getPol(img.getName());
-                        bandName = "Amplitude_" + pol;
+                        String bandName = "Amplitude_" + pol;
                         final Band band = new Band(bandName, ProductData.TYPE_UINT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValue(0);
@@ -242,8 +289,12 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, productElem.getAttributeDouble("ImagingOrbitNo", defInt));
 
         productType = productElem.getAttributeString("ProductType", defStr);
-        if (productType.contains("SLC")) {
+        if (productType.contains("SLANT")) {
             setSLC(true);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "COMPLEX");
+        } else {
+            setSLC(false);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "DETECTED");
         }
 
         final String productId = productElem.getAttributeString("productId", defStr);
@@ -269,6 +320,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         final String dateString = dateFormat.format(date);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, 5350);
 
         productName = getMission() + '-' + productType + '-' + beamMode + '-' + passStr + '-' + dateString + '-' + productId;
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
@@ -307,7 +359,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 //
 //        verifyProductFormat(productElem);
 //
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getDataType(productElem));
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                 productElem.getAttributeInt("NoScans", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
@@ -387,13 +439,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             absRoot.setAttributeString(AbstractMetadata.polarTags[i], pol);
             ++i;
         }
-    }
-
-    private static String getDataType(final MetadataElement rasterAttributes) {
-        final String dataType = rasterAttributes.getAttributeString("dataType", AbstractMetadata.NO_METADATA_STRING).toUpperCase();
-        if (dataType.contains("COMPLEX"))
-            return "COMPLEX";
-        return "DETECTED";
     }
 
     private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitInformation) {

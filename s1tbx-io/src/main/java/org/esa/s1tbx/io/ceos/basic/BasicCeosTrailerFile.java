@@ -27,7 +27,7 @@ import java.io.IOException;
 
 class BasicCeosTrailerFile extends CEOSLeaderFile {
 
-    private final static String mission = "radarsat";
+    private final static String mission = BasicCeosConstants.MISSION;
     private final static String trailer_recordDefinitionFile = "trailer_file.xml";
 
     private final static Document trailerXML = BinaryDBReader.loadDefinitionFile(mission, trailer_recordDefinitionFile);

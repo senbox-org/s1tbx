@@ -80,7 +80,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         }
 
         BinaryRecord histogramRec = leaderFile.getHistogramRecord();
-        if (histogramRec == null)
+        if (histogramRec == null && trailerFile != null)
             histogramRec = trailerFile.getHistogramRecord();
 
         final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
@@ -135,16 +135,16 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         }
 
         BinaryRecord facilityRec = leaderFile.getFacilityRecord();
-        if (facilityRec == null)
+        if (facilityRec == null && trailerFile != null)
             facilityRec = trailerFile.getFacilityRecord();
         BinaryRecord sceneRec = leaderFile.getSceneRecord();
-        if (sceneRec == null)
+        if (sceneRec == null && trailerFile != null)
             sceneRec = trailerFile.getSceneRecord();
         BinaryRecord detProcRec = leaderFile.getDetailedProcessingRecord();
-        if (detProcRec == null)
+        if (detProcRec == null && trailerFile != null)
             detProcRec = trailerFile.getDetailedProcessingRecord();
         BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
-        if (mapProjRec == null)
+        if (mapProjRec == null && trailerFile != null)
             mapProjRec = trailerFile.getMapProjRecord();
 
         product.setStartTime(getUTCScanStartTime(sceneRec, detProcRec));
@@ -241,9 +241,11 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         leaderFile.addMetadata(leadMetadata);
         root.addElement(leadMetadata);
 
-        final MetadataElement trailMetadata = new MetadataElement("Trailer");
-        trailerFile.addMetadata(trailMetadata);
-        root.addElement(trailMetadata);
+        if(trailerFile != null) {
+            final MetadataElement trailMetadata = new MetadataElement("Trailer");
+            trailerFile.addMetadata(trailMetadata);
+            root.addElement(trailMetadata);
+        }
 
         final MetadataElement volMetadata = new MetadataElement("Volume");
         volumeDirectoryFile.assignMetadataTo(volMetadata);
@@ -272,17 +274,17 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
         BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
-        if (mapProjRec == null)
+        if (mapProjRec == null && trailerFile != null)
             mapProjRec = trailerFile.getMapProjRecord();
         BinaryRecord sceneRec = leaderFile.getSceneRecord();
-        if (sceneRec == null)
+        if (sceneRec == null && trailerFile != null)
             sceneRec = trailerFile.getSceneRecord();
         final BinaryRecord radiometricRec = leaderFile.getRadiometricRecord();
         BinaryRecord facilityRec = leaderFile.getFacilityRecord();
-        if (facilityRec == null)
+        if (facilityRec == null && trailerFile != null)
             facilityRec = trailerFile.getFacilityRecord();
         BinaryRecord detProcRec = leaderFile.getDetailedProcessingRecord();
-        if (detProcRec == null)
+        if (detProcRec == null && trailerFile != null)
             detProcRec = trailerFile.getDetailedProcessingRecord();
 
         //mph
@@ -430,7 +432,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private String getProductDescription() {
         BinaryRecord sceneRecord = leaderFile.getSceneRecord();
-        if (sceneRecord == null)
+        if (sceneRecord == null && trailerFile != null)
             sceneRecord = trailerFile.getSceneRecord();
 
         String level = "";

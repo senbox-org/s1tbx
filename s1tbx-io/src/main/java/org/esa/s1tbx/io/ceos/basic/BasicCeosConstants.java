@@ -31,9 +31,9 @@ public class BasicCeosConstants implements CEOSConstants {
     private static final String[] IMAGE_FILE_PREFIX = {"DAT", "IM", "SARD"};
     private static final String[] TRAILER_FILE_PREFIX = {"TR", "SART"};
 
-    private final static String MISSION = "unknown";
+    public final static String MISSION = "ceos";
 
-    final static String PRODUCT_DESCRIPTION_PREFIX = "Radarsat product ";
+    final static String PRODUCT_DESCRIPTION_PREFIX = "Ceos product ";
 
     final static String SUMMARY_FILE_NAME = "summary.txt";
     final static String SCENE_LABEL_FILE_NAME = "scene01.lbl";
