@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.commons.SARUtils;
 import org.esa.snap.core.datamodel.*;
@@ -101,7 +102,7 @@ public class ALOSDeskewingOp extends Operator {
     private double azimuthSpacing = 0.0;
     private double slantRangeToFirstPixel = 0.0;
     private double radarWaveLength = 0.0;
-    private SARGeocoding.Orbit orbit = null;
+    private OrbitStateVectors orbit = null;
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
 
@@ -197,7 +198,7 @@ public class ALOSDeskewingOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineTime, lineTimeInterval, sourceImageHeight);
+        orbit = new OrbitStateVectors(orbitStateVectors, firstLineTime, lineTimeInterval, sourceImageHeight);
     }
 
     /**
