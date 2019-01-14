@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.commons.SARUtils;
@@ -117,7 +118,7 @@ public final class TerrainFlatteningOp extends Operator {
     private double wavelength = 0.0; // in m
     private double demNoDataValue = 0; // no data value for DEM
     private double overSamplingFactor = 1.0;
-    private SARGeocoding.Orbit orbit = null;
+    private OrbitStateVectors orbit = null;
 
     private Double noDataValue = 0.0;
     private double beta0 = 0;
@@ -178,7 +179,7 @@ public final class TerrainFlatteningOp extends Operator {
 
             getSourceImageDimension();
 
-            computeSensorPositionsAndVelocities();
+            orbit = new OrbitStateVectors(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
 
             createTargetProduct();
 
@@ -284,14 +285,6 @@ public final class TerrainFlatteningOp extends Operator {
     private void getSourceImageDimension() {
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
-    }
-
-    /**
-     * Compute sensor position and velocity for each range line.
-     */
-    private void computeSensorPositionsAndVelocities() {
-
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**
@@ -465,7 +458,10 @@ public final class TerrainFlatteningOp extends Operator {
             final int h = targetRectangle.height;
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-            final OverlapPercentage tileOverlapPercentage = computeTileOverlapPercentage(x0, y0, w, h);
+            final OverlapPercentage tileOverlapPercentage = computeTileOverlapPercentage(x0, y0, w, h, pm);
+            if(tileOverlapPercentage == null) {
+                return;
+            }
 
             final double[][] gamma0ReferenceArea = new double[h][w];
             double[][] sigma0ReferenceArea = null;
@@ -474,7 +470,7 @@ public final class TerrainFlatteningOp extends Operator {
             }
 
             final boolean validSimulation = generateSimulatedImage(
-                    x0, y0, w, h, tileOverlapPercentage, gamma0ReferenceArea, sigma0ReferenceArea);
+                    x0, y0, w, h, tileOverlapPercentage, gamma0ReferenceArea, sigma0ReferenceArea, pm);
 
             if (!validSimulation) {
                 return;
@@ -505,7 +501,8 @@ public final class TerrainFlatteningOp extends Operator {
     private boolean generateSimulatedImage(final int x0, final int y0, final int w, final int h,
                                            final OverlapPercentage tileOverlapPercentage,
                                            final double[][] gamma0ReferenceArea,
-                                           final double[][] sigma0ReferenceArea) {
+                                           final double[][] sigma0ReferenceArea,
+                                           final ProgressMonitor pm) {
 
         try {
             final int ymin = Math.max(y0 - (int) (h * tileOverlapPercentage.tileOverlapUp), 0);
@@ -548,7 +545,11 @@ public final class TerrainFlatteningOp extends Operator {
                 final int nLon = (int)Math.round((lonMax - lonMin) / delta);
 
                 final PositionData posData = new PositionData();
+                final GeoPos demGeoPos = new GeoPos();
                 for (int i = 0; i < nLat; i++) {
+                    if(pm.isCanceled()) {
+                        return false;
+                    }
                     final double lat = latMax - i*delta;
                     final double[] azimuthIndex = new double[nLon];
                     final double[] rangeIndex = new double[nLon];
@@ -562,7 +563,8 @@ public final class TerrainFlatteningOp extends Operator {
 
                     for (int j = 0; j < nLon; j++) {
                         final double lon = lonMin + j*delta;
-                        final Double alt = dem.getElevation(new GeoPos(lat, lon));
+                        demGeoPos.setLocation(lat, lon);
+                        final Double alt = dem.getElevation(demGeoPos);
                         if (Double.isNaN(alt) || alt.equals(demNoDataValue))
                             continue;
 
@@ -572,12 +574,8 @@ public final class TerrainFlatteningOp extends Operator {
                         final LocalGeometry localGeometry = new LocalGeometry(lat, lon, delta, dem,
                                 posData.earthPoint, posData.sensorPos);
 
-                        gamma0Area[j] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
-                        if (noDataValue.equals(gamma0Area[j]))
+                        if(!computeIlluminatedArea(localGeometry, demNoDataValue, noDataValue, j, gamma0Area, sigma0Area)) {
                             continue;
-
-                        if (outputSigma0) {
-                            sigma0Area[j] = computeSigma0Area(localGeometry, demNoDataValue, noDataValue);
                         }
 
                         elevationAngle[j] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
@@ -593,13 +591,10 @@ public final class TerrainFlatteningOp extends Operator {
                         for (int jj = 0; jj < nLon; jj++) {
                             if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
                                 maxElevAngle = elevationAngle[jj];
-                                saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
-                                        gamma0ReferenceArea);
-
-                                if (outputSigma0) {
-                                    saveSigma0Area(x0, y0, w, h, sigma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
-                                            sigma0ReferenceArea);
-                                }
+                                double sigma0AreaVal = outputSigma0 ? sigma0Area[jj] : noDataValue;
+                                saveIlluminationArea(x0, y0, w, h, azimuthIndex[jj], rangeIndex[jj],
+                                        gamma0Area[jj], gamma0ReferenceArea,
+                                        sigma0AreaVal, sigma0ReferenceArea);
                             }
                         }
 
@@ -609,13 +604,10 @@ public final class TerrainFlatteningOp extends Operator {
                         for (int jj = nLon - 1; jj >= 0; --jj) {
                             if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
                                 maxElevAngle = elevationAngle[jj];
-                                saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
-                                        gamma0ReferenceArea);
-
-                                if (outputSigma0) {
-                                    saveSigma0Area(x0, y0, w, h, sigma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
-                                            sigma0ReferenceArea);
-                                }
+                                double sigma0AreaVal = outputSigma0 ? sigma0Area[jj] : noDataValue;
+                                saveIlluminationArea(x0, y0, w, h, azimuthIndex[jj], rangeIndex[jj],
+                                        gamma0Area[jj], gamma0ReferenceArea,
+                                        sigma0AreaVal, sigma0ReferenceArea);
                             }
                         }
                     }
@@ -641,6 +633,9 @@ public final class TerrainFlatteningOp extends Operator {
                 final PositionData posData = new PositionData();
                 final GeoPos geoPos = new GeoPos();
                 for (int y = ymin; y < ymax; y++) {
+                    if(pm.isCanceled()) {
+                        return false;
+                    }
                     final int yy = y - ymin;
 
                     final double[] azimuthIndex = new double[widthExt];
@@ -676,12 +671,8 @@ public final class TerrainFlatteningOp extends Operator {
                         final LocalGeometry localGeometry = new LocalGeometry(
                                 xmin, ymin, x, y, tileGeoRef, localDEM, posData.earthPoint, posData.sensorPos);
 
-                        gamma0Area[xx] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
-                        if (noDataValue.equals(gamma0Area[xx]))
+                        if(!computeIlluminatedArea(localGeometry, demNoDataValue, noDataValue, xx, gamma0Area, sigma0Area)) {
                             continue;
-
-                        if (outputSigma0) {
-                            sigma0Area[xx] = computeSigma0Area(localGeometry, demNoDataValue, noDataValue);
                         }
 
                         elevationAngle[xx] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
@@ -699,13 +690,10 @@ public final class TerrainFlatteningOp extends Operator {
                         for (int i = 0; i < widthExt; i++) {
                             if (savePixel[i] && (!detectShadow || elevationAngle[i] > maxElevAngle)) {
                                 maxElevAngle = elevationAngle[i];
-                                saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                        gamma0ReferenceArea);
-
-                                if (outputSigma0) {
-                                    saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                            sigma0ReferenceArea);
-                                }
+                                double sigma0AreaVal = outputSigma0 ? sigma0Area[i] : noDataValue;
+                                saveIlluminationArea(x0, y0, w, h, azimuthIndex[i], rangeIndex[i],
+                                        gamma0Area[i], gamma0ReferenceArea,
+                                        sigma0AreaVal, sigma0ReferenceArea);
                             }
                         }
 
@@ -715,13 +703,10 @@ public final class TerrainFlatteningOp extends Operator {
                         for (int i = widthExt - 1; i >= 0; --i) {
                             if (savePixel[i] && (!detectShadow || elevationAngle[i] > maxElevAngle)) {
                                 maxElevAngle = elevationAngle[i];
-                                saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                        gamma0ReferenceArea);
-
-                                if (outputSigma0) {
-                                    saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                            sigma0ReferenceArea);
-                                }
+                                double sigma0AreaVal = outputSigma0 ? sigma0Area[i] : noDataValue;
+                                saveIlluminationArea(x0, y0, w, h, azimuthIndex[i], rangeIndex[i],
+                                        gamma0Area[i], gamma0ReferenceArea,
+                                        sigma0AreaVal, sigma0ReferenceArea);
                             }
                         }
                     }
@@ -735,7 +720,7 @@ public final class TerrainFlatteningOp extends Operator {
     }
 
     private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
-                                         double[] latLonMinMax) throws Exception {
+                                         double[] latLonMinMax) {
 
         final GeoCoding geoCoding = sourceProduct.getSceneGeoCoding();
         if (geoCoding == null) {
@@ -783,7 +768,7 @@ public final class TerrainFlatteningOp extends Operator {
 
         GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
 
-        final Double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
+        final double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
                 lineTimeInterval, wavelength, data.earthPoint, orbit);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
@@ -818,7 +803,7 @@ public final class TerrainFlatteningOp extends Operator {
         final PosVector earthPoint = new PosVector();
         GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
 
-        final Double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
+        final double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
                 lineTimeInterval, wavelength, earthPoint, orbit);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
@@ -1042,7 +1027,7 @@ public final class TerrainFlatteningOp extends Operator {
      *
      * @throws Exception The exceptions.
      */
-    private synchronized void getElevationModel() throws Exception {
+    private synchronized void getElevationModel() {
 
         if (isElevationModelAvailable) return;
         try {
@@ -1062,14 +1047,17 @@ public final class TerrainFlatteningOp extends Operator {
         isElevationModelAvailable = true;
     }
 
-    private OverlapPercentage computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h)
-            throws Exception {
+    private OverlapPercentage computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
+                                                           final ProgressMonitor pm) throws Exception {
 
         final PixelPos pixPos = new PixelPos();
         final GeoCoding sourceGeoCoding = sourceProduct.getSceneGeoCoding();
 
         double tileOverlapUp = 0.0, tileOverlapDown = 0.0, tileOverlapLeft = 0.0, tileOverlapRight = 0.0;
         for (int y = y0; y < y0 + h; y += 20) {
+            if(pm.isCanceled()) {
+                return null;
+            }
             for (int x = x0; x < x0 + w; x += 20) {
                 if (getTruePixelPos(x, y, pixPos, sourceGeoCoding)) {
                     tileOverlapUp = Math.max((y - pixPos.y) / h, tileOverlapUp);
@@ -1142,7 +1130,7 @@ public final class TerrainFlatteningOp extends Operator {
         }
 
         if (numIter == maxIterations) {
-            System.out.println("getGeoPos: Maximum number of iterations reached for pixel (" + x0 + ", " + y0 + ")");
+            //System.out.println("getGeoPos: Maximum number of iterations reached for pixel (" + x0 + ", " + y0 + ")");
             return false;
         }
         getPixPos(currentGeoPos.lat, currentGeoPos.lon, dem.getElevation(currentGeoPos), endPixelPos);
@@ -1185,9 +1173,10 @@ public final class TerrainFlatteningOp extends Operator {
      * @param rangeIndex          Range pixel index for the illuminated area.
      * @param gamma0ReferenceArea Buffer for the simulated image.
      */
-    private static void saveGamma0Area(final int x0, final int y0, final int w, final int h, final double gamma0Area,
+    private void saveIlluminationArea(final int x0, final int y0, final int w, final int h,
                                        final double azimuthIndex, final double rangeIndex,
-                                       final double[][] gamma0ReferenceArea) {
+                                             final double gamma0Area, final double[][] gamma0ReferenceArea,
+                                             final double sigma0Area, final double[][] sigma0ReferenceArea) {
 
         final int ia0 = (int) azimuthIndex;
         final int ia1 = ia0 + 1;
@@ -1200,49 +1189,33 @@ public final class TerrainFlatteningOp extends Operator {
 
         if (ir0 >= x0 && ir0 < x0 + w) {
             final double wrc = 1 - wr;
-            if (ia0 >= y0 && ia0 < y0 + h)
+            if (ia0 >= y0 && ia0 < y0 + h) {
                 gamma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * gamma0Area;
-
-            if (ia1 >= y0 && ia1 < y0 + h)
+                if(outputSigma0) {
+                    sigma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * sigma0Area;
+                }
+            }
+            if (ia1 >= y0 && ia1 < y0 + h) {
                 gamma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * gamma0Area;
+                if(outputSigma0) {
+                    sigma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * sigma0Area;
+                }
+            }
         }
 
         if (ir1 >= x0 && ir1 < x0 + w) {
-            if (ia0 >= y0 && ia0 < y0 + h)
+            if (ia0 >= y0 && ia0 < y0 + h) {
                 gamma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * gamma0Area;
-
-            if (ia1 >= y0 && ia1 < y0 + h)
+                if(outputSigma0) {
+                    sigma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * sigma0Area;
+                }
+            }
+            if (ia1 >= y0 && ia1 < y0 + h) {
                 gamma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * gamma0Area;
-        }
-    }
-
-    private static void saveSigma0Area(final int x0, final int y0, final int w, final int h, final double sigma0Area,
-                                       final double azimuthIndex, final double rangeIndex,
-                                       final double[][] sigma0ReferenceArea) {
-
-        final int ia0 = (int) azimuthIndex;
-        final int ia1 = ia0 + 1;
-        final int ir0 = (int) rangeIndex;
-        final int ir1 = ir0 + 1;
-
-        final double wr = rangeIndex - ir0;
-        final double wa = azimuthIndex - ia0;
-        final double wac = 1 - wa;
-
-        if (ir0 >= x0) {
-            final double wrc = 1 - wr;
-            if (ia0 >= y0)
-                sigma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * sigma0Area;
-
-            if (ia1 < y0 + h)
-                sigma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * sigma0Area;
-        }
-        if (ir1 < x0 + w) {
-            if (ia0 >= y0)
-                sigma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * sigma0Area;
-
-            if (ia1 < y0 + h)
-                sigma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * sigma0Area;
+                if(outputSigma0) {
+                    sigma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * sigma0Area;
+                }
+            }
         }
     }
 
@@ -1270,14 +1243,19 @@ public final class TerrainFlatteningOp extends Operator {
      *
      * @param lg             Local geometry information.
      * @param demNoDataValue Invalid DEM value.
-     * @return The computed local illuminated area.
+     * @return True if computed local illuminated area != nodatavalue.
      */
-    private static double computeGamma0Area(
-            final LocalGeometry lg, final Double demNoDataValue, final double noDataValue) {
+    private boolean computeIlluminatedArea(
+            final LocalGeometry lg, final Double demNoDataValue, final double noDataValue, final int j,
+            final double[] gamma0Area, final double[] sigma0Area) {
 
         if (demNoDataValue.equals(lg.t00Height) || demNoDataValue.equals(lg.t01Height) ||
                 demNoDataValue.equals(lg.t10Height) || demNoDataValue.equals(lg.t11Height)) {
-            return noDataValue;
+            gamma0Area[j] = noDataValue;
+            if(outputSigma0) {
+                sigma0Area[j] = noDataValue;
+            }
+            return false;
         }
 
         final PosVector t00 = new PosVector();
@@ -1321,49 +1299,32 @@ public final class TerrainFlatteningOp extends Operator {
         final double h2 = 0.5 * (p11p01 + p11p10 + p10p01);
 
         // compute the illuminated area
-        return Math.sqrt(h1 * (h1 - p00p01) * (h1 - p00p10) * (h1 - p10p01)) +
+        gamma0Area[j] =  Math.sqrt(h1 * (h1 - p00p01) * (h1 - p00p10) * (h1 - p10p01)) +
                 Math.sqrt(h2 * (h2 - p11p01) * (h2 - p11p10) * (h2 - p10p01));
-    }
 
-    private static double computeSigma0Area(
-            final LocalGeometry lg, final Double demNoDataValue, final double noDataValue) {
+        if(outputSigma0) {
+            final double[] T00 = {t00.x, t00.y, t00.z};
+            final double[] T01 = {t01.x, t01.y, t01.z};
+            final double[] T10 = {t10.x, t10.y, t10.z};
+            final double[] T11 = {t11.x, t11.y, t11.z};
 
-        if (demNoDataValue.equals(lg.t00Height) || demNoDataValue.equals(lg.t01Height) ||
-                demNoDataValue.equals(lg.t10Height) || demNoDataValue.equals(lg.t11Height)) {
-            return noDataValue;
+            // compute distances between projected points
+            final double T00T01 = distance(T00, T01);
+            final double T00T10 = distance(T00, T10);
+            final double T11T01 = distance(T11, T01);
+            final double T11T10 = distance(T11, T10);
+            final double T10T01 = distance(T10, T01);
+
+            // compute semi-perimeters of two triangles: T00-T01-T10 and T11-T01-T10
+            final double hh1 = 0.5 * (T00T01 + T00T10 + T10T01);
+            final double hh2 = 0.5 * (T11T01 + T11T10 + T10T01);
+
+            // compute the illuminated area
+            sigma0Area[j] = Math.sqrt(hh1 * (hh1 - T00T01) * (hh1 - T00T10) * (hh1 - T10T01)) +
+                    Math.sqrt(hh2 * (hh2 - T11T01) * (hh2 - T11T10) * (hh2 - T10T01));
         }
-
-        final PosVector t00 = new PosVector();
-        final PosVector t01 = new PosVector();
-        final PosVector t10 = new PosVector();
-        final PosVector t11 = new PosVector();
-
-        GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, lg.t00Height, t00);
-        GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, lg.t01Height, t01);
-        GeoUtils.geo2xyzWGS84(lg.t10Lat, lg.t10Lon, lg.t10Height, t10);
-        GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, lg.t11Height, t11);
-
-        final double[] T00 = {t00.x, t00.y, t00.z};
-        final double[] T01 = {t01.x, t01.y, t01.z};
-        final double[] T10 = {t10.x, t10.y, t10.z};
-        final double[] T11 = {t11.x, t11.y, t11.z};
-
-        // compute distances between projected points
-        final double T00T01 = distance(T00, T01);
-        final double T00T10 = distance(T00, T10);
-        final double T11T01 = distance(T11, T01);
-        final double T11T10 = distance(T11, T10);
-        final double T10T01 = distance(T10, T01);
-
-        // compute semi-perimeters of two triangles: T00-T01-T10 and T11-T01-T10
-        final double h1 = 0.5 * (T00T01 + T00T10 + T10T01);
-        final double h2 = 0.5 * (T11T01 + T11T10 + T10T01);
-
-        // compute the illuminated area
-        return Math.sqrt(h1 * (h1 - T00T01) * (h1 - T00T10) * (h1 - T10T01)) +
-                Math.sqrt(h2 * (h2 - T11T01) * (h2 - T11T10) * (h2 - T10T01));
+        return true;
     }
-
 
     private static double distance(final double[] p1, final double[] p2) {
         return Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) +
@@ -1388,7 +1349,7 @@ public final class TerrainFlatteningOp extends Operator {
         public final PosVector sensorPos;
         public final PosVector centerPoint;
 
-        public LocalGeometry(final int x0, final int y0, final int x, final int y,
+        LocalGeometry(final int x0, final int y0, final int x, final int y,
                              final TileGeoreferencing tileGeoRef, final double[][] localDEM,
                              final PosVector earthPoint, final PosVector sensorPos) {
 
@@ -1420,7 +1381,7 @@ public final class TerrainFlatteningOp extends Operator {
             this.sensorPos = sensorPos;
         }
 
-        public LocalGeometry(final double lat, final double lon, final double del, final ElevationModel dem,
+        LocalGeometry(final double lat, final double lon, final double del, final ElevationModel dem,
                              final PosVector earthPoint, final PosVector sensorPos) throws Exception {
 
             this.t00Lat = lat;
@@ -1458,7 +1419,7 @@ public final class TerrainFlatteningOp extends Operator {
         final double tileOverlapLeft;
         final double tileOverlapRight;
 
-        public OverlapPercentage(final double tileOverlapUp, final double tileOverlapDown,
+        OverlapPercentage(final double tileOverlapUp, final double tileOverlapDown,
                                  final double tileOverlapLeft, final double tileOverlapRight) {
             this.tileOverlapUp = tileOverlapUp;
             this.tileOverlapDown = tileOverlapDown;

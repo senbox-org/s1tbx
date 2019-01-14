@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.insar.gpf.support;
 
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
@@ -34,7 +35,7 @@ public class SARPosition {
     private final boolean srgrFlag;
     private final double nearEdgeSlantRange;
     private final boolean nearRangeOnLeft;
-    private final SARGeocoding.Orbit orbit;
+    private final OrbitStateVectors orbit;
     private final AbstractMetadata.SRGRCoefficientList[] srgrConvParams;
 
     private int x0, y0, w, h;
@@ -57,7 +58,7 @@ public class SARPosition {
             boolean srgrFlag,
             double nearEdgeSlantRange,
             boolean nearRangeOnLeft,
-            SARGeocoding.Orbit orbit,
+            OrbitStateVectors orbit,
             AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
 
         this.firstLineTime = firstLineTime;

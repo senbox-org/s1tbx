@@ -29,9 +29,6 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.util.Maths;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Common SAR utilities for Geocoding
  */
@@ -113,28 +110,14 @@ public final class SARGeocoding {
 
     public static double getEarthPointZeroDopplerTimeNewton(
             final double lineTimeInterval, final double wavelength,
-            final PosVector earthPoint, final SARGeocoding.Orbit orbit) throws OperatorException {
+            final PosVector earthPoint, final OrbitStateVectors orbit) throws OperatorException {
 
         final int numOrbitVec = orbit.orbitStateVectors.length;
-        final PosVector sensorPosition = new PosVector(
-                orbit.orbitStateVectors[0].x_pos,
-                orbit.orbitStateVectors[0].y_pos,
-                orbit.orbitStateVectors[0].z_pos);
-        final PosVector sensorVelocity = new PosVector(
-                orbit.orbitStateVectors[0].x_vel,
-                orbit.orbitStateVectors[0].y_vel,
-                orbit.orbitStateVectors[0].z_vel);
 
-        final double firstVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double firstVecFreq = getDopplerFrequency(earthPoint, orbit.orbitStateVectors[0], wavelength);
         final double firstVecTime = orbit.orbitStateVectors[0].time_mjd;
 
-        sensorPosition.x = orbit.orbitStateVectors[numOrbitVec - 1].x_pos;
-        sensorPosition.y = orbit.orbitStateVectors[numOrbitVec - 1].y_pos;
-        sensorPosition.z = orbit.orbitStateVectors[numOrbitVec - 1].z_pos;
-        sensorVelocity.x = orbit.orbitStateVectors[numOrbitVec - 1].x_vel;
-        sensorVelocity.y = orbit.orbitStateVectors[numOrbitVec - 1].y_vel;
-        sensorVelocity.z = orbit.orbitStateVectors[numOrbitVec - 1].z_vel;
-        final double lastVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double lastVecFreq = getDopplerFrequency(earthPoint, orbit.orbitStateVectors[numOrbitVec - 1], wavelength);
         final double lastVecTime = orbit.orbitStateVectors[numOrbitVec - 1].time_mjd;
 
         if (firstVecFreq == 0.0) {
@@ -147,6 +130,9 @@ public final class SARGeocoding {
 
         double oldTime, oldFreq;
         double newTime = (firstVecTime + lastVecTime) / 2.0, oldFreqDel;
+
+        final PosVector sensorPosition = new PosVector();
+        final PosVector sensorVelocity = new PosVector();
         orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
         double newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
 
@@ -188,12 +174,10 @@ public final class SARGeocoding {
      */
     public static double getZeroDopplerTime(final double lineTimeInterval,
                                             final double wavelength, final PosVector earthPoint,
-                                            final SARGeocoding.Orbit orbit) throws OperatorException {
+                                            final OrbitStateVectors orbit) throws OperatorException {
 
         // loop through all orbit state vectors to find the adjacent two vectors
         final int numOrbitVec = orbit.orbitStateVectors.length;
-        final PosVector sensorPosition = new PosVector();
-        final PosVector sensorVelocity = new PosVector();
         double firstVecTime = 0.0;
         double secondVecTime = 0.0;
         double firstVecFreq = 0.0;
@@ -201,10 +185,8 @@ public final class SARGeocoding {
 
         for (int i = 0; i < numOrbitVec; i++) {
             final OrbitStateVector orb = orbit.orbitStateVectors[i];
-            sensorPosition.set(orb.x_pos, orb.y_pos, orb.z_pos);
-            sensorVelocity.set(orb.x_vel, orb.y_vel, orb.z_vel);
 
-            final double currentFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            final double currentFreq = getDopplerFrequency(earthPoint, orb, wavelength);
             if (i == 0 || firstVecFreq * currentFreq > 0) {
                 firstVecTime = orb.time_mjd;
                 firstVecFreq = currentFreq;
@@ -224,10 +206,13 @@ public final class SARGeocoding {
         double upperBoundTime = secondVecTime;
         double lowerBoundFreq = firstVecFreq;
         double upperBoundFreq = secondVecFreq;
-        double midTime;
-        double midFreq;
+        double midTime, midFreq;
         double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         final double absLineTimeInterval = Math.abs(lineTimeInterval);
+
+        final PosVector sensorPosition = new PosVector();
+        final PosVector sensorVelocity = new PosVector();
+
         final int totalIterations = (int)(diffTime/ absLineTimeInterval) + 1;
         int numIterations = 0;
         while (diffTime > absLineTimeInterval && numIterations <= totalIterations) {
@@ -291,6 +276,25 @@ public final class SARGeocoding {
     }
 
     /**
+     * Compute Doppler frequency for given earthPoint and sensor position.
+     *
+     * @param earthPoint     The earth point in xyz coordinate.
+     * @param orbit          OrbitStateVector
+     * @param wavelength     The radar wavelength.
+     * @return The Doppler frequency in Hz.
+     */
+    private static double getDopplerFrequency(
+            final PosVector earthPoint, final OrbitStateVector orbit, final double wavelength) {
+
+        final double xDiff = earthPoint.x - orbit.x_pos;
+        final double yDiff = earthPoint.y - orbit.y_pos;
+        final double zDiff = earthPoint.z - orbit.z_pos;
+        final double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
+
+        return 2.0 * (orbit.x_vel * xDiff + orbit.y_vel * yDiff + orbit.z_vel * zDiff) / (distance * wavelength);
+    }
+
+    /**
      * Compute slant range distance for given earth point and given time.
      *
      * @param time       The given time in days.
@@ -300,9 +304,9 @@ public final class SARGeocoding {
      * @return The slant range distance in meters.
      */
     public static double computeSlantRange(
-            final double time, final SARGeocoding.Orbit orbit, final PosVector earthPoint, final PosVector sensorPos) {
+            final double time, final OrbitStateVectors orbit, final PosVector earthPoint, final PosVector sensorPos) {
 
-        orbit.getPositionVelocity(time, sensorPos, null);
+        orbit.getPosition(time, sensorPos);
 
         final double xDiff = sensorPos.x - earthPoint.x;
         final double yDiff = sensorPos.y - earthPoint.y;
@@ -892,154 +896,5 @@ public final class SARGeocoding {
         lookDirectionListElem.addElement(lookDirectionElem);
     }
 
-
-    public final static class Orbit {
-
-        public OrbitStateVector[] orbitStateVectors = null;
-        public PosVector[] sensorPosition = null; // sensor position for all range lines
-        public PosVector[] sensorVelocity = null; // sensor velocity for all range lines
-        private double dt = 0.0;
-
-        public Orbit(OrbitStateVector[] orbitStateVectors,
-                     double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
-
-            this.orbitStateVectors = removeRedundantVectors(orbitStateVectors);
-
-            this.dt = (this.orbitStateVectors[this.orbitStateVectors.length-1].time_mjd -
-                    this.orbitStateVectors[0].time_mjd) / (this.orbitStateVectors.length-1);
-
-            this.sensorPosition = new PosVector[sourceImageHeight];
-            this.sensorVelocity = new PosVector[sourceImageHeight];
-            for (int i = 0; i < sourceImageHeight; i++) {
-                final double time = firstLineUTC + i * lineTimeInterval;
-                sensorPosition[i] = new PosVector();
-                sensorVelocity[i] = new PosVector();
-                getPositionVelocity(time, sensorPosition[i], sensorVelocity[i]);
-            }
-        }
-
-        public Orbit(OrbitStateVector[] orbitStateVectors) {
-
-            this.orbitStateVectors = removeRedundantVectors(orbitStateVectors);
-
-			this.dt = (this.orbitStateVectors[orbitStateVectors.length-1].time_mjd -
-                    this.orbitStateVectors[0].time_mjd) / (this.orbitStateVectors.length-1);
-        }
-
-        private static OrbitStateVector[] removeRedundantVectors(OrbitStateVector[] orbitStateVectors) {
-
-            final List<OrbitStateVector> vectorList = new ArrayList<>();
-            double currentTime = 0.0;
-            for (int i = 0; i < orbitStateVectors.length; i++) {
-                if (i == 0) {
-                    currentTime = orbitStateVectors[i].time_mjd;
-                    vectorList.add(orbitStateVectors[i]);
-                } else if (orbitStateVectors[i].time_mjd > currentTime) {
-                    currentTime = orbitStateVectors[i].time_mjd;
-                    vectorList.add(orbitStateVectors[i]);
-                }
-            }
-
-            return vectorList.toArray(new OrbitStateVector[vectorList.size()]);
-        }
-
-        public void getPositionVelocity(final double time, final PosVector position, final PosVector velocity) {
-
-            final int nv = 8;
-            int i0, iN;
-            if (orbitStateVectors.length <= nv) {
-                i0 = 0;
-                iN = orbitStateVectors.length - 1;
-            } else {
-                i0 = Math.max((int)((time - orbitStateVectors[0].time_mjd) / dt) - nv/2 + 1, 0);
-                iN = Math.min(i0 + nv - 1, orbitStateVectors.length - 1);
-                i0 = (iN < orbitStateVectors.length - 1? i0:iN - nv + 1);
-            }
-
-            //lagrangeInterpolatingPolynomial
-            if(position != null) {
-                position.x = 0;
-                position.y = 0;
-                position.z = 0;
-            }
-            if(velocity != null) {
-                velocity.x = 0;
-                velocity.y = 0;
-                velocity.z = 0;
-            }
-
-            for (int i = i0; i <= iN; ++i) {
-                final OrbitStateVector orbI = orbitStateVectors[i];
-
-                double weight = 1;
-                for (int j = i0; j <= iN; ++j) {
-                    if (j != i) {
-                        final double time2 = orbitStateVectors[j].time_mjd;
-                        weight *= (time - time2) / (orbI.time_mjd - time2);
-                    }
-                }
-                if(position != null) {
-                    position.x += weight * orbI.x_pos;
-                    position.y += weight * orbI.y_pos;
-                    position.z += weight * orbI.z_pos;
-                }
-                if(velocity != null) {
-                    velocity.x += weight * orbI.x_vel;
-                    velocity.y += weight * orbI.y_vel;
-                    velocity.z += weight * orbI.z_vel;
-                }
-            }
-        }
-
-        double getVelocity(final double time) {
-
-            final PosVector velocity = new PosVector();
-            getPositionVelocity(time, null, velocity);
-            return Math.sqrt(velocity.x*velocity.x + velocity.y*velocity.y + velocity.z*velocity.z);
-        }
-
-        private int[] findAdjacentVectors(final double time) {
-
-            int[] vectorIndices;
-            final int nv = 8;
-            final int totalVectors = orbitStateVectors.length;
-            if (totalVectors <= nv) {
-                vectorIndices = new int[totalVectors];
-                for (int i = 0; i < totalVectors; i++) {
-                    vectorIndices[i] = i;
-                }
-                return vectorIndices;
-            }
-
-            int idx = 0;
-            for (int i = 0; i < totalVectors; i++) {
-                if (time < orbitStateVectors[i].time_mjd) {
-                    idx = i - 1;
-                    break;
-                }
-            }
-
-            if (idx == -1) {
-                vectorIndices = new int[nv];
-                for (int i = 0; i < nv; i++) {
-                    vectorIndices[i] = i;
-                }
-            } else if (idx == 0) {
-                vectorIndices = new int[nv];
-                for (int i = 0; i < nv; i++) {
-                    vectorIndices[i] = totalVectors - nv + i;
-                }
-            } else {
-                final int stIdx = Math.max(idx - nv/2 + 1, 0);
-                final int edIdx = Math.min(idx + nv/2, totalVectors - 1);
-                vectorIndices = new int[edIdx - stIdx + 1];
-                for (int i = 0; i < vectorIndices.length; i++) {
-                    vectorIndices[i] = stIdx + i;
-                }
-            }
-
-            return vectorIndices;
-        }
-    }
 
 }
