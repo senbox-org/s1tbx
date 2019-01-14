@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.commons.SARUtils;
 import org.esa.snap.core.datamodel.*;
@@ -120,7 +121,7 @@ public final class UpdateGeoRefOp extends Operator {
     private double delLat = 0.0;
     private double delLon = 0.0;
 
-    private SARGeocoding.Orbit orbit = null;
+    private OrbitStateVectors orbit = null;
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -211,7 +212,7 @@ public final class UpdateGeoRefOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new OrbitStateVectors(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.SARPosition;
 import org.esa.s1tbx.commons.SARUtils;
@@ -208,7 +209,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(
                 metadata.absRoot);
 
-        metadata.orbit = new SARGeocoding.Orbit(
+        metadata.orbit = new OrbitStateVectors(
                 orbitStateVectors, metadata.firstLineTime, metadata.lineTimeInterval, metadata.sourceImageHeight);
 
 
@@ -862,7 +863,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
     private static class Metadata {
         public MetadataElement absRoot = null;
-        public SARGeocoding.Orbit orbit = null;
+        public OrbitStateVectors orbit = null;
         public double firstLineTime = 0.0;
         public double lastLineTime = 0.0; // in days
         public double lineTimeInterval = 0.0;

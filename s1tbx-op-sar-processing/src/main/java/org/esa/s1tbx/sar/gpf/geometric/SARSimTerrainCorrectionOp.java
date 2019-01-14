@@ -20,6 +20,7 @@ import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.insar.gpf.coregistration.GCPManager;
 import org.esa.s1tbx.insar.gpf.coregistration.WarpData;
 import org.esa.s1tbx.commons.CRSGeoCodingHandler;
@@ -224,7 +225,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private double demNoDataValue = 0; // no data value for DEM
     private double delLat = 0.0;
     private double delLon = 0.0;
-    private SARGeocoding.Orbit orbit = null;
+    private OrbitStateVectors orbit = null;
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private OrbitStateVector[] orbitStateVectors = null;
@@ -566,7 +567,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new OrbitStateVectors(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     private static void addLayoverShadowMasks(final Product product) {
