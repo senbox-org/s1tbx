@@ -131,10 +131,8 @@ public final class SARGeocoding {
         double oldTime, oldFreq;
         double newTime = (firstVecTime + lastVecTime) / 2.0, oldFreqDel;
 
-        final PosVector sensorPosition = new PosVector();
-        final PosVector sensorVelocity = new PosVector();
-        orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
-        double newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        OrbitStateVectors.PositionVelocity pv = orbit.getPositionVelocity(newTime);
+        double newFreq = getDopplerFrequency(earthPoint, pv.position, pv.velocity, wavelength);
 
         double d;
         int numIter = 0;
@@ -142,8 +140,8 @@ public final class SARGeocoding {
             oldTime = newTime;
             oldFreq = newFreq;
 
-            orbit.getPositionVelocity(oldTime + lineTimeInterval, sensorPosition, sensorVelocity);
-            oldFreqDel = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            pv = orbit.getPositionVelocity(oldTime + lineTimeInterval);
+            oldFreqDel = getDopplerFrequency(earthPoint, pv.position, pv.velocity, wavelength);
 
             d = (oldFreqDel - oldFreq) / lineTimeInterval;
 
@@ -154,8 +152,8 @@ public final class SARGeocoding {
                 newTime = lastVecTime;
             }
 
-            orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
-            newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            pv = orbit.getPositionVelocity(newTime);
+            newFreq = getDopplerFrequency(earthPoint, pv.position, pv.velocity, wavelength);
             numIter++;
         }
 
@@ -210,16 +208,13 @@ public final class SARGeocoding {
         double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         final double absLineTimeInterval = Math.abs(lineTimeInterval);
 
-        final PosVector sensorPosition = new PosVector();
-        final PosVector sensorVelocity = new PosVector();
-
         final int totalIterations = (int)(diffTime/ absLineTimeInterval) + 1;
         int numIterations = 0;
         while (diffTime > absLineTimeInterval && numIterations <= totalIterations) {
 
             midTime = (upperBoundTime + lowerBoundTime) / 2.0;
-            orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
-            midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            OrbitStateVectors.PositionVelocity pv = orbit.getPositionVelocity(midTime);
+            midFreq = getDopplerFrequency(earthPoint, pv.position, pv.velocity, wavelength);
 
             if (midFreq * lowerBoundFreq > 0.0) {
                 lowerBoundTime = midTime;
