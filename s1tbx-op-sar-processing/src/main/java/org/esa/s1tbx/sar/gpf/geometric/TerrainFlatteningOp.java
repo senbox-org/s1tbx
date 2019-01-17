@@ -571,7 +571,7 @@ public final class TerrainFlatteningOp extends Operator {
                         if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
                             continue;
 
-                        final LocalGeometry localGeometry = new LocalGeometry(lat, lon, delta, dem,
+                        final LocalGeometry localGeometry = new LocalGeometry(lat, lon, alt, delta, dem,
                                 posData.earthPoint, posData.sensorPos);
 
                         if(!computeIlluminatedArea(localGeometry, demNoDataValue, noDataValue, j, gamma0Area, sigma0Area)) {
@@ -1381,12 +1381,12 @@ public final class TerrainFlatteningOp extends Operator {
             this.sensorPos = sensorPos;
         }
 
-        LocalGeometry(final double lat, final double lon, final double del, final ElevationModel dem,
+        LocalGeometry(final double lat, final double lon, final  double alt, final double del, final ElevationModel dem,
                              final PosVector earthPoint, final PosVector sensorPos) throws Exception {
 
             this.t00Lat = lat;
             this.t00Lon = lon;
-            this.t00Height = dem.getElevation(new GeoPos(t00Lat, t00Lon));
+            this.t00Height = alt;
 
             this.t01Lat = lat - del;
             this.t01Lon = lon;

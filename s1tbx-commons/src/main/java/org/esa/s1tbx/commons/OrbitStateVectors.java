@@ -14,7 +14,7 @@ public final class OrbitStateVectors {
     public PosVector[] sensorPosition = null; // sensor position for all range lines
     public PosVector[] sensorVelocity = null; // sensor velocity for all range lines
     private double dt = 0.0;
-    private final Map<Double, CachedState> timeMap = new HashMap<>();
+    private final Map<Double, PositionVelocity> timeMap = new HashMap<>();
 
     private static final int nv = 8;
 
@@ -30,9 +30,9 @@ public final class OrbitStateVectors {
         this.sensorVelocity = new PosVector[sourceImageHeight];
         for (int i = 0; i < sourceImageHeight; i++) {
             final double time = firstLineUTC + i * lineTimeInterval;
-            sensorPosition[i] = new PosVector();
-            sensorVelocity[i] = new PosVector();
-            getPositionVelocity(time, sensorPosition[i], sensorVelocity[i]);
+            PositionVelocity pv = getPositionVelocity(time);
+            sensorPosition[i] = pv.position;
+            sensorVelocity[i] = pv.velocity;
         }
     }
 
@@ -61,13 +61,11 @@ public final class OrbitStateVectors {
         return vectorList.toArray(new OrbitStateVector[0]);
     }
 
-    public void getPositionVelocity(final double time, final PosVector position, final PosVector velocity) {
+    public PositionVelocity getPositionVelocity(final Double time) {
 
-        CachedState state = timeMap.get(time);
-        if(state != null) {
-            position.set(state.position.x, state.position.y, state.position.z);
-            velocity.set(state.velocity.x, state.velocity.y, state.velocity.z);
-            return;
+        PositionVelocity cachedPosVel = timeMap.get(time);
+        if(cachedPosVel != null) {
+            return cachedPosVel;
         }
 
         int i0, iN;
@@ -81,13 +79,7 @@ public final class OrbitStateVectors {
         }
 
         //lagrangeInterpolatingPolynomial
-        position.x = 0;
-        position.y = 0;
-        position.z = 0;
-
-        velocity.x = 0;
-        velocity.y = 0;
-        velocity.z = 0;
+        final PositionVelocity pv = new PositionVelocity();
 
         for (int i = i0; i <= iN; ++i) {
             final OrbitStateVector orbI = orbitStateVectors[i];
@@ -100,16 +92,17 @@ public final class OrbitStateVectors {
                 }
             }
 
-            position.x += weight * orbI.x_pos;
-            position.y += weight * orbI.y_pos;
-            position.z += weight * orbI.z_pos;
+            pv.position.x += weight * orbI.x_pos;
+            pv.position.y += weight * orbI.y_pos;
+            pv.position.z += weight * orbI.z_pos;
 
-            velocity.x += weight * orbI.x_vel;
-            velocity.y += weight * orbI.y_vel;
-            velocity.z += weight * orbI.z_vel;
+            pv.velocity.x += weight * orbI.x_vel;
+            pv.velocity.y += weight * orbI.y_vel;
+            pv.velocity.z += weight * orbI.z_vel;
         }
 
-        timeMap.put(time, new CachedState(position, velocity));
+        timeMap.put(time, pv);
+        return pv;
     }
 
     PosVector getPosition(final double time, final PosVector position) {
@@ -221,12 +214,8 @@ public final class OrbitStateVectors {
         return vectorIndices;
     }
 
-    private static class CachedState {
-        final PosVector position = new PosVector();
-        final PosVector velocity = new PosVector();
-        CachedState(final PosVector pos, final PosVector vel) {
-            this.position.set(pos.x, pos.y, pos.z);
-            this.velocity.set(vel.x, vel.y, vel.z);
-        }
+    public static class PositionVelocity {
+        public final PosVector position = new PosVector();
+        public final PosVector velocity = new PosVector();
     }
 }

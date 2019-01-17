@@ -428,12 +428,8 @@ public class ALOSDeskewingOp extends Operator {
      * @return Orbit state vector.
      */
     private stateVector getOrbitStateVector(final double time) {
-
-        final PosVector pos = new PosVector();
-        final PosVector vel = new PosVector();
-        orbit.getPositionVelocity(time, pos, vel);
-
-        return new stateVector(time, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
+        OrbitStateVectors.PositionVelocity pv = orbit.getPositionVelocity(time);
+        return new stateVector(time, pv.position.x, pv.position.y, pv.position.z, pv.velocity.x, pv.velocity.y, pv.velocity.z);
     }
 
     /**
