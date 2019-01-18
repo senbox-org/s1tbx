@@ -13,18 +13,20 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.paz;
+package org.esa.s1tbx.io.ceos.risat;
 
-import org.esa.s1tbx.io.terrasarx.TerraSarXProductDirectory;
-import org.esa.s1tbx.io.terrasarx.TerraSarXProductReader;
+import com.bc.ceres.core.VirtualDir;
+import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
+import org.esa.s1tbx.io.ceos.CEOSProductReader;
+import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 
 import java.io.File;
 
 /**
- * The product reader for TerraSarX products.
+ * The product reader for CEOS products.
  */
-public class PazProductReader extends TerraSarXProductReader {
+public class RisatProductReader extends CEOSProductReader {
 
     /**
      * Constructs a new abstract product reader.
@@ -32,13 +34,27 @@ public class PazProductReader extends TerraSarXProductReader {
      * @param readerPlugIn the reader plug-in which created this reader, can be <code>null</code> for internal reader
      *                     implementations
      */
-    public PazProductReader(final ProductReaderPlugIn readerPlugIn) {
+    public RisatProductReader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
     }
 
-
     @Override
-    protected TerraSarXProductDirectory createProductDirectory(final File fileFromInput) {
-        return new PazProductDirectory(fileFromInput);
+    protected CEOSProductDirectory createProductDirectory(final VirtualDir productDir) {
+        return new RisatProductDirectory(productDir);
+    }
+
+    DecodeQualification checkProductQualification(File file) {
+
+        try {
+            dataDir = createProductDirectory(createProductDir(file));
+
+            final RisatProductDirectory dataDir = (RisatProductDirectory) this.dataDir;
+            if (dataDir.isCeos())
+                return DecodeQualification.SUITABLE;
+            return DecodeQualification.UNABLE;
+
+        } catch (Exception e) {
+            return DecodeQualification.UNABLE;
+        }
     }
 }

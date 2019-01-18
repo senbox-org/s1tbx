@@ -1,10 +1,25 @@
-
+/*
+ * Copyright (C) 2019 Skywatch. https://www.skywatch.co
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.io.risat1;
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.PropertyMapProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.io.ceos.basic.BasicCeosProductReader;
 import org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
@@ -183,6 +198,11 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                         SARReader.createVirtualIntensityBand(product, trgBand, '_' + pol);
                     }
                 }
+            }
+
+            // add metadata
+            if(bandProduct.getProductReader() instanceof BasicCeosProductReader) {
+                product.getMetadataRoot().addElement(bandProduct.getMetadataRoot());
             }
 
             if (product.getSceneGeoCoding() == null && bandProduct.getSceneGeoCoding() != null &&

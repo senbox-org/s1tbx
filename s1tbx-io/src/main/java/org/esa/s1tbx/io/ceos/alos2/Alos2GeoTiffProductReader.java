@@ -1,7 +1,20 @@
+/*
+ * Copyright (C) 2019 Skywatch. https://www.skywatch.co
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.io.ceos.alos2;
 
-import org.esa.s1tbx.commons.io.ImageIOFile;
-import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
@@ -9,10 +22,7 @@ import org.esa.snap.core.datamodel.*;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
-import ucar.ma2.DataType;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import java.io.*;
 import java.text.DateFormat;
 import java.util.*;
