@@ -25,9 +25,9 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 
-class RisatTrailerFile extends CEOSLeaderFile {
+class RisatCeosTrailerFile extends CEOSLeaderFile {
 
-    private final static String mission = RisatConstants.MISSION;
+    private final static String mission = RisatCeosConstants.MISSION;
     private final static String trailer_recordDefinitionFile = "trailer_file.xml";
 
     private final static Document trailerXML = BinaryDBReader.loadDefinitionFile(mission, trailer_recordDefinitionFile);
@@ -42,7 +42,7 @@ class RisatTrailerFile extends CEOSLeaderFile {
     private final static Document radiometricCompXML = BinaryDBReader.loadDefinitionFile(mission, radiometric_comp_recordDefinitionFile);
     private final static Document facilityXML = BinaryDBReader.loadDefinitionFile(mission, facility_recordDefinitionFile);
 
-    public RisatTrailerFile(final ImageInputStream stream) throws IOException {
+    public RisatCeosTrailerFile(final ImageInputStream stream) throws IOException {
         final BinaryFileReader reader = new BinaryFileReader(stream);
 
         leaderFDR = new BinaryRecord(reader, -1, trailerXML, trailer_recordDefinitionFile);

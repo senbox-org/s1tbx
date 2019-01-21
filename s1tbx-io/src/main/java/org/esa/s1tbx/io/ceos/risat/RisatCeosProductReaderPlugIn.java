@@ -24,10 +24,10 @@ import java.io.File;
 /**
  * The ReaderPlugIn for CEOS products.
  */
-public class RisatProductReaderPlugIn extends CEOSProductReaderPlugIn {
+public class RisatCeosProductReaderPlugIn extends CEOSProductReaderPlugIn {
 
-    public RisatProductReaderPlugIn() {
-        constants = new RisatConstants();
+    public RisatCeosProductReaderPlugIn() {
+        constants = new RisatCeosConstants();
     }
 
     /**
@@ -37,7 +37,7 @@ public class RisatProductReaderPlugIn extends CEOSProductReaderPlugIn {
      */
     @Override
     public ProductReader createReaderInstance() {
-        return new RisatProductReader(this);
+        return new RisatCeosProductReader(this);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class RisatProductReaderPlugIn extends CEOSProductReaderPlugIn {
         final String name = file.getName().toUpperCase();
         for (String prefix : constants.getVolumeFilePrefix()) {
             if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
-                final RisatProductReader reader = new RisatProductReader(this);
+                final RisatCeosProductReader reader = new RisatCeosProductReader(this);
                 return reader.checkProductQualification(file);
             }
         }

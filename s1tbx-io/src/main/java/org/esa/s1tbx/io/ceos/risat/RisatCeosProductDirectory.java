@@ -20,7 +20,6 @@ import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
-import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.snap.core.datamodel.*;
@@ -46,47 +45,48 @@ import java.util.Map;
 /**
  * This class represents a product directory.
  */
-class RisatProductDirectory extends CEOSProductDirectory {
+class RisatCeosProductDirectory extends CEOSProductDirectory {
 
-    private RisatImageFile[] imageFiles = null;
-    private RisatLeaderFile leaderFile = null;
-    private RisatTrailerFile trailerFile = null;
+    private RisatCeosImageFile[] imageFiles = null;
+    private RisatCeosLeaderFile leaderFile = null;
+    private RisatCeosTrailerFile trailerFile = null;
 
-    private final transient Map<String, RisatImageFile> bandImageFileMap = new HashMap<>(1);
+    private final transient Map<String, RisatCeosImageFile> bandImageFileMap = new HashMap<>(1);
 
-    public RisatProductDirectory(final VirtualDir dir) {
+    public RisatCeosProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
 
-        constants = new RisatConstants();
+        constants = new RisatCeosConstants();
         productDir = dir;
     }
 
     @Override
-    protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
+    protected void readProductDirectory() throws IOException {
         readVolumeDirectoryFileStream();
 
-        leaderFile = new RisatLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
+        leaderFile = new RisatCeosLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
         final CeosFile[] trlFile = getCEOSFile(constants.getTrailerFilePrefix());
         if (trlFile.length > 0) {
-            trailerFile = new RisatTrailerFile(trlFile[0].imgInputStream);
+            trailerFile = new RisatCeosTrailerFile(trlFile[0].imgInputStream);
         }
 
         BinaryRecord histogramRec = leaderFile.getHistogramRecord();
-        if (histogramRec == null && trailerFile != null)
+        if (histogramRec == null && trailerFile != null) {
             histogramRec = trailerFile.getHistogramRecord();
+        }
 
         final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
-        final List<RisatImageFile> imgArray = new ArrayList<>(ceosFiles.length);
+        final List<RisatCeosImageFile> imgArray = new ArrayList<>(ceosFiles.length);
         for (CeosFile imageFile : ceosFiles) {
             try {
-                final RisatImageFile imgFile = new RisatImageFile(imageFile.imgInputStream, histogramRec);
+                final RisatCeosImageFile imgFile = new RisatCeosImageFile(imageFile.imgInputStream, histogramRec);
                 imgArray.add(imgFile);
             } catch (Exception e) {
                 e.printStackTrace();
                 // continue
             }
         }
-        imageFiles = imgArray.toArray(new RisatImageFile[imgArray.size()]);
+        imageFiles = imgArray.toArray(new RisatCeosImageFile[imgArray.size()]);
 
         sceneWidth = imageFiles[0].getRasterWidth();
         sceneHeight = imageFiles[0].getRasterHeight();
@@ -102,7 +102,7 @@ class RisatProductDirectory extends CEOSProductDirectory {
 
         if (imageFiles.length > 1) {
             int index = 1;
-            for (final RisatImageFile imageFile : imageFiles) {
+            for (final RisatCeosImageFile imageFile : imageFiles) {
 
                 if (isProductSLC) {
                     final Band bandI = createBand(product, "i_" + index, Unit.REAL, imageFile);
@@ -115,7 +115,7 @@ class RisatProductDirectory extends CEOSProductDirectory {
                 ++index;
             }
         } else {
-            final RisatImageFile imageFile = imageFiles[0];
+            final RisatCeosImageFile imageFile = imageFiles[0];
             if (isProductSLC) {
                 final Band bandI = createBand(product, "i", Unit.REAL, imageFile);
                 final Band bandQ = createBand(product, "q", Unit.IMAGINARY, imageFile);
@@ -199,7 +199,7 @@ class RisatProductDirectory extends CEOSProductDirectory {
         return productType;
     }
 
-    public boolean isCeos() throws IOException {
+    public boolean isCeos() {
         return true;
     }
 
@@ -217,7 +217,7 @@ class RisatProductDirectory extends CEOSProductDirectory {
         imageFiles = null;
     }
 
-    private Band createBand(final Product product, final String name, final String unit, final RisatImageFile imageFile) {
+    private Band createBand(final Product product, final String name, final String unit, final RisatCeosImageFile imageFile) {
 
         final Band band = createBand(product, name, unit, imageFile.getBitsPerSample());
         bandImageFileMap.put(name, imageFile);
@@ -244,13 +244,13 @@ class RisatProductDirectory extends CEOSProductDirectory {
         root.addElement(volMetadata);
 
         int c = 1;
-        for (final RisatImageFile imageFile : imageFiles) {
+        for (final RisatCeosImageFile imageFile : imageFiles) {
             imageFile.assignMetadataTo(root, c++);
         }
 
-        addSummaryMetadata(findFile(RisatConstants.SUMMARY_FILE_NAME), "Summary Information", root);
-        addSummaryMetadata(findFile(RisatConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
-        addSummaryMetadata(findFile(RisatConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
+        addSummaryMetadata(findFile(RisatCeosConstants.SUMMARY_FILE_NAME), "Summary Information", root);
+        addSummaryMetadata(findFile(RisatCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
+        addSummaryMetadata(findFile(RisatCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
 
         // try txt summary file
         // removed because it is not in the property name value format
@@ -431,7 +431,7 @@ class RisatProductDirectory extends CEOSProductDirectory {
         if (sceneRecord != null) {
             level = sceneRecord.getAttributeString("Scene reference number").trim();
         }
-        return RisatConstants.PRODUCT_DESCRIPTION_PREFIX + level;
+        return RisatCeosConstants.PRODUCT_DESCRIPTION_PREFIX + level;
     }
 
     private static void addGeoCodingFromSceneLabel(Product product) {

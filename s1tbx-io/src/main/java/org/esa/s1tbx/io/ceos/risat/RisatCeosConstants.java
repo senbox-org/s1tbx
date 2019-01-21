@@ -20,7 +20,7 @@ import org.esa.s1tbx.io.ceos.CEOSConstants;
 /**
  * Several constants used for reading CEOS products.
  */
-public class RisatConstants implements CEOSConstants {
+public class RisatCeosConstants implements CEOSConstants {
 
     private final String[] FORMAT_NAMES = new String[]{"RISAT CEOS"};
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{""};
@@ -31,7 +31,7 @@ public class RisatConstants implements CEOSConstants {
     private static final String[] IMAGE_FILE_PREFIX = {"DAT", "IM", "SARD"};
     private static final String[] TRAILER_FILE_PREFIX = {"TR", "SART"};
 
-    public final static String MISSION = "RISAT-1";
+    public final static String MISSION = "risat";
 
     final static String PRODUCT_DESCRIPTION_PREFIX = "RISAT-1 product ";
 

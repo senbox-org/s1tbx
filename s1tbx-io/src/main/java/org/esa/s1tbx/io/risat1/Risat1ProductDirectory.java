@@ -19,8 +19,8 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.PropertyMapProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
-import org.esa.s1tbx.io.ceos.basic.BasicCeosProductReader;
-import org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn;
+import org.esa.s1tbx.io.ceos.risat.RisatCeosProductReader;
+import org.esa.s1tbx.io.ceos.risat.RisatCeosProductReaderPlugIn;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.image.ImageManager;
@@ -60,7 +60,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             ".flip.to.sar.geometry", "false").equals("true");
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
-    private static final BasicCeosProductReaderPlugIn ceosPlugIn = new BasicCeosProductReaderPlugIn();
+    private static final RisatCeosProductReaderPlugIn ceosPlugIn = new RisatCeosProductReaderPlugIn();
     private List<Product> bandProductList = new ArrayList<>();
 
     public Risat1ProductDirectory(final File headerFile) {
@@ -201,8 +201,16 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             }
 
             // add metadata
-            if(bandProduct.getProductReader() instanceof BasicCeosProductReader) {
-                product.getMetadataRoot().addElement(bandProduct.getMetadataRoot());
+            if(bandProduct.getProductReader() instanceof RisatCeosProductReader) {
+                MetadataElement trgElem = AbstractMetadata.getOriginalProductMetadata(product);
+
+                for (Product bProduct : bandProductList) {
+                    final String pol = getPol(bProduct.getName());
+                    MetadataElement polElem = AbstractMetadata.getOriginalProductMetadata(bProduct);
+                    polElem.setName(pol + "_Metadata");
+
+                    trgElem.addElement(polElem);
+                }
             }
 
             if (product.getSceneGeoCoding() == null && bandProduct.getSceneGeoCoding() != null &&
@@ -429,13 +437,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         return AbstractMetadata.parseUTC(timeStr, timeFormat);
     }
 
-    protected void verifyProductFormat(final MetadataElement imageAttributes) throws IOException {
-        final String imageProductFormat = imageAttributes.getAttributeString("productFormat");
-        if (!imageProductFormat.equalsIgnoreCase("GeoTIFF")) {
-            throw new IOException("Radarsat2 " + imageProductFormat + " format is not supported by this reader\n Contact nest_pr@array.ca");
-        }
-    }
-
     private static int getFlag(final MetadataElement elem, String tag) {
         String valStr = elem.getAttributeString(tag, " ").toUpperCase();
         if (valStr.equals("FALSE") || valStr.equals("0"))
@@ -586,127 +587,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 
     @Override
     protected void addGeoCoding(final Product product) {
-
-//        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-//        final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-//        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-//
-//        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
-//        final MetadataElement productElem = origProdRoot.getElement("product");
-//        final MetadataElement imageAttributes = productElem.getElement("imageAttributes");
-//        final MetadataElement geographicInformation = imageAttributes.getElement("geographicInformation");
-//        final MetadataElement geolocationGrid = geographicInformation.getElement("geolocationGrid");
-//
-//        final MetadataElement[] geoGrid = geolocationGrid.getElements();
-//
-//        float[] latList = new float[geoGrid.length];
-//        float[] lngList = new float[geoGrid.length];
-//
-//        int gridWidth = 0, gridHeight = 0;
-//        int i = 0;
-//        for (MetadataElement imageTiePoint : geoGrid) {
-//            final MetadataElement geodeticCoordinate = imageTiePoint.getElement("geodeticCoordinate");
-//            final MetadataElement latitude = geodeticCoordinate.getElement("latitude");
-//            final MetadataElement longitude = geodeticCoordinate.getElement("longitude");
-//            latList[i] = (float) latitude.getAttributeDouble("latitude", 0);
-//            lngList[i] = (float) longitude.getAttributeDouble("longitude", 0);
-//
-//            final MetadataElement imageCoordinate = imageTiePoint.getElement("imageCoordinate");
-//            final double pix = imageCoordinate.getAttributeDouble("pixel", 0);
-//            if (pix == 0) {
-//                if (gridWidth == 0)
-//                    gridWidth = i;
-//                ++gridHeight;
-//            }
-//
-//            ++i;
-//        }
-//
-//        if (flipToSARGeometry) {
-//            float[] flippedLatList = new float[geoGrid.length];
-//            float[] flippedLonList = new float[geoGrid.length];
-//            int is, id;
-//            if (isAscending) {
-//                if (isAntennaPointingRight) { // flip upside down
-//                    for (int r = 0; r < gridHeight; r++) {
-//                        is = r * gridWidth;
-//                        id = (gridHeight - r - 1) * gridWidth;
-//                        for (int c = 0; c < gridWidth; c++) {
-//                            flippedLatList[id + c] = latList[is + c];
-//                            flippedLonList[id + c] = lngList[is + c];
-//                        }
-//                    }
-//                } else { // flip upside down then left to right
-//                    for (int r = 0; r < gridHeight; r++) {
-//                        is = r * gridWidth;
-//                        id = (gridHeight - r) * gridWidth;
-//                        for (int c = 0; c < gridWidth; c++) {
-//                            flippedLatList[id - c - 1] = latList[is + c];
-//                            flippedLonList[id - c - 1] = lngList[is + c];
-//                        }
-//                    }
-//                }
-//
-//            } else { // descending
-//
-//                if (isAntennaPointingRight) {  // flip left to right
-//                    for (int r = 0; r < gridHeight; r++) {
-//                        is = r * gridWidth;
-//                        id = r * gridWidth + gridWidth;
-//                        for (int c = 0; c < gridWidth; c++) {
-//                            flippedLatList[id - c - 1] = latList[is + c];
-//                            flippedLonList[id - c - 1] = lngList[is + c];
-//                        }
-//                    }
-//                } else { // no flipping is needed
-//                    flippedLatList = latList;
-//                    flippedLonList = lngList;
-//                }
-//            }
-//
-//            latList = flippedLatList;
-//            lngList = flippedLonList;
-//        }
-//
-//        double subSamplingX = (double) (product.getSceneRasterWidth() - 1) / (gridWidth - 1);
-//        double subSamplingY = (double) (product.getSceneRasterHeight() - 1) / (gridHeight - 1);
-//
-//        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-//                                                      subSamplingX, subSamplingY, latList);
-//        latGrid.setUnit(Unit.DEGREES);
-//
-//        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-//                                                      subSamplingX, subSamplingY, lngList, TiePointGrid.DISCONT_AT_180);
-//        lonGrid.setUnit(Unit.DEGREES);
-//
-//        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-//
-//        if(product.getTiePointGrid(OperatorUtils.TPG_LATITUDE) == null) {
-//            product.addTiePointGrid(latGrid);
-//            product.addTiePointGrid(lonGrid);
-//        }
-//        setLatLongMetadata(product, latGrid, lonGrid);
-//
-//        if (product.getSceneGeoCoding() == null) {
-//            product.setSceneGeoCoding(tpGeoCoding);
-//        }
-    }
-
-    private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-
-        final int w = product.getSceneRasterWidth();
-        final int h = product.getSceneRasterHeight();
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(w - 1, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(w - 1, 0));
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, h - 1));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, h - 1));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(w - 1, h - 1));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(w - 1, h - 1));
     }
 
     @Override
@@ -895,7 +775,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
     }
 
     private static String getMission() {
-        return "RS2";
+        return "RISAT1";
     }
 
     @Override

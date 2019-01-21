@@ -158,8 +158,7 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
             if (super.accept(file)) {
                 final String name = file.getName().toUpperCase();
                 if (file.isDirectory() ||
-                        (name.startsWith(Risat1Constants.PRODUCT_HEADER_PREFIX) && name.endsWith(Risat1Constants.getIndicationKey())) ||
-                        (name.startsWith("RS2") && name.endsWith(".ZIP"))) {
+                        (name.startsWith(Risat1Constants.BAND_HEADER_NAME.toUpperCase()))) {
                     return true;
                 }
             }

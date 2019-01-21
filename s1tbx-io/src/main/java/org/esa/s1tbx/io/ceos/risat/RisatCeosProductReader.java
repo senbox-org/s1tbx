@@ -26,7 +26,7 @@ import java.io.File;
 /**
  * The product reader for CEOS products.
  */
-public class RisatProductReader extends CEOSProductReader {
+public class RisatCeosProductReader extends CEOSProductReader {
 
     /**
      * Constructs a new abstract product reader.
@@ -34,13 +34,13 @@ public class RisatProductReader extends CEOSProductReader {
      * @param readerPlugIn the reader plug-in which created this reader, can be <code>null</code> for internal reader
      *                     implementations
      */
-    public RisatProductReader(final ProductReaderPlugIn readerPlugIn) {
+    public RisatCeosProductReader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
     }
 
     @Override
     protected CEOSProductDirectory createProductDirectory(final VirtualDir productDir) {
-        return new RisatProductDirectory(productDir);
+        return new RisatCeosProductDirectory(productDir);
     }
 
     DecodeQualification checkProductQualification(File file) {
@@ -48,7 +48,7 @@ public class RisatProductReader extends CEOSProductReader {
         try {
             dataDir = createProductDirectory(createProductDir(file));
 
-            final RisatProductDirectory dataDir = (RisatProductDirectory) this.dataDir;
+            final RisatCeosProductDirectory dataDir = (RisatCeosProductDirectory) this.dataDir;
             if (dataDir.isCeos())
                 return DecodeQualification.SUITABLE;
             return DecodeQualification.UNABLE;

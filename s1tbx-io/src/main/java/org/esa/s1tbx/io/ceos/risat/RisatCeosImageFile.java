@@ -28,16 +28,16 @@ import java.io.IOException;
 /**
  * This class represents an image file of a CEOS product.
  */
-class RisatImageFile extends CEOSImageFile {
+class RisatCeosImageFile extends CEOSImageFile {
 
-    private final static String mission = RisatConstants.MISSION;
+    private final static String mission = RisatCeosConstants.MISSION;
     private final static String image_recordDefinitionFile = "image_file.xml";
     private final static String image_recordDefinition = "image_record.xml";
 
     private final static Document imgDefXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinitionFile);
     private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
 
-    public RisatImageFile(final ImageInputStream imageStream, final BinaryRecord histogramRecord)
+    public RisatCeosImageFile(final ImageInputStream imageStream, final BinaryRecord histogramRecord)
             throws IOException {
         binaryReader = new BinaryFileReader(imageStream);
         imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_recordDefinitionFile);

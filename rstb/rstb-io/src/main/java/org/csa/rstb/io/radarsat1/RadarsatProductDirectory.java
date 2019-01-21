@@ -21,7 +21,6 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
-import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSVolumeDirectoryFile;
@@ -73,7 +72,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
     }
 
     @Override
-    protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
+    protected void readProductDirectory() throws IOException {
         readVolumeDirectoryFileStream();
 
         leaderFile = new RadarsatLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
@@ -83,8 +82,9 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         }
 
         BinaryRecord histogramRec = leaderFile.getHistogramRecord();
-        if (histogramRec == null)
+        if (histogramRec == null) {
             histogramRec = trailerFile.getHistogramRecord();
+        }
 
         final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
         final List<RadarsatImageFile> imgArray = new ArrayList<>(ceosFiles.length);
