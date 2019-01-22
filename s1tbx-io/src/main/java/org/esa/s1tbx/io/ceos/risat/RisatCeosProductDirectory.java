@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2019 Skywatch. https://www.skywatch.co
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,29 +13,18 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.csa.rstb.io.radarsat1;
+package org.esa.s1tbx.io.ceos.risat;
 
 import Jama.Matrix;
 import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.SARReader;
-import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
-import org.esa.s1tbx.io.ceos.CEOSVolumeDirectoryFile;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
@@ -56,18 +45,18 @@ import java.util.Map;
 /**
  * This class represents a product directory.
  */
-class RadarsatProductDirectory extends CEOSProductDirectory {
+class RisatCeosProductDirectory extends CEOSProductDirectory {
 
-    private RadarsatImageFile[] imageFiles = null;
-    private RadarsatLeaderFile leaderFile = null;
-    private RadarsatTrailerFile trailerFile = null;
-    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final transient Map<String, RadarsatImageFile> bandImageFileMap = new HashMap<>(1);
+    private RisatCeosImageFile[] imageFiles = null;
+    private RisatCeosLeaderFile leaderFile = null;
+    private RisatCeosTrailerFile trailerFile = null;
 
-    public RadarsatProductDirectory(final VirtualDir dir) {
+    private final transient Map<String, RisatCeosImageFile> bandImageFileMap = new HashMap<>(1);
+
+    public RisatCeosProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
 
-        constants = new RadarsatConstants();
+        constants = new RisatCeosConstants();
         productDir = dir;
     }
 
@@ -75,29 +64,29 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
     protected void readProductDirectory() throws IOException {
         readVolumeDirectoryFileStream();
 
-        leaderFile = new RadarsatLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
+        leaderFile = new RisatCeosLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
         final CeosFile[] trlFile = getCEOSFile(constants.getTrailerFilePrefix());
         if (trlFile.length > 0) {
-            trailerFile = new RadarsatTrailerFile(trlFile[0].imgInputStream);
+            trailerFile = new RisatCeosTrailerFile(trlFile[0].imgInputStream);
         }
 
         BinaryRecord histogramRec = leaderFile.getHistogramRecord();
-        if (histogramRec == null) {
+        if (histogramRec == null && trailerFile != null) {
             histogramRec = trailerFile.getHistogramRecord();
         }
 
         final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
-        final List<RadarsatImageFile> imgArray = new ArrayList<>(ceosFiles.length);
+        final List<RisatCeosImageFile> imgArray = new ArrayList<>(ceosFiles.length);
         for (CeosFile imageFile : ceosFiles) {
             try {
-                final RadarsatImageFile imgFile = new RadarsatImageFile(imageFile.imgInputStream, histogramRec);
+                final RisatCeosImageFile imgFile = new RisatCeosImageFile(imageFile.imgInputStream, histogramRec);
                 imgArray.add(imgFile);
             } catch (Exception e) {
                 e.printStackTrace();
                 // continue
             }
         }
-        imageFiles = imgArray.toArray(new RadarsatImageFile[imgArray.size()]);
+        imageFiles = imgArray.toArray(new RisatCeosImageFile[imgArray.size()]);
 
         sceneWidth = imageFiles[0].getRasterWidth();
         sceneHeight = imageFiles[0].getRasterHeight();
@@ -113,7 +102,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
         if (imageFiles.length > 1) {
             int index = 1;
-            for (final RadarsatImageFile imageFile : imageFiles) {
+            for (final RisatCeosImageFile imageFile : imageFiles) {
 
                 if (isProductSLC) {
                     final Band bandI = createBand(product, "i_" + index, Unit.REAL, imageFile);
@@ -126,7 +115,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
                 ++index;
             }
         } else {
-            final RadarsatImageFile imageFile = imageFiles[0];
+            final RisatCeosImageFile imageFile = imageFiles[0];
             if (isProductSLC) {
                 final Band bandI = createBand(product, "i", Unit.REAL, imageFile);
                 final Band bandQ = createBand(product, "q", Unit.IMAGINARY, imageFile);
@@ -138,16 +127,16 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         }
 
         BinaryRecord facilityRec = leaderFile.getFacilityRecord();
-        if (facilityRec == null)
+        if (facilityRec == null && trailerFile != null)
             facilityRec = trailerFile.getFacilityRecord();
         BinaryRecord sceneRec = leaderFile.getSceneRecord();
-        if (sceneRec == null)
+        if (sceneRec == null && trailerFile != null)
             sceneRec = trailerFile.getSceneRecord();
         BinaryRecord detProcRec = leaderFile.getDetailedProcessingRecord();
-        if (detProcRec == null)
+        if (detProcRec == null && trailerFile != null)
             detProcRec = trailerFile.getDetailedProcessingRecord();
         BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
-        if (mapProjRec == null)
+        if (mapProjRec == null && trailerFile != null)
             mapProjRec = trailerFile.getMapProjRecord();
 
         product.setStartTime(getUTCScanStartTime(sceneRec, detProcRec));
@@ -156,8 +145,6 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
         addMetaData(product);
 
-        addRSATTiePointGrids(product, sceneRec, detProcRec);
-
         // set slant_range_to_first_pixel in metadata
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final TiePointGrid slantRangeTimeTPG = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
@@ -165,7 +152,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             final int numOutputLines = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
             final double slantRangeTime = slantRangeTimeTPG.getPixelDouble(numOutputLines / 2, 0) / Constants.oneBillion; //s
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                                          slantRangeTime * Constants.halfLightSpeed);
+                    slantRangeTime * Constants.halfLightSpeed);
         }
 
         float[] latCorners = leaderFile.getLatCorners(leaderFile.getMapProjRecord());
@@ -207,19 +194,13 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             return "SCN";
         else if (productType.contains("SCW"))
             return "SCW";
+        else if (productType.trim().isEmpty())
+            return "unknown";
         return productType;
     }
 
-    public boolean isRadarsat() throws IOException {
-        final String volumeId = getVolumeId().toUpperCase();
-        final String logicalVolumeId = getLogicalVolumeId().toUpperCase();
-        return (volumeId.contains("RSAT") || volumeId.contains("RADARSAT") ||
-                logicalVolumeId.contains("RSAT") || logicalVolumeId.contains("RADARSAT"));
-    }
-
-    @Override
-    protected CEOSVolumeDirectoryFile createVolumeDirectoryFile(final BinaryFileReader binaryReader, final String mission) throws IOException {
-        return new RadarsatVolumeDirectoryFile(binaryReader, mission);
+    public boolean isCeos() {
+        return true;
     }
 
     @Override
@@ -236,7 +217,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         imageFiles = null;
     }
 
-    private Band createBand(final Product product, final String name, final String unit, final RadarsatImageFile imageFile) {
+    private Band createBand(final Product product, final String name, final String unit, final RisatCeosImageFile imageFile) {
 
         final Band band = createBand(product, name, unit, imageFile.getBitsPerSample());
         bandImageFileMap.put(name, imageFile);
@@ -252,22 +233,24 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         leaderFile.addMetadata(leadMetadata);
         root.addElement(leadMetadata);
 
-        final MetadataElement trailMetadata = new MetadataElement("Trailer");
-        trailerFile.addMetadata(trailMetadata);
-        root.addElement(trailMetadata);
+        if(trailerFile != null) {
+            final MetadataElement trailMetadata = new MetadataElement("Trailer");
+            trailerFile.addMetadata(trailMetadata);
+            root.addElement(trailMetadata);
+        }
 
         final MetadataElement volMetadata = new MetadataElement("Volume");
         volumeDirectoryFile.assignMetadataTo(volMetadata);
         root.addElement(volMetadata);
 
         int c = 1;
-        for (final RadarsatImageFile imageFile : imageFiles) {
+        for (final RisatCeosImageFile imageFile : imageFiles) {
             imageFile.assignMetadataTo(root, c++);
         }
 
-        addSummaryMetadata(findFile(RadarsatConstants.SUMMARY_FILE_NAME), "Summary Information", root);
-        addSummaryMetadata(findFile(RadarsatConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
-        addSummaryMetadata(findFile(RadarsatConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
+        addSummaryMetadata(findFile(RisatCeosConstants.SUMMARY_FILE_NAME), "Summary Information", root);
+        addSummaryMetadata(findFile(RisatCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
+        addSummaryMetadata(findFile(RisatCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
 
         // try txt summary file
         // removed because it is not in the property name value format
@@ -283,93 +266,92 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
         BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
-        if (mapProjRec == null)
+        if (mapProjRec == null && trailerFile != null)
             mapProjRec = trailerFile.getMapProjRecord();
         BinaryRecord sceneRec = leaderFile.getSceneRecord();
-        if (sceneRec == null)
+        if (sceneRec == null && trailerFile != null)
             sceneRec = trailerFile.getSceneRecord();
         final BinaryRecord radiometricRec = leaderFile.getRadiometricRecord();
         BinaryRecord facilityRec = leaderFile.getFacilityRecord();
-        if (facilityRec == null)
+        if (facilityRec == null && trailerFile != null)
             facilityRec = trailerFile.getFacilityRecord();
         BinaryRecord detProcRec = leaderFile.getDetailedProcessingRecord();
-        if (detProcRec == null)
+        if (detProcRec == null && trailerFile != null)
             detProcRec = trailerFile.getDetailedProcessingRecord();
 
         //mph
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, getProductType());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
-                                      sceneRec.getAttributeString("Product type descriptor"));
+                sceneRec.getAttributeString("Product type descriptor"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "RS1");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                                      getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
+                getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
 
         final ProductData.UTC startTime = getUTCScanStartTime(sceneRec, detProcRec);
         final ProductData.UTC endTime = getUTCScanStopTime(sceneRec, detProcRec);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         if (mapProjRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
-                                          mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude"));
+                    mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
-                                          mapProjRec.getAttributeDouble("1st line 1st pixel geodetic longitude"));
+                    mapProjRec.getAttributeDouble("1st line 1st pixel geodetic longitude"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat,
-                                          mapProjRec.getAttributeDouble("1st line last valid pixel geodetic latitude"));
+                    mapProjRec.getAttributeDouble("1st line last valid pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long,
-                                          mapProjRec.getAttributeDouble("1st line last valid pixel geodetic longitude"));
+                    mapProjRec.getAttributeDouble("1st line last valid pixel geodetic longitude"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat,
-                                          mapProjRec.getAttributeDouble("Last line 1st pixel geodetic latitude"));
+                    mapProjRec.getAttributeDouble("Last line 1st pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long,
-                                          mapProjRec.getAttributeDouble("Last line 1st pixel geodetic longitude"));
+                    mapProjRec.getAttributeDouble("Last line 1st pixel geodetic longitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat,
-                                          mapProjRec.getAttributeDouble("Last line last valid pixel geodetic latitude"));
+                    mapProjRec.getAttributeDouble("Last line last valid pixel geodetic latitude"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
-                                          mapProjRec.getAttributeDouble("Last line last valid pixel geodetic longitude"));
+                    mapProjRec.getAttributeDouble("Last line last valid pixel geodetic longitude"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                                          mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-pixel distance in output scene"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                                          mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
+                    mapProjRec.getAttributeDouble("Nominal inter-line distance in output scene"));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, getMapProjection(mapProjRec));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
-                                          mapProjRec.getAttributeString("Name of reference ellipsoid"));
+                    mapProjRec.getAttributeString("Name of reference ellipsoid"));
 
         } else if (sceneRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                                          sceneRec.getAttributeDouble("Pixel spacing"));
+                    sceneRec.getAttributeDouble("Pixel spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                                          sceneRec.getAttributeDouble("Line spacing"));
+                    sceneRec.getAttributeDouble("Line spacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, getPass(mapProjRec, sceneRec));
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange(mapProjRec));
         }
 
         //sph
         if (sceneRec != null) {
-            final int absOrbit = Integer.parseInt(sceneRec.getAttributeString("Orbit number").trim());
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, absOrbit);
-
+            final String absOrbit = sceneRec.getAttributeString("Orbit number").trim();
+            if (absOrbit != null && !absOrbit.isEmpty()) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, Integer.parseInt(absOrbit));
+            }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
-                                          SARReader.findPolarizationInBandName(
-                                                  sceneRec.getAttributeString("Sensor ID and mode of operation for this channel"))
+                    SARReader.findPolarizationInBandName(
+                            sceneRec.getAttributeString("Sensor ID and mode of operation for this channel"))
             );
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
-                                          sceneRec.getAttributeString("Processing algorithm identifier"));
+                    sceneRec.getAttributeString("Processing algorithm identifier"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                                          sceneRec.getAttributeDouble("Nominal number of looks processed in azimuth"));
+                    sceneRec.getAttributeDouble("Nominal number of looks processed in azimuth"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                                          sceneRec.getAttributeDouble("Nominal number of looks processed in range"));
+                    sceneRec.getAttributeDouble("Nominal number of looks processed in range"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                                          sceneRec.getAttributeDouble("Pulse Repetition Frequency"));
+                    sceneRec.getAttributeDouble("Pulse Repetition Frequency"));
             double radarFreq = sceneRec.getAttributeDouble("Radar frequency");
             if (Double.compare(radarFreq, 0.0) == 0) {
                 final double radarWaveLength = sceneRec.getAttributeDouble("Radar wavelength"); // in m
@@ -380,7 +362,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, radarFreq);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                                          sceneRec.getAttributeDouble("Range sampling rate"));
+                    sceneRec.getAttributeDouble("Range sampling rate"));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = sceneRec.getAttributeDouble("Total processor bandwidth in range"); // Hz
@@ -392,11 +374,11 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                                      ReaderUtils.getLineTimeInterval(startTime, endTime, sceneHeight));
+                ReaderUtils.getLineTimeInterval(startTime, endTime, sceneHeight));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                                      product.getSceneRasterHeight());
+                product.getSceneRasterHeight());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                                      product.getSceneRasterWidth());
+                product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
         if (facilityRec != null) {
@@ -404,24 +386,23 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
                     facilityRec.getAttributeString("Time of input state vector used to processed the image")));
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
-                                          facilityRec.getAttributeInt("Antenna pattern correction flag"));
+                    facilityRec.getAttributeInt("Antenna pattern correction flag"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag,
-                                          facilityRec.getAttributeInt("Range spreading loss compensation flag"));
+                    facilityRec.getAttributeInt("Range spreading loss compensation flag"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.replica_power_corr_flag, 0);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 0);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor,
-                                          facilityRec.getAttributeDouble("Absolute calibration constant K"));
+                    facilityRec.getAttributeDouble("Absolute calibration constant K"));
         }
 
         if (radiometricRec != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor,
-                                          radiometricRec.getAttributeDouble("Calibration constant"));
+                    radiometricRec.getAttributeDouble("Calibration constant"));
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.replica_power_corr_flag, 0);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 0);
-        //AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
 
         addOrbitStateVectors(absRoot, leaderFile.getPlatformPositionRecord());
         if (facilityRec != null)
@@ -443,14 +424,14 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
     private String getProductDescription() {
         BinaryRecord sceneRecord = leaderFile.getSceneRecord();
-        if (sceneRecord == null)
+        if (sceneRecord == null && trailerFile != null)
             sceneRecord = trailerFile.getSceneRecord();
 
         String level = "";
         if (sceneRecord != null) {
             level = sceneRecord.getAttributeString("Scene reference number").trim();
         }
-        return RadarsatConstants.PRODUCT_DESCRIPTION_PREFIX + level;
+        return RisatCeosConstants.PRODUCT_DESCRIPTION_PREFIX + level;
     }
 
     private static void addGeoCodingFromSceneLabel(Product product) {
@@ -516,7 +497,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
                     equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                                              getOrbitTime(platformPosRec, 1));
+                        getOrbitTime(platformPosRec, 1));
             }
         } catch (Exception e) {
             // continue without state vectors
@@ -536,21 +517,19 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final double yVelECI = platformPosRec.getAttributeDouble("Velocity vector Y' " + num) / 1000.0;
         final double zVelECI = platformPosRec.getAttributeDouble("Velocity vector Z' " + num) / 1000.0;
 
-        final double timeJD = getOrbitTime(platformPosRec, num).getMJD() + 2451545.0 - 0.5;
-        final double timeGMST = getGMST(timeJD);
-        final double angleGMST = getAngleGMST(timeGMST);
-        final double cosTheta = Math.cos(angleGMST);
-        final double sinTheta = Math.sin(angleGMST);
-
-        double t = timeJD / 36525.0; // Julian centuries
-        double a1 = 876600.0 * 3600.0 + 8640184.812866;
-        double a2 = 0.093104;
-        double a3 = -6.2e-6;
-        double thp = ((a1 + 2.0 * a2 * t + 3.0 * a3 * t * t) / 240.0 * Constants.PI / 180.0) / (36525.0 * Constants.secondsInDay);
+        final double thetaInRd = theta * Constants.DTOR;
+        final double cosTheta = FastMath.cos(thetaInRd);
+        final double sinTheta = FastMath.sin(thetaInRd);
 
         final double xPosECEF = cosTheta * xPosECI + sinTheta * yPosECI;
         final double yPosECEF = -sinTheta * xPosECI + cosTheta * yPosECI;
         final double zPosECEF = zPosECI;
+
+        double t = getOrbitTime(platformPosRec, num).getMJD() / 36525.0; // Julian centuries
+        double a1 = 876600.0 * 3600.0 + 8640184.812866;
+        double a2 = 0.093104;
+        double a3 = -6.2e-6;
+        double thp = ((a1 + 2.0 * a2 * t + 3.0 * a3 * t * t) / 240.0 * Constants.PI / 180.0) / (36525.0 * Constants.secondsInDay);
 
         final double xVelECEF = -sinTheta * thp * xPosECI + cosTheta * thp * yPosECI + cosTheta * xVelECI + sinTheta * yVelECI;
         final double yVelECEF = -cosTheta * thp * xPosECI - sinTheta * thp * yPosECI - sinTheta * xVelECI + cosTheta * yVelECI;
@@ -567,61 +546,13 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         orbitVectorListElem.addElement(orbitVectorElem);
     }
 
-    protected ProductData.UTC getOrbitTime(BinaryRecord platformPosRec, int num) {
-
-        final int year = platformPosRec.getAttributeInt("Year of data point");
-        final int month = platformPosRec.getAttributeInt("Month of data point");
-        final int day = platformPosRec.getAttributeInt("Day of data point");
-        Double secondsOfDay = platformPosRec.getAttributeDouble("Seconds of day");
-        if (secondsOfDay == null)
-            secondsOfDay = 0.0;
-        final double hoursf = secondsOfDay / 3600f;
-        final int hour = (int) hoursf;
-        final double minutesf = (hoursf - hour) * 60f;
-        int minute = (int) minutesf;
-        float second = ((float) minutesf - minute) * 60f;
-
-        Double interval = platformPosRec.getAttributeDouble("Time interval between DATA points");
-        if (interval == null || interval <= 0.0) {
-            SystemUtils.LOG.info("CEOSProductDirectory: Time interval between DATA points in Platform Position Data is " + interval);
-            interval = 0.0;
-        }
-
-        final double secondsSinceFirstPoint = interval * (num - 1);
-        final int minuteSinceFirstPoint = (int)(secondsSinceFirstPoint / 60.0);
-        minute += minuteSinceFirstPoint;
-        second += secondsSinceFirstPoint - minuteSinceFirstPoint * 60;
-
-        return AbstractMetadata.parseUTC(String.valueOf(year) + '-' + month + '-' + day + ' ' +
-                hour + ':' + minute + ':' + second, standardDateFormat);
-    }
-
-    private double getGMST(final double timeJMD) {
-
-        final double midnight = (int)(timeJMD) + 0.5; // J0 in days
-        final double daysSinceMidnight = timeJMD - midnight; // in days
-        final double hoursSinceMidnight = daysSinceMidnight * 24.0; // in hrs
-        final double daysSinceEpoch = timeJMD - 2451545.0; // in days
-        final double centuriesSinceEpoch = daysSinceEpoch / 35625.0; // no unit
-        final double wholeDaysSinceEpoch = midnight - 2451545.0; // in days
-
-        final double GMST = 6.697374558 + 0.06570982441908 * wholeDaysSinceEpoch + 1.00273790935 * hoursSinceMidnight
-                + 0.000026 * centuriesSinceEpoch*centuriesSinceEpoch; // in hrs
-
-        final double GMST_hours = GMST % 24;
-
-        return GMST_hours*3600;
-    }
-
-    private double getAngleGMST(final double timeGMST) {
-        return 7.2921151467e-5 * timeGMST; // in radian
-    }
-
     protected static void addSRGRCoefficients(final MetadataElement absRoot, final BinaryRecord detailedProcRec) {
         if (detailedProcRec == null) return;
 
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
-        final int numSRGRCoefSets = detailedProcRec.getAttributeInt("Number of SRGR coefficient sets");
+        final Integer numSRGRCoefSets = detailedProcRec.getAttributeInt("Number of SRGR coefficient sets");
+        if (numSRGRCoefSets == null) return;
+
         final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-DDD-HH:mm:ss");
 
         for (int i = 1; i <= numSRGRCoefSets; ++i) {
@@ -633,7 +564,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             final ProductData.UTC utcTime = AbstractMetadata.parseUTC(updateTimeStr, dateFormat);
             srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
             AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                                                    ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
+                    ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
             AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
             addSRGRCoef(srgrListElem, detailedProcRec, "SRGR coefficients1 " + i, 1);
@@ -660,30 +591,26 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         for (int j = 0; j < gridHeight; j++) {
             final int y = Math.min(j * subSamplingY, sceneHeight - 1);
             final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(y); // meters
-            double slantRangeToMidPixel = imageFiles[0].getSlantRangeToMidPixel(y);
+            final double slantRangeToMidPixel = imageFiles[0].getSlantRangeToMidPixel(y);
             final double slantRangeToLastPixel = imageFiles[0].getSlantRangeToLastPixel(y);
-            if(slantRangeToMidPixel == 0.0) {
-                slantRangeToMidPixel = slantRangeToFirstPixel + ((slantRangeToLastPixel-slantRangeToFirstPixel)/2.0);
-            }
-
             final double[] polyCoef = computePolynomialCoefficients(slantRangeToFirstPixel,
-                                                                    slantRangeToMidPixel,
-                                                                    slantRangeToLastPixel,
-                                                                    sceneWidth);
+                    slantRangeToMidPixel,
+                    slantRangeToLastPixel,
+                    sceneWidth);
 
             for (int i = 0; i < gridWidth; i++) {
                 final int x = i * subSamplingX;
-                rangeDist[k++] = (float) (polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
+                rangeDist[k++] = (float)(polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
             }
         }
 
         // get slant range time in nanoseconds from range distance in meters
         for (k = 0; k < rangeDist.length; k++) {
-            rangeTime[k] = (float) ((rangeDist[k] / Constants.halfLightSpeed) * Constants.oneBillion);// in ns
+            rangeTime[k] = (float)((rangeDist[k] / Constants.halfLightSpeed) * Constants.oneBillion);// in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
-                                                             gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTime);
+                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTime);
 
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         product.addTiePointGrid(slantRangeGrid);
@@ -703,13 +630,13 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             for (int i = 0; i < gridWidth; i++) {
                 final double RS = rangeDist[k];
                 final double a = ((h * h) - (RS * RS) + (2.0 * r * h)) / (2.0 * RS * r);
-                angles[k] = (float) (FastMath.acos(a) * Constants.RTOD);
+                angles[k] = (float)(FastMath.acos(a) * Constants.RTOD);
                 k++;
             }
         }
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                                                                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, angles);
+                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, angles);
 
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
@@ -835,7 +762,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
             // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
             final Orbits.OrbitVector data = getOrbitData(curLineUTC, timeArray, xPosArray, yPosArray, zPosArray,
-                                                         xVelArray, yVelArray, zVelArray);
+                    xVelArray, yVelArray, zVelArray);
 
             for (int c = 0; c < gridWidth; c++) {
                 int x;
@@ -847,17 +774,17 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
                 final double slrgTime = slantRangeTime.getPixelDouble(x, y) / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(latMid, lonMid, slrgTime, data);
-                targetLatTiePoints[k] = (float) geoPos.lat;
-                targetLonTiePoints[k] = (float) geoPos.lon;
+                targetLatTiePoints[k] = (float)geoPos.lat;
+                targetLonTiePoints[k] = (float)geoPos.lon;
                 ++k;
             }
         }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight,
-                                                      0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight,
-                                                      0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
@@ -890,11 +817,11 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
         final GeoPos geoPosFirstNear = product.getSceneGeoCoding().getGeoPos(new PixelPos(0, 0), null);
         final GeoPos geoPosFirstFar = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
-                                                                                    0), null);
+                0), null);
         final GeoPos geoPosLastNear = product.getSceneGeoCoding().getGeoPos(new PixelPos(0,
-                                                                                    product.getSceneRasterHeight() - 1), null);
+                product.getSceneRasterHeight() - 1), null);
         final GeoPos geoPosLastFar = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
-                                                                                   product.getSceneRasterHeight() - 1), null);
+                product.getSceneRasterHeight() - 1), null);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geoPosFirstNear.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, geoPosFirstNear.getLon());
@@ -946,16 +873,16 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
      * @return The orbit information.
      */
     private static Orbits.OrbitVector getOrbitData(final double utc, final double[] timeArray,
-                                                   final double[] xPosArray, final double[] yPosArray, final double[] zPosArray,
-                                                   final double[] xVelArray, final double[] yVelArray, final double[] zVelArray) {
+                                                 final double[] xPosArray, final double[] yPosArray, final double[] zPosArray,
+                                                 final double[] xVelArray, final double[] yVelArray, final double[] zVelArray) {
 
         // Lagrange polynomial interpolation
         return new Orbits.OrbitVector(utc,
-                                      Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc),
-                                      Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc),
-                                      Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc),
-                                      Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc),
-                                      Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc),
-                                      Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc));
+                Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc));
     }
 }
