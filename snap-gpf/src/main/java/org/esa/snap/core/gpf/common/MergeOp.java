@@ -60,7 +60,7 @@ import java.util.regex.Pattern;
         category = "Raster",
         description = "Allows merging of several source products by using specified 'master' as reference product.",
         authors = "SNAP Team",
-        version = "1.2",
+        version = "1.3",
         copyright = "(c) 2012 by Brockmann Consult")
 public class MergeOp extends Operator {
 
@@ -104,8 +104,7 @@ public class MergeOp extends Operator {
 
         validateSourceProducts();
 
-        ArrayList<Product> sourceProductList = new ArrayList<>();
-        sourceProductList.addAll(Arrays.asList(sourceProducts));
+        ArrayList<Product> sourceProductList = new ArrayList<>(Arrays.asList(sourceProducts));
         sourceProductList.add(0, masterProduct);
         Map<String, List<NodeDescriptor>> inclusionMap = createDesciptorMap(includes == null ? new NodeDescriptor[0] : includes);
         addDefaultInclusions(sourceProductList, inclusionMap);
@@ -153,20 +152,7 @@ public class MergeOp extends Operator {
         return false;
     }
 
-    // if no inclusions is defined, all bands of the product shall be included
-    private void addDefaultInclusions(ArrayList<Product> sourceProductList, Map<String, List<NodeDescriptor>> inclusionMap) {
-        for (final Product sourceProduct : sourceProductList) {
-            String productId = getSourceProductId(sourceProduct);
-            if (!inclusionMap.containsKey(productId)) {
-                final NodeDescriptor nodeDescriptor = new NodeDescriptor();
-                nodeDescriptor.namePattern = ".*";
-                nodeDescriptor.productId = productId;
-                inclusionMap.put(nodeDescriptor.productId, Collections.singletonList(nodeDescriptor));
-            }
-        }
-    }
-
-    private Map<String, List<NodeDescriptor>> createDesciptorMap(NodeDescriptor[] descriptors) {
+    private Map<String, List<NodeDescriptor>> createDescriptorMap(NodeDescriptor[] descriptors) {
         Map<String, List<NodeDescriptor>> map = new LinkedHashMap<>();
         for (NodeDescriptor nd : descriptors) {
             validateNodeDescriptor(nd);
