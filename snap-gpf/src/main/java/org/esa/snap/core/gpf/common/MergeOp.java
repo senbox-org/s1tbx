@@ -106,16 +106,22 @@ public class MergeOp extends Operator {
 
         ArrayList<Product> sourceProductList = new ArrayList<>(Arrays.asList(sourceProducts));
         sourceProductList.add(0, masterProduct);
-        Map<String, List<NodeDescriptor>> inclusionMap = createDesciptorMap(includes == null ? new NodeDescriptor[0] : includes);
-        addDefaultInclusions(sourceProductList, inclusionMap);
-
-        Map<String, List<NodeDescriptor>> exclusionMap = createDesciptorMap(excludes == null ? new NodeDescriptor[0] : excludes);
+        Map<String, List<NodeDescriptor>> inclusionMap = createDescriptorMap(includes == null ? new NodeDescriptor[0] : includes);
+        Map<String, List<NodeDescriptor>> exclusionMap = createDescriptorMap(excludes == null ? new NodeDescriptor[0] : excludes);
 
         Set<Product> usedProducts = new HashSet<>();
-        for (Map.Entry<String, List<NodeDescriptor>> entry : inclusionMap.entrySet()) {
-            String productId = entry.getKey();
+        for (final Product sourceProduct : sourceProductList) {
+            String productId = getSourceProductId(sourceProduct);
             Product product = getSourceProduct(productId);
-            List<NodeDescriptor> includesList = entry.getValue();
+            List<NodeDescriptor> includesList;
+            if (!inclusionMap.containsKey(productId)) {
+                final NodeDescriptor nodeDescriptor = new NodeDescriptor();
+                nodeDescriptor.namePattern = ".*";
+                nodeDescriptor.productId = productId;
+                includesList = Collections.singletonList(nodeDescriptor);
+            } else {
+                includesList = inclusionMap.get(productId);
+            }
             for (NodeDescriptor includeDescriptor : includesList) {
                 Pattern inclPattern = includeDescriptor.getCompiledNamePattern();
                 for (String bandName : product.getBandNames()) {
