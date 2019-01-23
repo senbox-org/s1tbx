@@ -138,10 +138,24 @@ public final class OperatorUtils {
             pol += "vh";
         }
 
-        if (pol.length() == 2) {
+        // compact pol
+        if (bandNameLower.contains("_rh")) {
+            pol += "rh";
+        }
+        if (bandNameLower.contains("_rv")) {
+            pol += "rv";
+        }
+        if (bandNameLower.contains("_rch")) {
+            pol += "rch";
+        }
+        if (bandNameLower.contains("_rcv")) {
+            pol += "rcv";
+        }
+
+        if (pol.length() >= 2 && pol.length() <= 3) {
             return pol;
-        } else if (pol.length() > 2) {
-            throw new OperatorException("Band name contains multiple polarziations: " + pol);
+        } else if (pol.length() > 3) {
+            throw new OperatorException("Band name contains multiple polarizations: " + pol);
         }
         return null;
     }
