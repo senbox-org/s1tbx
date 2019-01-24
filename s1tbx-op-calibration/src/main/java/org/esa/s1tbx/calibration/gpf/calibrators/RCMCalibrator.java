@@ -34,6 +34,7 @@ import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Calibration for Radarsat2 data products.
@@ -41,17 +42,10 @@ import java.util.Map;
 
 public class RCMCalibrator extends BaseCalibrator implements Calibrator {
 
-    private static final String lutsigma = "lutSigma";
-    private static final String lutgamma = "lutGamma";
-    private static final String lutbeta = "lutBeta";
     private static final String USE_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
 
     private TiePointGrid incidenceAngle = null;
-    private double offset = 0.0;
-    private double stepSize = 1.0;
-    private double[] gains = null;
-    private final Map<String, Double[]> gainsMap = new HashMap<>();
-
+    private final Map<String, CalibrationLUT> gainsMap = new HashMap<>();
     private int subsetOffsetX = 0;
     private int subsetOffsetY = 0;
 
@@ -92,6 +86,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             targetProduct = tgtProduct;
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
             getMission();
 
@@ -136,44 +131,44 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
      * Get antenna pattern gain array from metadata.
      */
     private void getLUT() {
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
 
-        final String[] pols = new String[]{"HH", "HV", "VH", "VV"};
-        for (String pol : pols) {
-            final MetadataElement lutSigmaElem = calibrationElem.getElement(lutsigma + "_" + pol);
+        final MetadataElement calibrationElem = origMetadataRoot.getElement("calibration");
+        final MetadataElement[] elements = calibrationElem.getElements();
+        for (MetadataElement elem : elements) {
 
-            if (lutSigmaElem != null) {
-                offset = lutSigmaElem.getAttributeDouble("offset", 0);
-                stepSize = lutSigmaElem.getAttributeDouble("stepSize", 1);
-
-                final MetadataAttribute gainsAttrib = lutSigmaElem.getAttribute("gains");
-                if (gainsAttrib != null) {
-                    gains = StringUtils.toDoubleArray(gainsAttrib.getData().getElemString(), " ");
-                }
-
-                if (gains.length * stepSize < sourceProduct.getSceneRasterWidth()) {
-                    throw new OperatorException("Calibration LUT is smaller than source product width");
-                }
+            final String elemName = elem.getName();
+            if (elemName.contains("lutSigma")) {
+                final int pixelFirstLutValue = Integer.parseInt(elem.getAttributeString("pixelFirstLutValue"));
+                final int stepSize = Integer.parseInt(elem.getAttributeString("stepSize"));
+                final int numberOfValues = Integer.parseInt(elem.getAttributeString("numberOfValues"));
+                final int offset = Integer.parseInt(elem.getAttributeString("offset"));
+                final MetadataAttribute attribute = elem.getAttribute("gains");
+                final String gainsStr = attribute.getData().getElemString();
+                final double[] gainLUT = new double[numberOfValues];
+                addToArray(gainLUT, 0, gainsStr, " ");
+                final CalibrationLUT lut = new CalibrationLUT(pixelFirstLutValue, stepSize, numberOfValues, offset, gainLUT);
+                final String pol = elemName.substring(elemName.lastIndexOf("_") + 1);
+                gainsMap.put(pol, lut);
             }
         }
+    }
+
+    private static int addToArray(final double[] array, int index, final String csvString, final String delim) {
+        final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
+        while (tokenizer.hasMoreTokens()) {
+            array[index++] = Double.parseDouble(tokenizer.nextToken());
+        }
+        return index;
     }
 
     /**
      * Update the metadata in the target product.
      */
     private void updateTargetProductMetadata() {
-
         final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
-
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
-
-//        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
-//        final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
-//        calibrationElem.removeElement(calibrationElem.getElement(lutsigma));
-//        calibrationElem.removeElement(calibrationElem.getElement(lutgamma));
-//        calibrationElem.removeElement(calibrationElem.getElement(lutbeta));
     }
+
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -191,6 +186,8 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         final int y0 = targetTileRectangle.y;
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
 
         Tile sourceRaster1 = null;
         ProductData srcData1 = null;
@@ -211,6 +208,11 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
+        final String pol = srcBandNames[0].substring(srcBandNames[0].lastIndexOf("_") + 2);
+        final CalibrationLUT sigmaLUT = gainsMap.get(pol);
+        final int offset = sigmaLUT.offset;
+        final double[] gains = sigmaLUT.getGains(x0 + subsetOffsetX, w);
+
         final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
         final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
@@ -218,12 +220,8 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
         final TileIndex tgtIndex = new TileIndex(targetTile);
 
-        final int maxY = y0 + h;
-        final int maxX = x0 + w;
-
         double sigma = 0.0, dn, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
-        final Double noDataValue = targetBand.getNoDataValue();
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -234,11 +232,6 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-//                if(noDataValue.equals(dn)) {
-//                    trgData.setElemDoubleAt(tgtIdx, noDataValue);
-//                    continue;
-//                }
-
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
@@ -262,10 +255,9 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("RCM Calibration: unhandled unit");
                 }
 
-                final int gainIndex = Math.min(gains.length-1, (int)(x + subsetOffsetX / stepSize));
                 if (isSLC) {
                     if (gains != null) {
-                        sigma = dn / (gains[gainIndex] * gains[gainIndex]);
+                        sigma = dn / (gains[x - x0] * gains[x - x0]);
                         if (outputImageInComplex) {
                             sigma = Math.sqrt(sigma) * phaseTerm;
                         }
@@ -273,7 +265,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                 } else {
                     sigma = dn + offset;
                     if (gains != null) {
-                        sigma /= gains[gainIndex];
+                        sigma /= gains[x - x0];
                     }
                 }
 
@@ -295,6 +287,11 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
+        final String pol = bandName.substring(bandName.lastIndexOf("_") + 2);
+        final CalibrationLUT sigmaLUT = gainsMap.get(pol);
+        final int offset = sigmaLUT.offset;
+        final double[] gains = sigmaLUT.getGains((int)Math.round(rangeIndex), 1);
+
         double sigma = 0.0;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
             sigma = v * v;
@@ -306,15 +303,14 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        final int gainIndex = (int)(rangeIndex / stepSize);
         if (isSLC) {
             if (gains != null) {
-                sigma /= (gains[gainIndex] * gains[gainIndex]);
+                sigma /= (gains[0] * gains[0]);
             }
         } else {
             sigma += offset;
             if (gains != null) {
-                sigma /= gains[gainIndex];
+                sigma /= gains[0];
             }
         }
 
@@ -339,5 +335,31 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         final Band sourceBand = sourceProduct.getBand(targetBand.getName());
         final Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
         targetTile.setRawSamples(sourceTile.getRawSamples());
+    }
+
+    public final static class CalibrationLUT {
+        private final int pixelFirstLutValue;
+        private final int stepSize;
+        private final int numberOfValues;
+        private final int offset;
+        private final double[] gainLUT;
+
+        public CalibrationLUT(final int pixelFirstLutValue, final int stepSize, final int numberOfValues,
+                              final int offset, final double[] gainLUT) {
+            this.pixelFirstLutValue = pixelFirstLutValue;
+            this.stepSize = stepSize;
+            this.numberOfValues = numberOfValues;
+            this.offset = offset;
+            this.gainLUT = gainLUT;
+        }
+
+        public double[] getGains(final int x0, final int w) {
+
+            final double[] gains = new double[w];
+            for (int x = x0; x < x0 + w; ++x) {
+                gains[x - x0] = gainLUT[(x - pixelFirstLutValue) / stepSize];
+            }
+            return gains;
+        }
     }
 }
