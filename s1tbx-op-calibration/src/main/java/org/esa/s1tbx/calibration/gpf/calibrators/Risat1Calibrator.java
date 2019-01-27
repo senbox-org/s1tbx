@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2019 by SkyWatch Space Applications http://www.skywatch.co
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,6 @@ import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -33,29 +32,24 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
- * Calibration for Radarsat2 data products.
+ * Calibration for RISAT-1 products.
  */
 
-public class RCMCalibrator extends BaseCalibrator implements Calibrator {
+public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
+
+    private final HashMap<String, Double> calibrationFactor = new HashMap<>(2);
+    private TiePointGrid incidenceAngle = null;
+    private double incidenceAngleAtSceneCentre = 0.0;
 
     private static final String USE_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
-
-    private TiePointGrid incidenceAngle = null;
-    private final Map<String, CalibrationLUT> gainsMap = new HashMap<>();
-    private int subsetOffsetX = 0;
-    private int subsetOffsetY = 0;
-
-    private boolean isSLC = false;
 
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public RCMCalibrator() {
+    public Risat1Calibrator() {
     }
 
     /**
@@ -63,7 +57,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
      */
     public void setExternalAuxFile(File file) throws OperatorException {
         if (file != null) {
-            throw new OperatorException("No external auxiliary file should be selected for RCM product");
+            throw new OperatorException("No external auxiliary file should be selected for RISAT-1 PALSAR product");
         }
     }
 
@@ -92,13 +86,13 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
 
             getCalibrationFlag();
 
-            isSLC = sourceProduct.getProductType().toLowerCase().contains("slc");
+            getSampleType();
 
-            getSubsetOffset();
+            getIncidenceAngle();
 
-            getLUT();
+            getCalibrationFactor();
 
-            incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+            getTiePointGridData(sourceProduct);
 
             if (mustUpdateMetadata) {
                 updateTargetProductMetadata();
@@ -109,56 +103,46 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    /**
-     * Get product mission from abstract metadata.
-     */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("RCM")) {
-            throw new OperatorException(mission + " is not a valid mission for RCM Calibration");
-        }
+        if (!mission.equals("RISAT1"))
+            throw new OperatorException(mission + " is not a valid mission for RISAT-1 Calibration");
+    }
+
+    private void getIncidenceAngle() {
+        final MetadataElement productMetadata = origMetadataRoot.getElement("ProductMetadata");
+        incidenceAngleAtSceneCentre = Double.parseDouble(productMetadata.getAttributeString("IncidenceAngle"));
     }
 
     /**
-     * Get subset x and y offsets from abstract metadata.
+     * Get calibration factor.
      */
-    private void getSubsetOffset() {
-        subsetOffsetX = absRoot.getAttributeInt(AbstractMetadata.subset_offset_x);
-        subsetOffsetY = absRoot.getAttributeInt(AbstractMetadata.subset_offset_y);
-    }
+    private void getCalibrationFactor() {
 
-    /**
-     * Get antenna pattern gain array from metadata.
-     */
-    private void getLUT() {
-
-        final MetadataElement calibrationElem = origMetadataRoot.getElement("calibration");
-        final MetadataElement[] elements = calibrationElem.getElements();
+        final MetadataElement[] elements = origMetadataRoot.getElements();
         for (MetadataElement elem : elements) {
-
             final String elemName = elem.getName();
-            if (elemName.contains("lutSigma")) {
-                final int pixelFirstLutValue = Integer.parseInt(elem.getAttributeString("pixelFirstLutValue"));
-                final int stepSize = Integer.parseInt(elem.getAttributeString("stepSize"));
-                final int numberOfValues = Integer.parseInt(elem.getAttributeString("numberOfValues"));
-                final int offset = Integer.parseInt(elem.getAttributeString("offset"));
-                final MetadataAttribute attribute = elem.getAttribute("gains");
-                final String gainsStr = attribute.getData().getElemString();
-                final double[] gainLUT = new double[numberOfValues];
-                addToArray(gainLUT, 0, gainsStr, " ");
-                final CalibrationLUT lut = new CalibrationLUT(pixelFirstLutValue, stepSize, numberOfValues, offset, gainLUT);
-                final String pol = elemName.substring(elemName.lastIndexOf("_") + 1);
-                gainsMap.put(pol, lut);
+            if (!elemName.equals("ProductMetadata")) {
+                final String pol = elemName.substring(0, elemName.indexOf("_Metadata"));
+                final MetadataElement leader = elem.getElement("Leader");
+                final MetadataElement radiometric = leader.getElement("Radiometric");
+                final double factorDB = radiometric.getAttributeDouble("Calibration_constant");
+                final double factor = Math.pow(10.0, factorDB/10.0);
+                calibrationFactor.put(pol, factor);
             }
         }
     }
 
-    private static int addToArray(final double[] array, int index, final String csvString, final String delim) {
-        final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
-        while (tokenizer.hasMoreTokens()) {
-            array[index++] = Double.parseDouble(tokenizer.nextToken());
+    /**
+     * Get incidence angle and slant range time tie point grids.
+     *
+     * @param sourceProduct the source
+     */
+    private void getTiePointGridData(Product sourceProduct) {
+        incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+        if (incidenceAngle == null) {
+            throw new OperatorException("Incidence angle tie point grid is not available");
         }
-        return index;
     }
 
     /**
@@ -168,7 +152,6 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
     }
-
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -208,19 +191,23 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final String pol = srcBandNames[0].substring(srcBandNames[0].lastIndexOf("_") + 2);
-        final CalibrationLUT sigmaLUT = gainsMap.get(pol);
-        final int offset = sigmaLUT.offset;
-        final double[] gains = sigmaLUT.getGains(x0 + subsetOffsetX, w);
+        final String pol = srcBandNames[0].substring(srcBandNames[0].lastIndexOf("_") + 1);
+        final double Ks = calibrationFactor.get(pol);
 
         final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
         final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
-        final ProductData trgData = targetTile.getDataBuffer();
+        // copy band if unit is phase
+        if (tgtBandUnit == Unit.UnitType.PHASE) {
+            targetTile.setRawSamples(sourceRaster1.getRawSamples());
+            return;
+        }
+
+        final ProductData tgtData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
         final TileIndex tgtIndex = new TileIndex(targetTile);
 
-        double sigma = 0.0, dn, i, q, phaseTerm = 0.0;
+        double sigma, dn, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
 
         for (int y = y0; y < maxY; ++y) {
@@ -252,21 +239,14 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                     dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
-                    throw new OperatorException("RCM Calibration: unhandled unit");
+                    throw new OperatorException("RISAT-1 Calibration: unhandled unit");
                 }
 
-                if (isSLC) {
-                    if (gains != null) {
-                        sigma = dn / (gains[x - x0] * gains[x - x0]);
-                        if (outputImageInComplex) {
-                            sigma = Math.sqrt(sigma) * phaseTerm;
-                        }
-                    }
-                } else {
-                    sigma = dn + offset;
-                    if (gains != null) {
-                        sigma /= gains[x - x0];
-                    }
+                final double theta = incidenceAngle.getPixelDouble(x, y)*Constants.DTOR;
+                sigma = dn*Math.sin(theta) / (Ks*Math.sin(incidenceAngleAtSceneCentre*Constants.DTOR));
+
+                if (isComplex && outputImageInComplex) {
+                    sigma = Math.sqrt(sigma)*phaseTerm;
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
@@ -277,7 +257,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                     }
                 }
 
-                trgData.setElemDoubleAt(tgtIdx, sigma);
+                tgtData.setElemDoubleAt(tgtIdx, sigma);
             }
         }
     }
@@ -287,10 +267,8 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        final String pol = bandName.substring(bandName.lastIndexOf("_") + 2);
-        final CalibrationLUT sigmaLUT = gainsMap.get(pol);
-        final int offset = sigmaLUT.offset;
-        final double[] gains = sigmaLUT.getGains((int)Math.round(rangeIndex), 1);
+        final String pol = bandName.substring(bandName.lastIndexOf("_"));
+        final double Ks = calibrationFactor.get(pol);
 
         double sigma = 0.0;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
@@ -303,21 +281,11 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        if (isSLC) {
-            if (gains != null) {
-                sigma /= (gains[0] * gains[0]);
-            }
-        } else {
-            sigma += offset;
-            if (gains != null) {
-                sigma /= gains[0];
-            }
-        }
-
         if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return sigma * FastMath.sin(localIncidenceAngle * Constants.DTOR);
+            return sigma * FastMath.sin(localIncidenceAngle * Constants.DTOR) /
+                    (Ks*FastMath.sin(incidenceAngleAtSceneCentre * Constants.DTOR));
         } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
-            return sigma;
+            return sigma / Ks;
         }
     }
 
@@ -329,37 +297,10 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    public void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile,
-                                            final String srcBandName) throws OperatorException {
+    public void removeFactorsForCurrentTile(Band targetBand, Tile targetTile, String srcBandName) throws OperatorException {
 
-        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        final Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
+        Band sourceBand = sourceProduct.getBand(targetBand.getName());
+        Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
         targetTile.setRawSamples(sourceTile.getRawSamples());
-    }
-
-    public final static class CalibrationLUT {
-        private final int pixelFirstLutValue;
-        private final int stepSize;
-        private final int numberOfValues;
-        private final int offset;
-        private final double[] gainLUT;
-
-        public CalibrationLUT(final int pixelFirstLutValue, final int stepSize, final int numberOfValues,
-                              final int offset, final double[] gainLUT) {
-            this.pixelFirstLutValue = pixelFirstLutValue;
-            this.stepSize = stepSize;
-            this.numberOfValues = numberOfValues;
-            this.offset = offset;
-            this.gainLUT = gainLUT;
-        }
-
-        public double[] getGains(final int x0, final int w) {
-
-            final double[] gains = new double[w];
-            for (int x = x0; x < x0 + w; ++x) {
-                gains[x - x0] = gainLUT[(x - pixelFirstLutValue) / stepSize];
-            }
-            return gains;
-        }
     }
 }
