@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.polarimetric.gpf.specklefilters;
 
-import Jama.Matrix;
 import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
 import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
@@ -49,6 +48,8 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     private final int matrixSize; // D
     private final double gamma;
 
+    private final static double TwoLog2 = 1.386294361119890572453527965990;
+
     public NonLocal(final PolarimetricSpeckleFilterOp op, final Product srcProduct, final Product trgProduct,
                     final PolBandUtils.MATRIX sourceProductType, final PolBandUtils.PolSourceBand[] srcBandList,
                     final int numLooks, final int searchWindowSize, final int patchSize, final int scaleSize) {
@@ -80,7 +81,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
             matrixSize = 2;
         } else {
-            throw new OperatorException("Invalid source product type");
+            throw new OperatorException("Expecting a C2 or C3 matrix");
         }
 
 		if (numLooks >= matrixSize) {
@@ -341,9 +342,9 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                                          final CovarianceMatrix[][] preEstimatedMatrix) {
 
         for (int y = sy0; y < syMax; ++y) {
-            final int yy = y - sy0;
+            final CovarianceMatrix[] matrix = preEstimatedMatrix[y - sy0];
             for (int x = sx0; x < sxMax; ++x) {
-                preEstimatedMatrix[yy][x - sx0].rescaleMatrix(gamma);
+                matrix[x - sx0].rescaleMatrix(gamma);
             }
         }
     }
@@ -379,7 +380,6 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
             final int xc1, final int yc1, final int xc2, final int yc2, final int sx0, final int sy0,
             final CovarianceMatrix[][] preEstimatedMatrix) {
 
-        final double TwoLog2 = 1.386294361119890572453527965990;
         final double matrixSizeTwoLog2 = matrixSize * TwoLog2;
         double dissimilarity = 0.0;
         boolean validPixel = false;
@@ -438,7 +438,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         final int xEd = Math.min(xc + halfWindowSize, sourceImageWidth - 1);
         final int yEd = Math.min(yc + halfWindowSize, sourceImageHeight - 1);
 
-        CovarianceMatrix avgC = new CovarianceMatrix(matrixSize);
+        final CovarianceMatrix avgC = new CovarianceMatrix(matrixSize);
         for (int y = ySt; y <= yEd; ++y) {
             final int yy = y - ySt;
             final int i = y - sy0;
@@ -456,15 +456,14 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 
     private double computeENL(final double[][] weight) {
 
-        final int rows = weight.length;
         final int cols = weight[0].length;
 
         double sum = 0.0;
         double sum2 = 0.0;
-        for (int r = 0; r < rows; ++r) {
+        for (double[] aWeight : weight) {
             for (int c = 0; c < cols; ++c) {
-                sum += weight[r][c];
-                sum2 += weight[r][c] * weight[r][c];
+                sum += aWeight[c];
+                sum2 += aWeight[c] * aWeight[c];
             }
         }
 
@@ -517,15 +516,14 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         return enlNL / ((1-alpha)*(1-alpha) + enlNL*(alpha*alpha + (2.0*alpha*(1-alpha))/totalWeight));
     }
 
-    private double getTotalWeight(final double[][] weight) {
+    private static double getTotalWeight(final double[][] weight) {
 
-        final int rows = weight.length;
         final int cols = weight[0].length;
 
         double totalWeight = 0.0;
-        for (int r = 0; r < rows; ++r) {
+        for (double[] aWeight : weight) {
             for (int c = 0; c < cols; ++c) {
-                totalWeight += weight[r][c];
+                totalWeight += aWeight[c];
             }
         }
 
@@ -533,7 +531,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     }
 
 
-    public class CovarianceMatrix {
+    private class CovarianceMatrix {
         private double Cr00, Cr01, Cr02, Cr11, Cr12, Cr22;
         private double Ci01, Ci02, Ci12;
         private int d;
