@@ -133,9 +133,10 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
             if (matrixSize == 3) {
                 for (int y = y0; y < yMax; ++y) {
                     trgIndex.calculateStride(y);
+                    System.out.println(y + " of "+yMax);
                     for (int x = x0; x < xMax; ++x) {
                         final double[][] weight = computeWeights(x, y, sx0, sy0, preEstimatedMatrix);
-                        Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
+                        final Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
                         final double enlNL = computeENL(weight);
 
                         final Covariance sigmaNLBR;
@@ -148,6 +149,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                                 x, y, sx0, sy0, weight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
 
                         saveC3(sigmaNLBR, trgIndex.getIndex(x), targetDataBuffers);
+                        //saveC3(sigmaNL, trgIndex.getIndex(x), targetDataBuffers);
                     }
                 }
 
