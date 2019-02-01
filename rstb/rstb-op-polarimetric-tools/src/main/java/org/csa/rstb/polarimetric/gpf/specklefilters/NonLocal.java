@@ -18,6 +18,8 @@ package org.csa.rstb.polarimetric.gpf.specklefilters;
 import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
 import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
+import org.csa.rstb.polarimetric.gpf.specklefilters.covariance.Covariance;
+import org.csa.rstb.polarimetric.gpf.specklefilters.covariance.CovarianceMatrix;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -37,7 +39,6 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     private final PolarimetricSpeckleFilterOp operator;
     private final Product sourceProduct;
     private final Product targetProduct;
-    private final PolBandUtils.MATRIX sourceProductType;
     private final PolBandUtils.PolSourceBand[] srcBandList;
     private final int numLooks;
     private final int windowSize, halfWindowSize;
@@ -47,6 +48,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     private final int sourceImageHeight;
     private final int matrixSize; // D
     private final double gamma;
+    private final double matrixSizeTwoLog2;
 
     private final static double TwoLog2 = 1.386294361119890572453527965990;
 
@@ -56,7 +58,6 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         this.operator = op;
         this.sourceProduct = srcProduct;
         this.targetProduct = trgProduct;
-        this.sourceProductType = sourceProductType;
         this.srcBandList = srcBandList;
 		this.numLooks = numLooks;
         this.windowSize = searchWindowSize;
@@ -64,7 +65,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 		this.patchSize = patchSize;
 		this.halfPatchSize = patchSize / 2;
 		this.scaleSize = scaleSize;
-		
+
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
 		
@@ -89,6 +90,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         }
 
         gamma = Math.min((double)numLooks / (double)matrixSize, 1.0);
+        matrixSizeTwoLog2 = matrixSize * TwoLog2;
     }
 
 
@@ -121,10 +123,10 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 
             final ProductData[] targetDataBuffers = getTargetDataBuffers(bandList, targetTiles);
 
-            final CovarianceMatrix[][] originalMatrix = new CovarianceMatrix[sh][sw];
+            final Covariance[][] originalMatrix = new Covariance[sh][sw];
             getOriginalCovarianceMatrix(sx0, sy0, sxMax, syMax, sourceTiles, dataBuffers, originalMatrix);
 
-            final CovarianceMatrix[][] preEstimatedMatrix = new CovarianceMatrix[sh][sw];
+            final Covariance[][] preEstimatedMatrix = new Covariance[sh][sw];
             computePreEstimatedCovarianceMatrix(sx0, sy0, sxMax, syMax, originalMatrix, preEstimatedMatrix);
 
             System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", computeWeightedEstimate start");
@@ -133,9 +135,15 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                     trgIndex.calculateStride(y);
                     for (int x = x0; x < xMax; ++x) {
                         final double[][] weight = computeWeights(x, y, sx0, sy0, preEstimatedMatrix);
-                        CovarianceMatrix sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
+                        Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
                         final double enlNL = computeENL(weight);
-                        final CovarianceMatrix sigmaNLBR = new CovarianceMatrix(matrixSize);
+
+                        final Covariance sigmaNLBR;
+                        if(matrixSize == 3) {
+                            sigmaNLBR = new CovarianceMatrix.C3();
+                        } else {
+                            sigmaNLBR = new CovarianceMatrix.C2();
+                        }
                         final double enlNLRB = performBiasReduction(
                                 x, y, sx0, sy0, weight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
 
@@ -148,9 +156,15 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                     trgIndex.calculateStride(y);
                     for (int x = x0; x < xMax; ++x) {
                         final double[][] weight = computeWeights(x, y, sx0, sy0, preEstimatedMatrix);
-                        CovarianceMatrix sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
+                        Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
                         final double enlNL = computeENL(weight);
-                        final CovarianceMatrix sigmaNLBR = new CovarianceMatrix(matrixSize);
+
+                        final Covariance sigmaNLBR;
+                        if(matrixSize == 3) {
+                            sigmaNLBR = new CovarianceMatrix.C3();
+                        } else {
+                            sigmaNLBR = new CovarianceMatrix.C2();
+                        }
                         final double enlNLRB = performBiasReduction(
                                 x, y, sx0, sy0, weight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
                         saveC2(sigmaNLBR, trgIndex.getIndex(x), targetDataBuffers);
@@ -211,7 +225,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         }
     }
 
-    private static void saveC3(final CovarianceMatrix sigmaNLRB, final int idx, final ProductData[] targetDataBuffers) {
+    private static void saveC3(final Covariance sigmaNLRB, final int idx, final ProductData[] targetDataBuffers) {
 
         final double[][] Cr = sigmaNLRB.getRealCovarianceMatrix();
         final double[][] Ci = sigmaNLRB.getImagCovarianceMatrix();
@@ -226,7 +240,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         targetDataBuffers[8].setElemFloatAt(idx, (float) Cr[2][2]); // C33
     }
 
-    private static void saveC2(final CovarianceMatrix sigmaNLRB, final int idx, final ProductData[] targetDataBuffers) {
+    private static void saveC2(final Covariance sigmaNLRB, final int idx, final ProductData[] targetDataBuffers) {
 
         final double[][] Cr = sigmaNLRB.getRealCovarianceMatrix();
         final double[][] Ci = sigmaNLRB.getImagCovarianceMatrix();
@@ -237,8 +251,8 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     }
 
     private void computePreEstimatedCovarianceMatrix(
-            final int sx0, final int sy0, final int sxMax, final int syMax, final CovarianceMatrix[][] originalMatrix,
-            final CovarianceMatrix[][] preEstimatedMatrix) {
+            final int sx0, final int sy0, final int sxMax, final int syMax, final Covariance[][] originalMatrix,
+            final Covariance[][] preEstimatedMatrix) {
 
         if (scaleSize > 0) {
             performGaussianFiltering(sx0, sy0, sxMax, syMax, originalMatrix, preEstimatedMatrix);
@@ -251,47 +265,45 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 
     private void getOriginalCovarianceMatrix(final int sx0, final int sy0, final int sxMax, final int syMax,
                                              final Tile[] sourceTiles, final ProductData[] dataBuffers,
-                                             final CovarianceMatrix[][] originalMatrix) {
+                                             final Covariance[][] originalMatrix) {
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-        final double[][] Cr = new double[matrixSize][matrixSize];
-        final double[][] Ci = new double[matrixSize][matrixSize];
 
         for (int y = sy0; y < syMax; ++y) {
             final int yy = y - sy0;
             srcIndex.calculateStride(y);
             for (int x = sx0; x < sxMax; ++x) {
                 final int xx = x - sx0;
+                final Covariance matrix;
                 if (matrixSize == 3) {
-                    getCovarianceMatrixC3(srcIndex.getIndex(x), dataBuffers, Cr, Ci);
-                } else if (matrixSize == 2) {
-                    getCovarianceMatrixC2(srcIndex.getIndex(x), dataBuffers, Cr, Ci);
+                    matrix = new CovarianceMatrix.C3();
+                    matrix.getCovarianceMatrix(srcIndex.getIndex(x), dataBuffers);
+                } else {
+                    matrix = new CovarianceMatrix.C2();
+                    matrix.getCovarianceMatrix(srcIndex.getIndex(x), dataBuffers);
                 }
-                originalMatrix[yy][xx] = new CovarianceMatrix(matrixSize);
-                originalMatrix[yy][xx].setCovarianceMatrix(Cr, Ci);
+                originalMatrix[yy][xx] = matrix;
             }
         }
     }
 
     private void copyOriginalMatrix(final int sx0, final int sy0, final int sxMax, final int syMax,
-                                    final CovarianceMatrix[][] originalMatrix,
-                                    final CovarianceMatrix[][] preEstimatedMatrix) {
+                                    final Covariance[][] originalMatrix,
+                                    final Covariance[][] preEstimatedMatrix) {
         for (int y = sy0; y < syMax; ++y) {
             final int yy = y - sy0;
             for (int x = sx0; x < sxMax; ++x) {
                 final int xx = x - sx0;
-                preEstimatedMatrix[yy][xx] = new CovarianceMatrix(matrixSize);
-                preEstimatedMatrix[yy][xx].setCovarianceMatrix(originalMatrix[yy][xx].getRealCovarianceMatrix(),
-                        originalMatrix[yy][xx].getImagCovarianceMatrix());
+                preEstimatedMatrix[yy][xx] = originalMatrix[yy][xx].clone();
             }
         }
     }
 
     private void performGaussianFiltering(final int sx0, final int sy0, final int sxMax, final int syMax,
-                                          final CovarianceMatrix[][] originalMatrix,
-                                          final CovarianceMatrix[][] preEstimatedMatrix) {
+                                          final Covariance[][] originalMatrix,
+                                          final Covariance[][] preEstimatedMatrix) {
 
-        double[][] weight = new double[2*scaleSize+1][2*scaleSize+1];
+        final double[][] weight = new double[2*scaleSize+1][2*scaleSize+1];
         double totalWeight = 0.0;
         for (int i = -scaleSize; i <= scaleSize; ++i) {
             for (int j = -scaleSize; j <= scaleSize; ++j) {
@@ -313,7 +325,11 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
             final int yy = y - sy0;
             for (int x = sx0; x < sxMax; ++x) {
                 final int xx = x - sx0;
-                preEstimatedMatrix[yy][xx] = new CovarianceMatrix(matrixSize);
+                if(matrixSize == 3) {
+                    preEstimatedMatrix[yy][xx] = new CovarianceMatrix.C3();
+                } else {
+                    preEstimatedMatrix[yy][xx] = new CovarianceMatrix.C2();
+                }
 
                 for (int i = -scaleSize; i <= scaleSize; ++i) {
                     final int dyy = yy + i;
@@ -329,9 +345,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                         }
 
                         preEstimatedMatrix[yy][xx].addWeightedCovarianceMatrix(
-                                weight[ii][j + scaleSize],
-                                originalMatrix[dyy][dxx].getRealCovarianceMatrix(),
-                                originalMatrix[dyy][dxx].getImagCovarianceMatrix());
+                                weight[ii][j + scaleSize], originalMatrix[dyy][dxx]);
                     }
                 }
             }
@@ -339,10 +353,10 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     }
 
     private void rescaleCovarianceMatrix(final int sx0, final int sy0, final int sxMax, final int syMax,
-                                         final CovarianceMatrix[][] preEstimatedMatrix) {
+                                         final Covariance[][] preEstimatedMatrix) {
 
         for (int y = sy0; y < syMax; ++y) {
-            final CovarianceMatrix[] matrix = preEstimatedMatrix[y - sy0];
+            final Covariance[] matrix = preEstimatedMatrix[y - sy0];
             for (int x = sx0; x < sxMax; ++x) {
                 matrix[x - sx0].rescaleMatrix(gamma);
             }
@@ -350,7 +364,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     }
 
     private double[][] computeWeights(final int xc, final int yc, final int sx0, final int sy0,
-                                      final CovarianceMatrix[][] preEstimatedMatrix) {
+                                      final Covariance[][] preEstimatedMatrix) {
 
         final int xSt = Math.max(xc - halfWindowSize, 0);
         final int ySt = Math.max(yc - halfWindowSize, 0);
@@ -359,7 +373,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 
         // No normalization is needed. We want w(x,x) = 1
         final double h = 1.0 / 3.0; // filtering parameter
-        double[][] weight = new double[yEd - ySt + 1][xEd - xSt + 1];
+        final double[][] weight = new double[yEd - ySt + 1][xEd - xSt + 1];
         for (int y = ySt; y <= yEd; ++y) {
             final int yy = y - ySt;
             for (int x = xSt; x <= xEd; ++x) {
@@ -378,9 +392,8 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 
     private double computeDissimilarity(
             final int xc1, final int yc1, final int xc2, final int yc2, final int sx0, final int sy0,
-            final CovarianceMatrix[][] preEstimatedMatrix) {
+            final Covariance[][] preEstimatedMatrix) {
 
-        final double matrixSizeTwoLog2 = matrixSize * TwoLog2;
         double dissimilarity = 0.0;
         boolean validPixel = false;
         for (int i = 0; i < patchSize; ++i) {
@@ -401,13 +414,9 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                 final int dx1 = x1 - sx0;
                 final int dx2 = x2 - sx0;
 
-                final CovarianceMatrix C12 = new CovarianceMatrix(matrixSize);
+                final Covariance C12 = preEstimatedMatrix[dy1][dx1].clone();
 
-                C12.setCovarianceMatrix(preEstimatedMatrix[dy1][dx1].getRealCovarianceMatrix(),
-                        preEstimatedMatrix[dy1][dx1].getImagCovarianceMatrix());
-
-                C12.addCovarianceMatrix(preEstimatedMatrix[dy2][dx2].getRealCovarianceMatrix(),
-                        preEstimatedMatrix[dy2][dx2].getImagCovarianceMatrix());
+                C12.addCovarianceMatrix(preEstimatedMatrix[dy2][dx2]);
 
                 final double detC12 = C12.getDeterminant();
                 final double detC1 = preEstimatedMatrix[dy1][dx1].getDeterminant();
@@ -429,25 +438,26 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         }
     }
 
-    private CovarianceMatrix computeWeightedEstimate(
+    private Covariance computeWeightedEstimate(
             final int xc, final int yc, final int sx0, final int sy0, final double[][] weight,
-            final CovarianceMatrix[][] originalMatrix) {
+            final Covariance[][] originalMatrix) {
 
         final int xSt = Math.max(xc - halfWindowSize, 0);
         final int ySt = Math.max(yc - halfWindowSize, 0);
         final int xEd = Math.min(xc + halfWindowSize, sourceImageWidth - 1);
         final int yEd = Math.min(yc + halfWindowSize, sourceImageHeight - 1);
 
-        final CovarianceMatrix avgC = new CovarianceMatrix(matrixSize);
+        final Covariance avgC;
+        if(matrixSize == 3) {
+            avgC = new CovarianceMatrix.C3();
+        } else {
+            avgC = new CovarianceMatrix.C2();
+        }
         for (int y = ySt; y <= yEd; ++y) {
             final int yy = y - ySt;
             final int i = y - sy0;
             for (int x = xSt; x <= xEd; ++x) {
-                final int j = x - sx0;
-                avgC.addWeightedCovarianceMatrix(
-                        weight[yy][x - xSt],
-                        originalMatrix[i][j].getRealCovarianceMatrix(),
-                        originalMatrix[i][j].getImagCovarianceMatrix());
+                avgC.addWeightedCovarianceMatrix(weight[yy][x - xSt], originalMatrix[i][x - sx0]);
             }
         }
 
@@ -472,7 +482,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 
     private double performBiasReduction(
             final int xc, final int yc, final int sx0, final int sy0, final double[][] weight, final double enlNL,
-            final CovarianceMatrix[][] originalMatrix, final CovarianceMatrix sigmaNL, CovarianceMatrix sigmaNLBR) {
+            final Covariance[][] originalMatrix, final Covariance sigmaNL, Covariance sigmaNLBR) {
 
         final int xSt = Math.max(xc - halfWindowSize, 0);
         final int ySt = Math.max(yc - halfWindowSize, 0);
@@ -505,11 +515,9 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         }
 
         // bias reduction
-        sigmaNLBR.addWeightedCovarianceMatrix(
-                1 - alpha, sigmaNL.getRealCovarianceMatrix(), sigmaNL.getImagCovarianceMatrix());
+        sigmaNLBR.addWeightedCovarianceMatrix(1 - alpha, sigmaNL);
 
-        sigmaNLBR.addWeightedCovarianceMatrix(alpha, originalMatrix[yc - sy0][xc - sx0].getRealCovarianceMatrix(),
-                originalMatrix[yc - sy0][xc - sx0].getImagCovarianceMatrix());
+        sigmaNLBR.addWeightedCovarianceMatrix(alpha, originalMatrix[yc - sy0][xc - sx0]);
 
         // compute ENL after bias reduction
         final double totalWeight = getTotalWeight(weight);
@@ -529,204 +537,5 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
 
         return totalWeight;
     }
-
-
-    private class CovarianceMatrix {
-        private double Cr00, Cr01, Cr02, Cr11, Cr12, Cr22;
-        private double Ci01, Ci02, Ci12;
-        private int d;
-        private double det;
-
-        private CovarianceMatrix(final  int matrixSize) {
-            this.d = matrixSize;
-            this.det = -1.0;
-
-            if (d == 2) {
-                Cr00 = 0.0;
-                Cr01 = 0.0;
-                Cr11 = 0.0;
-                Ci01 = 0.0;
-            } else if (d == 3) {
-                Cr00 = 0.0;
-                Cr01 = 0.0;
-                Cr02 = 0.0;
-                Cr11 = 0.0;
-                Cr12 = 0.0;
-                Cr22 = 0.0;
-                Ci01 = 0.0;
-                Ci02 = 0.0;
-                Ci12 = 0.0;
-            }
-        }
-
-        private void setCovarianceMatrix(final double[][] Cr, final double[][] Ci) {
-
-            if (Cr.length != d || Cr[0].length != d || Ci.length != d || Ci[0].length != d) {
-                throw new OperatorException("CovarianceMatrix: invalid input matrix dimension");
-            }
-
-            if (d == 2) {
-                Cr00 = Cr[0][0];
-                Cr01 = Cr[0][1];
-                Cr11 = Cr[1][1];
-                Ci01 = Ci[0][1];
-            } else if (d == 3) {
-                Cr00 = Cr[0][0];
-                Cr01 = Cr[0][1];
-                Cr02 = Cr[0][2];
-                Cr11 = Cr[1][1];
-                Cr12 = Cr[1][2];
-                Cr22 = Cr[2][2];
-                Ci01 = Ci[0][1];
-                Ci02 = Ci[0][2];
-                Ci12 = Ci[1][2];
-            }
-
-            det = -1.0;
-        }
-
-        private double[][] getRealCovarianceMatrix() {
-
-            final double[][] Cr = new double[d][d];
-            if (d == 2) {
-                Cr[0][0] = Cr00;
-                Cr[0][1] = Cr01;
-                Cr[1][0] = Cr01;
-                Cr[1][1] = Cr11;
-            } else if (d == 3) {
-                Cr[0][0] = Cr00;
-                Cr[0][1] = Cr01;
-                Cr[0][2] = Cr02;
-                Cr[1][0] = Cr01;
-                Cr[1][1] = Cr11;
-                Cr[1][2] = Cr12;
-                Cr[2][0] = Cr02;
-                Cr[2][1] = Cr12;
-                Cr[2][2] = Cr22;
-            }
-            return Cr;
-        }
-
-        private double[][] getImagCovarianceMatrix() {
-
-            final double[][] Ci = new double[d][d];
-            if (d == 2) {
-                Ci[0][0] = 0.0;
-                Ci[0][1] = Ci01;
-                Ci[1][0] = -Ci01;
-                Ci[1][1] = 0.0;
-            } else if (d == 3) {
-                Ci[0][0] = 0.0;
-                Ci[0][1] = Ci01;
-                Ci[0][2] = Ci02;
-                Ci[1][0] = -Ci01;
-                Ci[1][1] = 0.0;
-                Ci[1][2] = Ci12;
-                Ci[2][0] = -Ci02;
-                Ci[2][1] = -Ci12;
-                Ci[2][2] = 0.0;
-            }
-            return Ci;
-        }
-
-        private void addCovarianceMatrix(final double[][] Cr, final double[][] Ci) {
-
-            if (Cr.length != d || Cr[0].length != d || Ci.length != d || Ci[0].length != d) {
-                throw new OperatorException("CovarianceMatrix: invalid input matrix dimension");
-            }
-            if (d == 2) {
-                Cr00 += Cr[0][0];
-                Cr01 += Cr[0][1];
-                Cr11 += Cr[1][1];
-                Ci01 += Ci[0][1];
-            } else if (d == 3) {
-                Cr00 += Cr[0][0];
-                Cr01 += Cr[0][1];
-                Cr02 += Cr[0][2];
-                Cr11 += Cr[1][1];
-                Cr12 += Cr[1][2];
-                Cr22 += Cr[2][2];
-                Ci01 += Ci[0][1];
-                Ci02 += Ci[0][2];
-                Ci12 += Ci[1][2];
-            }
-
-            det = -1.0;
-        }
-
-        private void addWeightedCovarianceMatrix(final double w, final double[][] Cr, final double[][] Ci) {
-
-            if (Cr.length != d || Cr[0].length != d || Ci.length != d || Ci[0].length != d) {
-                throw new OperatorException("CovarianceMatrix: invalid input matrix dimension");
-            }
-            if (d == 2) {
-                Cr00 += w*Cr[0][0];
-                Cr01 += w*Cr[0][1];
-                Cr11 += w*Cr[1][1];
-                Ci01 += w*Ci[0][1];
-            } else if (d == 3) {
-                Cr00 += w*Cr[0][0];
-                Cr01 += w*Cr[0][1];
-                Cr02 += w*Cr[0][2];
-                Cr11 += w*Cr[1][1];
-                Cr12 += w*Cr[1][2];
-                Cr22 += w*Cr[2][2];
-                Ci01 += w*Ci[0][1];
-                Ci02 += w*Ci[0][2];
-                Ci12 += w*Ci[1][2];
-            }
-
-            det = -1.0;
-        }
-
-        private void rescaleMatrix(final double gamma) {
-            // apply to off diagonal elements only
-            if (d == 2) {
-                Cr01 *= gamma;
-                Ci01 *= gamma;
-            } else if (d == 3) {
-                Cr01 *= gamma;
-                Cr02 *= gamma;
-                Cr12 *= gamma;
-                Ci01 *= gamma;
-                Ci02 *= gamma;
-                Ci12 *= gamma;
-            }
-
-            det = -1.0;
-        }
-
-        private double getDeterminant() {
-
-            if (det != -1.0) {
-                return det;
-            }
-
-            if (d == 2) {
-                det = Math.abs(Cr00*Cr11 - Cr01*Cr01 - Ci01*Ci01);
-            } else if (d == 3) {
-                det = Math.abs(Cr00*Cr11*Cr22 - Cr00*(Cr12*Cr12 + Ci12*Ci12) - Cr11*(Cr02*Cr02 + Ci02*Ci02) -
-                        Cr22*(Cr01*Cr01 + Ci01*Ci01) + 2.0*(Cr12*(Cr01*Cr02 + Ci01*Ci02) + Ci12*(Cr01*Ci02 -
-                        Ci01*Cr02)));
-            }
-
-            return det;
-        }
-
-        private double[] getDiagonalElements() {
-
-            final double[] diagonal = new double[d];
-            if (d == 2) {
-                diagonal[0] = Cr00;
-                diagonal[1] = Cr11;
-            } else if (d == 3) {
-                diagonal[0] = Cr00;
-                diagonal[1] = Cr11;
-                diagonal[2] = Cr22;
-            }
-            return diagonal;
-        }
-    }
-
 }
 
