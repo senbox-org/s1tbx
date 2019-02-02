@@ -18,5 +18,10 @@
                 <tocitem text="Change Detection" target="ChangeDetection"/>
             </tocitem>
         </tocitem>
+        <tocitem text="Raster">
+            <tocitem text="Classification">
+                <tocitem text="Decision Tree" target="DecisionTreeOp"/>
+            </tocitem>
+        </tocitem>
     </tocitem>
 </toc>
