@@ -106,6 +106,27 @@ public final class GeoUtils {
         //xyz.z = (WGS84.e2inv * N  + altitude) * sinLat;    // in m
     }
 
+    public static class Geo2xyzWGS84 {
+        private final double lat, sinLat, N;
+
+        public Geo2xyzWGS84(final double latitude) {
+            lat = latitude * Constants.DTOR;
+            sinLat = FastMath.sin(lat);
+            N = (WGS84.a / Math.sqrt(1.0 - WGS84.e2 * sinLat * sinLat));
+        }
+
+        public PosVector getXYZ(final double longitude, final double altitude) {
+            final double lon = longitude * Constants.DTOR;
+            final double NcosLat = (N + altitude) * FastMath.cos(lat);
+
+            final PosVector xyz = new PosVector();
+            xyz.x = NcosLat * FastMath.cos(lon); // in m
+            xyz.y = NcosLat * FastMath.sin(lon); // in m
+            xyz.z = (N + altitude - WGS84.e2 * N) * sinLat;
+            return xyz;
+        }
+    }
+
     /**
      * Convert cartesian XYZ coordinate into geodetic coordinate (WGS84 geodetic system is used).
      *
