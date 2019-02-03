@@ -77,9 +77,9 @@ public final class TerrainFlatteningOp extends Operator {
             defaultValue = "SRTM 1Sec HGT", label = "Digital Elevation Model")
     private String demName = "SRTM 1Sec HGT";
 
-    @Parameter(defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             label = "DEM Resampling Method")
-    private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
+    private String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
     @Parameter(label = "External DEM")
     private File externalDEMFile = null;
@@ -560,6 +560,8 @@ public final class TerrainFlatteningOp extends Operator {
                     if (outputSigma0) {
                         sigma0Area = new double[nLon];
                     }
+                    final GeoUtils.Geo2xyzWGS84 geo2xyzWGS84 = new GeoUtils.Geo2xyzWGS84(lat);
+                    final LocalGeometry localGeometry = new LocalGeometry(lat, delta);
 
                     for (int j = 0; j < nLon; j++) {
                         final double lon = lonMin + j*delta;
@@ -568,11 +570,11 @@ public final class TerrainFlatteningOp extends Operator {
                         if (Double.isNaN(alt) || alt.equals(demNoDataValue))
                             continue;
 
-                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                        posData.earthPoint = geo2xyzWGS84.getXYZ(lon, alt);
+                        if (!getPosition(x0, y0, w, h, posData))
                             continue;
 
-                        final LocalGeometry localGeometry = new LocalGeometry(lat, lon, alt, delta, dem,
-                                posData.earthPoint, posData.sensorPos);
+                        localGeometry.setLon(lon, alt, dem, posData);
 
                         if(!computeIlluminatedArea(localGeometry, demNoDataValue, noDataValue, j, gamma0Area, sigma0Area)) {
                             continue;
@@ -665,11 +667,12 @@ public final class TerrainFlatteningOp extends Operator {
                             lon -= 360.0;
                         }
 
-                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                        GeoUtils.geo2xyzWGS84(lat, lon, alt, posData.earthPoint);
+                        if (!getPosition(x0, y0, w, h, posData))
                             continue;
 
                         final LocalGeometry localGeometry = new LocalGeometry(
-                                xmin, ymin, x, y, tileGeoRef, localDEM, posData.earthPoint, posData.sensorPos);
+                                xmin, ymin, x, y, tileGeoRef, localDEM, posData);
 
                         if(!computeIlluminatedArea(localGeometry, demNoDataValue, noDataValue, xx, gamma0Area, sigma0Area)) {
                             continue;
@@ -762,11 +765,8 @@ public final class TerrainFlatteningOp extends Operator {
     }
 
     //======================================
-    private boolean getPosition(final double lat, final double lon, final double alt,
-                                final int x0, final int y0, final int w, final int h,
+    private boolean getPosition(final int x0, final int y0, final int w, final int h,
                                 final PositionData data) {
-
-        GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
 
         final double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
                 lineTimeInterval, wavelength, data.earthPoint, orbit);
@@ -1025,7 +1025,6 @@ public final class TerrainFlatteningOp extends Operator {
     /**
      * Get elevation model.
      *
-     * @throws Exception The exceptions.
      */
     private synchronized void getElevationModel() {
 
@@ -1052,13 +1051,14 @@ public final class TerrainFlatteningOp extends Operator {
 
         final PixelPos pixPos = new PixelPos();
         final GeoCoding sourceGeoCoding = sourceProduct.getSceneGeoCoding();
+        final int step = 100;
 
         double tileOverlapUp = 0.0, tileOverlapDown = 0.0, tileOverlapLeft = 0.0, tileOverlapRight = 0.0;
-        for (int y = y0; y < y0 + h; y += 20) {
+        for (int y = y0; y < y0 + h; y += step) {
             if(pm.isCanceled()) {
                 return null;
             }
-            for (int x = x0; x < x0 + w; x += 20) {
+            for (int x = x0; x < x0 + w; x += step) {
                 if (getTruePixelPos(x, y, pixPos, sourceGeoCoding)) {
                     tileOverlapUp = Math.max((y - pixPos.y) / h, tileOverlapUp);
                     tileOverlapDown = Math.max((pixPos.y - y) / h, tileOverlapDown);
@@ -1258,15 +1258,10 @@ public final class TerrainFlatteningOp extends Operator {
             return false;
         }
 
-        final PosVector t00 = new PosVector();
-        final PosVector t01 = new PosVector();
-        final PosVector t10 = new PosVector();
-        final PosVector t11 = new PosVector();
-
-        GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, lg.t00Height, t00);
-        GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, lg.t01Height, t01);
-        GeoUtils.geo2xyzWGS84(lg.t10Lat, lg.t10Lon, lg.t10Height, t10);
-        GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, lg.t11Height, t11);
+        final PosVector t00 = lg.t00geo2xyzWGS84.getXYZ(lg.t00Lon, lg.t00Height);
+        final PosVector t01 = lg.t01geo2xyzWGS84.getXYZ(lg.t01Lon, lg.t01Height);
+        final PosVector t10 = lg.t00geo2xyzWGS84.getXYZ(lg.t10Lon, lg.t10Height);
+        final PosVector t11 = lg.t01geo2xyzWGS84.getXYZ(lg.t11Lon, lg.t11Height);
 
         // compute slant range direction
         final PosVector s = new PosVector(
@@ -1335,23 +1330,26 @@ public final class TerrainFlatteningOp extends Operator {
 
     public static class LocalGeometry {
         public final double t00Lat;
-        public final double t00Lon;
-        public final double t00Height;
-        public final double t01Lat;
-        public final double t01Lon;
-        public final double t01Height;
-        public final double t10Lat;
-        public final double t10Lon;
-        public final double t10Height;
-        public final double t11Lat;
-        public final double t11Lon;
-        public final double t11Height;
-        public final PosVector sensorPos;
-        public final PosVector centerPoint;
+        public double t00Lon;
+        public double t00Height;
+        public double t01Lat;
+        public double t01Lon;
+        public double t01Height;
+        public double t10Lat;
+        public double t10Lon;
+        public double t10Height;
+        public double t11Lat;
+        public double t11Lon;
+        public double t11Height;
+        public PosVector sensorPos;
+        public PosVector centerPoint;
+        private double delta;
+        GeoUtils.Geo2xyzWGS84 t00geo2xyzWGS84;
+        GeoUtils.Geo2xyzWGS84 t01geo2xyzWGS84;
 
         LocalGeometry(final int x0, final int y0, final int x, final int y,
                              final TileGeoreferencing tileGeoRef, final double[][] localDEM,
-                             final PosVector earthPoint, final PosVector sensorPos) {
+                             final PositionData posData) {
 
             final GeoPos geo = new GeoPos();
             final int yy = y - y0 + 1;
@@ -1377,36 +1375,47 @@ public final class TerrainFlatteningOp extends Operator {
             this.t11Lon = geo.lon;
             this.t11Height = localDEM[yy - 1][xx + 1];
 
-            this.centerPoint = earthPoint;
-            this.sensorPos = sensorPos;
+            this.centerPoint = posData.earthPoint;
+            this.sensorPos = posData.sensorPos;
         }
 
-        LocalGeometry(final double lat, final double lon, final  double alt, final double del, final ElevationModel dem,
-                             final PosVector earthPoint, final PosVector sensorPos) throws Exception {
+        LocalGeometry(final double lat, final double del) {
+            this.delta = del;
 
             this.t00Lat = lat;
+
+            this.t01Lat = lat - del;
+
+            this.t10Lat = lat;
+
+            this.t11Lat = lat - del;
+
+            this.t00geo2xyzWGS84 = new GeoUtils.Geo2xyzWGS84(t00Lat);
+            this.t01geo2xyzWGS84 = new GeoUtils.Geo2xyzWGS84(t01Lat);
+        }
+
+        void setLon(final double lon, final  double alt, final ElevationModel dem,
+                      final PositionData posData) throws Exception {
+
             this.t00Lon = lon;
             this.t00Height = alt;
 
-            this.t01Lat = lat - del;
             this.t01Lon = lon;
             this.t01Height = dem.getElevation(new GeoPos(t01Lat, t01Lon));
 
-            this.t10Lat = lat;
-            this.t10Lon = lon + del;
+            this.t10Lon = lon + delta;
             this.t10Height = dem.getElevation(new GeoPos(t10Lat, t10Lon));
 
-            this.t11Lat = lat - del;
-            this.t11Lon = lon + del;
+            this.t11Lon = lon + delta;
             this.t11Height = dem.getElevation(new GeoPos(t11Lat, t11Lon));
 
-            this.centerPoint = earthPoint;
-            this.sensorPos = sensorPos;
+            this.centerPoint = posData.earthPoint;
+            this.sensorPos = posData.sensorPos;
         }
     }
 
     private static class PositionData {
-        final PosVector earthPoint = new PosVector();
+        PosVector earthPoint = new PosVector();
         final PosVector sensorPos = new PosVector();
         double azimuthIndex;
         double rangeIndex;

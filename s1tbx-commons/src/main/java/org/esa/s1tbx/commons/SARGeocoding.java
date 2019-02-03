@@ -471,13 +471,15 @@ public final class SARGeocoding {
 
             final double mid = (lowerBound + upperBound) / 2.0;
             midSlantRange = Maths.computePolynomialValue(mid, srgrCoeff);
-            final double a = midSlantRange - slantRange;
-            if ((a > 0 && a < 0.1) || (a <= 0.0D && 0.0D - a < 0.1)) {
-                return mid;
-            } else if (midSlantRange < slantRange) {
+            if (midSlantRange < slantRange) {
                 lowerBound = mid;
             } else if (midSlantRange > slantRange) {
                 upperBound = mid;
+            } else {
+                final double a = midSlantRange - slantRange;
+                if ((a > 0 && a < 0.1) || (a <= 0.0D && 0.0D - a < 0.1)) {
+                    return mid;
+                }
             }
         }
 
@@ -890,6 +892,4 @@ public final class SARGeocoding {
         lookDirectionElem.setAttributeDouble("tail_lon", geoPosTail.lon);
         lookDirectionListElem.addElement(lookDirectionElem);
     }
-
-
 }
