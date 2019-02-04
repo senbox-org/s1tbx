@@ -39,7 +39,7 @@ public class PolSARWizardProcessPanel extends WizardPanel {
 
         final File graphFile = new File(wizardGraphPath, wishartGraph);
 
-        graphDialog.LoadGraph(graphFile);
+        graphDialog.loadGraph(graphFile);
         graphDialog.setInputFile(srcProduct);
         graphDialog.addListener(new GraphProcessListener());
 
@@ -52,7 +52,7 @@ public class PolSARWizardProcessPanel extends WizardPanel {
 
     // on finish
     public void finish() {
-        graphDialog.DoProcessing();
+        graphDialog.doProcessing();
         finishing = true;
     }
 

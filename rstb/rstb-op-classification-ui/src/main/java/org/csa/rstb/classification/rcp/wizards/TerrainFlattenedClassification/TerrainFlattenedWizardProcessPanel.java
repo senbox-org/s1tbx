@@ -38,7 +38,7 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
 
         final File graphFile = new File(wizardGraphPath, "TerrainFlattenedT3.xml");
 
-        graphDialog.LoadGraph(graphFile);
+        graphDialog.loadGraph(graphFile);
         graphDialog.setInputFile(srcProduct);
         graphDialog.addListener(new GraphProcessListener());
 
@@ -66,7 +66,7 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
 
     public boolean validateInput() {
         if (getTargetFileList().length == 0) {
-            graphDialog.DoProcessing();
+            graphDialog.doProcessing();
             getOwner().updateState();
         }
         return getTargetFileList().length != 0;

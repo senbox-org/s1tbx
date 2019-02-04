@@ -390,7 +390,7 @@ public class Project extends Observable {
         } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.GRAPH) {
             final GraphBuilderDialog dialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(), "Graph Builder", "graph_builder");
             dialog.show();
-            dialog.LoadGraph(file);
+            dialog.loadGraph(file);
         } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
 
             final OpenProductAction open = new OpenProductAction();
