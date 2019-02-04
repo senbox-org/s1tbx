@@ -202,6 +202,7 @@ public final class SARSimulationOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfTOPSARBurstProduct(false);
+            validator.checkIfMapProjected(false);
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
