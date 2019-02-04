@@ -39,7 +39,7 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
 
         openProcessedProducts = true;
 
-        LoadGraph(getDefaultGraphFile());
+        loadGraph(getDefaultGraphFile());
     }
 
     private static File getDefaultGraphFile() {
@@ -52,7 +52,7 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
         final GraphExecuter graphEx = graphExecutorList.get(0);
         for (int graphIndex = 1; graphIndex < graphExecutorList.size(); ++graphIndex) {
             final GraphExecuter cloneGraphEx = graphExecutorList.get(graphIndex);
-            cloneGraphEx.ClearGraph();
+            cloneGraphEx.clearGraph();
         }
         graphExecutorList.clear();
         graphExecutorList.add(graphEx);
@@ -61,15 +61,15 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
         for (int graphIndex = 1; graphIndex < fileList.length - 1; ++graphIndex) {
 
             final GraphExecuter cloneGraphEx = new GraphExecuter();
-            LoadGraph(cloneGraphEx, graphFile, false);
+            loadGraph(cloneGraphEx, graphFile, false);
             graphExecutorList.add(cloneGraphEx);
 
             // copy UI parameter to clone
-            final GraphNode[] cloneGraphNodes = cloneGraphEx.GetGraphNodes();
+            final GraphNode[] cloneGraphNodes = cloneGraphEx.getGraphNodes();
             for (GraphNode cloneNode : cloneGraphNodes) {
                 final GraphNode node = graphEx.getGraphNodeList().findGraphNode(cloneNode.getID());
                 //               if (node != null)
-                //                   cloneNode.setOperatorUI(node.GetOperatorUI());
+                //                   cloneNode.setOperatorUI(node.getOperatorUI());
             }
         }
     }

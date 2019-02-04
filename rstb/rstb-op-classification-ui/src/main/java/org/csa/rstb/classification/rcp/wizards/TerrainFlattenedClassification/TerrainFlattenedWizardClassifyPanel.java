@@ -40,7 +40,7 @@ public class TerrainFlattenedWizardClassifyPanel extends WizardPanel {
 
         final File graphFile = new File(GraphBuilderDialog.getStandardGraphFolder(), wishartGraph);
 
-        graphDialog.LoadGraph(graphFile);
+        graphDialog.loadGraph(graphFile);
 
         Product inputProduct = null;
         try {
@@ -60,7 +60,7 @@ public class TerrainFlattenedWizardClassifyPanel extends WizardPanel {
 
     // on finish
     public void finish() {
-        graphDialog.DoProcessing();
+        graphDialog.doProcessing();
         finishing = true;
     }
 

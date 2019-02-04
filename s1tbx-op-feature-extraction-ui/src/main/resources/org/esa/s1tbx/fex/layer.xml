@@ -69,6 +69,16 @@
                 <attr name="helpId" stringvalue="WindFieldEstimation"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
+            <file name="org-esa-s1tbx-fex-gpf-DecisionTree-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Decision Tree"/>
+                <attr name="graphFile" stringvalue="classification/DecisionTreeGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Decision Tree"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_DTClass"/>
+                <attr name="ShortDescription" stringvalue="Decision Tree Classifier"/>
+                <attr name="helpId" stringvalue="DecisionTreeOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -108,10 +118,22 @@
                 </file>
             </folder>
         </folder>
+        <folder name="Raster">
+            <folder name="Classification">
+                <attr name="position" intvalue="450"/>
+                <file name="org-esa-s1tbx-fex-gpf-DecisionTree-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-DecisionTree-Action.instance"/>
+                    <attr name="position" intvalue="500"/>
+                </file>
+            </folder>
+        </folder>
     </folder>
 
     <folder name="OperatorUIs">
-
+        <file name="org.esa.s1tbx.fex.gpf.ui.decisiontree.DecisionTreeOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.fex.gpf.ui.decisiontree.DecisionTreeOpUI"/>
+            <attr name="operatorName" stringvalue="DecisionTree"/>
+        </file>
     </folder>
 
     <folder name="LayerSources">

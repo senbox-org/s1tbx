@@ -39,7 +39,7 @@ public class CoregisterWizardProcessPanel extends WizardPanel {
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
         final File graphFile = new File(graphPath, "CoregistrationGraph.xml");
 
-        graphDialog.LoadGraph(graphFile);
+        graphDialog.loadGraph(graphFile);
         graphDialog.setInputFiles(productFileList);
         graphDialog.addListener(new GraphProcessListener());
 
@@ -52,7 +52,7 @@ public class CoregisterWizardProcessPanel extends WizardPanel {
 
     // on finish
     public void finish() {
-        graphDialog.DoProcessing();
+        graphDialog.doProcessing();
         finishing = true;
     }
 

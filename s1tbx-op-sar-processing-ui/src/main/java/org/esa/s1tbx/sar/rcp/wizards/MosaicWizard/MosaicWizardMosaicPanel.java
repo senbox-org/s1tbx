@@ -38,7 +38,7 @@ public class MosaicWizardMosaicPanel extends WizardPanel {
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
         final File graphFile = new File(graphPath, "MosaicGraph.xml");
 
-        graphDialog.LoadGraph(graphFile);
+        graphDialog.loadGraph(graphFile);
         graphDialog.setInputFiles(productFileList);
         graphDialog.addListener(new GraphProcessListener());
 
@@ -51,7 +51,7 @@ public class MosaicWizardMosaicPanel extends WizardPanel {
 
     // on finish
     public void finish() {
-        graphDialog.DoProcessing();
+        graphDialog.doProcessing();
         finishing = true;
     }
 

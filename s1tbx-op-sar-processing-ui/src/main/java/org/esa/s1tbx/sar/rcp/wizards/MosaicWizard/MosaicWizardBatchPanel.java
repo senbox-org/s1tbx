@@ -93,7 +93,7 @@ public class MosaicWizardBatchPanel extends WizardPanel {
         batchDlg.setTargetFolder(targetFolder);
         batchDlg.addListener(new MyBatchProcessListener());
         if (graphFile != null) {
-            batchDlg.LoadGraph(graphFile);
+            batchDlg.loadGraph(graphFile);
         }
     }
 }

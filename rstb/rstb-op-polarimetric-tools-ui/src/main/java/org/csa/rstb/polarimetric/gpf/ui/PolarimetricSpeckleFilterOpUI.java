@@ -34,7 +34,8 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
     private final JComboBox<String> filter = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
             PolarimetricSpeckleFilterOp.IDAN_FILTER,
             PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER,
-            PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER});
+            PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER,
+            PolarimetricSpeckleFilterOp.NON_LOCAL_FILTER});
 
     private final JComboBox<String> numLooks = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.NUM_LOOKS_1,
             PolarimetricSpeckleFilterOp.NUM_LOOKS_2,
@@ -55,6 +56,13 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
             LeeSigma.SIGMA_80_PERCENT,
             LeeSigma.SIGMA_90_PERCENT});
 
+    private final JComboBox<String> searchWindowSize = new JComboBox(new String[]{"3", "5", "7", "9", "11", "13", "15",
+            "17", "19", "21", "23", "25"});
+
+    private final JComboBox<String> patchSize = new JComboBox(new String[]{"3", "5", "7", "9", "11"});
+
+    private final JComboBox<String> scaleSize = new JComboBox(new String[]{"0", "1", "2"});
+
     private static final JLabel filterLabel = new JLabel("Speckle Filter:");
     private static final JLabel filterSizeLabel = new JLabel("Filter Size:   ");
     private static final JLabel numLooksLabel = new JLabel("Number of Looks:");
@@ -63,6 +71,9 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
     private static final JLabel targetWindowSizeLabel = new JLabel("Target Window Size:");
     private static final JLabel anSizeLabel = new JLabel("Adaptive Neighbourhood Size:");
     private static final JLabel sigmaStrLabel = new JLabel("Sigma:");
+    private static final JLabel searchWindowSizeLabel = new JLabel("Search Window Size:");
+    private static final JLabel patchSizeLabel = new JLabel("Patch Size:");
+    private static final JLabel scaleSizeLabel = new JLabel("Scale Size:");
 
     private final JTextField filterSize = new JTextField("");
     private final JTextField anSize = new JTextField("");
@@ -95,6 +106,9 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
         targetWindowSize.setSelectedItem(paramMap.get("targetWindowSizeStr"));
         sigmaStr.setSelectedItem(paramMap.get("sigmaStr"));
         anSize.setText(String.valueOf(paramMap.get("anSize")));
+        searchWindowSize.setSelectedItem(paramMap.get("searchWindowSizeStr"));
+        patchSize.setSelectedItem(paramMap.get("patchSizeStr"));
+        scaleSize.setSelectedItem(paramMap.get("scaleSizeStr"));
     }
 
     @Override
@@ -113,6 +127,9 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
         paramMap.put("targetWindowSizeStr", targetWindowSize.getSelectedItem());
         paramMap.put("sigmaStr", sigmaStr.getSelectedItem());
         paramMap.put("anSize", Integer.parseInt(anSize.getText()));
+        paramMap.put("searchWindowSizeStr", searchWindowSize.getSelectedItem());
+        paramMap.put("patchSizeStr", patchSize.getSelectedItem());
+        paramMap.put("scaleSizeStr", scaleSize.getSelectedItem());
     }
 
     private JComponent createPanel() {
@@ -145,6 +162,18 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, targetWindowSizeLabel, targetWindowSize);
         DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
 
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, searchWindowSizeLabel, searchWindowSize);
+        DialogUtils.enableComponents(searchWindowSizeLabel, searchWindowSize, false);
+
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, patchSizeLabel, patchSize);
+        DialogUtils.enableComponents(patchSizeLabel, patchSize, false);
+
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, scaleSizeLabel, scaleSize);
+        DialogUtils.enableComponents(scaleSizeLabel, scaleSize, false);
+
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
@@ -160,6 +189,9 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
                 DialogUtils.enableComponents(anSizeLabel, anSize, false);
                 DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
                 DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
+                DialogUtils.enableComponents(searchWindowSizeLabel, searchWindowSize, false);
+                DialogUtils.enableComponents(patchSizeLabel, patchSize, false);
+                DialogUtils.enableComponents(scaleSizeLabel, scaleSize, false);
                 break;
             case PolarimetricSpeckleFilterOp.IDAN_FILTER:
                 DialogUtils.enableComponents(numLooksLabel, numLooks, true);
@@ -168,6 +200,9 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
                 DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
                 DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
                 DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
+                DialogUtils.enableComponents(searchWindowSizeLabel, searchWindowSize, false);
+                DialogUtils.enableComponents(patchSizeLabel, patchSize, false);
+                DialogUtils.enableComponents(scaleSizeLabel, scaleSize, false);
                 break;
             case PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER:
                 DialogUtils.enableComponents(numLooksLabel, numLooks, true);
@@ -176,6 +211,20 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
                 DialogUtils.enableComponents(anSizeLabel, anSize, false);
                 DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
                 DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
+                DialogUtils.enableComponents(searchWindowSizeLabel, searchWindowSize, false);
+                DialogUtils.enableComponents(patchSizeLabel, patchSize, false);
+                DialogUtils.enableComponents(scaleSizeLabel, scaleSize, false);
+                break;
+            case PolarimetricSpeckleFilterOp.NON_LOCAL_FILTER:
+                DialogUtils.enableComponents(numLooksLabel, numLooks, true);
+                DialogUtils.enableComponents(anSizeLabel, anSize, false);
+                DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
+                DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
+                DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
+                DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
+                DialogUtils.enableComponents(searchWindowSizeLabel, searchWindowSize, true);
+                DialogUtils.enableComponents(patchSizeLabel, patchSize, true);
+                DialogUtils.enableComponents(scaleSizeLabel, scaleSize, true);
                 break;
             default:  // boxcar
                 DialogUtils.enableComponents(numLooksLabel, numLooks, false);
@@ -184,6 +233,9 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
                 DialogUtils.enableComponents(anSizeLabel, anSize, false);
                 DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
                 DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
+                DialogUtils.enableComponents(searchWindowSizeLabel, searchWindowSize, false);
+                DialogUtils.enableComponents(patchSizeLabel, patchSize, false);
+                DialogUtils.enableComponents(scaleSizeLabel, scaleSize, false);
                 break;
         }
     }

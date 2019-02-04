@@ -53,7 +53,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {BOXCAR_SPECKLE_FILTER, IDAN_FILTER, REFINED_LEE_FILTER, LEE_SIGMA_FILTER},
+    @Parameter(valueSet = {BOXCAR_SPECKLE_FILTER, IDAN_FILTER, REFINED_LEE_FILTER, LEE_SIGMA_FILTER, NON_LOCAL_FILTER},
             defaultValue = REFINED_LEE_FILTER, label = "Filter")
     private String filter = REFINED_LEE_FILTER;
 
@@ -81,6 +81,17 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             defaultValue = LeeSigma.SIGMA_90_PERCENT, label = "Point target window Size")
     private String sigmaStr = LeeSigma.SIGMA_90_PERCENT; // sigma value in Lee sigma
 
+    @Parameter(description = "The search window size", valueSet = {"3", "5", "7", "9", "11", "13", "15", "17",
+            "19", "21", "23", "25"}, defaultValue = "15", label = "Search Window Size")
+    private String searchWindowSizeStr = "15";
+
+    @Parameter(description = "The patch size", valueSet = {"3", "5", "7", "9", "11"}, defaultValue = "5",
+            label = "Patch Size")
+    private String patchSizeStr = "5";
+
+    @Parameter(description = "The scale size", valueSet = {"0", "1", "2"}, defaultValue = "1", label = "Scale Size")
+    private String scaleSizeStr = "1";
+
     private PolBandUtils.PolSourceBand[] srcBandList;
 
     private int sourceImageWidth = 0;
@@ -91,6 +102,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     public static final String REFINED_LEE_FILTER = "Refined Lee Filter";
     public static final String IDAN_FILTER = "IDAN Filter";
     public static final String LEE_SIGMA_FILTER = "Improved Lee Sigma Filter";
+    public static final String NON_LOCAL_FILTER = "Non Local Filter";
 
     public static final String NUM_LOOKS_1 = "1";
     public static final String NUM_LOOKS_2 = "2";
@@ -115,7 +127,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     public void SetFilter(final String s) {
 
         if (s.equals(BOXCAR_SPECKLE_FILTER) || s.equals(IDAN_FILTER) ||
-                s.equals(REFINED_LEE_FILTER) || s.equals(LEE_SIGMA_FILTER)) {
+                s.equals(REFINED_LEE_FILTER) || s.equals(LEE_SIGMA_FILTER) || s.equals(NON_LOCAL_FILTER)) {
             filter = s;
         } else {
             throw new OperatorException(s + " is an invalid filter name.");
@@ -187,6 +199,12 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 filterSize = FilterWindow.parseWindowSize(windowSize);
                 return new LeeSigma(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize,
                         numLooks, sigmaStr, targetWindowSizeStr);
+            case NON_LOCAL_FILTER:
+                final int searchWindowSize = Integer.parseInt(searchWindowSizeStr);
+                final int patchSize = Integer.parseInt(patchSizeStr);
+                final int scaleSize = Integer.parseInt(scaleSizeStr);
+                return new NonLocal(this, sourceProduct, targetProduct, sourceProductType, srcBandList, numLooks,
+                        searchWindowSize, patchSize, scaleSize);
             default:
                 return null;
         }
@@ -249,7 +267,15 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             throws OperatorException {
 
         try {
-            speckleFilter.computeTiles(targetTiles, targetRectangle, getSourceTileRectangle(targetRectangle));
+            if (filter.equals(NON_LOCAL_FILTER)) {
+                final int searchWindowSize = Integer.parseInt(searchWindowSizeStr);
+                final int patchSize = Integer.parseInt(patchSizeStr);
+                final int scaleSize = Integer.parseInt(scaleSizeStr);
+                final int extSize = searchWindowSize / 2 + patchSize / 2 + scaleSize;
+                speckleFilter.computeTiles(targetTiles, targetRectangle, getSourceTileRectangle(targetRectangle, extSize));
+            } else {
+                speckleFilter.computeTiles(targetTiles, targetRectangle, getSourceTileRectangle(targetRectangle));
+            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -286,6 +312,23 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         if (rect.y + rect.height + halfFilterSize <= sourceImageHeight) {
             sh += halfFilterSize;
         }
+
+        return new Rectangle(sx0, sy0, sw, sh);
+    }
+
+    private Rectangle getSourceTileRectangle(final Rectangle rect, final int extSize) {
+
+        int x0 = rect.x;
+        int y0 = rect.y;
+        int w = rect.width;
+        int h = rect.height;
+
+        final int sx0 = Math.max(x0 - extSize, 0);
+        final int sy0 = Math.max(y0 - extSize, 0);
+        final int sxMax = Math.min(x0 + w - 1 + extSize, sourceImageWidth - 1);
+        final int syMax = Math.min(y0 + h - 1 + extSize, sourceImageHeight - 1);
+        final int sw = sxMax - sx0 + 1;
+        final int sh = syMax - sy0 + 1;
 
         return new Rectangle(sx0, sy0, sw, sh);
     }
