@@ -30,6 +30,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
+import javax.xml.stream.events.Attribute;
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
@@ -138,7 +139,11 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
 
             final String elemName = elem.getName();
             if (elemName.contains("lutSigma")) {
-                final int pixelFirstLutValue = Integer.parseInt(elem.getAttributeString("pixelFirstLutValue"));
+                MetadataAttribute pixelFirstLutValueAttr = elem.getAttribute("pixelFirstLutValue");
+                if (pixelFirstLutValueAttr == null) {
+                    pixelFirstLutValueAttr = elem.getAttribute("pixelFirstAnglesValue");
+                }
+                final int pixelFirstLutValue = Integer.parseInt(pixelFirstLutValueAttr.getData().getElemString());
                 final int stepSize = Integer.parseInt(elem.getAttributeString("stepSize"));
                 final int numberOfValues = Integer.parseInt(elem.getAttributeString("numberOfValues"));
                 final int offset = Integer.parseInt(elem.getAttributeString("offset"));
@@ -147,9 +152,28 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                 final double[] gainLUT = new double[numberOfValues];
                 addToArray(gainLUT, 0, gainsStr, " ");
                 final CalibrationLUT lut = new CalibrationLUT(pixelFirstLutValue, stepSize, numberOfValues, offset, gainLUT);
-                final String pol = elemName.substring(elemName.lastIndexOf("_") + 1);
+                final String pol = getPolarization(elemName);
                 gainsMap.put(pol, lut);
             }
+        }
+    }
+
+    private static String getPolarization(final String bandName) {
+        final String bandNameLower = bandName.toLowerCase();
+        if (bandNameLower.contains("_hh")) {
+            return "hh";
+        } else if (bandNameLower.contains("_hv")) {
+            return "hv";
+        } else if (bandNameLower.contains("_vv")) {
+            return "vv";
+        } else if (bandNameLower.contains("_vh")) {
+            return "vh";
+        } else if (bandNameLower.contains("_ch") || bandNameLower.contains("_rch") || bandNameLower.contains("_lch")) {
+            return "ch";
+        } else if (bandNameLower.contains("_cv") || bandNameLower.contains("_rcv") || bandNameLower.contains("_lcv")) {
+            return "cv";
+        } else {
+            throw new OperatorException("Not handled polarization");
         }
     }
 
@@ -208,7 +232,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final String pol = srcBandNames[0].substring(srcBandNames[0].lastIndexOf("_") + 2);
+        final String pol = getPolarization(srcBandNames[0]);
         final CalibrationLUT sigmaLUT = gainsMap.get(pol);
         final int offset = sigmaLUT.offset;
         final double[] gains = sigmaLUT.getGains(x0 + subsetOffsetX, w);
@@ -287,7 +311,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        final String pol = bandName.substring(bandName.lastIndexOf("_") + 2);
+        final String pol = getPolarization(bandName);
         final CalibrationLUT sigmaLUT = gainsMap.get(pol);
         final int offset = sigmaLUT.offset;
         final double[] gains = sigmaLUT.getGains((int)Math.round(rangeIndex), 1);
