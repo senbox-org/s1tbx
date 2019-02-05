@@ -12,4 +12,5 @@
 
     <mapID target="SpeckleDivergence" url="operators/SpeckleDivergence.html"/>
     <mapID target="ChangeDetection" url="operators/ChangeDetection.html"/>
+    <mapID target="DecisionTreeOp" url="operators/DecisionTreeOp.html"/>
 </map>
