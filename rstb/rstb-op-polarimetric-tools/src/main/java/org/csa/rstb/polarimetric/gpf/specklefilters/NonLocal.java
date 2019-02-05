@@ -133,11 +133,12 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
             if (matrixSize == 3) {
                 for (int y = y0; y < yMax; ++y) {
                     trgIndex.calculateStride(y);
-                    System.out.println(y + " of "+yMax);
+                    System.out.println(y + " of " + yMax);
                     for (int x = x0; x < xMax; ++x) {
                         final double[][] weight = computeWeights(x, y, sx0, sy0, preEstimatedMatrix);
-                        final Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
-                        final double enlNL = computeENL(weight);
+                        final double totalWeight = getTotalWeight(weight);
+                        final Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, totalWeight, originalMatrix);
+                        final double enlNL = computeENL(weight, totalWeight);
 
                         final Covariance sigmaNLBR;
                         if(matrixSize == 3) {
@@ -146,7 +147,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                             sigmaNLBR = new CovarianceMatrix.C2();
                         }
                         final double enlNLRB = performBiasReduction(
-                                x, y, sx0, sy0, weight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
+                                x, y, sx0, sy0, weight, totalWeight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
 
                         saveC3(sigmaNLBR, trgIndex.getIndex(x), targetDataBuffers);
                         //saveC3(sigmaNL, trgIndex.getIndex(x), targetDataBuffers);
@@ -158,8 +159,9 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                     trgIndex.calculateStride(y);
                     for (int x = x0; x < xMax; ++x) {
                         final double[][] weight = computeWeights(x, y, sx0, sy0, preEstimatedMatrix);
-                        Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, originalMatrix);
-                        final double enlNL = computeENL(weight);
+                        final double totalWeight = getTotalWeight(weight);
+                        Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, totalWeight, originalMatrix);
+                        final double enlNL = computeENL(weight, totalWeight);
 
                         final Covariance sigmaNLBR;
                         if(matrixSize == 3) {
@@ -168,7 +170,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                             sigmaNLBR = new CovarianceMatrix.C2();
                         }
                         final double enlNLRB = performBiasReduction(
-                                x, y, sx0, sy0, weight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
+                                x, y, sx0, sy0, weight, totalWeight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
                         saveC2(sigmaNLBR, trgIndex.getIndex(x), targetDataBuffers);
                     }
                 }
@@ -306,11 +308,14 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                                           final Covariance[][] preEstimatedMatrix) {
 
         final double[][] weight = new double[2*scaleSize+1][2*scaleSize+1];
+        final double sigma2 = (scaleSize + 0.5)*(scaleSize + 0.5);
         double totalWeight = 0.0;
         for (int i = -scaleSize; i <= scaleSize; ++i) {
+            final int ii = i + scaleSize;
+            final int i2 = i*i;
             for (int j = -scaleSize; j <= scaleSize; ++j) {
-                final double w = Math.exp(-Math.PI*(i*i + j*j)/((scaleSize + 0.5)*(scaleSize + 0.5)));
-                weight[i + scaleSize][j + scaleSize] = w;
+                final double w = Math.exp(-Math.PI*(i2 + j*j)/sigma2);
+                weight[ii][j + scaleSize] = w;
                 totalWeight += w;
             }
         }
@@ -441,7 +446,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
     }
 
     private Covariance computeWeightedEstimate(
-            final int xc, final int yc, final int sx0, final int sy0, final double[][] weight,
+            final int xc, final int yc, final int sx0, final int sy0, final double[][] weight, final double totalWeight,
             final Covariance[][] originalMatrix) {
 
         final int xSt = Math.max(xc - halfWindowSize, 0);
@@ -459,32 +464,30 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
             final int yy = y - ySt;
             final int i = y - sy0;
             for (int x = xSt; x <= xEd; ++x) {
-                avgC.addWeightedCovarianceMatrix(weight[yy][x - xSt], originalMatrix[i][x - sx0]);
+                avgC.addWeightedCovarianceMatrix(weight[yy][x - xSt]/totalWeight, originalMatrix[i][x - sx0]);
             }
         }
 
         return avgC;
     }
 
-    private double computeENL(final double[][] weight) {
+    private double computeENL(final double[][] weight, final double totalWeight) {
 
         final int cols = weight[0].length;
 
-        double sum = 0.0;
         double sum2 = 0.0;
         for (double[] aWeight : weight) {
             for (int c = 0; c < cols; ++c) {
-                sum += aWeight[c];
                 sum2 += aWeight[c] * aWeight[c];
             }
         }
 
-        return sum * sum / sum2;
+        return totalWeight * totalWeight / sum2;
     }
 
     private double performBiasReduction(
-            final int xc, final int yc, final int sx0, final int sy0, final double[][] weight, final double enlNL,
-            final Covariance[][] originalMatrix, final Covariance sigmaNL, Covariance sigmaNLBR) {
+            final int xc, final int yc, final int sx0, final int sy0, final double[][] weight, final double totalWeight,
+            final double enlNL, final Covariance[][] originalMatrix, final Covariance sigmaNL, Covariance sigmaNLBR) {
 
         final int xSt = Math.max(xc - halfWindowSize, 0);
         final int ySt = Math.max(yc - halfWindowSize, 0);
@@ -505,7 +508,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                 final int xx = x - xSt;
                 final double[] diagOri = originalMatrix[i][x - sx0].getDiagonalElements();
                 for (int j = 0; j < matrixSize; ++j) {
-                    varNL[j] += weight[yy][xx] * diagOri[j] * diagOri[j];
+                    varNL[j] += (weight[yy][xx] / totalWeight) * diagOri[j] * diagOri[j];
                 }
             }
         }
@@ -522,7 +525,6 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         sigmaNLBR.addWeightedCovarianceMatrix(alpha, originalMatrix[yc - sy0][xc - sx0]);
 
         // compute ENL after bias reduction
-        final double totalWeight = getTotalWeight(weight);
         return enlNL / ((1-alpha)*(1-alpha) + enlNL*(alpha*alpha + (2.0*alpha*(1-alpha))/totalWeight));
     }
 
