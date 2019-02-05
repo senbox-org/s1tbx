@@ -353,7 +353,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @return The number of records.
      * @throws OperatorException The exceptions.
      */
-    static int getNumOfRecordsInMainProcParam(Product sourceProduct) throws OperatorException {
+    private static int getNumOfRecordsInMainProcParam(final Product sourceProduct) throws OperatorException {
 
         final MetadataElement origRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
@@ -383,7 +383,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      *
      * @param sourceProduct the source
      */
-    private void getTiePointGridData(Product sourceProduct) {
+    private void getTiePointGridData(final Product sourceProduct) {
         slantRangeTime = OperatorUtils.getSlantRangeTime(sourceProduct);
         incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
         latitude = OperatorUtils.getLatitude(sourceProduct);
@@ -398,7 +398,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param mustPerformRetroCalibration If true, retro-calibration must be performed if it is applicable.
      * @throws Exception The exception.
      */
-    private void checkXCAFileExsitence(boolean mustPerformRetroCalibration) throws Exception {
+    private void checkXCAFileExsitence(final boolean mustPerformRetroCalibration) throws Exception {
 
         String oldXCAFilePath = null;
         if (retroCalibrationFlag) {
@@ -420,7 +420,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 throw new OperatorException("Cannot find XCA file: " + newXCAFilePath);
             }
 
-            if (retroCalibrationFlag && !mustPerformRetroCalibration && newXCAFilePath != null &&
+            if (retroCalibrationFlag && !mustPerformRetroCalibration && newXCAFilePath != null && oldXCAFilePath != null &&
                     (oldXCAFilePath.contains(newXCAFilePath) || newXCAFilePath.contains(oldXCAFilePath))) {
                 retroCalibrationFlag = false;
                 applyAntennaPatternCorr = false;
@@ -434,7 +434,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param filePath The complete path to the given file.
      * @return Return true if the file exists, false otherwise.
      */
-    private boolean isFileExisting(String filePath) {
+    private boolean isFileExisting(final String filePath) {
         File file = null;
         final String[] exts = new String[]{"", ".gz", ".zip"};
         for (String ext : exts) {
@@ -490,7 +490,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @return The name of the XCA file found.
      * @throws Exception The exceptions.
      */
-    public static String findXCAFile(File xcaFileDir, Date productStartDate, Date productEndDate) throws Exception {
+    private static String findXCAFile(final File xcaFileDir, final Date productStartDate,
+                                      final Date productEndDate) throws Exception {
 
         final File[] list = xcaFileDir.listFiles();
         if (list == null) {
@@ -542,8 +543,9 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param productType       The product type.
      * @param calibrationFactor The calibration factors.
      */
-    public static void getCalibrationFactorFromExternalAuxFile(
-            String auxFilePath, String swath, String[] mdsPolar, String productType, double[] calibrationFactor) {
+    private static void getCalibrationFactorFromExternalAuxFile(
+            final String auxFilePath, final String swath, final String[] mdsPolar,
+            final String productType, final double[] calibrationFactor) {
 
         final EnvisatAuxReader reader = new EnvisatAuxReader();
 
@@ -694,8 +696,9 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param antPatArray  The antenna pattern array.
      * @throws OperatorException The IO exception.
      */
-    public static void getSingleSwathAntennaPatternGainFromAuxData(
-            String fileName, String swath, String[] pol, int numOfGains, double[] refElevAngle, float[][] antPatArray)
+    private static void getSingleSwathAntennaPatternGainFromAuxData(
+            final String fileName, final String swath, final String[] pol, final int numOfGains,
+            final double[] refElevAngle, final float[][] antPatArray)
             throws OperatorException {
 
         final EnvisatAuxReader reader = new EnvisatAuxReader();
@@ -759,8 +762,9 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param antPatArray  The antenna pattern array.
      * @throws OperatorException The IO exception.
      */
-    public static void getWideSwathAntennaPatternGainFromAuxData(
-            String fileName, String pol, int numOfGains, double[] refElevAngle, float[][] antPatArray)
+    private static void getWideSwathAntennaPatternGainFromAuxData(
+            final String fileName, final String pol, final int numOfGains,
+            final double[] refElevAngle, final float[][] antPatArray)
             throws OperatorException {
 
         final EnvisatAuxReader reader = new EnvisatAuxReader();
@@ -843,8 +847,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     @Override
 
-    public void computeTile(Band targetBand, Tile targetTile,
-                            ProgressMonitor pm) throws OperatorException {
+    public void computeTile(final Band targetBand, final Tile targetTile,
+                            final ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;
@@ -1136,18 +1140,20 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param refElevationAngle The reference elevation array.
      * @return The sub swath index.
      */
-    public static int findSubSwath(double theta, double[] refElevationAngle) {
+    private static int findSubSwath(final double theta, final double[] refElevationAngle) {
         // The method below finds the nearest reference elevation angle to the given elevation angle theta.
         // The method is equivalent to the one proposed by Romain in his email dated April 28, 2009, in which
         // middle point of the overlapped area of two adjacent sub swathes is used as boundary of sub swath.
         int idx = -1;
         double min = 360.0;
-        for (int i = 0; i < refElevationAngle.length; i++) {
-            double d = Math.abs(theta - refElevationAngle[i]);
+        int i = 0;
+        for (double elevAngle : refElevationAngle) {
+            double d = Math.abs(theta - elevAngle);
             if (d < min) {
                 min = d;
                 idx = i;
             }
+            ++i;
         }
         return idx;
     }
@@ -1160,7 +1166,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param antPatArray       The antenna pattern array.
      * @return The antenna pattern gain (in linear scale).
      */
-    public static double computeAntPatGain(double elevAngle, double refElevationAngle, float[] antPatArray) {
+    private static double computeAntPatGain(final double elevAngle, final double refElevationAngle,
+                                            final float[] antPatArray) {
 
         final double delta = 0.05;
         int k0 = (int) ((elevAngle - refElevationAngle + 5.0) / delta);
@@ -1245,7 +1252,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param orbitStateVectors The orbit state vectors.
      * @return The distance.
      */
-    public static double computeSatelliteHeight(final double zeroDopplerTime, final OrbitStateVector[] orbitStateVectors) {
+    private static double computeSatelliteHeight(final double zeroDopplerTime, final OrbitStateVector[] orbitStateVectors) {
 
         // todo should use the 3rd state vector as suggested by the doc?
         int idx = 0;
@@ -1308,7 +1315,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param sceneToEarthCentre The distance from the backscatter element to the Earth centre (in meters).
      * @return The elevation angle.
      */
-    public static double computeElevationAngle(final double slantRange, final double satelliteHeight,
+    private static double computeElevationAngle(final double slantRange, final double satelliteHeight,
                                                final double sceneToEarthCentre) {
 
         return FastMath.acos((slantRange * slantRange + satelliteHeight * satelliteHeight -
