@@ -10,6 +10,9 @@
     <tocitem text="Sentinel Toolbox Application">
             <tocitem text="Import and Export">
                 <tocitem text="Import Raster Data">
+                    <tocitem text="Generic Formats">
+                        <tocitem text="Open PCIDSK Data Product" target="importPCIDSK"/>
+                    </tocitem>
                     <tocitem text="SAR Formats">
                         <tocitem text="PolsarPro" target="ImportPolSARPro"/>
                         <tocitem text="Gamma" target="ImportGamma"/>

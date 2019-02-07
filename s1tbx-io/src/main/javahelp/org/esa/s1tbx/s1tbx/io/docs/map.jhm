@@ -18,6 +18,7 @@
     <mapID target="ImportKompsat5" url="readers/ImportKompsat-5.html"/>
 
     <!-- Common File Formats -->
+    <mapID target="importPCIDSK" url="readers/ImportPCIDSK.html"/>
     <mapID target="ImportPolSARPro" url="readers/ImportPolsarPro.html"/>
     <mapID target="importGenericBinary" url="readers/ImportGenericBinary.html"/>
     <mapID target="importComplexGenericBinary" url="readers/ImportComplexGenericBinary.html"/>
