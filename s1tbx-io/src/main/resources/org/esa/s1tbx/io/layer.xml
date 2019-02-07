@@ -139,6 +139,24 @@
                 <attr name="helpId" stringvalue="importPolSARPro"/>
                 <attr name="ShortDescription" stringvalue="Open PolSARPro product."/>
             </file>
+            <file name="org-esa-s1tbx-io-importPCIDSK.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="PCIDSK"/>
+                <attr name="formatName" stringvalue="PCIDSK"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+                <attr name="helpId" stringvalue="importPCIDSK"/>
+                <attr name="ShortDescription" stringvalue="Import a PCI file format"/>
+            </file>
+            <file name="org-esa-s1tbx-io-importUAVSAR.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="UAVSAR"/>
+                <attr name="formatName" stringvalue="UAVSAR"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+                <attr name="helpId" stringvalue="importUAVSAR"/>
+                <attr name="ShortDescription" stringvalue="Import a UAVSAR Product"/>
+            </file>
         </folder>
         <folder name="Writers">
             <file name="org-esa-s1tbx-io-exportPolSARPro.instance">
@@ -222,6 +240,16 @@
                     <file name="org-esa-s1tbx-io-importTanDEMXProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTanDEMXProduct.instance"/>
                         <attr name="position" intvalue="1100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importUAVSAR.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importUAVSAR.instance"/>
+                        <attr name="position" intvalue="2000"/>
+                    </file>
+                </folder>
+                <folder name="Generic Formats">
+                    <file name="org-esa-s1tbx-io-importPCIDSK.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importPCIDSK.instance"/>
+                        <attr name="position" intvalue="3000"/>
                     </file>
                 </folder>
                 <folder name="SAR Formats">
