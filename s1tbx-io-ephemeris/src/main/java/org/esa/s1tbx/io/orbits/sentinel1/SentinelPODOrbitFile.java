@@ -19,6 +19,10 @@ import Jama.Matrix;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.esa.s1tbx.io.orbits.BaseOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -33,15 +37,16 @@ import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableCo
 import org.esa.snap.engine_utilities.util.Maths;
 import org.esa.snap.engine_utilities.util.Settings;
 import org.esa.snap.engine_utilities.util.ZipUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -95,17 +100,23 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1; // zero based
         final int day = calendar.get(Calendar.DAY_OF_MONTH);
+        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        final int minute = calendar.get(Calendar.MINUTE);
+        final int second = calendar.get(Calendar.SECOND);
         final String missionPrefix = getMissionPrefix(absRoot);
 
         orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
 
         if (orbitFile == null) {
+            orbitFile = downloadFromQCRestAPI(missionPrefix, orbitType, year, month, day, hour, minute, second, stateVectorTime);
+        }
+        if (orbitFile == null) {
             //orbitFile = downloadArchive(missionPrefix, orbitType, year, month, day, stateVectorTime);
             orbitFile = downloadFromStepAuxdata(missionPrefix, orbitType, year, month, day, stateVectorTime);
         }
-        if (orbitFile == null) {
-            orbitFile = downloadFromQCWebsite(missionPrefix, orbitType, year, month, day, stateVectorTime);
-        }
+        //if (orbitFile == null) {
+            //orbitFile = downloadFromQCWebsite(missionPrefix, orbitType, year, month, day, stateVectorTime);
+        //}
 
         if (orbitFile == null) {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
@@ -126,7 +137,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private static String getMissionPrefix(final MetadataElement absRoot) {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        return "S1" + mission.substring(mission.length() - 1, mission.length());
+        return "S1" + mission.substring(mission.length() - 1);
     }
 
     private static File downloadArchive(final String missionPrefix, final String orbitType,
@@ -139,6 +150,58 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             getRemoteFiles(missionPrefix, orbitType, newDate.year, newDate.month);
             orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, newDate.year, newDate.month);
         }
+        return orbitFile;
+    }
+
+    private static File downloadFromQCRestAPI(final String missionPrefix, final String orbitType,
+                                              int year, int month, final int day,
+                                              final int hour, final int minute, final int second,
+                                              final double stateVectorTime) throws Exception {
+        final String orbProductType = orbitType.equals(RESTITUTED) ? "AUX_RESORB" : "AUX_POEORB";
+        final String date = year+"-"+month+"-"+day;
+
+        String endPoint = "https://qc.sentinel1.eo.esa.int/api/v1/?product_type="+orbProductType;
+        endPoint += "&validity_stop__gt="+date+"T23:59:59";
+        endPoint += "&validity_start__lt="+date+"T"+hour+":"+minute+":"+second;
+        endPoint += "&ordering=-creation_date&page_size=1";
+
+        try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            final HttpGet httpGet = new HttpGet(endPoint);
+
+            final StringBuilder outputBuilder = new StringBuilder();
+            try (final CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                final int status = response.getStatusLine().getStatusCode();
+
+                try (final BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
+                    String line;
+                    while ((line = rd.readLine()) != null) {
+                        outputBuilder.append(line);
+                    }
+                }
+                response.close();
+
+                if (status == 200) {
+                    final JSONParser parser = new JSONParser();
+                    JSONObject json = (JSONObject) parser.parse(outputBuilder.toString());
+                    if(json.containsKey("results")) {
+                        JSONArray results = (JSONArray)json.get("results");
+                        if(!results.isEmpty()) {
+                            JSONObject result = (JSONObject)results.get(0);
+                            if(result.containsKey("remote_url")) {
+                                String remoteURL = (String)result.get("remote_url");
+
+                                getQCFile(missionPrefix, orbitType, year, month, remoteURL);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("Exception calling QC Rest API:  " + e.getMessage());
+                throw e;
+            }
+        }
+
+        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
         return orbitFile;
     }
 
@@ -171,7 +234,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private static class NewDate {
         final int month;
         final int year;
-        public NewDate(int year, int month) {
+        NewDate(int year, int month) {
             this.year = year;
             this.month = month;
         }
@@ -216,6 +279,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                 oldFolder.renameTo(destFolder);
             }
         }
+        destFolder.mkdirs();
 
         return destFolder;
     }
@@ -248,9 +312,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                                        final int year, final int month) throws Exception {
         final URL remotePath;
         if (orbitType.startsWith(RESTITUTED)) {
-            remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1RESOrbit_remotePath"));
+            remotePath = new URL(Settings.getPath("OrbitFiles.sentinel1RESOrbit_remotePath"));
         } else {
-            remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
+            remotePath = new URL(Settings.getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
         }
         final File orbitFileFolder = getDestFolder(missionPrefix, orbitType, year, month);
         final File localFile = new File(orbitFileFolder, year + "-" + month + ".zip");
@@ -288,6 +352,30 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
 
         ssl.enableSSLCertificateCheck();
+    }
+
+    private static void getQCFile(final String missionPrefix, final String orbitType, int year, int month,
+                                  final String remoteURL) throws Exception {
+
+        final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
+        final int lastSlash = remoteURL.lastIndexOf("/")+1;
+        final String remoteFolder = remoteURL.substring(0, lastSlash);
+        final String name = remoteURL.substring(lastSlash);
+        final URL remotePath = new URL(remoteFolder);
+
+        final SSLUtil ssl = new SSLUtil();
+        ssl.disableSSLCertificateCheck();
+
+        final File localFile = new File(localFolder, name);
+        DownloadableContentImpl.getRemoteHttpFile(remotePath, localFile);
+
+        ssl.enableSSLCertificateCheck();
+
+        if (localFile.exists()) {
+            final File localZipFile = FileUtils.exchangeExtension(localFile, ".EOF.zip");
+            ZipUtils.zipFile(localFile, localZipFile);
+            localFile.delete();
+        }
     }
 
     private static void getQCFiles(final String missionPrefix, final String orbitType, int year, int month,
@@ -336,7 +424,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    public Orbits.OrbitVector[] getOrbitData(final double startUTC, final double endUTC) throws Exception {
+    public Orbits.OrbitVector[] getOrbitData(final double startUTC, final double endUTC) {
 
         final Orbits.OrbitVector startOSV = new Orbits.OrbitVector(startUTC);
         int startIdx = Collections.binarySearch(osvList, startOSV, new Orbits.OrbitComparator());
@@ -387,7 +475,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
      * @return The orbit state vector.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
+    public Orbits.OrbitVector getOrbitData(final double utc) {
 
         final int numVectors = osvList.size();
         final double t0 = osvList.get(0).utcMJD;
@@ -556,31 +644,35 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
             final org.w3c.dom.Node fixedHeaderChildNode = fixedHeaderChildNodes.item(i);
 
-            if (fixedHeaderChildNode.getNodeName().equals("Mission")) {
+            switch (fixedHeaderChildNode.getNodeName()) {
+                case "Mission":
 
-                mission = fixedHeaderChildNode.getTextContent();
+                    mission = fixedHeaderChildNode.getTextContent();
 
-            } else if (fixedHeaderChildNode.getNodeName().equals("File_Type")) {
+                    break;
+                case "File_Type":
 
-                fileType = fixedHeaderChildNode.getTextContent();
+                    fileType = fixedHeaderChildNode.getTextContent();
 
-            } else if (fixedHeaderChildNode.getNodeName().equals("Validity_Period")) {
+                    break;
+                case "Validity_Period":
 
-                final NodeList validityPeriodChildNodes = fixedHeaderChildNode.getChildNodes();
+                    final NodeList validityPeriodChildNodes = fixedHeaderChildNode.getChildNodes();
 
-                for (int j = 0; j < validityPeriodChildNodes.getLength(); j++) {
+                    for (int j = 0; j < validityPeriodChildNodes.getLength(); j++) {
 
-                    final org.w3c.dom.Node validityPeriodChildNode = validityPeriodChildNodes.item(j);
+                        final org.w3c.dom.Node validityPeriodChildNode = validityPeriodChildNodes.item(j);
 
-                    if (validityPeriodChildNode.getNodeName().equals("Validity_Start")) {
+                        if (validityPeriodChildNode.getNodeName().equals("Validity_Start")) {
 
-                        validityStart = validityPeriodChildNode.getTextContent();
+                            validityStart = validityPeriodChildNode.getTextContent();
 
-                    } else if (validityPeriodChildNode.getNodeName().equals("Validity_Stop")) {
+                        } else if (validityPeriodChildNode.getNodeName().equals("Validity_Stop")) {
 
-                        validityStop = validityPeriodChildNode.getTextContent();
+                            validityStop = validityPeriodChildNode.getTextContent();
+                        }
                     }
-                }
+                    break;
             }
 
             if (mission != null && fileType != null && validityStart != null && validityStop != null) {
@@ -611,7 +703,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             childNode = childNode.getNextSibling();
         }
 
-        Collections.sort(osvList, new Orbits.OrbitComparator());
+        osvList.sort(new Orbits.OrbitComparator());
 
         if (count != osvCnt) {
             SystemUtils.LOG.warning("SentinelPODOrbitFile.readOSVList: WARNING List_of_OSVs count = " + count + " but found only " + osvCnt + " OSV");
@@ -708,12 +800,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return utc.replace("UTC=", "").replace("T", " ");
     }
 
-    public static String getMissionIDFromFilename(String filename) {
+    static String getMissionIDFromFilename(String filename) {
 
         return filename.substring(0, 3);
     }
 
-    public static String getFileTypeFromFilename(String filename) {
+    static String getFileTypeFromFilename(String filename) {
 
         return filename.substring(9, 19);
     }
@@ -735,7 +827,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return filename.substring(offset, offset + 15).replace("T", "-");
     }
 
-    public static ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
+    static ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
 
         if (filename.substring(41, 42).equals("V")) {
 
@@ -745,7 +837,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public static ProductData.UTC getValidityStopFromFilenameUTC(String filename) throws ParseException {
+    static ProductData.UTC getValidityStopFromFilenameUTC(String filename) throws ParseException {
 
         if (filename.substring(41, 42).equals("V")) {
 
@@ -755,7 +847,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public static String getValidityStartFromFilename(String filename) {
+    static String getValidityStartFromFilename(String filename) {
 
         if (filename.substring(41, 42).equals("V")) {
 
@@ -764,7 +856,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public static String getValidityStopFromFilename(String filename) {
+    static String getValidityStopFromFilename(String filename) {
 
         if (filename.substring(41, 42).equals("V")) {
 
@@ -773,7 +865,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public String getMissionFromHeader() {
+    String getMissionFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.mission;
@@ -781,7 +873,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public String getFileTypeFromHeader() {
+    String getFileTypeFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.fileType;
@@ -789,7 +881,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public String getValidityStartFromHeader() {
+    String getValidityStartFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.validityStart;
@@ -797,7 +889,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public String getValidityStopFromHeader() {
+    String getValidityStopFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.validityStop;
@@ -805,14 +897,14 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    public static ProductData.UTC toUTC(final String str) throws ParseException {
+    static ProductData.UTC toUTC(final String str) throws ParseException {
         return ProductData.UTC.parse(convertUTC(str), orbitDateFormat);
     }
 
     private static class S1OrbitFileFilter implements FilenameFilter {
         private final String prefix;
 
-        public S1OrbitFileFilter(String prefix) {
+        S1OrbitFileFilter(String prefix) {
             this.prefix = prefix;
         }
 
@@ -828,9 +920,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
             final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
             if (utcStart != null && utcEnd != null) {
-                if (stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
-                    return true;
-                }
+                return stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD();
             }
             return false;
         } catch (Exception e) {
@@ -846,7 +936,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     }
 
     private static LoadingCache<File, List<Orbits.OrbitVector>> createCache() {
-        LoadingCache<File, List<Orbits.OrbitVector>> cache = CacheBuilder.newBuilder().maximumSize(6).initialCapacity(6)
+        return CacheBuilder.newBuilder().maximumSize(6).initialCapacity(6)
                 .expireAfterAccess(5, TimeUnit.MINUTES)
                 .build(new CacheLoader<File, List<Orbits.OrbitVector>>() {
                            @Override
@@ -855,7 +945,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                            }
                        }
                 );
-        return cache;
     }
 
     private static final class FixedHeader {
