@@ -201,17 +201,7 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             }
 
             // add metadata
-            if(bandProduct.getProductReader() instanceof RisatCeosProductReader) {
-                MetadataElement trgElem = AbstractMetadata.getOriginalProductMetadata(product);
-
-                for (Product bProduct : bandProductList) {
-                    final String pol = getPol(bProduct.getName());
-                    MetadataElement polElem = AbstractMetadata.getOriginalProductMetadata(bProduct);
-                    polElem.setName(pol + "_Metadata");
-
-                    trgElem.addElement(polElem);
-                }
-            }
+            updateMetadataFromBandProduct(product, bandProduct);
 
             if (product.getSceneGeoCoding() == null && bandProduct.getSceneGeoCoding() != null &&
                     product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
@@ -284,6 +274,74 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         if (compactPolMode) {
             absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
             absRoot.setAttributeString(AbstractMetadata.compact_mode, "Right Circular Hybrid Mode");
+        }
+    }
+
+    private void updateMetadataFromBandProduct(final Product product, final Product bandProduct) {
+        if(bandProduct.getProductReader() instanceof RisatCeosProductReader) {
+            final MetadataElement trgOrigProdElem = AbstractMetadata.getOriginalProductMetadata(product);
+
+            product.addTiePointGrid(bandProduct.getTiePointGrid("slant_range_time").cloneTiePointGrid());
+
+            for (Product bProduct : bandProductList) {
+                final String pol = getPol(bProduct.getName());
+                MetadataElement polElem = AbstractMetadata.getOriginalProductMetadata(bProduct);
+                polElem.setName(pol + "_Metadata");
+
+                trgOrigProdElem.addElement(polElem);
+            }
+
+            final MetadataElement bandAbsMeta = AbstractMetadata.getAbstractedMetadata(bandProduct);
+            final MetadataElement trgAbsMeta = AbstractMetadata.getAbstractedMetadata(product);
+
+            MetadataElement osv = bandAbsMeta.getElement(AbstractMetadata.orbit_state_vectors).createDeepClone();
+            trgAbsMeta.removeElement(trgAbsMeta.getElement(AbstractMetadata.orbit_state_vectors));
+            trgAbsMeta.addElement(osv);
+
+            MetadataElement srgr = bandAbsMeta.getElement(AbstractMetadata.srgr_coefficients).createDeepClone();
+            trgAbsMeta.removeElement(trgAbsMeta.getElement(AbstractMetadata.srgr_coefficients));
+            trgAbsMeta.addElement(srgr);
+
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel));
+            trgAbsMeta.setAttributeString(AbstractMetadata.SPH_DESCRIPTOR,
+                    bandAbsMeta.getAttributeString(AbstractMetadata.SPH_DESCRIPTOR));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.PROC_TIME,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.PROC_TIME));
+            trgAbsMeta.setAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME,
+                    bandAbsMeta.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME));
+            trgAbsMeta.setAttributeString(AbstractMetadata.algorithm,
+                    bandAbsMeta.getAttributeString(AbstractMetadata.algorithm));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.pulse_repetition_frequency,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.pulse_repetition_frequency));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.radar_frequency,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.radar_frequency));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.range_sampling_rate,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.range_sampling_rate));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.range_bandwidth,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.range_bandwidth));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.azimuth_bandwidth,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.azimuth_bandwidth));
+
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.first_near_lat,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.first_near_lat));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.first_near_long,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.first_near_long));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.first_far_lat,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.first_far_lat));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.first_far_long,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.first_far_long));
+
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.last_near_lat,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.last_near_lat));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.last_near_long,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.last_near_long));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.last_far_lat,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.last_far_lat));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.last_far_long,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.last_far_long));
+
+            trgOrigProdElem.addElement(bandAbsMeta);
         }
     }
 
@@ -373,59 +431,23 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 productElem.getAttributeDouble("RangeLooks", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
                 productElem.getAttributeDouble("AzimuthLooks", defInt));
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-//                productElem.getElement("slantRangeNearEdge").getAttributeDouble("slantRangeNearEdge"));
-//
-//        // add Range and Azimuth bandwidth
-//        final MetadataElement totalProcessedRangeBandwidth = productElem.getElement("totalProcessedRangeBandwidth");
-//        final MetadataElement totalProcessedAzimuthBandwidth = productElem.getElement("totalProcessedAzimuthBandwidth");
-//        final double rangeBW = totalProcessedRangeBandwidth.getAttributeDouble("totalProcessedRangeBandwidth"); // Hz
-//        final double azimuthBW = totalProcessedAzimuthBandwidth.getAttributeDouble("totalProcessedAzimuthBandwidth"); // Hz
-//
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth, rangeBW / Constants.oneMillion);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth, azimuthBW);
-//
-//        verifyProductFormat(productElem);
-//
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                 productElem.getAttributeInt("NoScans", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
                 productElem.getAttributeInt("NoPixels", defInt));
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-//                                      ReaderUtils.getLineTimeInterval(startTime, stopTime,
-//                                                                      absRoot.getAttributeInt(AbstractMetadata.num_output_lines)));
-//
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                                      ReaderUtils.getLineTimeInterval(startTime, stopTime,
+                                                                      absRoot.getAttributeInt(AbstractMetadata.num_output_lines)));
+
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
                 productElem.getAttributeDouble("OutputPixelSpacing", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                 productElem.getAttributeDouble("OutputLineSpacing", defInt));
-//
-//        final MetadataElement pulseRepetitionFrequency = productElem.getElement("pulseRepetitionFrequency");
-//        double prf = pulseRepetitionFrequency.getAttributeDouble("pulseRepetitionFrequency", defInt);
-//        final MetadataElement adcSamplingRate = productElem.getElement("adcSamplingRate");
-//        double rangeSamplingRate = adcSamplingRate.getAttributeDouble("adcSamplingRate", defInt) / Constants.oneMillion;
-//
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, prf);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRate);
-//        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
-
-//        if (geographicInformation != null) {
-//            final MetadataElement referenceEllipsoidParameters = geographicInformation.getElement("referenceEllipsoidParameters");
-//            if (referenceEllipsoidParameters != null) {
-//                final MetadataElement geodeticTerrainHeight = referenceEllipsoidParameters.getElement("geodeticTerrainHeight");
-//                if (geodeticTerrainHeight != null) {
-//                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
-//                                                  geodeticTerrainHeight.getAttributeDouble("geodeticTerrainHeight", defInt));
-//                }
-//            }
-//        }
 
         // polarizations
         getPolarizations(absRoot, productElem);
-//
-//        addOrbitStateVectors(absRoot, productElem);
 //        addSRGRCoefficients(absRoot, productElem);
 //        addDopplerCentroidCoefficients(absRoot, productElem);
     }
@@ -460,52 +482,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             absRoot.setAttributeString(AbstractMetadata.polarTags[i], pol);
             ++i;
         }
-    }
-
-    private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitInformation) {
-        final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
-
-        final MetadataElement[] stateVectorElems = orbitInformation.getElements();
-        for (int i = 1; i <= stateVectorElems.length; ++i) {
-            addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, stateVectorElems[i - 1], i);
-        }
-
-        // set state vector time
-        if (absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
-                equalElems(AbstractMetadata.NO_METADATA_UTC)) {
-
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    ReaderUtils.getTime(stateVectorElems[0], "timeStamp", standardDateFormat));
-        }
-    }
-
-    private void addVector(String name, MetadataElement orbitVectorListElem,
-                           MetadataElement srcElem, int num) {
-        final MetadataElement orbitVectorElem = new MetadataElement(name + num);
-
-        orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(srcElem, "timeStamp", standardDateFormat));
-
-        final MetadataElement xpos = srcElem.getElement("xPosition");
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                xpos.getAttributeDouble("xPosition", 0));
-        final MetadataElement ypos = srcElem.getElement("yPosition");
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                ypos.getAttributeDouble("yPosition", 0));
-        final MetadataElement zpos = srcElem.getElement("zPosition");
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                zpos.getAttributeDouble("zPosition", 0));
-        final MetadataElement xvel = srcElem.getElement("xVelocity");
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                xvel.getAttributeDouble("xVelocity", 0));
-        final MetadataElement yvel = srcElem.getElement("yVelocity");
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                yvel.getAttributeDouble("yVelocity", 0));
-        final MetadataElement zvel = srcElem.getElement("zVelocity");
-        orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                zvel.getAttributeDouble("zVelocity", 0));
-
-        orbitVectorListElem.addElement(orbitVectorElem);
     }
 
     private void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {

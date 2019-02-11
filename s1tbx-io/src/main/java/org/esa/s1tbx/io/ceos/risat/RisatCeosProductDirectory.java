@@ -53,7 +53,7 @@ class RisatCeosProductDirectory extends CEOSProductDirectory {
 
     private final transient Map<String, RisatCeosImageFile> bandImageFileMap = new HashMap<>(1);
 
-    public RisatCeosProductDirectory(final VirtualDir dir) {
+    RisatCeosProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
 
         constants = new RisatCeosConstants();
@@ -173,6 +173,8 @@ class RisatCeosProductDirectory extends CEOSProductDirectory {
             addTPGGeoCoding(product, sceneRec);
         }
 
+        addTiePointGrids(product, leaderFile.getFacilityRecord(), leaderFile.getSceneRecord());
+
         if (mapProjRec == null) {
             setLatLonMetadata(product, absRoot);
         }
@@ -284,7 +286,7 @@ class RisatCeosProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, getProductType());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
                 sceneRec.getAttributeString("Product type descriptor"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "RS1");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "RISAT1");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
@@ -403,6 +405,11 @@ class RisatCeosProductDirectory extends CEOSProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.replica_power_corr_flag, 0);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 0);
+
+        if(imageFiles != null && imageFiles.length > 0) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+                    imageFiles[0].getSlantRangeToFirstPixel(0));
+        }
 
         addOrbitStateVectors(absRoot, leaderFile.getPlatformPositionRecord());
         if (facilityRec != null)
