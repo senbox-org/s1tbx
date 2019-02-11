@@ -554,7 +554,7 @@ public final class TerrainFlatteningOp extends Operator {
                     final double[] azimuthIndex = new double[nLon];
                     final double[] rangeIndex = new double[nLon];
                     final double[] gamma0Area = new double[nLon];
-                    final double[] elevationAngle = new double[nLon];
+                    //final double[] elevationAngle = new double[nLon];
                     final boolean[] savePixel = new boolean[nLon];
                     double[] sigma0Area = null;
                     if (outputSigma0) {
@@ -580,7 +580,7 @@ public final class TerrainFlatteningOp extends Operator {
                             continue;
                         }
 
-                        elevationAngle[j] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
+                        //elevationAngle[j] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
                         rangeIndex[j] = posData.rangeIndex;
                         azimuthIndex[j] = posData.azimuthIndex;
                         savePixel[j] = rangeIndex[j] > x0 - 1 && rangeIndex[j] < x0 + w &&
@@ -589,28 +589,28 @@ public final class TerrainFlatteningOp extends Operator {
 
                     if (orbitOnWest) {
                         // traverse from near range to far range to detect shadowing area
-                        double maxElevAngle = 0.0;
+                        //double maxElevAngle = 0.0;
                         for (int jj = 0; jj < nLon; jj++) {
-                            if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
-                                maxElevAngle = elevationAngle[jj];
+                            //if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
+                                //maxElevAngle = elevationAngle[jj];
                                 double sigma0AreaVal = outputSigma0 ? sigma0Area[jj] : noDataValue;
                                 saveIlluminationArea(x0, y0, w, h, azimuthIndex[jj], rangeIndex[jj],
                                         gamma0Area[jj], gamma0ReferenceArea,
                                         sigma0AreaVal, sigma0ReferenceArea);
-                            }
+                            //}
                         }
 
                     } else {
                         // traverse from near range to far range to detect shadowing area
-                        double maxElevAngle = 0.0;
+                        //double maxElevAngle = 0.0;
                         for (int jj = nLon - 1; jj >= 0; --jj) {
-                            if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
-                                maxElevAngle = elevationAngle[jj];
+                            //if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
+                                //maxElevAngle = elevationAngle[jj];
                                 double sigma0AreaVal = outputSigma0 ? sigma0Area[jj] : noDataValue;
                                 saveIlluminationArea(x0, y0, w, h, azimuthIndex[jj], rangeIndex[jj],
                                         gamma0Area[jj], gamma0ReferenceArea,
                                         sigma0AreaVal, sigma0ReferenceArea);
-                            }
+                            //}
                         }
                     }
                 }
