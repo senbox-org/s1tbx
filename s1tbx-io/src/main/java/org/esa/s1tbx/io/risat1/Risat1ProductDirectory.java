@@ -341,7 +341,8 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             trgAbsMeta.setAttributeDouble(AbstractMetadata.last_far_long,
                     bandAbsMeta.getAttributeDouble(AbstractMetadata.last_far_long));
 
-            trgOrigProdElem.addElement(bandAbsMeta);
+            // for debugging
+            //trgOrigProdElem.addElement(bandAbsMeta);
         }
     }
 

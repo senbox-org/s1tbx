@@ -122,7 +122,7 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
         final MetadataElement[] elements = origMetadataRoot.getElements();
         for (MetadataElement elem : elements) {
             final String elemName = elem.getName();
-            if (!elemName.equals("ProductMetadata")) {
+            if (elemName.endsWith("_Metadata") && elem.containsElement("Leader")) {
                 final String pol = elemName.substring(0, elemName.indexOf("_Metadata"));
                 final MetadataElement leader = elem.getElement("Leader");
                 final MetadataElement radiometric = leader.getElement("Radiometric");
