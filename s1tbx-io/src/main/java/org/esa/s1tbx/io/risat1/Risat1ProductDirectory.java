@@ -29,7 +29,6 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
@@ -40,6 +39,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
@@ -280,8 +281,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
     private void updateMetadataFromBandProduct(final Product product, final Product bandProduct) {
         if(bandProduct.getProductReader() instanceof RisatCeosProductReader) {
             final MetadataElement trgOrigProdElem = AbstractMetadata.getOriginalProductMetadata(product);
-
-            product.addTiePointGrid(bandProduct.getTiePointGrid("slant_range_time").cloneTiePointGrid());
 
             for (Product bProduct : bandProductList) {
                 final String pol = getPol(bProduct.getName());
@@ -568,180 +567,52 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 
     @Override
     protected void addTiePointGrids(final Product product) {
+        Angles angles = null;
+        try {
+            final String parentPath = getRelativePathToImageFolder();
+            System.out.println(parentPath);
 
-//        final int sourceImageWidth = product.getSceneRasterWidth();
-//        final int sourceImageHeight = product.getSceneRasterHeight();
-//        final int gridWidth = 11;
-//        final int gridHeight = 11;
-//        final int subSamplingX = (int) ((float) sourceImageWidth / (float) (gridWidth - 1));
-//        final int subSamplingY = (int) ((float) sourceImageHeight / (float) (gridHeight - 1));
-//
-//        double a = Constants.semiMajorAxis; // WGS 84: equatorial Earth radius in m
-//        double b = Constants.semiMinorAxis; // WGS 84: polar Earth radius in m
-//
-//        // get slant range to first pixel and pixel spacing
-//        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-//        final double slantRangeToFirstPixel = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel, 0); // in m
-//        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0); // in m
-//        final boolean srgrFlag = absRoot.getAttributeInt(AbstractMetadata.srgr_flag) != 0;
-//        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
-//        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-//
-//        // get scene center latitude
-//        final GeoPos sceneCenterPos =
-//                product.getSceneGeoCoding().getGeoPos(new PixelPos(sourceImageWidth / 2.0f, sourceImageHeight / 2.0f), null);
-//        double sceneCenterLatitude = sceneCenterPos.lat; // in deg
-//
-//        // get near range incidence angle
-//        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
-//        final MetadataElement productElem = origProdRoot.getElement("product");
-//        final MetadataElement imageGenerationParameters = productElem.getElement("imageGenerationParameters");
-//        final MetadataElement sarProcessingInformation = imageGenerationParameters.getElement("sarProcessingInformation");
-//        final MetadataElement incidenceAngleNearRangeElem = sarProcessingInformation.getElement("incidenceAngleNearRange");
-//        final double nearRangeIncidenceAngle = (float) incidenceAngleNearRangeElem.getAttributeDouble("incidenceAngleNearRange", 0);
-//
-//        final double alpha1 = nearRangeIncidenceAngle * Constants.DTOR;
-//        final double lambda = sceneCenterLatitude * Constants.DTOR;
-//        final double cos2 = FastMath.cos(lambda) * FastMath.cos(lambda);
-//        final double sin2 = FastMath.sin(lambda) * FastMath.sin(lambda);
-//        final double e2 = (b * b) / (a * a);
-//        final double rt = a * Math.sqrt((cos2 + e2 * e2 * sin2) / (cos2 + e2 * sin2));
-//        final double rt2 = rt * rt;
-//
-//        double groundRangeSpacing;
-//        if (srgrFlag) { // detected
-//            groundRangeSpacing = rangeSpacing;
-//        } else {
-//            groundRangeSpacing = rangeSpacing / FastMath.sin(alpha1);
-//        }
-//
-//        double deltaPsi = groundRangeSpacing / rt; // in radian
-//        final double r1 = slantRangeToFirstPixel;
-//        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * FastMath.cos(alpha1));
-//        final double rtPlusH2 = rtPlusH * rtPlusH;
-//        final double theta1 = FastMath.acos((r1 + rt * FastMath.cos(alpha1)) / rtPlusH);
-//        final double psi1 = alpha1 - theta1;
-//        double psi = psi1;
-//        float[] incidenceAngles = new float[gridWidth];
-//        final int n = gridWidth * subSamplingX;
-//        int k = 0;
-//        for (int i = 0; i < n; i++) {
-//            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * FastMath.cos(psi));
-//            final double alpha = FastMath.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
-//            if (i % subSamplingX == 0) {
-//                int index = k++;
-//
-//                if (!flipToSARGeometry && (isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight))) {// flip
-//                    index = gridWidth - 1 - index;
-//                }
-//
-//                incidenceAngles[index] = (float) (alpha * Constants.RTOD);
-//            }
-//
-//            if (!srgrFlag) { // complex
-//                groundRangeSpacing = rangeSpacing / FastMath.sin(alpha);
-//                deltaPsi = groundRangeSpacing / rt;
-//            }
-//            psi = psi + deltaPsi;
-//        }
-//
-//        float[] incidenceAngleList = new float[gridWidth * gridHeight];
-//        for (int j = 0; j < gridHeight; j++) {
-//            System.arraycopy(incidenceAngles, 0, incidenceAngleList, j * gridWidth, gridWidth);
-//        }
-//
-//        final TiePointGrid incidentAngleGrid = new TiePointGrid(
-//                OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-//                subSamplingX, subSamplingY, incidenceAngleList);
-//
-//        incidentAngleGrid.setUnit(Unit.DEGREES);
-//
-//        product.addTiePointGrid(incidentAngleGrid);
-//
-//        addSlantRangeTime(product, imageGenerationParameters);
-    }
-
-    private void addSlantRangeTime(final Product product, final MetadataElement imageGenerationParameters) {
-
-        class coefList {
-            double utcSeconds = 0.0;
-            double grOrigin = 0.0;
-            final List<Double> coefficients = new ArrayList<>();
-        }
-
-        final List<coefList> segmentsArray = new ArrayList<>();
-
-        for (MetadataElement elem : imageGenerationParameters.getElements()) {
-            if (elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
-                final coefList coef = new coefList();
-                segmentsArray.add(coef);
-                coef.utcSeconds = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", standardDateFormat).getMJD() * 24 * 3600;
-                coef.grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
-
-                final String coeffStr = elem.getAttributeString("groundToSlantRangeCoefficients", "");
-                if (!coeffStr.isEmpty()) {
-                    final StringTokenizer st = new StringTokenizer(coeffStr);
-                    while (st.hasMoreTokens()) {
-                        coef.coefficients.add(Double.parseDouble(st.nextToken()));
-                    }
+            final String[] listing = productDir.list(parentPath);
+            for(String path : listing) {
+                if(path.endsWith("_grid.txt")) {
+                    angles = readGridFile(getFile(path));
+                    break;
                 }
             }
+        } catch (Exception e) {
+            SystemUtils.LOG.severe("Unable to read tie point grids " + e.getMessage());
         }
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final double lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval, 0);
-        final ProductData.UTC startTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
-        final double startSeconds = startTime.getMJD() * 24 * 3600;
-        final double pixelSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0);
-        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
-        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
+        if(angles == null)
+            return;
 
-        final int gridWidth = 11;
-        final int gridHeight = 11;
-        final int sceneWidth = product.getSceneRasterWidth();
-        final int sceneHeight = product.getSceneRasterHeight();
-        final int subSamplingX = sceneWidth / (gridWidth - 1);
-        final int subSamplingY = sceneHeight / (gridHeight - 1);
-        final float[] rangeDist = new float[gridWidth * gridHeight];
+
+        final int sourceImageWidth = product.getSceneRasterWidth();
+        final int sourceImageHeight = product.getSceneRasterHeight();
+        final int gridWidth = angles.gridWidth;
+        final int gridHeight = angles.gridHeight;
+        final int subSamplingX = (int) ((float) sourceImageWidth / (float) (gridWidth - 1));
+        final int subSamplingY = (int) ((float) sourceImageHeight / (float) (gridHeight - 1));
+
+        final float[] incidenceAngleList = new float[gridWidth * gridHeight];
+        int j = 0;
+        for (float f : angles.incidenceAngle) {
+            incidenceAngleList[j] = f;
+            ++j;
+        }
+
+        final TiePointGrid incidentAngleGrid = new TiePointGrid(
+                OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
+                subSamplingX, subSamplingY, incidenceAngleList);
+        incidentAngleGrid.setUnit(Unit.DEGREES);
+        product.addTiePointGrid(incidentAngleGrid);
+
+
         final float[] rangeTime = new float[gridWidth * gridHeight];
-
-        final coefList[] segments = segmentsArray.toArray(new coefList[segmentsArray.size()]);
-
-        int k = 0;
-        int c = 0;
-        for (int j = 0; j < gridHeight; j++) {
-            final double time = startSeconds + (j * lineTimeInterval);
-            while (c < segments.length && segments[c].utcSeconds < time)
-                ++c;
-            if (c >= segments.length)
-                c = segments.length - 1;
-
-            final coefList coef = segments[c];
-            final double GR0 = coef.grOrigin;
-            final double s0 = coef.coefficients.get(0);
-            final double s1 = coef.coefficients.get(1);
-            final double s2 = coef.coefficients.get(2);
-            final double s3 = coef.coefficients.get(3);
-            final double s4 = coef.coefficients.get(4);
-
-            for (int i = 0; i < gridWidth; i++) {
-                int x = i * subSamplingX;
-                final double GR = x * pixelSpacing;
-                final double g = GR - GR0;
-                final double g2 = g * g;
-
-                //SlantRange = s0 + s1(GR - GR0) + s2(GR-GR0)^2 + s3(GRGR0)^3 + s4(GR-GR0)^4;
-                rangeDist[k++] = (float) (s0 + s1 * g + s2 * g2 + s3 * g2 * g + s4 * g2 * g2);
-            }
-        }
-
-        // get slant range time in nanoseconds from range distance in meters
-        for (int i = 0; i < rangeDist.length; i++) {
-            int index = i;
-            if (!flipToSARGeometry && (isDescending && isAntennaPointingRight || !isDescending && !isAntennaPointingRight)) // flip for descending RS2
-                index = rangeDist.length - 1 - i;
-
-            rangeTime[index] = (float) (rangeDist[i] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
+        j = 0;
+        for (float f : angles.slantRange) {
+            rangeTime[j] = f;
+            ++j;
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
@@ -749,6 +620,46 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 
         product.addTiePointGrid(slantRangeGrid);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
+    }
+
+    private Angles readGridFile(final File file) throws Exception {
+        final List<String> fileContent = new ArrayList<>(Files.readAllLines(file.toPath(), StandardCharsets.UTF_8));
+        final Angles angles = new Angles();
+
+        for (final String line : fileContent) {
+            if (line.startsWith("#")) {
+                if (line.contains("Records in Grid")) {
+                    angles.gridHeight = Integer.valueOf(line.substring(line.lastIndexOf(":") + 1).trim());
+                }
+                if (line.contains("Samples in Grid")) {
+                    angles.gridWidth = Integer.valueOf(line.substring(line.lastIndexOf(":") + 1).trim());
+                }
+                if (line.contains("Scan Direction")) {
+                    angles.yInterval = Integer.valueOf(line.substring(line.lastIndexOf(":") + 1).trim());
+                }
+                if (line.contains("Pix Direction")) {
+                    angles.xInterval = Integer.valueOf(line.substring(line.lastIndexOf(":") + 1).trim());
+                }
+                continue;
+            }
+            StringTokenizer tokenizer = new StringTokenizer(line);
+            String lat = tokenizer.nextToken();
+            String lon = tokenizer.nextToken();
+            String range = tokenizer.nextToken();
+            String incidence = tokenizer.nextToken();
+
+            angles.slantRange.add(Float.valueOf(range) * 10f);
+            angles.incidenceAngle.add(Float.valueOf(incidence));
+        }
+
+        return angles;
+    }
+
+    private static class Angles {
+        int gridWidth, gridHeight;
+        int xInterval, yInterval;
+        final List<Float> slantRange = new ArrayList<>();
+        final List<Float> incidenceAngle = new ArrayList<>();
     }
 
     private static String getMission() {
