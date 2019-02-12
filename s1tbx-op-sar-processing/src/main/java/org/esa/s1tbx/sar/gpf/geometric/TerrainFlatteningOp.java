@@ -106,7 +106,6 @@ public final class TerrainFlatteningOp extends Operator {
     private ElevationModel dem = null;
     private FileElevationModel fileElevationModel = null;
     private TiePointGrid incidenceAngleTPG = null;
-    private GeoCoding targetGeoCoding = null;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
@@ -336,8 +335,6 @@ public final class TerrainFlatteningOp extends Operator {
         if (externalDEMFile != null) {
             absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
         }
-
-        targetGeoCoding = targetProduct.getSceneGeoCoding();
     }
 
     /**
@@ -346,7 +343,6 @@ public final class TerrainFlatteningOp extends Operator {
     private void addSelectedBands() {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         String gamma0BandName, sigma0BandName = null;
         String tgtUnit;
@@ -400,12 +396,16 @@ public final class TerrainFlatteningOp extends Operator {
                 if (targetProduct.getBand(gamma0BandName) == null) {
                     Band tgtBand = targetProduct.addBand(gamma0BandName, ProductData.TYPE_FLOAT32);
                     tgtBand.setUnit(tgtUnit);
+                    tgtBand.setNoDataValue(srcBand.getNoDataValue());
+                    tgtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
                     targetBandToSourceBandMap.put(tgtBand, srcBand);
                 }
 
                 if (outputSigma0 && targetProduct.getBand(sigma0BandName) == null) {
                     Band tgtBand = targetProduct.addBand(sigma0BandName, ProductData.TYPE_FLOAT32);
                     tgtBand.setUnit(tgtUnit);
+                    tgtBand.setNoDataValue(srcBand.getNoDataValue());
+                    tgtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
                     targetBandToSourceBandMap.put(tgtBand, srcBand);
                 }
             }
