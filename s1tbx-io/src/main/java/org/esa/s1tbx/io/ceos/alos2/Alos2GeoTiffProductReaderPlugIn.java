@@ -30,7 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
-    private static final String[] FORMAT_NAMES = new String[]{"ALOS2 GeoTIFF"};
+    private static final String[] FORMAT_NAMES = new String[]{"ALOS-2 GeoTIFF"};
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
@@ -166,7 +166,7 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String getDescription(Locale locale) {
-        return "ALOS2 GeoTIFF data product.";
+        return "ALOS-2 GeoTIFF data product.";
     }
 
     @Override

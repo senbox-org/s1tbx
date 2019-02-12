@@ -23,6 +23,7 @@ import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.commons.SARUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.dem.ElevationModel;
+import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -33,6 +34,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -94,13 +96,16 @@ public final class TerrainFlatteningOp extends Operator {
             defaultValue = "0.1")
     private double additionalOverlap = 0.1;
 
+    @Parameter(description = "The oversampling factor", interval = "[1, 4]", label = "Oversampling Multiple",
+            defaultValue = "1.5")
+    private double oversamplingMultiple = 1.5;
+
     @Parameter(defaultValue = "true", label = "Re-grid method")
     private Boolean reGridMethod = true;
 
     private ElevationModel dem = null;
     private FileElevationModel fileElevationModel = null;
     private TiePointGrid incidenceAngleTPG = null;
-    private GeoCoding targetGeoCoding = null;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
@@ -119,7 +124,7 @@ public final class TerrainFlatteningOp extends Operator {
     private double demNoDataValue = 0; // no data value for DEM
     private double overSamplingFactor = 1.0;
     private OrbitStateVectors orbit = null;
-
+    private Resampling selectedResampling = null;
     private Double noDataValue = 0.0;
     private double beta0 = 0;
 
@@ -132,7 +137,7 @@ public final class TerrainFlatteningOp extends Operator {
 
     // set this flag to true to output terrain flattened sigma0
     private boolean outputSigma0 = false;
-    private boolean detectShadow = true;
+    private boolean detectShadow = false;
     private double threshold = 0.05;
     private boolean invalidSource = false;
 
@@ -171,6 +176,11 @@ public final class TerrainFlatteningOp extends Operator {
                 isPolSar = true;
             } else if (!validator.isCalibrated()) {
                 throw new OperatorException("Source product must be calibrated to beta0 or be in T3, C3, C2 matrix format");
+            }
+
+            selectedResampling = ResamplingFactory.createResampling(demResamplingMethod);
+            if(selectedResampling == null) {
+                throw new OperatorException("Resampling method "+ demResamplingMethod + " is invalid");
             }
 
             getMetadata();
@@ -237,7 +247,7 @@ public final class TerrainFlatteningOp extends Operator {
             } else if (demName.contains("GETASSE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
                 overSamplingFactor = Math.round(1000.0 / minSpacing);
             }
-            overSamplingFactor *= 2;
+            overSamplingFactor *= oversamplingMultiple;
         }
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
@@ -325,8 +335,6 @@ public final class TerrainFlatteningOp extends Operator {
         if (externalDEMFile != null) {
             absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
         }
-
-        targetGeoCoding = targetProduct.getSceneGeoCoding();
     }
 
     /**
@@ -335,7 +343,6 @@ public final class TerrainFlatteningOp extends Operator {
     private void addSelectedBands() {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         String gamma0BandName, sigma0BandName = null;
         String tgtUnit;
@@ -389,12 +396,16 @@ public final class TerrainFlatteningOp extends Operator {
                 if (targetProduct.getBand(gamma0BandName) == null) {
                     Band tgtBand = targetProduct.addBand(gamma0BandName, ProductData.TYPE_FLOAT32);
                     tgtBand.setUnit(tgtUnit);
+                    tgtBand.setNoDataValue(srcBand.getNoDataValue());
+                    tgtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
                     targetBandToSourceBandMap.put(tgtBand, srcBand);
                 }
 
                 if (outputSigma0 && targetProduct.getBand(sigma0BandName) == null) {
                     Band tgtBand = targetProduct.addBand(sigma0BandName, ProductData.TYPE_FLOAT32);
                     tgtBand.setUnit(tgtUnit);
+                    tgtBand.setNoDataValue(srcBand.getNoDataValue());
+                    tgtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
                     targetBandToSourceBandMap.put(tgtBand, srcBand);
                 }
             }
@@ -511,14 +522,15 @@ public final class TerrainFlatteningOp extends Operator {
             final int xmax = Math.min(x0 + w + (int) (w * tileOverlapPercentage.tileOverlapRight), sourceImageWidth);
 
             if (reGridMethod) {
+                //System.out.println("Start x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
                 final double[] latLonMinMax = new double[4];
                 computeImageGeoBoundary(xmin, xmax, ymin, ymax, latLonMinMax);
 
-                double delta = (double) dem.getDescriptor().getTileWidthInDegrees() /
+                final double demResolution = (double) dem.getDescriptor().getTileWidthInDegrees() /
                         (double) dem.getDescriptor().getTileWidth();
 
-                final double extralat = 20 * delta;
-                final double extralon = 20 * delta;
+                final double extralat = 20 * demResolution;
+                final double extralon = 20 * demResolution;
 
                 double latMin = latLonMinMax[0] - extralat;
                 double latMax = latLonMinMax[1] + extralat;
@@ -539,18 +551,38 @@ public final class TerrainFlatteningOp extends Operator {
                 lonMin = gpUL.getLon();
                 lonMax = gpLR.getLon();
 
-                delta /= overSamplingFactor;
+//                Luis Veci [4:47 PM]
+//                I think the problem now is the upsampling. It needs to be high to get rid of artifacts
+//                but it may not need to do all the work it does for every upsampled pixel
+//                it could do the work for the original dimensions and then for the upsampled just interpolate
+//                getElevation is a bottleneck now
 
-                final int nLat = (int)Math.round((latMax - latMin) / delta);
-                final int nLon = (int)Math.round((lonMax - lonMin) / delta);
+                final int rows = (int)Math.round((latMax - latMin) / demResolution);
+                final int cols = (int)Math.round((lonMax - lonMin) / demResolution);
+                final double[][] height = new double[rows][cols];
+                for (int i = 0; i < rows; ++i) {
+                    final double lat = latMax - i*demResolution;
+                    for (int j = 0; j < cols; ++j) {
+                        final double lon = lonMin + j*demResolution;
+                        height[i][j] = dem.getElevation(new GeoPos(lat, lon));
+                    }
+                }
+                final ResamplingRaster resamplingRaster = new ResamplingRaster(demNoDataValue, height);
+                final Resampling.Index resamplingIndex = selectedResampling.createIndex();
+
+                final double delta = demResolution / overSamplingFactor;
+                final double ratio = delta / demResolution;
+                final int nLat = (int)(overSamplingFactor * rows);
+                final int nLon = (int)(overSamplingFactor * cols);
 
                 final PositionData posData = new PositionData();
-                final GeoPos demGeoPos = new GeoPos();
-                for (int i = 0; i < nLat; i++) {
+                //final GeoPos demGeoPos = new GeoPos();
+                for (int i = 1; i < nLat; i++) {
                     if(pm.isCanceled()) {
                         return false;
                     }
                     final double lat = latMax - i*delta;
+                    final double iRatio = i*ratio;
                     final double[] azimuthIndex = new double[nLon];
                     final double[] rangeIndex = new double[nLon];
                     final double[] gamma0Area = new double[nLon];
@@ -565,22 +597,41 @@ public final class TerrainFlatteningOp extends Operator {
 
                     for (int j = 0; j < nLon; j++) {
                         final double lon = lonMin + j*delta;
-                        demGeoPos.setLocation(lat, lon);
-                        final Double alt = dem.getElevation(demGeoPos);
-                        if (Double.isNaN(alt) || alt.equals(demNoDataValue))
+                        final double jRatio = j*ratio;
+                        selectedResampling.computeCornerBasedIndex(jRatio, iRatio, cols, rows, resamplingIndex);
+                        final Double alt00 = selectedResampling.resample(resamplingRaster, resamplingIndex);
+//                        final Double alt = getElevation(lat, lon, latMax, lonMin, demResolution, rows, cols,
+//                                resamplingRaster, resamplingIndex);
+//                        demGeoPos.setLocation(lat, lon);
+//                        final Double alt2 = dem.getElevation(demGeoPos);
+//                        if (Math.abs(alt2 - alt00) > 0.01) {
+//                            System.out.println();
+//                        }
+                        if (Double.isNaN(alt00) || alt00.equals(demNoDataValue))
                             continue;
 
-                        posData.earthPoint = geo2xyzWGS84.getXYZ(lon, alt);
+                        posData.earthPoint = geo2xyzWGS84.getXYZ(lon, alt00);
                         if (!getPosition(x0, y0, w, h, posData))
                             continue;
 
-                        localGeometry.setLon(lon, alt, dem, posData);
+                        selectedResampling.computeCornerBasedIndex(jRatio, iRatio - ratio, cols, rows, resamplingIndex);
+                        final double alt01 = selectedResampling.resample(resamplingRaster, resamplingIndex);
+
+                        selectedResampling.computeCornerBasedIndex(jRatio + ratio, iRatio, cols, rows, resamplingIndex);
+                        final double alt10 = selectedResampling.resample(resamplingRaster, resamplingIndex);
+
+                        selectedResampling.computeCornerBasedIndex(jRatio + ratio, iRatio - ratio, cols, rows, resamplingIndex);
+                        final double alt11 = selectedResampling.resample(resamplingRaster, resamplingIndex);
+
+                        localGeometry.setLon(lon, alt00, alt01, alt10, alt11, posData);
 
                         if(!computeIlluminatedArea(localGeometry, demNoDataValue, noDataValue, j, gamma0Area, sigma0Area)) {
                             continue;
                         }
 
-                        elevationAngle[j] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
+                        if(detectShadow) {
+                            elevationAngle[j] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
+                        }
                         rangeIndex[j] = posData.rangeIndex;
                         azimuthIndex[j] = posData.azimuthIndex;
                         savePixel[j] = rangeIndex[j] > x0 - 1 && rangeIndex[j] < x0 + w &&
@@ -591,8 +642,12 @@ public final class TerrainFlatteningOp extends Operator {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int jj = 0; jj < nLon; jj++) {
-                            if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
-                                maxElevAngle = elevationAngle[jj];
+                            if (savePixel[jj]) {
+                                if (detectShadow){
+                                    if(elevationAngle[jj] < maxElevAngle)
+                                        continue;
+                                    maxElevAngle = elevationAngle[jj];
+                                }
                                 double sigma0AreaVal = outputSigma0 ? sigma0Area[jj] : noDataValue;
                                 saveIlluminationArea(x0, y0, w, h, azimuthIndex[jj], rangeIndex[jj],
                                         gamma0Area[jj], gamma0ReferenceArea,
@@ -604,8 +659,12 @@ public final class TerrainFlatteningOp extends Operator {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int jj = nLon - 1; jj >= 0; --jj) {
-                            if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
-                                maxElevAngle = elevationAngle[jj];
+                            if (savePixel[jj]) {
+                                if (detectShadow){
+                                    if(elevationAngle[jj] < maxElevAngle)
+                                        continue;
+                                    maxElevAngle = elevationAngle[jj];
+                                }
                                 double sigma0AreaVal = outputSigma0 ? sigma0Area[jj] : noDataValue;
                                 saveIlluminationArea(x0, y0, w, h, azimuthIndex[jj], rangeIndex[jj],
                                         gamma0Area[jj], gamma0ReferenceArea,
@@ -614,6 +673,7 @@ public final class TerrainFlatteningOp extends Operator {
                         }
                     }
                 }
+                //System.out.println("End x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
             } else {
 
@@ -720,6 +780,17 @@ public final class TerrainFlatteningOp extends Operator {
             OperatorUtils.catchOperatorException(getId(), e);
         }
         return true;
+    }
+
+    private double getElevation(final double lat, final double lon, final double latMax, final double lonMin,
+                                final double demResolution, final int rows, final int cols,
+                                final ResamplingRaster resamplingRaster, final Resampling.Index resamplingIndex)
+            throws Exception {
+
+        selectedResampling.computeCornerBasedIndex(
+                (lon - lonMin)/demResolution, (latMax - lat)/demResolution, cols, rows, resamplingIndex);
+
+        return selectedResampling.resample(resamplingRaster, resamplingIndex);
     }
 
     private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
@@ -1384,30 +1455,30 @@ public final class TerrainFlatteningOp extends Operator {
 
             this.t00Lat = lat;
 
-            this.t01Lat = lat - del;
+            this.t01Lat = lat + del;
 
             this.t10Lat = lat;
 
-            this.t11Lat = lat - del;
+            this.t11Lat = lat + del;
 
             this.t00geo2xyzWGS84 = new GeoUtils.Geo2xyzWGS84(t00Lat);
             this.t01geo2xyzWGS84 = new GeoUtils.Geo2xyzWGS84(t01Lat);
         }
 
-        void setLon(final double lon, final  double alt, final ElevationModel dem,
-                      final PositionData posData) throws Exception {
+        void setLon(final double lon, final double alt00, final double alt01, final double alt10, final double alt11,
+                    final PositionData posData) {
 
             this.t00Lon = lon;
-            this.t00Height = alt;
+            this.t00Height = alt00;
 
             this.t01Lon = lon;
-            this.t01Height = dem.getElevation(new GeoPos(t01Lat, t01Lon));
+            this.t01Height = alt01; //dem.getElevation(new GeoPos(t01Lat, t01Lon));
 
             this.t10Lon = lon + delta;
-            this.t10Height = dem.getElevation(new GeoPos(t10Lat, t10Lon));
+            this.t10Height = alt10;//dem.getElevation(new GeoPos(t10Lat, t10Lon));
 
             this.t11Lon = lon + delta;
-            this.t11Height = dem.getElevation(new GeoPos(t11Lat, t11Lon));
+            this.t11Height = alt11;//dem.getElevation(new GeoPos(t11Lat, t11Lon));
 
             this.centerPoint = posData.earthPoint;
             this.sensorPos = posData.sensorPos;
@@ -1436,6 +1507,53 @@ public final class TerrainFlatteningOp extends Operator {
             this.tileOverlapRight = tileOverlapRight;
         }
     }
+
+    private static class ResamplingRaster implements Resampling.Raster {
+
+        private final double[][] data;
+        private final double noDataValue;
+
+        public ResamplingRaster(final double demNoDataValue, final double[][] data) {
+            this.data = data;
+            this.noDataValue = demNoDataValue;
+        }
+
+        public final int getWidth() {
+            return data[0].length;
+        }
+
+        public final int getHeight() {
+            return data.length;
+        }
+
+        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+            boolean allValid = true;
+
+            try {
+                double val;
+                int i = 0;
+                while (i < y.length) {
+                    int j = 0;
+                    while (j < x.length) {
+                        val = data[y[i]][x[j]];
+                        if (noDataValue == val) {
+                            val = Double.NaN;
+                            allValid = false;
+                        }
+                        samples[i][j] = val;
+                        ++j;
+                    }
+                    ++i;
+                }
+            } catch (Exception e) {
+                SystemUtils.LOG.severe(e.getMessage());
+                allValid = false;
+            }
+
+            return allValid;
+        }
+    }
+
 
     /**
      * The SPI is used to register this operator in the graph processing framework

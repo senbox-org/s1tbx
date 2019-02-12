@@ -241,7 +241,7 @@ public final class ApplyOrbitFileOp extends Operator {
     /**
      * Create target product.
      */
-    void createTargetProduct() {
+    private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(),
