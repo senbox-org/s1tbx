@@ -522,7 +522,6 @@ public final class TerrainFlatteningOp extends Operator {
             final int xmax = Math.min(x0 + w + (int) (w * tileOverlapPercentage.tileOverlapRight), sourceImageWidth);
 
             if (reGridMethod) {
-                //System.out.println("Start x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
                 final double[] latLonMinMax = new double[4];
                 computeImageGeoBoundary(xmin, xmax, ymin, ymax, latLonMinMax);
 
@@ -551,12 +550,6 @@ public final class TerrainFlatteningOp extends Operator {
                 lonMin = gpUL.getLon();
                 lonMax = gpLR.getLon();
 
-//                Luis Veci [4:47 PM]
-//                I think the problem now is the upsampling. It needs to be high to get rid of artifacts
-//                but it may not need to do all the work it does for every upsampled pixel
-//                it could do the work for the original dimensions and then for the upsampled just interpolate
-//                getElevation is a bottleneck now
-
                 final int rows = (int)Math.round((latMax - latMin) / demResolution);
                 final int cols = (int)Math.round((lonMax - lonMin) / demResolution);
                 final double[][] height = new double[rows][cols];
@@ -576,7 +569,6 @@ public final class TerrainFlatteningOp extends Operator {
                 final int nLon = (int)(overSamplingFactor * cols);
 
                 final PositionData posData = new PositionData();
-                //final GeoPos demGeoPos = new GeoPos();
                 for (int i = 1; i < nLat; i++) {
                     if(pm.isCanceled()) {
                         return false;
@@ -600,13 +592,6 @@ public final class TerrainFlatteningOp extends Operator {
                         final double jRatio = j*ratio;
                         selectedResampling.computeCornerBasedIndex(jRatio, iRatio, cols, rows, resamplingIndex);
                         final Double alt00 = selectedResampling.resample(resamplingRaster, resamplingIndex);
-//                        final Double alt = getElevation(lat, lon, latMax, lonMin, demResolution, rows, cols,
-//                                resamplingRaster, resamplingIndex);
-//                        demGeoPos.setLocation(lat, lon);
-//                        final Double alt2 = dem.getElevation(demGeoPos);
-//                        if (Math.abs(alt2 - alt00) > 0.01) {
-//                            System.out.println();
-//                        }
                         if (Double.isNaN(alt00) || alt00.equals(demNoDataValue))
                             continue;
 
@@ -673,7 +658,6 @@ public final class TerrainFlatteningOp extends Operator {
                         }
                     }
                 }
-                //System.out.println("End x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
             } else {
 
@@ -1201,12 +1185,9 @@ public final class TerrainFlatteningOp extends Operator {
         }
 
         if (numIter == maxIterations) {
-            //System.out.println("getGeoPos: Maximum number of iterations reached for pixel (" + x0 + ", " + y0 + ")");
             return false;
         }
         getPixPos(currentGeoPos.lat, currentGeoPos.lon, dem.getElevation(currentGeoPos), endPixelPos);
-        //System.out.println("x = " + x0 +", y = " + y0 + ", lat = " + currentGeoPos.lat + ", lon = " +
-        //        currentGeoPos.lon + ", iter = " + numIter + ", x' = " + endPixelPos.x + ", y' = " + endPixelPos.y);
 
         pixelPos.x = startPixelPos.x;
         pixelPos.y = startPixelPos.y;
