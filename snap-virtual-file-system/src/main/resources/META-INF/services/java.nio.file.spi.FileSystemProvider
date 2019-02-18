@@ -1,0 +1,3 @@
+org.esa.snap.core.dataio.vfs.remote.object_storage.aws.S3FileSystemProvider
+org.esa.snap.core.dataio.vfs.remote.object_storage.http.HttpFileSystemProvider
+org.esa.snap.core.dataio.vfs.remote.object_storage.swift.SwiftFileSystemProvider
