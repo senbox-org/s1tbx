@@ -3,7 +3,6 @@
 
 
     <link rel="stylesheet" href="../style.css"></head>
-
 <body>
 <table class="header">
     <tbody>
@@ -16,15 +15,20 @@
 </table>
 <h3>Terrain Flattening Operator</h3>When land cover classification is
 applied to terrain that is not flat, inaccurate classification result
-is produced. This is because that terrain variations&nbsp; affect not
+is produced. This is because that terrain variations&nbsp;affect not
 only the position of a target on the Earth's surface, but also the
 brightness of the radar return. Without treatment, the radiometric
 biases caused by terrain variations are introduced into the coherency
-and covariance mstrices. It is often seen that the classification
-result mimic the radiometry rathen than the actual land cover. This
+and covariance matrices. It is often seen that the classification
+result mimic the radiometry rather than the actual land cover. This
 operator removes the radiometric variability associated with topography
 using the terrain flattening method proposed by Small [1] while leaving
-the radiometric variability associated with land cover.<br>
+the radiometric variability associated with land cover.<br><h4>Input and Output</h4><ul><li>The
+input to this operator should be calibrated beta0. For polarimetric SAR
+product, it should be in T3, C3, C2 matrix format.&nbsp;</li><li>The
+output of this operator is terrain flattened gamma0. For polarimetric
+SAR product, the output is terrain flattened coherency or covariance
+matrices in T3, C3 or C2 format. </li></ul>
 <h4>Parameters Used</h4>&nbsp;&nbsp; The following processing parameters are used for this operator:<br>
 <ul>
     <li>Source Bands: source product bands. User can select one or
@@ -36,16 +40,19 @@ the radiometric variability associated with land cover.<br>
     <li>DEM resampling Method: resampling method used in getting elevation from DEM.</li><li>Additional
 Overlap Percentage: To perform terrain flattening to a given tile,
 pixels from adjacent tiles are generally needed due to the topography
-in the image area. Therefore, the overlap percentage is automatically
+in the image area. The overlap percentage is automatically
 computed using the DEM. However, if the computed overlap is not enough,
 then tiling effect can be observed in the terrain flattened image. In
-this case, user can increase the Additional Overlap Percentage. &nbsp;</li><li>Re-grid
-method: Currently two methods for defining the latitude/longitude grid
-are supported, i.e. regrid and non-regrid methods. With the regrid
-method, the terrain flattened image has better image quality, but it
-takes longer time to processing. </li>
+this case, user can increase the Additional Overlap Percentage. &nbsp;</li><li>Oversampling
+Multiple: The Terrain Flattening algorithm requires that the DEM
+resolution is higher than the image resolution. Therefore, the DEM is
+generally oversampled by a factor&nbsp;automatically computed based on
+the DEM and image resolution. However, if the automatically computed
+oversampling factor is not large enough, then artefacts can be observed
+in the terrain flattened image. In this case user can increase the
+oversampling factor by multiplying it with this coefficient. </li>
 </ul>
-<img style="width: 450px; height: 450px;" alt="" src="images/TerrainFlatteningOp.jpg"><br>
+<img style="width: 435px; height: 445px;" alt="" src="images/TerrainFlatteningOp.jpg"><br>
 
 <p> Reference:&nbsp;</p>
 
