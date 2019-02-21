@@ -74,7 +74,7 @@ pipeline {
                 sh "/opt/scripts/deploy.sh ${snapMajorVersion} *-kit/target/netbeans_site/ ${deployDirName} ${dockerName} ${toolName}"
             }
         }
-        stage ('Starting GPT Tests') {
+        stage ('Starting Tests') {
             agent any
             when {
                 expression {
