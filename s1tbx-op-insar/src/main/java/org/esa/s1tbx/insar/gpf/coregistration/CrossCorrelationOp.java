@@ -885,7 +885,7 @@ public class CrossCorrelationOp extends Operator {
             ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, fineWin);
             ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, fineWin);
 
-            final double[] fineOffset = {sGCPPixelPos.x, sGCPPixelPos.y};
+            final double[] fineOffset = {0.0, 0.0};
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
 
@@ -896,8 +896,8 @@ public class CrossCorrelationOp extends Operator {
                 //System.out.println("Invalid GCP");
                 return false;
             } else {
-                sGCPPixelPos.x += (float) fineOffset[1];
-                sGCPPixelPos.y += (float) fineOffset[0];
+                sGCPPixelPos.x = (int)sGCPPixelPos.x + (float)fineOffset[1];
+                sGCPPixelPos.y = (int)sGCPPixelPos.y + (float)fineOffset[0];
                 //System.out.println("Valid GCP");
                 return true;
             }
