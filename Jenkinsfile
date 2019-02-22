@@ -16,6 +16,7 @@
  */
 
 pipeline {
+    options { disableConcurrentBuilds() }
     agent any
     stages {
         stage('Package') {
