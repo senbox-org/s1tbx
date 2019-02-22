@@ -101,7 +101,8 @@ pipeline {
             }
         }
     }
-    /*post {
+    /* disable email send on failure
+    post {
         failure {
             step (
                 emailext(
