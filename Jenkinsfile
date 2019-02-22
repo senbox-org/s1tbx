@@ -21,6 +21,7 @@ pipeline {
         branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
         toolVersion = ''
         deployDirName = ''
+        snapMajorVersion = ''
     }
     agent any
     stages {
@@ -36,6 +37,7 @@ pipeline {
                 script {
                     // Get snap version from pom file
                     toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
+                    snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
@@ -55,10 +57,9 @@ pipeline {
                 echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
                 script {
                     dockerName = "${toolName}:${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
-                    snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                 }
                 // Launch deploy script
-                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${deployDirName} ${dockerName} ${toolName}"
+                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${branchVersion} ${deployDirName} ${dockerName} ${toolName}"
             }
         }
         stage('Pre-release') {
@@ -77,12 +78,10 @@ pipeline {
             steps {
                 script {
                     dockerName = "${toolName}:${branchVersion}"
-                    snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                     deployDirName = "${toolName}/${branchVersion}"
-                    nbmSrcDirName = "nbm-${env.GIT_COMMIT}"
                 }
                 echo "Pre release from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
-                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${deployDirName} ${dockerName} ${toolName}"
+                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${branchVersion} ${deployDirName} ${dockerName} ${toolName}"
             }
         }
         stage ('Starting Tests') {
