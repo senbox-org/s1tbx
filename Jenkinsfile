@@ -16,6 +16,12 @@
  */
 
 pipeline {
+    environment {
+        toolName = sh(returnStdout: true, script: "echo ${env.JOB_NAME} | cut -d '/' -f 1").trim()
+        branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
+        toolVersion = ''
+        deployDirName = ''
+    }
     agent any
     stages {
         stage('Package') {
@@ -27,12 +33,14 @@ pipeline {
                 }
             }
             steps {
-                //script {
-                    // Get snap version from .nbm file name
-                    //launchUnitTests = "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ "/.\\.x/"
-                //}
+                script {
+                    // Get snap version from pom file
+                    toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
+                    deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
+                }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
                 sh 'mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -Dsnap.reader.tests.data.dir=/data/ssd/s2tbx/ -Dsnap.reader.tests.execute=false -DskipTests=${launchUnitTests}'
+                sh "/opt/scripts/saveToLocalUpdateCenter.sh *-kit/target/netbeans_site/ ${deployDirName}"
             }
         }
         stage('Deploy') {
@@ -40,11 +48,6 @@ pipeline {
             steps {
                 echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
                 script {
-                    // Get snap version from .nbm file name
-                    toolVersion = sh(returnStdout: true, script: "ls -l *-kit/target/netbeans_site/ | grep kit | tr -s ' ' | cut -d ' ' -f 9 | cut -d'-' -f 3").trim()
-                    toolName = sh(returnStdout: true, script: "echo ${env.JOB_NAME} | cut -d '/' -f 1").trim()
-                    branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
-                    deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                     dockerName = "${toolName}:${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                     snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                 }
@@ -61,9 +64,6 @@ pipeline {
             }
             steps {
                 script {
-                    // Get snap version from .nbm file name
-                    toolVersion = sh(returnStdout: true, script: "ls -l *-kit/target/netbeans_site/ | grep kit | tr -s ' ' | cut -d ' ' -f 9 | cut -d'-' -f 3").trim()
-                    toolName = sh(returnStdout: true, script: "echo ${env.JOB_NAME} | cut -d '/' -f 1").trim()
                     branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
                     dockerName = "${toolName}:${branchVersion}"
                     snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
@@ -90,7 +90,7 @@ pipeline {
             }
         }
     }
-    post {
+    /*post {
         failure {
             step (
                 emailext(
@@ -104,5 +104,5 @@ ${env.JOB_NAME} [${env.BUILD_NUMBER}]""",
                 )
             )
         }
-    }
+    }*/
 }
