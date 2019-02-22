@@ -59,7 +59,7 @@ pipeline {
                     dockerName = "${toolName}:${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 // Launch deploy script
-                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${branchVersion} ${deployDirName} ${dockerName} ${toolName}"
+                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${deployDirName} ${branchVersion} ${dockerName} ${toolName}"
             }
         }
         stage('Pre-release') {
@@ -81,7 +81,7 @@ pipeline {
                     deployDirName = "${toolName}/${branchVersion}"
                 }
                 echo "Pre release from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
-                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${branchVersion} ${deployDirName} ${dockerName} ${toolName}"
+                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${deployDirName} ${branchVersion} ${dockerName} ${toolName}"
             }
         }
         stage ('Starting Tests') {
