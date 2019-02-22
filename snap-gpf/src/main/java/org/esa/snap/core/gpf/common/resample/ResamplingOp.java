@@ -571,8 +571,8 @@ public class ResamplingOp extends Operator {
             final MathTransform imageToMapTransform = sourceProduct.getSceneGeoCoding().getImageToMapTransform();
             if (imageToMapTransform instanceof AffineTransform) {
                 AffineTransform mapTransform = (AffineTransform) imageToMapTransform;
-                referenceWidth = (int) (sourceProduct.getSceneRasterWidth() * Math.abs(mapTransform.getScaleX()) / targetResolution);
-                referenceHeight = (int) (sourceProduct.getSceneRasterHeight() * Math.abs(mapTransform.getScaleY()) / targetResolution);
+                referenceWidth = (int) Math.ceil(sourceProduct.getSceneRasterWidth() * Math.abs(mapTransform.getScaleX()) / targetResolution);
+                referenceHeight = (int) Math.ceil(sourceProduct.getSceneRasterHeight() * Math.abs(mapTransform.getScaleY()) / targetResolution);
                 referenceImageToModelTransform = new AffineTransform(targetResolution, 0, 0, -targetResolution,
                                                                      mapTransform.getTranslateX(), mapTransform.getTranslateY());
                 referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
