@@ -29,7 +29,7 @@ pipeline {
                 docker {
                     image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
                     // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -e MAVEN_CONFIG=/var/maven/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v local-update-center:/local-update-center'
+                    args ' --group-add 999 -e MAVEN_CONFIG=/var/maven/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
                 }
             }
             steps {
@@ -48,7 +48,7 @@ pipeline {
                 docker {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
                     // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v local-update-center:/local-update-center'
+                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v docker_local-update-center:/local-update-center'
                 }
             }
             steps {
@@ -66,7 +66,7 @@ pipeline {
                 docker {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
                     // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker'
+                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v docker_local-update-center:/local-update-center'
                 }
             }
             when {
@@ -76,10 +76,9 @@ pipeline {
             }
             steps {
                 script {
-                    branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
                     dockerName = "${toolName}:${branchVersion}"
                     snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
-                    deployDirName = "${toolName}-${snapMajorVersion}.x"
+                    deployDirName = "${toolName}/${branchVersion}"
                     nbmSrcDirName = "nbm-${env.GIT_COMMIT}"
                 }
                 echo "Pre release from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
