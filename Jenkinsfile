@@ -39,12 +39,18 @@ pipeline {
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh 'mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -Dsnap.reader.tests.data.dir=/data/ssd/s2tbx/ -Dsnap.reader.tests.execute=false -DskipTests=${launchUnitTests}'
+                // sh 'mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -Dsnap.reader.tests.data.dir=/data/ssd/s2tbx/ -Dsnap.reader.tests.execute=false -DskipTests=${launchUnitTests}'
                 sh "/opt/scripts/saveToLocalUpdateCenter.sh *-kit/target/netbeans_site/ ${deployDirName}"
             }
         }
         stage('Deploy') {
-            agent any
+            agent {
+                docker {
+                    image 'snap-build-server.tilaa.cloud/scripts:1.0'
+                    // We add the docker group from host (i.e. 999)
+                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker'
+                }
+            }
             steps {
                 echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
                 script {
@@ -56,7 +62,13 @@ pipeline {
             }
         }
         stage('Pre-release') {
-            agent any
+            agent {
+                docker {
+                    image 'snap-build-server.tilaa.cloud/scripts:1.0'
+                    // We add the docker group from host (i.e. 999)
+                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker'
+                }
+            }
             when {
                 expression {
                     return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ "/.\\.x/" || "${env.GIT_BRANCH}" == "testJenkins_validation";
