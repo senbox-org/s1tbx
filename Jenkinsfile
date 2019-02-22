@@ -58,7 +58,7 @@ pipeline {
                     snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                 }
                 // Launch deploy script
-                sh "/opt/scripts/deploy.sh ${snapMajorVersion} *-kit/target/netbeans_site/ ${deployDirName} ${dockerName} ${toolName}"
+                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${deployDirName} ${dockerName} ${toolName}"
             }
         }
         stage('Pre-release') {
@@ -82,7 +82,7 @@ pipeline {
                     nbmSrcDirName = "nbm-${env.GIT_COMMIT}"
                 }
                 echo "Pre release from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
-                sh "/opt/scripts/deploy.sh ${snapMajorVersion} *-kit/target/netbeans_site/ ${deployDirName} ${dockerName} ${toolName}"
+                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${deployDirName} ${dockerName} ${toolName}"
             }
         }
         stage ('Starting Tests') {
