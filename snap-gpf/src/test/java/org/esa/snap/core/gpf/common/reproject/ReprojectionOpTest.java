@@ -34,25 +34,22 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testGeoLatLon() throws IOException {
         parameterMap.put("crs", WGS84_CODE);
-        final Product targetPoduct = createReprojectedProduct();
+        final Product targetProduct = createReprojectedProduct();
 
-        assertNotNull(targetPoduct);
+        assertNotNull(targetProduct);
         // because source is rectangular the size of source is preserved
-        assertEquals(51, targetPoduct.getSceneRasterWidth());
-        assertEquals(51, targetPoduct.getSceneRasterHeight());
-        assertNotNull(targetPoduct.getSceneGeoCoding());
+        assertEquals(51, targetProduct.getSceneRasterWidth());
+        assertEquals(51, targetProduct.getSceneRasterHeight());
+        assertNotNull(targetProduct.getSceneGeoCoding());
 
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+        assertPixelValue(targetProduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
@@ -61,7 +58,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
@@ -70,7 +67,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
@@ -79,17 +76,17 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
     public void testWithCollocationProduct() {
-        Map<String, Product> productMap = new HashMap<String, Product>(5);
+        Map<String, Product> productMap = new HashMap<>(5);
         productMap.put("source", sourceProduct);
         parameterMap.put("crs", "AUTO:42002");
         final Product collocationProduct = createReprojectedProduct(productMap);
 
-        productMap = new HashMap<String, Product>(5);
+        productMap = new HashMap<>(5);
         productMap.put("source", sourceProduct);
         productMap.put("collocateWith", collocationProduct);
         parameterMap.remove("crs");
@@ -104,11 +101,11 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
-    public void testStartAndEndTime() throws Exception {
+    public void testStartAndEndTime() {
         parameterMap.put("crs", UTM33N_CODE);
         final Product targetPoduct = createReprojectedProduct();
         assertNotNull(targetPoduct.getStartTime());
@@ -145,11 +142,11 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertEquals(width, targetPoduct.getSceneRasterWidth());
         assertEquals(height, targetPoduct.getSceneRasterHeight());
 
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
-    public void testSpecifyingPixelSize() throws IOException {
+    public void testSpecifyingPixelSize() {
         final double sizeX = 5; // degree
         final double sizeY = 10;// degree
         parameterMap.put("crs", WGS84_CODE);
@@ -175,31 +172,31 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertNotNull(targetPoduct);
         final GeoPos geoPos = targetPoduct.getSceneGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
-    public void testIncludeTiePointGrids() throws Exception {
+    public void testIncludeTiePointGrids() {
         parameterMap.put("crs", WGS84_CODE);
-        Product targetPoduct = createReprojectedProduct();
+        Product targetProduct = createReprojectedProduct();
 
-        TiePointGrid[] tiePointGrids = targetPoduct.getTiePointGrids();
+        TiePointGrid[] tiePointGrids = targetProduct.getTiePointGrids();
         assertNotNull(tiePointGrids);
         assertEquals(0, tiePointGrids.length);
-        Band latGrid = targetPoduct.getBand("latGrid");
+        Band latGrid = targetProduct.getBand("latGrid");
         assertNotNull(latGrid);
 
         parameterMap.put("includeTiePointGrids", false);
-        targetPoduct = createReprojectedProduct();
-        tiePointGrids = targetPoduct.getTiePointGrids();
+        targetProduct = createReprojectedProduct();
+        tiePointGrids = targetProduct.getTiePointGrids();
         assertNotNull(tiePointGrids);
         assertEquals(0, tiePointGrids.length);
-        latGrid = targetPoduct.getBand("latGrid");
+        latGrid = targetProduct.getBand("latGrid");
         assertNull(latGrid);
     }
 
     @Test
-    public void testCopyPlacemarkGroups() throws IOException {
+    public void testCopyPlacemarkGroups() {
         final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final Placemark pin = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5f, 1.5f), null, sourceProduct.getSceneGeoCoding());
         final Placemark gcp = Placemark.createPointPlacemark(pinDescriptor, "G1", "", "", new PixelPos(2.5f, 2.5f), null, sourceProduct.getSceneGeoCoding());
