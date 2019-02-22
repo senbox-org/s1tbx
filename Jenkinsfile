@@ -36,6 +36,8 @@ pipeline {
             steps {
                 script {
                     // Get snap version from pom file
+                    toolName = sh(returnStdout: true, script: "echo ${env.JOB_NAME} | cut -d '/' -f 1").trim()
+                    branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
                     toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
                     snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
@@ -56,6 +58,11 @@ pipeline {
             steps {
                 echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
                 script {
+                    toolName = sh(returnStdout: true, script: "echo ${env.JOB_NAME} | cut -d '/' -f 1").trim()
+                    branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
+                    toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
+                    deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
+                    snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                     dockerName = "${toolName}:${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 // Launch deploy script
@@ -77,6 +84,10 @@ pipeline {
             }
             steps {
                 script {
+                    toolName = sh(returnStdout: true, script: "echo ${env.JOB_NAME} | cut -d '/' -f 1").trim()
+                    branchVersion = sh(returnStdout: true, script: "echo ${env.GIT_BRANCH} | cut -d '/' -f 2").trim()
+                    toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
+                    snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                     dockerName = "${toolName}:${branchVersion}"
                     deployDirName = "${toolName}/${branchVersion}"
                 }
@@ -94,7 +105,7 @@ pipeline {
             steps {
                 script {
                     // Get snap version from .nbm file name
-                    toolVersion = sh(returnStdout: true, script: "ls -l *-kit/target/netbeans_site/ | grep kit | tr -s ' ' | cut -d ' ' -f 9 | cut -d'-' -f 3").trim()
+                    toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
                 }
                 build job: 'snap-gpt-tests/master', parameters: [[$class: 'StringParameterValue', name: 'commitHash', value: "${env.GIT_COMMIT}"],[$class: 'StringParameterValue', name: 'toolVersion', value: "${toolVersion}"]]
             }
