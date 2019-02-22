@@ -143,7 +143,7 @@ public class Reprojector {
             shape.lineTo((float) roiGeometry.getCoordinates()[i].x, (float) roiGeometry.getCoordinates()[i].y);
         }
 
-        roiGeometry = JTS.shapeToGeometry(shape.getBounds2D(), new GeometryFactory());
+        roiGeometry = JTS.toGeometry(shape.getBounds2D(), new GeometryFactory());
         return roiGeometry.getCoordinates();
     }
 
@@ -175,7 +175,7 @@ public class Reprojector {
         final int y1 = rasterRegion.y;
         final int y2 = y1 + rasterRegion.height - 1;
 
-        final List<TemporalBin> binRow = new ArrayList<TemporalBin>();
+        final List<TemporalBin> binRow = new ArrayList<>();
         int yUltimate = -1;
         while (temporalBins.hasNext()) {
             TemporalBin temporalBin = temporalBins.next();
@@ -270,7 +270,7 @@ public class Reprojector {
     }
 
     private long[] binIndicesForMosaicingLine(int y, int x1, int x2) {
-        final int gridWidth = planetaryGrid.getNumCols(0);
+        final long gridWidth = planetaryGrid.getNumCols(0);
         long[] binIndices = new long[x2 - x1 + 1];
         for (int x = x1, i = 0; x <= x2; x++, i++) {
             binIndices[i] = x + y * gridWidth;
