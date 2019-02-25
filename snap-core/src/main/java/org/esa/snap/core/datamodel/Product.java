@@ -1495,7 +1495,7 @@ public class Product extends ProductNode {
             return false;
         }
         if (getSceneRasterHeight() != product.getSceneRasterHeight()) {
-            SystemUtils.LOG.info("raster width " + product.getSceneRasterHeight() + " not equal to " + getSceneRasterHeight());
+            SystemUtils.LOG.info("raster height " + product.getSceneRasterHeight() + " not equal to " + getSceneRasterHeight());
             return false;
         }
         if (getSceneGeoCoding() == null && product.getSceneGeoCoding() != null) {
