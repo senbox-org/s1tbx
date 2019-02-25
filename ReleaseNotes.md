@@ -4,6 +4,11 @@
 
 https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=12202
 
+###Updates in 6.0.6
+* Improved performance in thermal noise removal and terrain flattening
+* Retrieve S-1 orbit files via QC Rest API
+* Enable offset tracking oversampling paramter
+
 ###New Features and Important Changes
 * Integrate into the Product Library integration with SciHub
 * Add option to terrain correction to use a standard grid across images
