@@ -54,6 +54,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.util.logging.Logger;
 
 /**
  * @author Tonio Fincke
@@ -546,13 +547,16 @@ public class ResamplingOp extends Operator {
 
     private void setReferenceValues() {
         validateReferenceSettings();
+        Logger logger = Logger.getLogger(this.getClass().getName());
         if (referenceBandName != null) {
+            logger.fine("Use reference band to derive resampling parameters");
             final Band referenceBand = sourceProduct.getBand(referenceBandName);
             referenceWidth = referenceBand.getRasterWidth();
             referenceHeight = referenceBand.getRasterHeight();
             referenceImageToModelTransform = referenceBand.getImageToModelTransform();
             referenceMultiLevelModel = referenceBand.getMultiLevelModel();
         } else if (targetWidth != null && targetHeight != null) {
+            logger.fine("Use reference width and height to derive resampling parameters");
             referenceWidth = targetWidth;
             referenceHeight = targetHeight;
             double scaleX = (double) sourceProduct.getSceneRasterWidth() / referenceWidth;
@@ -562,23 +566,36 @@ public class ResamplingOp extends Operator {
                 AffineTransform mapTransform = (AffineTransform) sceneGeoCoding.getImageToMapTransform();
                 referenceImageToModelTransform =
                         new AffineTransform(scaleX * mapTransform.getScaleX(), 0, 0, scaleY * mapTransform.getScaleY(),
-                                            mapTransform.getTranslateX(), mapTransform.getTranslateY());
+                                mapTransform.getTranslateX(), mapTransform.getTranslateY());
             } else {
                 referenceImageToModelTransform = new AffineTransform(scaleX, 0, 0, scaleY, 0, 0);
             }
             referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
         } else {
+            logger.fine("Use resolution to derive resampling parameters");
             final MathTransform imageToMapTransform = sourceProduct.getSceneGeoCoding().getImageToMapTransform();
-            if (imageToMapTransform instanceof AffineTransform) {
-                AffineTransform mapTransform = (AffineTransform) imageToMapTransform;
-                referenceWidth = (int) Math.ceil(sourceProduct.getSceneRasterWidth() * Math.abs(mapTransform.getScaleX()) / targetResolution);
-                referenceHeight = (int) Math.ceil(sourceProduct.getSceneRasterHeight() * Math.abs(mapTransform.getScaleY()) / targetResolution);
-                referenceImageToModelTransform = new AffineTransform(targetResolution, 0, 0, -targetResolution,
-                                                                     mapTransform.getTranslateX(), mapTransform.getTranslateY());
-                referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
+            if (!(imageToMapTransform instanceof AffineTransform)) {
+                throw new OperatorException("Use of target resolution parameter is not possible for this source product.");
+            }
+            final ProductNodeGroup<Band> productBands = sourceProduct.getBandGroup();
+            final ProductNodeGroup<TiePointGrid> productTiePointGrids = sourceProduct.getTiePointGridGroup();
+            AffineTransform mapTransform = (AffineTransform) imageToMapTransform;
+            double translateX;
+            double translateY;
+            if (ResampleUtils.allGridsAlignAtUpperLeftPixelCenter(mapTransform, productBands, productTiePointGrids)) {
+                translateX = mapTransform.getTranslateX() + 0.5 * mapTransform.getScaleX() - 0.5 * targetResolution;
+                translateY = mapTransform.getTranslateY() + 0.5 * mapTransform.getScaleY() + 0.5 * targetResolution;
+            } else if (ResampleUtils.allGridsAlignAtUpperLeftPixelCorner(mapTransform, productBands, productTiePointGrids)) {
+                translateX = mapTransform.getTranslateX();
+                translateY = mapTransform.getTranslateY();
             } else {
                 throw new OperatorException("Use of target resolution parameter is not possible for this source product.");
             }
+            referenceWidth = (int) Math.ceil(sourceProduct.getSceneRasterWidth() * Math.abs(mapTransform.getScaleX()) / targetResolution);
+            referenceHeight = (int) Math.ceil(sourceProduct.getSceneRasterHeight() * Math.abs(mapTransform.getScaleY()) / targetResolution);
+            referenceImageToModelTransform = new AffineTransform(targetResolution, 0, 0, -targetResolution,
+                    translateX, translateY);
+            referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
         }
         referenceTileSize = sourceProduct.getPreferredTileSize();
         if (referenceTileSize == null) {
