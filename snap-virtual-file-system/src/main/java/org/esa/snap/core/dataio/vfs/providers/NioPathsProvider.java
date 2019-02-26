@@ -1,7 +1,7 @@
 package org.esa.snap.core.dataio.vfs.providers;
 
 import org.esa.snap.core.dataio.NioPaths;
-import org.esa.snap.core.vfs_spi.VFSProvider;
+import org.esa.snap.core.vfsspi.VFSProvider;
 
 import java.util.Arrays;
 

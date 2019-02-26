@@ -1,4 +1,4 @@
-package org.esa.snap.core.vfs_spi;
+package org.esa.snap.core.vfsspi;
 
 import java.util.ServiceLoader;
 
