@@ -346,7 +346,14 @@ public class ResamplingOp extends Operator {
             Band targetBand;
             AffineTransform sourceTransform = sourceBand.getImageToModelTransform();
             final boolean isVirtualBand = sourceBand instanceof VirtualBand;
-            if ((sourceBand.getRasterWidth() != referenceWidth || sourceBand.getRasterHeight() != referenceHeight) && !isVirtualBand) {
+            if (isVirtualBand) {
+                targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) sourceBand, sourceBand.getName(), true);
+            } else if ((sourceTransform.getScaleX() != referenceImageToModelTransform.getScaleX() ||
+                    sourceTransform.getScaleY() != referenceImageToModelTransform.getScaleY() ||
+                    sourceBand.getRasterWidth() != referenceWidth ||
+                    sourceBand.getRasterHeight() != referenceHeight ||
+                    sourceTransform.getTranslateX() != referenceImageToModelTransform.getTranslateX() ||
+                    sourceTransform.getTranslateX() != referenceImageToModelTransform.getTranslateX())) {
                 targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 MultiLevelImage targetImage = sourceBand.getSourceImage();
                 MultiLevelImage sourceImage = createMaskedImage(sourceBand, Double.NaN);
@@ -354,26 +361,26 @@ public class ResamplingOp extends Operator {
                 if (replacedNoData) {
                     dataBufferType = DataBuffer.TYPE_DOUBLE;
                 }
-                if (referenceWidth <= sourceBand.getRasterWidth() && referenceHeight <= sourceBand.getRasterHeight()) {
+                if ((sourceTransform.getScaleX() <= referenceImageToModelTransform.getScaleX() ||
+                        sourceTransform.getScaleY() <= referenceImageToModelTransform.getScaleY())) {
+                    targetImage = createInterpolatedImage(sourceImage, sourceBand.getNoDataValue(),
+                            sourceBand.getImageToModelTransform(), sourceBand.isFlagBand() || sourceBand.isIndexBand());
+                } else if ((sourceTransform.getScaleX() >= referenceImageToModelTransform.getScaleX() ||
+                        sourceTransform.getScaleY() >= referenceImageToModelTransform.getScaleY())) {
                     targetImage = createAggregatedImage(sourceImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                        sourceBand.isFlagBand(), referenceMultiLevelModel
-                    );
-                } else if (referenceWidth >= sourceBand.getRasterWidth() && referenceHeight >= sourceBand.getRasterHeight()) {
-                    targetImage = createInterpolatedImage(sourceImage, sourceBand.getNoDataValue(), sourceBand.getImageToModelTransform(),
-                                                          sourceBand.isFlagBand() || sourceBand.isIndexBand());
-                } else if (referenceWidth < sourceBand.getRasterWidth()) {
+                            sourceBand.isFlagBand(), referenceMultiLevelModel);
+                } else if (sourceTransform.getScaleX() > referenceImageToModelTransform.getScaleX()) {
                     AffineTransform intermediateTransform = new AffineTransform(
                             referenceImageToModelTransform.getScaleX(), referenceImageToModelTransform.getShearX(), sourceTransform.getShearY(),
                             sourceTransform.getScaleY(), referenceImageToModelTransform.getTranslateX(), sourceTransform.getTranslateY());
                     final DefaultMultiLevelModel intermediateMultiLevelModel =
                             new DefaultMultiLevelModel(intermediateTransform, referenceWidth, sourceBand.getRasterHeight());
                     targetImage = createAggregatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                        sourceBand.isFlagBand(), intermediateMultiLevelModel
+                            sourceBand.isFlagBand(), intermediateMultiLevelModel
                     );
                     targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
-                                                          intermediateTransform,
-                                                          sourceBand.isFlagBand() || sourceBand.isIndexBand());
-                } else if (referenceHeight < sourceBand.getRasterHeight()) {
+                            intermediateTransform, sourceBand.isFlagBand() || sourceBand.isIndexBand());
+                } else if (sourceTransform.getScaleY() > referenceImageToModelTransform.getScaleY()) {
                     AffineTransform intermediateTransform = new AffineTransform(
                             sourceTransform.getScaleX(), sourceTransform.getShearX(), referenceImageToModelTransform.getShearY(),
                             referenceImageToModelTransform.getScaleY(), sourceTransform.getTranslateX(), referenceImageToModelTransform.getTranslateY());
@@ -392,12 +399,8 @@ public class ResamplingOp extends Operator {
                 targetBand.setSourceImage(adjustImageToModelTransform(targetImage, targetMultiLevelModel));
                 targetProduct.addBand(targetBand);
             } else {
-                if (isVirtualBand) {
-                    targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) sourceBand, sourceBand.getName(), true);
-                } else {
-                    targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
-                    targetBand.setSourceImage(adjustImageToModelTransform(sourceBand.getSourceImage(), targetMultiLevelModel));
-                }
+                targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
+                targetBand.setSourceImage(adjustImageToModelTransform(sourceBand.getSourceImage(), targetMultiLevelModel));
             }
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
         }
