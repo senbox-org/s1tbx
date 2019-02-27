@@ -110,6 +110,9 @@ public abstract class DoubleDataAggregator implements Aggregator {
                 }
                 srcIndexY += srcScanlineStride;
             }
+            if (Double.isInfinite(minValue)) {
+                minValue = getNoDataValue();
+            }
             setDstData(dstPos, minValue);
         }
     }
@@ -129,6 +132,9 @@ public abstract class DoubleDataAggregator implements Aggregator {
                     }
                 }
                 srcIndexY += srcScanlineStride;
+            }
+            if (Double.isInfinite(maxValue)) {
+                maxValue = getNoDataValue();
             }
             setDstData(dstPos, maxValue);
         }

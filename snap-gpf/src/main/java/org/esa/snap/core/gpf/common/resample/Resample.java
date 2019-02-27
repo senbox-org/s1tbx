@@ -10,18 +10,11 @@ import org.geotools.resources.XArray;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
-import javax.media.jai.GeometricOpImage;
-import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
-import java.awt.image.Raster;
-import java.util.Map;
-import java.util.Vector;
 
 /**
  * @author Tonio Fincke
@@ -292,33 +285,6 @@ public class Resample {
             return (float) res;
         }
 
-    }
-
-    private class NewImage extends PlanarImage {
-
-
-        @Override
-        public Raster getTile(int i, int i1) {
-            return null;
-        }
-    }
-
-    private class NewOp extends GeometricOpImage {
-
-
-        public NewOp(Vector sources, ImageLayout layout, Map configuration, boolean cobbleSources, BorderExtender extender, Interpolation interp) {
-            super(sources, layout, configuration, cobbleSources, extender, interp);
-        }
-
-        @Override
-        protected Rectangle forwardMapRect(Rectangle rectangle, int i) {
-            return null;
-        }
-
-        @Override
-        protected Rectangle backwardMapRect(Rectangle rectangle, int i) {
-            return null;
-        }
     }
 
 }
