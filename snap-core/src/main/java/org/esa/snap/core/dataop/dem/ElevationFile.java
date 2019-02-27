@@ -44,11 +44,11 @@ public abstract class ElevationFile {
 
     protected File localFile;
     protected File localZipFile;
-    private final ProductReader productReader;
-    protected boolean localFileExists = false;
+    protected final ProductReader productReader;
+    private boolean localFileExists = false;
     protected boolean remoteFileExists = true;
     private boolean errorInLocalFile = false;
-    private ElevationTile tile = null;
+    protected ElevationTile tile = null;
     private FtpDownloader ftp = null;
     private Map<String, Long> fileSizeMap = null;
     private boolean unrecoverableError = false;
@@ -130,11 +130,10 @@ public abstract class ElevationFile {
         }
     }
 
-    private void getLocalFile() throws IOException {
-        File dataFile = localFile;
+    protected void getLocalFile() throws IOException {
         Product product = null;
-        if (dataFile.exists()) {
-            product = productReader.readProductNodes(dataFile, null);
+        if (localFile.exists()) {
+            product = productReader.readProductNodes(localFile, null);
         } else if(localZipFile.exists()) {
             product = productReader.readProductNodes(localZipFile, null);
         }
