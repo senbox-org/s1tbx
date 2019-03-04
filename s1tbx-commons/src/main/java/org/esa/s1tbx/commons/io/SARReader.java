@@ -167,7 +167,7 @@ public abstract class SARReader extends AbstractProductReader {
             message += e.toString();
 
         SystemUtils.LOG.severe(message);
-        throw new IOException(message);
+        throw new IOException(message, e);
     }
 
     public static boolean checkIfCrossMeridian(final float[] longitudeList) {

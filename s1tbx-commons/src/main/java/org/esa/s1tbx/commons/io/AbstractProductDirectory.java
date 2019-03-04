@@ -183,7 +183,7 @@ public abstract class AbstractProductDirectory {
         productDir.close();
     }
 
-    protected abstract void addBands(final Product product);
+    protected abstract void addBands(final Product product) throws IOException;
 
     protected abstract void addGeoCoding(final Product product);
 
