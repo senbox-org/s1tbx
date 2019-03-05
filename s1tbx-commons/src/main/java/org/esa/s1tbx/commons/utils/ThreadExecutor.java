@@ -24,6 +24,9 @@ public class ThreadExecutor {
     public void complete() {
         executor.shutdown();
         while (!executor.isTerminated()) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {}
         }
     }
 }
