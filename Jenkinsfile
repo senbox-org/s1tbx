@@ -41,7 +41,7 @@ pipeline {
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh 'mvn -Dm2repo=/var/tmp -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -Dsnap.reader.tests.data.dir=/data/ssd/s2tbx/ -Dsnap.reader.tests.execute=false -DskipTests=${launchUnitTests}'
+                sh 'mvn -Dm2repo=/var/tmp -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -DskipTests=false'
                 sh "/opt/scripts/saveToLocalUpdateCenter.sh . ${deployDirName} ${branchVersion} ${toolName}"
             }
         }
@@ -50,7 +50,7 @@ pipeline {
                 docker {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
                     // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v docker_local-update-center:/local-update-center -v /home/obarrilero/.docker:/home/snap/.docker'
+                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v docker_local-update-center:/local-update-center -v /opt/maven/.docker:/home/snap/.docker'
                 }
             }
             steps {
@@ -67,7 +67,7 @@ pipeline {
                 docker {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
                     // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v docker_local-update-center:/local-update-center -v /home/obarrilero/.docker:/home/snap/.docker'
+                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v docker_local-update-center:/local-update-center -v /opt/maven/.docker:/home/snap/.docker'
                 }
             }
             when {
