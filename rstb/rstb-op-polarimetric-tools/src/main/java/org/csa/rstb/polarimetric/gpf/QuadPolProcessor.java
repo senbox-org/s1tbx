@@ -14,7 +14,6 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
-import org.jblas.DoubleMatrix;
 
 import java.awt.*;
 
@@ -249,30 +248,6 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
     }
 
     /**
-     * Get scatter matrix for given pixel.
-     *
-     * @param index       X,Y coordinate of the given pixel
-     * @param dataBuffers Source tiles dataBuffers for all 8 source bands
-     * @param Sr          Real part of the scatter matrix
-     * @param Si          Imaginary part of the scatter matrix
-     */
-    default void getComplexScatterMatrix(final int index, final ProductData[] dataBuffers,
-                                         final DoubleMatrix Sr, final DoubleMatrix Si) {
-
-        Sr.put(0, 0, dataBuffers[0].getElemDoubleAt(index)); // HH - real
-        Si.put(0, 0, dataBuffers[1].getElemDoubleAt(index)); // HH - imag
-
-        Sr.put(0, 1, dataBuffers[2].getElemDoubleAt(index)); // HV - real
-        Si.put(0, 1, dataBuffers[3].getElemDoubleAt(index)); // HV - imag
-
-        Sr.put(1, 0, dataBuffers[4].getElemDoubleAt(index)); // VH - real
-        Si.put(1, 0, dataBuffers[5].getElemDoubleAt(index)); // VH - imag
-
-        Sr.put(1, 1, dataBuffers[6].getElemDoubleAt(index)); // VV - real
-        Si.put(1, 1, dataBuffers[7].getElemDoubleAt(index)); // VV - imag
-    }
-
-    /**
      * Get covariance matrix C3 for given pixel.
      *
      * @param index       X,Y coordinate of the given pixel
@@ -503,55 +478,6 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
         Ci[2][0] = -Ci[0][2];
         Cr[2][1] = Cr[1][2];
         Ci[2][1] = -Ci[1][2];
-    }
-
-    /**
-     * Compute covariance matrix for given scatter matrix.
-     *
-     * @param Sr Real part of the scatter matrix
-     * @param Si Imaginary part of the scatter matrix
-     * @param Cr Real part of the covariance matrix
-     * @param Ci Imaginary part of the covariance matrix
-     */
-    default void computeCovarianceMatrixC3(final DoubleMatrix Sr, final DoubleMatrix Si,
-                                           final DoubleMatrix Cr, final DoubleMatrix Ci) {
-
-        final double k1r = Sr.get(0, 0);
-        final double k1i = Si.get(0, 0);
-        final double sHVr = Sr.get(0, 1);
-        final double sHVi = Si.get(0, 1);
-        final double sVHr = Sr.get(1, 0);
-        final double sVHi = Si.get(1, 0);
-        final double k3r = Sr.get(1, 1);
-        final double k3i = Si.get(1, 1);
-
-        final double k2r = (sHVr + sVHr) / Constants.sqrt2;
-        final double k2i = (sHVi + sVHi) / Constants.sqrt2;
-
-        Cr.put(0, 0, k1r * k1r + k1i * k1i);
-        //Ci[0][0] = 0.0;
-
-        Cr.put(0, 1, k1r * k2r + k1i * k2i);
-        Ci.put(0, 1, k1i * k2r - k1r * k2i);
-
-        Cr.put(0, 2, k1r * k3r + k1i * k3i);
-        Ci.put(0, 2, k1i * k3r - k1r * k3i);
-
-        Cr.put(1, 1, k2r * k2r + k2i * k2i);
-        //Ci[1][1] = 0.0;
-
-        Cr.put(1, 2, k2r * k3r + k2i * k3i);
-        Ci.put(1, 2, k2i * k3r - k2r * k3i);
-
-        Cr.put(2, 2, k3r * k3r + k3i * k3i);
-        //Ci[2][2] = 0.0;
-
-        Cr.put(1, 0, Cr.get(0, 1));
-        Ci.put(1, 0, -Ci.get(0, 1));
-        Cr.put(2, 0, Cr.get(0, 2));
-        Ci.put(2, 0, -Ci.get(0, 2));
-        Cr.put(2, 1, Cr.get(1, 2));
-        Ci.put(2, 1, -Ci.get(1, 2));
     }
 
     /**
