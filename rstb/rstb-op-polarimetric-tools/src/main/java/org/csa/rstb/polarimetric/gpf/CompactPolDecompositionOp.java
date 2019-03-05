@@ -60,18 +60,28 @@ public final class CompactPolDecompositionOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
+
     @TargetProduct
     private Product targetProduct;
+
     @Parameter(valueSet = {M_CHI_DECOMPOSITION, M_DELTA_DECOMPOSITION, H_ALPHA_DECOMPOSITION, RVOG_DECOMPOSITION},
             defaultValue = M_CHI_DECOMPOSITION, label = "Decomposition")
     private String decomposition = M_CHI_DECOMPOSITION;
+
     @Parameter(valueSet = {"3", "5", "7", "9", "11", "13", "15", "17", "19"}, defaultValue = "5", label = "Window Size X")
     private String windowSizeXStr = "5";
+
     @Parameter(valueSet = {"3", "5", "7", "9", "11", "13", "15", "17", "19"}, defaultValue = "5", label = "Window Size Y")
     private String windowSizeYStr = "5";
+
     @Parameter(description = "Compute alpha by coherency matrix T3", defaultValue = "true",
             label = "Compute Alpha By T3")
     private boolean computeAlphaByT3 = true;
+
+    @Parameter(description = "Output RVOG parameters mv, ms, alphaS and phi", defaultValue = "true",
+            label = "Output mv, ms, alphaS, phi")
+    private boolean outputRVOG = true;
+
     private int windowSizeX = 0;
     private int windowSizeY = 0;
     private PolBandUtils.PolSourceBand[] srcBandList;
@@ -169,7 +179,7 @@ public final class CompactPolDecompositionOp extends Operator {
                 return new CP_HAlpha(srcBandList, sourceProductType, compactMode, windowSizeX, windowSizeY, computeAlphaByT3,
                         sourceImageWidth, sourceImageHeight);
             case RVOG_DECOMPOSITION:
-                return new CP_RVOG(srcBandList, sourceProductType, compactMode, windowSizeX, windowSizeY,
+                return new CP_RVOG(srcBandList, sourceProductType, compactMode, windowSizeX, windowSizeY, outputRVOG,
                         sourceImageWidth, sourceImageHeight);
         }
         return null;

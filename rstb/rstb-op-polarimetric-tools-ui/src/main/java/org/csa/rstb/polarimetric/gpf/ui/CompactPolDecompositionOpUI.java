@@ -42,6 +42,10 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
     private final JCheckBox alphaByT3CheckBox = new JCheckBox("Compute Alpha By T3");
     private boolean computeAlphaByT3 = true;
 
+    private final JCheckBox outputRVOGCheckBox = new JCheckBox("Output mv, ms, alphaS, phi");
+    private final JCheckBox output3CompCheckBox = new JCheckBox("Output dihedral, volume, surface");
+    private boolean outputRVOG = true;
+
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
 
@@ -63,6 +67,20 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
             }
         });
 
+        outputRVOGCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputRVOG = (e.getStateChange() == ItemEvent.SELECTED);
+                output3CompCheckBox.setSelected(!outputRVOG);
+            }
+        });
+
+        output3CompCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputRVOG = (e.getStateChange() != ItemEvent.SELECTED);
+                outputRVOGCheckBox.setSelected(outputRVOG);
+            }
+        });
+
         return panel;
     }
 
@@ -79,6 +97,13 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
             alphaByT3CheckBox.setSelected(computeAlphaByT3);
             alphaByC2CheckBox.setSelected(!computeAlphaByT3);
         }
+
+        paramVal = (Boolean) paramMap.get("outputRVOG");
+        if (paramVal != null) {
+            outputRVOG = paramVal;
+            outputRVOGCheckBox.setSelected(outputRVOG);
+            output3CompCheckBox.setSelected(!outputRVOG);
+        }
     }
 
     @Override
@@ -94,6 +119,7 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
         paramMap.put("windowSizeXStr", windowSizeXStr.getSelectedItem());
         paramMap.put("windowSizeYStr", windowSizeYStr.getSelectedItem());
         paramMap.put("computeAlphaByT3", computeAlphaByT3);
+        paramMap.put("outputRVOG", outputRVOG);
     }
 
     private JComponent createPanel() {
@@ -114,9 +140,20 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
                     alphaByC2CheckBox.setVisible(true);
                     alphaByT3CheckBox.setSelected(true);
                     alphaByC2CheckBox.setSelected(false);
+                    outputRVOGCheckBox.setVisible(false);
+                    output3CompCheckBox.setVisible(false);
+                } else if (item.equals(CompactPolDecompositionOp.RVOG_DECOMPOSITION)) {
+                    outputRVOGCheckBox.setVisible(true);
+                    output3CompCheckBox.setVisible(true);
+                    outputRVOGCheckBox.setSelected(true);
+                    output3CompCheckBox.setSelected(false);
+                    alphaByT3CheckBox.setVisible(false);
+                    alphaByC2CheckBox.setVisible(false);
                 } else {
                     alphaByT3CheckBox.setVisible(false);
                     alphaByC2CheckBox.setVisible(false);
+                    outputRVOGCheckBox.setVisible(false);
+                    output3CompCheckBox.setVisible(false);
                 }
 
             }
@@ -135,6 +172,14 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
         gbc.gridy++;
         contentPane.add(alphaByC2CheckBox, gbc);
         alphaByC2CheckBox.setVisible(false);
+
+        gbc.gridy++;
+        contentPane.add(outputRVOGCheckBox, gbc);
+        outputRVOGCheckBox.setVisible(false);
+
+        gbc.gridy++;
+        contentPane.add(output3CompCheckBox, gbc);
+        output3CompCheckBox.setVisible(false);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
