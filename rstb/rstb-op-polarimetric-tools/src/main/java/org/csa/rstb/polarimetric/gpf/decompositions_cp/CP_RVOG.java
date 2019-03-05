@@ -42,19 +42,26 @@ public class CP_RVOG extends DecompositionBase implements Decomposition, Compact
 
     private final String compactMode;
     private final boolean useRCMConvention;
+    private final boolean outputRVOG;
 
     private static final String RED = "RVOG_dbl_r";
     private static final String GREEN = "RVOG_vol_g";
     private static final String BLUE = "RVOG_surf_b";
 
+    private static final String ALPHAS = "alphaS";
+    private static final String MV = "mv";
+    private static final String MS = "ms";
+    private static final String PHI = "phi";
+
     public CP_RVOG(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
-                   final String compactMode, final int windowSizeX, final int windowSizeY, final int srcImageWidth,
-                   final int srcImageHeight) {
+                   final String compactMode, final int windowSizeX, final int windowSizeY, final boolean outputRVOG,
+                   final int srcImageWidth, final int srcImageHeight) {
 
         super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
 
         this.compactMode = compactMode;
         useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        this.outputRVOG = outputRVOG;
     }
 
     public String getSuffix() {
@@ -67,7 +74,11 @@ public class CP_RVOG extends DecompositionBase implements Decomposition, Compact
      * @return list of band names
      */
     public String[] getTargetBandNames() {
-        return new String[]{RED, GREEN, BLUE};
+        if (outputRVOG) {
+            return new String[]{ALPHAS, MV, MS, PHI};
+        } else {
+            return new String[]{RED, GREEN, BLUE};
+        }
     }
 
     /**
@@ -89,6 +100,75 @@ public class CP_RVOG extends DecompositionBase implements Decomposition, Compact
      * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Operator op) {
+
+        if (outputRVOG) {
+            computeTileRVOG(targetTiles, targetRectangle, op);
+        } else {
+            computeTile3Comp(targetTiles, targetRectangle, op);
+        }
+    }
+
+    private void computeTileRVOG(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Operator op) {
+
+        final int x0 = targetRectangle.x;
+        final int y0 = targetRectangle.y;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
+
+        final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
+
+            final ProductData[] tgtDataBuffer = new ProductData[bandList.targetBands.length];
+            for (int i = 0; i < bandList.targetBands.length; ++i) {
+                tgtDataBuffer[i] = targetTiles.get(bandList.targetBands[i]).getDataBuffer();
+            }
+            final TileIndex trgIndex = new TileIndex(targetTiles.get(bandList.targetBands[0]));
+
+            final double[][] Cr = new double[2][2]; // real part of covariance matrix
+            final double[][] Ci = new double[2][2]; // imaginary part of covariance matrix
+            final double[] g = new double[4];       // Stokes vector
+
+            final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
+            final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
+            for (int i = 0; i < bandList.srcBands.length; i++) {
+                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], sourceRectangle);
+                dataBuffers[i] = sourceTiles[i].getDataBuffer();
+            }
+            double v = 0.0;
+            for (int y = y0; y < maxY; ++y) {
+                trgIndex.calculateStride(y);
+                for (int x = x0; x < maxX; ++x) {
+                    final int index = trgIndex.getIndex(x);
+
+                    getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth,
+                            sourceImageHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+
+                    StokesParameters.computeCompactPolStokesVector(Cr, Ci, g);
+
+                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode, useRCMConvention);
+
+                    for (int i = 0; i < bandList.targetBands.length; ++i) {
+                        final String targetBandName = bandList.targetBands[i].getName();
+                        if (targetBandName.contains(ALPHAS)) {
+                            v = sp.Alphas;
+                        } else if (targetBandName.contains(MV)) {
+                            v = 0.5*g[0]*sp.DegreeOfDepolarization;
+                        } else if (targetBandName.contains(MS)) {
+                            v = 2.0*g[0]*sp.DegreeOfPolarization;
+                        } else if (targetBandName.contains(PHI)) {
+                            v = sp.PhasePhi;
+                        }
+
+                        tgtDataBuffer[i].setElemFloatAt(index, (float) v);
+                    }
+                }
+            }
+        }
+    }
+
+    private void computeTile3Comp(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Operator op) {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
