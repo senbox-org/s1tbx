@@ -20,9 +20,11 @@ public class WarpFromSourceCoordinatesTest {
         Rectangle outerRect = new Rectangle(0, 0, 100, 100);
 
         Rectangle rectangle = warp.mapDestRect(outerRect);
+        // expected result does not include the whole data area but only the first data column.
+        // This is sufficient to make the
         assertEquals(-1, rectangle.x);
         assertEquals(-1, rectangle.y);
-        assertEquals(56, rectangle.width);
+        assertEquals(7, rectangle.width);
         assertEquals(61, rectangle.height);
         System.out.println("rectangle = " + rectangle);
     }

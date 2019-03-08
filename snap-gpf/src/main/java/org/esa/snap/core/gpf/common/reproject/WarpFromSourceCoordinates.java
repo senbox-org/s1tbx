@@ -97,12 +97,14 @@ class WarpFromSourceCoordinates extends Warp {
 
         Rectangle currentMappedRect;
         Rectangle rectToMap = (Rectangle) destRect.clone();
-        double x = -1;
-        double y = -1;
+        double x = Double.POSITIVE_INFINITY;
+        double y = Double.POSITIVE_INFINITY;
         double width = Double.NEGATIVE_INFINITY;
         double height = Double.NEGATIVE_INFINITY;
         Rectangle mappedRect = new Rectangle();
+        int loopCount = 0;
         do {
+            loopCount++;
             currentMappedRect = super.mapDestRect(rectToMap);
             x = Math.min(x, currentMappedRect.getX());
             y = Math.min(y, currentMappedRect.getY());
@@ -110,7 +112,10 @@ class WarpFromSourceCoordinates extends Warp {
             height = Math.max(height, currentMappedRect.getHeight());
             rectToMap.grow(-1, -1);
             mappedRect.setRect(x, y, width, height);
-        } while (!rectToMap.isEmpty());
+        } while (!rectToMap.isEmpty() && (mappedRect.getMaxX() <= 0 && mappedRect.getMaxY() <= 0));
+        // checking the complete area would be more correct but would have impact in performance. Finding the some data is
+        // already sufficient to make the reprojection work.
+        //        } while (!rectToMap.isEmpty());
 
         return mappedRect;
 

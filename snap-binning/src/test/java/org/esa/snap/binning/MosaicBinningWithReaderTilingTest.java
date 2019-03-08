@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.junit.Assert.*;
+
 
 /**
  * @author Marco Peters
@@ -72,15 +74,15 @@ public class MosaicBinningWithReaderTilingTest {
         subsetParams2.put("geoRegion", geometryWkt);
         Product subset2 = GPF.createProduct("Subset", subsetParams2, reproProduct);
 
-//        assertEquals(1, subset2.getBand("_binning_mask").getSampleInt(10, 40));
-//        assertEquals(Float.NaN, subset2.getBand("sdr_1").getSampleFloat(4, 27), 1.0e-3);
-//        assertEquals(0.01509, subset2.getBand("sdr_1").getSampleFloat(5, 27), 1.0e-3);
-//        assertEquals(0.04478, subset2.getBand("sdr_1").getSampleFloat(0, 78), 1.0e-3);
-//        assertEquals(0.01380, subset2.getBand("sdr_1").getSampleFloat(14, 93), 1.0e-3);
-//        assertEquals(Float.NaN, subset2.getBand("sdr_1").getSampleFloat(14, 94), 1.0e-3);
-//        assertEquals(0.015046, subset2.getBand("sdr_1").getSampleFloat(20, 60), 1.0e-3);
+        assertEquals(1, subset2.getBand("_binning_mask").getSampleInt(10, 40));
+        assertEquals(Float.NaN, subset2.getBand("sdr_1").getSampleFloat(4, 27), 1.0e-3);
+        assertEquals(0.01509, subset2.getBand("sdr_1").getSampleFloat(5, 27), 1.0e-3);
+        assertEquals(0.04478, subset2.getBand("sdr_1").getSampleFloat(0, 78), 1.0e-3);
+        assertEquals(0.01380, subset2.getBand("sdr_1").getSampleFloat(14, 93), 1.0e-3);
+        assertEquals(Float.NaN, subset2.getBand("sdr_1").getSampleFloat(14, 94), 1.0e-3);
+        assertEquals(0.015046, subset2.getBand("sdr_1").getSampleFloat(20, 60), 1.0e-3);
 
-        // enable forlowing line to look at results
+        // enable following line to look at results
         ProductIO.writeProduct(subset2, "G:\\temp\\test\\test_subset_repro_subset_from_nc.dim", "BEAM-DIMAP");
     }
 }
