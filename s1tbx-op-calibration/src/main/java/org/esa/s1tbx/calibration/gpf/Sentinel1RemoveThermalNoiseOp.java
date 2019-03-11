@@ -567,23 +567,30 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 tgtIndex.calculateStride(y);
 
                 double[] lut = new double[w];
-                if (version < 2.9 || !isTOPS) {
-                    lut = new double[w];
-                    final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
-                    if (absoluteCalibrationPerformed) {
-                        final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
-                        final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
-                        final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
-                        final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
-                        final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
-                        final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
-                        final int pixelIdx0 = calVec.getPixelIndex(x0);
+                if (absoluteCalibrationPerformed) {
+                    final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
+                    final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
+                    final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
+                    final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
+                    final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+                    final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
+                    final int pixelIdx0 = calVec.getPixelIndex(x0);
 
+                    if (version < 2.9) {
+                        final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
                         computeTileScaledNoiseLUT(y, x0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
                                 vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
-
                     } else {
+                        computeTileScaledNoiseLUT(y, x0, y0, w, noiseBlock, calInfo, vec0.timeMJD, vec1.timeMJD,
+                                vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
+                    }
+
+                } else {
+                    if (version < 2.9) {
+                        final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
                         computeTileNoiseLUT(y, x0, w, noiseInfo, lut);
+                    } else {
+                        computeTileNoiseLUT(y - y0, x0, w, noiseBlock, lut);
                     }
                 }
 
@@ -609,14 +616,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         continue;
                     }
 
-                    double noise;
-                    if (version < 2.9) {
-                        noise = lut[xx];
-                    } else {
-                        noise = noiseBlock[y - y0][x - x0];
-                    }
-
-                    double value = dn2 - noise;
+                    double value = dn2 - lut[xx];
                     if(value < 0) {
                         //value = dn2;       // small intensity value; if too small, calibration will make it nodatavalue
 
@@ -713,6 +713,30 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
+    private void computeTileScaledNoiseLUT(final int y, final int x0, final int y0, final int w,
+                                           final double[][] noiseBlock,
+                                           final Sentinel1Calibrator.CalibrationInfo calInfo,
+                                           final double azT0, final double azT1,
+                                           final float[] vec0LUT, final float[] vec1LUT,
+                                           final int[] vec0Pixels, final int pixelIdx0,
+                                           final double[] lut) {
+
+        final double[] calLut = new double[w];
+        computeTileCalibrationLUTs(y, x0, w, calInfo, azT0, azT1,
+                vec0LUT, vec1LUT, vec0Pixels, pixelIdx0, calLut);
+
+        final int yy = y - y0;
+        if (removeThermalNoise) {
+            for (int i = 0; i < w; i++) {
+                lut[i] = noiseBlock[yy][i] / (calLut[i]*calLut[i]);
+            }
+        } else { // reIntroduceThermalNoise
+            for (int i = 0; i < w; i++) {
+                lut[i] = -noiseBlock[yy][i] / (calLut[i]*calLut[i]);
+            }
+        }
+    }
+
     /**
      * Compute calibration LUTs for the given range line.
      *
@@ -792,6 +816,19 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         noiseVector1.noiseLUT[pixelIdx1], noiseVector1.noiseLUT[pixelIdx1 + 1], muX1);
 
                 lut[x - x0] = Maths.interpolationLinear(noise0, noise1, muY);
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("computeTileNoiseLUT", e);
+        }
+    }
+
+    private static void computeTileNoiseLUT(final int yy, final int x0, final int w,
+                                            final double[][] noiseBlock, final double[] lut) {
+        try {
+            final int maxX = x0 + w;
+            for (int x = x0; x < maxX; x++) {
+                final int xx = x - x0;
+                lut[xx] = noiseBlock[yy][xx];
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeTileNoiseLUT", e);
