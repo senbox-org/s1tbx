@@ -207,7 +207,7 @@ public class PlateCarreeGrid implements MosaickingGrid {
             return new CrsGeoCoding(DefaultGeographicCRS.WGS84, outputRegion.width, outputRegion.height,
                                     -180.0D + this.pixelSize * outputRegion.x,
                                     90.0D - this.pixelSize * outputRegion.y,
-                                    this.pixelSize, this.pixelSize, 0.5D, 0.5D);
+                                    this.pixelSize, this.pixelSize, 0.0D, 0.0D);
         } catch (TransformException | FactoryException e) {
             throw new IllegalArgumentException(e);
         }

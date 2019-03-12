@@ -76,7 +76,7 @@ public class CrsGrid implements MosaickingGrid {
             this.easting = envelopeCRS.getMinimum(LON_DIM);
             this.numRows = (int)(envelopeCRS.getSpan(LAT_DIM) / this.pixelSize);
             this.northing = envelopeCRS.getMaximum(LAT_DIM);
-            this.crsGeoCoding = new CrsGeoCoding(this.crs, this.numCols, this.numRows, this.easting, this.northing, this.pixelSize, this.pixelSize);
+            this.crsGeoCoding = new CrsGeoCoding(this.crs, this.numCols, this.numRows, this.easting, this.northing, this.pixelSize, this.pixelSize, 0.0, 0.0);
         } catch (FactoryException | TransformException var9) {
             throw new IllegalArgumentException("Can not create crs for:" + crsCode, var9);
         }
