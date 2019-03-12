@@ -67,7 +67,7 @@ pipeline {
                 docker {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
                     // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v docker_local-update-center:/local-update-center -v /opt/maven/.docker:/home/snap/.docker'
+                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7 -v docker_local-update-center:/local-update-center -v /opt/maven/.docker:/home/snap/.docker'
                 }
             }
             when {
