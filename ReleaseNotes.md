@@ -5,9 +5,16 @@
 https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=12202
 
 ###Updates in 6.0.6
-* Improved performance in thermal noise removal and terrain flattening
+* Improved performance in thermal noise removal
+* Improved perfamcne of terrain flattening
 * Retrieve S-1 orbit files via QC Rest API
-* Enable offset tracking oversampling paramter
+* Enable offset tracking oversampling parameter
+* Fix Radarsat-1 orbits
+* Fix detemination of degree CRS
+* Update K5 GeoTiff reading
+* Fix slave GCP update in getFineOffsets
+* Fix denoising of SLC product
+
 
 ###New Features and Important Changes
 * Integrate into the Product Library integration with SciHub
