@@ -116,7 +116,7 @@ pipeline {
                 docker {
                     image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
                     // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -e MAVEN_CONFIG=/var/maven/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
+                    args ' --group-add 999 -e MAVEN_CONFIG=/home/snap/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /home/snap/.m2:/home/snap/.m2 -v docker_local-update-center:/local-update-center'
                 }
             }
             steps {
