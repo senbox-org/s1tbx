@@ -121,7 +121,7 @@ pipeline {
             }
             steps {
                 echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT} to maven repository"
-                sh 'mvn -Dm2repo=/home/snap/.m2/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap deploy -DskipTests=true'
+                sh 'mvn -Dm2repo=/home/snap/.m2/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap clean deploy -DskipTests=true'
             }
         }
     }
