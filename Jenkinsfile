@@ -45,7 +45,7 @@ pipeline {
                 sh "/opt/scripts/saveToLocalUpdateCenter.sh . ${deployDirName} ${branchVersion} ${toolName}"
             }
         }
-        stage('Deploy') {
+        stage('Create docker image') {
             agent {
                 docker {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
@@ -85,14 +85,49 @@ pipeline {
             }
         }
         stage ('Starting Tests') {
-            agent any
-            when {
-                expression {
-                    return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ "/.\\.x/" || "${env.GIT_BRANCH}" == "testJenkins_validation";
+            parallel {
+                stage ('Starting GPT Tests') {
+                    agent { label 'snap-test' }
+                    when {
+                        expression {
+                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ "/.\\.x/" || "${env.GIT_BRANCH}" == "testJenkins_validation";
+                        }
+                    }
+                    steps {
+                        build job: 'snap-gpt-tests/master', parameters: [[$class: 'StringParameterValue', name: 'dockerTagName', value: "${toolName}:${branchVersion}"]]
+                    }
+                }
+                stage ('Starting GUI Tests') {
+                    agent { label 'snap-test' }
+                    when {
+                        expression {
+                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ "/.\\.x/" || "${env.GIT_BRANCH}" == "testJenkins_validation";
+                        }
+                    }
+                    steps {
+                        echo "Launch snap-gui-tests ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
+                        // build job: 'snap-gui-tests/testJenkins_validation', parameters: [[$class: 'StringParameterValue', name: 'dockerTagName', value: "${toolName}:${branchVersion}"]]
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
+            agent {
+                docker {
+                    image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
+                    // We add the docker group from host (i.e. 999)
+                    args ' --group-add 999 -e MAVEN_CONFIG=/var/maven/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
                 }
             }
             steps {
-                build job: 'snap-gpt-tests/master', parameters: [[$class: 'StringParameterValue', name: 'commitHash', value: "${env.GIT_COMMIT}"],[$class: 'StringParameterValue', name: 'toolVersion', value: "${toolVersion}"]]
+                script {
+                    // Get snap version from pom file
+                    toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
+                    snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
+                    deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
+                }
+                echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
+                sh 'mvn -Dm2repo=/home/snap/.m2/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap deploy -DskipTests=true'
             }
         }
     }
