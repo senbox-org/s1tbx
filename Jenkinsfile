@@ -23,14 +23,17 @@ pipeline {
         deployDirName = ''
         snapMajorVersion = ''
     }
-    agent any
+    agent { label 'snap-test' }
+    parameters {
+        string(name: 'launchReaderTests', defaultValue: 'true', description: 'Job will launch the reader test (true) or not (false)')
+    }
     stages {
         stage('Package') {
             agent {
                 docker {
                     image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
                     // We add the docker group from host (i.e. 999)
-                    args '--group-add 999 -e MAVEN_CONFIG=/var/maven/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
+                    args '--group-add 999 -e MAVEN_CONFIG=/var/maven/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /data/ssd/testData/:/data/ssd/testData/ -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
                 }
             }
             steps {
@@ -41,11 +44,12 @@ pipeline {
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh 'mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -Dsnap.reader.tests.data.dir=/data/ssd/testData/s1tbx/ -Dsnap.reader.tests.execute=false -DskipTests=false'
+                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -DskipTests=false"
+                // Launch reader tests -Dsnap.reader.tests.data.dir=/data/ssd/testData/s1tbx/ -Dsnap.reader.tests.execute=${params.launchReaderTests}
                 sh "/opt/scripts/saveToLocalUpdateCenter.sh *-kit/target/netbeans_site/ ${deployDirName} ${branchVersion} ${toolName}"
             }
         }
-        stage('Deploy') {
+        stage('Create docker image') {
             agent {
                 docker {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
@@ -54,7 +58,7 @@ pipeline {
                 }
             }
             steps {
-                echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
+                echo "Create docker image of ${env.JOB_NAME} from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
                 script {
                     dockerName = "${toolName}:${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
@@ -105,9 +109,29 @@ pipeline {
                         }
                     }
                     steps {
-                        build job: 'snap-gui-tests/testJenkins_validation', parameters: [[$class: 'StringParameterValue', name: 'dockerTagName', value: "${toolName}:${branchVersion}"]]
+                        echo "Launch snap-gui-tests ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
+                        // build job: 'snap-gui-tests/testJenkins_validation', parameters: [[$class: 'StringParameterValue', name: 'dockerTagName', value: "${toolName}:${branchVersion}"]]
                     }
                 }
+            }
+        }
+        stage('Deploy') {
+            agent {
+                docker {
+                    image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
+                    // We add the docker group from host (i.e. 999)
+                    args '--group-add 999 -e MAVEN_CONFIG=/var/maven/.m2 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
+                }
+            }
+            steps {
+                script {
+                    // Get snap version from pom file
+                    toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
+                    snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
+                    deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
+                }
+                echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT} to maven repo"
+                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean deploy -DskipTests=true"
             }
         }
     }
