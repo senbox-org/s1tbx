@@ -9,7 +9,6 @@ org.esa.s1tbx.fex.gpf.oceantools.OilSpillDetectionOp$Spi
 org.esa.s1tbx.fex.gpf.oceantools.OilSpillClusteringOp$Spi
 org.esa.s1tbx.fex.gpf.oceantools.WindFieldEstimationOp$Spi
 org.esa.s1tbx.fex.gpf.ChangeDetectionOp$Spi
-org.esa.snap.productlibrary.gpf.FindImagePairOp$Spi
 org.esa.s1tbx.fex.gpf.SubGraphOp$Spi
 org.esa.s1tbx.fex.gpf.decisiontree.DecisionTreeOp$Spi
 
