@@ -60,7 +60,7 @@ public class CP_RVOG extends DecompositionBase implements Decomposition, Compact
         super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
 
         this.compactMode = compactMode;
-        useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        useRCMConvention = PolBandUtils.useRCMConvention();
         this.outputRVOG = outputRVOG;
     }
 

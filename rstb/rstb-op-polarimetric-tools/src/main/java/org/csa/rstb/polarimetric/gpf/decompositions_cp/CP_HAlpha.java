@@ -51,7 +51,7 @@ public class CP_HAlpha extends HAlphaC2 implements CompactPolProcessor {
 
         this.compactMode = compactMode;
         this.computeAlphaByT3 = computeAlphaByT3;
-        this.useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        this.useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     /**

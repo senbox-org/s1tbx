@@ -205,7 +205,7 @@ public final class CompactPolStokesParametersOp extends Operator implements Comp
             throw new OperatorException("Right/Left Circular Hybrid Mode is expected.");
         }
 
-        useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     /**

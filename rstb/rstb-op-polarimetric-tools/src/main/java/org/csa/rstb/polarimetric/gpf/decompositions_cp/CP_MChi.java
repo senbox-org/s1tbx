@@ -50,7 +50,7 @@ public class CP_MChi extends DecompositionBase implements Decomposition, Compact
         super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
 
         this.compactMode = compactMode;
-        useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     public String getSuffix() {

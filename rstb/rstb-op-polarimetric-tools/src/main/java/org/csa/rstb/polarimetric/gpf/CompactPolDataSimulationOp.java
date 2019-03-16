@@ -131,7 +131,7 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
-            useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+            useRCMConvention = PolBandUtils.useRCMConvention();
 
             if (simulateNoiseFloor) {
                 sigma = Math.sqrt(FastMath.pow(10.0, noisePower / 10.0) / 2.0);

@@ -51,7 +51,7 @@ public class CP_MDelta extends DecompositionBase implements Decomposition, Compa
         super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
 
         this.compactMode = compactMode;
-        useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     public String getSuffix() {
