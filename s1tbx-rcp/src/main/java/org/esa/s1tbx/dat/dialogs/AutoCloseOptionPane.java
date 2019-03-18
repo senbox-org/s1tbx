@@ -71,7 +71,7 @@ public class AutoCloseOptionPane {
             return JOptionPane.CLOSED_OPTION;
         if (options == null) {
             if (selectedValue instanceof Integer)
-                return ((Integer) selectedValue).intValue();
+                return (Integer) selectedValue;
             return JOptionPane.CLOSED_OPTION;
         }
         for (int counter = 0, maxCounter = options.length; counter < maxCounter; counter++) {

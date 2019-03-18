@@ -16,7 +16,6 @@
 package org.esa.s1tbx.commons;
 
 import org.esa.snap.core.datamodel.*;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;

@@ -107,15 +107,18 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
             // HIGH RESOLUTION / STANDARD / WIDE SWATH
             acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-            if (acquisitionMode.equals("HIGH RESOLUTION")) {
-                final double rs = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-                final double as = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-                pixelArea = rs * as;
-                highResolutionMode = true;
-            } else if (acquisitionMode.equals("STANDARD")) {
-                highResolutionMode = false;
-            } else {
-                throw new OperatorException("Only High Resolution and Standard modes are currently supported");
+            switch (acquisitionMode) {
+                case "HIGH RESOLUTION":
+                    final double rs = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
+                    final double as = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
+                    pixelArea = rs * as;
+                    highResolutionMode = true;
+                    break;
+                case "STANDARD":
+                    highResolutionMode = false;
+                    break;
+                default:
+                    throw new OperatorException("Only High Resolution and Standard modes are currently supported");
             }
 
             referenceIncidenceAngle = absRoot.getAttributeDouble(

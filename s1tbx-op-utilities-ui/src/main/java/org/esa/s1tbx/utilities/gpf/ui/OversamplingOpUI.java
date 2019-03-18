@@ -170,18 +170,22 @@ public class OversamplingOpUI extends BaseOperatorUI {
             outputImageByLabel.setVisible(true);
 
             final String item = (String) outputImageBy.getSelectedItem();
-            if (item.equals(UndersamplingOp.IMAGE_SIZE)) {
-                enableRowColumn(true);
-                enableRatio(false);
-                enablePixelSpacing(false);
-            } else if (item.equals(UndersamplingOp.RATIO)) {
-                enableRowColumn(false);
-                enableRatio(true);
-                enablePixelSpacing(false);
-            } else {
-                enableRowColumn(false);
-                enableRatio(false);
-                enablePixelSpacing(true);
+            switch (item) {
+                case UndersamplingOp.IMAGE_SIZE:
+                    enableRowColumn(true);
+                    enableRatio(false);
+                    enablePixelSpacing(false);
+                    break;
+                case UndersamplingOp.RATIO:
+                    enableRowColumn(false);
+                    enableRatio(true);
+                    enablePixelSpacing(false);
+                    break;
+                default:
+                    enableRowColumn(false);
+                    enableRatio(false);
+                    enablePixelSpacing(true);
+                    break;
             }
         } else {
             outputImageBy.setVisible(false);

@@ -30,27 +30,35 @@ public class SimpleLUT extends LUT {
         kernel = new DoubleMatrix(nInterval, kernelLength);
 
         for (int i = 0; i < nInterval; i++) {
-            if (method.equals(RECT)) {
-                kernelTmp = new DoubleMatrix(rect(kernelAxis));
-                kernel.putRow(i, kernelTmp);
-            } else if (method.equals(TRI)) {
-                kernelTmp = new DoubleMatrix(tri(kernelAxis));
-                kernel.putRow(i, kernelTmp);
-            } else if (method.equals(TS6P)) {
-                kernelTmp = new DoubleMatrix(ts6(kernelAxis));
-                kernel.putRow(i, kernelTmp);
-            } else if (method.equals(TS8P)) {
-                kernelTmp = new DoubleMatrix(ts8(kernelAxis));
-                kernel.putRow(i, kernelTmp);
-            } else if (method.equals(TS16P)) {
-                kernelTmp = new DoubleMatrix(ts16(kernelAxis));
-                kernel.putRow(i, kernelTmp);
-            } else if (method.equals(CC4P)) {
-                kernelTmp = new DoubleMatrix(cc4(kernelAxis));
-                kernel.putRow(i, kernelTmp);
-            } else if (method.equals(CC6P)) {
-                kernelTmp = new DoubleMatrix(cc6(kernelAxis));
-                kernel.putRow(i, kernelTmp);
+            switch (method) {
+                case RECT:
+                    kernelTmp = new DoubleMatrix(rect(kernelAxis));
+                    kernel.putRow(i, kernelTmp);
+                    break;
+                case TRI:
+                    kernelTmp = new DoubleMatrix(tri(kernelAxis));
+                    kernel.putRow(i, kernelTmp);
+                    break;
+                case TS6P:
+                    kernelTmp = new DoubleMatrix(ts6(kernelAxis));
+                    kernel.putRow(i, kernelTmp);
+                    break;
+                case TS8P:
+                    kernelTmp = new DoubleMatrix(ts8(kernelAxis));
+                    kernel.putRow(i, kernelTmp);
+                    break;
+                case TS16P:
+                    kernelTmp = new DoubleMatrix(ts16(kernelAxis));
+                    kernel.putRow(i, kernelTmp);
+                    break;
+                case CC4P:
+                    kernelTmp = new DoubleMatrix(cc4(kernelAxis));
+                    kernel.putRow(i, kernelTmp);
+                    break;
+                case CC6P:
+                    kernelTmp = new DoubleMatrix(cc6(kernelAxis));
+                    kernel.putRow(i, kernelTmp);
+                    break;
             }
 
             kernelAxis = new DoubleMatrix(kernelAxis).sub(dx).toArray();

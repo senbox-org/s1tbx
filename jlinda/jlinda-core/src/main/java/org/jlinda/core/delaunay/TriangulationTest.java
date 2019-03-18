@@ -84,7 +84,7 @@ public class TriangulationTest {
     private void testFastDelaunayTriangulator(Coordinate[] tp) {
         System.out.println("testFastDelaunayTriangulator with " + tp.length + " points");
         long t0 = System.currentTimeMillis();
-        List<Geometry> list = new ArrayList<Geometry>();
+        List<Geometry> list = new ArrayList<>();
         GeometryFactory gf = new GeometryFactory();
         for (Coordinate c : tp) list.add(gf.createPoint(c));
         long t1 = System.currentTimeMillis();

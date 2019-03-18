@@ -122,7 +122,7 @@ public class ScreenPixelConverter {
             AffineTransform m2iTransform = imageLayer.getModelToImageTransform();
             Point2D imageP = m2iTransform.transform(modelP, null);
 
-            return new PixelPos(new Float(imageP.getX()), new Float(imageP.getY()));
+            return new PixelPos((float) imageP.getX(), (float) imageP.getY());
         } else {
             return new PixelPos(pixelX + 0.5f, pixelY + 0.5f);
         }

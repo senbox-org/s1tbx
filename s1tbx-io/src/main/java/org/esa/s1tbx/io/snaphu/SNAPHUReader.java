@@ -47,13 +47,8 @@ public class SNAPHUReader extends EnviProductReader {
     protected Product readProductNodesImpl() throws IOException {
         final File inputFile = ReaderUtils.getFileFromInput(getInput());
 
-        final BufferedReader headerReader = getHeaderReader(inputFile);
-        try {
+        try (BufferedReader headerReader = getHeaderReader(inputFile)) {
             header = new Header(headerReader);
-        } finally {
-            if (headerReader != null) {
-                headerReader.close();
-            }
         }
 
         final int dataType = header.getDataType();

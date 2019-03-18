@@ -20,7 +20,6 @@ import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.eo.Constants;
 
 /**
  * The abstract base class for all calibration operators intended to be extended by clients.

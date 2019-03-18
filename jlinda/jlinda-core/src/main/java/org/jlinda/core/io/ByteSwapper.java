@@ -21,7 +21,7 @@ public final class ByteSwapper {
         int b1 = value & 0xff;
         int b2 = (value >> 8) & 0xff;
 
-        return (short) (b1 << 8 | b2 << 0);
+        return (short) (b1 << 8 | b2);
     }
 
 
@@ -32,12 +32,12 @@ public final class ByteSwapper {
      * @return Byte swapped representation.
      */
     public static int swap(int value) {
-        int b1 = (value >> 0) & 0xff;
+        int b1 = (value) & 0xff;
         int b2 = (value >> 8) & 0xff;
         int b3 = (value >> 16) & 0xff;
         int b4 = (value >> 24) & 0xff;
 
-        return b1 << 24 | b2 << 16 | b3 << 8 | b4 << 0;
+        return b1 << 24 | b2 << 16 | b3 << 8 | b4;
     }
 
 
@@ -48,7 +48,7 @@ public final class ByteSwapper {
      * @return Byte swapped representation.
      */
     public static long swap(long value) {
-        long b1 = (value >> 0) & 0xff;
+        long b1 = (value) & 0xff;
         long b2 = (value >> 8) & 0xff;
         long b3 = (value >> 16) & 0xff;
         long b4 = (value >> 24) & 0xff;
@@ -58,7 +58,7 @@ public final class ByteSwapper {
         long b8 = (value >> 56) & 0xff;
 
         return b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 |
-                b5 << 24 | b6 << 16 | b7 << 8 | b8 << 0;
+                b5 << 24 | b6 << 16 | b7 << 8 | b8;
     }
 
 
