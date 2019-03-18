@@ -992,9 +992,9 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
         }
 
         if (bigEndian) {
-            return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
+            return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4));
         } else {
-            return ((ch4 << 24) + (ch3 << 16) + (ch2 << 8) + (ch1 << 0));
+            return ((ch4 << 24) + (ch3 << 16) + (ch2 << 8) + (ch1));
         }
     }
 
@@ -1275,7 +1275,7 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
      */
     public void writeShort(int v) throws IOException {
         write((v >>> 8) & 0xFF);
-        write((v >>> 0) & 0xFF);
+        write((v) & 0xFF);
     }
 
     /**
@@ -1301,7 +1301,7 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
      */
     public void writeChar(int v) throws IOException {
         write((v >>> 8) & 0xFF);
-        write((v >>> 0) & 0xFF);
+        write((v) & 0xFF);
     }
 
     /**
@@ -1328,7 +1328,7 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
         write((v >>> 24) & 0xFF);
         write((v >>> 16) & 0xFF);
         write((v >>> 8) & 0xFF);
-        write((v >>> 0) & 0xFF);
+        write((v) & 0xFF);
     }
 
     /**
@@ -1361,9 +1361,9 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
             write((int) (v >>> 24) & 0xFF);
             write((int) (v >>> 16) & 0xFF);
             write((int) (v >>> 8) & 0xFF);
-            write((int) (v >>> 0) & 0xFF);
+            write((int) (v) & 0xFF);
         } else {
-            write((int) (v >>> 0) & 0xFF);
+            write((int) (v) & 0xFF);
             write((int) (v >>> 8) & 0xFF);
             write((int) (v >>> 16) & 0xFF);
             write((int) (v >>> 24) & 0xFF);
@@ -1490,7 +1490,7 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
         for (int i = 0; i < len; i++) {
             final int v = s.charAt(i);
             write((v >>> 8) & 0xFF);
-            write((v >>> 0) & 0xFF);
+            write((v) & 0xFF);
         }
     }
 
@@ -1526,7 +1526,7 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
         }
 
         write((utflen >>> 8) & 0xFF);
-        write((utflen >>> 0) & 0xFF);
+        write((utflen) & 0xFF);
         for (int i = 0; i < strlen; i++) {
             final int c = str.charAt(i);
             if ((c >= 0x0001) && (c <= 0x007F)) {
@@ -1534,10 +1534,10 @@ public final class EnhancedRandomAccessFile implements DataInput, DataOutput {
             } else if (c > 0x07FF) {
                 write(0xE0 | ((c >> 12) & 0x0F));
                 write(0x80 | ((c >> 6) & 0x3F));
-                write(0x80 | ((c >> 0) & 0x3F));
+                write(0x80 | ((c) & 0x3F));
             } else {
                 write(0xC0 | ((c >> 6) & 0x1F));
-                write(0x80 | ((c >> 0) & 0x3F));
+                write(0x80 | ((c) & 0x3F));
             }
         }
     }

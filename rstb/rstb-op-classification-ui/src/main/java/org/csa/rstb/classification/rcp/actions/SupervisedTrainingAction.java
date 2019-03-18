@@ -149,12 +149,10 @@ public class SupervisedTrainingAction extends AbstractAction implements DualPolP
             final double[][] Ti = new double[3][3];
             final double[][] Cr = new double[2][2];
             final double[][] Ci = new double[2][2];
-            PrintStream out = null;
-            timeMonitor.start();
 
+            timeMonitor.start();
             final String[] subGeometries = createSubGeometries(roiProduct, geometries);
-            try {
-                out = new PrintStream(new FileOutputStream(file.getAbsolutePath(), false));
+            try (PrintStream out = new PrintStream(new FileOutputStream(file.getAbsolutePath(), false))) {
                 out.println("number_of_clusters = " + subGeometries.length);
                 out.println();
                 final String title = "Generating Supervised Training Dataset... ";
@@ -208,7 +206,7 @@ public class SupervisedTrainingAction extends AbstractAction implements DualPolP
                                 if (data[x - minX] != 0) {
 
                                     action.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth,
-                                                           sourceImageHeight, sourceProductType, sourceBands, Tr, Ti);
+                                            sourceImageHeight, sourceProductType, sourceBands, Tr, Ti);
 
                                     t11 += Tr[0][0];
                                     t12Re += Tr[0][1];
@@ -268,7 +266,7 @@ public class SupervisedTrainingAction extends AbstractAction implements DualPolP
                                 if (data[x - minX] != 0) {
 
                                     action.getMeanCovarianceMatrixC2(x, y, halfWindowSize, sourceImageWidth,
-                                                              sourceImageHeight, sourceProductType, sourceBands, Cr, Ci);
+                                            sourceImageHeight, sourceProductType, sourceBands, Cr, Ci);
 
                                     c11 += Cr[0][0];
                                     c12Re += Cr[0][1];
@@ -305,8 +303,6 @@ public class SupervisedTrainingAction extends AbstractAction implements DualPolP
                 error = e;
                 return false;
             } finally {
-                if (out != null)
-                    out.close();
                 pm.done();
 
                 removeSubGeometries(roiProduct, subGeometries);

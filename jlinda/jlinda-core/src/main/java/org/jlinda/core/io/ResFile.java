@@ -186,7 +186,7 @@ public final class ResFile {
     // method to query for keys in ascii file
     public ArrayList queryKey(String key, int groupToReturn) throws IndexOutOfBoundsException {
 
-        ArrayList<String> valuesList = new ArrayList<String>();
+        ArrayList<String> valuesList = new ArrayList<>();
 
         Matcher match = createMatcher(buffer.substring(startIdx, endIdx), createPattern(key));
         while (match.find()) {
@@ -302,7 +302,7 @@ public final class ResFile {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append("ResFile");
         sb.append("{file=").append(resFile.getAbsoluteFile());
         sb.append(" ,start substring index ").append(startIdx);

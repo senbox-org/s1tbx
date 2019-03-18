@@ -263,37 +263,48 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
      */
     public void actionPerformed(final ActionEvent event) {
 
-        if (event.getActionCommand().equals("Next")) {
-            showNextPlot();
-        } else if (event.getActionCommand().equals("Previous")) {
-            showPreviousPlot();
-        } else if (event.getActionCommand().equals("Colour Scale")) {
-            callColourScaleDlg();
-        } else if (event.getActionCommand().equals("Export Readouts")) {
-            exportReadouts();
-        } else if (event.getActionCommand().equals("Real")) {
-            spectraUnit = SpectraData.SpectraUnit.REAL;
-            createPlot(currentRecord);
-        } else if (event.getActionCommand().equals("Imaginary")) {
-            spectraUnit = SpectraData.SpectraUnit.IMAGINARY;
-            createPlot(currentRecord);
-        } else if (event.getActionCommand().equals("Amplitude")) {
-            spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
-            createPlot(currentRecord);
-        } else if (event.getActionCommand().equals("Intensity")) {
-            spectraUnit = SpectraData.SpectraUnit.INTENSITY;
-            createPlot(currentRecord);
-        } else if (event.getActionCommand().equals("Wave Spectra")) {
-            waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
-            spectraData.setWaveProductType(waveProductType);
-            if (spectraUnit != SpectraData.SpectraUnit.AMPLITUDE && spectraUnit != SpectraData.SpectraUnit.INTENSITY) {
+        switch (event.getActionCommand()) {
+            case "Next":
+                showNextPlot();
+                break;
+            case "Previous":
+                showPreviousPlot();
+                break;
+            case "Colour Scale":
+                callColourScaleDlg();
+                break;
+            case "Export Readouts":
+                exportReadouts();
+                break;
+            case "Real":
+                spectraUnit = SpectraData.SpectraUnit.REAL;
+                createPlot(currentRecord);
+                break;
+            case "Imaginary":
+                spectraUnit = SpectraData.SpectraUnit.IMAGINARY;
+                createPlot(currentRecord);
+                break;
+            case "Amplitude":
                 spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
-            }
-            createPlot(currentRecord);
-        } else if (event.getActionCommand().equals("Cross Spectra")) {
-            waveProductType = SpectraData.WaveProductType.CROSS_SPECTRA;
-            spectraData.setWaveProductType(waveProductType);
-            createPlot(currentRecord);
+                createPlot(currentRecord);
+                break;
+            case "Intensity":
+                spectraUnit = SpectraData.SpectraUnit.INTENSITY;
+                createPlot(currentRecord);
+                break;
+            case "Wave Spectra":
+                waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
+                spectraData.setWaveProductType(waveProductType);
+                if (spectraUnit != SpectraData.SpectraUnit.AMPLITUDE && spectraUnit != SpectraData.SpectraUnit.INTENSITY) {
+                    spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
+                }
+                createPlot(currentRecord);
+                break;
+            case "Cross Spectra":
+                waveProductType = SpectraData.WaveProductType.CROSS_SPECTRA;
+                spectraData.setWaveProductType(waveProductType);
+                createPlot(currentRecord);
+                break;
         }
     }
 

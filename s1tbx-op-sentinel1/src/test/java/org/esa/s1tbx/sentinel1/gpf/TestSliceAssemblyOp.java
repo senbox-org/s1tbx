@@ -52,7 +52,7 @@ public class TestSliceAssemblyOp {
 
         final SliceAssemblyOp op = (SliceAssemblyOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProducts(new Product[] { slice1Product });
+        op.setSourceProducts(slice1Product);
 
         try {
             // get targetProduct: execute initialize()
@@ -76,7 +76,7 @@ public class TestSliceAssemblyOp {
 
         final SliceAssemblyOp op = (SliceAssemblyOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProducts(new Product[] { slice1Product, nonSliceProduct });
+        op.setSourceProducts(slice1Product, nonSliceProduct);
 
         try {
             // get targetProduct: execute initialize()
@@ -100,7 +100,7 @@ public class TestSliceAssemblyOp {
 
         final SliceAssemblyOp op = (SliceAssemblyOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProducts(new Product[] { slice1Product, slice2Product });
+        op.setSourceProducts(slice1Product, slice2Product);
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
@@ -119,7 +119,7 @@ public class TestSliceAssemblyOp {
 
         final SliceAssemblyOp op = (SliceAssemblyOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProducts(new Product[] { slice2Product, slice1Product });
+        op.setSourceProducts(slice2Product, slice1Product);
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();

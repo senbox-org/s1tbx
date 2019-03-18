@@ -30,7 +30,6 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
@@ -205,7 +204,7 @@ public final class CompactPolStokesParametersOp extends Operator implements Comp
             throw new OperatorException("Right/Left Circular Hybrid Mode is expected.");
         }
 
-        useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     /**

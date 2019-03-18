@@ -156,7 +156,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     // Metadata reading with path to metadata file
     private Map<String, String> metaDataFileToHashMap(String fileName) throws IOException {
         // Return data structure
-        Map<String, String> metaDataObject = new HashMap<String, String>();
+        Map<String, String> metaDataObject = new HashMap<>();
 
         // File connection
         File fileConnection = new File(fileName);
@@ -176,7 +176,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     // Metadata reading with input stream
     private Map<String, String> metaDataFileToHashMap(InputStream fileStream) throws IOException {
         // Return data structure
-        Map<String, String> metaDataObject = new HashMap<String, String>();
+        Map<String, String> metaDataObject = new HashMap<>();
 
         BufferedReader fileBR = new BufferedReader(new InputStreamReader(fileStream));
 
@@ -286,6 +286,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     private int getNumSamplesPerLine() {
         return Integer.parseInt(metadataSummary.get("Pdi_NoOfPixels_0"));
     }
+
     private ProductData.UTC getTime(final String elem, final String tag) {
 
         return AbstractMetadata.parseUTC(elem, standardDateFormat);
@@ -338,29 +339,14 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, 2122.318448518);
 
-
-
-
     }
 
     public void addOriginalMetaData(Product product){
 
         final MetadataElement origRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
-        Iterator it = this.metadataSummary.entrySet().iterator();
-        while (it.hasNext()){
-            Map.Entry pair = (Map.Entry)it.next();
+        for (Object o : this.metadataSummary.entrySet()) {
+            Map.Entry pair = (Map.Entry) o;
             AbstractMetadata.setAttribute(origRoot, (String) pair.getKey(), (String) pair.getValue());
-
         }
-
     }
-
-
-
-
-
-
-
-
-
 }

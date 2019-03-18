@@ -55,9 +55,8 @@ public class GammaReader extends AbstractProductReader {
 
     protected Product readProductNodesImpl() throws IOException {
         final File inputParFile = ReaderUtils.getFileFromInput(getInput());
-        final BufferedReader headerReader = new BufferedReader(new FileReader(inputParFile));
 
-        try {
+        try (BufferedReader headerReader = new BufferedReader(new FileReader(inputParFile))) {
             header = new Header(headerReader);
             isComplex = isComplex(inputParFile);
             isCoregistered = isCoregistered(inputParFile);
@@ -104,8 +103,6 @@ public class GammaReader extends AbstractProductReader {
             addMetaData(product);
 
             return product;
-        } finally {
-            headerReader.close();
         }
     }
 

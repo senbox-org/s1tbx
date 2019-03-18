@@ -216,7 +216,7 @@ public class IDAN implements SpeckleFilter {
         // 1st run of region growing with IDAN50 threshold and initial seed, qualified pixel goes to anPixelList,
         // non-qualified pixel goes to "background pixels" list
         final double threshold50 = 4 / 3 * sigmaV;
-        final java.util.List<Pix> anPixelList = new ArrayList<Pix>(anSize);
+        final java.util.List<Pix> anPixelList = new ArrayList<>(anSize);
         final Pix[] bgPixelList = regionGrowing(
                 xc, yc, sx0, sy0, sw, sh, data11Real, data22Real, seed, threshold50, anPixelList);
 
@@ -293,8 +293,8 @@ public class IDAN implements SpeckleFilter {
 
         final int rc = yc - sy0;
         final int cc = xc - sx0;
-        final Map<Integer, Boolean> visited = new HashMap<Integer, Boolean>(anSize + 8);
-        final java.util.List<Pix> bgPixelList = new ArrayList<Pix>(anSize);
+        final Map<Integer, Boolean> visited = new HashMap<>(anSize + 8);
+        final java.util.List<Pix> bgPixelList = new ArrayList<>(anSize);
 
         if (distance(data11Real[rc][cc], data22Real[rc][cc], seed) < threshold) {
             anPixelList.add(new Pix(xc, yc));
@@ -303,9 +303,9 @@ public class IDAN implements SpeckleFilter {
         }
         visited.put(rc * sw + cc, true);
 
-        final java.util.List<Pix> front = new ArrayList<Pix>(anSize);
+        final java.util.List<Pix> front = new ArrayList<>(anSize);
         front.add(new Pix(xc, yc));
-        final java.util.List<Pix> newfront = new ArrayList<Pix>(anSize);
+        final java.util.List<Pix> newfront = new ArrayList<>(anSize);
 
         final int width = sx0 + sw;
         final int height = sy0 + sh;

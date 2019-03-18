@@ -225,10 +225,10 @@ public class RefinedLee implements SpeckleFilter {
 
         int k = 0;
         double mean = 0;
-        for (int j = 0; j < neighborPixelValues.length; ++j) {
+        for (double[] neighborPixelValue : neighborPixelValues) {
             for (int i = 0; i < neighborPixelValues[0].length; ++i) {
-                if (neighborPixelValues[j][i] != noDataValue) {
-                    mean += neighborPixelValues[j][i];
+                if (neighborPixelValue[i] != noDataValue) {
+                    mean += neighborPixelValue[i];
                     k++;
                 }
             }
@@ -254,10 +254,10 @@ public class RefinedLee implements SpeckleFilter {
 
         int k = 0;
         double var = 0.0;
-        for (int j = 0; j < neighborPixelValues.length; ++j) {
+        for (double[] neighborPixelValue : neighborPixelValues) {
             for (int i = 0; i < neighborPixelValues[0].length; ++i) {
-                if (neighborPixelValues[j][i] != noDataValue) {
-                    final double diff = neighborPixelValues[j][i] - mean;
+                if (neighborPixelValue[i] != noDataValue) {
+                    final double diff = neighborPixelValue[i] - mean;
                     var += diff * diff;
                     k++;
                 }

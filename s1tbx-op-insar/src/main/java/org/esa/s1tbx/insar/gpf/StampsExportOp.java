@@ -119,8 +119,8 @@ public class StampsExportOp extends Operator {
             // First product should be stack product
             String bandnames[] = sourceProduct[0].getBandNames();
             boolean foundmst = false;
-            for (int i = 0; i < bandnames.length; i++) {
-                if (bandnames[i].toLowerCase().contains("mst")) {
+            for (String bandname : bandnames) {
+                if (bandname.toLowerCase().contains("mst")) {
                     foundmst = true;
                     break;
                 }

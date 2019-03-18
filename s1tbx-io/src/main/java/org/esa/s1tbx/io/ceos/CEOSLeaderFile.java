@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.io.ceos;
 
-import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.snap.core.datamodel.MetadataElement;

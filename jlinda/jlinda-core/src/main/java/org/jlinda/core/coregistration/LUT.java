@@ -163,34 +163,42 @@ public class LUT {
             //                        break;
             //                    case TRI:
             //            ......
-            if (method.equals(RECT)) {
-                kernelTemp = new DoubleMatrix(rect(kernelAxis));
-                if (normalized) kernelTemp.divi(kernelTemp.sum());
-                kernel.putRow(i, kernelTemp);
-            } else if (method.equals(TRI)) {
-                kernelTemp = new DoubleMatrix(tri(kernelAxis));
-                if (normalized) kernelTemp.divi(kernelTemp.sum());
-                kernel.putRow(i, kernelTemp);
-            } else if (method.equals(TS6P)) {
-                kernelTemp = new DoubleMatrix(ts6(kernelAxis));
-                if (normalized) kernelTemp.divi(kernelTemp.sum());
-                kernel.putRow(i, kernelTemp);
-            } else if (method.equals(TS8P)) {
-                kernelTemp = new DoubleMatrix(ts8(kernelAxis));
-                if (normalized) kernelTemp.divi(kernelTemp.sum());
-                kernel.putRow(i, kernelTemp);
-            } else if (method.equals(TS16P)) {
-                kernelTemp = new DoubleMatrix(ts16(kernelAxis));
-                if (normalized) kernelTemp.divi(kernelTemp.sum());
-                kernel.putRow(i, kernelTemp);
-            } else if (method.equals(CC4P)) {
-                kernelTemp = new DoubleMatrix(cc4(kernelAxis));
-                if (normalized) kernelTemp.divi(kernelTemp.sum());
-                kernel.putRow(i, kernelTemp);
-            } else if (method.equals(CC6P)) {
-                kernelTemp = new DoubleMatrix(cc6(kernelAxis));
-                if (normalized) kernelTemp.divi(kernelTemp.sum());
-                kernel.putRow(i, kernelTemp);
+            switch (method) {
+                case RECT:
+                    kernelTemp = new DoubleMatrix(rect(kernelAxis));
+                    if (normalized) kernelTemp.divi(kernelTemp.sum());
+                    kernel.putRow(i, kernelTemp);
+                    break;
+                case TRI:
+                    kernelTemp = new DoubleMatrix(tri(kernelAxis));
+                    if (normalized) kernelTemp.divi(kernelTemp.sum());
+                    kernel.putRow(i, kernelTemp);
+                    break;
+                case TS6P:
+                    kernelTemp = new DoubleMatrix(ts6(kernelAxis));
+                    if (normalized) kernelTemp.divi(kernelTemp.sum());
+                    kernel.putRow(i, kernelTemp);
+                    break;
+                case TS8P:
+                    kernelTemp = new DoubleMatrix(ts8(kernelAxis));
+                    if (normalized) kernelTemp.divi(kernelTemp.sum());
+                    kernel.putRow(i, kernelTemp);
+                    break;
+                case TS16P:
+                    kernelTemp = new DoubleMatrix(ts16(kernelAxis));
+                    if (normalized) kernelTemp.divi(kernelTemp.sum());
+                    kernel.putRow(i, kernelTemp);
+                    break;
+                case CC4P:
+                    kernelTemp = new DoubleMatrix(cc4(kernelAxis));
+                    if (normalized) kernelTemp.divi(kernelTemp.sum());
+                    kernel.putRow(i, kernelTemp);
+                    break;
+                case CC6P:
+                    kernelTemp = new DoubleMatrix(cc6(kernelAxis));
+                    if (normalized) kernelTemp.divi(kernelTemp.sum());
+                    kernel.putRow(i, kernelTemp);
+                    break;
             }
             axisTemp = new DoubleMatrix(kernelAxis);
             axis.putRow(i, axisTemp);

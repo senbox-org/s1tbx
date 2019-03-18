@@ -88,7 +88,7 @@ public class PolyUtilsTest {
         }
 
         // define EXPECTED values : precomputde in matlab with fliplr(polyfit)
-        ArrayList<double[]> coeff_EXPECTED = new ArrayList<double[]>();
+        ArrayList<double[]> coeff_EXPECTED = new ArrayList<>();
         coeff_EXPECTED.add(new double[]{0.0531277556004621, 0.853026625583286});
         coeff_EXPECTED.add(new double[]{-0.00634545069301346, 1.24951466753979, -0.396488041956504});
         coeff_EXPECTED.add(new double[]{-0.00117120913502653, 1.16730171834066, -0.180894643707045,

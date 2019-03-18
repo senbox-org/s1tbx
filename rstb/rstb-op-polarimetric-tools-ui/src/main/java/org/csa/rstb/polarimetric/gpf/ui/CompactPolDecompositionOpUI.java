@@ -135,25 +135,29 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
                     return;
                 String item = (String) decomposition.getSelectedItem();
 
-                if (item.equals(CompactPolDecompositionOp.H_ALPHA_DECOMPOSITION)) {
-                    alphaByT3CheckBox.setVisible(true);
-                    alphaByC2CheckBox.setVisible(true);
-                    alphaByT3CheckBox.setSelected(true);
-                    alphaByC2CheckBox.setSelected(false);
-                    outputRVOGCheckBox.setVisible(false);
-                    output3CompCheckBox.setVisible(false);
-                } else if (item.equals(CompactPolDecompositionOp.RVOG_DECOMPOSITION)) {
-                    outputRVOGCheckBox.setVisible(true);
-                    output3CompCheckBox.setVisible(true);
-                    outputRVOGCheckBox.setSelected(true);
-                    output3CompCheckBox.setSelected(false);
-                    alphaByT3CheckBox.setVisible(false);
-                    alphaByC2CheckBox.setVisible(false);
-                } else {
-                    alphaByT3CheckBox.setVisible(false);
-                    alphaByC2CheckBox.setVisible(false);
-                    outputRVOGCheckBox.setVisible(false);
-                    output3CompCheckBox.setVisible(false);
+                switch (item) {
+                    case CompactPolDecompositionOp.H_ALPHA_DECOMPOSITION:
+                        alphaByT3CheckBox.setVisible(true);
+                        alphaByC2CheckBox.setVisible(true);
+                        alphaByT3CheckBox.setSelected(true);
+                        alphaByC2CheckBox.setSelected(false);
+                        outputRVOGCheckBox.setVisible(false);
+                        output3CompCheckBox.setVisible(false);
+                        break;
+                    case CompactPolDecompositionOp.RVOG_DECOMPOSITION:
+                        outputRVOGCheckBox.setVisible(true);
+                        output3CompCheckBox.setVisible(true);
+                        outputRVOGCheckBox.setSelected(true);
+                        output3CompCheckBox.setSelected(false);
+                        alphaByT3CheckBox.setVisible(false);
+                        alphaByC2CheckBox.setVisible(false);
+                        break;
+                    default:
+                        alphaByT3CheckBox.setVisible(false);
+                        alphaByC2CheckBox.setVisible(false);
+                        outputRVOGCheckBox.setVisible(false);
+                        output3CompCheckBox.setVisible(false);
+                        break;
                 }
 
             }

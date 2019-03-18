@@ -326,7 +326,7 @@ public class TriangulationBourke {
 	public static void main (String[] args)
 	{
 		int nv = 100000;
-		if (args.length > 0 && args[0] != null) nv = new Integer(args[0]).intValue();
+		if (args.length > 0 && args[0] != null) nv = new Integer(args[0]);
 //		if (nv <= 0 || nv > 1000) nv = 20;
 
 		//System.out.println("Creating " + nv + " random points.");
@@ -350,10 +350,9 @@ public class TriangulationBourke {
 
 		System.out.println("size(400,400); noFill();");
 
-		for (int tt=0; tt<points.length; tt++)
-		{
-			System.out.println("rect("+points[tt].x+","+points[tt].y+", 3, 3);");
-		}
+        for (XYZ point : points) {
+            System.out.println("rect(" + point.x + "," + point.y + ", 3, 3);");
+        }
 
 		for (int tt=0; tt<ntri; tt++)
 		{

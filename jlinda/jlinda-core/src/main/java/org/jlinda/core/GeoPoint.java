@@ -91,8 +91,8 @@ public class GeoPoint {
      * @return true, if so
      */
     public static boolean areValid(GeoPoint[] a) {
-        for (int i = 0; i < a.length; i++) {
-            if (!a[i].isValid()) {
+        for (GeoPoint anA : a) {
+            if (!anA.isValid()) {
                 return false;
             }
         }

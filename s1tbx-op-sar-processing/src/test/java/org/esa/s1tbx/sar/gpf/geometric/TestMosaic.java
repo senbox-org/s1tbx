@@ -40,7 +40,7 @@ public class TestMosaic {
 
         final MosaicOp op = (MosaicOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProducts(new Product[] {sourceProduct1,sourceProduct2});
+        op.setSourceProducts(sourceProduct1,sourceProduct2);
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
