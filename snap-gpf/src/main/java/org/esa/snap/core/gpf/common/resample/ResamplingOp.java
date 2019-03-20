@@ -361,15 +361,15 @@ public class ResamplingOp extends Operator {
                 if (replacedNoData) {
                     dataBufferType = DataBuffer.TYPE_DOUBLE;
                 }
-                if ((sourceTransform.getScaleX() >= referenceImageToModelTransform.getScaleX() ||
-                        sourceTransform.getScaleY() >= referenceImageToModelTransform.getScaleY())) {
+                if (Math.abs(sourceTransform.getScaleX()) >= Math.abs(referenceImageToModelTransform.getScaleX()) ||
+                        Math.abs(sourceTransform.getScaleY()) >= Math.abs(referenceImageToModelTransform.getScaleY())) {
                     targetImage = createInterpolatedImage(sourceImage, sourceBand.getNoDataValue(),
                             sourceBand.getImageToModelTransform(), sourceBand.isFlagBand() || sourceBand.isIndexBand());
-                } else if ((sourceTransform.getScaleX() <= referenceImageToModelTransform.getScaleX() ||
-                        sourceTransform.getScaleY() <= referenceImageToModelTransform.getScaleY())) {
+                } else if (Math.abs(sourceTransform.getScaleX()) <= Math.abs(referenceImageToModelTransform.getScaleX()) ||
+                        Math.abs(sourceTransform.getScaleY()) <= Math.abs(referenceImageToModelTransform.getScaleY())) {
                     targetImage = createAggregatedImage(sourceImage, dataBufferType, sourceBand.getNoDataValue(),
                             sourceBand.isFlagBand(), referenceMultiLevelModel);
-                } else if (sourceTransform.getScaleX() < referenceImageToModelTransform.getScaleX()) {
+                } else if (Math.abs(sourceTransform.getScaleX()) < Math.abs(referenceImageToModelTransform.getScaleX())) {
                     AffineTransform intermediateTransform = new AffineTransform(
                             referenceImageToModelTransform.getScaleX(), referenceImageToModelTransform.getShearX(), sourceTransform.getShearY(),
                             sourceTransform.getScaleY(), referenceImageToModelTransform.getTranslateX(), sourceTransform.getTranslateY());
@@ -379,8 +379,9 @@ public class ResamplingOp extends Operator {
                             sourceBand.isFlagBand(), intermediateMultiLevelModel
                     );
                     targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
-                            intermediateTransform, sourceBand.isFlagBand() || sourceBand.isIndexBand());
-                } else if (sourceTransform.getScaleY() < referenceImageToModelTransform.getScaleY()) {
+                                                          intermediateTransform,
+                                                          sourceBand.isFlagBand() || sourceBand.isIndexBand());
+                } else if (Math.abs(sourceTransform.getScaleY()) < Math.abs(referenceImageToModelTransform.getScaleY())) {
                     AffineTransform intermediateTransform = new AffineTransform(
                             sourceTransform.getScaleX(), sourceTransform.getShearX(), referenceImageToModelTransform.getShearY(),
                             referenceImageToModelTransform.getScaleY(), sourceTransform.getTranslateX(), referenceImageToModelTransform.getTranslateY());
