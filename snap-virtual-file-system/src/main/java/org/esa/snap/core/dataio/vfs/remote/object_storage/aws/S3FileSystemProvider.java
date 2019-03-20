@@ -15,100 +15,198 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * File System Service Provider for Amazon AWS S3 Object Storage VFS.
+ * File System Service Provider for S3 Object Storage VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
 public class S3FileSystemProvider extends ObjectStorageFileSystemProvider {
 
-    public static final String S3_ROOT = "AWS-S3:/";
-    private final static String SCHEME = "s3";
-    private static String bucketAddress = "https://s3.amazonaws.com";
-    private static String awsAccessKeyId = "";
-    private static String awsSecretAccessKey = "";
-    private static String delimiter = "/";
+    /**
+     * The name of root property, used on VFS instance creation parameters.
+     */
+    private static final String ROOT_PROPERTY_NAME = "root";
 
-    static String getAwsAccessKeyId() {
-        return awsAccessKeyId;
+    /**
+     * The name of delimiter property, used on VFS instance creation parameters.
+     */
+    private static final String DELIMITER_PROPERTY_NAME = "delimiter";
+
+    /**
+     * The default value of delimiter property, used on VFS instance creation parameters.
+     */
+    private static final String DELIMITER_PROPERTY_DEFAULT_VALUE = "/";
+
+    /**
+     * The name of access key ID property, used on S3 VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String ACCESS_KEY_ID_PROPERTY_NAME = "accessKeyId";
+
+    /**
+     * The name of secret access key property, used on S3 VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String SECRET_ACCESS_KEY_PROPERTY_NAME = "secretAccessKey";
+
+    /**
+     * The default value of root property, used on VFS instance creation parameters.
+     */
+    private static final String S3_ROOT = "S3:/";
+
+    /**
+     * The value of S3 provider scheme.
+     */
+    private static final String SCHEME = "s3";
+
+    private static Logger logger = Logger.getLogger(S3FileSystemProvider.class.getName());
+
+    private String bucketAddress = "";
+    private String accessKeyId = "";
+    private String secretAccessKey = "";
+    private String delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
+
+    private String root = S3_ROOT;
+
+    /**
+     * Gets the S3 Virtual File System without authentication.
+     *
+     * @param bucketAddress The address of S3 service. (mandatory)
+     * @return The new S3 Virtual File System
+     * @throws IOException If an I/O error occurs
+     */
+    public static FileSystem getS3FileSystem(String bucketAddress) throws IOException {
+        return getS3FileSystem(bucketAddress, "", "");
     }
 
-    static String getAwsSecretAccessKey() {
-        return awsSecretAccessKey;
-    }
-
-    public static FileSystem getS3FileSystem() throws AccessDeniedException {
+    /**
+     * Creates the S3 Virtual File System with authentication.
+     *
+     * @param bucketAddress   The address of S3 service. (mandatory)
+     * @param accessKeyId     The access key id S3 credential (username)
+     * @param secretAccessKey The secret access key S3 credential (password)
+     * @return The new S3 Virtual File System
+     * @throws IOException If an I/O error occurs
+     */
+    public static FileSystem getS3FileSystem(String bucketAddress, String accessKeyId, String secretAccessKey) throws IOException {
         FileSystem fs = null;
+        URI uri;
         try {
-            URI uri = new URI(new S3FileSystemProvider().getScheme() + ":" + new S3FileSystemProvider().getProviderAddress());
-            try {
-                fs = FileSystems.getFileSystem(uri);
-            } catch (Exception ignored) {
-            }
+            uri = new URI(SCHEME + ":" + bucketAddress);
+        } catch (Exception ex) {
+            logger.log(Level.WARNING, "Invalid URI for S3 VFS. Details: " + ex.getMessage());
+            throw new IOException(ex);
+        }
+        try {
+            fs = FileSystems.getFileSystem(uri);
+        } catch (Exception ex) {
+            logger.log(Level.FINE,"S3 VFS not loaded. Details: " + ex.getMessage());
+        } finally {
             if (fs != null) {
                 fs.close();
             }
-            fs = FileSystems.newFileSystem(uri, new HashMap<>());
-            fs.getRootDirectories();
-        } catch (Exception e) {
-            throw new AccessDeniedException(e.getMessage());
+        }
+        try {
+            Map<String, String> env = new HashMap<>();
+            env.put(ACCESS_KEY_ID_PROPERTY_NAME, accessKeyId);
+            env.put(SECRET_ACCESS_KEY_PROPERTY_NAME, secretAccessKey);
+            fs = FileSystems.newFileSystem(uri, env, S3FileSystemProvider.class.getClassLoader());
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE,"Unable to initialize S3 VFS. Details: " + ex.getMessage());
+            throw new AccessDeniedException(ex.getMessage());
         }
         return fs;
     }
 
     /**
-     * Setup this provider with connection data for connect to AWS S3 Service.
+     * Save connection data on this provider.
      *
-     * @param bucketAddress      Bucket Address. (mandatory)
-     * @param awsAccessKeyId     Username for login to AWS S3 Service.
-     * @param awsSecretAccessKey Password for login to AWS S3 Service.
-     * @link https://docs.aws.amazon.com/AmazonS3/latest/dev/MakingRequests.html
+     * @param bucketAddress   The bucket Address
+     * @param accessKeyId     The access key id S3 credential (username)
+     * @param secretAccessKey The secret access key S3 credential (password)
      */
-    public static void setupConnectionData(String bucketAddress, String awsAccessKeyId, String awsSecretAccessKey) {
-        S3FileSystemProvider.bucketAddress = bucketAddress != null ? bucketAddress : S3FileSystemProvider.bucketAddress;
-        S3FileSystemProvider.awsAccessKeyId = awsAccessKeyId != null ? awsAccessKeyId : S3FileSystemProvider.awsAccessKeyId;
-        S3FileSystemProvider.awsSecretAccessKey = awsSecretAccessKey != null ? awsSecretAccessKey : S3FileSystemProvider.awsSecretAccessKey;
+    private void setupConnectionData(String bucketAddress, String accessKeyId, String secretAccessKey) {
+        this.bucketAddress = bucketAddress != null ? bucketAddress : "";
+        this.accessKeyId = accessKeyId != null ? accessKeyId : "";
+        this.secretAccessKey = secretAccessKey != null ? secretAccessKey : "";
     }
 
+    /**
+     * Creates the VFS instance using this provider.
+     *
+     * @param address The VFS service address
+     * @param env     The VFS parameters
+     * @return The new VFS instance
+     * @throws IOException If an I/O error occurs
+     */
     @Override
     protected ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        Object delimiter = env.get("delimiter");
+        String newDelimiter = (String) env.get(DELIMITER_PROPERTY_NAME);
+        delimiter = newDelimiter != null && !newDelimiter.isEmpty() ? newDelimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
+        String newRoot = (String) env.get(ROOT_PROPERTY_NAME);
+        root = newRoot != null && !newRoot.isEmpty() ? newRoot : S3_ROOT;
+        String newAccessKeyId = (String) env.get(ACCESS_KEY_ID_PROPERTY_NAME);
+        String newSecretAccessKey = (String) env.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
+        setupConnectionData(address, newAccessKeyId, newSecretAccessKey);
         try {
-            return new ObjectStorageFileSystem(this,
-                    address,
-                    delimiter != null && !delimiter.toString().isEmpty() ? delimiter.toString() : S3FileSystemProvider.delimiter
-            );
+            return new ObjectStorageFileSystem(this, address, delimiter);
         } catch (Exception ex) {
+            logger.log(Level.SEVERE,"Unable to create new S3 VFS instance. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
 
+    /**
+     * Creates the walker instance used by VFS provider to traverse VFS tree.
+     *
+     * @return The new VFS walker instance
+     */
     @Override
     protected ObjectStorageWalker newObjectStorageWalker() {
         try {
-            return new S3Walker();
-        } catch (ParserConfigurationException | SAXException e) {
-            throw new IllegalStateException(e);
+            return new S3Walker(bucketAddress, accessKeyId, secretAccessKey, delimiter, root);
+        } catch (ParserConfigurationException | SAXException ex) {
+            logger.log(Level.SEVERE,"Unable to create walker instance used by S3 VFS to traverse tree. Details: " + ex.getMessage());
+            throw new IllegalStateException(ex);
         }
     }
 
+    /**
+     * Gets the service address of this VFS provider.
+     *
+     * @return The VFS service address
+     */
     public String getProviderAddress() {
         return bucketAddress;
     }
 
+    /**
+     * Gets the root of this VFS provider.
+     *
+     * @return The root
+     */
     @Override
     public String getRoot() {
-        return S3_ROOT;
-    }
-
-    public URLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        return S3ResponseHandler.getConnectionChannel(url, method, requestProperties);
+        return root != null && !root.isEmpty() ? root : S3_ROOT;
     }
 
     /**
-     * Returns the URI scheme that identifies this provider.
+     * Gets the connection channel for this VFS provider.
+     *
+     * @param url               The URL address to connect
+     * @param method            The HTTP method (GET POST DELETE etc)
+     * @param requestProperties The properties used on the connection
+     * @return The connection channel
+     * @throws IOException If an I/O error occurs
+     */
+    public URLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
+        return S3ResponseHandler.getConnectionChannel(url, method, requestProperties, accessKeyId, secretAccessKey);
+    }
+
+    /**
+     * Gets the URI scheme that identifies this VFS provider.
      *
      * @return The URI scheme
      */
@@ -117,17 +215,13 @@ public class S3FileSystemProvider extends ObjectStorageFileSystemProvider {
         return SCHEME;
     }
 
-    public String getDelimiter() {
-        return delimiter;
-    }
-
     /**
-     * Setup this provider with custom separator for AWS S3 Virtual File System.
+     * Gets the path delimiter for this VFS provider.
      *
-     * @param delimiter AWS S3 Virtual File System separator.
+     * @return The path delimiter
      */
-    public static void setDelimiter(String delimiter) {
-        S3FileSystemProvider.delimiter = delimiter != null && !delimiter.isEmpty() ? delimiter : S3FileSystemProvider.delimiter;
+    public String getDelimiter() {
+        return delimiter != null && !delimiter.isEmpty() ? delimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
     }
 
 }

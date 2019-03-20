@@ -14,6 +14,8 @@ import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.SeekableByteChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Byte Channel for Object Storage VFS.
@@ -25,10 +27,27 @@ import java.util.Map;
  */
 class ObjectStorageByteChannel implements SeekableByteChannel {
 
+    /**
+     * The connect type flag for this channel: GET
+     */
     private static final int CONNECT_MODE_READ = 1;
+
+    /**
+     * The connect type flag for this channel: POST
+     */
     private static final int CONNECT_MODE_UPLOAD = 2;
+
+    /**
+     * The connect type flag for this channel: PUT
+     */
     private static final int CONNECT_MODE_WRITE = 3;
+
+    /**
+     * The connect type flag for this channel: DELETE
+     */
     private static final int CONNECT_MODE_DELETE = 4;
+
+    private static Logger logger = Logger.getLogger(ObjectStorageByteChannel.class.getName());
 
     private final ObjectStoragePath path;
     private final URL url;
@@ -36,6 +55,12 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     private long position;
     private long contentLength;
 
+    /**
+     * Creates the new byte channel for Object Storage VFS
+     *
+     * @param path The VFS path for which new byte channel is created
+     * @throws IOException If an I/O error occurs
+     */
     ObjectStorageByteChannel(ObjectStoragePath path) throws IOException {
         String root = path.getRoot().toString();
         path = path.startsWith(root) ? ObjectStoragePath.parsePath((ObjectStorageFileSystem) path.getFileSystem(), path.toString().replaceAll(root, "/")) : path;
@@ -98,7 +123,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     /**
      * Tells whether or not this channel is open.
      *
-     * @return <tt>true</tt> if, and only if, this channel is open
+     * @return {@code true} if this channel is open
      */
     @Override
     public boolean isOpen() {
@@ -123,6 +148,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
             }
             ((ObjectStorageFileSystem) path.getFileSystem()).removeByteChannel(this);
         } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Unable to close the Byte Channel. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
@@ -131,7 +157,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      * Reads a sequence of bytes from this channel into the given buffer.
      *
      * @param dst The buffer
-     * @return the number of bytes actually read
+     * @return The number of bytes actually read
      * @throws ClosedChannelException If this channel is closed
      * @throws IOException            If an I/O error occurs
      */
@@ -157,12 +183,12 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     }
 
     /**
-     * Reads a sequence of bytes from this channel into the given buffer.
+     * Reads a sequence of bytes from this channel into the given buffers.
      *
      * @param dsts   The buffers array
      * @param offset The offset
      * @param length The length
-     * @return the number of bytes actually read
+     * @return The number of bytes actually read
      */
     long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
         assertOpen();
@@ -192,7 +218,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      * Writes a sequence of bytes to this channel from the given buffer.
      *
      * @param src The buffer
-     * @return the number of bytes actually written
+     * @return The number of bytes actually written
      * @throws ClosedChannelException If this channel is closed
      * @throws IOException            If some other I/O error occurs
      */
@@ -222,12 +248,12 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     }
 
     /**
-     * Writes a sequence of bytes to this channel from the given buffer.
+     * Writes a sequence of bytes to this channel from the given buffers.
      *
      * @param srcs   The source ByteBuffer array
      * @param offset The offset
      * @param length The length
-     * @return the number of bytes actually written
+     * @return The number of bytes actually written
      * @throws ClosedChannelException If this channel is closed
      * @throws IOException            If some other I/O error occurs
      */
@@ -260,8 +286,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     }
 
     /**
-     * Truncates the entity, to which this channel is connected, to the given
-     * size.
+     * Truncates the entity, to which this channel is connected, to the given size.
      *
      * @param size The new size, a non-negative byte count
      * @return This channel
@@ -275,18 +300,29 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
         throw new IOException(new UnsupportedOperationException());
     }
 
+    /**
+     * Checks channel is open.
+     *
+     * @throws ClosedChannelException If this channel is closed
+     */
     private void assertOpen() throws ClosedChannelException {
         if (!isOpen()) {
             throw new ClosedChannelException();
         }
     }
 
-//    private void skipBytes(InputStream stream) throws IOException {
-//        if (stream.skip(position) != position) {
-//            throw new IOException("\nUnable to skip " + position + " bytes from " + stream.available() + " remaining bytes.");
-//        }
-//    }
-
+    /**
+     * Reads up to <code>length</code> bytes of data from the given input stream into an array of bytes.
+     * An attempt is made to read as many as <code>length</code> bytes, but a smaller number may be read.
+     * The number of bytes actually read is returned as an integer.
+     *
+     * @param stream The input stream from which the data is read
+     * @param array  The buffer into which the data is read
+     * @param offset The start offset in array <code>array</code> at which the data is written
+     * @param length The maximum number of bytes to read
+     * @return the total number of bytes read into the buffer, or <code>-1</code> if there is no more data because the end of the stream has been reached
+     * @throws IOException If some other I/O error occurs
+     */
     private int readBytes(InputStream stream, byte[] array, int offset, int length) throws IOException {
         int bytesRead = 0;
         while (length > 0) {
@@ -302,29 +338,42 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
         return bytesRead;
     }
 
+    /**
+     * Writes <code>length</code> bytes from the specified byte array starting at offset <code>offset</code> to the given output stream.
+     *
+     * @param stream The output stream to which the data is written
+     * @param array  The buffer from which the data is read
+     * @param offset The start offset in array <code>array</code> from which the data is read
+     * @param length The number of bytes to write
+     * @throws IOException If some other I/O error occurs
+     */
     private void writeBytes(OutputStream stream, byte[] array, int offset, int length) throws IOException {
         stream.write(array, offset, length);
     }
 
-    private void connect(int connect_mode) throws IOException {
+    /**
+     * Establish the connection with the VFS service.
+     *
+     * @param connectMode The connect type flag
+     * @throws IOException If some other I/O error occurs
+     */
+    private void connect(int connectMode) throws IOException {
         String mode = "GET";
-        switch (connect_mode) {
-            case CONNECT_MODE_READ: {
+        switch (connectMode) {
+            case CONNECT_MODE_READ:
                 mode = "GET";
                 break;
-            }
-            case CONNECT_MODE_UPLOAD: {
+            case CONNECT_MODE_UPLOAD:
                 mode = "POST";
                 break;
-            }
-            case CONNECT_MODE_WRITE: {
+            case CONNECT_MODE_WRITE:
                 mode = "PUT";
                 break;
-            }
-            case CONNECT_MODE_DELETE: {
+            case CONNECT_MODE_DELETE:
                 mode = "DELETE";
                 break;
-            }
+            default:
+                break;
         }
         Map<String, String> requestProperties = new HashMap<>();
         if (position > 0 && contentLength > 0) {

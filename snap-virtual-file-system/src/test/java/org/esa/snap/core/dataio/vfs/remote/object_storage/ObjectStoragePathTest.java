@@ -11,6 +11,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
@@ -21,6 +23,8 @@ import static org.junit.Assert.*;
  * @author Adrian Drăghici
  */
 public class ObjectStoragePathTest {
+
+    private static Logger logger = Logger.getLogger(ObjectStoragePathTest.class.getName());
 
     private static final String FS_ID = "test:" + ObjectStoragePathTest.class.getName();
     private static ObjectStorageFileSystem fs;
@@ -176,8 +180,8 @@ public class ObjectStoragePathTest {
         try {
             path.resolve("gus");
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            // ok
+        } catch (IllegalArgumentException ex) {
+            logger.log(Level.SEVERE, "Unable to run test for resolving a VFS path. Details: " + ex.getMessage());
         }
     }
 

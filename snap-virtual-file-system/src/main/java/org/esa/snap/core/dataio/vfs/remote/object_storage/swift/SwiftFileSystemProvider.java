@@ -14,121 +14,247 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * File System Service Provider for EO Cloud OpenStack Swift Object Storage VFS.
+ * File System Service Provider for OpenStack Swift Object Storage VFS.
  *
  * @author Adrian Drăghici
  */
 public class SwiftFileSystemProvider extends ObjectStorageFileSystemProvider {
 
-    public static final String SWIFT_ROOT = "EOCloud-OpenStack-Swift:/";
-    private final static String ADDRESS = "https://eocloud.eu:8080/swift/v1/";
-    private final static String AUTH_ADDRESS = "https://eocloud.eu:5000/v3/auth/tokens/";
-    private final static String SCHEME = "oss";
-    private static String container = "";
-    private static String domain = "";
-    private static String projectId = "";
-    private static String user = "";
-    private static String password = "";
-    private static String delimiter = "/";
+    /**
+     * The name of root property, used on VFS instance creation parameters.
+     */
+    private static final String ROOT_PROPERTY_NAME = "root";
 
-    static String getContainer() {
-        return container;
+    /**
+     * The name of delimiter property, used on VFS instance creation parameters.
+     */
+    private static final String DELIMITER_PROPERTY_NAME = "delimiter";
+
+    /**
+     * The default value of delimiter property, used on VFS instance creation parameters.
+     */
+    private static final String DELIMITER_PROPERTY_DEFAULT_VALUE = "/";
+
+    /**
+     * The name of authentication address property, used on OpenStack Swift VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String AUTH_ADDRESS_PROPERTY_NAME = "authAddress";
+
+    /**
+     * The name of container property, used on OpenStack Swift VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String CONTAINER_PROPERTY_NAME = "container";
+
+    /**
+     * The name of domain property, used on OpenStack Swift VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String DOMAIN_PROPERTY_NAME = "domain";
+
+    /**
+     * The name of project id property, used on OpenStack Swift VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String PROJECT_ID_PROPERTY_NAME = "projectId";
+
+    /**
+     * The name of user property, used on OpenStack Swift VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String USER_PROPERTY_NAME = "user";
+
+    /**
+     * The name of password property, used on OpenStack Swift VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String CREDENTIAL_PROPERTY_NAME = "password";
+
+    /**
+     * The default value of root property, used on VFS instance creation parameters.
+     */
+    private static final String SWIFT_ROOT = "OpenStack-Swift:/";
+
+    /**
+     * The value of OpenStack Swift provider scheme.
+     */
+    private static final String SCHEME = "oss";
+
+    private static Logger logger = Logger.getLogger(SwiftFileSystemProvider.class.getName());
+
+    private String root = SWIFT_ROOT;
+
+    private String address = "";
+    private String authAddress = "";
+    private String container = "";
+    private String domain = "";
+    private String projectId = "";
+    private String user = "";
+    private String password = "";
+    private String delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
+
+    /**
+     * Gets the OpenStack Swift Virtual File System without authentication.
+     *
+     * @param address   The address of OpenStack Swift service (mandatory)
+     * @param container The container name (bucket) (mandatory)
+     * @return The new OpenStack Swift Virtual File System
+     * @throws IOException If an I/O error occurs
+     * @link https://developer.openstack.org/api-ref/object-store/
+     */
+    public static FileSystem getSwiftFileSystem(String address, String container) throws IOException {
+        return getSwiftFileSystem(address, "", container, "", "", "", "");
     }
 
-    static String getDomain() {
-        return domain;
-    }
-
-    static String getProjectId() {
-        return projectId;
-    }
-
-    static String getUser() {
-        return user;
-    }
-
-    static String getPassword() {
-        return password;
-    }
-
-    public static FileSystem getSwiftFileSystem() throws AccessDeniedException {
+    /**
+     * Gets OpenStack Swift Virtual File System with authentication.
+     *
+     * @param address     The address of OpenStack Swift service (mandatory)
+     * @param authAddress The address of authentication service used by OpenStack Swift service (mandatory if credentials is provided)
+     * @param container   The container name (bucket) (mandatory)
+     * @param domain      The domain name OpenStack Swift credential
+     * @param projectId   The account ID/ Project/ Tenant name OpenStack Swift credential
+     * @param user        The username OpenStack Swift credential
+     * @param password    The password OpenStack Swift credential
+     * @link https://developer.openstack.org/api-ref/object-store/
+     */
+    public static FileSystem getSwiftFileSystem(String address, String authAddress, String container, String domain, String projectId, String user, String password) throws IOException {
         FileSystem fs = null;
+        URI uri;
         try {
-            URI uri = new URI(new SwiftFileSystemProvider().getScheme() + ":" + new SwiftFileSystemProvider().getProviderAddress());
-            try {
-                fs = FileSystems.getFileSystem(uri);
-            } catch (Exception ignored) {
-            }
+            uri = new URI(SCHEME + ":" + address);
+        } catch (Exception ex) {
+            logger.log(Level.WARNING,"Invalid URI for OpenStack Swift VFS. Details: " + ex.getMessage());
+            throw new IOException(ex);
+        }
+        try {
+            fs = FileSystems.getFileSystem(uri);
+        } catch (Exception ex) {
+            logger.log(Level.FINE,"OpenStack Swift VFS not loaded. Details: " + ex.getMessage());
+        } finally {
             if (fs != null) {
                 fs.close();
             }
-            fs = FileSystems.newFileSystem(uri, new HashMap<>());
-            fs.getRootDirectories();
-        } catch (Exception e) {
-            throw new AccessDeniedException(e.getMessage());
+        }
+        try {
+            Map<String, String> env = new HashMap<>();
+            env.put(AUTH_ADDRESS_PROPERTY_NAME, authAddress);
+            env.put(CONTAINER_PROPERTY_NAME, container);
+            env.put(DOMAIN_PROPERTY_NAME, domain);
+            env.put(PROJECT_ID_PROPERTY_NAME, projectId);
+            env.put(USER_PROPERTY_NAME, user);
+            env.put(CREDENTIAL_PROPERTY_NAME, password);
+            fs = FileSystems.newFileSystem(uri, env, SwiftFileSystemProvider.class.getClassLoader());
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE,"Unable to initialize OpenStack Swift VFS. Details: " + ex.getMessage());
+            throw new AccessDeniedException(ex.getMessage());
         }
         return fs;
     }
 
     /**
-     * Setup this provider with connection data for connect to EO Cloud OpenStack Swift Service.
+     * Save connection data on this provider.
      *
-     * @param container Container name (bucket).
-     * @param domain    Domain name.
-     * @param projectId Account ID/ Project/ Tenant name.
-     * @param user      Username for login to EO Cloud OpenStack Object Storage Swift service.
-     * @param password  Password for login to EO Cloud OpenStack Object Storage Swift Service.
+     * @param address     The address of OpenStack Swift service (mandatory)
+     * @param authAddress The address of authentication service used by OpenStack Swift service (mandatory if credentials is provided)
+     * @param container   The container name (bucket) (mandatory)
+     * @param domain      The domain name OpenStack Swift credential
+     * @param projectId   The account ID/ Project/ Tenant name OpenStack Swift credential
+     * @param user        The username OpenStack Swift credential
+     * @param password    The password OpenStack Swift credential
      * @link https://developer.openstack.org/api-ref/object-store/
      */
-    public static void setupConnectionData(String container, String domain, String projectId, String user, String password) {
-        SwiftFileSystemProvider.container = container != null ? container : SwiftFileSystemProvider.container;
-        SwiftFileSystemProvider.domain = domain != null ? domain : SwiftFileSystemProvider.domain;
-        SwiftFileSystemProvider.projectId = projectId != null ? projectId : SwiftFileSystemProvider.projectId;
-        SwiftFileSystemProvider.user = user != null ? user : SwiftFileSystemProvider.user;
-        SwiftFileSystemProvider.password = password != null ? password : SwiftFileSystemProvider.password;
+    private void setupConnectionData(String address, String authAddress, String container, String domain, String projectId, String user, String password) {
+        this.address = address != null ? address : "";
+        this.authAddress = authAddress != null ? authAddress : "";
+        this.container = container != null ? container : "";
+        this.domain = domain != null ? domain : "";
+        this.projectId = projectId != null ? projectId : "";
+        this.user = user != null ? user : this.user;
+        this.password = password != null ? password : "";
     }
 
+    /**
+     * Creates the VFS instance using this provider.
+     *
+     * @param address The VFS service address
+     * @param env     The VFS parameters
+     * @return The new VFS instance
+     * @throws IOException If an I/O error occurs
+     */
     protected ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        Object delimiter = env.get("delimiter");
+        String newDelimiter = (String) env.get(DELIMITER_PROPERTY_NAME);
+        delimiter = newDelimiter != null && !newDelimiter.isEmpty() ? newDelimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
+        String newRoot = (String) env.get(ROOT_PROPERTY_NAME);
+        root = newRoot != null && !newRoot.isEmpty() ? newRoot : SWIFT_ROOT;
+        String newAuthAddress = (String) env.get(AUTH_ADDRESS_PROPERTY_NAME);
+        String newContainer = (String) env.get(CONTAINER_PROPERTY_NAME);
+        String newDomain = (String) env.get(DOMAIN_PROPERTY_NAME);
+        String newProjectId = (String) env.get(PROJECT_ID_PROPERTY_NAME);
+        String newUser = (String) env.get(USER_PROPERTY_NAME);
+        String newCredential = (String) env.get(CREDENTIAL_PROPERTY_NAME);
+        setupConnectionData(address, newAuthAddress, newContainer, newDomain, newProjectId, newUser, newCredential);
         try {
-            return new ObjectStorageFileSystem(this,
-                    address,
-                    delimiter != null && !delimiter.toString().isEmpty() ? delimiter.toString() : SwiftFileSystemProvider.delimiter
-            );
+            return new ObjectStorageFileSystem(this, address, delimiter);
         } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Unable to create new OpenStack Swift VFS instance. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
 
+    /**
+     * Creates the walker instance used by VFS provider to traverse VFS tree.
+     *
+     * @return The new VFS walker instance
+     */
     protected SwiftWalker newObjectStorageWalker() {
+        if (this.container.isEmpty()) {
+            throw new IllegalArgumentException("Missing 'container' property.\nPlease provide a container name.");
+        }
+        if (!(this.domain.isEmpty() && this.projectId.isEmpty() && this.user.isEmpty() && this.password.isEmpty()) && this.authAddress.isEmpty()) {
+            throw new IllegalArgumentException("Missing 'authAddress' property.\nPlease provide authentication address required to access authentication service.");
+        }
         try {
-            return new SwiftWalker();
-        } catch (ParserConfigurationException | SAXException e) {
-            throw new IllegalStateException(e);
+            return new SwiftWalker(address, authAddress, container, domain, projectId, user, password, delimiter, root);
+        } catch (ParserConfigurationException | SAXException ex) {
+            logger.log(Level.SEVERE,"Unable to create walker instance used by OpenStack Swift VFS to traverse tree. Details: " + ex.getMessage());
+            throw new IllegalStateException(ex);
         }
     }
 
+    /**
+     * Gets the service address of this VFS provider.
+     *
+     * @return The VFS service address
+     */
     public String getProviderAddress() {
-        return ADDRESS;
-    }
-
-    @Override
-    public String getRoot(){
-        return SWIFT_ROOT;
-    }
-
-    String getProviderAuthAddress() {
-        return AUTH_ADDRESS;
-    }
-
-    public URLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        return SwiftResponseHandler.getConnectionChannel(url, method, requestProperties);
+        return address;
     }
 
     /**
-     * Returns the URI scheme that identifies this provider.
+     * Gets the root of this VFS provider.
+     *
+     * @return The root
+     */
+    @Override
+    public String getRoot() {
+        return root != null && !root.isEmpty() ? root : SWIFT_ROOT;
+    }
+
+    /**
+     * Gets the connection channel for this VFS provider.
+     *
+     * @param url               The URL address to connect
+     * @param method            The HTTP method (GET POST DELETE etc)
+     * @param requestProperties The properties used on the connection
+     * @return The connection channel
+     * @throws IOException If an I/O error occurs
+     */
+    public URLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
+        return SwiftResponseHandler.getConnectionChannel(url, method, requestProperties, authAddress, domain, projectId, user, password);
+    }
+
+    /**
+     * Gets the URI scheme that identifies this VFS provider.
      *
      * @return The URI scheme
      */
@@ -137,17 +263,13 @@ public class SwiftFileSystemProvider extends ObjectStorageFileSystemProvider {
         return SCHEME;
     }
 
-    public String getDelimiter() {
-        return delimiter;
-    }
-
     /**
-     * Setup this provider with custom separator for Openstack Object Storage Swift Virtual File System.
+     * Gets the path delimiter for this VFS provider.
      *
-     * @param delimiter Openstack Object Storage Swift Virtual File System separator.
+     * @return The path delimiter
      */
-    public static void setDelimiter(String delimiter) {
-        SwiftFileSystemProvider.delimiter = delimiter != null && !delimiter.isEmpty() ? delimiter : SwiftFileSystemProvider.delimiter;
+    public String getDelimiter() {
+        return delimiter != null && !delimiter.isEmpty() ? delimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
     }
 
 }

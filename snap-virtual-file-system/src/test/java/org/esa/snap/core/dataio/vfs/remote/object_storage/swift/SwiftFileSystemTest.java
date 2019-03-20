@@ -13,17 +13,25 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
 /**
- * Test: Remote File System for EO Cloud OpenStack Swift Object Storage VFS.
+ * Test: Remote File System for OpenStack Swift Object Storage VFS.
  *
  * @author Adrian Drăghici
  */
 public abstract class SwiftFileSystemTest {
 
+    private static Logger logger = Logger.getLogger(SwiftFileSystemTest.class.getName());
+
     private ObjectStorageFileSystem fs;
+
+    abstract String getAddress();
+
+    abstract String getAuthAddress();
 
     abstract String getContainer();
 
@@ -46,8 +54,7 @@ public abstract class SwiftFileSystemTest {
         if (!isReady()) {
             return;
         }
-        SwiftFileSystemProvider.setupConnectionData(getContainer(), getDomain(), getProjectId(), getUser(), getPassword());
-        FileSystem fs = SwiftFileSystemProvider.getSwiftFileSystem();
+        FileSystem fs = SwiftFileSystemProvider.getSwiftFileSystem(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword());
         assertNotNull(fs);
         assertTrue(fs instanceof ObjectStorageFileSystem);
         this.fs = (ObjectStorageFileSystem) fs;
@@ -78,11 +85,11 @@ public abstract class SwiftFileSystemTest {
         Iterable<Path> rootDirectories = fs.getRootDirectories();
         Iterator<Path> iterator = rootDirectories.iterator();
         assertTrue(iterator.hasNext());
-        assertEquals("/EOCloud-OpenStack-Swift/C01/abc/", iterator.next().toString());
+        assertEquals("/OpenStack-Swift/C01/abc/", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals("/EOCloud-OpenStack-Swift/C01/czechia/", iterator.next().toString());
+        assertEquals("/OpenStack-Swift/C01/czechia/", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals("/EOCloud-OpenStack-Swift/C01/italy/", iterator.next().toString());
+        assertEquals("/OpenStack-Swift/C01/italy/", iterator.next().toString());
         assertTrue(iterator.hasNext());
     }
 
@@ -149,8 +156,8 @@ public abstract class SwiftFileSystemTest {
         try {
             numRead = channel.read(buffer);
             fail("EOFException expected, but read " + numRead + " bytes");
-        } catch (EOFException e) {
-            // ok
+        } catch (EOFException ex) {
+            logger.log(Level.SEVERE, "Unable to run test for Byte Channel. Details: " + ex.getMessage());
         }
     }
 

@@ -15,74 +15,54 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Path for Object Storage VFS.
- * An object that may be used to locate a file in a file system. It will
- * typically represent a system dependent file path.
- * <p>
- * <p> A {@code Path} represents a path that is hierarchical and composed of a
- * sequence of directory and file name elements separated by a special separator
- * or delimiter. A <em>root component</em>, that identifies a file system
- * hierarchy, may also be present. The name element that is <em>farthest</em>
- * from the root of the directory hierarchy is the name of a file or directory.
- * The other name elements are directory names. A {@code Path} can represent a
- * root, a root and a sequence of names, or simply one or more name elements.
- * A {@code Path} is considered to be an <i>empty path</i> if it consists
- * solely of one name element that is empty. Accessing a file using an
- * <i>empty path</i> is equivalent to accessing the default directory of the
- * file system. {@code Path} defines the {@link #getFileName() getFileName},
- * {@link #getParent getParent}, {@link #getRoot getRoot}, and {@link #subpath
- * subpath} methods to access the path components or a subsequence of its name
- * elements.
- * <p>
- * <p> In addition to accessing the components of a path, a {@code Path} also
- * defines the {@link #resolve(Path) resolve} and {@link #resolveSibling(Path)
- * resolveSibling} methods to combine paths. The {@link #relativize relativize}
- * method that can be used to construct a relative path between two paths.
- * Paths can be {@link #compareTo compared}, and tested against each other using
- * the {@link #startsWith startsWith} and {@link #endsWith endsWith} methods.
- * <p>
- * <p> This interface extends {@link Watchable} interface so that a directory
- * located by a path can be {@link #register registered} with a {@link
+ * An object that may be used to locate a file in a file system. It will typically represent a system dependent file path.
+ *
+ * <p> A {@code Path} represents a path that is hierarchical and composed of a sequence of directory and file name elements separated by a special separator or delimiter. A <em>root component</em>, that identifies a file system hierarchy, may also be present. The name element that is <em>farthest</em> from the root of the directory hierarchy is the name of a file or directory.
+ * The other name elements are directory names. A {@code Path} can represent a root, a root and a sequence of names, or simply one or more name elements.
+ * A {@code Path} is considered to be an <i>empty path</i> if it consists solely of one name element that is empty. Accessing a file using an
+ * <i>empty path</i> is equivalent to accessing the default directory of the file system. {@code Path} defines the {@link #getFileName() getFileName},
+ * {@link #getParent getParent}, {@link #getRoot getRoot}, and {@link #subpath subpath} methods to access the path components or a subsequence of its name elements.
+ *
+ * <p> In addition to accessing the components of a path, a {@code Path} also defines the {@link #resolve(Path) resolve} and {@link #resolveSibling(Path) resolveSibling} methods to combine paths. The {@link #relativize relativize} method that can be used to construct a relative path between two paths.
+ * Paths can be {@link #compareTo compared}, and tested against each other using the {@link #startsWith startsWith} and {@link #endsWith endsWith} methods.
+ *
+ * <p> This interface extends {@link Watchable} interface so that a directory located by a path can be {@link #register registered} with a {@link
  * WatchService} and entries in the directory watched. </p>
- * <p>
- * <p> <b>WARNING:</b> This interface is only intended to be implemented by
- * those developing custom file system implementations. Methods may be added to
- * this interface in future releases. </p>
+ *
+ * <p> <b>WARNING:</b> This interface is only intended to be implemented by those developing custom file system implementations. Methods may be added to this interface in future releases. </p>
  * <p>
  * <h2>Accessing Files</h2>
- * <p> Paths may be used with the {@link Files} class to operate on files,
- * directories, and other types of files. For example, suppose we want a {@link
- * java.io.BufferedReader} to read text from a file "{@code access.log}". The
- * file is located in a directory "{@code logs}" relative to the current working
- * directory and is UTF-8 encoded.
+ * <p> Paths may be used with the {@link Files} class to operate on files, directories, and other types of files. For example, suppose we want a {@link java.io.BufferedReader} to read text from a file "{@code access.log}". The file is located in a directory "{@code logs}" relative to the current working directory and is UTF-8 encoded.
  * <pre>
  *     Path path = FileSystems.getDefault().getPath("logs", "access.log");
  *     BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
  * </pre>
  * <p>
  * <a name="interop"></a><h2>Interoperability</h2>
- * <p> Paths associated with the default {@link
- * java.nio.file.spi.FileSystemProvider provider} are generally interoperable
- * with the {@link java.io.File java.io.File} class. Paths created by other
- * providers are unlikely to be interoperable with the abstract path names
- * represented by {@code java.io.File}. The {@link java.io.File#toPath toPath}
- * method may be used to obtain a {@code Path} from the abstract path name
- * represented by a {@code java.io.File} object. The resulting {@code Path} can
- * be used to operate on the same file as the {@code java.io.File} object. In
- * addition, the {@link #toFile toFile} method is useful to construct a {@code
+ * <p> Paths associated with the default {@link java.nio.file.spi.FileSystemProvider provider} are generally interoperable with the {@link java.io.File java.io.File} class. Paths created by other providers are unlikely to be interoperable with the abstract path names represented by {@code java.io.File}. The {@link java.io.File#toPath toPath} method may be used to obtain a {@code Path} from the abstract path name represented by a {@code java.io.File} object. The resulting {@code Path} can be used to operate on the same file as the {@code java.io.File} object. In addition, the {@link #toFile toFile} method is useful to construct a {@code
  * File} from the {@code String} representation of a {@code Path}.
  * <p>
  * <h2>Concurrency</h2>
- * <p> Implementations of this interface are immutable and safe for use by
- * multiple concurrent threads.
+ * <p> Implementations of this interface are immutable and safe for use by multiple concurrent threads.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  * @see Paths
  */
 public class ObjectStoragePath implements Path {
+
+    /**
+     * The error message for missing method argument: other.
+     */
+    private static final String OTHER_MISSING_ERROR_MESSAGE = "other is missing.";
+
+    private static Logger logger = Logger.getLogger(ObjectStoragePath.class.getName());
 
     private final ObjectStorageFileSystem fileSystem;
     private final boolean absolute;
@@ -92,6 +72,15 @@ public class ObjectStoragePath implements Path {
     private BasicFileAttributes fileAttributes;
     private URL fileURL;
 
+    /**
+     * Creates the new Path for Object Storage VFS.
+     *
+     * @param fileSystem     The VFS
+     * @param absolute       The flag for path mode: absolute/relative
+     * @param directory      The flag for path type: file/directory
+     * @param pathName       The name
+     * @param fileAttributes The file attributes
+     */
     ObjectStoragePath(ObjectStorageFileSystem fileSystem, boolean absolute, boolean directory, String pathName, BasicFileAttributes fileAttributes) {
         if (fileSystem == null) {
             throw new NullPointerException("fileSystem");
@@ -106,6 +95,13 @@ public class ObjectStoragePath implements Path {
         this.fileAttributes = fileAttributes;
     }
 
+    /**
+     * Creates the new Path for Object Storage VFS by converting given file attributes.
+     *
+     * @param fileSystem     The VFS
+     * @param fileAttributes The file attributes
+     * @return The new VFS Path
+     */
     static ObjectStoragePath fromFileAttributes(ObjectStorageFileSystem fileSystem, BasicFileAttributes fileAttributes) {
         String separator = fileSystem.getSeparator();
         String pathName = fileAttributes.fileKey().toString();
@@ -117,6 +113,13 @@ public class ObjectStoragePath implements Path {
         return new ObjectStoragePath(fileSystem, true, fileAttributes.isDirectory(), pathName, fileAttributes);
     }
 
+    /**
+     * Creates the new Path for Object Storage VFS from path name.
+     *
+     * @param fileSystem The VFS
+     * @param pathName   The name
+     * @return The new VFS Path
+     */
     static ObjectStoragePath parsePath(ObjectStorageFileSystem fileSystem, String pathName) {
         String separator = fileSystem.getSeparator();
         if (pathName.isEmpty()) {
@@ -140,37 +143,46 @@ public class ObjectStoragePath implements Path {
         return new ObjectStoragePath(fileSystem, absolute, directory, pathName.substring(beginIndex, endIndex), null);
     }
 
-    URL getFileURL() {
+    /**
+     * Gets the VFS file path URL.
+     *
+     * @return The VFS file URL
+     */
+    synchronized URL getFileURL() {
         if (fileURL == null) {
-            synchronized (this) {
-                if (fileURL == null) {
-                    try {
-                        String path = toString().replaceAll("\\s", "%20");
-                        fileURL = new URL(fileSystem.getAddress().endsWith("/") ? fileSystem.getAddress().substring(0, fileSystem.getAddress().length() - 1) + path : fileSystem.getAddress() + path);
-                    } catch (MalformedURLException e) {
-                        throw new IllegalStateException(e);
-                    }
-                }
+            try {
+                String path = toString().replaceAll("\\s", "%20");
+                fileURL = new URL(fileSystem.getAddress().endsWith("/") ? fileSystem.getAddress().substring(0, fileSystem.getAddress().length() - 1) + path : fileSystem.getAddress() + path);
+            } catch (MalformedURLException ex) {
+                logger.log(Level.SEVERE, "Unable to get the VFS file path URL. Details: " + ex.getMessage());
+                throw new IllegalStateException(ex);
             }
         }
         return fileURL;
     }
 
-    private String[] getNames() {
+    /**
+     * Gets the VFS file path names.
+     *
+     * @return The VFS file path names
+     */
+    private synchronized String[] getNames() {
         if (names == null) {
-            synchronized (this) {
-                if (names == null) {
-                    if (pathName.isEmpty()) {
-                        names = new String[0];
-                    } else {
-                        names = pathName.split(fileSystem.getSeparator());
-                    }
-                }
+            if (pathName.isEmpty()) {
+                names = new String[0];
+            } else {
+                names = pathName.split(fileSystem.getSeparator());
             }
         }
         return names;
     }
 
+    /**
+     * Parses the given VFS path name.
+     *
+     * @param pathName The VFS path name
+     * @return The new VFS path
+     */
     private ObjectStoragePath parsePath(String pathName) {
         return parsePath(fileSystem, pathName);
     }
@@ -187,9 +199,8 @@ public class ObjectStoragePath implements Path {
 
     /**
      * Tells whether or not this path is absolute.
-     * <p>
-     * <p> An absolute path is complete in that it doesn't need to be combined
-     * with other path information in order to locate a file.
+     *
+     * <p> An absolute path is complete in that it doesn't need to be combined with other path information in order to locate a file.
      *
      * @return {@code true} if, and only if, this path is absolute
      */
@@ -198,24 +209,37 @@ public class ObjectStoragePath implements Path {
         return absolute;
     }
 
+    /**
+     * Tells whether or not this VFS path is directory.
+     *
+     * @return {@code true} if this VFS path is directory
+     */
     boolean isDirectory() {
         return directory;
     }
 
+    /**
+     * Gets the file attributes of this VFS path
+     *
+     * @return The file attributes
+     */
     BasicFileAttributes getFileAttributes() {
         return fileAttributes;
     }
 
+    /**
+     * Sets the new file attributes to this VFS path
+     *
+     * @param fileAttributes The new file attributes
+     */
     void setFileAttributes(BasicFileAttributes fileAttributes) {
         this.fileAttributes = fileAttributes;
     }
 
     /**
-     * Returns the root component of this path as a {@code Path} object,
-     * or {@code null} if this path does not have a root component.
+     * Returns the root component of this path as a {@code Path} object, or {@code null} if this path does not have a root component.
      *
-     * @return a path representing the root component of this path,
-     * or {@code null}
+     * @return a path representing the root component of this path, or {@code null}
      */
     @Override
     public Path getRoot() {
@@ -224,8 +248,7 @@ public class ObjectStoragePath implements Path {
 
     /**
      * Returns the name of the file or directory denoted by this path as a
-     * {@code Path} object. The file name is the <em>farthest</em> element from
-     * the root in the directory hierarchy.
+     * {@code Path} object. The file name is the <em>farthest</em> element from the root in the directory hierarchy.
      *
      * @return a path representing the name of the file or directory, or
      * {@code null} if this path has zero elements
@@ -241,24 +264,17 @@ public class ObjectStoragePath implements Path {
     }
 
     /**
-     * Returns the <em>parent path</em>, or {@code null} if this path does not
-     * have a parent.
-     * <p>
-     * <p> The parent of this path object consists of this path's root
-     * component, if any, and each element in the path except for the
-     * <em>farthest</em> from the root in the directory hierarchy. This method
-     * does not access the file system; the path or its parent may not exist.
-     * Furthermore, this method does not eliminate special names such as "."
-     * and ".." that may be used in some implementations. On UNIX for example,
-     * the parent of "{@code /a/b/c}" is "{@code /a/b}", and the parent of
+     * Returns the <em>parent path</em>, or {@code null} if this path does not have a parent.
+     *
+     * <p> The parent of this path object consists of this path's root component, if any, and each element in the path except for the
+     * <em>farthest</em> from the root in the directory hierarchy. This method does not access the file system; the path or its parent may not exist.
+     * Furthermore, this method does not eliminate special names such as "." and ".." that may be used in some implementations. On UNIX for example, the parent of "{@code /a/b/c}" is "{@code /a/b}", and the parent of
      * {@code "x/y/.}" is "{@code x/y}". This method may be used with the {@link
      * #normalize normalize} method, to eliminate redundant names, for cases where
      * <em>shell-like</em> navigation is required.
-     * <p>
-     * <p> If this path has one or more elements, and no root component, then
-     * this method is equivalent to evaluating the expression:
-     * <blockquote><pre>
-     * subpath(0,&nbsp;getNameCount()-1);
+     *
+     * <p> If this path has one or more elements, and no root component, then this method is equivalent to evaluating the expression:
+     * <blockquote><pre> subpath(0,&nbsp;getNameCount()-1);
      * </pre></blockquote>
      *
      * @return a path representing the path's parent
@@ -275,8 +291,7 @@ public class ObjectStoragePath implements Path {
     /**
      * Returns the number of name elements in the path.
      *
-     * @return the number of elements in the path, or {@code 0} if this path
-     * only represents a root component
+     * @return the number of elements in the path, or {@code 0} if this path only represents a root component
      */
     @Override
     public int getNameCount() {
@@ -285,17 +300,13 @@ public class ObjectStoragePath implements Path {
 
     /**
      * Returns a name element of this path as a {@code Path} object.
-     * <p>
+     *
      * <p> The {@code index} parameter is the index of the name element to return.
-     * The element that is <em>closest</em> to the root in the directory hierarchy
-     * has index {@code 0}. The element that is <em>farthest</em> from the root
-     * has index {@link #getNameCount count}{@code -1}.
+     * The element that is <em>closest</em> to the root in the directory hierarchy has index {@code 0}. The element that is <em>farthest</em> from the root has index {@link #getNameCount count}{@code -1}.
      *
      * @param index the index of the element
      * @return the name element
-     * @throws IllegalArgumentException if {@code index} is negative, {@code index} is greater than or
-     *                                  equal to the number of elements, or this path has zero name
-     *                                  elements
+     * @throws IllegalArgumentException if {@code index} is negative, {@code index} is greater than or equal to the number of elements, or this path has zero name elements
      */
     @Override
     public Path getName(int index) {
@@ -303,24 +314,15 @@ public class ObjectStoragePath implements Path {
     }
 
     /**
-     * Returns a relative {@code Path} that is a subsequence of the name
-     * elements of this path.
-     * <p>
-     * <p> The {@code beginIndex} and {@code endIndex} parameters specify the
-     * subsequence of name elements. The name that is <em>closest</em> to the root
-     * in the directory hierarchy has index {@code 0}. The name that is
-     * <em>farthest</em> from the root has index {@link #getNameCount
-     * count}{@code -1}. The returned {@code Path} object has the name elements
-     * that begin at {@code beginIndex} and extend to the element at index {@code
-     * endIndex-1}.
+     * Returns a relative {@code Path} that is a subsequence of the name elements of this path.
+     *
+     * <p> The {@code beginIndex} and {@code endIndex} parameters specify the subsequence of name elements. The name that is <em>closest</em> to the root in the directory hierarchy has index {@code 0}. The name that is
+     * <em>farthest</em> from the root has index {@link #getNameCount count}{@code -1}. The returned {@code Path} object has the name elements that begin at {@code beginIndex} and extend to the element at index {@code endIndex-1}.
      *
      * @param beginIndex the index of the first element, inclusive
      * @param endIndex   the index of the last element, exclusive
-     * @return a new {@code Path} object that is a subsequence of the name
-     * elements in this {@code Path}
-     * @throws IllegalArgumentException if {@code beginIndex} is negative, or greater than or equal to
-     *                                  the number of elements. If {@code endIndex} is less than or
-     *                                  equal to {@code beginIndex}, or larger than the number of elements.
+     * @return a new {@code Path} object that is a subsequence of the name elements in this {@code Path}
+     * @throws IllegalArgumentException if {@code beginIndex} is negative, or greater than or equal to the number of elements. If {@code endIndex} is less than or equal to {@code beginIndex}, or larger than the number of elements.
      */
     @Override
     public Path subpath(int beginIndex, int endIndex) {
@@ -335,20 +337,13 @@ public class ObjectStoragePath implements Path {
 
     /**
      * Tests if this path starts with the given path.
-     * <p>
-     * <p> This path <em>starts</em> with the given path if this path's root
-     * component <em>starts</em> with the root component of the given path,
-     * and this path starts with the same name elements as the given path.
-     * If the given path has more name elements than this path then {@code false}
-     * is returned.
-     * <p>
-     * <p> Whether or not the root component of this path starts with the root
-     * component of the given path is file system specific. If this path does
-     * not have a root component and the given path has a root component then
-     * this path does not beginIndex with the given path.
-     * <p>
-     * <p> If the given path is associated with a different {@code FileSystem}
-     * to this path then {@code false} is returned.
+     *
+     * <p> This path <em>starts</em> with the given path if this path's root component <em>starts</em> with the root component of the given path, and this path starts with the same name elements as the given path.
+     * If the given path has more name elements than this path then {@code false} is returned.
+     *
+     * <p> Whether or not the root component of this path starts with the root component of the given path is file system specific. If this path does not have a root component and the given path has a root component then this path does not beginIndex with the given path.
+     *
+     * <p> If the given path is associated with a different {@code FileSystem} to this path then {@code false} is returned.
      *
      * @param other the given path
      * @return {@code true} if this path starts with the given path; otherwise
@@ -357,7 +352,7 @@ public class ObjectStoragePath implements Path {
     @Override
     public boolean startsWith(Path other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other instanceof ObjectStoragePath) {
             return pathName.startsWith(((ObjectStoragePath) other).pathName);
@@ -366,11 +361,9 @@ public class ObjectStoragePath implements Path {
     }
 
     /**
-     * Tests if this path starts with a {@code Path}, constructed by converting
-     * the given path string, in exactly the manner specified by the {@link
+     * Tests if this path starts with a {@code Path}, constructed by converting the given path string, in exactly the manner specified by the {@link
      * #startsWith(Path) startsWith(Path)} method. On UNIX for example, the path
-     * "{@code foo/bar}" starts with "{@code foo}" and "{@code foo/bar}". It
-     * does not beginIndex with "{@code f}" or "{@code fo}".
+     * "{@code foo/bar}" starts with "{@code foo}" and "{@code foo/bar}". It does not beginIndex with "{@code f}" or "{@code fo}".
      *
      * @param other the given path string
      * @return {@code true} if this path starts with the given path; otherwise
@@ -380,29 +373,19 @@ public class ObjectStoragePath implements Path {
     @Override
     public boolean startsWith(String other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return startsWith(parsePath(other));
     }
 
     /**
      * Tests if this path ends with the given path.
-     * <p>
-     * <p> If the given path has <em>N</em> elements, and no root component,
-     * and this path has <em>N</em> or more elements, then this path ends with
-     * the given path if the last <em>N</em> elements of each path, starting at
-     * the element farthest from the root, are equal.
-     * <p>
-     * <p> If the given path has a root component then this path ends with the
-     * given path if the root component of this path <em>ends with</em> the root
-     * component of the given path, and the corresponding elements of both paths
-     * are equal. Whether or not the root component of this path ends with the
-     * root component of the given path is file system specific. If this path
-     * does not have a root component and the given path has a root component
-     * then this path does not endIndex with the given path.
-     * <p>
-     * <p> If the given path is associated with a different {@code FileSystem}
-     * to this path then {@code false} is returned.
+     *
+     * <p> If the given path has <em>N</em> elements, and no root component, and this path has <em>N</em> or more elements, then this path ends with the given path if the last <em>N</em> elements of each path, starting at the element farthest from the root, are equal.
+     *
+     * <p> If the given path has a root component then this path ends with the given path if the root component of this path <em>ends with</em> the root component of the given path, and the corresponding elements of both paths are equal. Whether or not the root component of this path ends with the root component of the given path is file system specific. If this path does not have a root component and the given path has a root component then this path does not endIndex with the given path.
+     *
+     * <p> If the given path is associated with a different {@code FileSystem} to this path then {@code false} is returned.
      *
      * @param other the given path
      * @return {@code true} if this path ends with the given path; otherwise
@@ -411,7 +394,7 @@ public class ObjectStoragePath implements Path {
     @Override
     public boolean endsWith(Path other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other instanceof ObjectStoragePath) {
             return pathName.endsWith(((ObjectStoragePath) other).pathName);
@@ -420,12 +403,9 @@ public class ObjectStoragePath implements Path {
     }
 
     /**
-     * Tests if this path ends with a {@code Path}, constructed by converting
-     * the given path string, in exactly the manner specified by the {@link
+     * Tests if this path ends with a {@code Path}, constructed by converting the given path string, in exactly the manner specified by the {@link
      * #endsWith(Path) endsWith(Path)} method. On UNIX for example, the path
-     * "{@code foo/bar}" ends with "{@code foo/bar}" and "{@code bar}". It does
-     * not endIndex with "{@code r}" or "{@code /bar}". Note that trailing separators
-     * are not taken into account, and so invoking this method on the {@code
+     * "{@code foo/bar}" ends with "{@code foo/bar}" and "{@code bar}". It does not endIndex with "{@code r}" or "{@code /bar}". Note that trailing separators are not taken into account, and so invoking this method on the {@code
      * Path}"{@code foo/bar}" with the {@code String} "{@code bar/}" returns
      * {@code true}.
      *
@@ -437,32 +417,20 @@ public class ObjectStoragePath implements Path {
     @Override
     public boolean endsWith(String other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
-        return startsWith(parsePath(other));
+        return endsWith(parsePath(other));
     }
 
     /**
      * Returns a path that is this path with redundant name elements eliminated.
-     * <p>
-     * <p> The precise definition of this method is implementation dependent but
-     * in general it derives from this path, a path that does not contain
-     * <em>redundant</em> name elements. In many file systems, the "{@code .}"
-     * and "{@code ..}" are special names used to indicate the current directory
-     * and parent directory. In such file systems all occurrences of "{@code .}"
-     * are considered redundant. If a "{@code ..}" is preceded by a
-     * non-"{@code ..}" name then both names are considered redundant (the
-     * process to identify such names is repeated until it is no longer
-     * applicable).
-     * <p>
-     * <p> This method does not access the file system; the path may not locate
-     * a file that exists. Eliminating "{@code ..}" and a preceding name from a
-     * path may result in the path that locates a different file than the original
-     * path. This can arise when the preceding name is a symbolic link.
      *
-     * @return the resulting path or this path if it does not contain
-     * redundant name elements; an empty path is returned if this path
-     * does have a root component and all name elements are redundant
+     * <p> The precise definition of this method is implementation dependent but in general it derives from this path, a path that does not contain
+     * <em>redundant</em> name elements. In many file systems, the "{@code .}" and "{@code ..}" are special names used to indicate the current directory and parent directory. In such file systems all occurrences of "{@code .}" are considered redundant. If a "{@code ..}" is preceded by a non-"{@code ..}" name then both names are considered redundant (the process to identify such names is repeated until it is no longer applicable).
+     *
+     * <p> This method does not access the file system; the path may not locate a file that exists. Eliminating "{@code ..}" and a preceding name from a path may result in the path that locates a different file than the original path. This can arise when the preceding name is a symbolic link.
+     *
+     * @return the resulting path or this path if it does not contain redundant name elements; an empty path is returned if this path does have a root component and all name elements are redundant
      * @see #getParent
      * @see #toRealPath
      */
@@ -473,18 +441,11 @@ public class ObjectStoragePath implements Path {
     }
 
     /**
-     * Resolve the given path against this path.
-     * <p>
-     * <p> If the {@code other} parameter is an {@link #isAbsolute() absolute}
-     * path then this method trivially returns {@code other}. If {@code other}
-     * is an <i>empty path</i> then this method trivially returns this path.
-     * Otherwise this method considers this path to be a directory and resolves
-     * the given path against this path. In the simplest case, the given path
-     * does not have a {@link #getRoot root} component, in which case this method
-     * <em>joins</em> the given path to this path and returns a resulting path
-     * that {@link #endsWith ends} with the given path. Where the given path has
-     * a root component then resolution is highly implementation dependent and
-     * therefore unspecified.
+     * Resolves the given path against this path.
+     *
+     * <p> If the {@code other} parameter is an {@link #isAbsolute() absolute} path then this method trivially returns {@code other}. If {@code other} is an <i>empty path</i> then this method trivially returns this path.
+     * Otherwise this method considers this path to be a directory and resolves the given path against this path. In the simplest case, the given path does not have a {@link #getRoot root} component, in which case this method
+     * <em>joins</em> the given path to this path and returns a resulting path that {@link #endsWith ends} with the given path. Where the given path has a root component then resolution is highly implementation dependent and therefore unspecified.
      *
      * @param other the path to resolve against this path
      * @return the resulting path
@@ -493,7 +454,7 @@ public class ObjectStoragePath implements Path {
     @Override
     public Path resolve(Path other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other.isAbsolute() || toString().isEmpty()) {
             return other;
@@ -504,25 +465,22 @@ public class ObjectStoragePath implements Path {
         if (directory) {
             if (!other.isAbsolute()) {//we need to discover who is 'other' (file or directory ???)
                 Path result = parsePath(toString() + other.toString() + (other.toString().endsWith(other.getFileSystem().getSeparator()) ? "" : other.getFileSystem().getSeparator()));
-                try {
-                    if (Files.walk(result).limit(2).count() > 1) {
+                try (Stream<Path> stream = Files.walk(result)) {
+                    if (stream.limit(2).count() > 1) {
                         return result;
                     }
-                } catch (IOException ignored) {
+                } catch (IOException ex) {
+                    logger.log(Level.FINE,"Unable to resolve the given path against this path. Details: " + ex.getMessage());
                 }
             }
             return parsePath(toString() + other.toString());
         }
-        throw new IllegalArgumentException("other");
+        throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
     }
 
     /**
-     * Converts a given path string to a {@code Path} and resolves it against
-     * this {@code Path} in exactly the manner specified by the {@link
-     * #resolve(Path) resolve} method. For example, suppose that the name
-     * separator is "{@code /}" and a path represents "{@code foo/bar}", then
-     * invoking this method with the path string "{@code gus}" will result in
-     * the {@code Path} "{@code foo/bar/gus}".
+     * Converts a given path string to a {@code Path} and resolves it against this {@code Path} in exactly the manner specified by the {@link
+     * #resolve(Path) resolve} method. For example, suppose that the name separator is "{@code /}" and a path represents "{@code foo/bar}", then invoking this method with the path string "{@code gus}" will result in the {@code Path} "{@code foo/bar/gus}".
      *
      * @param other the path string to resolve against this path
      * @return the resulting path
@@ -533,22 +491,15 @@ public class ObjectStoragePath implements Path {
     @Override
     public Path resolve(String other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return resolve(parsePath(other));
     }
 
     /**
-     * Resolves the given path against this path's {@link #getParent parent}
-     * path. This is useful where a file name needs to be <i>replaced</i> with
-     * another file name. For example, suppose that the name separator is
-     * "{@code /}" and a path represents "{@code dir1/dir2/foo}", then invoking
-     * this method with the {@code Path} "{@code bar}" will result in the {@code
-     * Path} "{@code dir1/dir2/bar}". If this path does not have a parent path,
-     * or {@code other} is {@link #isAbsolute() absolute}, then this method
-     * returns {@code other}. If {@code other} is an empty path then this method
-     * returns this path's parent, or where this path doesn't have a parent, the
-     * empty path.
+     * Resolves the given path against this path's {@link #getParent parent} path. This is useful where a file name needs to be <i>replaced</i> with another file name. For example, suppose that the name separator is
+     * "{@code /}" and a path represents "{@code dir1/dir2/foo}", then invoking this method with the {@code Path} "{@code bar}" will result in the {@code
+     * Path} "{@code dir1/dir2/bar}". If this path does not have a parent path, or {@code other} is {@link #isAbsolute() absolute}, then this method returns {@code other}. If {@code other} is an empty path then this method returns this path's parent, or where this path doesn't have a parent, the empty path.
      *
      * @param other the path to resolve against this path's parent
      * @return the resulting path
@@ -557,7 +508,7 @@ public class ObjectStoragePath implements Path {
     @Override
     public Path resolveSibling(Path other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other.toString().isEmpty()) {
             return this;
@@ -570,9 +521,7 @@ public class ObjectStoragePath implements Path {
     }
 
     /**
-     * Converts a given path string to a {@code Path} and resolves it against
-     * this path's {@link #getParent parent} path in exactly the manner
-     * specified by the {@link #resolveSibling(Path) resolveSibling} method.
+     * Converts a given path string to a {@code Path} and resolves it against this path's {@link #getParent parent} path in exactly the manner specified by the {@link #resolveSibling(Path) resolveSibling} method.
      *
      * @param other the path string to resolve against this path's parent
      * @return the resulting path
@@ -582,51 +531,35 @@ public class ObjectStoragePath implements Path {
     @Override
     public Path resolveSibling(String other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return resolveSibling(parsePath(other));
     }
 
     /**
      * Constructs a relative path between this path and a given path.
-     * <p>
+     *
      * <p> Relativization is the inverse of {@link #resolve(Path) resolution}.
-     * This method attempts to construct a {@link #isAbsolute relative} path
-     * that when {@link #resolve(Path) resolved} against this path, yields a
-     * path that locates the same file as the given path. For example, on UNIX,
-     * if this path is {@code "/a/b"} and the given path is {@code "/a/b/c/d"}
-     * then the resulting relative path would be {@code "c/d"}. Where this
-     * path and the given path do not have a {@link #getRoot root} component,
-     * then a relative path can be constructed. A relative path cannot be
-     * constructed if only one of the paths have a root component. Where both
-     * paths have a root component then it is implementation dependent if a
-     * relative path can be constructed. If this path and the given path are
+     * This method attempts to construct a {@link #isAbsolute relative} path that when {@link #resolve(Path) resolved} against this path, yields a path that locates the same file as the given path. For example, on UNIX, if this path is {@code "/a/b"} and the given path is {@code "/a/b/c/d"} then the resulting relative path would be {@code "c/d"}. Where this path and the given path do not have a {@link #getRoot root} component, then a relative path can be constructed. A relative path cannot be constructed if only one of the paths have a root component. Where both paths have a root component then it is implementation dependent if a relative path can be constructed. If this path and the given path are
      * {@link #equals equal} then an <i>empty path</i> is returned.
-     * <p>
+     *
      * <p> For any two {@link #normalize normalized} paths <i>p</i> and
      * <i>q</i>, where <i>q</i> does not have a root component,
      * <blockquote>
      * <i>p</i><tt>.relativize(</tt><i>p</i><tt>.resolve(</tt><i>q</i><tt>)).equals(</tt><i>q</i><tt>)</tt>
      * </blockquote>
-     * <p>
-     * <p> When symbolic links are supported, then whether the resulting path,
-     * when resolved against this path, yields a path that can be used to locate
-     * the {@link Files#isSameFile same} file as {@code other} is implementation
-     * dependent. For example, if this path is  {@code "/a/b"} and the given
-     * path is {@code "/a/x"} then the resulting relative path may be {@code
-     * "../x"}. If {@code "b"} is a symbolic link then is implementation
-     * dependent if {@code "a/b/../x"} would locate the same file as {@code "/a/x"}.
+     *
+     * <p> When symbolic links are supported, then whether the resulting path, when resolved against this path, yields a path that can be used to locate the {@link Files#isSameFile same} file as {@code other} is implementation dependent. For example, if this path is  {@code "/a/b"} and the given path is {@code "/a/x"} then the resulting relative path may be {@code
+     * "../x"}. If {@code "b"} is a symbolic link then is implementation dependent if {@code "a/b/../x"} would locate the same file as {@code "/a/x"}.
      *
      * @param other the path to relativize against this path
-     * @return the resulting relative path, or an empty path if both paths are
-     * equal
-     * @throws IllegalArgumentException if {@code other} is not a {@code Path} that can be relativized
-     *                                  against this path
+     * @return the resulting relative path, or an empty path if both paths are equal
+     * @throws IllegalArgumentException if {@code other} is not a {@code Path} that can be relativized against this path
      */
     @Override
     public Path relativize(Path other) {
         if (other == null) {
-            throw new NullPointerException("other");
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
 
         if (equals(other)) {
@@ -635,7 +568,7 @@ public class ObjectStoragePath implements Path {
 
         ObjectStoragePath path2 = (ObjectStoragePath) other;
         if (isAbsolute() != path2.isAbsolute()) {
-            throw new IllegalArgumentException("other");
+            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
         }
 
         String[] names1 = getNames();
@@ -651,81 +584,51 @@ public class ObjectStoragePath implements Path {
 
     /**
      * Returns a URI to represent this path.
-     * <p>
-     * <p> This method constructs an absolute {@link URI} with a {@link
-     * URI#getScheme() scheme} equal to the URI scheme that identifies the
-     * provider. The exact form of the scheme specific part is highly provider
-     * dependent.
-     * <p>
-     * <p> In the case of the default provider, the URI is hierarchical with
-     * a {@link URI#getPath() path} component that is absolute. The query and
-     * fragment components are undefined. Whether the authority component is
-     * defined or not is implementation dependent. There is no guarantee that
-     * the {@code URI} may be used to construct a {@link File java.io.File}.
-     * In particular, if this path represents a Universal Naming Convention (UNC)
-     * path, then the UNC server name may be encoded in the authority component
-     * of the resulting URI. In the case of the default provider, and the file
-     * exists, and it can be determined that the file is a directory, then the
-     * resulting {@code URI} will end with a slash.
-     * <p>
-     * <p> The default provider provides a similar <em>round-trip</em> guarantee
-     * to the {@link File} class. For a given {@code Path} <i>p</i> it
-     * is guaranteed that
+     *
+     * <p> This method constructs an absolute {@link URI} with a {@link URI#getScheme() scheme} equal to the URI scheme that identifies the provider. The exact form of the scheme specific part is highly provider dependent.
+     *
+     * <p> In the case of the default provider, the URI is hierarchical with a {@link URI#getPath() path} component that is absolute. The query and fragment components are undefined. Whether the authority component is defined or not is implementation dependent. There is no guarantee that the {@code URI} may be used to construct a {@link File java.io.File}.
+     * In particular, if this path represents a Universal Naming Convention (UNC) path, then the UNC server name may be encoded in the authority component of the resulting URI. In the case of the default provider, and the file exists, and it can be determined that the file is a directory, then the resulting {@code URI} will end with a slash.
+     *
+     * <p> The default provider provides a similar <em>round-trip</em> guarantee to the {@link File} class. For a given {@code Path} <i>p</i> it is guaranteed that
      * <blockquote><tt>
      * {@link Paths#get(URI) Paths.getItem}(</tt><i>p</i><tt>.toUri()).equals(</tt><i>p</i>
      * <tt>.{@link #toAbsolutePath() toAbsolutePath}())</tt>
-     * </blockquote>
-     * so long as the original {@code Path}, the {@code URI}, and the new {@code
+     * </blockquote> so long as the original {@code Path}, the {@code URI}, and the new {@code
      * Path} are all created in (possibly different invocations of) the same
-     * Java virtual machine. Whether other providers make any guarantees is
-     * provider specific and therefore unspecified.
-     * <p>
-     * <p> When a file system is constructed to access the contents of a file
-     * as a file system then it is highly implementation specific if the returned
+     * Java virtual machine. Whether other providers make any guarantees is provider specific and therefore unspecified.
+     *
+     * <p> When a file system is constructed to access the contents of a file as a file system then it is highly implementation specific if the returned
      * URI represents the given path in the file system or it represents a
      * <em>compound</em> URI that encodes the URI of the enclosing file system.
-     * A format for compound URIs is not defined in this release; such a scheme
-     * may be added in a future release.
+     * A format for compound URIs is not defined in this release; such a scheme may be added in a future release.
      *
      * @return the URI representing this path
-     * @throws IOError           if an I/O error occurs obtaining the absolute path, or where a
-     *                           file system is constructed to access the contents of a file as
-     *                           a file system, and the URI of the enclosing file system cannot be
-     *                           obtained
-     * @throws SecurityException In the case of the default provider, and a security manager
-     *                           is installed, the {@link #toAbsolutePath toAbsolutePath} method
-     *                           throws a security exception.
+     * @throws IOError           if an I/O error occurs obtaining the absolute path, or where a file system is constructed to access the contents of a file as a file system, and the URI of the enclosing file system cannot be obtained
+     * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link #toAbsolutePath toAbsolutePath} method throws a security exception.
      */
     @Override
     public URI toUri() {
-        String pathName = this.pathName;
+        String currentPathName = this.pathName;
         if (directory) {
-            pathName += fileSystem.getSeparator();
+            currentPathName += fileSystem.getSeparator();
         }
         try {
-            return new URI(fileSystem.provider().getScheme(), pathName, null);
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
+            return new URI(fileSystem.provider().getScheme(), currentPathName, null);
+        } catch (URISyntaxException ex) {
+            logger.log(Level.SEVERE,"Unable to convert VFS path to URI. Details: " + ex.getMessage());
+            throw new IllegalStateException(ex);
         }
     }
 
     /**
-     * Returns a {@code Path} object representing the absolute path of this
-     * path.
-     * <p>
-     * <p> If this path is already {@link Path#isAbsolute absolute} then this
-     * method simply returns this path. Otherwise, this method resolves the path
-     * in an implementation dependent manner, typically by resolving the path
-     * against a file system default directory. Depending on the implementation,
-     * this method may throw an I/O error if the file system is not accessible.
+     * Returns a {@code Path} object representing the absolute path of this path.
+     *
+     * <p> If this path is already {@link Path#isAbsolute absolute} then this method simply returns this path. Otherwise, this method resolves the path in an implementation dependent manner, typically by resolving the path against a file system default directory. Depending on the implementation, this method may throw an I/O error if the file system is not accessible.
      *
      * @return a {@code Path} object representing the absolute path
      * @throws IOError           if an I/O error occurs
-     * @throws SecurityException In the case of the default provider, a security manager
-     *                           is installed, and this path is not absolute, then the security
-     *                           manager's {@link SecurityManager#checkPropertyAccess(String)
-     *                           checkPropertyAccess} method is invoked to check access to the
-     *                           system property {@code user.dir}
+     * @throws SecurityException In the case of the default provider, a security manager is installed, and this path is not absolute, then the security manager's {@link SecurityManager#checkPropertyAccess(String) checkPropertyAccess} method is invoked to check access to the system property {@code user.dir}
      */
     @Override
     public Path toAbsolutePath() {
@@ -738,49 +641,25 @@ public class ObjectStoragePath implements Path {
 
     /**
      * Returns the <em>real</em> path of an existing file.
+     *
+     * <p> The precise definition of this method is implementation dependent but in general it derives from this path, an {@link #isAbsolute absolute} path that locates the {@link Files#isSameFile same} file as this path, but with name elements that represent the actual name of the directories and the file. For example, where filename comparisons on a file system are case insensitive then the name elements represent the names in their actual case. Additionally, the resulting path has redundant name elements removed.
+     *
+     * <p> If this path is relative then its absolute path is first obtained, as if by invoking the {@link #toAbsolutePath toAbsolutePath} method.
+     *
+     * <p> The {@code options} array may be used to indicate how symbolic links are handled. By default, symbolic links are resolved to their final target. If the option {@link LinkOption#NOFOLLOW_LINKS NOFOLLOW_LINKS} is present then this method does not resolve symbolic links.
      * <p>
-     * <p> The precise definition of this method is implementation dependent but
-     * in general it derives from this path, an {@link #isAbsolute absolute}
-     * path that locates the {@link Files#isSameFile same} file as this path, but
-     * with name elements that represent the actual name of the directories
-     * and the file. For example, where filename comparisons on a file system
-     * are case insensitive then the name elements represent the names in their
-     * actual case. Additionally, the resulting path has redundant name
-     * elements removed.
-     * <p>
-     * <p> If this path is relative then its absolute path is first obtained,
-     * as if by invoking the {@link #toAbsolutePath toAbsolutePath} method.
-     * <p>
-     * <p> The {@code options} array may be used to indicate how symbolic links
-     * are handled. By default, symbolic links are resolved to their final
-     * target. If the option {@link LinkOption#NOFOLLOW_LINKS NOFOLLOW_LINKS} is
-     * present then this method does not resolve symbolic links.
-     * <p>
-     * Some implementations allow special names such as "{@code ..}" to refer to
-     * the parent directory. When deriving the <em>real path</em>, and a
-     * "{@code ..}" (or equivalent) is preceded by a non-"{@code ..}" name then
-     * an implementation will typically cause both names to be removed. When
-     * not resolving symbolic links and the preceding name is a symbolic link
-     * then the names are only removed if it guaranteed that the resulting path
-     * will locate the same file as this path.
+     * Some implementations allow special names such as "{@code ..}" to refer to the parent directory. When deriving the <em>real path</em>, and a
+     * "{@code ..}" (or equivalent) is preceded by a non-"{@code ..}" name then an implementation will typically cause both names to be removed. When not resolving symbolic links and the preceding name is a symbolic link then the names are only removed if it guaranteed that the resulting path will locate the same file as this path.
      *
      * @param options options indicating how symbolic links are handled
-     * @return an absolute path represent the <em>real</em> path of the file
-     * located by this object
+     * @return an absolute path represent the <em>real</em> path of the file located by this object
      * @throws IOException       if the file does not exist or an I/O error occurs
-     * @throws SecurityException In the case of the default provider, and a security manager
-     *                           is installed, its {@link SecurityManager#checkRead(String) checkRead}
-     *                           method is invoked to check read access to the file, and where
-     *                           this path is not absolute, its {@link SecurityManager#checkPropertyAccess(String)
-     *                           checkPropertyAccess} method is invoked to check access to the
-     *                           system property {@code user.dir}
+     * @throws SecurityException In the case of the default provider, and a security manager is installed, its {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the file, and where this path is not absolute, its {@link SecurityManager#checkPropertyAccess(String) checkPropertyAccess} method is invoked to check access to the system property {@code user.dir}
      */
     @Override
     public Path toRealPath(LinkOption... options) throws IOException {
-        try {
-            assert options.length > 0;
-        } catch (Exception ex) {
-            throw new IOException(ex);
+        if (options.length < 1) {
+            throw new IOException("options is missing.");
         }
         return toAbsolutePath();
     }
@@ -802,24 +681,18 @@ public class ObjectStoragePath implements Path {
      * @param watcher   the watch service to which this object is to be registered
      * @param events    the events for which this object should be registered
      * @param modifiers the modifiers, if any, that modify how the object is registered
-     * @return a key representing the registration of this object with the
-     * given watch service
+     * @return a key representing the registration of this object with the given watch service
      * @throws UnsupportedOperationException if unsupported events or modifiers are specified
      * @throws IllegalArgumentException      if an invalid combination of events or modifiers is specified
      * @throws ClosedWatchServiceException   if the watch service is closed
-     * @throws NotDirectoryException         if the file is registered to watch the entries in a directory
-     *                                       and the file is not a directory  <i>(optional specific exception)</i>
+     * @throws NotDirectoryException         if the file is registered to watch the entries in a directory and the file is not a directory  <i>(optional specific exception)</i>
      * @throws IOException                   if an I/O error occurs
-     * @throws SecurityException             In the case of the default provider, and a security manager is
-     *                                       installed, the {@link SecurityManager#checkRead(String) checkRead}
-     *                                       method is invoked to check read access to the file.
+     * @throws SecurityException             In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the file.
      */
     @Override
     public WatchKey register(WatchService watcher, WatchEvent.Kind<?>[] events, WatchEvent.Modifier... modifiers) throws IOException {
-        try {
-            assert watcher != null;
-        } catch (Exception ex) {
-            throw new IOException(ex);
+        if (watcher != null) {
+            throw new IOException("watcher is missing.");
         }
         throw new UnsupportedOperationException();
     }
@@ -829,35 +702,26 @@ public class ObjectStoragePath implements Path {
      *
      * @param watcher The watch service to which this object is to be registered
      * @param events  The events for which this object should be registered
-     * @return A key representing the registration of this object with the
-     * given watch service
+     * @return A key representing the registration of this object with the given watch service
      * @throws UnsupportedOperationException If unsupported events are specified
      * @throws IllegalArgumentException      If an invalid combination of events is specified
      * @throws ClosedWatchServiceException   If the watch service is closed
-     * @throws NotDirectoryException         If the file is registered to watch the entries in a directory
-     *                                       and the file is not a directory  <i>(optional specific exception)</i>
+     * @throws NotDirectoryException         If the file is registered to watch the entries in a directory and the file is not a directory  <i>(optional specific exception)</i>
      * @throws IOException                   If an I/O error occurs
-     * @throws SecurityException             In the case of the default provider, and a security manager is
-     *                                       installed, the {@link SecurityManager#checkRead(String) checkRead}
-     *                                       method is invoked to check read access to the file.
+     * @throws SecurityException             In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the file.
      */
     @Override
     public WatchKey register(WatchService watcher, WatchEvent.Kind<?>[] events) throws IOException {
-        try {
-            assert watcher != null;
-        } catch (Exception ex) {
-            throw new IOException(ex);
+        if (watcher != null) {
+            throw new IOException("watcher is missing.");
         }
         throw new UnsupportedOperationException();
     }
 
     /**
      * Returns an iterator over the name elements of this path.
-     * <p>
-     * <p> The first element returned by the iterator represents the name
-     * element that is closest to the root in the directory hierarchy, the
-     * second element is the next closest, and so on. The last element returned
-     * is the name of the file or directory denoted by this path. The {@link
+     *
+     * <p> The first element returned by the iterator represents the name element that is closest to the root in the directory hierarchy, the second element is the next closest, and so on. The last element returned is the name of the file or directory denoted by this path. The {@link
      * #getRoot root} component, if present, is not returned by the iterator.
      *
      * @return an iterator over the name elements of this path.
@@ -874,19 +738,12 @@ public class ObjectStoragePath implements Path {
     }
 
     /**
-     * Compares two abstract paths lexicographically. The ordering defined by
-     * this method is provider specific, and in the case of the default
-     * provider, platform specific. This method does not access the file system
-     * and neither file is required to exist.
-     * <p>
-     * <p> This method may not be used to compare paths that are associated
-     * with different file system providers.
+     * Compares two abstract paths lexicographically. The ordering defined by this method is provider specific, and in the case of the default provider, platform specific. This method does not access the file system and neither file is required to exist.
+     *
+     * <p> This method may not be used to compare paths that are associated with different file system providers.
      *
      * @param other the path compared to this path.
-     * @return zero if the argument is {@link #equals equal} to this path, a
-     * value less than zero if this path is lexicographically less than
-     * the argument, or a value greater than zero if this path is
-     * lexicographically greater than the argument
+     * @return zero if the argument is {@link #equals equal} to this path, a value less than zero if this path is lexicographically less than the argument, or a value greater than zero if this path is lexicographically greater than the argument
      * @throws ClassCastException if the paths are associated with different providers
      */
     @Override
@@ -916,43 +773,48 @@ public class ObjectStoragePath implements Path {
     /**
      * Returns a string representation of the object. In general, the
      * {@code toString} method returns a string that
-     * "textually represents" this object. The result should
-     * be a concise but informative representation that is easy for a
-     * person to read.
+     * "textually represents" this object. The result should be a concise but informative representation that is easy for a person to read.
      * It is recommended that all subclasses override this method.
      * <p>
-     * The {@code toString} method for class {@code Object}
-     * returns a string consisting of the name of the class of which the
-     * object is an instance, the at-sign character `{@code @}', and
-     * the unsigned hexadecimal representation of the hash code of the
-     * object. In other words, this method returns a string equal to the
-     * value of:
+     * The {@code toString} method for class {@code Object} returns a string consisting of the name of the class of which the object is an instance, the at-sign character `{@code @}', and the unsigned hexadecimal representation of the hash code of the object. In other words, this method returns a string equal to the value of:
      * <blockquote>
-     * <pre>
-     * getClass().getName() + '@' + Integer.toHexString(hashCode())
+     * <pre> getClass().getName() + '@' + Integer.toHexString(hashCode())
      * </pre></blockquote>
      *
      * @return a string representation of the object.
      */
     @Override
     public String toString() {
-        String pathName = this.pathName;
+        String currentPathName = this.pathName;
         String separator = fileSystem.getSeparator();
-        if (pathName.isEmpty()) {
+        if (currentPathName.isEmpty()) {
             if (absolute) {
-                pathName = separator;
+                currentPathName = separator;
             }
         } else {
             if (absolute) {
-                pathName = pathName.startsWith(separator) ? pathName : separator + pathName;
+                currentPathName = currentPathName.startsWith(separator) ? currentPathName : separator + currentPathName;
             }
             if (directory) {
-                pathName += pathName.endsWith(separator) ? "" : separator;
+                currentPathName += currentPathName.endsWith(separator) ? "" : separator;
             }
         }
-        return pathName;
+        return currentPathName;
     }
 
+    /**
+     * Tests this path for equality with the given object.
+     *
+     * <p> If the given object is not a Path, or is a Path associated with a different {@code FileSystem}, then this method returns {@code false}.
+     *
+     * <p> Whether or not two path are equal depends on the file system implementation. In some cases the paths are compared without regard to case, and others are case sensitive. This method does not access the file system and the file is not required to exist. Where required, the
+     * {@link Files#isSameFile isSameFile} method may be used to check if two paths locate the same file.
+     *
+     * <p> This method satisfies the general contract of the {@link java.lang.Object#equals(Object) Object.equals} method. </p>
+     *
+     * @param o the object to which this object is to be compared
+     * @return {@code true} if, and only if, the given object is a {@code Path} that is identical to this {@code Path}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -968,6 +830,13 @@ public class ObjectStoragePath implements Path {
                 && pathName.equals(other.pathName);
     }
 
+    /**
+     * Computes a hash code for this path.
+     *
+     * <p> The hash code is based upon the components of the path, and satisfies the general contract of the {@link Object#hashCode Object.hashCode} method.
+     *
+     * @return the hash-code value for this path
+     */
     @Override
     public int hashCode() {
         int result = fileSystem.hashCode();

@@ -9,6 +9,8 @@ import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -20,6 +22,8 @@ import static org.junit.Assert.assertTrue;
  * @author Adrian Drăghici
  */
 public class ObjectStorageFileSystemTest {
+
+    private static Logger logger = Logger.getLogger(ObjectStorageFileSystemTest.class.getName());
 
     private static final String FS_ID = "test:" + ObjectStorageFileSystemTest.class.getName();
 
@@ -38,8 +42,8 @@ public class ObjectStorageFileSystemTest {
         try {
             FileSystems.getFileSystem(new URI(FS_ID));
             Assert.fail("FileSystemNotFoundException expected");
-        } catch (FileSystemNotFoundException e) {
-            // ok
+        } catch (FileSystemNotFoundException ex) {
+            logger.log(Level.SEVERE, "Unable to run test for creating new File System. Details: " + ex.getMessage());
         }
     }
 

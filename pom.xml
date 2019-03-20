@@ -218,6 +218,11 @@
                 <version>${snap.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-virtual-file-system</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- Miscellaneous 3rd party libraries ############################################# -->
 
             <dependency>

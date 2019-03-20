@@ -13,12 +13,14 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test: Remote File System for EO Cloud OpenStack Swift Object Storage VFS.
+ * Test: Remote File System for OpenStack Swift Object Storage VFS.
  *
  * @author Adrian Drăghici
  */
@@ -26,11 +28,23 @@ public class SwiftFileSystemRemoteTest extends SwiftFileSystemTest {
 
     private static final String CREDENTIALS_FILE = System.getProperty("user.home") + File.separator + "creds_swift.txt";
 
+    private static Logger logger = Logger.getLogger(SwiftFileSystemTest.class.getName());
+
+    private String address;
+    private String authAddress;
     private String container;
     private String domain;
     private String projectId;
     private String user;
     private String password;
+
+    String getAddress() {
+        return address;
+    }
+
+    String getAuthAddress() {
+        return authAddress;
+    }
 
     String getContainer() {
         return container;
@@ -60,13 +74,16 @@ public class SwiftFileSystemRemoteTest extends SwiftFileSystemTest {
             try {
                 fStream = new FileInputStream(CREDENTIALS_FILE);
                 BufferedReader br = new BufferedReader(new InputStreamReader(fStream));
+                address = br.readLine();
+                authAddress = br.readLine();
                 container = br.readLine();
                 domain = br.readLine();
                 projectId = br.readLine();
                 user = br.readLine();
                 password = br.readLine();
                 br.close();
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Unable to set test input data. Details: " + ex.getMessage());
             }
         }
     }
@@ -83,13 +100,13 @@ public class SwiftFileSystemRemoteTest extends SwiftFileSystemTest {
         }
         List<BasicFileAttributes> items;
 
-        items = new SwiftWalker().walk("", "/");
+        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk("");
         assertEquals(8, items.size());
 
-        items = new SwiftWalker().walk("romania/", "/");
+        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk("romania/");
         assertEquals(5267, items.size());
 
-        items = new SwiftWalker().walk("romania/LC08_L2A_180029_20161010_20170320_01_T1/", "/");
+        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk("romania/LC08_L2A_180029_20161010_20170320_01_T1/");
         assertEquals(9, items.size());
     }
 
@@ -98,7 +115,7 @@ public class SwiftFileSystemRemoteTest extends SwiftFileSystemTest {
         if (!isReady()) {
             return;
         }
-        URL url = new URL(new SwiftFileSystemProvider().getProviderAddress() + SwiftFileSystemProvider.getContainer() + "/romania/LC08_L2A_180029_20161010_20170320_01_T1/mosaic.jpg");
+        URL url = new URL(getAddress() + getContainer() + "/romania/LC08_L2A_180029_20161010_20170320_01_T1/mosaic.jpg");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setDoInput(true);

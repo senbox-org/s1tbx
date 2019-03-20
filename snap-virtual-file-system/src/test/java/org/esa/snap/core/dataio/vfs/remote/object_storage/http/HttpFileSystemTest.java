@@ -14,6 +14,8 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
@@ -23,6 +25,8 @@ import static org.junit.Assert.*;
  * @author Adrian Drăghici
  */
 public abstract class HttpFileSystemTest {
+
+    private static Logger logger = Logger.getLogger(HttpFileSystemTest.class.getName());
 
     private ObjectStorageFileSystem fs;
 
@@ -43,8 +47,7 @@ public abstract class HttpFileSystemTest {
         if (!isReady()) {
             return;
         }
-        HttpFileSystemProvider.setupConnectionData(getAddress(), getUser(), getPassword());
-        FileSystem fs = HttpFileSystemProvider.getHttpFileSystem();
+        FileSystem fs = HttpFileSystemProvider.getHttpFileSystem(getAddress(), getUser(), getPassword());
         assertNotNull(fs);
         assertTrue(fs instanceof ObjectStorageFileSystem);
         this.fs = (ObjectStorageFileSystem) fs;
@@ -144,8 +147,8 @@ public abstract class HttpFileSystemTest {
         try {
             numRead = channel.read(buffer);
             fail("EOFException expected, but read " + numRead + " bytes");
-        } catch (EOFException e) {
-            // ok
+        } catch (EOFException ex) {
+            logger.log(Level.SEVERE, "Unable to run test for Byte Channel. Details: " + ex.getMessage());
         }
     }
 

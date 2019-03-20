@@ -13,6 +13,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 public class HttpFileSystemRemoteTest extends HttpFileSystemTest {
 
     private static final String CREDENTIALS_FILE = System.getProperty("user.home") + File.separator + "creds_http.txt";
+
+    private static Logger logger = Logger.getLogger(HttpFileSystemRemoteTest.class.getName());
 
     private String address;
     private String user;
@@ -55,7 +59,8 @@ public class HttpFileSystemRemoteTest extends HttpFileSystemTest {
                 user = br.readLine();
                 password = br.readLine();
                 br.close();
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Unable to set test input data. Details: " + ex.getMessage());
             }
         }
     }
@@ -72,13 +77,13 @@ public class HttpFileSystemRemoteTest extends HttpFileSystemTest {
         }
         List<BasicFileAttributes> items;
 
-        items = new HttpWalker().walk("", "/");
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk("");
         assertEquals(2, items.size());
 
-        items = new HttpWalker().walk("S2A_MSIL2A_20170628T092031_N0205_R093_T34TGQ_20170628T092026.SAFE/", "/");
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk("S2A_MSIL2A_20170628T092031_N0205_R093_T34TGQ_20170628T092026.SAFE/");
         assertEquals(10, items.size());
 
-        items = new HttpWalker().walk("S2A_MSIL2A_20170628T092031_N0205_R093_T34TGQ_20170628T092026.SAFE/HTML/", "/");
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk("S2A_MSIL2A_20170628T092031_N0205_R093_T34TGQ_20170628T092026.SAFE/HTML/");
         assertEquals(6, items.size());
     }
 
@@ -182,13 +187,11 @@ public class HttpFileSystemRemoteTest extends HttpFileSystemTest {
                     ((HttpURLConnection) urlconnection).setRequestMethod("POST");
                     urlconnection.setRequestProperty("Content-type", "application/octet-stream");
                     urlconnection.connect();
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
+                } catch (ProtocolException ex) {
+                    logger.log(Level.SEVERE, "Unable to connect for test Put method. Details: " + ex.getMessage());
                 }
-                BufferedOutputStream bos = new BufferedOutputStream(urlconnection
-                                                                            .getOutputStream());
-                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(
-                        file));
+                BufferedOutputStream bos = new BufferedOutputStream(urlconnection.getOutputStream());
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
                 int i;
                 // read byte by byte until end of stream
                 while ((i = bis.read()) > 0) {
@@ -209,12 +212,12 @@ public class HttpFileSystemRemoteTest extends HttpFileSystemTest {
                     }
                     ((HttpURLConnection) urlconnection).disconnect();
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, "Unable to open stream for test Put method. Details: " + ex.getMessage());
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Unable to run test for Put method. Details: " + ex.getMessage());
         }
     }
 

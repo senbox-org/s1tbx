@@ -5,7 +5,17 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
+import java.nio.file.ClosedFileSystemException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
@@ -14,18 +24,21 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 /**
  * File System for Object Storage VFS.
- * Provides an interface to a file system and is the factory for objects to
- * access files and other objects in the file system.
+ * Provides an interface to a file system and is the factory for objects to access files and other objects in the file system.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
 public class ObjectStorageFileSystem extends FileSystem {
+
+    private static Logger logger = Logger.getLogger(ObjectStorageFileSystem.class.getName());
 
     private final ObjectStorageFileSystemProvider provider;
     private final String address;
@@ -36,7 +49,14 @@ public class ObjectStorageFileSystem extends FileSystem {
     private List<ObjectStorageByteChannel> openChannels;
     private ObjectStorageWalker walker;
 
-    public ObjectStorageFileSystem(ObjectStorageFileSystemProvider provider, String address, String separator) throws NullPointerException, IllegalArgumentException {
+    /**
+     * Creates the new File System for Object Storage VFS.
+     *
+     * @param provider  The VFS provider
+     * @param address   The VFS service address
+     * @param separator The VFS path separator
+     */
+    public ObjectStorageFileSystem(ObjectStorageFileSystemProvider provider, String address, String separator) {
         if (provider == null) {
             throw new NullPointerException("provider");
         }
@@ -54,14 +74,14 @@ public class ObjectStorageFileSystem extends FileSystem {
         this.separator = separator;
         this.closed = false;
         this.openChannels = new ArrayList<>();
-        this.root = new ObjectStoragePath(this, true, true, "" + provider.getRoot(), ObjectStorageFileAttributes.ROOT);
-        this.empty = new ObjectStoragePath(this, false, false, "", ObjectStorageFileAttributes.EMPTY);
+        this.root = new ObjectStoragePath(this, true, true, "" + provider.getRoot(), ObjectStorageFileAttributes.getRoot());
+        this.empty = new ObjectStoragePath(this, false, false, "", ObjectStorageFileAttributes.getEmpty());
     }
 
     /**
-     * Returns the provider that created this file system.
+     * Returns the VFS provider that created this file system.
      *
-     * @return The provider that created this file system.
+     * @return The VFS provider that created this file system.
      */
     @Override
     public FileSystemProvider provider() {
@@ -69,34 +89,34 @@ public class ObjectStorageFileSystem extends FileSystem {
     }
 
     /**
-     * Returns the address URL as string.
+     * Gets the VFS service address URL as string.
      *
-     * @return The address
+     * @return The VFS service address
      */
     public String getAddress() {
         return address;
     }
 
     /**
-     * Returns the root path.
+     * Gets the VFS root path.
      *
-     * @return The root path
+     * @return The VFS root path
      */
     ObjectStoragePath getRoot() {
         return root;
     }
 
     /**
-     * Returns the empty path.
+     * Gets the VFS empty path.
      *
-     * @return The empty path
+     * @return The VFS empty path
      */
     ObjectStoragePath getEmpty() {
         return empty;
     }
 
     /**
-     * Closes this file system.
+     * Closes this VFS.
      *
      * @throws IOException                   If an I/O error occurs
      * @throws UnsupportedOperationException Thrown in the case of the default file system
@@ -205,8 +225,8 @@ public class ObjectStorageFileSystem extends FileSystem {
         assertOpen();
         String pathName = first;
         if (more.length > 0) {
-            String separator = getSeparator();
-            pathName += separator + String.join(separator, more);
+            String pathSeparator = getSeparator();
+            pathName += pathSeparator + String.join(pathSeparator, more);
         }
         return ObjectStoragePath.parsePath(this, pathName);
     }
@@ -255,12 +275,21 @@ public class ObjectStorageFileSystem extends FileSystem {
         throw new IOException(new UnsupportedOperationException());
     }
 
-    private void assertOpen() throws ClosedFileSystemException {
+    private void assertOpen() {
         if (closed) {
             throw new ClosedFileSystemException();
         }
     }
 
+    /**
+     * Opens a Byte Channel for given VFS path.
+     *
+     * @param path    The VFS path
+     * @param options The open options
+     * @param attrs   The attributes
+     * @return The Byte Channel
+     * @throws IOException If an I/O error occurs
+     */
     SeekableByteChannel openByteChannel(ObjectStoragePath path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
         boolean plainReadWriteMode = options.isEmpty() || options.size() == 1 && (options.contains(StandardOpenOption.READ) || options.contains(StandardOpenOption.WRITE));
         boolean noCreateAttributes = attrs.length == 0;
@@ -270,15 +299,33 @@ public class ObjectStorageFileSystem extends FileSystem {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Adds a new Byte Channel to list of opened Byte Channels
+     *
+     * @param channel The Byte Channel
+     * @return The Byte Channel
+     */
     private ObjectStorageByteChannel addByteChannel(ObjectStorageByteChannel channel) {
         openChannels.add(channel);
         return channel;
     }
 
+    /**
+     * Removes a new Byte Channel from list of opened Byte Channels
+     *
+     * @param channel The Byte Channel
+     */
     void removeByteChannel(ObjectStorageByteChannel channel) {
         openChannels.remove(channel);
     }
 
+    /**
+     * Browse a given VFS directory path.
+     *
+     * @param dir    The VFS directory path
+     * @param filter The filter for results
+     * @return The browsing results
+     */
     Iterable<Path> walkDir(Path dir, DirectoryStream.Filter<? super Path> filter) {
         assertOpen();
         Path path = dir.toAbsolutePath();
@@ -288,9 +335,10 @@ public class ObjectStorageFileSystem extends FileSystem {
             walker = provider.newObjectStorageWalker();
         }
         try {
-            files = walker.walk(prefix, getSeparator());
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+            files = walker.walk(prefix);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Unable to browse the path: " + dir.toString() + ". Details: " + ex.getMessage());
+            throw new IllegalStateException(ex);
         }
         return files.stream()
                 .map(f -> ObjectStoragePath.fromFileAttributes(this, f))
@@ -298,10 +346,18 @@ public class ObjectStorageFileSystem extends FileSystem {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Tells whether or not <code>path</code> is accepted by a filter.
+     *
+     * @param path   The VFS path
+     * @param filter The filter
+     * @return {@code true} if <code>path</code> is accepted by a filter
+     */
     private boolean filterPath(ObjectStoragePath path, DirectoryStream.Filter<? super Path> filter) {
         try {
             return filter.accept(path);
-        } catch (IOException e) {
+        } catch (IOException ex) {
+            logger.log(Level.FINE, "Unable to filter the path: " + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }

@@ -46,7 +46,7 @@ public class ObjectStorageFileAttributesTest {
 
     @Test
     public void testEmpty() {
-        BasicFileAttributes fileAttributes = ObjectStorageFileAttributes.EMPTY;
+        BasicFileAttributes fileAttributes = ObjectStorageFileAttributes.getEmpty();
         assertEquals("", fileAttributes.fileKey());
         assertFalse(fileAttributes.isRegularFile());
         assertFalse(fileAttributes.isDirectory());

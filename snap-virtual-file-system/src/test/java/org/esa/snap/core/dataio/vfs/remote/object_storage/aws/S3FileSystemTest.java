@@ -13,38 +13,55 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
 /**
- * Test: File System for Amazon AWS S3 Object Storage VFS.
+ * Test: File System for S3 Object Storage VFS.
+ * Requirements:
+ * - A file with name: creds_s3.txt, located in user directory.
+ * The file must contains the following:
+ * - Address of S3 service
+ * - Access Key ID
+ * - Secret Access Key
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
 public abstract class S3FileSystemTest {
 
+    private static Logger logger = Logger.getLogger(S3FileSystemTest.class.getName());
+
     private ObjectStorageFileSystem fs;
 
-    abstract String getAwsBucketAddress();
+    abstract String getBucketAddress();
 
-    abstract String getAwsAccessKeyId();
+    abstract String getAccessKeyId();
 
-    abstract String getAwsSecretAccessKey();
+    abstract String getSecretAccessKey();
 
-    abstract void setCredentials();
+    abstract String getDirForTest();
+
+    abstract Long getDirForTestItems();
+
+    abstract String getFileForTest();
+
+    abstract Long getFileForTestSize();
+
+    abstract void setData();
 
     abstract boolean isReady();
 
 
     @Before
     public void setUp() throws Exception {
-        setCredentials();
+        setData();
         if (!isReady()) {
             return;
         }
-        S3FileSystemProvider.setupConnectionData(getAwsBucketAddress(), getAwsAccessKeyId(), getAwsSecretAccessKey());
-        FileSystem fs = S3FileSystemProvider.getS3FileSystem();
+        FileSystem fs = S3FileSystemProvider.getS3FileSystem(getBucketAddress(), getAccessKeyId(), getSecretAccessKey());
         assertNotNull(fs);
         assertTrue(fs instanceof ObjectStorageFileSystem);
         this.fs = (ObjectStorageFileSystem) fs;
@@ -75,11 +92,11 @@ public abstract class S3FileSystemTest {
         Iterable<Path> rootDirectories = fs.getRootDirectories();
         Iterator<Path> iterator = rootDirectories.iterator();
         assertTrue(iterator.hasNext());
-        assertEquals("/AWS-S3/.git/", iterator.next().toString());
+        assertEquals("/S3/.git/", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals("/AWS-S3/css/", iterator.next().toString());
+        assertEquals("/S3/css/", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals("/AWS-S3/images/", iterator.next().toString());
+        assertEquals("/S3/images/", iterator.next().toString());
         assertFalse(iterator.hasNext());
     }
 
@@ -146,8 +163,8 @@ public abstract class S3FileSystemTest {
         try {
             numRead = channel.read(buffer);
             fail("EOFException expected, but read " + numRead + " bytes");
-        } catch (EOFException e) {
-            // ok
+        } catch (EOFException ex) {
+            logger.log(Level.SEVERE, "Unable to run test for Byte Channel. Details: " + ex.getMessage());
         }
     }
 

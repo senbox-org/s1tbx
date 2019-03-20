@@ -12,23 +12,58 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Response Handler for Amazon AWS S3 Object Storage VFS.
+ * Response Handler for S3 Object Storage VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
 public class S3ResponseHandler extends DefaultHandler {
 
-    private static final String KEY = "Key";
-    private static final String SIZE = "Size";
-    private static final String CONTENTS = "Contents";
-    private static final String LAST_MODIFIED = "LastModified";
-    private static final String NEXT_CONTINUATION_TOKEN = "NextContinuationToken";
-    private static final String IS_TRUNCATED = "IsTruncated";
-    private static final String COMMON_PREFIXES = "CommonPrefixes";
-    private static final String PREFIX = "Prefix";
+    /**
+     * The name of XML element for Key, used on parsing VFS service response XML.
+     */
+    private static final String KEY_ELEMENT = "Key";
+
+    /**
+     * The name of XML element for Size, used on parsing VFS service response XML.
+     */
+    private static final String SIZE_ELEMENT = "Size";
+
+    /**
+     * The name of XML element for Contents, used on parsing VFS service response XML.
+     */
+    private static final String CONTENTS_ELEMENT = "Contents";
+
+    /**
+     * The name of XML element for LastModified, used on parsing VFS service response XML.
+     */
+    private static final String LAST_MODIFIED_ELEMENT = "LastModified";
+
+    /**
+     * The name of XML element for NextContinuationToken, used on parsing VFS service response XML.
+     */
+    private static final String NEXT_CONTINUATION_TOKEN_ELEMENT = "NextContinuationToken";
+
+    /**
+     * The name of XML element for IsTruncated, used on parsing VFS service response XML.
+     */
+    private static final String IS_TRUNCATED_ELEMENT = "IsTruncated";
+
+    /**
+     * The name of XML element for CommonPrefixes, used on parsing VFS service response XML.
+     */
+    private static final String COMMON_PREFIXES_ELEMENT = "CommonPrefixes";
+
+    /**
+     * The name of XML element for Prefix, used on parsing VFS service response XML.
+     */
+    private static final String PREFIX_ELEMENT = "Prefix";
+
+    private static Logger logger = Logger.getLogger(S3ResponseHandler.class.getName());
 
     private LinkedList<String> elementStack = new LinkedList<>();
     private List<BasicFileAttributes> items;
@@ -39,18 +74,45 @@ public class S3ResponseHandler extends DefaultHandler {
     private String nextContinuationToken;
     private boolean isTruncated;
     private String prefix;
+    private String delimiter;
 
-    S3ResponseHandler(String prefix, List<BasicFileAttributes> items) {
+    /**
+     * Creates the new response handler for S3 Object Storage VFS.
+     *
+     * @param prefix    The VFS path to traverse
+     * @param items     The list with VFS paths for files and directories
+     * @param delimiter The VFS path delimiter
+     */
+    S3ResponseHandler(String prefix, List<BasicFileAttributes> items, String delimiter) {
         this.prefix = prefix;
         this.items = items;
+        this.delimiter = delimiter;
     }
 
-    private static String getAuthorizationToken(String awsAccessKeyId, String awsSecretAccessKey) {//not real S3 authentication - only for function definition
-        return (awsAccessKeyId != null && !awsAccessKeyId.isEmpty() && awsSecretAccessKey != null && !awsSecretAccessKey.isEmpty()) ? Base64.getEncoder().encodeToString(("" + awsAccessKeyId + ":" + awsSecretAccessKey + "").getBytes()) : "";
+    /**
+     * Creates the authorization token used for S3 authentication.
+     *
+     * @param accessKeyId     The access key id S3 credential (username)
+     * @param secretAccessKey The secret access key S3 credential (password)
+     * @return The authorization token
+     */
+    private static String getAuthorizationToken(String accessKeyId, String secretAccessKey) {//not real S3 authentication - only for function definition
+        return (accessKeyId != null && !accessKeyId.isEmpty() && secretAccessKey != null && !secretAccessKey.isEmpty()) ? Base64.getEncoder().encodeToString(("" + accessKeyId + ":" + secretAccessKey + "").getBytes()) : "";
     }
 
-    static URLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        String authorizationToken = getAuthorizationToken(S3FileSystemProvider.getAwsAccessKeyId(), S3FileSystemProvider.getAwsSecretAccessKey());
+    /**
+     * Creates the connection channel.
+     *
+     * @param url               The URL address to connect
+     * @param method            The HTTP method (GET POST DELETE etc)
+     * @param requestProperties The properties used on the connection
+     * @param accessKeyId       The access key id S3 credential (username)
+     * @param secretAccessKey   The secret access key S3 credential (password)
+     * @return The connection channel
+     * @throws IOException If an I/O error occurs
+     */
+    static URLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String accessKeyId, String secretAccessKey) throws IOException {
+        String authorizationToken = getAuthorizationToken(accessKeyId, secretAccessKey);
         HttpURLConnection connection;
         if (url.getProtocol().equals("https")) {
             connection = (HttpsURLConnection) url.openConnection();
@@ -67,8 +129,8 @@ public class S3ResponseHandler extends DefaultHandler {
         if (authorizationToken != null && !authorizationToken.isEmpty())
             connection.setRequestProperty("authorization", "Basic " + authorizationToken);
         if (requestProperties != null && requestProperties.size() > 0) {
-            Set<Map.Entry<String, String>> requestProperties_set = requestProperties.entrySet();
-            for (Map.Entry<String, String> requestProperty : requestProperties_set) {
+            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
+            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
                 connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
             }
         }
@@ -82,90 +144,152 @@ public class S3ResponseHandler extends DefaultHandler {
         }
     }
 
+    /**
+     * Gets the text value of XML element data.
+     *
+     * @param ch     The XML line char array
+     * @param start  The index of first char in XML element value
+     * @param length The index of last char in XML element value
+     * @return The text value of XML element data
+     */
     private static String getTextValue(char[] ch, int start, int length) {
         return new String(ch, start, length).trim();
     }
 
+    /**
+     * Gets the continuation token (indicates S3 that the list of objects from the current bucket continues).
+     *
+     * @return The continuation token
+     */
     String getNextContinuationToken() {
         return nextContinuationToken;
     }
 
-//    public static String getAuthorizationToken(String awsAccessKeyId, String awsSecretAccessKey, String date, String aws_region) {
-//        String authToken = "";
-//        if (awsAccessKeyId != null && !awsAccessKeyId.isEmpty() && awsSecretAccessKey != null && !awsSecretAccessKey.isEmpty()) {
-//            String date=new SimpleDateFormat("YYYYMMDD").format(new Date());
-//            authToken += "AWS4-HMAC-SHA256\nCredential=" + awsAccessKeyId + "/" + date + "/" + aws_region + "/s3/aws4_request";
-//        }
-//        return authToken;
-//    }
-
+    /**
+     * Tells whether or not current request response contains more than 1000 objects.
+     *
+     * @return {@code true} if request response is truncated
+     */
     boolean getIsTruncated() {
         return isTruncated;
     }
 
+    /**
+     * Receive notification of the start of an element.
+     * Mark starting of the new XML element by adding it to the stack of XML elements.
+     *
+     * @param uri        The Namespace URI, or the empty string if the element has no Namespace URI or if Namespace processing is not being performed.
+     * @param localName  The local name (without prefix), or the empty string if Namespace processing is not being performed.
+     * @param qName      The qualified name (with prefix), or the empty string if qualified names are not available.
+     * @param attributes The attributes attached to the element.  If there are no attributes, it shall be an empty Attributes object.
+     * @throws SAXException Any SAX exception, possibly wrapping another exception.
+     * @see org.xml.sax.ContentHandler#startElement
+     */
     @Override
-    public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         try {
             String currentElement = localName.intern();
             elementStack.addLast(currentElement);
         } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Unable to mark starting of the new XML element by adding it to the stack of XML elements, for S3 VFS. Details: " + ex.getMessage());
             throw new SAXException(ex);
         }
     }
 
+    /**
+     * Receive notification of the end of an element.
+     * Remove ending XML element from the stack of XML elements.
+     * Adds the new path of S3 object to the list of VFS paths for files and directories.
+     *
+     * @param uri       The Namespace URI, or the empty string if the element has no Namespace URI or if Namespace processing is not being performed.
+     * @param localName The local name (without prefix), or the empty string if Namespace processing is not being performed.
+     * @param qName     The qualified name (with prefix), or the empty string if qualified names are not available.
+     * @throws SAXException Any SAX exception, possibly wrapping another exception.
+     * @see org.xml.sax.ContentHandler#endElement
+     */
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         try {
             String currentElement = elementStack.removeLast();
-            assert currentElement != null && currentElement.equals(localName);
-            prefix = prefix.isEmpty() ? S3FileSystemProvider.S3_ROOT : prefix;
-            if (currentElement.equals(PREFIX) && elementStack.size() == 2 && elementStack.get(1).equals(COMMON_PREFIXES)) {
-                items.add(ObjectStorageFileAttributes.newDir(prefix + key));
-            } else if (currentElement.equals(CONTENTS) && elementStack.size() == 1) {
-                items.add(ObjectStorageFileAttributes.newFile(prefix + key, size, lastModified));
+            if (currentElement != null && currentElement.equals(localName)) {
+                if (currentElement.equals(PREFIX_ELEMENT) && elementStack.size() == 2 && elementStack.get(1).equals(COMMON_PREFIXES_ELEMENT)) {
+                    items.add(ObjectStorageFileAttributes.newDir(prefix + key));
+                } else if (currentElement.equals(CONTENTS_ELEMENT) && elementStack.size() == 1) {
+                    items.add(ObjectStorageFileAttributes.newFile(prefix + key, size, lastModified));
+                }
             }
         } catch (Exception ex) {
+            logger.log(Level.SEVERE,"Unable to add the new path of S3 object to the list of S3 VFS paths for files and directories. Details: " + ex.getMessage());
             throw new SAXException(ex);
         }
     }
 
+    /**
+     * Receive notification of character data inside an element.
+     * Creates the VFS path and file attributes.
+     *
+     * @param ch     The characters.
+     * @param start  The start position in the character array.
+     * @param length The number of characters to use from the character array.
+     * @throws org.xml.sax.SAXException Any SAX exception, possibly wrapping another exception.
+     * @see org.xml.sax.ContentHandler#characters
+     */
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         try {
             String currentElement = elementStack.getLast();
             switch (currentElement) {
-                case KEY:
+                case KEY_ELEMENT:
                     key = getTextValue(ch, start, length);
-                    String[] key_parts = key.split(new S3FileSystemProvider().getDelimiter());
-                    key = key.endsWith(new S3FileSystemProvider().getDelimiter()) ? key_parts[key_parts.length - 1] + new S3FileSystemProvider().getDelimiter() : key_parts[key_parts.length - 1];
+                    String[] keyParts = key.split(delimiter);
+                    key = key.endsWith(delimiter) ? keyParts[keyParts.length - 1] + delimiter : keyParts[keyParts.length - 1];
                     break;
-                case SIZE:
+                case SIZE_ELEMENT:
                     size = getLongValue(ch, start, length);
                     break;
-                case LAST_MODIFIED:
+                case LAST_MODIFIED_ELEMENT:
                     lastModified = getTextValue(ch, start, length);
                     break;
-                case IS_TRUNCATED:
+                case IS_TRUNCATED_ELEMENT:
                     isTruncated = getBooleanValue(ch, start, length);
                     break;
-                case NEXT_CONTINUATION_TOKEN:
+                case NEXT_CONTINUATION_TOKEN_ELEMENT:
                     nextContinuationToken = getTextValue(ch, start, length);
                     break;
-                case PREFIX:
+                case PREFIX_ELEMENT:
                     key = getTextValue(ch, start, length);
-                    key_parts = key.split(new S3FileSystemProvider().getDelimiter());
-                    key = key.endsWith(new S3FileSystemProvider().getDelimiter()) ? key_parts[key_parts.length - 1] + new S3FileSystemProvider().getDelimiter() : key_parts[key_parts.length - 1];
+                    keyParts = key.split(delimiter);
+                    key = key.endsWith(delimiter) ? keyParts[keyParts.length - 1] + delimiter : keyParts[keyParts.length - 1];
+                    break;
+                default:
                     break;
             }
         } catch (Exception ex) {
+            logger.log(Level.SEVERE,"Unable to create the S3 VFS path and file attributes. Details: " + ex.getMessage());
             throw new SAXException(ex);
         }
     }
 
+    /**
+     * Gets the boolean value of XML element data.
+     *
+     * @param ch     The XML line char array
+     * @param start  The index of first char in XML element value
+     * @param length The index of last char in XML element value
+     * @return The boolean value of XML element data
+     */
     private boolean getBooleanValue(char[] ch, int start, int length) {
         return Boolean.parseBoolean(getTextValue(ch, start, length));
     }
 
+    /**
+     * Gets the long value of XML element data.
+     *
+     * @param ch     The XML line char array
+     * @param start  The index of first char in XML element value
+     * @param length The index of last char in XML element value
+     * @return The long value of XML element data
+     */
     private long getLongValue(char[] ch, int start, int length) {
         return Long.parseLong(getTextValue(ch, start, length));
     }

@@ -12,8 +12,23 @@ import java.util.List;
  */
 public interface ObjectStorageWalker {
 
+    /**
+     * Gets the VFS file basic attributes.
+     *
+     * @param address The VFS service address
+     * @param prefix  The VFS path to traverse
+     * @return The S3 file basic attributes
+     * @throws IOException If an I/O error occurs
+     */
     BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException;
 
-    List<BasicFileAttributes> walk(String prefix, String delimiter) throws IOException;
+    /**
+     * Gets a list of VFS files and directories from to the given prefix.
+     *
+     * @param prefix The VFS path to traverse
+     * @return The list of VFS files and directories
+     * @throws IOException If an I/O error occurs
+     */
+    List<BasicFileAttributes> walk(String prefix) throws IOException;
 
 }
