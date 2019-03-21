@@ -1,1 +1,1 @@
-org.esa.snap.core.dataio.vfs.remote.object_storage.VFSPlugInActivator
+org.esa.snap.vfs.activator.VFSPlugInActivator
