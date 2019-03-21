@@ -50,6 +50,8 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
 
     private static final Object lock = new Object();
 
+    private static List<FileSystemProvider> installedProviders = null;
+
     private static boolean loadingProviders = false;
 
     private static Logger logger = Logger.getLogger(ObjectStorageFileSystemProvider.class.getName());
@@ -277,7 +279,6 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
                 }
             };
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to open a VFS directory. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
@@ -531,7 +532,7 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
     /**
      * Loads all installed providers.
      *
-     * @return  An unmodifiable list of the installed file system providers. The list contains at least one element, that is the default file system provider
+     * @return An unmodifiable list of the installed file system providers. The list contains at least one element, that is the default file system provider
      */
     private static List<FileSystemProvider> loadInstalledProviders() {
         List<FileSystemProvider> list = new ArrayList<>();
@@ -558,25 +559,25 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
     /**
      * Returns a list of the installed file system providers.
      *
-     * @return  An unmodifiable list of the installed file system providers. The list contains at least one element, that is the default file system provider
-     *
-     * @throws  ServiceConfigurationError When an error occurs while loading a service provider
+     * @return An unmodifiable list of the installed file system providers. The list contains at least one element, that is the default file system provider
+     * @throws ServiceConfigurationError When an error occurs while loading a service provider
      */
     public static List<FileSystemProvider> installedProviders() {
-        List<FileSystemProvider> installedProviders;
-        FileSystemProvider defaultProvider = FileSystems.getDefault().provider();
-        synchronized (lock) {
-            if (loadingProviders) {
-                throw new IllegalStateException("Circular loading of installed providers detected");
-            }
-            loadingProviders = true;
-            List<FileSystemProvider> list = AccessController
-                    .doPrivileged((PrivilegedAction<List<FileSystemProvider>>) ObjectStorageFileSystemProvider::loadInstalledProviders);
+        if (installedProviders == null) {
+            FileSystemProvider defaultProvider = FileSystems.getDefault().provider();
+            synchronized (lock) {
+                if (loadingProviders) {
+                    throw new IllegalStateException("Circular loading of installed providers detected");
+                }
+                loadingProviders = true;
+                List<FileSystemProvider> list = AccessController
+                        .doPrivileged((PrivilegedAction<List<FileSystemProvider>>) ObjectStorageFileSystemProvider::loadInstalledProviders);
 
-            // insert the default provider at the start of the list
-            list.add(0, defaultProvider);
-            installedProviders = Collections.unmodifiableList(list);
-            loadingProviders = false;
+                // insert the default provider at the start of the list
+                list.add(0, defaultProvider);
+                installedProviders = Collections.unmodifiableList(list);
+                loadingProviders = false;
+            }
         }
         return installedProviders;
     }

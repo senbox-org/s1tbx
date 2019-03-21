@@ -6,8 +6,9 @@ import org.esa.snap.runtime.Activator;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
 import java.util.List;
@@ -36,10 +37,10 @@ public class VFSPlugInActivator implements Activator {
 
     @Override
     public void start() {
-        if (isLoadedVFS()) {
+        try {
             initVFS();
-        } else {
-            logger.log(Level.SEVERE, "VFS not loaded.");
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Unable to initialize VFS. Details: " + ex.getMessage(), ex);
         }
     }
 
@@ -47,80 +48,40 @@ public class VFSPlugInActivator implements Activator {
     public void stop() {
         //nothing to do
     }
-//
-//    private void loadVFS() {
-//        logger.log(Level.FINE, "Loading VFS.");
-//        try {
-//            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-//            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-//            method.setAccessible(true);
-//            URL target = VFSPlugInActivator.class.getProtectionDomain().getCodeSource().getLocation();
-//            method.invoke(classLoader, target);
-//            if (isLoadedVFS()) {
-//                logger.log(Level.FINE, "VFS loaded successfully.");
-//            } else {
-//                throw new ExceptionInInitializerError("VFS not loaded.");
-//            }
-//        } catch (Exception ex) {
-//            logger.log(Level.SEVERE, "Unable to load VFS.\nDetails:" + ex.getMessage());
-//        }
-//    }
-
-    private boolean isLoadedVFS() {
-        List<FileSystemProvider> providers = ObjectStorageFileSystemProvider.installedProviders();
-        for (FileSystemProvider provider : providers) {
-            if (provider instanceof ObjectStorageFileSystemProvider) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void initVFS() {
-        try {
-            List<VFSRemoteFileRepository> vfsRemoteFileRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories();
-            if (vfsRemoteFileRepositories.isEmpty()) {
-                throw new IllegalArgumentException("Remote file repositories not defined.");
-            }
-            for (VFSRemoteFileRepository vfsRemoteFileRepository : vfsRemoteFileRepositories) {
+        List<VFSRemoteFileRepository> vfsRemoteFileRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories();
+        if (vfsRemoteFileRepositories.isEmpty()) {
+            throw new IllegalArgumentException("Remote file repositories not defined.");
+        }
+        for (VFSRemoteFileRepository vfsRemoteFileRepository : vfsRemoteFileRepositories) {
+            try {
                 initAndGetVFS(vfsRemoteFileRepository);
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Unable to init VFS. Details: " + ex.getMessage());
             }
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to init VFS. Details: " + ex.getMessage());
         }
     }
 
-
-    public static FileSystem initAndGetVFS(VFSRemoteFileRepository vfsRemoteFileRepository) throws IOException {
-        URI uri;
-        FileSystem fs;
-        try {
-            uri = new URI(vfsRemoteFileRepository.getSchema() + vfsRemoteFileRepository.getAddress());
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to create URL for VFS. Details: " + ex.getMessage());
-            throw new IOException(ex);
-        }
+    public static FileSystem initAndGetVFS(VFSRemoteFileRepository vfsRemoteFileRepository) throws URISyntaxException, IOException {
         Map<String, String> connectionData = new HashMap<>();
         connectionData.put(ROOT_PROPERTY_NAME, getRootPath(vfsRemoteFileRepository.getName()));
         for (Property vfsRemoteFileRepositoryProperty : vfsRemoteFileRepository.getProperties()) {
             connectionData.put(vfsRemoteFileRepositoryProperty.getName(), vfsRemoteFileRepositoryProperty.getValue());
         }
-        try {
-            fs = ObjectStorageFileSystem.getFileSystem(uri);
-        } catch (Exception ex) {
-            logger.log(Level.FINE, "VFS not loaded. Details: " + ex.getMessage());
-            try {
-                fs = ObjectStorageFileSystem.newFileSystem(uri, null);
-            } catch (Exception ex1) {
-                logger.log(Level.SEVERE, "Unable to initialize VFS. Details: " + ex.getMessage());
-                throw new IOException(ex1);
+        List<FileSystemProvider> providers = ObjectStorageFileSystemProvider.installedProviders();
+        for (FileSystemProvider provider : providers) {
+            if (vfsRemoteFileRepository.getSchema().startsWith(provider.getScheme()) && provider instanceof ObjectStorageFileSystemProvider) {
+                ((ObjectStorageFileSystemProvider) provider).setConnectionData(vfsRemoteFileRepository.getAddress(), connectionData);
+                URI uri = new URI(vfsRemoteFileRepository.getSchema() + vfsRemoteFileRepository.getAddress());
+                try {
+                    return ObjectStorageFileSystem.getFileSystem(uri);
+                } catch (Exception ex) {
+                    return ObjectStorageFileSystem.newFileSystem(uri, connectionData);
+                }
             }
         }
-        FileSystemProvider provider = fs.provider();
-        if (provider instanceof ObjectStorageFileSystemProvider) {
-            ((ObjectStorageFileSystemProvider) provider).setConnectionData(vfsRemoteFileRepository.getAddress(), connectionData);
-        }
-        return fs;
+        throw new FileSystemNotFoundException("VFS with schema: " + vfsRemoteFileRepository.getSchema() + " not found");
     }
 
     /**

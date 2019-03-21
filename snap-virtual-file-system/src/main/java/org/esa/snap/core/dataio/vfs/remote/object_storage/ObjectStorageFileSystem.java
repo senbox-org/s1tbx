@@ -340,7 +340,6 @@ public class ObjectStorageFileSystem extends FileSystem {
         try {
             files = walker.walk(prefix);
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Unable to browse the path: " + dir.toString() + ". Details: " + ex.getMessage());
             throw new IllegalStateException(ex);
         }
         return files.stream()
