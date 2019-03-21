@@ -30,7 +30,7 @@ public interface VFSProvider {
      */
     static VFSProvider getVFSProviderInstance(String vfsProviderClassName) throws ClassNotFoundException {
         VFSProvider vfsProvider = null;
-        for (VFSProvider instance : ServiceLoader.load(VFSProvider.class)) {
+        for (VFSProvider instance : ServiceLoader.load(VFSProvider.class, ClassLoader.getSystemClassLoader())) {
             vfsProvider = instance.getClass().getName().contentEquals(vfsProviderClassName) ? instance : vfsProvider;
         }
         if (vfsProvider == null) {

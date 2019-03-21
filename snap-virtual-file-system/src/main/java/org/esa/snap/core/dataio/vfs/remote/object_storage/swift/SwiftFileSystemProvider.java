@@ -123,13 +123,13 @@ public class SwiftFileSystemProvider extends ObjectStorageFileSystemProvider {
         try {
             uri = new URI(SCHEME + ":" + address);
         } catch (Exception ex) {
-            logger.log(Level.WARNING,"Invalid URI for OpenStack Swift VFS. Details: " + ex.getMessage());
+            logger.log(Level.WARNING, "Invalid URI for OpenStack Swift VFS. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
         try {
             fs = FileSystems.getFileSystem(uri);
         } catch (Exception ex) {
-            logger.log(Level.FINE,"OpenStack Swift VFS not loaded. Details: " + ex.getMessage());
+            logger.log(Level.FINE, "OpenStack Swift VFS not loaded. Details: " + ex.getMessage());
         } finally {
             if (fs != null) {
                 fs.close();
@@ -145,7 +145,7 @@ public class SwiftFileSystemProvider extends ObjectStorageFileSystemProvider {
             env.put(CREDENTIAL_PROPERTY_NAME, password);
             fs = FileSystems.newFileSystem(uri, env, SwiftFileSystemProvider.class.getClassLoader());
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to initialize OpenStack Swift VFS. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to initialize OpenStack Swift VFS. Details: " + ex.getMessage());
             throw new AccessDeniedException(ex.getMessage());
         }
         return fs;
@@ -173,6 +173,18 @@ public class SwiftFileSystemProvider extends ObjectStorageFileSystemProvider {
         this.password = password != null ? password : "";
     }
 
+    public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
+        String newRoot = (String) connectionData.get(ROOT_PROPERTY_NAME);
+        root = newRoot != null && !newRoot.isEmpty() ? newRoot : SWIFT_ROOT;
+        String newAuthAddress = (String) connectionData.get(AUTH_ADDRESS_PROPERTY_NAME);
+        String newContainer = (String) connectionData.get(CONTAINER_PROPERTY_NAME);
+        String newDomain = (String) connectionData.get(DOMAIN_PROPERTY_NAME);
+        String newProjectId = (String) connectionData.get(PROJECT_ID_PROPERTY_NAME);
+        String newUser = (String) connectionData.get(USER_PROPERTY_NAME);
+        String newCredential = (String) connectionData.get(CREDENTIAL_PROPERTY_NAME);
+        setupConnectionData(serviceAddress, newAuthAddress, newContainer, newDomain, newProjectId, newUser, newCredential);
+    }
+
     /**
      * Creates the VFS instance using this provider.
      *
@@ -182,17 +194,11 @@ public class SwiftFileSystemProvider extends ObjectStorageFileSystemProvider {
      * @throws IOException If an I/O error occurs
      */
     protected ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        String newDelimiter = (String) env.get(DELIMITER_PROPERTY_NAME);
-        delimiter = newDelimiter != null && !newDelimiter.isEmpty() ? newDelimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
-        String newRoot = (String) env.get(ROOT_PROPERTY_NAME);
-        root = newRoot != null && !newRoot.isEmpty() ? newRoot : SWIFT_ROOT;
-        String newAuthAddress = (String) env.get(AUTH_ADDRESS_PROPERTY_NAME);
-        String newContainer = (String) env.get(CONTAINER_PROPERTY_NAME);
-        String newDomain = (String) env.get(DOMAIN_PROPERTY_NAME);
-        String newProjectId = (String) env.get(PROJECT_ID_PROPERTY_NAME);
-        String newUser = (String) env.get(USER_PROPERTY_NAME);
-        String newCredential = (String) env.get(CREDENTIAL_PROPERTY_NAME);
-        setupConnectionData(address, newAuthAddress, newContainer, newDomain, newProjectId, newUser, newCredential);
+        if (env != null) {
+            String newDelimiter = (String) env.get(DELIMITER_PROPERTY_NAME);
+            delimiter = newDelimiter != null && !newDelimiter.isEmpty() ? newDelimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
+            setConnectionData(address, env);
+        }
         try {
             return new ObjectStorageFileSystem(this, address, delimiter);
         } catch (Exception ex) {
@@ -216,7 +222,7 @@ public class SwiftFileSystemProvider extends ObjectStorageFileSystemProvider {
         try {
             return new SwiftWalker(address, authAddress, container, domain, projectId, user, password, delimiter, root);
         } catch (ParserConfigurationException | SAXException ex) {
-            logger.log(Level.SEVERE,"Unable to create walker instance used by OpenStack Swift VFS to traverse tree. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create walker instance used by OpenStack Swift VFS to traverse tree. Details: " + ex.getMessage());
             throw new IllegalStateException(ex);
         }
     }

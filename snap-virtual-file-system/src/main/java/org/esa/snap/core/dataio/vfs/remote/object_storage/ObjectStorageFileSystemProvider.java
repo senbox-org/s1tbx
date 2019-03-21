@@ -14,6 +14,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,6 +48,10 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
      */
     private static final String SOURCE_NULL_ERROR_MESSAGE = "Source is missing.";
 
+    private static final Object lock = new Object();
+
+    private static boolean loadingProviders = false;
+
     private static Logger logger = Logger.getLogger(ObjectStorageFileSystemProvider.class.getName());
 
     private final Map<URI, ObjectStorageFileSystem> fileSystems;
@@ -56,6 +62,8 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
     public ObjectStorageFileSystemProvider() {
         this.fileSystems = new HashMap<>();
     }
+
+    public abstract void setConnectionData(String serviceAddress, Map<String, ?> connectionData);
 
     /**
      * Creates the VFS instance using this provider.
@@ -184,11 +192,11 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
         try {
             fileSystem = (ObjectStorageFileSystem) getFileSystem(fsUri);
         } catch (FileSystemNotFoundException ex) {
-            logger.log(Level.FINE,"VFS with scheme: " + getScheme() + " not registered. Details: " + ex.getMessage());
+            logger.log(Level.FINE, "VFS with scheme: " + getScheme() + " not registered. Details: " + ex.getMessage());
             try {
                 fileSystem = (ObjectStorageFileSystem) newFileSystem(fsUri, new HashMap<>());
             } catch (IOException ex1) {
-                logger.log(Level.SEVERE,"Unable to register VFS with scheme: " + getScheme() + ". Details: " + ex1.getMessage());
+                logger.log(Level.SEVERE, "Unable to register VFS with scheme: " + getScheme() + ". Details: " + ex1.getMessage());
                 throw new FileSystemNotFoundException(fsUri.toString());
             }
         }
@@ -269,7 +277,7 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
                 }
             };
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to open a VFS directory. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to open a VFS directory. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
@@ -518,6 +526,59 @@ public abstract class ObjectStorageFileSystemProvider extends FileSystemProvider
                 return;
             }
         }
+    }
+
+    /**
+     * Loads all installed providers.
+     *
+     * @return  An unmodifiable list of the installed file system providers. The list contains at least one element, that is the default file system provider
+     */
+    private static List<FileSystemProvider> loadInstalledProviders() {
+        List<FileSystemProvider> list = new ArrayList<>();
+        ServiceLoader<FileSystemProvider> providers = ServiceLoader.load(FileSystemProvider.class, ObjectStorageFileSystemProvider.class.getClassLoader());
+        for (FileSystemProvider provider : providers) {
+            String scheme = provider.getScheme();
+            // add to list if the provider is not "file" and isn't a duplicate
+            if (!scheme.equalsIgnoreCase("file")) {
+                boolean found = false;
+                for (FileSystemProvider p : list) {
+                    if (p.getScheme().equalsIgnoreCase(scheme)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    list.add(provider);
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Returns a list of the installed file system providers.
+     *
+     * @return  An unmodifiable list of the installed file system providers. The list contains at least one element, that is the default file system provider
+     *
+     * @throws  ServiceConfigurationError When an error occurs while loading a service provider
+     */
+    public static List<FileSystemProvider> installedProviders() {
+        List<FileSystemProvider> installedProviders;
+        FileSystemProvider defaultProvider = FileSystems.getDefault().provider();
+        synchronized (lock) {
+            if (loadingProviders) {
+                throw new IllegalStateException("Circular loading of installed providers detected");
+            }
+            loadingProviders = true;
+            List<FileSystemProvider> list = AccessController
+                    .doPrivileged((PrivilegedAction<List<FileSystemProvider>>) ObjectStorageFileSystemProvider::loadInstalledProviders);
+
+            // insert the default provider at the start of the list
+            list.add(0, defaultProvider);
+            installedProviders = Collections.unmodifiableList(list);
+            loadingProviders = false;
+        }
+        return installedProviders;
     }
 
 }

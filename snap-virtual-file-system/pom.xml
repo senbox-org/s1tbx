@@ -26,13 +26,12 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
+            <version>1.11.3</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
+            <version>17.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

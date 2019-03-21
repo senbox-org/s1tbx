@@ -99,7 +99,7 @@ public class HttpFileSystemProvider extends ObjectStorageFileSystemProvider {
         try {
             fs = FileSystems.getFileSystem(uri);
         } catch (Exception ex) {
-            logger.log(Level.FINE,"HTTP VFS not loaded. Details: " + ex.getMessage());
+            logger.log(Level.FINE, "HTTP VFS not loaded. Details: " + ex.getMessage());
         } finally {
             if (fs != null) {
                 fs.close();
@@ -111,7 +111,7 @@ public class HttpFileSystemProvider extends ObjectStorageFileSystemProvider {
             env.put(CREDENTIAL_PROPERTY_NAME, password);
             fs = FileSystems.newFileSystem(uri, env, HttpFileSystemProvider.class.getClassLoader());
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to initialize HTTP VFS. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to initialize HTTP VFS. Details: " + ex.getMessage());
             throw new AccessDeniedException(ex.getMessage());
         }
         return fs;
@@ -130,6 +130,14 @@ public class HttpFileSystemProvider extends ObjectStorageFileSystemProvider {
         this.password = password != null ? password : "";
     }
 
+    public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
+        String newRoot = (String) connectionData.get(ROOT_PROPERTY_NAME);
+        root = newRoot != null && !newRoot.isEmpty() ? newRoot : HTTP_ROOT;
+        String newUsername = (String) connectionData.get(USERNAME_PROPERTY_NAME);
+        String newCredential = (String) connectionData.get(CREDENTIAL_PROPERTY_NAME);
+        setupConnectionData(serviceAddress, newUsername, newCredential);
+    }
+
     /**
      * Creates the VFS instance using this provider.
      *
@@ -140,17 +148,15 @@ public class HttpFileSystemProvider extends ObjectStorageFileSystemProvider {
      */
     @Override
     protected ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        try {
+        if (env != null) {
             String newDelimiter = (String) env.get(DELIMITER_PROPERTY_NAME);
             delimiter = newDelimiter != null && !newDelimiter.isEmpty() ? newDelimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
-            String newRoot = (String) env.get(ROOT_PROPERTY_NAME);
-            root = newRoot != null && !newRoot.isEmpty() ? newRoot : HTTP_ROOT;
-            String newUsername = (String) env.get(USERNAME_PROPERTY_NAME);
-            String newCredential = (String) env.get(CREDENTIAL_PROPERTY_NAME);
-            setupConnectionData(address, newUsername, newCredential);
+            setConnectionData(address, env);
+        }
+        try {
             return new ObjectStorageFileSystem(this, address, delimiter);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to create new HTTP VFS instance. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create new HTTP VFS instance. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
@@ -165,7 +171,7 @@ public class HttpFileSystemProvider extends ObjectStorageFileSystemProvider {
         try {
             return new HttpWalker(address, username, password, delimiter, root);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to create walker instance used by HTTP VFS to traverse tree. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create walker instance used by HTTP VFS to traverse tree. Details: " + ex.getMessage());
             throw new IllegalStateException(ex);
         }
     }

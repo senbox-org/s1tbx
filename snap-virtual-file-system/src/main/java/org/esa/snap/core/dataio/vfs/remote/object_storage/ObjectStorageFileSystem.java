@@ -3,6 +3,7 @@ package org.esa.snap.core.dataio.vfs.remote.object_storage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.ClosedFileSystemException;
@@ -14,6 +15,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.ProviderNotFoundException;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -23,6 +25,7 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -361,5 +364,68 @@ public class ObjectStorageFileSystem extends FileSystem {
             return false;
         }
     }
+
+    /**
+     * Returns a reference to an existing {@code FileSystem}.
+     *
+     * <p> This method iterates over the {@link org.esa.snap.core.dataio.vfs.remote.object_storage.ObjectStorageFileSystemProvider#installedProviders().installed} providers to locate the provider that is identified by the URI {@link URI#getScheme scheme} of the given URI. URI schemes are compared without regard to case. The exact form of the URI is highly provider dependent. If found, the provider's {@link FileSystemProvider#getFileSystem getFileSystem} method is invoked to obtain a reference to the {@code FileSystem}.
+     *
+     * @param   uri  the URI to locate the file system
+     *
+     * @return  the reference to the file system
+     *
+     * @throws  IllegalArgumentException if the pre-conditions for the {@code uri} parameter are not met
+     * @throws java.nio.file.FileSystemNotFoundException if the file system, identified by the URI, does not exist
+     * @throws  ProviderNotFoundException if a provider supporting the URI scheme is not installed
+     * @throws  SecurityException if a security manager is installed and it denies an unspecified permission
+     */
+    public static FileSystem getFileSystem(URI uri) {
+        String scheme = uri.getScheme();
+        for (FileSystemProvider provider : ObjectStorageFileSystemProvider.installedProviders()) {
+            if (scheme.equalsIgnoreCase(provider.getScheme())) {
+                return provider.getFileSystem(uri);
+            }
+        }
+        throw new ProviderNotFoundException("Provider \"" + scheme + "\" not found");
+    }
+
+    /**
+     * Constructs a new file system that is identified by a {@link URI}
+     *
+     * <p> This method iterates over the {@link org.esa.snap.core.dataio.vfs.remote.object_storage.ObjectStorageFileSystemProvider#installedProviders() installed} providers to locate the provider that is identified by the URI {@link URI#getScheme scheme} of the given URI. URI schemes are compared without regard to case. The exact form of the URI is highly provider dependent. If found, the provider's {@link FileSystemProvider#newFileSystem(URI, java.util.Map).newFileSystem(URI,Map)} method is invoked to construct the new file system.
+     *
+     * <p> Once a file system is {@link FileSystem#close closed} it is provider-dependent if the provider allows a new file system to be created with the same URI as a file system it previously created.
+     *
+     * <p> <b>Usage Example:</b>
+     * Suppose there is a provider identified by the scheme {@code "memory"} installed:
+     * <pre>
+     *   Map&lt;String,String&gt; env = new HashMap&lt;&gt;();
+     *   env.put("capacity", "16G");
+     *   env.put("blockSize", "4k");
+     *   FileSystem fs = FileSystems.newFileSystem(URI.create("memory:///?name=logfs"), env);
+     * </pre>
+     *
+     * @param   uri the URI identifying the file system
+     * @param   env a map of provider specific properties to configure the file system; may be empty
+     *
+     * @return  a new file system
+     *
+     * @throws  IllegalArgumentException if the pre-conditions for the {@code uri} parameter are not met, or the {@code env} parameter does not contain properties required by the provider, or a property value is invalid
+     * @throws java.nio.file.FileSystemAlreadyExistsException if the file system has already been created
+     * @throws  ProviderNotFoundException if a provider supporting the URI scheme is not installed
+     * @throws  IOException if an I/O error occurs creating the file system
+     * @throws  SecurityException if a security manager is installed and it denies an unspecified permission required by the file system provider implementation
+     */
+    public static FileSystem newFileSystem(URI uri, Map<String,?> env) throws IOException
+    {
+        String scheme = uri.getScheme();
+        for (FileSystemProvider provider: ObjectStorageFileSystemProvider.installedProviders()) {
+            if (scheme.equalsIgnoreCase(provider.getScheme())) {
+                return provider.newFileSystem(uri, env);
+            }
+        }
+        throw new ProviderNotFoundException("Provider \"" + scheme + "\" not found");
+    }
+
 
 }

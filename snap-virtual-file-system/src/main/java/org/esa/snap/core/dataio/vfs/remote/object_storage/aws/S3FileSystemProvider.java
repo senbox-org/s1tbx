@@ -102,7 +102,7 @@ public class S3FileSystemProvider extends ObjectStorageFileSystemProvider {
         try {
             fs = FileSystems.getFileSystem(uri);
         } catch (Exception ex) {
-            logger.log(Level.FINE,"S3 VFS not loaded. Details: " + ex.getMessage());
+            logger.log(Level.FINE, "S3 VFS not loaded. Details: " + ex.getMessage());
         } finally {
             if (fs != null) {
                 fs.close();
@@ -114,7 +114,7 @@ public class S3FileSystemProvider extends ObjectStorageFileSystemProvider {
             env.put(SECRET_ACCESS_KEY_PROPERTY_NAME, secretAccessKey);
             fs = FileSystems.newFileSystem(uri, env, S3FileSystemProvider.class.getClassLoader());
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to initialize S3 VFS. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to initialize S3 VFS. Details: " + ex.getMessage());
             throw new AccessDeniedException(ex.getMessage());
         }
         return fs;
@@ -133,6 +133,14 @@ public class S3FileSystemProvider extends ObjectStorageFileSystemProvider {
         this.secretAccessKey = secretAccessKey != null ? secretAccessKey : "";
     }
 
+    public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
+        String newRoot = (String) connectionData.get(ROOT_PROPERTY_NAME);
+        root = newRoot != null && !newRoot.isEmpty() ? newRoot : S3_ROOT;
+        String newAccessKeyId = (String) connectionData.get(ACCESS_KEY_ID_PROPERTY_NAME);
+        String newSecretAccessKey = (String) connectionData.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
+        setupConnectionData(serviceAddress, newAccessKeyId, newSecretAccessKey);
+    }
+
     /**
      * Creates the VFS instance using this provider.
      *
@@ -143,17 +151,15 @@ public class S3FileSystemProvider extends ObjectStorageFileSystemProvider {
      */
     @Override
     protected ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        String newDelimiter = (String) env.get(DELIMITER_PROPERTY_NAME);
-        delimiter = newDelimiter != null && !newDelimiter.isEmpty() ? newDelimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
-        String newRoot = (String) env.get(ROOT_PROPERTY_NAME);
-        root = newRoot != null && !newRoot.isEmpty() ? newRoot : S3_ROOT;
-        String newAccessKeyId = (String) env.get(ACCESS_KEY_ID_PROPERTY_NAME);
-        String newSecretAccessKey = (String) env.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
-        setupConnectionData(address, newAccessKeyId, newSecretAccessKey);
+        if (env != null) {
+            String newDelimiter = (String) env.get(DELIMITER_PROPERTY_NAME);
+            delimiter = newDelimiter != null && !newDelimiter.isEmpty() ? newDelimiter : DELIMITER_PROPERTY_DEFAULT_VALUE;
+            setConnectionData(address, env);
+        }
         try {
             return new ObjectStorageFileSystem(this, address, delimiter);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to create new S3 VFS instance. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create new S3 VFS instance. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
@@ -168,7 +174,7 @@ public class S3FileSystemProvider extends ObjectStorageFileSystemProvider {
         try {
             return new S3Walker(bucketAddress, accessKeyId, secretAccessKey, delimiter, root);
         } catch (ParserConfigurationException | SAXException ex) {
-            logger.log(Level.SEVERE,"Unable to create walker instance used by S3 VFS to traverse tree. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create walker instance used by S3 VFS to traverse tree. Details: " + ex.getMessage());
             throw new IllegalStateException(ex);
         }
     }

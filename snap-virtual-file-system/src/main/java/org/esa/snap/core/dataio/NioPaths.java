@@ -50,7 +50,7 @@ public class NioPaths {
      */
     public static Path get(String first, String... more) {
 
-        for (FileSystemProvider provider : FileSystemProvider.installedProviders()) {
+        for (FileSystemProvider provider : ObjectStorageFileSystemProvider.installedProviders()) {
             try {
                 if (provider instanceof ObjectStorageFileSystemProvider && first.startsWith("/" + ((ObjectStorageFileSystemProvider) provider).getRoot())) {
                     return provider.getFileSystem(new URI(provider.getScheme() + ":" + ((ObjectStorageFileSystemProvider) provider).getProviderAddress())).getPath(first, more);
@@ -103,7 +103,7 @@ public class NioPaths {
             return FileSystems.getDefault().provider().getPath(uri);
 
         // try to find provider
-        for (FileSystemProvider provider : FileSystemProvider.installedProviders()) {
+        for (FileSystemProvider provider : ObjectStorageFileSystemProvider.installedProviders()) {
             if (provider.getScheme().equalsIgnoreCase(scheme)) {
                 return provider.getPath(uri);
             }
@@ -120,7 +120,7 @@ public class NioPaths {
      */
     public static boolean isVirtualFileSystemRoot(java.io.File dir) {
         if (dir instanceof NioFile) {
-            for (FileSystemProvider provider : FileSystemProvider.installedProviders()) {
+            for (FileSystemProvider provider : ObjectStorageFileSystemProvider.installedProviders()) {
                 if (provider instanceof ObjectStorageFileSystemProvider && dir.getPath().equals("/" + ((ObjectStorageFileSystemProvider) provider).getRoot())) {
                     return true;
                 }
