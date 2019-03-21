@@ -293,7 +293,6 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
                 }
             };
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to open a VFS directory. Details: " + ex.getMessage());
             throw new IOException(ex);
         }
     }
