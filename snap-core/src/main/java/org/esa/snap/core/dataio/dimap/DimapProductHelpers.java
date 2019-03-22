@@ -268,7 +268,7 @@ public class DimapProductHelpers {
                     for(Object object : bandInfoElems) {
                         Element element = (Element) object;
                         try {
-                            int index = Integer.parseInt(geoPosElem.getChildText(DimapProductConstants.TAG_BAND_INDEX));
+                            int index = Integer.parseInt(element.getChildText(DimapProductConstants.TAG_BAND_INDEX));
                             if (index == bandIndex) {
                                 bandInfoElem = element;
                                 break;
