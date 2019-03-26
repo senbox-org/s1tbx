@@ -1,1 +1,1 @@
-org.esa.snap.core.dataio.vfs.remote.object_storage.TestOSFileSystemProvider
+org.esa.snap.vfs.remote.TestRemoteFileSystemProvider
