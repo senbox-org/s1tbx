@@ -1,17 +1,16 @@
 package org.esa.snap.vfs.preferences.model;
 
+import org.esa.snap.runtime.EngineConfig;
+import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.preferences.validators.RepositoryAddressValidator;
 import org.esa.snap.vfs.preferences.validators.RepositoryNameValidator;
 import org.esa.snap.vfs.preferences.validators.RepositorySchemaValidator;
-import org.esa.snap.runtime.EngineConfig;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -26,107 +25,166 @@ import java.util.logging.Logger;
 public final class VFSRemoteFileRepositoriesController {
 
     /**
-     * The flag for update mode for remote file repositories/remote file repository properties: add.
-     */
-    private static final int MODE_ADD = 0;
-
-    /**
-     * The flag for update mode for remote file repositories/remote file repository properties: remove.
-     */
-    private static final int MODE_REMOVE = 1;
-
-    /**
      * The separator used on remote file repositories/remote file repository properties ids list.
      */
     public static final String LIST_ITEM_SEPARATOR = ";";
-
-    /**
-     * The pattern for remote file repository.
-     */
-    private static final String REPO_ID_KEY = "%repo_id%";
-
-    /**
-     * The pattern for remote file repository property.
-     */
-    private static final String PROP_ID_KEY = "%prop_id%";
-
     /**
      * The preference key for remote file repositories list.
      */
     public static final String PREFERENCE_KEY_VFS_REPOSITORIES = "vfs.repositories";
-
-    /**
-     * The preference key for remote file repository item.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY = PREFERENCE_KEY_VFS_REPOSITORIES + ".repository_" + REPO_ID_KEY;
-
-    /**
-     * The preference key for remote file repository item name.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY_NAME = PREFERENCE_KEY_VFS_REPOSITORY + ".name";
-
-    /**
-     * The preference key for remote file repository item schema.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY_SCHEMA = PREFERENCE_KEY_VFS_REPOSITORY + ".schema";
-
-    /**
-     * The preference key for remote file repository item address.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY_ADDRESS = PREFERENCE_KEY_VFS_REPOSITORY + ".address";
-
-    /**
-     * The preference key for remote file repository properties list.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTIES = PREFERENCE_KEY_VFS_REPOSITORY + ".properties";
-
-    /**
-     * The preference key for remote file repository property item.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY = PREFERENCE_KEY_VFS_REPOSITORY_PROPERTIES + ".property_" + PROP_ID_KEY;
-
-    /**
-     * The preference key for remote file repository property item name.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_NAME = PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY + ".name";
-
-    /**
-     * The preference key for remote file repository property item value.
-     */
-    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_VALUE = PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY + ".value";
-
     /**
      * The pattern for credential remote file repository property name.
      */
     public static final String CREDENTIAL_PROPERTY_NAME_REGEX = "((.*)((key)|(password)|(secret))(.*))";
-
-    private static final String CONFIG_FILE = EngineConfig.instance().userDir().toString() + "/config/Preferences/vfs.properties";
-
+    /**
+     * The flag for update mode for remote file repositories/remote file repository properties: add.
+     */
+    private static final int MODE_ADD = 0;
+    /**
+     * The flag for update mode for remote file repositories/remote file repository properties: remove.
+     */
+    private static final int MODE_REMOVE = 1;
+    /**
+     * The pattern for remote file repository.
+     */
+    private static final String REPO_ID_KEY = "%repo_id%";
+    /**
+     * The pattern for remote file repository property.
+     */
+    private static final String PROP_ID_KEY = "%prop_id%";
+    /**
+     * The preference key for remote file repository item.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY = PREFERENCE_KEY_VFS_REPOSITORIES + ".repository_" + REPO_ID_KEY;
+    /**
+     * The preference key for remote file repository item name.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY_NAME = PREFERENCE_KEY_VFS_REPOSITORY + ".name";
+    /**
+     * The preference key for remote file repository item schema.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY_SCHEMA = PREFERENCE_KEY_VFS_REPOSITORY + ".schema";
+    /**
+     * The preference key for remote file repository item address.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY_ADDRESS = PREFERENCE_KEY_VFS_REPOSITORY + ".address";
+    /**
+     * The preference key for remote file repository properties list.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTIES = PREFERENCE_KEY_VFS_REPOSITORY + ".properties";
+    /**
+     * The preference key for remote file repository property item.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY = PREFERENCE_KEY_VFS_REPOSITORY_PROPERTIES + ".property_" + PROP_ID_KEY;
+    /**
+     * The preference key for remote file repository property item name.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_NAME = PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY + ".name";
+    /**
+     * The preference key for remote file repository property item value.
+     */
+    private static final String PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_VALUE = PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY + ".value";
     private static Logger logger = Logger.getLogger(VFSRemoteFileRepositoriesController.class.getName());
-
+    private final Path vfsConfigFile;
     private final Properties properties = new Properties();
 
     private String remoteRepositoriesIds;
 
     /**
-     * Creates the new VFS Remote File Repositories Controller.
+     * Creates the new VFS Remote File Repositories Controller with default config file.
      */
     public VFSRemoteFileRepositoriesController() {
+        this(NioPaths.get(EngineConfig.instance().userDir().toString() + "/config/Preferences/vfs.properties"));
+    }
+
+    /**
+     * Creates the new VFS Remote File Repositories Controller with given config file.
+     */
+    public VFSRemoteFileRepositoriesController(Path vfsConfigFile) {
+        this.vfsConfigFile = vfsConfigFile;
         loadProperties();
+    }
+
+    /**
+     * Gets the list of remote file repositories.
+     *
+     * @return The list of remote file repositories
+     * @see VFSRemoteFileRepository
+     */
+    public static java.util.List<VFSRemoteFileRepository> getVFSRemoteFileRepositories(Path... vfsConfigFile) {
+        java.util.List<VFSRemoteFileRepository> vfsRemoteFileRepositories = new ArrayList<>();
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController;
+        if (vfsConfigFile != null && vfsConfigFile.length > 0) {
+            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile[0]);
+        } else {
+            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController();
+        }
+        String remoteRepositoriesIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds().getValue();
+        if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
+            String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
+            for (String remoteRepositoryId : remoteRepositoriesIdsList) {
+                String remoteRepositoryName = vfsRemoteFileRepositoriesController.getRemoteRepositoryName(remoteRepositoryId).getValue();
+                String remoteRepositorySchema = vfsRemoteFileRepositoriesController.getRemoteRepositorySchema(remoteRepositoryId).getValue();
+                String remoteRepositoryAddress = vfsRemoteFileRepositoriesController.getRemoteRepositoryAddress(remoteRepositoryId).getValue();
+                java.util.List<Property> vfsRemoteFileRepositoryProperties = vfsRemoteFileRepositoriesController.getVFSRemoteFileRepositoryProperties(remoteRepositoryId);
+                vfsRemoteFileRepositories.add(new VFSRemoteFileRepository(remoteRepositoryName, remoteRepositorySchema, remoteRepositoryAddress, vfsRemoteFileRepositoryProperties));
+            }
+        }
+        return vfsRemoteFileRepositories;
+    }
+
+    /**
+     * Installs (registers) the new remote file repository.
+     *
+     * @param vfsRemoteFileRepository The new remote file repository
+     * @throws IOException If an I/O error occurs
+     * @see VFSRemoteFileRepository
+     */
+    public static void installVFSRemoteFileRepository(VFSRemoteFileRepository vfsRemoteFileRepository, Path... vfsConfigFile) throws IOException {
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController;
+        if (vfsConfigFile != null && vfsConfigFile.length > 0) {
+            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile[0]);
+        } else {
+            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController();
+        }
+        try {
+            String remoteRepositoryId = vfsRemoteFileRepositoriesController.registerNewRemoteRepository();
+            vfsRemoteFileRepositoriesController.setRemoteRepositoryName(remoteRepositoryId, vfsRemoteFileRepository.getName());
+            vfsRemoteFileRepositoriesController.setRemoteRepositorySchema(remoteRepositoryId, vfsRemoteFileRepository.getScheme());
+            vfsRemoteFileRepositoriesController.setRemoteRepositoryAddress(remoteRepositoryId, vfsRemoteFileRepository.getAddress());
+            for (Property remoteRepositoryProperty : vfsRemoteFileRepository.getProperties()) {
+                String remoteRepositoryPropertyId = vfsRemoteFileRepositoriesController.registerNewRemoteRepositoryProperty(remoteRepositoryId);
+                vfsRemoteFileRepositoriesController.setRemoteRepositoryPropertyName(remoteRepositoryId, remoteRepositoryPropertyId, remoteRepositoryProperty.getName());
+                vfsRemoteFileRepositoriesController.setRemoteRepositoryPropertyValue(remoteRepositoryId, remoteRepositoryPropertyId, remoteRepositoryProperty.getValue());
+            }
+            vfsRemoteFileRepositoriesController.saveProperties();
+        } catch (IllegalArgumentException ex) {
+            logger.log(Level.FINE, "Invalid remote file repository data entered. Details: " + ex.getMessage());
+            throw new IOException(ex.getMessage());
+        }
     }
 
     /**
      * Loads the VFS Remote File Repositories Properties from SNAP configuration file.
      */
     public void loadProperties() {
+        InputStream inputStream = null;
         try {
-            if (!Files.exists(Paths.get(CONFIG_FILE))) {
-                Files.createFile(Paths.get(CONFIG_FILE));
+            if (!Files.exists(vfsConfigFile)) {
+                Files.createFile(vfsConfigFile);
             }
-            InputStream inputStream = new FileInputStream(CONFIG_FILE);
+            inputStream = Files.newInputStream(vfsConfigFile);
             properties.load(inputStream);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to reload VFS Remote File Repositories Properties from SNAP configuration file. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to load VFS Remote File Repositories Properties from SNAP configuration file. Details: " + ex.getMessage());
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException ignored) {
+                    //do nothing
+                }
+            }
         }
     }
 
@@ -134,14 +192,23 @@ public final class VFSRemoteFileRepositoriesController {
      * Writes the VFS Remote File Repositories Properties on SNAP configuration file.
      */
     public void saveProperties() {
+        OutputStream outputStream = null;
         try {
-            if (!Files.exists(Paths.get(CONFIG_FILE))) {
-                Files.createFile(Paths.get(CONFIG_FILE));
+            if (!Files.exists(vfsConfigFile)) {
+                Files.createFile(vfsConfigFile);
             }
-            OutputStream outputStream = new FileOutputStream(CONFIG_FILE);
+            outputStream = Files.newOutputStream(vfsConfigFile);
             properties.store(outputStream, "");
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Unable to save VFS properties to SNAP configuration file. Details: " + ex.getMessage());
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException ignored) {
+                    //do nothing
+                }
+            }
         }
     }
 
@@ -152,7 +219,7 @@ public final class VFSRemoteFileRepositoriesController {
      */
     public boolean isChanged() {
         Properties newProperties = new Properties();
-        try (InputStream inputStream = new FileInputStream(CONFIG_FILE)) {
+        try (InputStream inputStream = Files.newInputStream(vfsConfigFile)) {
             newProperties.load(inputStream);
             return !newProperties.equals(properties);
         } catch (Exception ex) {
@@ -162,7 +229,7 @@ public final class VFSRemoteFileRepositoriesController {
     }
 
     /**
-     * Writes the property on SNAP configuration file.
+     * Writes the property on properties.
      *
      * @param property The property
      */
@@ -171,7 +238,7 @@ public final class VFSRemoteFileRepositoriesController {
             try {
                 properties.setProperty(property.getName(), property.getValue());
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, "Unable to write the property on SNAP configuration file. Details: " + ex.getMessage());
+                logger.log(Level.SEVERE, "Unable to write the property on properties. Details: " + ex.getMessage());
             }
         }
     }
@@ -313,8 +380,12 @@ public final class VFSRemoteFileRepositoriesController {
      * @param remoteRepositoryName The remote file repository name
      */
     public void setRemoteRepositoryName(String remoteRepositoryId, String remoteRepositoryName) {
-        Property remoteRepositoryNameProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_NAME.replace(REPO_ID_KEY, remoteRepositoryId), remoteRepositoryName);
-        writeProperty(remoteRepositoryNameProperty);
+        if (new RepositoryNameValidator().isValid(remoteRepositoryName) && isUniqueRemoteRepositoryName(remoteRepositoryName)) {
+            Property remoteRepositoryNameProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_NAME.replace(REPO_ID_KEY, remoteRepositoryId), remoteRepositoryName);
+            writeProperty(remoteRepositoryNameProperty);
+        } else {
+            throw new IllegalArgumentException("Invalid remote file repository name.");
+        }
     }
 
     /**
@@ -334,8 +405,12 @@ public final class VFSRemoteFileRepositoriesController {
      * @param remoteRepositorySchema The remote file repository schema
      */
     public void setRemoteRepositorySchema(String remoteRepositoryId, String remoteRepositorySchema) {
-        Property remoteRepositorySchemaProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_SCHEMA.replace(REPO_ID_KEY, remoteRepositoryId), remoteRepositorySchema);
-        writeProperty(remoteRepositorySchemaProperty);
+        if (new RepositorySchemaValidator().isValid(remoteRepositorySchema) && isUniqueRemoteRepositorySchema(remoteRepositorySchema)) {
+            Property remoteRepositorySchemaProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_SCHEMA.replace(REPO_ID_KEY, remoteRepositoryId), remoteRepositorySchema);
+            writeProperty(remoteRepositorySchemaProperty);
+        } else {
+            throw new IllegalArgumentException("Invalid remote file repository schema.");
+        }
     }
 
     /**
@@ -355,8 +430,12 @@ public final class VFSRemoteFileRepositoriesController {
      * @param remoteRepositoryAddress The remote file repository address
      */
     public void setRemoteRepositoryAddress(String remoteRepositoryId, String remoteRepositoryAddress) {
-        Property remoteRepositorySchemaProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_ADDRESS.replace(REPO_ID_KEY, remoteRepositoryId), remoteRepositoryAddress);
-        writeProperty(remoteRepositorySchemaProperty);
+        if (new RepositoryAddressValidator().isValid(remoteRepositoryAddress)) {
+            Property remoteRepositorySchemaProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_ADDRESS.replace(REPO_ID_KEY, remoteRepositoryId), remoteRepositoryAddress);
+            writeProperty(remoteRepositorySchemaProperty);
+        } else {
+            throw new IllegalArgumentException("Invalid remote file repository address.");
+        }
     }
 
     /**
@@ -378,8 +457,12 @@ public final class VFSRemoteFileRepositoriesController {
      * @param remoteRepositoryPropertyName The remote file repository property name
      */
     public void setRemoteRepositoryPropertyName(String remoteRepositoryId, String remoteRepositoryPropertyId, String remoteRepositoryPropertyName) {
-        Property remoteRepositoryPropertyNameProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_NAME.replace(REPO_ID_KEY, remoteRepositoryId).replace(PROP_ID_KEY, remoteRepositoryPropertyId), remoteRepositoryPropertyName);
-        writeProperty(remoteRepositoryPropertyNameProperty);
+        if (new RepositoryNameValidator().isValid(remoteRepositoryPropertyName) && isUniqueRemoteRepositoryPropertyName(remoteRepositoryId, remoteRepositoryPropertyName)) {
+            Property remoteRepositoryPropertyNameProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_NAME.replace(REPO_ID_KEY, remoteRepositoryId).replace(PROP_ID_KEY, remoteRepositoryPropertyId), remoteRepositoryPropertyName);
+            writeProperty(remoteRepositoryPropertyNameProperty);
+        } else {
+            throw new IllegalArgumentException("Invalid remote file repository property name.");
+        }
     }
 
     /**
@@ -401,8 +484,12 @@ public final class VFSRemoteFileRepositoriesController {
      * @param remoteRepositoryPropertyValue The remote file repository property value
      */
     public void setRemoteRepositoryPropertyValue(String remoteRepositoryId, String remoteRepositoryPropertyId, String remoteRepositoryPropertyValue) {
-        Property remoteRepositoryPropertyValueProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_VALUE.replace(REPO_ID_KEY, remoteRepositoryId).replace(PROP_ID_KEY, remoteRepositoryPropertyId), remoteRepositoryPropertyValue);
-        writeProperty(remoteRepositoryPropertyValueProperty);
+        if (!remoteRepositoryPropertyValue.isEmpty()) {
+            Property remoteRepositoryPropertyValueProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_PROPERTY_VALUE.replace(REPO_ID_KEY, remoteRepositoryId).replace(PROP_ID_KEY, remoteRepositoryPropertyId), remoteRepositoryPropertyValue);
+            writeProperty(remoteRepositoryPropertyValueProperty);
+        } else {
+            throw new IllegalArgumentException("Invalid remote file repository property value.");
+        }
     }
 
     /**
@@ -415,6 +502,26 @@ public final class VFSRemoteFileRepositoriesController {
         removeProperty(getRemoteRepositoryPropertyName(remoteRepositoryId, remoteRepositoryPropertyId));
         removeProperty(getRemoteRepositoryPropertyValue(remoteRepositoryId, remoteRepositoryPropertyId));
         updateRemoteRepositoryPropertiesIds(remoteRepositoryId, remoteRepositoryPropertyId, MODE_REMOVE);
+    }
+
+    /**
+     * Deletes permanently the remote file repository
+     *
+     * @param remoteRepositoryId The remote file repository id
+     * @throws IllegalArgumentException If a value validation failure occurs
+     */
+    public void removeRemoteRepository(String remoteRepositoryId) {
+        removeProperty(getRemoteRepositoryName(remoteRepositoryId));
+        removeProperty(getRemoteRepositorySchema(remoteRepositoryId));
+        removeProperty(getRemoteRepositoryAddress(remoteRepositoryId));
+        Property remoteRepositoryPropertiesIdsProperty = getRemoteRepositoryPropertiesIds(remoteRepositoryId);
+        String remoteRepositoriesPropertiesIds = remoteRepositoryPropertiesIdsProperty.getValue();
+        String[] remoteRepositoriesPropertiesIdsList0 = remoteRepositoriesPropertiesIds.split(LIST_ITEM_SEPARATOR);
+        for (String remoteRepositoriesPropertyId : remoteRepositoriesPropertiesIdsList0) {
+            removeRemoteRepositoryProperty(remoteRepositoryId, remoteRepositoriesPropertyId);
+        }
+        removeProperty(remoteRepositoryPropertiesIdsProperty);
+        updateRemoteRepositoriesIds(remoteRepositoryId, MODE_REMOVE);
     }
 
     /**
@@ -440,96 +547,12 @@ public final class VFSRemoteFileRepositoriesController {
     }
 
     /**
-     * Gets the list of remote file repositories.
-     *
-     * @return The list of remote file repositories
-     * @see VFSRemoteFileRepository
-     */
-    public static java.util.List<VFSRemoteFileRepository> getVFSRemoteFileRepositories() {
-        java.util.List<VFSRemoteFileRepository> vfsRemoteFileRepositories = new ArrayList<>();
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController();
-        String remoteRepositoriesIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds().getValue();
-        if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
-            String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
-            for (String remoteRepositoryId : remoteRepositoriesIdsList) {
-                String remoteRepositoryName = vfsRemoteFileRepositoriesController.getRemoteRepositoryName(remoteRepositoryId).getValue();
-                String remoteRepositorySchema = vfsRemoteFileRepositoriesController.getRemoteRepositorySchema(remoteRepositoryId).getValue();
-                String remoteRepositoryAddress = vfsRemoteFileRepositoriesController.getRemoteRepositoryAddress(remoteRepositoryId).getValue();
-                java.util.List<Property> vfsRemoteFileRepositoryProperties = vfsRemoteFileRepositoriesController.getVFSRemoteFileRepositoryProperties(remoteRepositoryId);
-                vfsRemoteFileRepositories.add(new VFSRemoteFileRepository(remoteRepositoryName, remoteRepositorySchema, remoteRepositoryAddress, vfsRemoteFileRepositoryProperties));
-            }
-        }
-        return vfsRemoteFileRepositories;
-    }
-
-    /**
-     * Installs (registers) the new remote file repository.
-     *
-     * @param vfsRemoteFileRepository The new remote file repository
-     * @throws IOException If an I/O error occurs
-     * @see VFSRemoteFileRepository
-     */
-    public static void installVFSRemoteFileRepository(VFSRemoteFileRepository vfsRemoteFileRepository) throws IOException {
-        String remoteRepositoryId = null;
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController();
-        try {
-            if (new RepositoryNameValidator().isValid(vfsRemoteFileRepository.getName()) && vfsRemoteFileRepositoriesController.isUniqueRemoteRepositoryName(vfsRemoteFileRepository.getName()) && new RepositorySchemaValidator().isValid(vfsRemoteFileRepository.getScheme()) && new RepositoryAddressValidator().isValid(vfsRemoteFileRepository.getAddress())) {
-                remoteRepositoryId = vfsRemoteFileRepositoriesController.registerNewRemoteRepository();
-                for (Property remoteRepositoryProperty : vfsRemoteFileRepository.getProperties()) {
-                    if (new RepositoryNameValidator().isValid(remoteRepositoryProperty.getName()) && vfsRemoteFileRepositoriesController.isUniqueRemoteRepositoryPropertyName(remoteRepositoryId, remoteRepositoryProperty.getName()) && !remoteRepositoryProperty.getValue().isEmpty()) {
-                        String remoteRepositoryPropertyId = vfsRemoteFileRepositoriesController.registerNewRemoteRepositoryProperty(remoteRepositoryId);
-                        vfsRemoteFileRepositoriesController.setRemoteRepositoryPropertyName(remoteRepositoryId, remoteRepositoryPropertyId, remoteRepositoryProperty.getName());
-                        vfsRemoteFileRepositoriesController.setRemoteRepositoryPropertyValue(remoteRepositoryId, remoteRepositoryPropertyId, remoteRepositoryProperty.getValue());
-                    } else {
-                        throw new IllegalArgumentException("Please check property: " + remoteRepositoryProperty.getName());
-                    }
-                }
-                vfsRemoteFileRepositoriesController.setRemoteRepositoryName(remoteRepositoryId, vfsRemoteFileRepository.getName());
-                vfsRemoteFileRepositoriesController.setRemoteRepositorySchema(remoteRepositoryId, vfsRemoteFileRepository.getScheme());
-                vfsRemoteFileRepositoriesController.setRemoteRepositoryAddress(remoteRepositoryId, vfsRemoteFileRepository.getAddress());
-            } else {
-                throw new IllegalArgumentException("Please check VFS data to meets following requirements:\n- Name must be unique\n- Name must be alphanumeric.\n- Underscores are allowed in name.\n- Length of name is between 3 and 25 characters.\nAddress must contains URL specific characters.");
-            }
-        } catch (IllegalArgumentException ex) {
-            logger.log(Level.FINE, "Invalid remote file repository data entered. Details: " + ex.getMessage());
-            if (remoteRepositoryId != null && !remoteRepositoryId.isEmpty()) {
-                try {
-                    vfsRemoteFileRepositoriesController.removeRemoteRepository(remoteRepositoryId);
-                } catch (Exception ignored) {
-                    logger.log(Level.SEVERE, "Unable to remove fragment of remote file repository. Details: " + ex.getMessage());
-                }
-            }
-            throw new IOException(ex.getMessage());
-        }
-    }
-
-    /**
-     * Deletes permanently the remote file repository
-     *
-     * @param remoteRepositoryId The remote file repository id
-     * @throws IllegalArgumentException If a value validation failure occurs
-     */
-    public void removeRemoteRepository(String remoteRepositoryId) {
-        removeProperty(getRemoteRepositoryName(remoteRepositoryId));
-        removeProperty(getRemoteRepositorySchema(remoteRepositoryId));
-        removeProperty(getRemoteRepositoryAddress(remoteRepositoryId));
-        Property remoteRepositoryPropertiesIdsProperty = getRemoteRepositoryPropertiesIds(remoteRepositoryId);
-        String remoteRepositoriesPropertiesIds = remoteRepositoryPropertiesIdsProperty.getValue();
-        String[] remoteRepositoriesPropertiesIdsList0 = remoteRepositoriesPropertiesIds.split(LIST_ITEM_SEPARATOR);
-        for (String remoteRepositoriesPropertyId : remoteRepositoriesPropertiesIdsList0) {
-            removeRemoteRepositoryProperty(remoteRepositoryId, remoteRepositoriesPropertyId);
-        }
-        removeProperty(remoteRepositoryPropertiesIdsProperty);
-        updateRemoteRepositoriesIds(remoteRepositoryId, MODE_REMOVE);
-    }
-
-    /**
      * Tells whether the new remote file repository name is unique.
      *
      * @param newRemoteRepositoryName The remote file repository name
      * @return {@code true} if the new remote file repository name is unique
      */
-    public boolean isUniqueRemoteRepositoryName(String newRemoteRepositoryName) {
+    private boolean isUniqueRemoteRepositoryName(String newRemoteRepositoryName) {
         remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
             String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
@@ -549,7 +572,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositorySchema The remote file repository schema
      * @return {@code true} if the new remote file repository schema is unique
      */
-    public boolean isUniqueRemoteRepositorySchema(String newRemoteRepositorySchema) {
+    private boolean isUniqueRemoteRepositorySchema(String newRemoteRepositorySchema) {
         remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
             String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
@@ -570,7 +593,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositoryPropertyName The remote file repository property name
      * @return {@code true} if the new remote file repository property name is unique
      */
-    public boolean isUniqueRemoteRepositoryPropertyName(String remoteRepositoryId, String newRemoteRepositoryPropertyName) {
+    private boolean isUniqueRemoteRepositoryPropertyName(String remoteRepositoryId, String newRemoteRepositoryPropertyName) {
         String remoteRepositoryPropertiesIds = getRemoteRepositoryPropertiesIds(remoteRepositoryId).getValue();
         if (remoteRepositoryPropertiesIds != null && !remoteRepositoryPropertiesIds.isEmpty()) {
             String[] remoteRepositoriesPropertiesIdsList = remoteRepositoryPropertiesIds.split(LIST_ITEM_SEPARATOR);

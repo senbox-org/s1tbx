@@ -14,7 +14,9 @@
     <packaging>nbm</packaging>
 
     <name>SNAP Virtual File Systems</name>
-    <description>This modules provides some Virtual File Systems for use with Remote File Systems, such as HTTP, Amazon S3.</description>
+    <description>This modules provides some Virtual File Systems for use with Remote File Systems, such as HTTP, Amazon
+        S3.
+    </description>
 
     <dependencies>
         <dependency>

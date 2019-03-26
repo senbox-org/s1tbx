@@ -39,7 +39,8 @@ public class VFS {
 
     private List<FileSystemProvider> installedProviders;
 
-    private final static VFS instance;
+    private static final VFS instance;
+
     static {
         instance = new VFS();
         instance.loadInstalledProviders();
@@ -52,9 +53,12 @@ public class VFS {
         return instance;
     }
 
+    public List<FileSystemProvider> getInstalledProviders() {
+        return installedProviders;
+    }
+
     public FileSystemProvider getFileSystemProviderByScheme(String scheme) {
-        for (int i = 0; i<this.installedProviders.size(); i++) {
-            FileSystemProvider fileSystemProvider = this.installedProviders.get(i);
+        for (FileSystemProvider fileSystemProvider : this.installedProviders) {
             if (scheme.equalsIgnoreCase(fileSystemProvider.getScheme())) {
                 return fileSystemProvider;
             }
@@ -63,14 +67,12 @@ public class VFS {
     }
 
     public void initRemoteInstalledProviders(List<VFSRemoteFileRepository> vfsRepositories) {
-        for (int i = 0; i<this.installedProviders.size(); i++) {
-            FileSystemProvider fileSystemProvider = this.installedProviders.get(i);
-
+        for (FileSystemProvider fileSystemProvider : this.installedProviders) {
             if (fileSystemProvider instanceof AbstractRemoteFileSystemProvider) {
-                AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider)fileSystemProvider;
+                AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider) fileSystemProvider;
 
                 VFSRemoteFileRepository foundRepository = null;
-                for (int k=0; k<vfsRepositories.size() && foundRepository == null; k++) {
+                for (int k = 0; k < vfsRepositories.size() && foundRepository == null; k++) {
                     VFSRemoteFileRepository repository = vfsRepositories.get(k);
                     if (repository.getScheme().equalsIgnoreCase(remoteFileSystemProvider.getScheme())) {
                         foundRepository = repository;
@@ -90,7 +92,7 @@ public class VFS {
     }
 
     public Path getPath(URI uri) {
-        String scheme =  uri.getScheme();
+        String scheme = uri.getScheme();
         if (scheme == null) {
             throw new IllegalArgumentException("Missing scheme.");
         }
@@ -98,7 +100,7 @@ public class VFS {
         if (scheme.equalsIgnoreCase("file")) {
             return FileSystems.getDefault().provider().getPath(uri);
         }
-        for (FileSystemProvider provider: this.installedProviders) {
+        for (FileSystemProvider provider : this.installedProviders) {
             if (provider.getScheme().equalsIgnoreCase(scheme)) {
                 return provider.getPath(uri);
             }
@@ -111,29 +113,29 @@ public class VFS {
     }
 
     private void loadInstalledProviders() {
-        this.installedProviders = new ArrayList<FileSystemProvider>();
+        this.installedProviders = new ArrayList<>();
 
-        Set<String> uniqueSchemes = new HashSet<String>();
+        Set<String> uniqueSchemes = new HashSet<>();
 
         // load the remote file system providers
         ServiceLoader<FileSystemProvider> serviceLoader = ServiceLoader.load(FileSystemProvider.class);
-        for (FileSystemProvider provider: serviceLoader) {
+        for (FileSystemProvider provider : serviceLoader) {
             if (provider instanceof AbstractRemoteFileSystemProvider) {
                 if (uniqueSchemes.add(provider.getScheme())) {
                     this.installedProviders.add(provider);
                 } else {
-                    throw new IllegalStateException("The remote file system provider type '"+ provider.getClass()+"' with the scheme '"+provider.getScheme()+"' is not unique.");
+                    throw new IllegalStateException("The remote file system provider type '" + provider.getClass() + "' with the scheme '" + provider.getScheme() + "' is not unique.");
                 }
             }
         }
 
         // load the default file system providers
-        for (FileSystemProvider provider: FileSystemProvider.installedProviders()) {
+        for (FileSystemProvider provider : FileSystemProvider.installedProviders()) {
             if (!(provider instanceof AbstractRemoteFileSystemProvider)) {
                 if (uniqueSchemes.add(provider.getScheme())) {
                     this.installedProviders.add(provider);
                 } else {
-                    throw new IllegalStateException("The default file system provider type '"+ provider.getClass()+"' with the scheme '"+provider.getScheme()+"' is not unique.");
+                    throw new IllegalStateException("The default file system provider type '" + provider.getClass() + "' with the scheme '" + provider.getScheme() + "' is not unique.");
                 }
             }
         }

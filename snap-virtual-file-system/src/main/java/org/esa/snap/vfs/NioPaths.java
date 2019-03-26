@@ -50,7 +50,7 @@ public class NioPaths {
      */
     public static Path get(String first, String... more) {
 
-        for (FileSystemProvider provider : AbstractRemoteFileSystemProvider.installedProviders()) {
+        for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
             try {
                 if (provider instanceof AbstractRemoteFileSystemProvider && first.startsWith("/" + ((AbstractRemoteFileSystemProvider) provider).getRoot())) {
                     return provider.getFileSystem(new URI(provider.getScheme() + ":" + ((AbstractRemoteFileSystemProvider) provider).getProviderAddress())).getPath(first, more);
@@ -94,22 +94,7 @@ public class NioPaths {
      * @throws SecurityException           if a security manager is installed and it denies an unspecified permission to access the file system
      */
     public static Path get(URI uri) {
-        String scheme = uri.getScheme();
-        if (scheme == null)
-            throw new IllegalArgumentException("Missing scheme");
-
-        // check for default provider to avoid loading of installed providers
-        if (scheme.equalsIgnoreCase("file"))
-            return FileSystems.getDefault().provider().getPath(uri);
-
-        // try to find provider
-        for (FileSystemProvider provider : AbstractRemoteFileSystemProvider.installedProviders()) {
-            if (provider.getScheme().equalsIgnoreCase(scheme)) {
-                return provider.getPath(uri);
-            }
-        }
-
-        throw new FileSystemNotFoundException("Provider \"" + scheme + "\" not installed");
+        return VFS.getInstance().getPath(uri);
     }
 
     /**
@@ -120,7 +105,7 @@ public class NioPaths {
      */
     public static boolean isVirtualFileSystemRoot(java.io.File dir) {
         if (dir instanceof NioFile) {
-            for (FileSystemProvider provider : AbstractRemoteFileSystemProvider.installedProviders()) {
+            for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
                 if (provider instanceof AbstractRemoteFileSystemProvider && dir.getPath().equals("/" + ((AbstractRemoteFileSystemProvider) provider).getRoot())) {
                     return true;
                 }
