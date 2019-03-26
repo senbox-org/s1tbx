@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -445,8 +446,8 @@ public final class VFSRemoteFileRepositoriesController {
      * @return The list of remote file repositories
      * @see VFSRemoteFileRepository
      */
-    public static java.util.List<VFSRemoteFileRepository> getVFSRemoteFileRepositories() {
-        java.util.List<VFSRemoteFileRepository> vfsRemoteFileRepositories = new ArrayList<>();
+    public static List<VFSRemoteFileRepository> getVFSRemoteFileRepositories() {
+        List<VFSRemoteFileRepository> vfsRemoteFileRepositories = new ArrayList<>();
         VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController();
         String remoteRepositoriesIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {

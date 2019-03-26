@@ -52,6 +52,10 @@ public class VFS {
         return instance;
     }
 
+    public List<FileSystemProvider> getInstalledProviders() {
+        return installedProviders;
+    }
+
     public FileSystemProvider getFileSystemProviderByScheme(String scheme) {
         for (int i = 0; i<this.installedProviders.size(); i++) {
             FileSystemProvider fileSystemProvider = this.installedProviders.get(i);
@@ -105,6 +109,20 @@ public class VFS {
         }
         throw new FileSystemNotFoundException("The file system provider with the scheme '" + scheme + "' is not installed.");
     }
+
+    public static Path getVirtualPath(String first, String... more) {
+        for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
+            if (provider instanceof AbstractRemoteFileSystemProvider) {
+                AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider)provider;
+                Path path = remoteFileSystemProvider.findPath(first, more);
+                if (path != null) {
+                    return path;
+                }
+            }
+        }
+        return null;
+    }
+
 
     private static String getRootPath(String root) {
         return ROOT_PATH.replace(ROOT_NAME, root);

@@ -1,6 +1,7 @@
 package org.esa.snap.vfs.remote.swift;
 
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
+import org.esa.snap.vfs.remote.s3.S3FileSystem;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,11 +55,6 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
     private static final String CREDENTIAL_PROPERTY_NAME = "password";
 
     /**
-     * The default value of root property, used on VFS instance creation parameters.
-     */
-    private static final String SWIFT_ROOT = "OpenStack-Swift:/";
-
-    /**
      * The value of OpenStack Swift provider scheme.
      */
     private static final String SCHEME = "oss";
@@ -75,7 +71,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
     private String delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
 
     public SwiftFileSystemProvider() {
-        super(SWIFT_ROOT);
+        super();
     }
         /**
          * Gets the OpenStack Swift Virtual File System without authentication.
@@ -159,8 +155,6 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
     }
 
     public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
-        String newRoot = (String) connectionData.get(ROOT_PROPERTY_NAME);
-        root = newRoot != null && !newRoot.isEmpty() ? newRoot : SWIFT_ROOT;
         String newAuthAddress = (String) connectionData.get(AUTH_ADDRESS_PROPERTY_NAME);
         String newContainer = (String) connectionData.get(CONTAINER_PROPERTY_NAME);
         String newDomain = (String) connectionData.get(DOMAIN_PROPERTY_NAME);
@@ -170,17 +164,9 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
         setupConnectionData(serviceAddress, newAuthAddress, newContainer, newDomain, newProjectId, newUser, newCredential);
     }
 
-    /**
-     * Creates the VFS instance using this provider.
-     *
-     * @param address The VFS service address
-     * @param env     The VFS parameters
-     * @return The new VFS instance
-     * @throws IOException If an I/O error occurs
-     */
     @Override
-    protected SwiftFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        return new SwiftFileSystem(this, address, delimiter);
+    protected SwiftFileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env) {
+        return new SwiftFileSystem(this, fileSystemRoot);
     }
 
     /**
@@ -188,7 +174,8 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
      *
      * @return The new VFS walker instance
      */
-    protected SwiftWalker newObjectStorageWalker() {
+    @Override
+    protected SwiftWalker newObjectStorageWalker(String fileSystemRoot) {
         if (this.container.isEmpty()) {
             throw new IllegalArgumentException("Missing 'container' property.\nPlease provide a container name.");
         }
@@ -196,7 +183,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
             throw new IllegalArgumentException("Missing 'authAddress' property.\nPlease provide authentication address required to access authentication service.");
         }
         try {
-            return new SwiftWalker(address, authAddress, container, domain, projectId, user, password, delimiter, root);
+            return new SwiftWalker(address, authAddress, container, domain, projectId, user, password, delimiter, fileSystemRoot);
         } catch (ParserConfigurationException | SAXException ex) {
             throw new IllegalStateException(ex);
         }
@@ -207,8 +194,14 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
      *
      * @return The VFS service address
      */
+    @Override
     public String getProviderAddress() {
-        return address;
+        return this.address;
+    }
+
+    @Override
+    public String getProviderFileSeparator() {
+        return this.delimiter;
     }
 
     /**

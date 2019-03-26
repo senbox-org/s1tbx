@@ -31,9 +31,9 @@
 //    }
 //
 //    @Override
-//    protected ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) {
+//    protected AbstractRemoteFileSystem newFileSystem(String address, Map<String, ?> env) {
 //        Object delimiter = env.get("delimiter");
-//        return new ObjectStorageFileSystem(this,
+//        return new AbstractRemoteFileSystem(this,
 //                                           address,
 //                                           delimiter != null ? delimiter.toString() : "/");
 //    }

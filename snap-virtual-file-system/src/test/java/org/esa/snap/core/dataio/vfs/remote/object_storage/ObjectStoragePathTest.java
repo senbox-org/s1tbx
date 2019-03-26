@@ -27,15 +27,15 @@
 //    private static Logger logger = Logger.getLogger(ObjectStoragePathTest.class.getName());
 //
 //    private static final String FS_ID = "test:" + ObjectStoragePathTest.class.getName();
-//    private static ObjectStorageFileSystem fs;
+//    private static AbstractRemoteFileSystem fs;
 //
 //    @BeforeClass
 //    public static void setUp() throws Exception {
 //        Map<String, ?> env = new HashMap<>();
 //        FileSystem fs = FileSystems.newFileSystem(new URI(FS_ID), env);
 //        assertNotNull(fs);
-//        assertTrue(fs instanceof ObjectStorageFileSystem);
-//        ObjectStoragePathTest.fs = (ObjectStorageFileSystem) fs;
+//        assertTrue(fs instanceof AbstractRemoteFileSystem);
+//        ObjectStoragePathTest.fs = (AbstractRemoteFileSystem) fs;
 //    }
 //
 //    @AfterClass

@@ -3,7 +3,6 @@ package org.esa.snap.vfs.remote;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.ClosedFileSystemException;
@@ -15,7 +14,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.ProviderNotFoundException;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -25,7 +23,6 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,46 +36,34 @@ import java.util.stream.Collectors;
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public abstract class ObjectStorageFileSystem extends FileSystem {
+public abstract class AbstractRemoteFileSystem extends FileSystem {
 
-    private static Logger logger = Logger.getLogger(ObjectStorageFileSystem.class.getName());
+    private static Logger logger = Logger.getLogger(AbstractRemoteFileSystem.class.getName());
 
     private final AbstractRemoteFileSystemProvider provider;
-    private final String address;
-    private final ObjectStoragePath root;
-    private final ObjectStoragePath empty;
-    private String separator;
+    private final ObjectStoragePath rootPath;
+    private final List<ObjectStorageByteChannel> openChannels;
+
     private boolean closed;
-    private List<ObjectStorageByteChannel> openChannels;
     private ObjectStorageWalker walker;
 
     /**
      * Creates the new File System for Object Storage VFS.
      *
      * @param provider  The VFS provider
-     * @param address   The VFS service address
-     * @param separator The VFS path separator
      */
-    protected ObjectStorageFileSystem(AbstractRemoteFileSystemProvider provider, String address, String separator) {
+    protected AbstractRemoteFileSystem(AbstractRemoteFileSystemProvider provider, String root) {
         if (provider == null) {
             throw new NullPointerException("provider");
         }
-        if (address == null) {
-            throw new NullPointerException("address");
-        }
-        if (address.isEmpty()) {
-            throw new IllegalArgumentException("address is empty");
-        }
-        if (separator.isEmpty()) {
-            throw new IllegalArgumentException("separator is empty");
-        }
         this.provider = provider;
-        this.address = address;
-        this.separator = separator;
         this.closed = false;
         this.openChannels = new ArrayList<>();
-        this.root = new ObjectStoragePath(this, true, true, "" + provider.getRoot(), ObjectStorageFileAttributes.getRoot());
-        this.empty = new ObjectStoragePath(this, false, false, "", ObjectStorageFileAttributes.getEmpty());
+        this.rootPath = new ObjectStoragePath(this, true, true, root, ObjectStorageFileAttributes.getRoot());
+    }
+
+    public final ObjectStorageWalker newObjectStorageWalker() {
+        return this.provider.newObjectStorageWalker(this.rootPath.getPath());
     }
 
     /**
@@ -87,17 +72,8 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      * @return The VFS provider that created this file system.
      */
     @Override
-    public FileSystemProvider provider() {
-        return provider;
-    }
-
-    /**
-     * Gets the VFS service address URL as string.
-     *
-     * @return The VFS service address
-     */
-    public String getAddress() {
-        return address;
+    public AbstractRemoteFileSystemProvider provider() {
+        return this.provider;
     }
 
     /**
@@ -105,17 +81,8 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      *
      * @return The VFS root path
      */
-    ObjectStoragePath getRoot() {
-        return root;
-    }
-
-    /**
-     * Gets the VFS empty path.
-     *
-     * @return The VFS empty path
-     */
-    ObjectStoragePath getEmpty() {
-        return empty;
+    public ObjectStoragePath getRoot() {
+        return rootPath;
     }
 
     /**
@@ -126,15 +93,13 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      */
     @Override
     public void close() throws IOException {
-        if (closed) {
-            return;
+        if (!this.closed) {
+            this.closed = true;
+            for (int i=0; i<this.openChannels.size(); i++) {
+                this.openChannels.get(i).close();
+            }
+            this.provider.unlinkFileSystem(this);
         }
-        closed = true;
-        Channel[] channels = openChannels.toArray(new Channel[0]);
-        for (Channel channel : channels) {
-            channel.close();
-        }
-        provider.unlinkFileSystem(this);
     }
 
     /**
@@ -144,7 +109,7 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      */
     @Override
     public boolean isOpen() {
-        return !closed;
+        return !this.closed;
     }
 
     /**
@@ -166,7 +131,7 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      */
     @Override
     public String getSeparator() {
-        return separator;
+        return this.provider.getProviderFileSeparator();
     }
 
     /**
@@ -176,7 +141,7 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      */
     @Override
     public Iterable<Path> getRootDirectories() {
-        return walkDir(getRoot(), path -> ((ObjectStoragePath) path).isDirectory());
+        return walkDir(this.rootPath, path -> ((ObjectStoragePath) path).isDirectory());
     }
 
     /**
@@ -275,11 +240,11 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      */
     @Override
     public WatchService newWatchService() throws IOException {
-        throw new IOException(new UnsupportedOperationException());
+        throw new UnsupportedOperationException();
     }
 
     private void assertOpen() {
-        if (closed) {
+        if (this.closed) {
             throw new ClosedFileSystemException();
         }
     }
@@ -297,20 +262,11 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
         boolean plainReadWriteMode = options.isEmpty() || options.size() == 1 && (options.contains(StandardOpenOption.READ) || options.contains(StandardOpenOption.WRITE));
         boolean noCreateAttributes = attrs.length == 0;
         if (plainReadWriteMode && noCreateAttributes) {
-            return addByteChannel(new ObjectStorageByteChannel(path));
+            ObjectStorageByteChannel channel = new ObjectStorageByteChannel(path);
+            this.openChannels.add(channel);
+            return channel;
         }
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Adds a new Byte Channel to list of opened Byte Channels
-     *
-     * @param channel The Byte Channel
-     * @return The Byte Channel
-     */
-    private ObjectStorageByteChannel addByteChannel(ObjectStorageByteChannel channel) {
-        openChannels.add(channel);
-        return channel;
     }
 
     /**
@@ -319,7 +275,7 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
      * @param channel The Byte Channel
      */
     void removeByteChannel(ObjectStorageByteChannel channel) {
-        openChannels.remove(channel);
+        this.openChannels.remove(channel);
     }
 
     /**
@@ -332,13 +288,12 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
     Iterable<Path> walkDir(Path dir, DirectoryStream.Filter<? super Path> filter) {
         assertOpen();
         Path path = dir.toAbsolutePath();
-        String prefix = path.toString().substring(1);
         List<BasicFileAttributes> files;
-        if (walker == null) {
-            walker = provider.newObjectStorageWalker();
+        if (this.walker == null) {
+            this.walker = newObjectStorageWalker();
         }
         try {
-            files = walker.walk(prefix);
+            files = this.walker.walk(path);
         } catch (IOException ex) {
             throw new IllegalStateException(ex);
         }
@@ -363,68 +318,4 @@ public abstract class ObjectStorageFileSystem extends FileSystem {
             return false;
         }
     }
-
-    /**
-     * Returns a reference to an existing {@code FileSystem}.
-     *
-     * <p> This method iterates over the {@link AbstractRemoteFileSystemProvider#installedProviders().installed} providers to locate the provider that is identified by the URI {@link URI#getScheme scheme} of the given URI. URI schemes are compared without regard to case. The exact form of the URI is highly provider dependent. If found, the provider's {@link FileSystemProvider#getFileSystem getFileSystem} method is invoked to obtain a reference to the {@code FileSystem}.
-     *
-     * @param   uri  the URI to locate the file system
-     *
-     * @return  the reference to the file system
-     *
-     * @throws  IllegalArgumentException if the pre-conditions for the {@code uri} parameter are not met
-     * @throws java.nio.file.FileSystemNotFoundException if the file system, identified by the URI, does not exist
-     * @throws  ProviderNotFoundException if a provider supporting the URI scheme is not installed
-     * @throws  SecurityException if a security manager is installed and it denies an unspecified permission
-     */
-    public static FileSystem getFileSystem(URI uri) {
-        String scheme = uri.getScheme();
-        for (FileSystemProvider provider : AbstractRemoteFileSystemProvider.installedProviders()) {
-            if (scheme.equalsIgnoreCase(provider.getScheme())) {
-                return provider.getFileSystem(uri);
-            }
-        }
-        throw new ProviderNotFoundException("Provider \"" + scheme + "\" not found");
-    }
-
-    /**
-     * Constructs a new file system that is identified by a {@link URI}
-     *
-     * <p> This method iterates over the {@link AbstractRemoteFileSystemProvider#installedProviders() installed} providers to locate the provider that is identified by the URI {@link URI#getScheme scheme} of the given URI. URI schemes are compared without regard to case. The exact form of the URI is highly provider dependent. If found, the provider's {@link FileSystemProvider#newFileSystem(URI, java.util.Map).newFileSystem(URI,Map)} method is invoked to construct the new file system.
-     *
-     * <p> Once a file system is {@link FileSystem#close closed} it is provider-dependent if the provider allows a new file system to be created with the same URI as a file system it previously created.
-     *
-     * <p> <b>Usage Example:</b>
-     * Suppose there is a provider identified by the scheme {@code "memory"} installed:
-     * <pre>
-     *   Map&lt;String,String&gt; env = new HashMap&lt;&gt;();
-     *   env.put("capacity", "16G");
-     *   env.put("blockSize", "4k");
-     *   FileSystem fs = FileSystems.newFileSystem(URI.create("memory:///?name=logfs"), env);
-     * </pre>
-     *
-     * @param   uri the URI identifying the file system
-     * @param   env a map of provider specific properties to configure the file system; may be empty
-     *
-     * @return  a new file system
-     *
-     * @throws  IllegalArgumentException if the pre-conditions for the {@code uri} parameter are not met, or the {@code env} parameter does not contain properties required by the provider, or a property value is invalid
-     * @throws java.nio.file.FileSystemAlreadyExistsException if the file system has already been created
-     * @throws  ProviderNotFoundException if a provider supporting the URI scheme is not installed
-     * @throws  IOException if an I/O error occurs creating the file system
-     * @throws  SecurityException if a security manager is installed and it denies an unspecified permission required by the file system provider implementation
-     */
-    public static FileSystem newFileSystem(URI uri, Map<String,?> env) throws IOException
-    {
-        String scheme = uri.getScheme();
-        for (FileSystemProvider provider: AbstractRemoteFileSystemProvider.installedProviders()) {
-            if (scheme.equalsIgnoreCase(provider.getScheme())) {
-                return provider.newFileSystem(uri, env);
-            }
-        }
-        throw new ProviderNotFoundException("Provider \"" + scheme + "\" not found");
-    }
-
-
 }

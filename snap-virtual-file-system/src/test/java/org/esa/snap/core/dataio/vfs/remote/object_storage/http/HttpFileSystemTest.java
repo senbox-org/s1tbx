@@ -1,6 +1,6 @@
 //package org.esa.snap.core.dataio.vfs.remote.object_storage.http;
 //
-//import org.esa.snap.vfs.remote.ObjectStorageFileSystem;
+//import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 //import org.junit.After;
 //import org.junit.Before;
 //import org.junit.Ignore;
@@ -28,7 +28,7 @@
 //
 //    private static Logger logger = Logger.getLogger(HttpFileSystemTest.class.getName());
 //
-//    private ObjectStorageFileSystem fs;
+//    private AbstractRemoteFileSystem fs;
 //
 //    abstract String getAddress();
 //
@@ -49,8 +49,8 @@
 //        }
 //        FileSystem fs = HttpFileSystemProvider.getHttpFileSystem(getAddress(), getUser(), getPassword());
 //        assertNotNull(fs);
-//        assertTrue(fs instanceof ObjectStorageFileSystem);
-//        this.fs = (ObjectStorageFileSystem) fs;
+//        assertTrue(fs instanceof AbstractRemoteFileSystem);
+//        this.fs = (AbstractRemoteFileSystem) fs;
 //    }
 //
 //    @After

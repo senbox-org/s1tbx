@@ -1,7 +1,5 @@
 package org.esa.snap.vfs;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -10,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -37,18 +34,13 @@ public class NioFile extends File {
     private static Logger logger = Logger.getLogger(NioFile.class.getName());
 
     /**
-     * The FileSystem object representing the platform's local file system.
-     */
-    private final FileSystem fs;
-
-    /**
      * The Path object representing the file system path.
      */
-    private Path path;
+    private final Path path;
     /**
      * The flag indicating whether the file path is invalid.
      */
-    private transient NioFile.PathStatus status = null;
+    private transient NioFile.PathStatus status;
 
     /**
      * Check if the file has an invalid path. Currently, the inspection of a file path is very limited, and it only covers Nul character check.
@@ -58,8 +50,7 @@ public class NioFile extends File {
      */
     private boolean isInvalidPath() {
         if (status == null) {
-            status = (this.path.toString().indexOf('\u0000') < 0) ? NioFile.PathStatus.CHECKED
-                    : NioFile.PathStatus.INVALID;
+            status = (this.path.toString().indexOf('\u0000') < 0) ? NioFile.PathStatus.CHECKED : NioFile.PathStatus.INVALID;
         }
         return status == NioFile.PathStatus.INVALID;
     }
@@ -74,17 +65,8 @@ public class NioFile extends File {
      */
     public NioFile(Path path) {
         super(path.toString());
-        this.fs = path.getFileSystem();
-        this.path = path;
-    }
 
-    /**
-     * Creates a new File for VFS using the given URI
-     *
-     * @param uri The VFS URI
-     */
-    public NioFile(URI uri) {
-        this(NioPaths.get(uri));
+        this.path = path;
     }
 
     /**
@@ -96,33 +78,6 @@ public class NioFile extends File {
         this(NioPaths.get(pathname));
     }
 
-    /**
-     * List the available filesystem roots.
-     *
-     * <p> A particular Java platform may support zero or more hierarchically-organized file systems.  Each file system has a
-     * {@code root} directory from which all other files in that file system can be reached.  Windows platforms, for example, have a root directory for each active drive; UNIX platforms have a single root directory, namely {@code "/"}.  The set of available filesystem roots is affected by various system-level operations such as the insertion or ejection of removable media and the disconnecting or unmounting of physical or virtual disk drives.
-     *
-     * <p> This method returns an array of {@code File} objects that denote the root directories of the available filesystem roots.  It is guaranteed that the canonical pathname of any file physically present on the local machine will begin with one of the roots returned by this method.
-     *
-     * <p> The canonical pathname of a file that resides on some other machine and is accessed via a remote-filesystem protocol such as SMB or NFS may or may not begin with one of the roots returned by this method.  If the pathname of a remote file is syntactically indistinguishable from the pathname of a local file then it will begin with one of the roots returned by this method.  Thus, for example, {@code File} objects denoting the root directories of the mapped network drives of a Windows platform will be returned by this method, while {@code File} objects containing UNC pathnames will not be returned by this method.
-     *
-     * <p> Unlike most methods in this class, this method does not throw security exceptions.  If a security manager exists and its {@link
-     * SecurityManager#checkRead(String)} method denies read access to a particular root directory, then that directory will not appear in the result.
-     *
-     * @return An array of {@code File} objects denoting the available filesystem roots, or {@code null} if the set of roots could not be determined.  The array will be empty if there are no filesystem roots.
-     * @see java.nio.file.FileStore
-     * @since 1.2
-     */
-    @NotNull
-    public File[] listFsRoots() {
-        List<File> roots = new ArrayList<>();
-        for (Path p : fs.getRootDirectories()) {
-            roots.add(p.toFile());
-        }
-        return roots.toArray(new File[0]);
-    }
-
-
     /* -- Path-component accessors -- */
 
     /**
@@ -131,13 +86,12 @@ public class NioFile extends File {
      * @return The name of the file or directory denoted by this abstract pathname, or the empty string if this pathname's name sequence is empty
      */
     @Override
-    @NotNull
     public String getName() {
         Object fileName = path.getFileName();
         String name = "";
         if (fileName != null) {
             name = fileName.toString();
-            if (name.endsWith(fs.getSeparator())) {
+            if (name.endsWith(this.path.getFileSystem().getSeparator())) {
                 name = name.substring(0, name.length() - 1);
             }
         }
@@ -186,7 +140,6 @@ public class NioFile extends File {
      * @return The string form of this abstract pathname
      */
     @Override
-    @NotNull
     public String getPath() {
         return path.toString();
     }
@@ -213,7 +166,6 @@ public class NioFile extends File {
      * @see java.io.File#isAbsolute()
      */
     @Override
-    @NotNull
     public String getAbsolutePath() {
         return path.resolve(path).toString();
     }
@@ -240,7 +192,6 @@ public class NioFile extends File {
      * @since 1.2
      */
     @Override
-    @NotNull
     public File getAbsoluteFile() {
         Path absPath = getAbsolutePath0();
         try {
@@ -266,7 +217,6 @@ public class NioFile extends File {
      * @since JDK1.1
      */
     @Override
-    @NotNull
     public String getCanonicalPath() throws IOException {
         if (isInvalidPath()) {
             throw new IOException(INVALID_FILE_PATH_ERROR_MESSAGE);
@@ -288,7 +238,6 @@ public class NioFile extends File {
      * @see Path#toRealPath
      * @since JDK1.1
      */
-    @NotNull
     private Path getCanonicalPath0() throws IOException {
         if (isInvalidPath()) {
             throw new IOException(INVALID_FILE_PATH_ERROR_MESSAGE);
@@ -307,7 +256,6 @@ public class NioFile extends File {
      * @since 1.2
      */
     @Override
-    @NotNull
     public File getCanonicalFile() throws IOException {
         Path canonPath = getCanonicalPath0();
         try {
@@ -357,7 +305,7 @@ public class NioFile extends File {
      *
      * <p> For a given abstract pathname <i>f</i>, it is guaranteed that
      *
-     * <blockquote><tt> new {@link #NioFile(java.net.URI) File}(</tt><i>&nbsp;f</i><tt>.toURI()).equals(</tt><i>&nbsp;f</i><tt>.{@link #getAbsoluteFile() getAbsoluteFile}())
+     * <blockquote><tt> new File}(</tt><i>&nbsp;f</i><tt>.toURI()).equals(</tt><i>&nbsp;f</i><tt>.{@link #getAbsoluteFile() getAbsoluteFile}())
      * </tt></blockquote>
      * <p> so long as the original abstract pathname, the URI, and the new abstract pathname are all created in (possibly different invocations of) the same
      * Java virtual machine.  Due to the system-dependent nature of abstract pathnames, however, this relationship typically does not hold when a
@@ -369,15 +317,13 @@ public class NioFile extends File {
      * @return An absolute, hierarchical URI with a scheme equal to
      * <tt>"file"</tt>, a path representing this abstract pathname, and undefined authority, query, and fragment components
      * @throws SecurityException If a required system property value cannot be accessed.
-     * @see #NioFile(java.net.URI)
      * @see java.net.URI
      * @see java.net.URI#toURL()
      * @since 1.4
      */
     @Override
-    @NotNull
     public URI toURI() {
-        return fs.getPath(slashify(getAbsolutePath0(), isDirectory())).toUri();
+        return this.path.getFileSystem().getPath(slashify(getAbsolutePath0(), isDirectory())).toUri();
     }
 
 
@@ -1027,7 +973,7 @@ public class NioFile extends File {
             return 0L;
         }
         try {
-            return fs.provider().getFileStore(path).getTotalSpace();
+            return this.path.getFileSystem().provider().getFileStore(path).getTotalSpace();
         } catch (IOException ex) {
             logger.log(Level.SEVERE,"Unable to get the size of physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
             return 0L;
@@ -1053,7 +999,7 @@ public class NioFile extends File {
             return 0L;
         }
         try {
-            return fs.provider().getFileStore(path).getUnallocatedSpace();
+            return this.path.getFileSystem().provider().getFileStore(path).getUnallocatedSpace();
         } catch (IOException ex) {
             logger.log(Level.SEVERE,"Unable to get the number of unallocated bytes in the physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
             return 0L;
@@ -1078,7 +1024,7 @@ public class NioFile extends File {
             return 0L;
         }
         try {
-            return fs.provider().getFileStore(path).getUsableSpace();
+            return this.path.getFileSystem().provider().getFileStore(path).getUsableSpace();
         } catch (IOException ex) {
             logger.log(Level.SEVERE,"Unable to get the number of bytes available to this virtual machine in the physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
             return 0L;
@@ -1146,10 +1092,9 @@ public class NioFile extends File {
      * @see Path#toFile
      * @since 1.7
      */
-    @NotNull
     @Override
     public Path toPath() {
-        return path;
+        return this.path;
     }
 
     /**
@@ -1158,5 +1103,4 @@ public class NioFile extends File {
     private enum PathStatus {
         INVALID, CHECKED
     }
-
 }

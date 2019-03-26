@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,7 @@ class HttpWalker implements ObjectStorageWalker {
      * @return The HTTP file basic attributes
      * @throws IOException If an I/O error occurs
      */
+    @Override
     public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
         URLConnection urlConnection = HttpResponseHandler.getConnectionChannel(new URL(address), "GET", null, username, password);
         return ObjectStorageFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
@@ -58,19 +60,38 @@ class HttpWalker implements ObjectStorageWalker {
     /**
      * Gets a list of VFS files and directories from to the given prefix.
      *
-     * @param prefix The VFS path to traverse
+     * @param dir The VFS path to traverse
      * @return The list of VFS files and directories
      * @throws IOException If an I/O error occurs
      */
-    public List<BasicFileAttributes> walk(String prefix) throws IOException {
-        ArrayList<BasicFileAttributes> items = new ArrayList<>();
-        URL url = new URL(address + (address.endsWith(delimiter) ? "" : delimiter) + prefix.replace(root, ""));
-        URLConnection connection = HttpResponseHandler.getConnectionChannel(url, "GET", null, username, password);
+    @Override
+    public List<BasicFileAttributes> walk(Path dir) throws IOException {
+        StringBuilder urlAsString = new StringBuilder();
+        if (this.address.endsWith(this.delimiter)) {
+            int endIndex = this.address.length() - this.delimiter.length();
+            urlAsString.append(this.address.substring(0, endIndex)); // do not write the file separator at the end
+        } else {
+            urlAsString.append(this.address);
+        }
+        String dirPathAsString = dir.toString();
+        String urlPathAsString = dirPathAsString;
+        if (urlPathAsString.startsWith(this.root)) {
+            urlPathAsString = urlPathAsString.substring(this.root.length());
+        }
+        if (!urlPathAsString.startsWith(this.delimiter)) {
+            urlAsString.append(this.delimiter);
+        }
+        urlAsString.append(urlPathAsString);
+
+        URL url = new URL(urlAsString.toString());
+        URLConnection connection = HttpResponseHandler.getConnectionChannel(url, "GET", null, this.username, this.password);
         Document doc = Jsoup.parse(connection.getInputStream(), "UTF-8", url.toString());
-        prefix = prefix.isEmpty() ? root : prefix;
-        HttpResponseHandler handler = new HttpResponseHandler(doc, prefix, items);
+        List<BasicFileAttributes> items = new ArrayList<>();
+        if (!dirPathAsString.endsWith(this.delimiter)) {
+            dirPathAsString += this.delimiter;
+        }
+        HttpResponseHandler handler = new HttpResponseHandler(doc, dirPathAsString, items);
         handler.getElements();
         return items;
     }
-
 }

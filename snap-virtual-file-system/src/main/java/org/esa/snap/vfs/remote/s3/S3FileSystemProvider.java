@@ -1,7 +1,9 @@
 package org.esa.snap.vfs.remote.s3;
 
+import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.ObjectStorageWalker;
+import org.esa.snap.vfs.remote.http.HttpFileSystem;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,11 +33,6 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
     private static final String SECRET_ACCESS_KEY_PROPERTY_NAME = "secretAccessKey";
 
     /**
-     * The default value of root property, used on VFS instance creation parameters.
-     */
-    private static final String S3_ROOT = "S3:/";
-
-    /**
      * The value of S3 provider scheme.
      */
     private static final String SCHEME = "s3";
@@ -48,7 +45,7 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
     private String delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
 
     public S3FileSystemProvider() {
-        super(S3_ROOT);
+        super();
     }
 
     /**
@@ -65,24 +62,14 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
     }
 
     public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
-        String newRoot = (String) connectionData.get(ROOT_PROPERTY_NAME);
-        root = newRoot != null && !newRoot.isEmpty() ? newRoot : S3_ROOT;
         String newAccessKeyId = (String) connectionData.get(ACCESS_KEY_ID_PROPERTY_NAME);
         String newSecretAccessKey = (String) connectionData.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
         setupConnectionData(serviceAddress, newAccessKeyId, newSecretAccessKey);
     }
 
-    /**
-     * Creates the VFS instance using this provider.
-     *
-     * @param address The VFS service address
-     * @param env     The VFS parameters
-     * @return The new VFS instance
-     * @throws IOException If an I/O error occurs
-     */
     @Override
-    protected S3FileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        return new S3FileSystem(this, address, delimiter);
+    protected S3FileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env) {
+        return new S3FileSystem(this, fileSystemRoot);
     }
 
     /**
@@ -91,9 +78,9 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @return The new VFS walker instance
      */
     @Override
-    protected ObjectStorageWalker newObjectStorageWalker() {
+    protected ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot) {
         try {
-            return new S3Walker(bucketAddress, accessKeyId, secretAccessKey, delimiter, root);
+            return new S3Walker(bucketAddress, accessKeyId, secretAccessKey, delimiter, fileSystemRoot);
         } catch (ParserConfigurationException | SAXException ex) {
             logger.log(Level.SEVERE, "Unable to create walker instance used by S3 VFS to traverse tree. Details: " + ex.getMessage());
             throw new IllegalStateException(ex);
@@ -105,8 +92,14 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      *
      * @return The VFS service address
      */
+    @Override
     public String getProviderAddress() {
-        return bucketAddress;
+        return this.bucketAddress;
+    }
+
+    @Override
+    public String getProviderFileSeparator() {
+        return this.delimiter;
     }
 
     /**

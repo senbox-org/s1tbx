@@ -32,7 +32,7 @@
 //        Map<String, ?> env = new HashMap<>();
 //        URI uri = new URI(FS_ID);
 //        FileSystem fileSystem = FileSystems.newFileSystem(uri, env);
-//        assertTrue(fileSystem instanceof ObjectStorageFileSystem);
+//        assertTrue(fileSystem instanceof AbstractRemoteFileSystem);
 //
 //        FileSystem fileSystem2 = FileSystems.getFileSystem(new URI(FS_ID));
 //        assertSame(fileSystem, fileSystem2);

@@ -1,6 +1,6 @@
 //package org.esa.snap.core.dataio.vfs.remote.object_storage.aws;
 //
-//import org.esa.snap.vfs.remote.ObjectStorageFileSystem;
+//import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 //import org.junit.After;
 //import org.junit.Before;
 //import org.junit.Test;
@@ -34,7 +34,7 @@
 //
 //    private static Logger logger = Logger.getLogger(S3FileSystemTest.class.getName());
 //
-//    private ObjectStorageFileSystem fs;
+//    private AbstractRemoteFileSystem fs;
 //
 //    abstract String getBucketAddress();
 //
@@ -63,8 +63,8 @@
 //        }
 //        FileSystem fs = S3FileSystemProvider.getS3FileSystem(getBucketAddress(), getAccessKeyId(), getSecretAccessKey());
 //        assertNotNull(fs);
-//        assertTrue(fs instanceof ObjectStorageFileSystem);
-//        this.fs = (ObjectStorageFileSystem) fs;
+//        assertTrue(fs instanceof AbstractRemoteFileSystem);
+//        this.fs = (AbstractRemoteFileSystem) fs;
 //    }
 //
 //    @After

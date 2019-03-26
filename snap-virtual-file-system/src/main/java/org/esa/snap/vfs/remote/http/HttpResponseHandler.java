@@ -113,7 +113,7 @@ class HttpResponseHandler {
         connection.setRequestProperty("user-agent", "SNAP Virtual File System");
         int responseCode = connection.getResponseCode();
 
-        if (responseCode < 200 || responseCode >= 300) {
+        if (responseCode < HttpURLConnection.HTTP_OK || responseCode >= HttpURLConnection.HTTP_MULT_CHOICE) {
             /* error from server */
             throw new IOException(url + ": response code " + responseCode + ": " + connection.getResponseMessage());
         } else {

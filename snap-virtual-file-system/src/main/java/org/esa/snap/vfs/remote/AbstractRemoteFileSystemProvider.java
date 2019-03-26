@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
@@ -15,8 +14,6 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * File System Service Provider for Object Storage VFS.
@@ -37,16 +34,6 @@ import java.util.logging.Logger;
 public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvider {
 
     /**
-     * The name of root property, used on VFS instance creation parameters.
-     */
-    public static final String ROOT_PROPERTY_NAME = "root";
-
-    /**
-     * The name of delimiter property, used on VFS instance creation parameters.
-     */
-    public static final String DELIMITER_PROPERTY_NAME = "delimiter";
-
-    /**
      * The default value of delimiter property, used on VFS instance creation parameters.
      */
     public static final String DELIMITER_PROPERTY_DEFAULT_VALUE = "/";
@@ -56,48 +43,23 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     private static final String PATH_NULL_ERROR_MESSAGE = "Path is missing.";
 
-    /**
-     * The error message for missing method argument: source.
-     */
-    private static final String SOURCE_NULL_ERROR_MESSAGE = "Source is missing.";
-
-    private static Logger logger = Logger.getLogger(AbstractRemoteFileSystemProvider.class.getName());
-
-    private final Map<URI, ObjectStorageFileSystem> fileSystems;
-
-    protected String root;
+    private final Map<String, AbstractRemoteFileSystem> fileSystems;
 
     /**
      * Creates the new File System Service Provider for Object Storage VFS.
      */
     protected AbstractRemoteFileSystemProvider() {
-        this.fileSystems = new HashMap<>();
-    }
-
-    protected AbstractRemoteFileSystemProvider(String root) {
-        this();
-
-        this.root = root;
+        this.fileSystems = new HashMap<String, AbstractRemoteFileSystem>();
     }
 
     public abstract void setConnectionData(String serviceAddress, Map<String, ?> connectionData);
-
-    /**
-     * Creates the VFS instance using this provider.
-     *
-     * @param address The VFS service address
-     * @param env     The VFS parameters
-     * @return The new VFS instance
-     * @throws IOException If an I/O error occurs
-     */
-    protected abstract ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException;
 
     /**
      * Creates the walker instance used by VFS provider to traverse VFS tree.
      *
      * @return The new VFS walker instance
      */
-    protected abstract ObjectStorageWalker newObjectStorageWalker();
+    protected abstract ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot);
 
     /**
      * Gets the service address of this VFS provider.
@@ -106,13 +68,19 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     public abstract String getProviderAddress();
 
-    /**
-     * Gets the root of this VFS provider.
-     *
-     * @return The root
-     */
-    public final String getRoot() {
-        return this.root;
+    public abstract String getProviderFileSeparator();
+
+    public Path findPath(String first, String... more) {
+        Iterator<Map.Entry<String, AbstractRemoteFileSystem>> it = this.fileSystems.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, AbstractRemoteFileSystem> entry = it.next();
+            String fileSystemRoot = entry.getKey();
+            if (first.startsWith(fileSystemRoot)) {
+                AbstractRemoteFileSystem remoteFileSystem = entry.getValue();
+                return remoteFileSystem.getPath(first, more);
+            }
+        }
+        return null;
     }
 
     /**
@@ -142,37 +110,75 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @throws FileSystemAlreadyExistsException If the file system has already been created
      */
     @Override
-    public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
-        ObjectStorageFileSystem fileSystem = fileSystems.get(uri);
-        if (fileSystem != null) {
+    public AbstractRemoteFileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
+        validateScheme(uri);
+        validateProviderAddress();
+        String fileSystemRoot = extractFileSystemRoot(uri);
+        AbstractRemoteFileSystem fileSystem = this.fileSystems.get(fileSystemRoot);
+        if (fileSystem == null) {
+            fileSystem = newFileSystem(fileSystemRoot, env);
+            this.fileSystems.put(fileSystemRoot, fileSystem);
+        } else {
             throw new FileSystemAlreadyExistsException(uri.toString());
         }
-        if (!getScheme().equals(uri.getScheme())) {
-            throw new IllegalArgumentException("uri");
-        }
-        fileSystem = newFileSystem(uri.getSchemeSpecificPart(), env);
-        fileSystems.put(uri, fileSystem);
         return fileSystem;
     }
 
-    /**
-     * Returns an existing {@code FileSystem} created by this provider.
-     * <p> This method returns a reference to a {@code FileSystem} that was created by invoking the {@link #newFileSystem(URI, Map) newFileSystem(URI,Map)} method. File systems created the {@link #newFileSystem(Path, Map) newFileSystem(Path,Map)} method are not returned by this method.
-     * The file system is identified by its {@code URI}. Its exact form is highly provider dependent. In the case of the default provider the URI's path component is {@code "/"} and the authority, query and fragment components are undefined (Undefined components are represented by {@code null}).
-     * <p> Once a file system created by this provider is {@link
-     * FileSystem#close closed} it is provider-dependent if this method returns a reference to the closed file system or throws {@link
-     * FileSystemNotFoundException}. If the provider allows a new file system to be created with the same URI as a file system it previously created then this method throws the exception if invoked after the file system is closed (and before a new instance is created by the {@link #newFileSystem newFileSystem} method).
-     * <p> If a security manager is installed then a provider implementation may require to check a permission before returning a reference to an existing file system. In the case of the {@link FileSystems#getDefault default} file system, no permission check is required.
-     *
-     * @param uri URI reference
-     * @return The file system
-     * @throws IllegalArgumentException    If the pre-conditions for the {@code uri} parameter aren't met
-     * @throws FileSystemNotFoundException If the file system does not exist
-     * @throws SecurityException           If a security manager is installed and it denies an unspecified permission.
-     */
+    protected abstract AbstractRemoteFileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env);
+
+    private static String extractFileSystemRoot(URI uri) {
+        String resourcePathAsString = extractSchemeSpecificPart(uri);
+        String substring = ":";
+        int index = resourcePathAsString.indexOf(substring);
+        if (index < 0) {
+            throw new IllegalArgumentException("The scheme specific part '"+resourcePathAsString+"' does not contains '" + substring +"'.");
+        }
+        return resourcePathAsString.substring(0, index + substring.length());
+    }
+
+    private static String extractSchemeSpecificPart(URI uri) {
+        String resourcePathAsString = uri.getSchemeSpecificPart();
+        if (resourcePathAsString.startsWith("/")) {
+            resourcePathAsString = resourcePathAsString.substring(1);
+        } else {
+            //throw new IllegalArgumentException("The scheme specific part '"+resourcePathAsString+"' does not start with '/'.");
+        }
+        return resourcePathAsString;
+    }
+
+    private void validateScheme(URI uri) {
+        if (!getScheme().equals(uri.getScheme())) {
+            throw new IllegalArgumentException("The provider scheme '"+getScheme()+"' is not the same with the uri scheme '"+uri.getScheme()+"'.");
+        }
+    }
+
+    private void validateProviderAddress() {
+        if (getProviderAddress().isEmpty()) {
+            throw new IllegalStateException("The VFS with scheme: " + getScheme() + " is not initialized.");
+        }
+    }
+
+        /**
+         * Returns an existing {@code FileSystem} created by this provider.
+         * <p> This method returns a reference to a {@code FileSystem} that was created by invoking the {@link #newFileSystem(URI, Map) newFileSystem(URI,Map)} method. File systems created the {@link #newFileSystem(Path, Map) newFileSystem(Path,Map)} method are not returned by this method.
+         * The file system is identified by its {@code URI}. Its exact form is highly provider dependent. In the case of the default provider the URI's path component is {@code "/"} and the authority, query and fragment components are undefined (Undefined components are represented by {@code null}).
+         * <p> Once a file system created by this provider is {@link
+         * FileSystem#close closed} it is provider-dependent if this method returns a reference to the closed file system or throws {@link
+         * FileSystemNotFoundException}. If the provider allows a new file system to be created with the same URI as a file system it previously created then this method throws the exception if invoked after the file system is closed (and before a new instance is created by the {@link #newFileSystem newFileSystem} method).
+         * <p> If a security manager is installed then a provider implementation may require to check a permission before returning a reference to an existing file system. In the case of the {@link FileSystems#getDefault default} file system, no permission check is required.
+         *
+         * @param uri URI reference
+         * @return The file system
+         * @throws IllegalArgumentException    If the pre-conditions for the {@code uri} parameter aren't met
+         * @throws FileSystemNotFoundException If the file system does not exist
+         * @throws SecurityException           If a security manager is installed and it denies an unspecified permission.
+         */
     @Override
     public FileSystem getFileSystem(URI uri) {
-        ObjectStorageFileSystem fileSystem = fileSystems.get(uri);
+        validateScheme(uri);
+        validateProviderAddress();
+        String fileSystemRoot = extractFileSystemRoot(uri);
+        AbstractRemoteFileSystem fileSystem = this.fileSystems.get(fileSystemRoot);
         if (fileSystem == null) {
             throw new FileSystemNotFoundException(uri.toString());
         }
@@ -193,31 +199,17 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public Path getPath(URI uri) {
-        if (!getScheme().equals(uri.getScheme())) {
-            throw new IllegalArgumentException("uri");
-        }
-        if (getProviderAddress().isEmpty()) {
-            throw new IllegalStateException("The VFS with scheme: " + getScheme() + " is not initialized.");
-        }
-        String resourcePathAsString = uri.getSchemeSpecificPart();
-        URI fsUri;
-        try {
-            fsUri = new URI(getScheme(), getProviderAddress(), null);
-        } catch (URISyntaxException ex) {
-            throw new IllegalArgumentException("Unable to create URI for VFS with scheme: " + getScheme() + ". Details: " + ex.getMessage(), ex);
-        }
-
-        ObjectStorageFileSystem fileSystem = fileSystems.get(uri);
-
+        validateScheme(uri);
+        validateProviderAddress();
+        String fileSystemRoot = extractFileSystemRoot(uri);
+        AbstractRemoteFileSystem fileSystem = this.fileSystems.get(fileSystemRoot);
         if (fileSystem == null) {
-            try {
-                fileSystem = (ObjectStorageFileSystem) newFileSystem(fsUri, new HashMap<>());
-            } catch (IOException ex) {
-                throw new IllegalArgumentException("Unable to create URI for VFS with scheme: " + getScheme() + ". Details: " + ex.getMessage(), ex);
-            }
+            Map<String, ?> env = Collections.emptyMap();
+            fileSystem = newFileSystem(fileSystemRoot, env);
+            this.fileSystems.put(fileSystemRoot, fileSystem);
         }
-        String pathName = fileSystem.getSeparator() + resourcePathAsString;
-        return ObjectStoragePath.parsePath(fileSystem, pathName);
+        String resourcePathAsString = extractSchemeSpecificPart(uri);
+        return ObjectStoragePath.parsePath(fileSystem, resourcePathAsString);
     }
 
     /**
@@ -261,7 +253,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
-        ObjectStorageFileSystem fs = (ObjectStorageFileSystem) path.getFileSystem();
+        AbstractRemoteFileSystem fs = (AbstractRemoteFileSystem) path.getFileSystem();
         return fs.openByteChannel((ObjectStoragePath) path, options, attrs);
     }
 
@@ -278,7 +270,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     @Override
     public DirectoryStream<Path> newDirectoryStream(Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
         try {
-            ObjectStorageFileSystem fs = (ObjectStorageFileSystem) dir.getFileSystem();
+            AbstractRemoteFileSystem fs = (AbstractRemoteFileSystem) dir.getFileSystem();
             Iterable<Path> directories = fs.walkDir(dir, filter);
             return new DirectoryStream<Path>() {
                 @NotNull
@@ -505,9 +497,9 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @param fileSystem The FS to remove
      */
     void unlinkFileSystem(FileSystem fileSystem) {
-        for (Map.Entry<URI, ObjectStorageFileSystem> entry : fileSystems.entrySet()) {
+        for (Map.Entry<String, AbstractRemoteFileSystem> entry : this.fileSystems.entrySet()) {
             if (entry.getValue() == fileSystem) {
-                fileSystems.remove(entry.getKey());
+                this.fileSystems.remove(entry.getKey());
                 return;
             }
         }
