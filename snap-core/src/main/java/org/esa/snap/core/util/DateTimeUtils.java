@@ -17,7 +17,11 @@ package org.esa.snap.core.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 /**
@@ -30,9 +34,16 @@ import java.util.Date;
 public class DateTimeUtils {
 
     /**
-     * An ISO 8601 date/time format.
+     * An ISO 8601 date/time format. This does not give UTC times.
      */
     public static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+    public static final SimpleDateFormat ISO_8601_UTC_FORMAT;
+
+    static{
+        ISO_8601_UTC_FORMAT = (SimpleDateFormat) ISO_8601_FORMAT.clone();
+        final Calendar calendar = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
+        ISO_8601_UTC_FORMAT.setCalendar(calendar);
+    }
 
     /**
      * The number of days from noon Jan 1, 4713 BC (Proleptic Julian) to midnight 1/1/1970 AD (Gregorian).
@@ -41,7 +52,7 @@ public class DateTimeUtils {
     public static final double JD_OFFSET = 2440587.5;
     /**
      * The Modified Julian Day (MJD) gives the number of days since midnight on November 17, 1858. This date
-     * corresponds to <code>MJD_OFFSET = 2400000.5</code> days after day zero of the Julian calendar.
+     * corresponds to {@code MJD_OFFSET = 2400000.5} days after day zero of the Julian calendar.
      */
     public static final double MJD_OFFSET = 2400000.5;
 
@@ -105,7 +116,7 @@ public class DateTimeUtils {
      * <p><i>Important note:</i> Due to the limitations of {@link java.util.Date java.util.Date} this method does not
      * take leap seconds into account.
      *
-     * @param utc the UTC date/time, if <code>null</code> the current time is converted
+     * @param utc the UTC date/time, if {@code null} the current time is converted
      *
      * @return the julian day
      */
@@ -115,8 +126,8 @@ public class DateTimeUtils {
     }
 
     /**
-     * Converts a UTC date/time value to a string. The method uses the ISO 8601 date/time format <code>YYYY-MM-DD
-     * hh:mm:ss.S</code>
+     * Converts a UTC date/time value to a string. The method uses the ISO 8601 date/time format {@code YYYY-MM-DD
+     * hh:mm:ss.S}
      * <p><i>Important note:</i> Due to the limitations of {@link java.util.Date java.util.Date} this method does not
      * take leap seconds into account.
      *
@@ -125,18 +136,18 @@ public class DateTimeUtils {
      * @return the UTC date/time string
      */
     public static String utcToString(Date utc) {
-        return ISO_8601_FORMAT.format(utc != null ? utc : new Date());
+        return ISO_8601_UTC_FORMAT.format(utc != null ? utc : new Date());
     }
 
     /**
      * Converts a UTC date/time string to a UTC date/time value. The method uses the ISO 8601 date/time format
-     * <code>YYYY-MM-DD hh:mm:ss.S</code>
+     * {@code YYYY-MM-DD hh:mm:ss.S}.
      * <p><i>Important note:</i> Due to the limitations of {@link java.util.Date java.util.Date} this method does not
      * take leap seconds into account.
      *
      * @param utc the UTC date/time string
      */
     public static Date stringToUTC(String utc) throws ParseException {
-        return ISO_8601_FORMAT.parse(utc);
+        return ISO_8601_UTC_FORMAT.parse(utc);
     }
 }
