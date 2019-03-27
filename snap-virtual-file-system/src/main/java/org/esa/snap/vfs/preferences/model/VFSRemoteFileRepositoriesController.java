@@ -89,6 +89,7 @@ public final class VFSRemoteFileRepositoriesController {
     private final Properties properties = new Properties();
 
     private String remoteRepositoriesIds;
+    private boolean isChanged = false;
 
     /**
      * Creates the new VFS Remote File Repositories Controller with default config file.
@@ -175,6 +176,7 @@ public final class VFSRemoteFileRepositoriesController {
             }
             inputStream = Files.newInputStream(vfsConfigFile);
             properties.load(inputStream);
+            isChanged = false;
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Unable to load VFS Remote File Repositories Properties from SNAP configuration file. Details: " + ex.getMessage());
         } finally {
@@ -199,6 +201,7 @@ public final class VFSRemoteFileRepositoriesController {
             }
             outputStream = Files.newOutputStream(vfsConfigFile);
             properties.store(outputStream, "");
+            isChanged = false;
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Unable to save VFS properties to SNAP configuration file. Details: " + ex.getMessage());
         } finally {
@@ -218,14 +221,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @return {@code true} if VFS Remote File Repositories Properties is changed
      */
     public boolean isChanged() {
-        Properties newProperties = new Properties();
-        try (InputStream inputStream = Files.newInputStream(vfsConfigFile)) {
-            newProperties.load(inputStream);
-            return !newProperties.equals(properties);
-        } catch (Exception ex) {
-            logger.log(Level.WARNING, "Unable to check changes for VFS Remote File Repositories Properties. Details: " + ex.getMessage());
-        }
-        return false;
+        return isChanged;
     }
 
     /**
@@ -237,6 +233,7 @@ public final class VFSRemoteFileRepositoriesController {
         if (property != null) {
             try {
                 properties.setProperty(property.getName(), property.getValue());
+                isChanged = true;
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Unable to write the property on properties. Details: " + ex.getMessage());
             }
@@ -263,6 +260,7 @@ public final class VFSRemoteFileRepositoriesController {
         if (property != null) {
             try {
                 properties.remove(property.getName());
+                isChanged = true;
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Unable to remove the property from SNAP configuration file. Details: " + ex.getMessage());
             }
