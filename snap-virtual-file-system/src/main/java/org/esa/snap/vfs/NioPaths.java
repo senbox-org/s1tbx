@@ -40,11 +40,7 @@ public class NioPaths {
      * @see FileSystem#getPath
      */
     public static Path get(String first, String... more) {
-        Path path = VFS.getVirtualPath(first, more);
-        if (path != null) {
-            return path;
-        }
-        return FileSystems.getDefault().getPath(first, more);
+        return VFS.getInstance().get(first, more);
     }
 
     /**
@@ -76,15 +72,4 @@ public class NioPaths {
     public static Path get(URI uri) {
         return VFS.getInstance().getPath(uri);
     }
-
-    /**
-     * Tells whether or not <code>path</code> is a VFS path.
-     *
-     * @param path String representation of a path
-     * @return {@code true} if <code>path</code> is a VFS path
-     */
-    public static boolean isVirtualFileSystemPath(String path) {
-        return VFS.getVirtualPath(path) != null;
-    }
-
 }

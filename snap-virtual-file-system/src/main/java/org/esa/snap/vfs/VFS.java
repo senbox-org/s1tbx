@@ -108,11 +108,23 @@ public class VFS {
         throw new FileSystemNotFoundException("The file system provider with the scheme '" + scheme + "' is not installed.");
     }
 
-    public static Path getVirtualPath(String first, String... more) {
+    public Path get(String first, String... more) {
+        Path path = getVirtualPath(first, more);
+        if (path != null) {
+            return path;
+        }
+        return FileSystems.getDefault().getPath(first, more);
+    }
+
+    public boolean isVirtualFileSystemPath(String path) {
+        return (getVirtualPath(path) != null);
+    }
+
+    public Path getVirtualPath(String first, String... more) {
         for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
             if (provider instanceof AbstractRemoteFileSystemProvider) {
                 AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider)provider;
-                Path path = remoteFileSystemProvider.findPath(first, more);
+                Path path = remoteFileSystemProvider.getPathIfFileSystemRootMatches(first, more);
                 if (path != null) {
                     return path;
                 }

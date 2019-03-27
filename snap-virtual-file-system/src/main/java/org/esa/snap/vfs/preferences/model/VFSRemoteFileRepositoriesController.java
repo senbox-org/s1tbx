@@ -550,7 +550,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositoryName The remote file repository name
      * @return {@code true} if the new remote file repository name is unique
      */
-    private boolean isUniqueRemoteRepositoryName(String newRemoteRepositoryName) {
+    public boolean isUniqueRemoteRepositoryName(String newRemoteRepositoryName) {
         remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
             String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
@@ -570,7 +570,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositorySchema The remote file repository schema
      * @return {@code true} if the new remote file repository schema is unique
      */
-    private boolean isUniqueRemoteRepositorySchema(String newRemoteRepositorySchema) {
+    public boolean isUniqueRemoteRepositorySchema(String newRemoteRepositorySchema) {
         remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
             String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
@@ -591,7 +591,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositoryPropertyName The remote file repository property name
      * @return {@code true} if the new remote file repository property name is unique
      */
-    private boolean isUniqueRemoteRepositoryPropertyName(String remoteRepositoryId, String newRemoteRepositoryPropertyName) {
+    public boolean isUniqueRemoteRepositoryPropertyName(String remoteRepositoryId, String newRemoteRepositoryPropertyName) {
         String remoteRepositoryPropertiesIds = getRemoteRepositoryPropertiesIds(remoteRepositoryId).getValue();
         if (remoteRepositoryPropertiesIds != null && !remoteRepositoryPropertiesIds.isEmpty()) {
             String[] remoteRepositoriesPropertiesIdsList = remoteRepositoryPropertiesIds.split(LIST_ITEM_SEPARATOR);
