@@ -294,31 +294,4 @@ public class Resample {
 
     }
 
-    private class NewImage extends PlanarImage {
-
-
-        @Override
-        public Raster getTile(int i, int i1) {
-            return null;
-        }
-    }
-
-    private class NewOp extends GeometricOpImage {
-
-
-        public NewOp(Vector sources, ImageLayout layout, Map configuration, boolean cobbleSources, BorderExtender extender, Interpolation interp) {
-            super(sources, layout, configuration, cobbleSources, extender, interp);
-        }
-
-        @Override
-        protected Rectangle forwardMapRect(Rectangle rectangle, int i) {
-            return null;
-        }
-
-        @Override
-        protected Rectangle backwardMapRect(Rectangle rectangle, int i) {
-            return null;
-        }
-    }
-
 }

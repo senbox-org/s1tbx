@@ -38,14 +38,14 @@ public class BeamInitialisationPart extends CfInitialisationPart {
         Dimension y = null;
         for (Dimension dimension : ctx.getNetcdfFile().getDimensions()) {
             final String name = dimension.getShortName();
-            if ("x".equalsIgnoreCase(name) || "lon".equalsIgnoreCase(name)) {
+            if ("x".equalsIgnoreCase(name) || "lon".equalsIgnoreCase(name) || "lon_intern".equalsIgnoreCase(name)) {
                 x = dimension;
-            } else if ("y".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name)) {
+            } else if ("y".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name) || "lat_intern".equalsIgnoreCase(name)) {
                 y = dimension;
             }
         }
         if (x == null || y == null) {
-            throw new ProductIOException("Illegal Dimensions: Dimensions named (x,lon) and (y,lat) expected.");
+            throw new ProductIOException("Illegal Dimensions: Dimensions named (x,lon,lon_intern) and (y,lat,lat_intern) expected.");
         }
         return new Product(
                 (String) ctx.getProperty(Constants.PRODUCT_FILENAME_PROPERTY),
