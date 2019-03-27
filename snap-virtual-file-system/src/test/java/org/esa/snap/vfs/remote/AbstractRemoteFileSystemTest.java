@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public class ObjectStorageFileSystemTest {
+public class AbstractRemoteFileSystemTest {
 
     private static final String FS_ID = "test:/TEST:/";
 

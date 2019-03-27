@@ -1,9 +1,10 @@
 package org.esa.snap.vfs.remote.swift;
 
+import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
+import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
-import org.esa.snap.vfs.remote.ObjectStorageFileSystem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,11 +43,11 @@ import static org.junit.Assert.fail;
  *
  * @author Adrian Drăghici
  */
-public abstract class SwiftFileSystemTest extends AbstractVFSTest {
+public class SwiftFileSystemTest extends AbstractVFSTest {
 
     private static Logger logger = Logger.getLogger(SwiftFileSystemTest.class.getName());
 
-    private static ObjectStorageFileSystem swiftFileSystem;
+    private static AbstractRemoteFileSystem swiftFileSystem;
     private static VFSRemoteFileRepository swiftRepo;
 
 
@@ -93,8 +94,8 @@ public abstract class SwiftFileSystemTest extends AbstractVFSTest {
             //do nothing
         }
         assertNotNull(fs);
-        assertTrue(fs instanceof ObjectStorageFileSystem);
-        swiftFileSystem = (ObjectStorageFileSystem) fs;
+        assertTrue(fs instanceof AbstractRemoteFileSystem);
+        swiftFileSystem = (AbstractRemoteFileSystem) fs;
     }
 
     @After
@@ -107,13 +108,13 @@ public abstract class SwiftFileSystemTest extends AbstractVFSTest {
     public void testScanner() throws Exception {
         List<BasicFileAttributes> items;
 
-        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk("");
+        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk(NioPaths.get(""));
         assertEquals(8, items.size());
 
-        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk("romania/");
+        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk(NioPaths.get("romania/"));
         assertEquals(5267, items.size());
 
-        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk("romania/LC08_L2A_180029_20161010_20170320_01_T1/");
+        items = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", "").walk(NioPaths.get("romania/LC08_L2A_180029_20161010_20170320_01_T1/"));
         assertEquals(9, items.size());
     }
 

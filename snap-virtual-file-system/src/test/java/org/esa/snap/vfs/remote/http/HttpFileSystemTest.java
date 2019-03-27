@@ -1,9 +1,10 @@
 package org.esa.snap.vfs.remote.http;
 
+import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
+import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
-import org.esa.snap.vfs.remote.ObjectStorageFileSystem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class HttpFileSystemTest extends AbstractVFSTest {
 
     private static Logger logger = Logger.getLogger(HttpFileSystemTest.class.getName());
 
-    private static ObjectStorageFileSystem httpFileSystem;
+    private static AbstractRemoteFileSystem httpFileSystem;
     private static VFSRemoteFileRepository httpRepo;
     private static HttpMockService mockService;
 
@@ -75,8 +76,8 @@ public class HttpFileSystemTest extends AbstractVFSTest {
             URI uri = new URI(httpRepo.getScheme() + ":" + httpRepo.getAddress());
             FileSystem fs = fileSystemProvider.newFileSystem(uri, null);
             assumeNotNull(fs);
-            assumeTrue(fs instanceof ObjectStorageFileSystem);
-            httpFileSystem = (ObjectStorageFileSystem) fs;
+            assumeTrue(fs instanceof AbstractRemoteFileSystem);
+            httpFileSystem = (AbstractRemoteFileSystem) fs;
             Path serviceRootPath = vfsTestsFolderPath.resolve("http/mock-api");
             assumeTrue(Files.exists(serviceRootPath));
             mockService = new HttpMockService(new URL(httpRepo.getAddress()), serviceRootPath);
@@ -101,13 +102,13 @@ public class HttpFileSystemTest extends AbstractVFSTest {
     public void testScanner() throws Exception {
         List<BasicFileAttributes> items;
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk("");
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk(NioPaths.get(""));
         assertEquals(2, items.size());
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk("rootDir1/");
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk(NioPaths.get("rootDir1/"));
         assertEquals(10, items.size());
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk("rootDir1/dir1/");
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk(NioPaths.get("rootDir1/dir1/"));
         assertEquals(6, items.size());
     }
 
