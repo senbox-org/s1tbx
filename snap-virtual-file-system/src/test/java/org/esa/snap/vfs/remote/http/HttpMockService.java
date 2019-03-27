@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpsServer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.file.Files;
@@ -50,11 +51,11 @@ class HttpMockService {
 
             }
             if (!Files.exists(responsePath)) {
-                httpExchange.sendResponseHeaders(404, 1);
+                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_NOT_FOUND, 0);
                 return;
             }
             byte[] response = readFile(responsePath);
-            httpExchange.sendResponseHeaders(200, response.length);
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
             OutputStream os = httpExchange.getResponseBody();
             os.write(response);
             os.close();

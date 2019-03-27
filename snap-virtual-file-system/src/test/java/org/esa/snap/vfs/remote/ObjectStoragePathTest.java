@@ -31,16 +31,16 @@ public class ObjectStoragePathTest {
 
     private static Logger logger = Logger.getLogger(ObjectStoragePathTest.class.getName());
 
-    private static final String FS_ID = "test:" + ObjectStoragePathTest.class.getName();
-    private static ObjectStorageFileSystem fs;
+    private static final String FS_ID = "http:/HTTP:/";
+    private static AbstractRemoteFileSystem fs;
 
     @BeforeClass
     public static void setUp() throws Exception {
         Map<String, ?> env = new HashMap<>();
         FileSystem fs = FileSystems.newFileSystem(new URI(FS_ID), env);
         assertNotNull(fs);
-        assertTrue(fs instanceof ObjectStorageFileSystem);
-        ObjectStoragePathTest.fs = (ObjectStorageFileSystem) fs;
+        assertTrue(fs instanceof AbstractRemoteFileSystem);
+        ObjectStoragePathTest.fs = (AbstractRemoteFileSystem) fs;
     }
 
     @AfterClass
@@ -56,19 +56,19 @@ public class ObjectStoragePathTest {
         assertEquals(0, path.getNameCount());
 
         path = ObjectStoragePath.parsePath(fs, "/");
-        assertEquals(1, path.getNameCount());
+        assertEquals(0, path.getNameCount());
 
         path = ObjectStoragePath.parsePath(fs, "/hello");
-        assertEquals(1, path.getNameCount());
+        assertEquals(2, path.getNameCount());
 
         path = ObjectStoragePath.parsePath(fs, "hello/there");
         assertEquals(2, path.getNameCount());
 
         path = ObjectStoragePath.parsePath(fs, "/hello/there");
-        assertEquals(2, path.getNameCount());
+        assertEquals(3, path.getNameCount());
 
         path = ObjectStoragePath.parsePath(fs, "/hello/there/");
-        assertEquals(2, path.getNameCount());
+        assertEquals(3, path.getNameCount());
     }
 
     @Test
@@ -78,13 +78,13 @@ public class ObjectStoragePathTest {
         path = ObjectStoragePath.parsePath(fs, "");
         assertFalse(path.isAbsolute());
 
-        path = ObjectStoragePath.parsePath(fs, "/");
+        path = ObjectStoragePath.parsePath(fs, "/HTTP:/");
         assertTrue(path.isAbsolute());
 
-        path = ObjectStoragePath.parsePath(fs, "hello/there");
+        path = ObjectStoragePath.parsePath(fs, "/HTTP:/hello/there");
         assertFalse(path.isAbsolute());
 
-        path = ObjectStoragePath.parsePath(fs, "/hello/there/");
+        path = ObjectStoragePath.parsePath(fs, "/HTTP:/hello/there/");
         assertTrue(path.isAbsolute());
     }
 
@@ -196,14 +196,14 @@ public class ObjectStoragePathTest {
 
         path = ObjectStoragePath.parsePath(fs, "");
         assertEquals("", path.resolveSibling("").toString());
-        assertEquals("/Test:/", path.resolveSibling("/").toString());
+        assertEquals("", path.resolveSibling("/").toString());
         assertEquals("gus", path.resolveSibling("gus").toString());
-        assertEquals("gus/", path.resolveSibling("gus/").toString());
-        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("gus", path.resolveSibling("gus/").toString());
+        assertEquals("/gus", path.resolveSibling("/gus/").toString());
 
         path = ObjectStoragePath.parsePath(fs, "/");
-        assertEquals("/Test:/", path.resolveSibling("").toString());
-        assertEquals("/Test:/", path.resolveSibling("/").toString());
+        assertEquals("", path.resolveSibling("").toString());
+        assertEquals("/Test:/", path.resolveSibling("/Test:/").toString());
         assertEquals("/gus", path.resolveSibling("gus").toString());
         assertEquals("/gus/", path.resolveSibling("gus/").toString());
         assertEquals("/gus/", path.resolveSibling("/gus/").toString());
@@ -254,7 +254,7 @@ public class ObjectStoragePathTest {
         assertEquals("", path.toString());
 
         path = ObjectStoragePath.parsePath(fs, "/");
-        assertEquals("/Test:/", path.toString());
+        assertEquals("", path.toString());
 
         path = ObjectStoragePath.parsePath(fs, "hello");
         assertEquals("hello", path.toString());

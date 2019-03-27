@@ -16,7 +16,7 @@ public class TestRemoteFileSystemProvider extends AbstractRemoteFileSystemProvid
     private final static String SCHEME = "test";
 
     public TestRemoteFileSystemProvider() {
-        super(TEST_ROOT);
+        super();
     }
 
     /**
@@ -35,13 +35,12 @@ public class TestRemoteFileSystemProvider extends AbstractRemoteFileSystemProvid
     }
 
     @Override
-    protected ObjectStorageFileSystem newFileSystem(String address, Map<String, ?> env) {
-        Object delimiter = env.get("delimiter");
-        return new TestRemoteFileSystem(this, address, delimiter != null ? delimiter.toString() : "/");
+    protected AbstractRemoteFileSystem newFileSystem(String address, Map<String, ?> env) {
+        return new TestRemoteFileSystem(this, TEST_ROOT);
     }
 
     @Override
-    protected ObjectStorageWalker newObjectStorageWalker() {
+    protected ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot) {
         return null;
     }
 
@@ -51,14 +50,19 @@ public class TestRemoteFileSystemProvider extends AbstractRemoteFileSystemProvid
     }
 
     @Override
+    public String getProviderFileSeparator() {
+        return "/";
+    }
+
+    @Override
     public HttpsURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) {
         return null;
     }
 
-    private class TestRemoteFileSystem extends ObjectStorageFileSystem {
+    private class TestRemoteFileSystem extends AbstractRemoteFileSystem {
 
-        TestRemoteFileSystem(AbstractRemoteFileSystemProvider provider, String address, String separator) {
-            super(provider, address, separator);
+        TestRemoteFileSystem(AbstractRemoteFileSystemProvider provider, String root) {
+            super(provider, root);
         }
     }
 

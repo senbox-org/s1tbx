@@ -1,9 +1,10 @@
 package org.esa.snap.vfs.remote.s3;
 
+import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
+import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
-import org.esa.snap.vfs.remote.ObjectStorageFileSystem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class S3FileSystemTest extends AbstractVFSTest {
 
     private static Logger logger = Logger.getLogger(S3FileSystemTest.class.getName());
 
-    private static ObjectStorageFileSystem s3FileSystem;
+    private static AbstractRemoteFileSystem s3FileSystem;
     private static VFSRemoteFileRepository s3Repo;
 
     private static String getBucketAddress() {
@@ -77,8 +78,8 @@ public class S3FileSystemTest extends AbstractVFSTest {
             //do nothing
         }
         assertNotNull(fs);
-        assertTrue(fs instanceof ObjectStorageFileSystem);
-        s3FileSystem = (ObjectStorageFileSystem) fs;
+        assertTrue(fs instanceof AbstractRemoteFileSystem);
+        s3FileSystem = (AbstractRemoteFileSystem) fs;
     }
 
     @After
@@ -90,13 +91,13 @@ public class S3FileSystemTest extends AbstractVFSTest {
     @Test
     public void testScanner() throws Exception {
         List<BasicFileAttributes> items;
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk("");
+        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk(NioPaths.get(""));
         assertEquals(11, items.size());
 
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk(".git/");
+        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk(NioPaths.get(".git/"));
         assertEquals(11, items.size());
 
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk("css/");
+        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk(NioPaths.get("css/"));
         assertEquals(2, items.size());
     }
 
