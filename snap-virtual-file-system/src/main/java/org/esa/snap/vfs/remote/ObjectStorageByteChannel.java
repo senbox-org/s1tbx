@@ -1,21 +1,17 @@
 package org.esa.snap.vfs.remote;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.SeekableByteChannel;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Byte Channel for Object Storage VFS.
@@ -47,13 +43,12 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      */
     private static final int CONNECT_MODE_DELETE = 4;
 
-    private static Logger logger = Logger.getLogger(ObjectStorageByteChannel.class.getName());
-
     private final ObjectStoragePath path;
     private final URL url;
-    private URLConnection connection;
+    private final long contentLength;
+
+    private HttpURLConnection connection;
     private long position;
-    private long contentLength;
 
     /**
      * Creates the new byte channel for Object Storage VFS
@@ -62,13 +57,11 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      * @throws IOException If an I/O error occurs
      */
     ObjectStorageByteChannel(ObjectStoragePath path) throws IOException {
-        String root = path.getRoot().toString();
-        path = path.startsWith(root) ? ObjectStoragePath.parsePath((ObjectStorageFileSystem) path.getFileSystem(), path.toString().replaceAll(root, "/")) : path;
         this.path = path;
-        this.url = path.getFileURL();
+        this.url = path.buildURL();
         this.position = 0;
         connect(CONNECT_MODE_READ);
-        this.contentLength = connection.getContentLengthLong();
+        this.contentLength = this.connection.getContentLengthLong();
     }
 
     /**
@@ -81,7 +74,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     @Override
     public long size() throws IOException {
         assertOpen();
-        return contentLength;
+        return this.contentLength;
     }
 
     /**
@@ -94,7 +87,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     @Override
     public long position() throws ClosedChannelException {
         assertOpen();
-        return position;
+        return this.position;
     }
 
     /**
@@ -113,8 +106,8 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
         if (newPosition < 0) {
             throw new IllegalArgumentException("newPosition is negative");
         }
-        if (newPosition > contentLength) {
-            throw new EOFException(url.toString());
+        if (newPosition > this.contentLength) {
+            throw new EOFException(this.url.toString());
         }
         this.position = newPosition;
         return this;
@@ -127,7 +120,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      */
     @Override
     public boolean isOpen() {
-        return connection != null;
+        return this.connection != null;
     }
 
     /**
@@ -137,20 +130,11 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      */
     @Override
     public void close() throws IOException {
-        try {
-            if (connection != null) {
-                if (url.getProtocol().equals("https")) {
-                    ((HttpsURLConnection) connection).disconnect();
-                } else {
-                    ((HttpURLConnection) connection).disconnect();
-                }
-                connection = null;
-            }
-            ((ObjectStorageFileSystem) path.getFileSystem()).removeByteChannel(this);
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to close the Byte Channel. Details: " + ex.getMessage());
-            throw new IOException(ex);
+        if (this.connection != null) {
+            this.connection.disconnect();
+            this.connection = null;
         }
+        this.path.getFileSystem().removeByteChannel(this);
     }
 
     /**
@@ -164,11 +148,11 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     @Override
     public int read(ByteBuffer dst) throws IOException {
         assertOpen();
-        if (position >= contentLength) {
+        if (this.position >= this.contentLength) {
             throw new EOFException(url.toString());
         }
         connect(CONNECT_MODE_READ);
-        InputStream stream = connection.getInputStream();
+        InputStream stream = this.connection.getInputStream();
         int numRemaining = dst.remaining();
         if (dst.hasArray()) {
             byte[] bytes = dst.array();
@@ -192,12 +176,12 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      */
     long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
         assertOpen();
-        if (position >= contentLength) {
+        if (this.position >= this.contentLength) {
             throw new EOFException(url.toString());
         }
         connect(CONNECT_MODE_READ);
         long bytesRead = 0;
-        InputStream stream = connection.getInputStream();
+        InputStream stream = this.connection.getInputStream();
         for (ByteBuffer dst : dsts) {
             int numRemaining = dst.remaining();
             if (dst.hasArray()) {
@@ -226,7 +210,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     public int write(ByteBuffer src) throws IOException {
         assertOpen();
         connect(CONNECT_MODE_WRITE);
-        OutputStream stream = connection.getOutputStream();
+        OutputStream stream = this.connection.getOutputStream();
         int numRemaining = src.remaining();
         int numWritten = 0;
         if (src.hasArray()) {
@@ -261,7 +245,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
         assertOpen();
         connect(CONNECT_MODE_WRITE);
         long bytesWritten = 0;
-        OutputStream stream = connection.getOutputStream();
+        OutputStream stream = this.connection.getOutputStream();
         for (ByteBuffer src : srcs) {
             int numRemaining = src.remaining();
             int numWritten = 0;
@@ -380,6 +364,6 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
             String rangeSpec = "bytes=" + position + "-" + (contentLength - 1);
             requestProperties.put("Range", rangeSpec);
         }
-        connection = ((AbstractRemoteFileSystemProvider) path.getFileSystem().provider()).getProviderConnectionChannel(url, mode, requestProperties);
+        this.connection = (HttpURLConnection)path.getFileSystem().provider().getProviderConnectionChannel(this.url, mode, requestProperties);
     }
 }

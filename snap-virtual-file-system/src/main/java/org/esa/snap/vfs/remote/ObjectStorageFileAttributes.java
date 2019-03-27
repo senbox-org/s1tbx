@@ -43,9 +43,10 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
         BasicFileAttributes fileAttributes = path.getFileAttributes();
         if (fileAttributes == null) {
             if (path.isDirectory()) {
-                fileAttributes = newDir(path.toString().substring(1));
+                fileAttributes = newDir(path.toString());
             } else {
-                fileAttributes = ((AbstractRemoteFileSystemProvider) path.getFileSystem().provider()).newObjectStorageWalker().getObjectStorageFile(path.getFileURL().toString(), path.toString());
+                AbstractRemoteFileSystem fileSystem = path.getFileSystem();
+                fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(path.buildURL().toString(), path.toString());
             }
             path.setFileAttributes(fileAttributes);
         }
@@ -244,15 +245,15 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
      */
     private static class DirAttributes extends ObjectStorageFileAttributes {
 
-        private final String prefix;
+        private final String fileKey;
 
         /**
          * Creates new basic file attributes for a VFS directory.
          *
-         * @param prefix The VFS path of directory
+         * @param fileKey The VFS path of directory
          */
-        DirAttributes(String prefix) {
-            this.prefix = prefix;
+        DirAttributes(String fileKey) {
+            this.fileKey = fileKey;
         }
 
         /**
@@ -262,7 +263,7 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
          */
         @Override
         public Object fileKey() {
-            return prefix;
+            return fileKey;
         }
 
         /**

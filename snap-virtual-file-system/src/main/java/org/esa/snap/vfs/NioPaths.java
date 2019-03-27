@@ -1,18 +1,10 @@
 package org.esa.snap.vfs;
 
 
-import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.spi.FileSystemProvider;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Paths for VFS
@@ -21,8 +13,6 @@ import java.util.logging.Logger;
  * @author Adrian Drăghici
  */
 public class NioPaths {
-
-    private static Logger logger = Logger.getLogger(NioPaths.class.getName());
 
     private NioPaths() {
     }
@@ -49,69 +39,11 @@ public class NioPaths {
      * @see FileSystem#getPath
      */
     public static Path get(String first, String... more) {
-
-        for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
-            try {
-                if (provider instanceof AbstractRemoteFileSystemProvider && first.startsWith("/" + ((AbstractRemoteFileSystemProvider) provider).getRoot())) {
-                    return provider.getFileSystem(new URI(provider.getScheme() + ":" + ((AbstractRemoteFileSystemProvider) provider).getProviderAddress())).getPath(first, more);
-                }
-            } catch (URISyntaxException ex) {
-                logger.log(Level.SEVERE, "Unable to convert the path string to VFS path. Details: " + ex.getMessage());
-            }
+        Path path = VFS.getVirtualPath(first, more);
+        if (path != null) {
+            return path;
         }
-        try {
-            return FileSystems.getDefault().getPath(first, more);
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to convert the path string to VFS path. Details: VFS providers not loaded.");
-            throw new FileSystemNotFoundException("VFS not loaded.");
-        }
-    }
-
-    /**
-     * Converts the given URI to a {@link Path} object.
-     *
-     * <p> This method iterates over the {@link FileSystemProvider#installedProviders() installed} providers to locate the provider that is identified by the
-     * URI {@link URI#getScheme scheme} of the given URI. URI schemes are compared without regard to case. If the provider is found then its {@link
-     * FileSystemProvider#getPath getPath} method is invoked to convert the
-     * URI.
-     *
-     * <p> In the case of the default provider, identified by the URI scheme
-     * "file", the given URI has a non-empty path component, and undefined query and fragment components. Whether the authority component may be present is platform specific. The returned {@code Path} is associated with the
-     * {@link FileSystems#getDefault default} file system.
-     *
-     * <p> The default provider provides a similar <em>round-trip</em> guarantee to the {@link java.io.File} class. For a given {@code Path} <i>p</i> it is guaranteed that
-     * <blockquote><tt>
-     * NioPaths.get(</tt><i>p</i><tt>.{@link Path#toUri() toUri}()).equals(</tt>
-     * <i>p</i><tt>.{@link Path#toAbsolutePath() toAbsolutePath}())</tt>
-     * </blockquote> so long as the original {@code Path}, the {@code URI}, and the new {@code
-     * Path} are all created in (possibly different invocations of) the same
-     * Java virtual machine. Whether other providers make any guarantees is provider specific and therefore unspecified.
-     *
-     * @param uri the URI to convert
-     * @return the resulting {@code Path}
-     * @throws IllegalArgumentException    if preconditions on the {@code uri} parameter do not hold. The format of the URI is provider specific.
-     * @throws FileSystemNotFoundException The file system, identified by the URI, does not exist and cannot be created automatically, or the provider identified by the URI's scheme component is not installed
-     * @throws SecurityException           if a security manager is installed and it denies an unspecified permission to access the file system
-     */
-    public static Path get(URI uri) {
-        return VFS.getInstance().getPath(uri);
-    }
-
-    /**
-     * Tells whether if <code>dir</code> is the root of a tree in the VFS, such as a HTTP Object Storage VFS.
-     *
-     * @param dir a <code>File</code> object representing a directory
-     * @return {@code true} if <code>dir</code> is a root of a VFS
-     */
-    public static boolean isVirtualFileSystemRoot(java.io.File dir) {
-        if (dir instanceof NioFile) {
-            for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
-                if (provider instanceof AbstractRemoteFileSystemProvider && dir.getPath().equals("/" + ((AbstractRemoteFileSystemProvider) provider).getRoot())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return FileSystems.getDefault().getPath(first, more);
     }
 
     /**
@@ -121,15 +53,7 @@ public class NioPaths {
      * @return {@code true} if <code>path</code> is a VFS path
      */
     public static boolean isVirtualFileSystemPath(String path) {
-        try {
-            Path p = get(path);
-            if (!(p.getFileSystem().provider() instanceof AbstractRemoteFileSystemProvider)) {
-                return false;
-            }
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to check whether path string is VFS path. Details: " + ex.getMessage());
-        }
-        return true;
+        return VFS.getVirtualPath(path) != null;
     }
 
 }

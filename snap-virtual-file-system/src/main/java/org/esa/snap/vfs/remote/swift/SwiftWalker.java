@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,11 +106,12 @@ class SwiftWalker implements ObjectStorageWalker {
     /**
      * Gets a list of VFS files and directories from to the given prefix.
      *
-     * @param prefix The VFS path to traverse
+     * @param dir The VFS path to traverse
      * @return The list of VFS files and directories
      * @throws IOException If an I/O error occurs
      */
-    public List<BasicFileAttributes> walk(String prefix) throws IOException {
+    public List<BasicFileAttributes> walk(Path dir) throws IOException {
+        String prefix = dir.toString();
         String currentContainer;
         if (container != null && !container.isEmpty()) {
             currentContainer = container;

@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -28,14 +27,13 @@ import static org.junit.Assert.assertTrue;
 public class ObjectStorageFileSystemTest {
 
     private static final String FS_ID = "test:/TEST:/";
-    private static Logger logger = Logger.getLogger(ObjectStorageFileSystemTest.class.getName());
 
     @Test
     public void testFileSystemsNewFileSystem() throws Exception {
         Map<String, ?> env = new HashMap<>();
         URI uri = new URI(FS_ID);
         FileSystem fileSystem = FileSystems.newFileSystem(uri, env);
-        assertTrue(fileSystem instanceof ObjectStorageFileSystem);
+        assertTrue(fileSystem instanceof AbstractRemoteFileSystem);
 
         FileSystem fileSystem2 = FileSystems.getFileSystem(uri);
         assertSame(fileSystem, fileSystem2);

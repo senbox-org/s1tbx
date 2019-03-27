@@ -1,7 +1,6 @@
 package org.esa.snap.vfs.remote;
 
 import org.esa.snap.vfs.NioFile;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOError;
@@ -10,12 +9,22 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
+import java.nio.file.NotDirectoryException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.nio.file.Watchable;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -62,15 +71,13 @@ public class ObjectStoragePath implements Path {
      */
     private static final String OTHER_MISSING_ERROR_MESSAGE = "other is missing.";
 
-    private static Logger logger = Logger.getLogger(ObjectStoragePath.class.getName());
-
-    private final ObjectStorageFileSystem fileSystem;
+    private final AbstractRemoteFileSystem fileSystem;
     private final boolean absolute;
     private final boolean directory;
-    private final String pathName;
-    private String[] names;
+    private final String path;
+    private final String[] names;
+
     private BasicFileAttributes fileAttributes;
-    private URL fileURL;
 
     /**
      * Creates the new Path for Object Storage VFS.
@@ -78,69 +85,31 @@ public class ObjectStoragePath implements Path {
      * @param fileSystem     The VFS
      * @param absolute       The flag for path mode: absolute/relative
      * @param directory      The flag for path type: file/directory
-     * @param pathName       The name
+     * @param path           The path
      * @param fileAttributes The file attributes
      */
-    ObjectStoragePath(ObjectStorageFileSystem fileSystem, boolean absolute, boolean directory, String pathName, BasicFileAttributes fileAttributes) {
+    public ObjectStoragePath(AbstractRemoteFileSystem fileSystem, boolean absolute, boolean directory, String path, BasicFileAttributes fileAttributes) {
         if (fileSystem == null) {
             throw new NullPointerException("fileSystem");
         }
-        if (pathName == null) {
-            throw new NullPointerException("pathName");
+        if (path == null) {
+            throw new NullPointerException("path");
         }
         this.fileSystem = fileSystem;
         this.absolute = absolute;
         this.directory = directory;
-        this.pathName = pathName;
+        this.path = path;
         this.fileAttributes = fileAttributes;
+
+        if (this.path.isEmpty()) {
+            this.names = new String[0];
+        } else {
+            this.names = path.split(this.fileSystem.getSeparator());
+        }
     }
 
-    /**
-     * Creates the new Path for Object Storage VFS by converting given file attributes.
-     *
-     * @param fileSystem     The VFS
-     * @param fileAttributes The file attributes
-     * @return The new VFS Path
-     */
-    static ObjectStoragePath fromFileAttributes(ObjectStorageFileSystem fileSystem, BasicFileAttributes fileAttributes) {
-        String separator = fileSystem.getSeparator();
-        String pathName = fileAttributes.fileKey().toString();
-        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
-            int beginIndex = 0;
-            int endIndex = pathName.length() - separator.length();
-            pathName = pathName.substring(beginIndex, endIndex);
-        }
-        return new ObjectStoragePath(fileSystem, true, fileAttributes.isDirectory(), pathName, fileAttributes);
-    }
-
-    /**
-     * Creates the new Path for Object Storage VFS from path name.
-     *
-     * @param fileSystem The VFS
-     * @param pathName   The name
-     * @return The new VFS Path
-     */
-    static ObjectStoragePath parsePath(ObjectStorageFileSystem fileSystem, String pathName) {
-        String separator = fileSystem.getSeparator();
-        if (pathName.isEmpty()) {
-            return fileSystem.getEmpty();
-        }
-        if (pathName.equals(separator)) {
-            return fileSystem.getRoot();
-        }
-        boolean absolute = false;
-        boolean directory = false;
-        int beginIndex = 0;
-        int endIndex = pathName.length();
-        if (pathName.startsWith(separator)) {
-            absolute = true;
-            beginIndex += separator.length();
-        }
-        if (pathName.endsWith(separator)) {
-            directory = true;
-            endIndex -= separator.length();
-        }
-        return new ObjectStoragePath(fileSystem, absolute, directory, pathName.substring(beginIndex, endIndex), null);
+    public String getPath() {
+        return this.path;
     }
 
     /**
@@ -148,17 +117,17 @@ public class ObjectStoragePath implements Path {
      *
      * @return The VFS file URL
      */
-    synchronized URL getFileURL() {
-        if (fileURL == null) {
-            try {
-                String path = toString().replaceAll("\\s", "%20");
-                fileURL = new URL(fileSystem.getAddress().endsWith("/") ? fileSystem.getAddress().substring(0, fileSystem.getAddress().length() - 1) + path : fileSystem.getAddress() + path);
-            } catch (MalformedURLException ex) {
-                logger.log(Level.SEVERE, "Unable to get the VFS file path URL. Details: " + ex.getMessage());
-                throw new IllegalStateException(ex);
-            }
+    URL buildURL() throws MalformedURLException {
+        String fileSystemRootAsString = this.fileSystem.getRoot().getPath();
+        String providerAddress = this.fileSystem.provider().getProviderAddress();
+        String providerFileSeparator = this.fileSystem.provider().getProviderFileSeparator();
+        String pathAsString = this.path;
+        if (pathAsString.startsWith(fileSystemRootAsString)) {
+            // remote the file system root from the path
+            pathAsString = pathAsString.substring(fileSystemRootAsString.length());
         }
-        return fileURL;
+        String urlAsString = buildPath(providerAddress, pathAsString, providerFileSeparator);
+        return new URL(urlAsString);
     }
 
     /**
@@ -166,14 +135,7 @@ public class ObjectStoragePath implements Path {
      *
      * @return The VFS file path names
      */
-    private synchronized String[] getNames() {
-        if (names == null) {
-            if (pathName.isEmpty()) {
-                names = new String[0];
-            } else {
-                names = pathName.split(fileSystem.getSeparator());
-            }
-        }
+    private String[] getNames() {
         return names;
     }
 
@@ -184,7 +146,7 @@ public class ObjectStoragePath implements Path {
      * @return The new VFS path
      */
     private ObjectStoragePath parsePath(String pathName) {
-        return parsePath(fileSystem, pathName);
+        return parsePath(this.fileSystem, pathName);
     }
 
     /**
@@ -193,7 +155,7 @@ public class ObjectStoragePath implements Path {
      * @return the file system that created this object
      */
     @Override
-    public FileSystem getFileSystem() {
+    public AbstractRemoteFileSystem getFileSystem() {
         return fileSystem;
     }
 
@@ -243,7 +205,7 @@ public class ObjectStoragePath implements Path {
      */
     @Override
     public Path getRoot() {
-        return isAbsolute() ? fileSystem.getRoot() : null;
+        return isAbsolute() ? this.fileSystem.getRoot() : null;
     }
 
     /**
@@ -260,7 +222,7 @@ public class ObjectStoragePath implements Path {
             return null;
         }
         String name = getNames()[nameCount - 1];
-        return new ObjectStoragePath(fileSystem, false, directory, name, fileAttributes);
+        return new ObjectStoragePath(this.fileSystem, false, this.directory, name, this.fileAttributes);
     }
 
     /**
@@ -355,9 +317,9 @@ public class ObjectStoragePath implements Path {
             throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other instanceof ObjectStoragePath) {
-            return pathName.startsWith(((ObjectStoragePath) other).pathName);
+            return this.path.startsWith(((ObjectStoragePath) other).path);
         }
-        return pathName.startsWith(other.toString());
+        return this.path.startsWith(other.toString());
     }
 
     /**
@@ -397,9 +359,9 @@ public class ObjectStoragePath implements Path {
             throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other instanceof ObjectStoragePath) {
-            return pathName.endsWith(((ObjectStoragePath) other).pathName);
+            return this.path.endsWith(((ObjectStoragePath) other).path);
         }
-        return pathName.endsWith(other.toString());
+        return this.path.endsWith(other.toString());
     }
 
     /**
@@ -462,18 +424,24 @@ public class ObjectStoragePath implements Path {
         if (other.toString().isEmpty()) {
             return this;
         }
-        if (directory) {
-            if (!other.isAbsolute()) {//we need to discover who is 'other' (file or directory ???)
-                Path result = parsePath(toString() + other.toString() + (other.toString().endsWith(other.getFileSystem().getSeparator()) ? "" : other.getFileSystem().getSeparator()));
+        if (this.directory) {
+            String fileSeparator = this.fileSystem.getSeparator();
+            String pathName = buildPath(toString(), other.toString(), fileSeparator);
+            if (!other.isAbsolute()) {
+                //we need to discover who is 'other' (file or directory ???)
+                if (!pathName.endsWith(fileSeparator)) {
+                    pathName += fileSeparator; // add the file separator to create a directory path
+                }
+                Path result = parsePath(pathName);
                 try (Stream<Path> stream = Files.walk(result)) {
                     if (stream.limit(2).count() > 1) {
                         return result;
                     }
                 } catch (IOException ex) {
-                    logger.log(Level.FINE,"Unable to resolve the given path against this path. Details: " + ex.getMessage());
+                    throw new IllegalStateException(ex);
                 }
             }
-            return parsePath(toString() + other.toString());
+            return parsePath(pathName);
         }
         throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
     }
@@ -487,7 +455,6 @@ public class ObjectStoragePath implements Path {
      * @throws InvalidPathException if the path string cannot be converted to a Path.
      * @see FileSystem#getPath
      */
-    @NotNull
     @Override
     public Path resolve(String other) {
         if (other == null) {
@@ -561,11 +528,6 @@ public class ObjectStoragePath implements Path {
         if (other == null) {
             throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
-
-        if (equals(other)) {
-            return fileSystem.getEmpty();
-        }
-
         ObjectStoragePath path2 = (ObjectStoragePath) other;
         if (isAbsolute() != path2.isAbsolute()) {
             throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
@@ -609,14 +571,15 @@ public class ObjectStoragePath implements Path {
      */
     @Override
     public URI toUri() {
-        String currentPathName = this.pathName;
-        if (directory) {
-            currentPathName += fileSystem.getSeparator();
+        String currentPathName = this.path;
+        if (this.directory) {
+            if (!currentPathName.endsWith(this.fileSystem.getSeparator())) {
+                currentPathName += this.fileSystem.getSeparator();
+            }
         }
         try {
-            return new URI(fileSystem.provider().getScheme(), currentPathName, null);
+            return new URI(this.fileSystem.provider().getScheme(), currentPathName, null);
         } catch (URISyntaxException ex) {
-            logger.log(Level.SEVERE,"Unable to convert VFS path to URI. Details: " + ex.getMessage());
             throw new IllegalStateException(ex);
         }
     }
@@ -636,7 +599,7 @@ public class ObjectStoragePath implements Path {
             return this;
         }
         // Just turn into absolute path as-is, because we don't have a "current working directory".
-        return new ObjectStoragePath(fileSystem, true, directory, pathName, fileAttributes);
+        return new ObjectStoragePath(this.fileSystem, true, this.directory, this.path, this.fileAttributes);
     }
 
     /**
@@ -691,9 +654,6 @@ public class ObjectStoragePath implements Path {
      */
     @Override
     public WatchKey register(WatchService watcher, WatchEvent.Kind<?>[] events, WatchEvent.Modifier... modifiers) throws IOException {
-        if (watcher != null) {
-            throw new IOException("watcher is missing.");
-        }
         throw new UnsupportedOperationException();
     }
 
@@ -712,9 +672,6 @@ public class ObjectStoragePath implements Path {
      */
     @Override
     public WatchKey register(WatchService watcher, WatchEvent.Kind<?>[] events) throws IOException {
-        if (watcher != null) {
-            throw new IOException("watcher is missing.");
-        }
         throw new UnsupportedOperationException();
     }
 
@@ -726,7 +683,6 @@ public class ObjectStoragePath implements Path {
      *
      * @return an iterator over the name elements of this path.
      */
-    @NotNull
     @Override
     public Iterator<Path> iterator() {
         ArrayList<Path> list = new ArrayList<>();
@@ -750,6 +706,7 @@ public class ObjectStoragePath implements Path {
     public int compareTo(Path other) {
         ObjectStoragePath otherPath = (ObjectStoragePath) other;
         int n = Math.min(getNameCount(), otherPath.getNameCount());
+
         for (int i = 0; i < n; i++) {
             String name1 = getNames()[i];
             String name2 = otherPath.getNames()[i];
@@ -785,21 +742,7 @@ public class ObjectStoragePath implements Path {
      */
     @Override
     public String toString() {
-        String currentPathName = this.pathName;
-        String separator = fileSystem.getSeparator();
-        if (currentPathName.isEmpty()) {
-            if (absolute) {
-                currentPathName = separator;
-            }
-        } else {
-            if (absolute) {
-                currentPathName = currentPathName.startsWith(separator) ? currentPathName : separator + currentPathName;
-            }
-            if (directory) {
-                currentPathName += currentPathName.endsWith(separator) ? "" : separator;
-            }
-        }
-        return currentPathName;
+        return this.path;
     }
 
     /**
@@ -824,10 +767,10 @@ public class ObjectStoragePath implements Path {
             return false;
         }
         ObjectStoragePath other = (ObjectStoragePath) o;
-        return absolute == other.absolute
-                && directory == other.directory
-                && fileSystem == other.fileSystem
-                && pathName.equals(other.pathName);
+        return this.absolute == other.absolute
+                && this.directory == other.directory
+                && this.fileSystem == other.fileSystem
+                && this.path.equals(other.path);
     }
 
     /**
@@ -839,11 +782,71 @@ public class ObjectStoragePath implements Path {
      */
     @Override
     public int hashCode() {
-        int result = fileSystem.hashCode();
-        result = 31 * result + (absolute ? 1 : 0);
-        result = 31 * result + (directory ? 1 : 0);
-        result = 31 * result + pathName.hashCode();
+        int result = this.fileSystem.hashCode();
+        result = 31 * result + (this.absolute ? 1 : 0);
+        result = 31 * result + (this.directory ? 1 : 0);
+        result = 31 * result + this.path.hashCode();
         return result;
     }
+    /**
+     * Creates the new Path for Object Storage VFS by converting given file attributes.
+     *
+     * @param fileSystem     The VFS
+     * @param fileAttributes The file attributes
+     * @return The new VFS Path
+     */
+    static ObjectStoragePath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
+        String separator = fileSystem.getSeparator();
+        String pathName = fileAttributes.fileKey().toString();
+        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
+            int endIndex = pathName.length() - separator.length();
+            pathName = pathName.substring(0, endIndex); // remove the separator from the end
+        }
+        return new ObjectStoragePath(fileSystem, true, fileAttributes.isDirectory(), pathName, fileAttributes);
+    }
 
+    /**
+     * Creates the new Path for Object Storage VFS from path name.
+     *
+     * @param fileSystem The VFS
+     * @param pathName   The name
+     * @return The new VFS Path
+     */
+    static ObjectStoragePath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
+        String rootPathAsString = fileSystem.getRoot().getPath();
+        if (pathName.equals(rootPathAsString)) {
+            return fileSystem.getRoot();
+        }
+        boolean absolute = false;
+        boolean directory = false;
+        int beginIndex = 0;
+        int endIndex = pathName.length();
+        if (pathName.startsWith(rootPathAsString)) {
+            absolute = true;
+        }
+        String separator = fileSystem.getSeparator();
+        if (pathName.endsWith(separator)) {
+            directory = true;
+            endIndex -= separator.length();
+        }
+        String p = pathName.substring(beginIndex, endIndex);
+        return new ObjectStoragePath(fileSystem, absolute, directory, p, null);
+    }
+
+    private static String buildPath(String parentPath, String childPath, String fileSeparator) {
+        StringBuilder pathAsString = new StringBuilder();
+        if (parentPath.endsWith(fileSeparator)) {
+            int endIndex = parentPath.length() - fileSeparator.length();
+            pathAsString.append(parentPath.substring(0, endIndex)); // do not add the file separator
+        } else {
+            pathAsString.append(parentPath);
+        }
+        if (!childPath.startsWith(fileSeparator)) {
+            // add the file separator between the parent path and the child path
+            pathAsString.append(fileSeparator);
+        }
+        pathAsString.append(childPath);
+
+        return pathAsString.toString();
+    }
 }

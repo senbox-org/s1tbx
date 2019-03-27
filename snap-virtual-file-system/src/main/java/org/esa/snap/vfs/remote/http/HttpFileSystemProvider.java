@@ -41,7 +41,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
     private String delimiter;
 
     public HttpFileSystemProvider() {
-        super(HTTP_ROOT);
+        super();
 
         address = "";
         username = "";
@@ -63,24 +63,14 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
     }
 
     public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
-        String newRoot = (String) connectionData.get(ROOT_PROPERTY_NAME);
-        root = newRoot != null && !newRoot.isEmpty() ? newRoot : HTTP_ROOT;
         String newUsername = (String) connectionData.get(USERNAME_PROPERTY_NAME);
         String newCredential = (String) connectionData.get(CREDENTIAL_PROPERTY_NAME);
         setupConnectionData(serviceAddress, newUsername, newCredential);
     }
 
-    /**
-     * Creates the VFS instance using this provider.
-     *
-     * @param address The VFS service address
-     * @param env     The VFS parameters
-     * @return The new VFS instance
-     * @throws IOException If an I/O error occurs
-     */
     @Override
-    protected HttpFileSystem newFileSystem(String address, Map<String, ?> env) throws IOException {
-        return new HttpFileSystem(this, address, delimiter);
+    protected HttpFileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env) {
+        return new HttpFileSystem(this, fileSystemRoot);
     }
 
     /**
@@ -89,8 +79,8 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @return The new VFS walker instance
      */
     @Override
-    protected ObjectStorageWalker newObjectStorageWalker() {
-        return new HttpWalker(address, username, password, delimiter, root);
+    protected ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot) {
+        return new HttpWalker(this.address, this.username, this.password, this.delimiter, fileSystemRoot);
     }
 
     /**
@@ -100,9 +90,13 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     @Override
     public String getProviderAddress() {
-        return address;
+        return this.address;
     }
 
+    @Override
+    public String getProviderFileSeparator() {
+        return this.delimiter;
+    }
     /**
      * Gets the connection channel for this VFS provider.
      *
@@ -113,7 +107,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @throws IOException If an I/O error occurs
      */
     public URLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        return HttpResponseHandler.getConnectionChannel(url, method, requestProperties, username, password);
+        return HttpResponseHandler.getConnectionChannel(url, method, requestProperties, this.username, this.password);
     }
 
     /**
