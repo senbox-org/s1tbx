@@ -22,21 +22,6 @@ import java.util.Set;
  */
 public class VFS {
 
-    /**
-     * The name of root property, used on VFS instance creation parameters.
-     */
-    private static final String ROOT_PROPERTY_NAME = "root";
-
-    /**
-     * The pattern for name.
-     */
-    private static final String ROOT_NAME = "%root_name%";
-
-    /**
-     * The path name of root for showing on file chooser.
-     */
-    private static final String ROOT_PATH = ROOT_NAME + ":/";
-
     private List<FileSystemProvider> installedProviders;
 
     private static final VFS instance;
@@ -81,7 +66,6 @@ public class VFS {
 
                 if (foundRepository != null) {
                     Map<String, String> connectionData = new HashMap<>();
-                    connectionData.put(ROOT_PROPERTY_NAME, getRootPath(foundRepository.getName()));
                     for (Property vfsRemoteFileRepositoryProperty : foundRepository.getProperties()) {
                         connectionData.put(vfsRemoteFileRepositoryProperty.getName(), vfsRemoteFileRepositoryProperty.getValue());
                     }
@@ -131,11 +115,6 @@ public class VFS {
             }
         }
         return null;
-    }
-
-
-    private static String getRootPath(String root) {
-        return ROOT_PATH.replace(ROOT_NAME, root);
     }
 
     private void loadInstalledProviders() {
