@@ -92,18 +92,15 @@ public final class VFSRemoteFileRepositoriesController {
     private boolean isChanged = false;
 
     /**
-     * Creates the new VFS Remote File Repositories Controller with default config file.
-     */
-    public VFSRemoteFileRepositoriesController() {
-        this(NioPaths.get(EngineConfig.instance().userDir().toString() + "/config/Preferences/vfs.properties"));
-    }
-
-    /**
      * Creates the new VFS Remote File Repositories Controller with given config file.
      */
     public VFSRemoteFileRepositoriesController(Path vfsConfigFile) {
         this.vfsConfigFile = vfsConfigFile;
         loadProperties();
+    }
+
+    public static Path getDefaultConfigFilePath() {
+        return NioPaths.get(EngineConfig.instance().userDir().toString() + "/config/Preferences/vfs.properties");
     }
 
     /**
@@ -112,14 +109,9 @@ public final class VFSRemoteFileRepositoriesController {
      * @return The list of remote file repositories
      * @see VFSRemoteFileRepository
      */
-    public static java.util.List<VFSRemoteFileRepository> getVFSRemoteFileRepositories(Path... vfsConfigFile) {
+    public static java.util.List<VFSRemoteFileRepository> getVFSRemoteFileRepositories(Path vfsConfigFile) {
         java.util.List<VFSRemoteFileRepository> vfsRemoteFileRepositories = new ArrayList<>();
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController;
-        if (vfsConfigFile != null && vfsConfigFile.length > 0) {
-            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile[0]);
-        } else {
-            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController();
-        }
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile);
         String remoteRepositoriesIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
             String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
@@ -141,13 +133,8 @@ public final class VFSRemoteFileRepositoriesController {
      * @throws IOException If an I/O error occurs
      * @see VFSRemoteFileRepository
      */
-    public static void installVFSRemoteFileRepository(VFSRemoteFileRepository vfsRemoteFileRepository, Path... vfsConfigFile) throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController;
-        if (vfsConfigFile != null && vfsConfigFile.length > 0) {
-            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile[0]);
-        } else {
-            vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController();
-        }
+    public static void installVFSRemoteFileRepository(VFSRemoteFileRepository vfsRemoteFileRepository, Path vfsConfigFile) throws IOException {
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile);
         try {
             String remoteRepositoryId = vfsRemoteFileRepositoriesController.registerNewRemoteRepository();
             vfsRemoteFileRepositoriesController.setRemoteRepositoryName(remoteRepositoryId, vfsRemoteFileRepository.getName());
@@ -550,7 +537,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositoryName The remote file repository name
      * @return {@code true} if the new remote file repository name is unique
      */
-    public boolean isUniqueRemoteRepositoryName(String newRemoteRepositoryName) {
+    private boolean isUniqueRemoteRepositoryName(String newRemoteRepositoryName) {
         remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
             String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
@@ -570,7 +557,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositorySchema The remote file repository schema
      * @return {@code true} if the new remote file repository schema is unique
      */
-    public boolean isUniqueRemoteRepositorySchema(String newRemoteRepositorySchema) {
+    private boolean isUniqueRemoteRepositorySchema(String newRemoteRepositorySchema) {
         remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
         if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
             String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
@@ -591,7 +578,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param newRemoteRepositoryPropertyName The remote file repository property name
      * @return {@code true} if the new remote file repository property name is unique
      */
-    public boolean isUniqueRemoteRepositoryPropertyName(String remoteRepositoryId, String newRemoteRepositoryPropertyName) {
+    private boolean isUniqueRemoteRepositoryPropertyName(String remoteRepositoryId, String newRemoteRepositoryPropertyName) {
         String remoteRepositoryPropertiesIds = getRemoteRepositoryPropertiesIds(remoteRepositoryId).getValue();
         if (remoteRepositoryPropertiesIds != null && !remoteRepositoryPropertiesIds.isEmpty()) {
             String[] remoteRepositoriesPropertiesIdsList = remoteRepositoryPropertiesIds.split(LIST_ITEM_SEPARATOR);

@@ -1,10 +1,11 @@
 package org.esa.snap.vfs.activator;
 
-import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
-import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepositoriesController;
 import org.esa.snap.runtime.Activator;
 import org.esa.snap.vfs.VFS;
+import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepositoriesController;
+import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +20,8 @@ public class VFSPlugInActivator implements Activator {
     @Override
     public void start() {
         try {
-            List<VFSRemoteFileRepository> vfsRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories();
+            Path configFile = VFSRemoteFileRepositoriesController.getDefaultConfigFilePath();
+            List<VFSRemoteFileRepository> vfsRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(configFile);
             VFS.getInstance().initRemoteInstalledProviders(vfsRepositories);
         } catch (Exception exception) {
             logger.log(Level.SEVERE, exception.getMessage(), exception);
