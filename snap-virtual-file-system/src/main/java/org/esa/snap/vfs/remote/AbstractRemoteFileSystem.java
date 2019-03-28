@@ -3,7 +3,6 @@ package org.esa.snap.vfs.remote;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.ClosedFileSystemException;
 import java.nio.file.DirectoryStream;
@@ -20,7 +19,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.UserPrincipalLookupService;
-import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +48,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
     /**
      * Creates the new File System for Object Storage VFS.
      *
-     * @param provider  The VFS provider
+     * @param provider The VFS provider
      */
     protected AbstractRemoteFileSystem(AbstractRemoteFileSystemProvider provider, String root) {
         if (provider == null) {
@@ -95,7 +93,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
     public void close() throws IOException {
         if (!this.closed) {
             this.closed = true;
-            for (int i=0; i<this.openChannels.size(); i++) {
+            for (int i = this.openChannels.size() - 1; i >= 0; i--) {
                 this.openChannels.get(i).close();
             }
             this.provider.unlinkFileSystem(this);
