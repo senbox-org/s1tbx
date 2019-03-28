@@ -90,17 +90,17 @@ public final class TerrainFlatteningOp extends Operator {
     private double externalDEMNoDataValue = 0;
 
     @Parameter(defaultValue = "false", label = "Output Simulated Image")
-    private Boolean outputSimulatedImage = false;
+    private Boolean outputSimulatedImage = true;
 
     @Parameter(description = "The additional overlap percentage", interval = "[0, 1]", label = "Additional Overlap",
             defaultValue = "0.1")
-    private double additionalOverlap = 0.1;
+    private Double additionalOverlap = 0.1;
 
     @Parameter(description = "The oversampling factor", interval = "[1, 4]", label = "Oversampling Multiple",
             defaultValue = "1.5")
-    private double oversamplingMultiple = 1.5;
+    private Double oversamplingMultiple = 1.5;
 
-    @Parameter(defaultValue = "true", label = "Re-grid method")
+    //@Parameter(defaultValue = "true", label = "Re-grid method")
     private Boolean reGridMethod = true;
 
     private ElevationModel dem = null;
@@ -181,6 +181,12 @@ public final class TerrainFlatteningOp extends Operator {
             selectedResampling = ResamplingFactory.createResampling(demResamplingMethod);
             if(selectedResampling == null) {
                 throw new OperatorException("Resampling method "+ demResamplingMethod + " is invalid");
+            }
+            if(additionalOverlap == null) {
+                additionalOverlap = 0.1;
+            }
+            if(oversamplingMultiple == null) {
+                oversamplingMultiple = 1.5;
             }
 
             getMetadata();
