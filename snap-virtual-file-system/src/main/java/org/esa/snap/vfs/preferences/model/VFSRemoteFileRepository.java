@@ -39,6 +39,15 @@ public final class VFSRemoteFileRepository {
     }
 
     /**
+     * Gets the root of VFS Remote File Repository
+     *
+     * @return The root of VFS Remote File Repository
+     */
+    public String getRoot() {
+        return name + ":";
+    }
+
+    /**
      * Gets the scheme of VFS Remote File Repository
      *
      * @return The scheme of VFS Remote File Repository
