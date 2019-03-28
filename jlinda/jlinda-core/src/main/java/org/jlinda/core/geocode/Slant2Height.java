@@ -567,8 +567,9 @@ public class Slant2Height {
         double pixel = p.x;
         double height = p.z;
 
-        if (height == Double.NaN)
+        if (Double.isNaN(height)) {
             height = 0;
+        }
 
         return computeReferencePhase(p.y, p.x, p.z, master, slave, masterOrbit, slaveOrbit);
     }

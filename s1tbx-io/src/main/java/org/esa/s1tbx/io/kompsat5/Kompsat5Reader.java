@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * The product reader for CosmoSkymed products.
  */
 public class Kompsat5Reader extends SARReader {
 
@@ -110,11 +109,14 @@ public class Kompsat5Reader extends SARReader {
             } else {
                 k5Reader = new K5GeoTiff(readerPlugIn, this);
 
-                throw new IOException("Kompsat-5 in GeoTiff format is not supported.");
+                //throw new IOException("Kompsat-5 in GeoTiff format is not supported.");
             }
 
             Product product = k5Reader.open(inputFile);
             setQuicklookBandName(product);
+            if (product.getFileLocation() == null){
+                product.setFileLocation(inputFile);
+            }
             addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile(product));
 
             product.getGcpGroup();

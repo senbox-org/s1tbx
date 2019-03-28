@@ -325,4 +325,38 @@ public abstract class AbstractProductDirectory {
         product.setProductType(absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE));
         product.setDescription(absRoot.getAttributeString(AbstractMetadata.SPH_DESCRIPTOR));
     }
+
+    protected static float[][] getBoundingBox(float [][] coordinateList){
+        float [][] boundingBox = new float[4][2];
+        float minX, minY, maxX, maxY;
+        minX = coordinateList[0][0];
+        minY = coordinateList[0][1];
+        maxX = coordinateList[0][0];
+        maxY = coordinateList[0][1];
+
+
+        for(float [] coordinate: coordinateList){
+            if (coordinate[0] < minX){
+                minX = coordinate[0];
+            }
+            else if (coordinate[0] > maxX){
+                maxX = coordinate[0];
+            }
+
+            if (coordinate[1] < minY){
+                minY = coordinate[1];
+            }
+            else if (coordinate[1] > maxY){
+                maxY = coordinate[1];
+            }
+        }
+
+        boundingBox[0] = new float[]{minX, maxY}; // UL
+        boundingBox[1] = new float[]{maxX, maxY}; // UR
+        boundingBox[2] = new float[]{minX, minY}; // LL
+        boundingBox[3] = new float[]{maxX, minY}; // LR
+
+
+        return boundingBox;
+    }
 }

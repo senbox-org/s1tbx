@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.SARPosition;
 import org.esa.s1tbx.commons.SARUtils;
@@ -167,7 +168,7 @@ public final class SARSimulationOp extends Operator {
     private double nearEdgeSlantRange = 0.0; // in m
     private double wavelength = 0.0; // in m
     private double demNoDataValue = 0; // no data value for DEM
-    private SARGeocoding.Orbit orbit = null;
+    private OrbitStateVectors orbit = null;
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -275,7 +276,7 @@ public final class SARSimulationOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new OrbitStateVectors(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**

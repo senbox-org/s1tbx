@@ -44,17 +44,17 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
     //private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
-    private final JCheckBox reGridMethodCheckBox = new JCheckBox("Re-grid method");
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
+    private final JTextField additionalOverlap = new JTextField("");
+    private final JTextField oversamplingMultiple = new JTextField("");
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
     private Double extNoDataValue = 0.0;
     //private Boolean outputSimulatedImage = false;
-    private Boolean reGridMethod = false;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
@@ -98,12 +98,6 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
             }
         });*/
 
-        reGridMethodCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                reGridMethod = (e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
         return new JScrollPane(panel);
     }
 
@@ -134,10 +128,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
 
         //outputSimulatedImageCheckBox.setSelected(outputSimulatedImage);
 
-        reGridMethod = (Boolean) paramMap.get("reGridMethod");
-        if(reGridMethod != null) {
-            reGridMethodCheckBox.setSelected(reGridMethod);
-        }
+        additionalOverlap.setText(String.valueOf(paramMap.get("additionalOverlap")));
+        oversamplingMultiple.setText(String.valueOf(paramMap.get("oversamplingMultiple")));
     }
 
     @Override
@@ -161,7 +153,15 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         }
 
         //paramMap.put("outputSimulatedImage", outputSimulatedImage);
-        paramMap.put("reGridMethod", reGridMethod);
+
+        final String additionalOverlapStr = additionalOverlap.getText();
+        if (additionalOverlapStr != null && !additionalOverlapStr.isEmpty()) {
+            paramMap.put("additionalOverlap", Double.parseDouble(additionalOverlapStr));
+        }
+        final String oversamplingMultipleStr = oversamplingMultiple.getText();
+        if (oversamplingMultipleStr != null && !oversamplingMultipleStr.isEmpty()) {
+            paramMap.put("oversamplingMultiple", Double.parseDouble(oversamplingMultipleStr));
+        }
     }
 
     private JComponent createPanel() {
@@ -188,7 +188,10 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         //gbc.gridy++;
         //contentPane.add(outputSimulatedImageCheckBox, gbc);
         gbc.gridy++;
-        contentPane.add(reGridMethodCheckBox, gbc);
+        DialogUtils.addComponent(contentPane, gbc, "Additional Overlap Percentage[0,1]:", additionalOverlap);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Oversampling Multiple:", oversamplingMultiple);
+        gbc.gridy++;
 
         DialogUtils.fillPanel(contentPane, gbc);
 

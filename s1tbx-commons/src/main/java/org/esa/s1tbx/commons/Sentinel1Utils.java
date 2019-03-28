@@ -20,6 +20,7 @@ import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
+import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.awt.*;
@@ -34,7 +35,7 @@ public final class Sentinel1Utils {
     private int numOfSubSwath = 0;
     private String acquisitionMode = null;
     private SubSwathInfo[] subSwath = null;
-    private SARGeocoding.Orbit orbit = null;
+    private OrbitStateVectors orbit = null;
     private String[] polarizations = null;
     private String[] subSwathNames = null;
     private boolean isDopplerCentroidAvailable = false;
@@ -115,7 +116,7 @@ public final class Sentinel1Utils {
         this.sourceImageWidth = sourceProduct.getSceneRasterWidth();
         this.sourceImageHeight = sourceProduct.getSceneRasterHeight();
         OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
-        this.orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        this.orbit = new OrbitStateVectors(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
 
         if (this.srgrFlag) {
             this.srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
@@ -451,10 +452,10 @@ public final class Sentinel1Utils {
     private void getProductOrbit() {
 
         final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
-        this.orbit = new SARGeocoding.Orbit(orbitStateVectors);
+        this.orbit = new OrbitStateVectors(orbitStateVectors);
     }
 
-    public SARGeocoding.Orbit getOrbit() {
+    public OrbitStateVectors getOrbit() {
 
         if (this.orbit == null) {
             getProductOrbit();
@@ -673,7 +674,7 @@ public final class Sentinel1Utils {
             subSwath[s].dopplerRate = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
                 //final double azTime = (subSwath[s].burstFirstLineTime[b] + subSwath[s].burstLastLineTime[b])/2.0;
-                final double v = orbit.getVelocity(azTime/Constants.secondsInDay); // DLR: 7594.0232
+                final double v = getVelocity(azTime/Constants.secondsInDay); // DLR: 7594.0232
                 final double steeringRate = subSwath[s].azimuthSteeringRate * Constants.DTOR;
                 final double krot = 2*v*steeringRate/waveLength; // doppler rate by antenna steering
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
@@ -682,6 +683,11 @@ public final class Sentinel1Utils {
                 }
             }
         }
+    }
+
+    private double getVelocity(final double time) {
+        final PosVector velocity = orbit.getVelocity(time);
+        return Math.sqrt(velocity.x*velocity.x + velocity.y*velocity.y + velocity.z*velocity.z);
     }
 
     /**

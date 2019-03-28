@@ -21,6 +21,7 @@ import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.s1tbx.commons.CRSGeoCodingHandler;
+import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.commons.SARUtils;
 import org.esa.snap.core.datamodel.*;
@@ -239,7 +240,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private CoordinateReferenceSystem targetCRS;
     private double delLat = 0.0;
     private double delLon = 0.0;
-    private SARGeocoding.Orbit orbit = null;
+    private OrbitStateVectors orbit = null;
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private OrbitStateVector[] orbitStateVectors = null;
@@ -574,7 +575,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new OrbitStateVectors(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**
@@ -1441,7 +1442,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private void debugPrintPixel(int x, int y, double alt, double lat, double lon,
                                  final PosVector earthPoint,
                                  double slantRange, double zeroDopplerTime,
-                                 SARGeocoding.Orbit orbit,
+                                 OrbitStateVectors orbit,
                                  double rangeIndex, double azimuthIndex) {
         final Logger log = SystemUtils.LOG;
 

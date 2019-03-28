@@ -179,7 +179,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return Sentinel1Constants.getForamtFileExtensions();
+        return Sentinel1Constants.getFormatFileExtensions();
     }
 
     /**
@@ -200,7 +200,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         public FileFilter() {
             super();
             setFormatName(Sentinel1Constants.getFormatNames()[0]);
-            setExtensions(Sentinel1Constants.getForamtFileExtensions());
+            setExtensions(Sentinel1Constants.getFormatFileExtensions());
             setDescription(Sentinel1Constants.getPluginDescription());
         }
 

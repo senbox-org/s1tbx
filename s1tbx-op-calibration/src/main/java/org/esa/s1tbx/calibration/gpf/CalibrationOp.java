@@ -127,6 +127,10 @@ public class CalibrationOp extends Operator {
                 throw new OperatorException("Cannot apply calibration to coregistered product.");
             }
 
+            if(outputImageInComplex && !validator.isComplex()) {
+                outputImageInComplex = false;
+            }
+
             calibrator = CalibrationFactory.createCalibrator(sourceProduct);
             calibrator.setAuxFileFlag(auxFile);
             calibrator.setExternalAuxFile(externalAuxFile);

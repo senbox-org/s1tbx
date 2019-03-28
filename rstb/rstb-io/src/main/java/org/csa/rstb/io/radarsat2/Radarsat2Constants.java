@@ -46,7 +46,7 @@ public class Radarsat2Constants {
         return FORMAT_NAMES;
     }
 
-    public static String[] getForamtFileExtensions() {
+    public static String[] getFormatFileExtensions() {
         return FORMAT_FILE_EXTENSIONS;
     }
 
