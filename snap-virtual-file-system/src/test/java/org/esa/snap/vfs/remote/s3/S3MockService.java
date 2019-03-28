@@ -1,4 +1,4 @@
-package org.esa.snap.vfs.remote.http;
+package org.esa.snap.vfs.remote.s3;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -12,15 +12,14 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assume.assumeTrue;
 
-class HttpMockService {
+class S3MockService {
 
     private HttpServer mockServer;
 
-    HttpMockService(URL serviceAddress, Path serviceRootPath) throws IOException {
+    S3MockService(URL serviceAddress, Path serviceRootPath) throws IOException {
         mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
-        mockServer.createContext(serviceAddress.getPath(), new HTTPMockServiceHandler(serviceRootPath));
+        mockServer.createContext(serviceAddress.getPath(), new S3MockServiceHandler(serviceRootPath));
     }
 
     void start() {
@@ -31,13 +30,12 @@ class HttpMockService {
         mockServer.stop(1);
     }
 
-    private class HTTPMockServiceHandler implements HttpHandler {
+    private class S3MockServiceHandler implements HttpHandler {
 
-        static final String htmlFile = "index.html";
+        static final String xmlFile = "index.xml";
         private Path serviceRootPath;
 
-        HTTPMockServiceHandler(Path serviceRootPath) {
-            assumeTrue(Files.exists(serviceRootPath));
+        S3MockServiceHandler(Path serviceRootPath) {
             this.serviceRootPath = serviceRootPath;
         }
 
@@ -46,9 +44,16 @@ class HttpMockService {
             byte[] response;
             try {
                 String urlPath = httpExchange.getRequestURI().getPath();
-                Path responsePath = serviceRootPath.resolve(urlPath.replaceAll("^/", ""));
+                String prefix = getRequestParameter(httpExchange.getRequestURI().getQuery(), "prefix");
+                if (!prefix.isEmpty()) {
+                    if (!urlPath.endsWith("/") && !prefix.startsWith("/")) {
+                        urlPath = urlPath.concat("/");
+                    }
+                    urlPath = urlPath.concat(prefix);
+                }
+                Path responsePath = serviceRootPath.resolve(urlPath.replaceAll("^/", "").replaceAll("/{2,}", "/"));
                 if (Files.isDirectory(responsePath)) {
-                    responsePath = responsePath.resolve(htmlFile);
+                    responsePath = responsePath.resolve(xmlFile);
                 }
                 if (Files.exists(responsePath)) {
                     response = readFile(responsePath);
@@ -63,6 +68,14 @@ class HttpMockService {
             }
             httpExchange.getResponseBody().write(response);
             httpExchange.close();
+        }
+
+        private String getRequestParameter(String query, String key) {
+            String value = "";
+            if (query != null && key != null) {
+                value = query.replaceAll("(.*" + key + "=([^&]*).*)", "$2");
+            }
+            return value;
         }
 
         private byte[] readFile(Path inputFile) throws IOException {

@@ -62,19 +62,6 @@ class S3Walker implements ObjectStorageWalker {
     }
 
     /**
-     * Gets the VFS file basic attributes.
-     *
-     * @param address The VFS service address
-     * @param prefix  The VFS path to traverse
-     * @return The S3 file basic attributes
-     * @throws IOException If an I/O error occurs
-     */
-    public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
-        URLConnection urlConnection = S3ResponseHandler.getConnectionChannel(new URL(address), "GET", null, accessKeyId, secretAccessKey);
-        return ObjectStorageFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
-    }
-
-    /**
      * Append the new request parameter represented by name and value to the request parameters builder.
      *
      * @param params The request parameters builder
@@ -93,6 +80,19 @@ class S3Walker implements ObjectStorageWalker {
     }
 
     /**
+     * Gets the VFS file basic attributes.
+     *
+     * @param address The VFS service address
+     * @param prefix  The VFS path to traverse
+     * @return The S3 file basic attributes
+     * @throws IOException If an I/O error occurs
+     */
+    public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
+        URLConnection urlConnection = S3ResponseHandler.getConnectionChannel(new URL(address), "GET", null, accessKeyId, secretAccessKey);
+        return ObjectStorageFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
+    }
+
+    /**
      * Gets a list of VFS files and directories from to the given prefix.
      *
      * @param dir The VFS path to traverse
@@ -101,7 +101,9 @@ class S3Walker implements ObjectStorageWalker {
      */
     public List<BasicFileAttributes> walk(Path dir) throws IOException {
         String prefix = dir.toString();
-
+        if (!prefix.endsWith(this.delimiter)) {
+            prefix = prefix.concat(this.delimiter);
+        }
         StringBuilder paramBase = new StringBuilder();
         addParam(paramBase, "prefix", prefix.replace(root, ""));
         addParam(paramBase, "delimiter", delimiter);

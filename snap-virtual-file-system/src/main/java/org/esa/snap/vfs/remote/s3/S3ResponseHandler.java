@@ -1,5 +1,6 @@
 package org.esa.snap.vfs.remote.s3;
 
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.vfs.remote.ObjectStorageFileAttributes;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -11,7 +12,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.Base64;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,7 +102,7 @@ public class S3ResponseHandler extends DefaultHandler {
      * @return The authorization token
      */
     private static String getAuthorizationToken(String accessKeyId, String secretAccessKey) {//not real S3 authentication - only for function definition
-        return (accessKeyId != null && !accessKeyId.isEmpty() && secretAccessKey != null && !secretAccessKey.isEmpty()) ? Base64.getEncoder().encodeToString(("" + accessKeyId + ":" + secretAccessKey + "").getBytes()) : "";
+        return (!StringUtils.isNotNullAndNotEmpty(accessKeyId) && !StringUtils.isNotNullAndNotEmpty(secretAccessKey)) ? Base64.getEncoder().encodeToString((accessKeyId + ":" + secretAccessKey).getBytes()) : "";
     }
 
     /**
@@ -219,7 +224,7 @@ public class S3ResponseHandler extends DefaultHandler {
                 }
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to add the new path of S3 object to the list of S3 VFS paths for files and directories. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to add the new path of S3 object to the list of S3 VFS paths for files and directories. Details: " + ex.getMessage());
             throw new SAXException(ex);
         }
     }
@@ -265,7 +270,7 @@ public class S3ResponseHandler extends DefaultHandler {
                     break;
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to create the S3 VFS path and file attributes. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create the S3 VFS path and file attributes. Details: " + ex.getMessage());
             throw new SAXException(ex);
         }
     }

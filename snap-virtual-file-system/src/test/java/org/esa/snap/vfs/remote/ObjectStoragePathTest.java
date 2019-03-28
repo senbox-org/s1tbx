@@ -5,21 +5,19 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 
 /**
  * Test: Path for Object Storage VFS.
@@ -29,18 +27,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class ObjectStoragePathTest {
 
+    private static final String FS_ROOT = "Test:/";
     private static Logger logger = Logger.getLogger(ObjectStoragePathTest.class.getName());
-
-    private static final String FS_ID = "http:/HTTP:/";
     private static AbstractRemoteFileSystem fs;
 
     @BeforeClass
-    public static void setUp() throws Exception {
-        Map<String, ?> env = new HashMap<>();
-        FileSystem fs = FileSystems.newFileSystem(new URI(FS_ID), env);
-        assertNotNull(fs);
-        assertTrue(fs instanceof AbstractRemoteFileSystem);
-        ObjectStoragePathTest.fs = (AbstractRemoteFileSystem) fs;
+    public static void setUp() {
+        ObjectStoragePathTest.fs = new TestRemoteFileSystem(new TestRemoteFileSystemProvider(), FS_ROOT);
+        assumeNotNull(fs);
     }
 
     @AfterClass
@@ -113,7 +107,7 @@ public class ObjectStoragePathTest {
         assertNull(path.getFileName());
 
         path = ObjectStoragePath.parsePath(fs, "/");
-        assertEquals("Test:/",path.getFileName().toString());
+        assertEquals("Test:/", path.getFileName().toString());
 
         path = ObjectStoragePath.parsePath(fs, "/hello/there");
         assertEquals("there", path.getFileName().toString());
@@ -203,24 +197,24 @@ public class ObjectStoragePathTest {
 
         path = ObjectStoragePath.parsePath(fs, "/");
         assertEquals("", path.resolveSibling("").toString());
-        assertEquals("/Test:/", path.resolveSibling("/Test:/").toString());
-        assertEquals("/gus", path.resolveSibling("gus").toString());
-        assertEquals("/gus/", path.resolveSibling("gus/").toString());
-        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("/Test:", path.resolveSibling("/Test:/").toString());
+        assertEquals("gus", path.resolveSibling("gus").toString());
+        assertEquals("gus", path.resolveSibling("gus/").toString());
+        assertEquals("/gus", path.resolveSibling("/gus/").toString());
 
         path = ObjectStoragePath.parsePath(fs, "foo/bar/");
-        assertEquals("foo/bar/", path.resolveSibling("").toString());
-        assertEquals("/Test:/", path.resolveSibling("/").toString());
+        assertEquals("foo/bar", path.resolveSibling("").toString());
+        assertEquals("foo/bar", path.resolveSibling("/").toString());
         assertEquals("foo/gus", path.resolveSibling("gus").toString());
-        assertEquals("foo/gus/", path.resolveSibling("gus/").toString());
-        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("foo/gus", path.resolveSibling("gus/").toString());
+        assertEquals("/gus", path.resolveSibling("/gus/").toString());
 
         path = ObjectStoragePath.parsePath(fs, "/foo/bar/");
-        assertEquals("/foo/bar/", path.resolveSibling("").toString());
-        assertEquals("/Test:/", path.resolveSibling("/").toString());
+        assertEquals("/foo/bar", path.resolveSibling("").toString());
+        assertEquals("/Test:", path.resolveSibling("/").toString());
         assertEquals("/foo/gus", path.resolveSibling("gus").toString());
-        assertEquals("/foo/gus/", path.resolveSibling("gus/").toString());
-        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("/foo/gus", path.resolveSibling("gus/").toString());
+        assertEquals("/gus", path.resolveSibling("/gus/").toString());
     }
 
     @Test
@@ -231,7 +225,7 @@ public class ObjectStoragePathTest {
         assertNull(path.getParent());
 
         path = ObjectStoragePath.parsePath(fs, "/");
-        assertEquals("/",path.getParent().toString());
+        assertEquals("/", path.getParent().toString());
 
         path = ObjectStoragePath.parsePath(fs, "/hello");
         assertEquals("/", path.getParent().toString());
@@ -274,5 +268,64 @@ public class ObjectStoragePathTest {
         path = ObjectStoragePath.parsePath(fs, "/hello/there/");
         assertEquals("/hello/there/", path.toString());
     }
+
+    private static class TestRemoteFileSystemProvider extends AbstractRemoteFileSystemProvider {
+
+        private static final String TEST_ROOT = "Test:/";
+        private final static String SCHEME = "test";
+
+        public TestRemoteFileSystemProvider() {
+            super();
+        }
+
+        /**
+         * Returns the URI scheme that identifies this provider.
+         *
+         * @return The URI scheme
+         */
+        @Override
+        public String getScheme() {
+            return SCHEME;
+        }
+
+        @Override
+        public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
+
+        }
+
+        @Override
+        protected AbstractRemoteFileSystem newFileSystem(String address, Map<String, ?> env) {
+            return new TestRemoteFileSystem(this, TEST_ROOT);
+        }
+
+        @Override
+        protected ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot) {
+            return null;
+        }
+
+        @Override
+        public String getProviderAddress() {
+            return AbstractRemoteFileSystemProvider.class.getName();
+        }
+
+        @Override
+        public String getProviderFileSeparator() {
+            return "/";
+        }
+
+        @Override
+        public HttpsURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) {
+            return null;
+        }
+
+    }
+
+    private static class TestRemoteFileSystem extends AbstractRemoteFileSystem {
+
+        TestRemoteFileSystem(AbstractRemoteFileSystemProvider provider, String root) {
+            super(provider, root);
+        }
+    }
+
 
 }

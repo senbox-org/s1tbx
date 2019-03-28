@@ -4,6 +4,7 @@ import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
+import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +15,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -30,8 +30,6 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -48,40 +46,48 @@ import static org.junit.Assume.assumeTrue;
  */
 public class HttpFileSystemTest extends AbstractVFSTest {
 
-    private static Logger logger = Logger.getLogger(HttpFileSystemTest.class.getName());
+    private static final String TEST_DIR = "http";
 
-    private static AbstractRemoteFileSystem httpFileSystem;
-    private static VFSRemoteFileRepository httpRepo;
-    private static HttpMockService mockService;
+    private AbstractRemoteFileSystem httpFileSystem;
+    private HttpMockService mockService;
 
-    private static String getAddress() {
-        return httpRepo.getAddress();
+    private String getAddress() {
+        return getHTTPRepo().getAddress();
     }
 
-    private static String getUser() {
-        return httpRepo.getProperties().get(0).getValue();
+    private String getUser() {
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
+        String user = "";
+        if (!httpRepo.getProperties().isEmpty()) {
+            user = httpRepo.getProperties().get(0).getValue();
+        }
+        return user;
     }
 
-    private static String getPassword() {
-        return httpRepo.getProperties().get(1).getValue();
+    private String getPassword() {
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
+        String password = "";
+        if (!httpRepo.getProperties().isEmpty()) {
+            password = httpRepo.getProperties().get(1).getValue();
+        }
+        return password;
     }
 
     @Before
     public void setUpHttpFileSystemTest() {
         try {
-            httpRepo = vfsRepositories.get(0);
+            VFSRemoteFileRepository httpRepo = getHTTPRepo();
             assumeNotNull(httpRepo);
             FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(httpRepo.getScheme());
             assumeNotNull(fileSystemProvider);
-            URI uri = new URI(httpRepo.getScheme() + ":" + httpRepo.getAddress());
+            assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
+            URI uri = new URI(httpRepo.getScheme(), httpRepo.getRoot(), null);
             FileSystem fs = fileSystemProvider.newFileSystem(uri, null);
             assumeNotNull(fs);
-            assumeTrue(fs instanceof AbstractRemoteFileSystem);
             httpFileSystem = (AbstractRemoteFileSystem) fs;
-            Path serviceRootPath = vfsTestsFolderPath.resolve("http/mock-api");
+            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
             assumeTrue(Files.exists(serviceRootPath));
             mockService = new HttpMockService(new URL(httpRepo.getAddress()), serviceRootPath);
-            assumeNotNull(mockService);
             mockService.start();
         } catch (Exception e) {
             fail("Test requirements not meets.");
@@ -100,31 +106,34 @@ public class HttpFileSystemTest extends AbstractVFSTest {
 
     @Test
     public void testScanner() throws Exception {
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
         List<BasicFileAttributes> items;
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk(NioPaths.get(""));
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot()).walk(NioPaths.get(httpRepo.getRoot() + ""));
         assertEquals(2, items.size());
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk(NioPaths.get("rootDir1/"));
-        assertEquals(10, items.size());
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot()).walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/"));
+        assertEquals(2, items.size());
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", "").walk(NioPaths.get("rootDir1/dir1/"));
-        assertEquals(6, items.size());
+        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot()).walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/dir1/"));
+        assertEquals(2, items.size());
     }
 
     @Test
     public void testGET() throws Exception {
-        URL url = new URL(getAddress() + "/rootDir1/dir1/file.png");
-        URLConnection connection = url.openConnection();
-        ((HttpURLConnection) connection).setRequestMethod("GET");
+        String address = getAddress();
+        if (address.endsWith("/")) {
+            address = address.substring(0, address.lastIndexOf("/"));
+        }
+        URL url = new URL(address + "/rootDir1/dir1/file.jpg");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
         connection.setDoInput(true);
         connection.setDoOutput(true);
         connection.connect();
 
-        int responseCode = ((HttpURLConnection) connection).getResponseCode();
-        System.out.println("responseCode = " + responseCode);
-        String responseMessage = ((HttpURLConnection) connection).getResponseMessage();
-        System.out.println("responseMessage = " + responseMessage);
+        int responseCode = connection.getResponseCode();
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
 
         InputStream stream = connection.getInputStream();
         byte[] b = new byte[1024 * 1024];
@@ -132,7 +141,7 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         assertTrue(read > 0);
         ReadableByteChannel channel = Channels.newChannel(stream);
         channel.close();
-        ((HttpURLConnection) connection).disconnect();
+        connection.disconnect();
     }
 
     @Test
@@ -142,23 +151,25 @@ public class HttpFileSystemTest extends AbstractVFSTest {
 
     @Test
     public void testGetRootDirectories() {
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
         Iterable<Path> rootDirectories = httpFileSystem.getRootDirectories();
         Iterator<Path> iterator = rootDirectories.iterator();
         assertTrue(iterator.hasNext());
-        assertEquals("/rootDir2/", iterator.next().toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir1", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals("/rootDir1/", iterator.next().toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir2", iterator.next().toString());
         assertFalse(iterator.hasNext());
     }
 
     @Test
     public void testClose() throws Exception {
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
         FileSystemProvider provider = httpFileSystem.provider();
         HashSet<OpenOption> openOptions = new HashSet<>();
         openOptions.add(StandardOpenOption.READ);
-        SeekableByteChannel channel1 = provider.newByteChannel(httpFileSystem.getPath("/rootDir1/dir1/file.png"), openOptions);
-        SeekableByteChannel channel2 = provider.newByteChannel(httpFileSystem.getPath("/rootDir1/dir1/file.png"), openOptions);
-        SeekableByteChannel channel3 = provider.newByteChannel(httpFileSystem.getPath("/rootDir1/dir1/file.png"), openOptions);
+        SeekableByteChannel channel1 = provider.newByteChannel(httpFileSystem.getPath(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+        SeekableByteChannel channel2 = provider.newByteChannel(httpFileSystem.getPath(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+        SeekableByteChannel channel3 = provider.newByteChannel(httpFileSystem.getPath(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
         assertTrue(httpFileSystem.isOpen());
         assertTrue(channel1.isOpen());
         assertTrue(channel2.isOpen());
@@ -172,70 +183,90 @@ public class HttpFileSystemTest extends AbstractVFSTest {
 
     @Test
     public void testByteChannel() throws Exception {
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
         FileSystemProvider provider = httpFileSystem.provider();
-        Path path = httpFileSystem.getPath("/rootDir1/dir1/file.png");
+        Path path = httpFileSystem.getPath(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg");
         HashSet<OpenOption> openOptions = new HashSet<>();
         openOptions.add(StandardOpenOption.READ);
         SeekableByteChannel channel = provider.newByteChannel(path, openOptions);
 
         assertNotNull(channel);
-        assertEquals(42377, channel.size());
+        assertEquals(1891, channel.size());
         assertEquals(0, channel.position());
 
-        ByteBuffer buffer = ByteBuffer.wrap(new byte[42377]);
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[1891]);
         int numRead = channel.read(buffer);
-        assertEquals(42377, numRead);
-        assertEquals(42377, channel.size());
-        assertEquals(42377, channel.position());
+        assertEquals(1891, numRead);
+        assertEquals(1891, channel.size());
+        assertEquals(1891, channel.position());
 
-        channel.position(30000);
-        assertEquals(30000, channel.position());
-        assertEquals(42377, channel.size());
+        channel.position(1000);
+        assertEquals(1000, channel.position());
+        assertEquals(1891, channel.size());
 
-        buffer = ByteBuffer.wrap(new byte[10000]);
+        buffer = ByteBuffer.wrap(new byte[800]);
         numRead = channel.read(buffer);
-        assertEquals(10000, numRead);
-        assertEquals(40000, channel.position());
-        assertEquals(42377, channel.size());
+        assertEquals(800, numRead);
+        assertEquals(1800, channel.position());
+        assertEquals(1891, channel.size());
 
-        buffer = ByteBuffer.wrap(new byte[2377]);
+        buffer = ByteBuffer.wrap(new byte[91]);
         numRead = channel.read(buffer);
-        assertEquals(2377, numRead);
-        assertEquals(42377, channel.position());
-        assertEquals(42377, channel.size());
+        assertEquals(91, numRead);
+        assertEquals(1891, channel.position());
+        assertEquals(1891, channel.size());
 
         buffer = ByteBuffer.wrap(new byte[10]);
         try {
             numRead = channel.read(buffer);
             fail("EOFException expected, but read " + numRead + " bytes");
-        } catch (EOFException ex) {
-            logger.log(Level.SEVERE, "Unable to run test for Byte Channel. Details: " + ex.getMessage());
+        } catch (EOFException ignored) {
+            //ok
         }
     }
 
     @Test
     public void testBasicFileAttributes() throws Exception {
-        Path path = httpFileSystem.getPath("/rootDir1/dir1/file.png");
-        assertEquals(42377, Files.size(path));
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
+        Path path = httpFileSystem.getPath(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg");
+        assertEquals(1891, Files.size(path));
         FileTime lastModifiedTime = Files.getLastModifiedTime(path);
         assertNotNull(lastModifiedTime);
     }
 
     @Test
     public void testPathsGet() {
-        Path path = httpFileSystem.getPath("/rootDir1/dir1/file.png");
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
+        Path path = httpFileSystem.getPath(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg");
         assertNotNull(path);
-        assertEquals("/rootDir1/dir1/file.png", path.toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg", path.toString());
     }
 
     @Test
     public void testFilesWalk() throws Exception {
-        Path path = httpFileSystem.getPath("/rootDir1/");
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
+        Path path = httpFileSystem.getPath(httpRepo.getRoot() + "/rootDir1/");
         Iterator<Path> iterator = Files.walk(path).iterator();
-        while (iterator.hasNext()) {
-            Path next = iterator.next();
-            System.out.println("next = " + next + ", abs=" + path.isAbsolute());
-        }
+        assertTrue(iterator.hasNext());
+        Path next = iterator.next();
+        assertEquals(httpRepo.getRoot() + "/rootDir1", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1/file.jpg", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1/subDir", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir2", next.toString());
+        assertTrue(next.isAbsolute());
     }
 
 }

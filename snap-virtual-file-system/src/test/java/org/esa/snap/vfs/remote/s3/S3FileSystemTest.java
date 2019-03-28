@@ -4,6 +4,7 @@ import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
+import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
 import org.junit.After;
 import org.junit.Before;
@@ -29,14 +30,13 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test: File System for S3 Object Storage VFS.
@@ -46,73 +46,90 @@ import static org.junit.Assert.fail;
  */
 public class S3FileSystemTest extends AbstractVFSTest {
 
-    private static Logger logger = Logger.getLogger(S3FileSystemTest.class.getName());
+    private static final String TEST_DIR = "s3";
 
     private static AbstractRemoteFileSystem s3FileSystem;
-    private static VFSRemoteFileRepository s3Repo;
+    private S3MockService mockService;
 
-    private static String getBucketAddress() {
-        return s3Repo.getAddress();
+    private String getBucketAddress() {
+        return getS3Repo().getAddress();
     }
 
-    private static String getAccessKeyId() {
-        return s3Repo.getProperties().get(0).getValue();
+    private String getAccessKeyId() {
+        String accessId = "";
+        if (!getS3Repo().getProperties().isEmpty()) {
+            accessId = getS3Repo().getProperties().get(0).getValue();
+        }
+        return accessId;
     }
 
-    private static String getSecretAccessKey() {
-        return s3Repo.getProperties().get(1).getValue();
+    private String getSecretAccessKey() {
+        String secretAccessKey = "";
+        if (!getS3Repo().getProperties().isEmpty()) {
+            secretAccessKey = getS3Repo().getProperties().get(1).getValue();
+        }
+        return secretAccessKey;
     }
-
 
     @Before
     public void setUpS3FileSystemTest() {
-        s3Repo = vfsRepositories.get(0);
-        assertNotNull(s3Repo);
-        FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(s3Repo.getScheme());
-        assertNotNull(fileSystemProvider);
-        FileSystem fs = null;
         try {
-            URI uri = new URI(s3Repo.getScheme() + ":" + s3Repo.getAddress());
-            fs = fileSystemProvider.newFileSystem(uri, null);
-        } catch (Exception ignored) {
-            //do nothing
+            VFSRemoteFileRepository s3Repo = getS3Repo();
+            assertNotNull(s3Repo);
+            FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(s3Repo.getScheme());
+            assertNotNull(fileSystemProvider);
+            assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
+            URI uri = new URI(s3Repo.getScheme(), s3Repo.getRoot(), null);
+            FileSystem fs = fileSystemProvider.newFileSystem(uri, null);
+            assertNotNull(fs);
+            s3FileSystem = (AbstractRemoteFileSystem) fs;
+            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
+            assumeTrue(Files.exists(serviceRootPath));
+            mockService = new S3MockService(new URL(s3Repo.getAddress()), serviceRootPath);
+            mockService.start();
+        } catch (Exception e) {
+            fail("Test requirements not meets.");
         }
-        assertNotNull(fs);
-        assertTrue(fs instanceof AbstractRemoteFileSystem);
-        s3FileSystem = (AbstractRemoteFileSystem) fs;
     }
 
     @After
     public void tearDown() throws Exception {
-        assertNotNull(s3FileSystem);
-        s3FileSystem.close();
+        if (s3FileSystem != null) {
+            s3FileSystem.close();
+        }
+        if (mockService != null) {
+            mockService.stop();
+        }
     }
 
     @Test
     public void testScanner() throws Exception {
+        VFSRemoteFileRepository s3Repo = getS3Repo();
         List<BasicFileAttributes> items;
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk(NioPaths.get(""));
-        assertEquals(11, items.size());
+        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot()).walk(NioPaths.get(s3Repo.getRoot() + ""));
+        assertEquals(2, items.size());
 
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk(NioPaths.get(".git/"));
-        assertEquals(11, items.size());
+        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot()).walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/"));
+        assertEquals(2, items.size());
 
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", "").walk(NioPaths.get("css/"));
+        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot()).walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
 
     @Test
     public void testGET() throws Exception {
-        URL url = new URL(getBucketAddress() + "/images/rpi.svg");
+        String address = getBucketAddress();
+        if (address.endsWith("/")) {
+            address = address.substring(0, address.lastIndexOf("/"));
+        }
+        URL url = new URL(address + "/rootDir1/dir1/file.jpg");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setDoInput(true);
         connection.connect();
 
         int responseCode = connection.getResponseCode();
-        System.out.println("responseCode = " + responseCode);
-        String responseMessage = connection.getResponseMessage();
-        System.out.println("responseMessage = " + responseMessage);
+        assertEquals(HttpURLConnection.HTTP_OK, responseCode);
 
         InputStream stream = connection.getInputStream();
         byte[] b = new byte[1024 * 1024];
@@ -130,25 +147,25 @@ public class S3FileSystemTest extends AbstractVFSTest {
 
     @Test
     public void testGetRootDirectories() {
+        VFSRemoteFileRepository s3Repo = getS3Repo();
         Iterable<Path> rootDirectories = s3FileSystem.getRootDirectories();
         Iterator<Path> iterator = rootDirectories.iterator();
         assertTrue(iterator.hasNext());
-        assertEquals("/S3/.git/", iterator.next().toString());
+        assertEquals(s3Repo.getRoot() + "/rootDir1", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals("/S3/css/", iterator.next().toString());
-        assertTrue(iterator.hasNext());
-        assertEquals("/S3/images/", iterator.next().toString());
+        assertEquals(s3Repo.getRoot() + "/rootDir2", iterator.next().toString());
         assertFalse(iterator.hasNext());
     }
 
     @Test
     public void testClose() throws Exception {
+        VFSRemoteFileRepository s3Repo = getS3Repo();
         FileSystemProvider provider = s3FileSystem.provider();
         HashSet<OpenOption> openOptions = new HashSet<>();
         openOptions.add(StandardOpenOption.READ);
-        SeekableByteChannel channel1 = provider.newByteChannel(s3FileSystem.getPath("/images/rpi.svg"), openOptions);
-        SeekableByteChannel channel2 = provider.newByteChannel(s3FileSystem.getPath("/images/rpi.svg"), openOptions);
-        SeekableByteChannel channel3 = provider.newByteChannel(s3FileSystem.getPath("/images/rpi.svg"), openOptions);
+        SeekableByteChannel channel1 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+        SeekableByteChannel channel2 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+        SeekableByteChannel channel3 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
         assertTrue(s3FileSystem.isOpen());
         assertTrue(channel1.isOpen());
         assertTrue(channel2.isOpen());
@@ -162,70 +179,90 @@ public class S3FileSystemTest extends AbstractVFSTest {
 
     @Test
     public void testByteChannel() throws Exception {
+        VFSRemoteFileRepository s3Repo = getS3Repo();
         FileSystemProvider provider = s3FileSystem.provider();
-        Path path = s3FileSystem.getPath("/images/rpi.svg");
+        Path path = s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg");
         HashSet<OpenOption> openOptions = new HashSet<>();
         openOptions.add(StandardOpenOption.READ);
         SeekableByteChannel channel = provider.newByteChannel(path, openOptions);
 
         assertNotNull(channel);
-        assertEquals(6489, channel.size());
+        assertEquals(1891, channel.size());
         assertEquals(0, channel.position());
 
-        ByteBuffer buffer = ByteBuffer.wrap(new byte[6489]);
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[1891]);
         int numRead = channel.read(buffer);
-        assertEquals(6489, numRead);
-        assertEquals(6489, channel.size());
-        assertEquals(6489, channel.position());
+        assertEquals(1891, numRead);
+        assertEquals(1891, channel.size());
+        assertEquals(1891, channel.position());
 
-        channel.position(5000);
-        assertEquals(5000, channel.position());
-        assertEquals(6489, channel.size());
+        channel.position(1000);
+        assertEquals(1000, channel.position());
+        assertEquals(1891, channel.size());
 
-        buffer = ByteBuffer.wrap(new byte[1000]);
+        buffer = ByteBuffer.wrap(new byte[800]);
         numRead = channel.read(buffer);
-        assertEquals(1000, numRead);
-        assertEquals(6000, channel.position());
-        assertEquals(6489, channel.size());
+        assertEquals(800, numRead);
+        assertEquals(1800, channel.position());
+        assertEquals(1891, channel.size());
 
-        buffer = ByteBuffer.wrap(new byte[489]);
+        buffer = ByteBuffer.wrap(new byte[91]);
         numRead = channel.read(buffer);
-        assertEquals(489, numRead);
-        assertEquals(6489, channel.position());
-        assertEquals(6489, channel.size());
+        assertEquals(91, numRead);
+        assertEquals(1891, channel.position());
+        assertEquals(1891, channel.size());
 
         buffer = ByteBuffer.wrap(new byte[10]);
         try {
             numRead = channel.read(buffer);
             fail("EOFException expected, but read " + numRead + " bytes");
-        } catch (EOFException ex) {
-            logger.log(Level.SEVERE, "Unable to run test for Byte Channel. Details: " + ex.getMessage());
+        } catch (EOFException ignored) {
+            //ok
         }
     }
 
     @Test
     public void testBasicFileAttributes() throws Exception {
-        Path path = s3FileSystem.getPath("/images/rpi.svg");
-        assertEquals(6489, Files.size(path));
+        VFSRemoteFileRepository s3Repo = getS3Repo();
+        Path path = s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg");
+        assertEquals(1891, Files.size(path));
         FileTime lastModifiedTime = Files.getLastModifiedTime(path);
         assertNotNull(lastModifiedTime);
     }
 
     @Test
     public void testPathsGet() {
-        Path path = s3FileSystem.getPath("/images/rpi.svg");
+        VFSRemoteFileRepository s3Repo = getS3Repo();
+        Path path = s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg");
         assertNotNull(path);
-        assertEquals("/images/rpi.svg", path.toString());
+        assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg", path.toString());
     }
 
     @Test
     public void testFilesWalk() throws Exception {
-        Path path = s3FileSystem.getPath("/images/");
+        VFSRemoteFileRepository s3Repo = getS3Repo();
+        Path path = s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/");
         Iterator<Path> iterator = Files.walk(path).iterator();
-        while (iterator.hasNext()) {
-            Path next = iterator.next();
-            System.out.println("next = " + next + ", abs=" + path.isAbsolute());
-        }
+        assertTrue(iterator.hasNext());
+        Path next = iterator.next();
+        assertEquals(s3Repo.getRoot() + "/rootDir1", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(s3Repo.getRoot() + "/rootDir1/dir1", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/subDir", next.toString());
+        assertTrue(next.isAbsolute());
+        assertTrue(iterator.hasNext());
+        next = iterator.next();
+        assertEquals(s3Repo.getRoot() + "/rootDir1/dir2", next.toString());
+        assertTrue(next.isAbsolute());
     }
 
 }

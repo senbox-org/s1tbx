@@ -54,4 +54,18 @@ public abstract class AbstractVFSTest {
         }
     }
 
+    protected VFSRemoteFileRepository getHTTPRepo() {
+        return vfsRepositories.get(0);
+    }
+
+
+    protected VFSRemoteFileRepository getS3Repo() {
+        return vfsRepositories.get(1);
+    }
+
+    protected VFSRemoteFileRepository getSwiftRepo() {
+        return vfsRepositories.get(2);
+    }
+
+
 }

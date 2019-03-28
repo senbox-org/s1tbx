@@ -1,5 +1,6 @@
 package org.esa.snap.vfs.remote.http;
 
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.vfs.remote.ObjectStorageFileAttributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -49,8 +50,8 @@ class HttpResponseHandler {
     private static final String PB = "P";
 
     private final Document doc;
-    private String prefix;
     private final List<BasicFileAttributes> items;
+    private String prefix;
 
     /**
      * Creates the new response handler for HTTP Object Storage VFS.
@@ -73,7 +74,7 @@ class HttpResponseHandler {
      * @return The authorization token
      */
     private static String getAuthorizationToken(String username, String password) {
-        return (username != null && !username.isEmpty() && password != null && !password.isEmpty()) ? Base64.getEncoder().encodeToString(("" + username + ":" + password + "").getBytes()) : "";
+        return (!StringUtils.isNotNullAndNotEmpty(username) && !StringUtils.isNotNullAndNotEmpty(password)) ? Base64.getEncoder().encodeToString((username + ":" + password).getBytes()) : "";
     }
 
     /**

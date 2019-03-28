@@ -171,7 +171,7 @@ public class NioFile extends File {
     }
 
     /**
-     * Returns the absolute pathname string of this abstract pathname.
+     * Returns the absolute path of this abstract pathname.
      *
      * <p> If this abstract pathname is already absolute, then the pathname string is simply returned as if by the <code>{@link #getPath}</code> method.  If this abstract pathname is the empty abstract pathname then the pathname string of the current user directory, which is named by the system property <code>user.dir</code>, is returned.  Otherwise this pathname is resolved in a system-dependent way.  On UNIX systems, a relative pathname is made absolute by resolving it against the current user directory.  On Microsoft Windows systems, a relative pathname is made absolute by resolving it against the current directory of the drive named by the pathname, if any; if not, it is resolved against the current user directory.
      *
@@ -179,7 +179,7 @@ public class NioFile extends File {
      * @throws SecurityException If a required system property value cannot be accessed.
      * @see java.io.File#isAbsolute()
      */
-    private Path getAbsolutePath0() {
+    private Path _getAbsolutePath() {
         return path.resolve(path);
     }
 
@@ -193,7 +193,7 @@ public class NioFile extends File {
      */
     @Override
     public File getAbsoluteFile() {
-        Path absPath = getAbsolutePath0();
+        Path absPath = _getAbsolutePath();
         try {
             return new NioFile(absPath);
         } catch (Exception ex) {
@@ -295,7 +295,7 @@ public class NioFile extends File {
         if (isInvalidPath()) {
             throw new MalformedURLException(INVALID_FILE_PATH_ERROR_MESSAGE);
         }
-        return new URL(path.toUri().getScheme(), "", slashify(getAbsolutePath0(), isDirectory()));
+        return new URL(path.toUri().getScheme(), "", slashify(_getAbsolutePath(), isDirectory()));
     }
 
     /**
@@ -323,7 +323,7 @@ public class NioFile extends File {
      */
     @Override
     public URI toURI() {
-        return this.path.getFileSystem().getPath(slashify(getAbsolutePath0(), isDirectory())).toUri();
+        return this.path.getFileSystem().getPath(slashify(_getAbsolutePath(), isDirectory())).toUri();
     }
 
 
