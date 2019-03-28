@@ -30,7 +30,7 @@ pipeline {
                 docker {
                     label 'snap-test'
                     image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
-                    args '-e MAVEN_CONFIG=/opt/snap/.m2 -v /data/ssd/testData/:/data/ssd/testData/ -v /opt/maven/.m2/settings.xml:/home/snap/.m2/settings.xml -v docker_local-update-center:/local-update-center'
+                    args '-e MAVEN_CONFIG=/var/maven/.m2 -v /data/ssd/testData/:/data/ssd/testData/ -v /opt/maven/.m2/settings.xml:/home/snap/.m2/settings.xml -v docker_local-update-center:/local-update-center'
                 }
             }
             steps {
@@ -41,7 +41,7 @@ pipeline {
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh "mvn -Dm2repo=/home/snap/.m2/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap clean package install deploy -U -DskipTests=false"
+                sh "mvn -Dm2repo=/var/tmp/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap clean package install deploy -U -DskipTests=false"
                 sh "/opt/scripts/saveToLocalUpdateCenter.sh . ${deployDirName} ${branchVersion} ${toolName}"
             }
         }
