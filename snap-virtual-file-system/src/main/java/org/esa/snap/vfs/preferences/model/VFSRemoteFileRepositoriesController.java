@@ -94,7 +94,7 @@ public final class VFSRemoteFileRepositoriesController {
     /**
      * Creates the new VFS Remote File Repositories Controller with given config file.
      */
-    public VFSRemoteFileRepositoriesController(Path vfsConfigFile) {
+    public VFSRemoteFileRepositoriesController(Path vfsConfigFile) throws IOException {
         this.vfsConfigFile = vfsConfigFile;
         loadProperties();
     }
@@ -109,7 +109,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @return The list of remote file repositories
      * @see VFSRemoteFileRepository
      */
-    public static java.util.List<VFSRemoteFileRepository> getVFSRemoteFileRepositories(Path vfsConfigFile) {
+    public static java.util.List<VFSRemoteFileRepository> getVFSRemoteFileRepositories(Path vfsConfigFile) throws IOException {
         java.util.List<VFSRemoteFileRepository> vfsRemoteFileRepositories = new ArrayList<>();
         VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile);
         String remoteRepositoriesIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds().getValue();
@@ -127,35 +127,9 @@ public final class VFSRemoteFileRepositoriesController {
     }
 
     /**
-     * Installs (registers) the new remote file repository.
-     *
-     * @param vfsRemoteFileRepository The new remote file repository
-     * @throws IOException If an I/O error occurs
-     * @see VFSRemoteFileRepository
-     */
-    public static void installVFSRemoteFileRepository(VFSRemoteFileRepository vfsRemoteFileRepository, Path vfsConfigFile) throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(vfsConfigFile);
-        try {
-            String remoteRepositoryId = vfsRemoteFileRepositoriesController.registerNewRemoteRepository();
-            vfsRemoteFileRepositoriesController.setRemoteRepositoryName(remoteRepositoryId, vfsRemoteFileRepository.getName());
-            vfsRemoteFileRepositoriesController.setRemoteRepositorySchema(remoteRepositoryId, vfsRemoteFileRepository.getScheme());
-            vfsRemoteFileRepositoriesController.setRemoteRepositoryAddress(remoteRepositoryId, vfsRemoteFileRepository.getAddress());
-            for (Property remoteRepositoryProperty : vfsRemoteFileRepository.getProperties()) {
-                String remoteRepositoryPropertyId = vfsRemoteFileRepositoriesController.registerNewRemoteRepositoryProperty(remoteRepositoryId);
-                vfsRemoteFileRepositoriesController.setRemoteRepositoryPropertyName(remoteRepositoryId, remoteRepositoryPropertyId, remoteRepositoryProperty.getName());
-                vfsRemoteFileRepositoriesController.setRemoteRepositoryPropertyValue(remoteRepositoryId, remoteRepositoryPropertyId, remoteRepositoryProperty.getValue());
-            }
-            vfsRemoteFileRepositoriesController.saveProperties();
-        } catch (IllegalArgumentException ex) {
-            logger.log(Level.FINE, "Invalid remote file repository data entered. Details: " + ex.getMessage());
-            throw new IOException(ex.getMessage());
-        }
-    }
-
-    /**
      * Loads the VFS Remote File Repositories Properties from SNAP configuration file.
      */
-    public void loadProperties() {
+    public void loadProperties() throws IOException {
         InputStream inputStream = null;
         try {
             if (!Files.exists(vfsConfigFile)) {
@@ -164,8 +138,6 @@ public final class VFSRemoteFileRepositoriesController {
             inputStream = Files.newInputStream(vfsConfigFile);
             properties.load(inputStream);
             isChanged = false;
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to load VFS Remote File Repositories Properties from SNAP configuration file. Details: " + ex.getMessage());
         } finally {
             if (inputStream != null) {
                 try {
@@ -180,7 +152,7 @@ public final class VFSRemoteFileRepositoriesController {
     /**
      * Writes the VFS Remote File Repositories Properties on SNAP configuration file.
      */
-    public void saveProperties() {
+    public void saveProperties() throws IOException {
         OutputStream outputStream = null;
         try {
             if (!Files.exists(vfsConfigFile)) {
@@ -190,8 +162,6 @@ public final class VFSRemoteFileRepositoriesController {
             outputStream = Files.newOutputStream(vfsConfigFile);
             properties.store(outputStream, "");
             isChanged = false;
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to save VFS properties to SNAP configuration file. Details: " + ex.getMessage());
         } finally {
             if (outputStream != null) {
                 try {
