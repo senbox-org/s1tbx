@@ -975,6 +975,26 @@
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
                         </execution>
+                        <execution>
+                            <id>parse-version</id>
+                            <goals>
+                                <goal>parse-version</goal>
+                            </goals>
+                            <configuration>
+                                <propertyPrefix>snap</propertyPrefix>
+                                <versionString>${snap.version}</versionString>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>build-date</id>
+                            <goals>
+                                <goal>timestamp-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>snap.buildDate</name>
+                                <pattern>yyyy-MM-dd</pattern>
+                            </configuration>
+                        </execution>
                     </executions>
                 </plugin>
 
