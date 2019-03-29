@@ -399,7 +399,7 @@ public class CreateStackOp extends Operator {
             }
 
         } catch (Exception e) {
-            SystemUtils.LOG.warning("Unable to calculate baselines " + e.getMessage());
+            SystemUtils.LOG.warning("Unable to calculate baselines. " + e.getMessage());
         }
     }
 
