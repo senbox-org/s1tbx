@@ -12,7 +12,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,12 +55,9 @@ public class SwiftResponseHandler extends DefaultHandler {
      * The name of XML element for Container, used on parsing VFS service response XML.
      */
     private static final String CONTAINER_ELEMENT = "container";
-
+    private static Logger logger = Logger.getLogger(SwiftResponseHandler.class.getName());
     private LinkedList<String> elementStack = new LinkedList<>();
     private List<BasicFileAttributes> items;
-
-    private static Logger logger = Logger.getLogger(SwiftResponseHandler.class.getName());
-
     private String name;
     private long size;
     private String lastModified;
@@ -92,7 +92,12 @@ public class SwiftResponseHandler extends DefaultHandler {
     private static String getAuthorizationToken(String authAddress, String domain, String projectId, String user, String password) {
         try {
             URL authUrl = new URL(authAddress);
-            HttpsURLConnection connection = (HttpsURLConnection) authUrl.openConnection();
+            HttpURLConnection connection;
+            if (authUrl.getProtocol().equals("https")) {
+                connection = (HttpsURLConnection) authUrl.openConnection();
+            } else {
+                connection = (HttpURLConnection) authUrl.openConnection();
+            }
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setDoInput(true);
@@ -130,7 +135,7 @@ public class SwiftResponseHandler extends DefaultHandler {
                 return connection.getHeaderField("X-Subject-Token");
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to create authorization token used for OpenStack Swift authentication. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create authorization token used for OpenStack Swift authentication. Details: " + ex.getMessage());
         }
         return null;
     }
@@ -259,7 +264,7 @@ public class SwiftResponseHandler extends DefaultHandler {
                 }
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to add the new path of OpenStack Swift object to the list of OpenStack Swift VFS paths for files and directories. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to add the new path of OpenStack Swift object to the list of OpenStack Swift VFS paths for files and directories. Details: " + ex.getMessage());
             throw new SAXException(ex);
         }
     }
@@ -294,7 +299,7 @@ public class SwiftResponseHandler extends DefaultHandler {
                     break;
             }
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to create the OpenStack Swift VFS path and file attributes. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create the OpenStack Swift VFS path and file attributes. Details: " + ex.getMessage());
             throw new SAXException(ex);
         }
     }
