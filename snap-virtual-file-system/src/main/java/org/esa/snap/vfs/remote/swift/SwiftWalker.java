@@ -112,6 +112,9 @@ class SwiftWalker implements ObjectStorageWalker {
      */
     public List<BasicFileAttributes> walk(Path dir) throws IOException {
         String prefix = dir.toString();
+        if (!prefix.endsWith(this.delimiter)) {
+            prefix = prefix.concat(this.delimiter);
+        }
         String currentContainer;
         if (container != null && !container.isEmpty()) {
             currentContainer = container;
@@ -126,6 +129,7 @@ class SwiftWalker implements ObjectStorageWalker {
         currentContainer = (currentContainer != null && !currentContainer.isEmpty()) ? currentContainer + delimiter : "";
         prefix = prefix.replace(root, "");
         prefix = prefix.replace(currentContainer, "");
+        prefix = prefix.contentEquals("/") ? "" : prefix;
         StringBuilder paramBase = new StringBuilder();
         addParam(paramBase, "format", "xml");
         addParam(paramBase, "limit", "1000");
