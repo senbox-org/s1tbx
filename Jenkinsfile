@@ -54,7 +54,7 @@ pipeline {
             }
             when {
                 expression {
-                    return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" == "testJenkins_validation";
+                    return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/;
                 }
             }
             steps {
