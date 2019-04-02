@@ -69,7 +69,7 @@ pipeline {
                     agent { label 'snap-test' }
                     when {
                         expression {
-                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ "/.\\.x/" || "${env.GIT_BRANCH}" == "testJenkins_validation";
+                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /d+\\.x/ || "${env.GIT_BRANCH}" == "testJenkins_validation";
                         }
                     }
                     steps {
@@ -84,7 +84,7 @@ pipeline {
                     agent { label 'snap-test' }
                     when {
                         expression {
-                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ "/.\\.x/" || "${env.GIT_BRANCH}" == "testJenkins_validation";
+                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /d+\\.x/ || "${env.GIT_BRANCH}" == "testJenkins_validation";
                         }
                     }
                     steps {
