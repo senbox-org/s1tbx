@@ -74,9 +74,15 @@ public final class EarthGravitationalModel96 {
 
     public static EarthGravitationalModel96 instance() throws IOException {
         if (theInstance == null) {
-            theInstance = new EarthGravitationalModel96();
+            theInstance = create();
         }
         return theInstance;
+    }
+
+    private static synchronized EarthGravitationalModel96 create() throws IOException {
+        if (theInstance != null)
+            return theInstance;
+        return new EarthGravitationalModel96();
     }
 
     private EarthGravitationalModel96() throws IOException {
