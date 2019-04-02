@@ -37,8 +37,7 @@ public class ProductSetReaderOpTest {
     public static void teardown() {
         FileUtils.deleteTree(outputFile.getParentFile());
     }
-    /* TODO 
-     * Test commented because it may create an infinite loop and block the continuous integration
+
     @Test
     public void testProductSetGraph() throws IOException, GraphException {
         final String graphPath = ProductSetReaderOpTest.class.getResource("/org/esa/snap/core/gpf/common/productset/ProductSetMosaicGraph.xml").getFile();
@@ -72,7 +71,7 @@ public class ProductSetReaderOpTest {
         setIO(graph, srcFiles, outputFile, "BEAM-DIMAP");
 
         processor.executeGraph(graph, ProgressMonitor.NULL);
-    }*/
+    }
 
     private void setIO(final Graph graph, final File[] srcFiles, final File tgtFile, final String format) {
         final String readOperatorAlias = OperatorSpi.getOperatorAlias(ProductSetReaderOp.class);
