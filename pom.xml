@@ -97,15 +97,15 @@
      <url>https://github.com/senbox-org/s1tbx.git</url>
     </scm>
 
-	<repositories>
-          <repository>
-    		<id>central</id>
-    		<url>http://repo1.maven.org/maven2/</url>
-  	   </repository>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
+            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -118,10 +118,10 @@
     </repositories>
 
     <pluginRepositories>
-		<pluginRepository>
+        <pluginRepository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
+            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -133,17 +133,17 @@
         </pluginRepository>
     </pluginRepositories>
 
-	<distributionManagement>
+    <distributionManagement>
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/releases/</url>
+            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-releases/</url>
             <uniqueVersion>false</uniqueVersion>
         </repository>
         <snapshotRepository>
             <id>snap-repo-public</id>
             <name>Public Maven Snapshot Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/snapshots/</url>
+            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-snapshot/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
@@ -664,7 +664,7 @@
 				
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version>
+					<version>3.0.0-M3</version>
                     <configuration>
 						<!--  to test from the command line mvn test -DskipTests=false -->
                         <skipTests>${skipTests}</skipTests>
