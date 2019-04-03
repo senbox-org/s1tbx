@@ -58,7 +58,7 @@ pipeline {
                 }
             }
             steps {
-                echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
+                echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
                 sh "mvn -Dm2repo=/var/tmp/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap deploy -U -DskipTests=true"
                 sh "/opt/scripts/saveToLocalUpdateCenter.sh . ${deployDirName} ${branchVersion} ${toolName}"
             }
@@ -68,16 +68,16 @@ pipeline {
                 docker {
                     label 'snap-test'
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
-                    args 'docker_snap-installer:/snap-installer'
+                    args '-v docker_snap-installer:/snap-installer'
                 }
             }
             when {
                 expression {
-                    return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/;
+                    return "${env.GIT_BRANCH}" == 'master';
                 }
             }
             steps {
-                echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
+                echo "Create SNAP Installer ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
                 sh "/opt/scripts/saveInstallData.sh ${toolName}"
             }
         }
