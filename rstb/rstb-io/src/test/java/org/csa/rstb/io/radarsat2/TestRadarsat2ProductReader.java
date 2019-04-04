@@ -30,8 +30,8 @@ import java.io.File;
  */
 public class TestRadarsat2ProductReader extends ReaderTest {
 
-    private static final File folderSLC = new File("E:\\data\\RS2\\RS2_OK21594_PK225278_DK209453_FQ14_20110624_225945_HH_VV_HV_VH_SLC");
-    private static final File metadataLC = new File("E:\\data\\RS2\\product.xml");
+    private static final File folderSLC = new File("E:\\data\\RS2\\RS2_OK2084_PK24911_DK25857_FQ14_20080802_225909_HH_VV_HV_VH_SLC");
+    private static final File metadataSLC = new File("E:\\data\\RS2\\RS2_OK2084_PK24911_DK25857_FQ14_20080802_225909_HH_VV_HV_VH_SLC\\product.xml");
 
     public TestRadarsat2ProductReader() {
         super(new Radarsat2ProductReaderPlugIn());
@@ -50,7 +50,7 @@ public class TestRadarsat2ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningMetadataFile() throws Exception {
-        testReader(metadataLC);
+        testReader(metadataSLC);
     }
 
     @Test
