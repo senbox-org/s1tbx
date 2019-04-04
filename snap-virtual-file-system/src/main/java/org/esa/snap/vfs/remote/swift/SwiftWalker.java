@@ -129,7 +129,7 @@ class SwiftWalker implements ObjectStorageWalker {
         currentContainer = (currentContainer != null && !currentContainer.isEmpty()) ? currentContainer + delimiter : "";
         prefix = prefix.replace(root, "");
         prefix = prefix.replace(currentContainer, "");
-        prefix = prefix.contentEquals("/") ? "" : prefix;
+        prefix = prefix.replaceAll("^/", "");
         StringBuilder paramBase = new StringBuilder();
         addParam(paramBase, "format", "xml");
         addParam(paramBase, "limit", "1000");
@@ -140,7 +140,7 @@ class SwiftWalker implements ObjectStorageWalker {
         String marker = "";
         SwiftResponseHandler handler;
         do {
-            handler = new SwiftResponseHandler(root + currentContainer + prefix, items, delimiter);
+            handler = new SwiftResponseHandler(root + delimiter + currentContainer + prefix, items, delimiter);
             xmlReader.setContentHandler(handler);
             StringBuilder params = new StringBuilder(paramBase);
             addParam(params, "marker", marker);
