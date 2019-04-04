@@ -104,7 +104,7 @@ class HttpResponseHandler {
         }
         connection.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
         if (authorizationToken != null && !authorizationToken.isEmpty())
-            connection.setRequestProperty("X-Auth-Token", authorizationToken);
+            connection.setRequestProperty("authorization", "Basic " + authorizationToken);
         if (requestProperties != null && requestProperties.size() > 0) {
             Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
             for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
