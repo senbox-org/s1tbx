@@ -46,7 +46,7 @@ import static org.junit.Assume.assumeTrue;
  */
 public class HttpFileSystemTest extends AbstractVFSTest {
 
-    private static final String TEST_DIR = "http";
+    private static final String TEST_DIR = "mock-api/vfs/";
 
     private AbstractRemoteFileSystem httpFileSystem;
     private HttpMockService mockService;
@@ -109,13 +109,16 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
         List<BasicFileAttributes> items;
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot()).walk(NioPaths.get(httpRepo.getRoot() + ""));
+        HttpWalker walker = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot());
+        items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/"));
         assertEquals(2, items.size());
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot()).walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/"));
+        walker = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot());
+        items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        items = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot()).walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/dir1/"));
+        walker = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot());
+        items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
 
