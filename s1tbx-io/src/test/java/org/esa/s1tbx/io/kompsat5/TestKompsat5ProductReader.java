@@ -13,7 +13,7 @@ import java.io.File;
  */
 public class TestKompsat5ProductReader extends ReaderTest {
 
-    private final static File inputZip = new File("E:\\data\\K5\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
+    private final static File inputZip = null;
     private final static File inputFolder = new File("E:\\data\\K5\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D");
     private final static File inputMetaXML = new File("E:\\data\\K5\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
 
@@ -31,8 +31,8 @@ public class TestKompsat5ProductReader extends ReaderTest {
         testReader(inputMetaXML);
     }
 
-    @Test
-    public void testOpeningZip() throws Exception {
-        testReader(inputZip);
-    }
+//    @Test
+//    public void testOpeningZip() throws Exception {
+//        testReader(inputZip);
+//    }
 }

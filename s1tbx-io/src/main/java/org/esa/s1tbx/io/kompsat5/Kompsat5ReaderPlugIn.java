@@ -63,6 +63,12 @@ public class Kompsat5ReaderPlugIn extends NetCDFReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final File file) {
         final String fileName = file.getName().toLowerCase();
+        if(file.isDirectory()) {
+            final File metadataFile = findMetadataFile(file);
+            if (metadataFile != null) {
+                return DecodeQualification.INTENDED;
+            }
+        }
         if (fileName.startsWith(KOMPSAT5_FILE_PREFIX)) {
             for(String ext : KOMPSAT5_FORMAT_FILE_EXTENSIONS) {
                 if(fileName.endsWith(ext)) {
