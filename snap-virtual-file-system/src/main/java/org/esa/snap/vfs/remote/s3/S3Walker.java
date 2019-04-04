@@ -105,6 +105,8 @@ class S3Walker implements ObjectStorageWalker {
             prefix = prefix.concat(this.delimiter);
         }
         StringBuilder paramBase = new StringBuilder();
+        prefix = prefix.replace(root, "");
+        prefix = prefix.replaceAll("^/", "");
         addParam(paramBase, "prefix", prefix.replace(root, ""));
         addParam(paramBase, "delimiter", delimiter);
 
@@ -112,8 +114,7 @@ class S3Walker implements ObjectStorageWalker {
         String nextContinuationToken = null;
         S3ResponseHandler handler;
         do {
-            prefix = prefix.isEmpty() ? root : prefix;
-            handler = new S3ResponseHandler(prefix, items, delimiter);
+            handler = new S3ResponseHandler(root + delimiter + prefix, items, delimiter);
             xmlReader.setContentHandler(handler);
             StringBuilder params = new StringBuilder(paramBase);
             addParam(params, "continuation-token", nextContinuationToken);
