@@ -5,6 +5,7 @@ import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -18,11 +19,12 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
- * Created by jcoravu on 21/3/2019.
+ * VFS Core class
+ *
+ * @author Jean Coravu
+ * @author Adrian Drăghici
  */
 public class VFS {
-
-    private List<FileSystemProvider> installedProviders;
 
     private static final VFS instance;
 
@@ -31,17 +33,35 @@ public class VFS {
         instance.loadInstalledProviders();
     }
 
+    private List<FileSystemProvider> installedProviders;
+
     private VFS() {
     }
 
+    /**
+     * Gets the VFS instance for provide access to VFS core methods.
+     *
+     * @return the new VFS instance
+     */
     public static VFS getInstance() {
         return instance;
     }
 
+    /**
+     * Gets the list with VFS Providers and installed OS FS Providers.
+     *
+     * @return the list with FS Providers
+     */
     public List<FileSystemProvider> getInstalledProviders() {
         return installedProviders;
     }
 
+    /**
+     * Gets the FS provider identified by scheme.
+     *
+     * @param scheme the FS provider scheme
+     * @return the FS provider
+     */
     public FileSystemProvider getFileSystemProviderByScheme(String scheme) {
         for (FileSystemProvider fileSystemProvider : this.installedProviders) {
             if (scheme.equalsIgnoreCase(fileSystemProvider.getScheme())) {
@@ -51,6 +71,11 @@ public class VFS {
         return null;
     }
 
+    /**
+     * Initializes the installed Remote Virtual File System Providers using Remote File Repositories Configurations.
+     *
+     * @param vfsRepositories the Remote File Repositories Configurations
+     */
     public void initRemoteInstalledProviders(List<VFSRemoteFileRepository> vfsRepositories) {
         for (FileSystemProvider fileSystemProvider : this.installedProviders) {
             if (fileSystemProvider instanceof AbstractRemoteFileSystemProvider) {
@@ -70,11 +95,22 @@ public class VFS {
                         connectionData.put(vfsRemoteFileRepositoryProperty.getName(), vfsRemoteFileRepositoryProperty.getValue());
                     }
                     remoteFileSystemProvider.setConnectionData(foundRepository.getAddress(), connectionData);
+                    try {
+                        remoteFileSystemProvider.getFileSystemOrCreate(new URI(foundRepository.getScheme(), foundRepository.getRoot() + "/", null), null);
+                    } catch (URISyntaxException e) {
+                        throw new ExceptionInInitializerError("Unable to initialize VFS with scheme: " + remoteFileSystemProvider.getScheme());
+                    }
                 }
             }
         }
     }
 
+    /**
+     * Converts the given URI to a {@link Path} object.
+     *
+     * @param uri the URI to convert
+     * @return the resulting {@code Path}
+     */
     public Path getPath(URI uri) {
         String scheme = uri.getScheme();
         if (scheme == null) {
@@ -92,6 +128,13 @@ public class VFS {
         throw new FileSystemNotFoundException("The file system provider with the scheme '" + scheme + "' is not installed.");
     }
 
+    /**
+     * Converts a path string, or a sequence of strings that when joined form a path string, to a {@code Path}.
+     *
+     * @param first the path string or initial part of the path string
+     * @param more  additional strings to be joined to form the path string
+     * @return the resulting {@code Path}
+     */
     public Path get(String first, String... more) {
         Path path = getVirtualPath(first, more);
         if (path != null) {
@@ -100,14 +143,17 @@ public class VFS {
         return FileSystems.getDefault().getPath(first, more);
     }
 
-    public boolean isVirtualFileSystemPath(String path) {
-        return (getVirtualPath(path) != null);
-    }
-
+    /**
+     * Converts a path string, or a sequence of strings that when joined form a path string, to a {@code VFSPath}.
+     *
+     * @param first the path string or initial part of the path string
+     * @param more  additional strings to be joined to form the path string
+     * @return the resulting {@code VFSPath}
+     */
     public Path getVirtualPath(String first, String... more) {
         for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
             if (provider instanceof AbstractRemoteFileSystemProvider) {
-                AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider)provider;
+                AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider) provider;
                 Path path = remoteFileSystemProvider.getPathIfFileSystemRootMatches(first, more);
                 if (path != null) {
                     return path;
@@ -117,6 +163,9 @@ public class VFS {
         return null;
     }
 
+    /**
+     * Loads the installed FS Providers (VFS and OS Providers)
+     */
     private void loadInstalledProviders() {
         this.installedProviders = new ArrayList<>();
 
