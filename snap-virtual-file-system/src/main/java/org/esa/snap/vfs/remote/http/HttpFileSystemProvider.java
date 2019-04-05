@@ -1,7 +1,7 @@
 package org.esa.snap.vfs.remote.http;
 
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
-import org.esa.snap.vfs.remote.ObjectStorageWalker;
+import org.esa.snap.vfs.remote.VFSWalker;
 
 import java.io.IOException;
 import java.net.URL;
@@ -9,7 +9,7 @@ import java.net.URLConnection;
 import java.util.Map;
 
 /**
- * File System Service Provider for the HTTP Object Storage VFS.
+ * File System Service Provider for the HTTP VFS.
  *
  * @author Adrian Drăghici
  */
@@ -24,11 +24,6 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      * The name of password property, used on HTTP VFS instance creation parameters and defining remote file repository properties.
      */
     private static final String CREDENTIAL_PROPERTY_NAME = "password";
-
-    /**
-     * The default value of root property, used on VFS instance creation parameters.
-     */
-    private static final String HTTP_ROOT = "HTTP:/";
 
     /**
      * The value of S3 provider scheme.
@@ -79,7 +74,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @return The new VFS walker instance
      */
     @Override
-    protected ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot) {
+    protected VFSWalker newObjectStorageWalker(String fileSystemRoot) {
         return new HttpWalker(this.address, this.username, this.password, this.delimiter, fileSystemRoot);
     }
 
@@ -97,6 +92,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
     public String getProviderFileSeparator() {
         return this.delimiter;
     }
+
     /**
      * Gets the connection channel for this VFS provider.
      *

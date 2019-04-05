@@ -6,11 +6,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.AccessMode;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.CopyOption;
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileStore;
@@ -21,7 +18,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.LinkPermission;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -37,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * File System Service Provider for Object Storage VFS.
+ * File System Service Provider for VFS.
  * Service-provider class for file systems. The methods defined by the {@link java.nio.file.Files} class will typically delegate to an instance of this class.
  *
  * <p> A file system provider is a concrete implementation of this class that implements the abstract methods defined by this class. A provider is identified by a {@code URI} {@link #getScheme() scheme}. The default provider is identified by the URI scheme "file". It creates the {@link FileSystem} that provides access to the file systems accessible to the Java virtual machine.
@@ -67,10 +63,28 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     private final Map<String, AbstractRemoteFileSystem> fileSystems;
 
     /**
-     * Creates the new File System Service Provider for Object Storage VFS.
+     * Creates the new File System Service Provider for VFS.
      */
     protected AbstractRemoteFileSystemProvider() {
-        this.fileSystems = new HashMap<String, AbstractRemoteFileSystem>();
+        this.fileSystems = new HashMap<>();
+    }
+
+    private static String extractFileSystemRoot(URI uri) {
+        String resourcePathAsString = extractSchemeSpecificPart(uri);
+        String substring = ":";
+        int index = resourcePathAsString.indexOf(substring);
+        if (index < 0) {
+            throw new IllegalArgumentException("The scheme specific part '" + resourcePathAsString + "' does not start with the file system root.");
+        }
+        return resourcePathAsString.substring(0, index + substring.length());
+    }
+
+    private static String extractSchemeSpecificPart(URI uri) {
+        String resourcePathAsString = uri.getSchemeSpecificPart();
+        if (resourcePathAsString.startsWith("/")) {
+            resourcePathAsString = resourcePathAsString.substring(1); // remote '/' from the first position
+        }
+        return resourcePathAsString;
     }
 
     public abstract void setConnectionData(String serviceAddress, Map<String, ?> connectionData);
@@ -80,7 +94,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      *
      * @return The new VFS walker instance
      */
-    protected abstract ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot);
+    protected abstract VFSWalker newObjectStorageWalker(String fileSystemRoot);
 
     /**
      * Gets the service address of this VFS provider.
@@ -115,12 +129,11 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @param env A map of provider specific properties to configure the file system; may be empty
      * @return A new file system
      * @throws IllegalArgumentException         If the pre-conditions for the {@code uri} parameter aren't met, or the {@code env} parameter does not contain properties required by the provider, or a property value is invalid
-     * @throws IOException                      An I/O error occurs creating the file system
      * @throws SecurityException                If a security manager is installed and it denies an unspecified permission required by the file system provider implementation
      * @throws FileSystemAlreadyExistsException If the file system has already been created
      */
     @Override
-    public final AbstractRemoteFileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
+    public final AbstractRemoteFileSystem newFileSystem(URI uri, Map<String, ?> env) {
         validateScheme(uri);
         validateProviderAddress();
 
@@ -181,14 +194,9 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         validateProviderAddress();
 
         String fileSystemRoot = extractFileSystemRoot(uri);
-        AbstractRemoteFileSystem fileSystem = this.fileSystems.get(fileSystemRoot);
-        if (fileSystem == null) {
-            Map<String, ?> env = Collections.emptyMap();
-            fileSystem = newFileSystem(fileSystemRoot, env);
-            this.fileSystems.put(fileSystemRoot, fileSystem);
-        }
+        AbstractRemoteFileSystem fileSystem = this.fileSystems.computeIfAbsent(fileSystemRoot, fsr -> newFileSystem(fsr, Collections.emptyMap()));
         String resourcePathAsString = extractSchemeSpecificPart(uri);
-        return ObjectStoragePath.parsePath(fileSystem, resourcePathAsString);
+        return VFSPath.parsePath(fileSystem, resourcePathAsString);
     }
 
     /**
@@ -209,7 +217,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public FileChannel newFileChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
-        return new ObjectStorageFileChannel(path, options, attrs);
+        return new VFSFileChannel(path, options, attrs);
     }
 
     /**
@@ -233,7 +241,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     @Override
     public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
         AbstractRemoteFileSystem fs = (AbstractRemoteFileSystem) path.getFileSystem();
-        return fs.openByteChannel((ObjectStoragePath) path, options, attrs);
+        return fs.openByteChannel((VFSPath) path, options, attrs);
     }
 
     /**
@@ -273,12 +281,10 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @param dir   the directory to create
      * @param attrs an optional list of file attributes to set atomically when creating the directory
      * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically when creating the directory
-     * @throws FileAlreadyExistsException    if a directory could not otherwise be created because a file of that name already exists <i>(optional specific exception)</i>
-     * @throws IOException                   if an I/O error occurs or the parent directory does not exist
      * @throws SecurityException             In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkWrite(String) checkWrite} method is invoked to check write access to the new directory.
      */
     @Override
-    public void createDirectory(Path dir, FileAttribute<?>[] attrs) throws IOException {
+    public void createDirectory(Path dir, FileAttribute<?>[] attrs) {
         throw new UnsupportedOperationException();
     }
 
@@ -287,13 +293,10 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * {@link Files#delete} method.
      *
      * @param path the path to the file to delete
-     * @throws NoSuchFileException        if the file does not exist <i>(optional specific exception)</i>
-     * @throws DirectoryNotEmptyException if the file is a directory and could not otherwise be deleted because the directory is not empty <i>(optional specific exception)</i>
-     * @throws IOException                if an I/O error occurs
-     * @throws SecurityException          In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkDelete(String)} method is invoked to check delete access to the file
+     * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkDelete(String)} method is invoked to check delete access to the file
      */
     @Override
-    public void delete(Path path) throws IOException {
+    public void delete(Path path) {
         throw new UnsupportedOperationException();
     }
 
@@ -303,18 +306,12 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @param source  the path to the file to copy
      * @param target  the path to the target file
      * @param options options specifying how the copy should be done
-     * @throws UnsupportedOperationException if the array contains a copy option that is not supported
-     * @throws FileAlreadyExistsException    if the target file exists but cannot be replaced because the
-     *                                       {@code REPLACE_EXISTING} option is not specified <i>(optional specific exception)</i>
-     * @throws DirectoryNotEmptyException    the {@code REPLACE_EXISTING} option is specified but the file cannot be replaced because it is a non-empty directory
-     *                                       <i>(optional specific exception)</i>
-     * @throws IOException                   if an I/O error occurs
-     * @throws SecurityException             In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the source file, the
-     *                                       {@link SecurityManager#checkWrite(String) checkWrite} is invoked to check write access to the target file. If a symbolic link is copied the security manager is invoked to check {@link
-     *                                       LinkPermission}{@code ("symbolic")}.
+     * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the source file, the
+     *                           {@link SecurityManager#checkWrite(String) checkWrite} is invoked to check write access to the target file. If a symbolic link is copied the security manager is invoked to check {@link
+     *                           LinkPermission}{@code ("symbolic")}.
      */
     @Override
-    public void copy(Path source, Path target, CopyOption... options) throws IOException {
+    public void copy(Path source, Path target, CopyOption... options) {
         throw new UnsupportedOperationException();
     }
 
@@ -324,17 +321,10 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @param source  the path to the file to move
      * @param target  the path to the target file
      * @param options options specifying how the move should be done
-     * @throws UnsupportedOperationException   if the array contains a copy option that is not supported
-     * @throws FileAlreadyExistsException      if the target file exists but cannot be replaced because the
-     *                                         {@code REPLACE_EXISTING} option is not specified <i>(optional specific exception)</i>
-     * @throws DirectoryNotEmptyException      the {@code REPLACE_EXISTING} option is specified but the file cannot be replaced because it is a non-empty directory
-     *                                         <i>(optional specific exception)</i>
-     * @throws AtomicMoveNotSupportedException if the options array contains the {@code ATOMIC_MOVE} option but the file cannot be moved as an atomic file system operation.
-     * @throws IOException                     if an I/O error occurs
-     * @throws SecurityException               In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkWrite(String) checkWrite} method is invoked to check write access to both the source and target file.
+     * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkWrite(String) checkWrite} method is invoked to check write access to both the source and target file.
      */
     @Override
-    public void move(Path source, Path target, CopyOption... options) throws IOException {
+    public void move(Path source, Path target, CopyOption... options) {
         throw new UnsupportedOperationException();
     }
 
@@ -344,11 +334,10 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @param path  one path to the file
      * @param path2 the other path
      * @return {@code true} if, and only if, the two paths locate the same file
-     * @throws IOException       if an I/O error occurs
      * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to both files.
      */
     @Override
-    public boolean isSameFile(Path path, Path path2) throws IOException {
+    public boolean isSameFile(Path path, Path path2) {
         if (path == null) {
             throw new NullPointerException(PATH_NULL_ERROR_MESSAGE);
         }
@@ -361,11 +350,10 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      *
      * @param path the path to the file to test
      * @return {@code true} if the file is considered hidden
-     * @throws IOException       if an I/O error occurs
      * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the file.
      */
     @Override
-    public boolean isHidden(Path path) throws IOException {
+    public boolean isHidden(Path path) {
         return false;
     }
 
@@ -375,12 +363,11 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      *
      * @param path the path to the file
      * @return the file store where the file is stored
-     * @throws IOException       if an I/O error occurs
      * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the file, and in addition it checks {@link RuntimePermission}<tt>
      *                           ("getFileStoreAttributes")</tt>
      */
     @Override
-    public FileStore getFileStore(Path path) throws IOException {
+    public FileStore getFileStore(Path path) {
         throw new UnsupportedOperationException();
     }
 
@@ -390,14 +377,11 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @param path  the path to the file to check
      * @param modes The access modes to check; may have zero elements
      * @throws UnsupportedOperationException an implementation is required to support checking for
-     *                                       {@code READ}, {@code WRITE}, and {@code EXECUTE} access. This exception is specified to allow for the {@code Access} enum to be extended in future releases.
-     * @throws NoSuchFileException           if a file does not exist <i>(optional specific exception)</i>
-     * @throws AccessDeniedException         the requested access would be denied or the access cannot be determined because the Java virtual machine has insufficient privileges or other reasons. <i>(optional specific exception)</i>
-     * @throws IOException                   if an I/O error occurs
+     *                                       {@code READ}, {@code WRITE}, and {@code EXECUTE} access. This exception is specified to allow for the {@code Access} enum to be extended in future releases.               if an I/O error occurs
      * @throws SecurityException             In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} is invoked when checking read access to the file or only the existence of the file, the {@link SecurityManager#checkWrite(String) checkWrite} is invoked when checking write access to the file, and {@link SecurityManager#checkExec(String) checkExec} is invoked when checking execute access.
      */
     @Override
-    public void checkAccess(Path path, AccessMode... modes) throws IOException {
+    public void checkAccess(Path path, AccessMode... modes) {
     }
 
     /**
@@ -430,7 +414,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         if (!type.equals(BasicFileAttributes.class)) {
             throw new UnsupportedOperationException("can only provide instance of BasicFileAttributes");
         }
-        return type.cast(ObjectStorageFileAttributes.fromPath((ObjectStoragePath) path));
+        return type.cast(VFSFileAttributes.fromPath((VFSPath) path));
     }
 
     /**
@@ -443,11 +427,10 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @return a map of the attributes returned; may be empty. The map's keys are the attribute names, its values are the attribute values
      * @throws UnsupportedOperationException if the attribute view is not available
      * @throws IllegalArgumentException      if no attributes are specified or an unrecognized attributes is specified
-     * @throws IOException                   If an I/O error occurs
      * @throws SecurityException             In the case of the default provider, and a security manager is installed, its {@link SecurityManager#checkRead(String) checkRead} method denies read access to the file. If this method is invoked to read security sensitive attributes then the security manager may be invoke to check for additional permissions.
      */
     @Override
-    public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) throws IOException {
+    public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) {
         throw new UnsupportedOperationException();
     }
 
@@ -461,18 +444,15 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @throws UnsupportedOperationException if the attribute view is not available
      * @throws IllegalArgumentException      if the attribute name is not specified, or is not recognized, or the attribute value is of the correct type but has an inappropriate value
      * @throws ClassCastException            If the attribute value is not of the expected type or is a collection containing elements that are not of the expected type
-     * @throws IOException                   If an I/O error occurs
      * @throws SecurityException             In the case of the default provider, and a security manager is installed, its {@link SecurityManager#checkWrite(String) checkWrite} method denies write access to the file. If this method is invoked to set security sensitive attributes then the security manager may be invoked to check for additional permissions.
      */
     @Override
-    public void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException {
+    public void setAttribute(Path path, String attribute, Object value, LinkOption... options) {
         throw new UnsupportedOperationException();
     }
 
     public Path getPathIfFileSystemRootMatches(String first, String... more) {
-        Iterator<Map.Entry<String, AbstractRemoteFileSystem>> it = this.fileSystems.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, AbstractRemoteFileSystem> entry = it.next();
+        for (Map.Entry<String, AbstractRemoteFileSystem> entry : this.fileSystems.entrySet()) {
             String fileSystemRoot = entry.getKey();
             if (first.startsWith(fileSystemRoot)) {
                 AbstractRemoteFileSystem remoteFileSystem = entry.getValue();
@@ -487,12 +467,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         validateProviderAddress();
 
         String fileSystemRoot = extractFileSystemRoot(uri);
-        AbstractRemoteFileSystem fileSystem = this.fileSystems.get(fileSystemRoot);
-        if (fileSystem == null) {
-            fileSystem = newFileSystem(fileSystemRoot, env);
-            this.fileSystems.put(fileSystemRoot, fileSystem);
-        }
-        return fileSystem;
+        return this.fileSystems.computeIfAbsent(fileSystemRoot, fsr -> newFileSystem(fsr, env));
     }
 
     /**
@@ -511,7 +486,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
 
     private void validateScheme(URI uri) {
         if (!getScheme().equals(uri.getScheme())) {
-            throw new IllegalArgumentException("The provider scheme '"+getScheme()+"' is not the same with the uri scheme '"+uri.getScheme()+"'.");
+            throw new IllegalArgumentException("The provider scheme '" + getScheme() + "' is not the same with the uri scheme '" + uri.getScheme() + "'.");
         }
     }
 
@@ -519,23 +494,5 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         if (getProviderAddress().isEmpty()) {
             throw new IllegalStateException("The VFS with scheme: " + getScheme() + " is not initialized.");
         }
-    }
-
-    private static String extractFileSystemRoot(URI uri) {
-        String resourcePathAsString = extractSchemeSpecificPart(uri);
-        String substring = ":";
-        int index = resourcePathAsString.indexOf(substring);
-        if (index < 0) {
-            throw new IllegalArgumentException("The scheme specific part '"+resourcePathAsString+"' does not start with the file system root.");
-        }
-        return resourcePathAsString.substring(0, index + substring.length());
-    }
-
-    private static String extractSchemeSpecificPart(URI uri) {
-        String resourcePathAsString = uri.getSchemeSpecificPart();
-        if (resourcePathAsString.startsWith("/")) {
-            resourcePathAsString = resourcePathAsString.substring(1); // remote '/' from the first position
-        }
-        return resourcePathAsString;
     }
 }

@@ -562,6 +562,4 @@ public final class VFSRemoteFileRepositoriesController {
         }
         return true;
     }
-
-
 }

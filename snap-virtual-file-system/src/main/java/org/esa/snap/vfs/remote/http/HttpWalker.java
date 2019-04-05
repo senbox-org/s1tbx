@@ -1,7 +1,7 @@
 package org.esa.snap.vfs.remote.http;
 
-import org.esa.snap.vfs.remote.ObjectStorageFileAttributes;
-import org.esa.snap.vfs.remote.ObjectStorageWalker;
+import org.esa.snap.vfs.remote.VFSFileAttributes;
+import org.esa.snap.vfs.remote.VFSWalker;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Walker for HTTP Object Storage VFS.
+ * Walker for HTTP VFS.
  *
  * @author Adrian Drăghici
  */
-class HttpWalker implements ObjectStorageWalker {
+class HttpWalker implements VFSWalker {
 
     private final String address;
     private final String username;
@@ -27,7 +27,7 @@ class HttpWalker implements ObjectStorageWalker {
     private final String root;
 
     /**
-     * Creates the new walker for HTTP Object Storage VFS
+     * Creates the new walker for HTTP  VFS
      *
      * @param address   The address of HTTP service. (mandatory)
      * @param username  The username HTTP credential
@@ -54,7 +54,7 @@ class HttpWalker implements ObjectStorageWalker {
     @Override
     public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
         URLConnection urlConnection = HttpResponseHandler.getConnectionChannel(new URL(address), "GET", null, username, password);
-        return ObjectStorageFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
+        return VFSFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
     }
 
     /**
@@ -69,7 +69,7 @@ class HttpWalker implements ObjectStorageWalker {
         StringBuilder urlAsString = new StringBuilder();
         if (this.address.endsWith(this.delimiter)) {
             int endIndex = this.address.length() - this.delimiter.length();
-            urlAsString.append(this.address.substring(0, endIndex)); // do not write the file separator at the end
+            urlAsString.append(this.address, 0, endIndex); // do not write the file separator at the end
         } else {
             urlAsString.append(this.address);
         }

@@ -1,7 +1,7 @@
 package org.esa.snap.vfs.remote.http;
 
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.vfs.remote.ObjectStorageFileAttributes;
+import org.esa.snap.vfs.remote.VFSFileAttributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Response Handler for HTTP Object Storage VFS.
+ * Response Handler for HTTP VFS.
  *
  * @author Adrian Drăghici
  */
@@ -54,7 +54,7 @@ class HttpResponseHandler {
     private String prefix;
 
     /**
-     * Creates the new response handler for HTTP Object Storage VFS.
+     * Creates the new response handler for HTTP VFS.
      *
      * @param doc    The HTML document to parse
      * @param prefix The VFS path to traverse
@@ -139,11 +139,11 @@ class HttpResponseHandler {
                 String name = columns.get(1).selectFirst("a").attr("href");
                 if (!name.equals("/") && !name.startsWith("/")) {
                     if (name.endsWith("/")) {
-                        items.add(ObjectStorageFileAttributes.newDir(prefix + name));
+                        items.add(VFSFileAttributes.newDir(prefix + name));
                     } else {
                         String lastModified = columns.get(2).text();
                         long size = calculateSize(columns.get(3).text());
-                        items.add(ObjectStorageFileAttributes.newFile(prefix + name, size, lastModified));
+                        items.add(VFSFileAttributes.newFile(prefix + name, size, lastModified));
                     }
                 }
             }

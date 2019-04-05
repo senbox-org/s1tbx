@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Test: Remote File System for OpenStack Swift Object Storage VFS.
+ * Test: Remote File System for OpenStack Swift VFS.
  *
  * @author Adrian Drăghici
  */

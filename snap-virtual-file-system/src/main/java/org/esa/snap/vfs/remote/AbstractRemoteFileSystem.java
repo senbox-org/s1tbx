@@ -28,7 +28,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 /**
- * File System for Object Storage VFS.
+ * File System for VFS.
  * Provides an interface to a file system and is the factory for objects to access files and other objects in the file system.
  *
  * @author Norman Fomferra
@@ -39,14 +39,14 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
     private static Logger logger = Logger.getLogger(AbstractRemoteFileSystem.class.getName());
 
     private final AbstractRemoteFileSystemProvider provider;
-    private final ObjectStoragePath rootPath;
-    private final List<ObjectStorageByteChannel> openChannels;
+    private final VFSPath rootPath;
+    private final List<VFSByteChannel> openChannels;
 
     private boolean closed;
-    private ObjectStorageWalker walker;
+    private VFSWalker walker;
 
     /**
-     * Creates the new File System for Object Storage VFS.
+     * Creates the new File System for VFS.
      *
      * @param provider The VFS provider
      */
@@ -57,10 +57,10 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
         this.provider = provider;
         this.closed = false;
         this.openChannels = new ArrayList<>();
-        this.rootPath = new ObjectStoragePath(this, true, true, root, ObjectStorageFileAttributes.getRoot());
+        this.rootPath = new VFSPath(this, true, true, root, VFSFileAttributes.getRoot());
     }
 
-    public final ObjectStorageWalker newObjectStorageWalker() {
+    public final VFSWalker newObjectStorageWalker() {
         return this.provider.newObjectStorageWalker(this.rootPath.getPath());
     }
 
@@ -79,7 +79,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      *
      * @return The VFS root path
      */
-    public ObjectStoragePath getRoot() {
+    public VFSPath getRoot() {
         return rootPath;
     }
 
@@ -139,7 +139,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      */
     @Override
     public Iterable<Path> getRootDirectories() {
-        return walkDir(this.rootPath, path -> ((ObjectStoragePath) path).isDirectory());
+        return walkDir(this.rootPath, path -> ((VFSPath) path).isDirectory());
     }
 
     /**
@@ -194,7 +194,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
             String pathSeparator = getSeparator();
             pathName += pathSeparator + String.join(pathSeparator, more);
         }
-        return ObjectStoragePath.parsePath(this, pathName);
+        return VFSPath.parsePath(this, pathName);
     }
 
     /**
@@ -234,10 +234,9 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      * @throws UnsupportedOperationException If this {@code FileSystem} does not support watching file system
      *                                       objects for changes and events. This exception is not thrown
      *                                       by {@code FileSystems} created by the default provider.
-     * @throws IOException                   If an I/O error occurs
      */
     @Override
-    public WatchService newWatchService() throws IOException {
+    public WatchService newWatchService() {
         throw new UnsupportedOperationException();
     }
 
@@ -256,11 +255,11 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      * @return The Byte Channel
      * @throws IOException If an I/O error occurs
      */
-    SeekableByteChannel openByteChannel(ObjectStoragePath path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
+    SeekableByteChannel openByteChannel(VFSPath path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
         boolean plainReadWriteMode = options.isEmpty() || options.size() == 1 && (options.contains(StandardOpenOption.READ) || options.contains(StandardOpenOption.WRITE));
         boolean noCreateAttributes = attrs.length == 0;
         if (plainReadWriteMode && noCreateAttributes) {
-            ObjectStorageByteChannel channel = new ObjectStorageByteChannel(path);
+            VFSByteChannel channel = new VFSByteChannel(path);
             this.openChannels.add(channel);
             return channel;
         }
@@ -272,7 +271,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      *
      * @param channel The Byte Channel
      */
-    void removeByteChannel(ObjectStorageByteChannel channel) {
+    void removeByteChannel(VFSByteChannel channel) {
         this.openChannels.remove(channel);
     }
 
@@ -296,7 +295,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
             throw new IllegalStateException(ex);
         }
         return files.stream()
-                .map(f -> ObjectStoragePath.fromFileAttributes(this, f))
+                .map(f -> VFSPath.fromFileAttributes(this, f))
                 .filter(p -> filterPath(p, filter))
                 .collect(Collectors.toList());
     }
@@ -308,7 +307,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      * @param filter The filter
      * @return {@code true} if <code>path</code> is accepted by a filter
      */
-    private boolean filterPath(ObjectStoragePath path, DirectoryStream.Filter<? super Path> filter) {
+    private boolean filterPath(VFSPath path, DirectoryStream.Filter<? super Path> filter) {
         try {
             return filter.accept(path);
         } catch (IOException ex) {

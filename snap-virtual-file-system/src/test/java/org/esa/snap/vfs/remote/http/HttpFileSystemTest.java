@@ -40,7 +40,7 @@ import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Test: File System for HTTP Object Storage VFS.
+ * Test: File System for HTTP VFS.
  *
  * @author Adrian Drăghici
  */

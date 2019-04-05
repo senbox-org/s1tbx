@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -25,12 +26,12 @@ import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Test: Path for Object Storage VFS.
+ * Test: Path for VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public class ObjectStoragePathTest extends AbstractVFSTest {
+public class VFSPathTest extends AbstractVFSTest {
 
     private static final String TEST_DIR = "mock-api/vfs/";
 
@@ -70,80 +71,88 @@ public class ObjectStoragePathTest extends AbstractVFSTest {
     }
 
     @Test
+    public void testGetPath() throws URISyntaxException {
+        VFSRemoteFileRepository httpRepo = getHTTPRepo();
+        URI pathUri = new URI(fs.provider().getScheme(), httpRepo.getRoot() + "/hello", null);
+        Path path = fs.provider().getPath(pathUri);
+        assertEquals(httpRepo.getRoot() + "/hello", path.toString());
+    }
+
+    @Test
     public void testGetNameCount() {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
-        ObjectStoragePath path;
+        VFSPath path;
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertEquals(0, path.getNameCount());
 
-        path = ObjectStoragePath.parsePath(fs, "/");
+        path = VFSPath.parsePath(fs, "/");
         assertEquals(0, path.getNameCount());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello");
         assertEquals(2, path.getNameCount());
 
-        path = ObjectStoragePath.parsePath(fs, "hello/there");
+        path = VFSPath.parsePath(fs, "hello/there");
         assertEquals(2, path.getNameCount());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
         assertEquals(3, path.getNameCount());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello/there/");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello/there/");
         assertEquals(3, path.getNameCount());
     }
 
     @Test
     public void testIsAbsolute() {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
-        ObjectStoragePath path;
+        VFSPath path;
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertFalse(path.isAbsolute());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/");
         assertTrue(path.isAbsolute());
 
-        path = ObjectStoragePath.parsePath(fs, "/hello/there");
+        path = VFSPath.parsePath(fs, "/hello/there");
         assertFalse(path.isAbsolute());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello/there/");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello/there/");
         assertTrue(path.isAbsolute());
     }
 
     @Test
     public void testGetRoot() {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
-        ObjectStoragePath path;
+        VFSPath path;
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/");
         assertSame(fs.getRoot(), path.getRoot());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
         assertSame(fs.getRoot(), path.getRoot());
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertNull(path.getRoot());
 
-        path = ObjectStoragePath.parsePath(fs, "hello/there");
+        path = VFSPath.parsePath(fs, "hello/there");
         assertNull(path.getRoot());
     }
 
     @Test
     public void testGetFileName() {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
-        ObjectStoragePath path;
+        VFSPath path;
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertNull(path.getFileName());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/");
         assertEquals(httpRepo.getRoot(), path.getFileName().toString());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
         assertEquals("there", path.getFileName().toString());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "hello/there/");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "hello/there/");
         assertEquals("there", path.getFileName().toString());
     }
 
@@ -151,8 +160,8 @@ public class ObjectStoragePathTest extends AbstractVFSTest {
     public void testRelativize() {
         Path path1, path2;
 
-        path1 = ObjectStoragePath.parsePath(fs, "/a/b");
-        path2 = ObjectStoragePath.parsePath(fs, "/a/b/c/d");
+        path1 = VFSPath.parsePath(fs, "/a/b");
+        path2 = VFSPath.parsePath(fs, "/a/b/c/d");
         assertEquals("", path1.relativize(path1).toString());
         assertEquals("", path2.relativize(path2).toString());
         assertEquals("c/d", path1.relativize(path2).toString());
@@ -168,8 +177,8 @@ public class ObjectStoragePathTest extends AbstractVFSTest {
 
     private void assertRelativizeIsInverseOfResolve(String sp, String sq) {
         // For any two normalized paths p and q, where q does not have a root component, p.relativize(p.resolve(q)).equals(q).
-        Path p = ObjectStoragePath.parsePath(fs, sp);
-        Path q = ObjectStoragePath.parsePath(fs, sq);
+        Path p = VFSPath.parsePath(fs, sp);
+        Path q = VFSPath.parsePath(fs, sq);
         Path r = p.relativize(p.resolve(q));
         assertEquals(q.toString(), r.toString());
     }
@@ -178,35 +187,35 @@ public class ObjectStoragePathTest extends AbstractVFSTest {
     public void testResolve() {
         Path path;
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertEquals("", path.resolve("").toString());
         assertEquals("", path.resolve("/").toString());
         assertEquals("gus", path.resolve("gus").toString());
         assertEquals("gus", path.resolve("gus/").toString());
         assertEquals("/gus", path.resolve("/gus/").toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/");
+        path = VFSPath.parsePath(fs, "/");
         assertEquals("", path.resolve("").toString());
         assertEquals("", path.resolve("/").toString());
         assertEquals("gus", path.resolve("gus").toString());
         assertEquals("gus", path.resolve("gus/").toString());
         assertEquals("/gus", path.resolve("/gus/").toString());
 
-        path = ObjectStoragePath.parsePath(fs, "foo/bar/");
+        path = VFSPath.parsePath(fs, "foo/bar/");
         assertEquals("foo/bar", path.resolve("").toString());
         assertEquals("foo/bar", path.resolve("/").toString());
         assertEquals("foo/bar/gus", path.resolve("gus").toString());
         assertEquals("foo/bar/gus", path.resolve("gus/").toString());
         assertEquals("foo/bar/gus", path.resolve("/gus/").toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/foo/bar/");
+        path = VFSPath.parsePath(fs, "/foo/bar/");
         assertEquals("/foo/bar", path.resolve("").toString());
         assertEquals("/foo/bar", path.resolve("/").toString());
         assertEquals("/foo/bar/gus", path.resolve("gus").toString());
         assertEquals("/foo/bar/gus", path.resolve("gus/").toString());
         assertEquals("/foo/bar/gus", path.resolve("/gus/").toString());
 
-        path = ObjectStoragePath.parsePath(fs, "foo/bar");
+        path = VFSPath.parsePath(fs, "foo/bar");
         try {
             path.resolve((String) null);
             Assert.fail("IllegalArgumentException expected");
@@ -219,28 +228,28 @@ public class ObjectStoragePathTest extends AbstractVFSTest {
     public void testResolveSibling() {
         Path path;
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertEquals("", path.resolveSibling("").toString());
         assertEquals("", path.resolveSibling("/").toString());
         assertEquals("gus", path.resolveSibling("gus").toString());
         assertEquals("gus", path.resolveSibling("gus/").toString());
         assertEquals("/gus", path.resolveSibling("/gus/").toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/");
+        path = VFSPath.parsePath(fs, "/");
         assertEquals("", path.resolveSibling("").toString());
         assertEquals("/Test:", path.resolveSibling("/Test:/").toString());
         assertEquals("gus", path.resolveSibling("gus").toString());
         assertEquals("gus", path.resolveSibling("gus/").toString());
         assertEquals("/gus", path.resolveSibling("/gus/").toString());
 
-        path = ObjectStoragePath.parsePath(fs, "foo/bar/");
+        path = VFSPath.parsePath(fs, "foo/bar/");
         assertEquals("foo/bar", path.resolveSibling("").toString());
         assertEquals("foo/bar", path.resolveSibling("/").toString());
         assertEquals("foo/gus", path.resolveSibling("gus").toString());
         assertEquals("foo/gus", path.resolveSibling("gus/").toString());
         assertEquals("foo/gus", path.resolveSibling("/gus/").toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/foo/bar/");
+        path = VFSPath.parsePath(fs, "/foo/bar/");
         assertEquals("/foo/bar", path.resolveSibling("").toString());
         assertEquals("/foo/bar", path.resolveSibling("/").toString());
         assertEquals("/foo/gus", path.resolveSibling("gus").toString());
@@ -251,53 +260,53 @@ public class ObjectStoragePathTest extends AbstractVFSTest {
     @Test
     public void testGetParent() {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
-        ObjectStoragePath path;
+        VFSPath path;
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertNull(path.getParent());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/");
         assertEquals("", path.getParent().toString());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello");
         assertEquals(httpRepo.getRoot(), path.getParent().toString());
 
-        path = ObjectStoragePath.parsePath(fs, "hello/");
+        path = VFSPath.parsePath(fs, "hello/");
         assertEquals("", path.getParent().toString());
 
-        path = ObjectStoragePath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
+        path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
         assertEquals(httpRepo.getRoot() + "/hello", path.getParent().toString());
 
-        path = ObjectStoragePath.parsePath(fs, "hello/there/");
+        path = VFSPath.parsePath(fs, "hello/there/");
         assertEquals("hello", path.getParent().toString());
     }
 
     @Test
     public void testToString() {
-        ObjectStoragePath path;
+        VFSPath path;
 
-        path = ObjectStoragePath.parsePath(fs, "");
+        path = VFSPath.parsePath(fs, "");
         assertEquals("", path.toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/");
+        path = VFSPath.parsePath(fs, "/");
         assertEquals("", path.toString());
 
-        path = ObjectStoragePath.parsePath(fs, "hello");
+        path = VFSPath.parsePath(fs, "hello");
         assertEquals("hello", path.toString());
 
-        path = ObjectStoragePath.parsePath(fs, "hello/");
+        path = VFSPath.parsePath(fs, "hello/");
         assertEquals("hello", path.toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/hello");
+        path = VFSPath.parsePath(fs, "/hello");
         assertEquals("/hello", path.toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/hello/");
+        path = VFSPath.parsePath(fs, "/hello/");
         assertEquals("/hello", path.toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/hello/there");
+        path = VFSPath.parsePath(fs, "/hello/there");
         assertEquals("/hello/there", path.toString());
 
-        path = ObjectStoragePath.parsePath(fs, "/hello/there/");
+        path = VFSPath.parsePath(fs, "/hello/there/");
         assertEquals("/hello/there", path.toString());
     }
 }

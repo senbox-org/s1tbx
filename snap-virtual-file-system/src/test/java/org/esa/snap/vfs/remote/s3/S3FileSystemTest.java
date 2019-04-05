@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Test: File System for S3 Object Storage VFS.
+ * Test: File System for S3 VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici

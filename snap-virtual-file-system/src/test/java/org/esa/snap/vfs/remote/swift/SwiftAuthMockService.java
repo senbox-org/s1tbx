@@ -14,12 +14,11 @@ import java.util.logging.Logger;
 
 class SwiftAuthMockService {
 
+    static final String TOKEN = "c4760e89c8d945cd9a6fbfc7b71d6cbc";
     private static final String DOMAIN = "cloud_14547";
     private static final String PROJECT_ID = "c4761f89c8d940cd9a6dbfa7b72d6cba";
     private static final String USER = "swift_test";
     private static final String CREDENTIAL = "SwIfT0#";
-    static final String TOKEN = "c4760e89c8d945cd9a6fbfc7b71d6cbc";
-
     private HttpServer mockAuthServer;
 
     SwiftAuthMockService(URL serviceAddress) throws IOException {
@@ -97,15 +96,5 @@ class SwiftAuthMockService {
             }
             return responseJson;
         }
-
-        private String getRequestParameter(String query, String key) {
-            String value = "";
-            if (query != null && key != null) {
-                value = query.replaceAll("(.*" + key + "=([^&]*).*)", "$2");
-                value = value.contentEquals(query) ? "" : value;
-            }
-            return value;
-        }
-
     }
 }

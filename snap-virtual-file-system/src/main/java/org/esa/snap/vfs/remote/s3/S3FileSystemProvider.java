@@ -1,9 +1,7 @@
 package org.esa.snap.vfs.remote.s3;
 
-import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
-import org.esa.snap.vfs.remote.ObjectStorageWalker;
-import org.esa.snap.vfs.remote.http.HttpFileSystem;
+import org.esa.snap.vfs.remote.VFSWalker;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * File System Service Provider for S3 Object Storage VFS.
+ * File System Service Provider for S3 VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
@@ -78,7 +76,7 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @return The new VFS walker instance
      */
     @Override
-    protected ObjectStorageWalker newObjectStorageWalker(String fileSystemRoot) {
+    protected VFSWalker newObjectStorageWalker(String fileSystemRoot) {
         try {
             return new S3Walker(bucketAddress, accessKeyId, secretAccessKey, delimiter, fileSystemRoot);
         } catch (ParserConfigurationException | SAXException ex) {
