@@ -1,6 +1,5 @@
 package org.esa.snap.vfs.remote;
 
-import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
@@ -31,27 +30,6 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
     static final DateTimeFormatter ISO_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
 
     private static Logger logger = Logger.getLogger(ObjectStorageFileAttributes.class.getName());
-
-    /**
-     * Extract basic file attributes from the given VFS path
-     *
-     * @param path the VFS path
-     * @return The basic file attributes
-     * @throws IOException If an I/O error occurs
-     */
-    static BasicFileAttributes fromPath(ObjectStoragePath path) throws IOException {
-        BasicFileAttributes fileAttributes = path.getFileAttributes();
-        if (fileAttributes == null) {
-            if (path.isDirectory()) {
-                fileAttributes = newDir(path.toString());
-            } else {
-                AbstractRemoteFileSystem fileSystem = path.getFileSystem();
-                fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(path.buildURL().toString(), path.toString());
-            }
-            path.setFileAttributes(fileAttributes);
-        }
-        return fileAttributes;
-    }
 
     /**
      * Creates new basic file attributes for a VFS file.
@@ -190,7 +168,7 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
          * @return The object that uniquely identifies the given file, or {@code null}
          */
         @Override
-        public Object fileKey() {
+        public String fileKey() {
             return fileKey;
         }
 
@@ -262,7 +240,7 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
          * @return The object that uniquely identifies the given file, or {@code null}
          */
         @Override
-        public Object fileKey() {
+        public String fileKey() {
             return fileKey;
         }
 

@@ -4,6 +4,7 @@ import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.ObjectStorageWalker;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
@@ -106,7 +107,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @return The connection channel
      * @throws IOException If an I/O error occurs
      */
-    public URLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
+    public HttpURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
         return HttpResponseHandler.getConnectionChannel(url, method, requestProperties, this.username, this.password);
     }
 

@@ -88,7 +88,18 @@ class HttpResponseHandler {
      * @return The connection channel
      * @throws IOException If an I/O error occurs
      */
-    static URLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String username, String password) throws IOException {
+    static HttpURLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String username, String password) throws IOException {
+        HttpURLConnection connection = buildConnection(url, method, requestProperties, username, password);
+        int responseCode = connection.getResponseCode();
+        if (responseCode < HttpURLConnection.HTTP_OK || responseCode >= HttpURLConnection.HTTP_MULT_CHOICE) {
+            /* error from server */
+            throw new IOException(url + ": response code " + responseCode + ": " + connection.getResponseMessage());
+        } else {
+            return connection;
+        }
+    }
+
+    static HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties, String username, String password) throws IOException {
         String authorizationToken = getAuthorizationToken(username, password);
         HttpURLConnection connection;
         if (url.getProtocol().equals("https")) {
@@ -112,14 +123,7 @@ class HttpResponseHandler {
             }
         }
         connection.setRequestProperty("user-agent", "SNAP Virtual File System");
-        int responseCode = connection.getResponseCode();
-
-        if (responseCode < HttpURLConnection.HTTP_OK || responseCode >= HttpURLConnection.HTTP_MULT_CHOICE) {
-            /* error from server */
-            throw new IOException(url + ": response code " + responseCode + ": " + connection.getResponseMessage());
-        } else {
-            return connection;
-        }
+        return connection;
     }
 
     /**
@@ -128,6 +132,7 @@ class HttpResponseHandler {
      * Current implementation works only with Apache Server ('Index of' pages).
      * On the future will add implementation for other HTTP servers as needed.
      */
+    //TODO Jean rename the method; it does not return an object
     void getElements() {
         Elements rows = doc.getElementsByTag("tr");
         if (!rows.isEmpty()) {

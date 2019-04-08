@@ -436,7 +436,7 @@ public class NioFile extends File {
             }
             return Files.readAttributes(path, BasicFileAttributes.class).lastModifiedTime().toMillis();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to get the time that the file denoted by path: " + path.toString() + " was last modified. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE,"Unable to get the time that the file denoted by path: " + path.toString() + " was last modified. Details: " + ex.getMessage(), ex);
             return 0L;
         }
     }

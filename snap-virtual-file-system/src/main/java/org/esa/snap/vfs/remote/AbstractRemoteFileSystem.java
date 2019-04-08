@@ -57,7 +57,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
         this.provider = provider;
         this.closed = false;
         this.openChannels = new ArrayList<>();
-        this.rootPath = new ObjectStoragePath(this, true, true, root, ObjectStorageFileAttributes.getRoot());
+        this.rootPath = new ObjectStoragePath(this, true, root, ObjectStorageFileAttributes.getRoot());
     }
 
     public final ObjectStorageWalker newObjectStorageWalker() {
@@ -139,7 +139,14 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      */
     @Override
     public Iterable<Path> getRootDirectories() {
-        return walkDir(this.rootPath, path -> ((ObjectStoragePath) path).isDirectory());
+        DirectoryStream.Filter<? super Path> filter = new DirectoryStream.Filter<Path>() {
+            @Override
+            public boolean accept(Path entry) throws IOException {
+                ObjectStoragePath remotePath = (ObjectStoragePath)entry;
+                return remotePath.getFileAttributes().isDirectory();
+            }
+        };
+        return walkDir(this.rootPath, filter);
     }
 
     /**
@@ -286,17 +293,17 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
     Iterable<Path> walkDir(Path dir, DirectoryStream.Filter<? super Path> filter) {
         assertOpen();
         Path path = dir.toAbsolutePath();
-        List<BasicFileAttributes> files;
         if (this.walker == null) {
             this.walker = newObjectStorageWalker();
         }
+        List<BasicFileAttributes> files;
         try {
             files = this.walker.walk(path);
         } catch (IOException ex) {
-            throw new IllegalStateException(ex);
+            throw new IllegalStateException("Failed to get the files and directories for path '"+path.toString()+"'.", ex);
         }
         return files.stream()
-                .map(f -> ObjectStoragePath.fromFileAttributes(this, f))
+                .map(fileAttributes -> ObjectStoragePath.fromFileAttributes(this, fileAttributes))
                 .filter(p -> filterPath(p, filter))
                 .collect(Collectors.toList());
     }
@@ -312,7 +319,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
         try {
             return filter.accept(path);
         } catch (IOException ex) {
-            logger.log(Level.FINE, "Unable to filter the path: " + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.FINE, "Unable to filter the path: " + path.toString() + ". Details: " + ex.getMessage(), ex);
             return false;
         }
     }

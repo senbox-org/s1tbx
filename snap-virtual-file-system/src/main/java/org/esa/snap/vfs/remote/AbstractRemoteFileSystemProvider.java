@@ -1,6 +1,7 @@
 package org.esa.snap.vfs.remote;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
@@ -100,7 +101,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * @return The connection channel
      * @throws IOException If an I/O error occurs
      */
-    public abstract URLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException;
+    public abstract HttpURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException;
 
     protected abstract AbstractRemoteFileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env);
 
@@ -209,7 +210,8 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public FileChannel newFileChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
-        return new ObjectStorageFileChannel(path, options, attrs);
+        ObjectStoragePath remotePath = ObjectStoragePath.toRemotePath(path);
+        return new ObjectStorageFileChannel(remotePath, options, attrs);
     }
 
     /**
@@ -398,6 +400,13 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public void checkAccess(Path path, AccessMode... modes) throws IOException {
+        ObjectStoragePath remotePath = ObjectStoragePath.toRemotePath(path);
+        BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
+        if (fileAttributes == null) {
+            AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
+            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
+            remotePath.setFileAttributes(fileAttributes);
+        }
     }
 
     /**
@@ -430,7 +439,14 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         if (!type.equals(BasicFileAttributes.class)) {
             throw new UnsupportedOperationException("can only provide instance of BasicFileAttributes");
         }
-        return type.cast(ObjectStorageFileAttributes.fromPath((ObjectStoragePath) path));
+        ObjectStoragePath remotePath = ObjectStoragePath.toRemotePath(path);
+        BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
+        if (fileAttributes == null) {
+            AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
+            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
+            remotePath.setFileAttributes(fileAttributes);
+        }
+        return type.cast(fileAttributes);
     }
 
     /**

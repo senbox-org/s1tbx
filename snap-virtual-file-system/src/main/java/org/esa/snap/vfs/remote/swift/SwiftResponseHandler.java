@@ -154,7 +154,7 @@ public class SwiftResponseHandler extends DefaultHandler {
      * @return The connection channel
      * @throws IOException If an I/O error occurs
      */
-    static URLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String authAddress, String domain, String projectId, String user, String password) throws IOException {
+    static HttpURLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String authAddress, String domain, String projectId, String user, String password) throws IOException {
         String authorizationToken = getAuthorizationToken(authAddress, domain, projectId, user, password);
         HttpURLConnection connection;
         if (url.getProtocol().equals("https")) {

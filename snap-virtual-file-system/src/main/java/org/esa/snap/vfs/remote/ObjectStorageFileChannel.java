@@ -1,6 +1,9 @@
 package org.esa.snap.vfs.remote;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.ReadOnlyBufferException;
@@ -8,6 +11,8 @@ import java.nio.channels.*;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,8 +27,10 @@ public class ObjectStorageFileChannel extends FileChannel {
 
     private static final String NEGATIVE_POSITION_ERROR_MESSAGE = "position must be non-negative.";
 
+    //TODO Jean remove byteChannel
+    @Deprecated
     private SeekableByteChannel byteChannel;
-    private Path path;
+    private ObjectStoragePath path;
     private Set<? extends OpenOption> options;
     private FileAttribute<?>[] attrs;
 
@@ -37,7 +44,7 @@ public class ObjectStorageFileChannel extends FileChannel {
      * @see OpenOption
      * @see FileAttribute
      */
-    ObjectStorageFileChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
+    ObjectStorageFileChannel(ObjectStoragePath path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
         this.byteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs);
         this.path = path;
         this.options = options;
@@ -180,7 +187,7 @@ public class ObjectStorageFileChannel extends FileChannel {
      */
     @Override
     public void force(boolean metaData) throws IOException {
-        throw new IOException(new UnsupportedOperationException());
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -212,24 +219,98 @@ public class ObjectStorageFileChannel extends FileChannel {
         if (count < 0) {
             throw new IllegalArgumentException("count must be non-negative.");
         }
-        long bytesTransferred;
-        try (SeekableByteChannel srcByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
-            if (position > srcByteChannel.size()) {
-                return 0;
+        int maximumBufferSize = 64 * 1024;
+        long bytesTransferred = 0;
+        if (target instanceof FileChannel) {
+            FileChannel fileChannel = (FileChannel)target;
+            while (bytesTransferred < count) {
+                bytesTransferred += transferToFileChannel(position + bytesTransferred, maximumBufferSize, fileChannel);
             }
-            srcByteChannel.position(position);
-            int length;
-            if (count > Integer.MAX_VALUE) {
-                length = Integer.MAX_VALUE - 1;
-            } else {
-                length = (int) count;
+        } else {
+            while (bytesTransferred < count) {
+                bytesTransferred += transferToByteChannel(position + bytesTransferred, maximumBufferSize, target);
             }
-            ByteBuffer dst = ByteBuffer.allocate(length);
-            length = srcByteChannel.read(dst);
-            target.write(dst);
-            bytesTransferred = length;
         }
+
         return bytesTransferred;
+    }
+
+    private long transferToByteChannel(long position, int maximumBufferSize, WritableByteChannel destinationByteChannel) throws IOException {
+        HttpURLConnection connection = buildProviderConnectionChannel(this.path, position, "GET");
+        try {
+            try (ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream())) {
+                long remainingSize = connection.getContentLengthLong();
+                long buffer = Math.min(remainingSize, maximumBufferSize);
+                int capacity;
+                if (buffer > Integer.MAX_VALUE) {
+                    capacity = Integer.MAX_VALUE - 1;
+                } else {
+                    capacity = (int) buffer;
+                }
+                ByteBuffer byteBuffer = ByteBuffer.allocate(capacity);
+                long bytesTransferred = 0;
+                while (remainingSize > 0) {
+                    int bytesReadNow = readableByteChannel.read(byteBuffer);
+                    if (bytesReadNow <= 0) {
+                        break;
+                    }
+                    // prepare the buffer to be drained
+                    byteBuffer.flip();
+                    // write to the channel
+                    destinationByteChannel.write(byteBuffer);
+                    // if partial transfer, shift remainder down; if buffer is empty, same as doing clear()
+                    byteBuffer.compact();
+
+                    bytesTransferred += bytesReadNow;
+                    remainingSize -= bytesReadNow;
+
+                    System.out.println(" transferToByteChannel => " +bytesTransferred + " bytes received, remainingSize="+remainingSize);
+                }
+                // EOF will leave buffer in fill state
+                byteBuffer.flip();
+                // make sure the buffer is fully drained
+                while (byteBuffer.hasRemaining()) {
+                    destinationByteChannel.write(byteBuffer);
+                }
+
+                return bytesTransferred;
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    private long transferToFileChannel(long position, int maximumBufferSize, FileChannel destinationFileChannel) throws IOException {
+        HttpURLConnection connection = buildProviderConnectionChannel(this.path, position, "GET");
+        try {
+            try (ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream())) {
+                long remainingSize = connection.getContentLengthLong();
+                long buffer = Math.min(remainingSize, maximumBufferSize);
+                long bytesTransferred = 0;
+                while (remainingSize > 0) {
+                    long bytesReadNow = destinationFileChannel.transferFrom(readableByteChannel, position + bytesTransferred, buffer);
+                    if (bytesReadNow <= 0) {
+                        break;
+                    }
+                    bytesTransferred += bytesReadNow;
+                    remainingSize -= bytesReadNow;
+
+                    System.out.println(" transferToFileChannel => " +bytesTransferred + " bytes received, remainingSize="+remainingSize);
+                }
+                return bytesTransferred;
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    static HttpURLConnection buildProviderConnectionChannel(ObjectStoragePath path, long position, String httpMethod) throws IOException {
+        URL url = path.buildURL();
+        Map<String, String> requestProperties = new HashMap<>();
+        String rangeSpec = "bytes=" + position + "-";
+        requestProperties.put("Range", rangeSpec);
+        AbstractRemoteFileSystemProvider fileSystemProvider = path.getFileSystem().provider();
+        return fileSystemProvider.getProviderConnectionChannel(url, httpMethod, requestProperties);
     }
 
     /**

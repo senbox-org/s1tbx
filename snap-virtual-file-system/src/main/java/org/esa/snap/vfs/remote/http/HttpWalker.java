@@ -6,6 +6,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
@@ -53,8 +54,26 @@ class HttpWalker implements ObjectStorageWalker {
      */
     @Override
     public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
-        URLConnection urlConnection = HttpResponseHandler.getConnectionChannel(new URL(address), "GET", null, username, password);
-        return ObjectStorageFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
+        // check if the address represents a directory
+        HttpURLConnection connection = HttpResponseHandler.buildConnection(new URL(address+"/"), "GET", null, this.username, this.password);
+        int responseCode = connection.getResponseCode();
+        if (isValidResponseCode(responseCode)) {
+            // the address represents a directory
+            return ObjectStorageFileAttributes.newDir(prefix);
+        } else /*if (responseCode == HttpURLConnection.HTTP_NOT_FOUND)*/ {
+            // the address does not represent a directory
+            connection = HttpResponseHandler.buildConnection(new URL(address), "GET", null, this.username, this.password);
+            responseCode = connection.getResponseCode();
+            if (isValidResponseCode(responseCode)) {
+                return ObjectStorageFileAttributes.newFile(prefix, connection.getContentLengthLong(), connection.getHeaderField("last-modified"));
+            } else {
+                throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
+            }
+        }
+    }
+
+    private static boolean isValidResponseCode(int responseCode) {
+        return (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE);
     }
 
     /**

@@ -116,7 +116,7 @@ public class S3ResponseHandler extends DefaultHandler {
      * @return The connection channel
      * @throws IOException If an I/O error occurs
      */
-    static URLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String accessKeyId, String secretAccessKey) throws IOException {
+    static HttpURLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String accessKeyId, String secretAccessKey) throws IOException {
         String authorizationToken = getAuthorizationToken(accessKeyId, secretAccessKey);
         HttpURLConnection connection;
         if (url.getProtocol().equals("https")) {
