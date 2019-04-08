@@ -57,7 +57,7 @@ class VFSByteChannel implements SeekableByteChannel {
         this.path = path;
         this.position = 0;
 
-        this.connection = ObjectStorageFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
+        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
         this.contentLength = connection.getContentLengthLong();
         this.samePosition = false;
     }
@@ -153,7 +153,7 @@ class VFSByteChannel implements SeekableByteChannel {
 
         if (!this.samePosition) {
             this.connection.disconnect();
-            this.connection = ObjectStorageFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
+            this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
         }
         InputStream inputStream = this.connection.getInputStream();
 
@@ -185,7 +185,7 @@ class VFSByteChannel implements SeekableByteChannel {
         if (this.position >= this.contentLength) {
             throw new EOFException(this.path.toString());
         }
-        this.connection = ObjectStorageFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
+        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
         long bytesRead = 0;
         InputStream stream = this.connection.getInputStream();
         for (ByteBuffer dst : dsts) {
@@ -215,7 +215,7 @@ class VFSByteChannel implements SeekableByteChannel {
     @Override
     public int write(ByteBuffer src) throws IOException {
         assertOpen();
-        this.connection = ObjectStorageFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
+        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
         OutputStream stream = this.connection.getOutputStream();
         int numRemaining = src.remaining();
         int numWritten = 0;
@@ -249,7 +249,7 @@ class VFSByteChannel implements SeekableByteChannel {
      */
     long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
         assertOpen();
-        this.connection = ObjectStorageFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
+        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
         long bytesWritten = 0;
         OutputStream stream = this.connection.getOutputStream();
         for (ByteBuffer src : srcs) {

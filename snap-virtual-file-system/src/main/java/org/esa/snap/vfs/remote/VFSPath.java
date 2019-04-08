@@ -103,67 +103,22 @@ public class VFSPath implements Path {
         }
     }
 
-    /**
-     * Creates the new Path for  VFS by converting given file attributes.
-     *
-     * @param fileSystem     The VFS
-     * @param fileAttributes The file attributes
-     * @return The new VFS Path
-     */
-    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
-        String separator = fileSystem.getSeparator();
-        String pathName = fileAttributes.fileKey().toString();
-        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
-            int endIndex = pathName.length() - separator.length();
-            pathName = pathName.substring(0, endIndex); // remove the separator from the end
-        }
-        return new VFSPath(fileSystem, true, fileAttributes.isDirectory(), pathName, fileAttributes);
-    }
-
-    /**
-     * Creates the new Path for  VFS from path name.
-     *
-     * @param fileSystem The VFS
-     * @param pathName   The name
-     * @return The new VFS Path
-     */
-    static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
-        String rootPathAsString = fileSystem.getRoot().getPath();
-        if (pathName.equals(rootPathAsString)) {
-            return fileSystem.getRoot();
-        }
-        boolean absolute = false;
-        boolean directory = false;
-        int beginIndex = 0;
-        int endIndex = pathName.length();
-        if (pathName.startsWith(rootPathAsString)) {
-            absolute = true;
-        }
-        String separator = fileSystem.getSeparator();
-        if (pathName.endsWith(separator)) {
-            directory = true;
-            endIndex -= separator.length();
-        }
-        String p = pathName.substring(beginIndex, endIndex);
-        return new VFSPath(fileSystem, absolute, directory, p, null);
-    }
-
-    private static String buildPath(String parentPath, String childPath, String fileSeparator) {
-        StringBuilder pathAsString = new StringBuilder();
-        if (parentPath.endsWith(fileSeparator)) {
-            int endIndex = parentPath.length() - fileSeparator.length();
-            pathAsString.append(parentPath, 0, endIndex); // do not add the file separator
-        } else {
-            pathAsString.append(parentPath);
-        }
-        if (!childPath.startsWith(fileSeparator)) {
-            // add the file separator between the parent path and the child path
-            pathAsString.append(fileSeparator);
-        }
-        pathAsString.append(childPath);
-
-        return pathAsString.toString();
-    }
+//    /**
+//     * Creates the new Path for  VFS by converting given file attributes.
+//     *
+//     * @param fileSystem     The VFS
+//     * @param fileAttributes The file attributes
+//     * @return The new VFS Path
+//     */
+//    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
+//        String separator = fileSystem.getSeparator();
+//        String pathName = fileAttributes.fileKey().toString();
+//        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
+//            int endIndex = pathName.length() - separator.length();
+//            pathName = pathName.substring(0, endIndex); // remove the separator from the end
+//        }
+//        return new VFSPath(fileSystem, true, pathName, fileAttributes);
+//    }
 
     public String getPath() {
         return this.path;
@@ -452,11 +407,11 @@ public class VFSPath implements Path {
         return this;
     }
 
-    static ObjectStoragePath toRemotePath(Path path) {
+    static VFSPath toRemotePath(Path path) {
         if (path == null) {
             throw new NullPointerException();
-        } else if (path instanceof ObjectStoragePath) {
-            return (ObjectStoragePath)path;
+        } else if (path instanceof VFSPath) {
+            return (VFSPath)path;
         } else {
             throw new ProviderMismatchException();
         }
@@ -834,14 +789,14 @@ public class VFSPath implements Path {
      * @param fileAttributes The file attributes
      * @return The new VFS Path
      */
-    static ObjectStoragePath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
+    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
         String separator = fileSystem.getSeparator();
         String pathName = fileAttributes.fileKey().toString();
         if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
             int endIndex = pathName.length() - separator.length();
             pathName = pathName.substring(0, endIndex); // remove the separator from the end
         }
-        return new ObjectStoragePath(fileSystem, true, fileAttributes.isDirectory(), pathName, fileAttributes);
+        return new VFSPath(fileSystem, true, pathName, fileAttributes);
     }
 
     /**
@@ -851,13 +806,12 @@ public class VFSPath implements Path {
      * @param pathName   The name
      * @return The new VFS Path
      */
-    static ObjectStoragePath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
+    static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
         String rootPathAsString = fileSystem.getRoot().getPath();
         if (pathName.equals(rootPathAsString)) {
             return fileSystem.getRoot();
         }
         boolean absolute = false;
-        boolean directory = false;
         int beginIndex = 0;
         int endIndex = pathName.length();
         if (pathName.startsWith(rootPathAsString)) {
@@ -865,11 +819,10 @@ public class VFSPath implements Path {
         }
         String separator = fileSystem.getSeparator();
         if (pathName.endsWith(separator)) {
-            directory = true;
             endIndex -= separator.length();
         }
         String p = pathName.substring(beginIndex, endIndex);
-        return new ObjectStoragePath(fileSystem, absolute, directory, p, null);
+        return new VFSPath(fileSystem, absolute, p, null);
     }
 
     private static String buildPath(String parentPath, String childPath, String fileSeparator) {

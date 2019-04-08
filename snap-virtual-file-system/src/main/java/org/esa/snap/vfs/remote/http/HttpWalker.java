@@ -59,13 +59,13 @@ class HttpWalker implements VFSWalker {
         int responseCode = connection.getResponseCode();
         if (isValidResponseCode(responseCode)) {
             // the address represents a directory
-            return ObjectStorageFileAttributes.newDir(prefix);
+            return VFSFileAttributes.newDir(prefix);
         } else /*if (responseCode == HttpURLConnection.HTTP_NOT_FOUND)*/ {
             // the address does not represent a directory
             connection = HttpResponseHandler.buildConnection(new URL(address), "GET", null, this.username, this.password);
             responseCode = connection.getResponseCode();
             if (isValidResponseCode(responseCode)) {
-                return ObjectStorageFileAttributes.newFile(prefix, connection.getContentLengthLong(), connection.getHeaderField("last-modified"));
+                return VFSFileAttributes.newFile(prefix, connection.getContentLengthLong(), connection.getHeaderField("last-modified"));
             } else {
                 throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
             }

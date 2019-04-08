@@ -25,66 +25,66 @@ import java.util.Set;
  */
 public class TransferFileContentMain {
 
-    public static void main(String[] args) throws Exception {
-        System.out.println("TransferFileContentMain");
-
-        String url = "vfs:/snap-products/files-to-test.zip";
-        String localFile = "D:/_test-extract-zip/files-to-test-downloaded.zip";
-
-//        String url = "vfs:/snap-products/_rapideye/Somalia_Mod.zip";
-//        String localFile = "D:/_test-extract-zip/Somalia_Mod-downloaded.zip";
-
-//        String url = "vfs:/snap-products/PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP";
-//        String localFile = "D:/_test-extract-zip/PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP";
-
-        HttpFileSystemProvider httpFileSystemProvider = new HttpFileSystemProvider();
-        Map<String, ?> connectionData = Collections.emptyMap();
-        httpFileSystemProvider.setConnectionData("http://localhost", connectionData);
-        URI uri = new URI("http", url, null);
-        Path path = httpFileSystemProvider.getPath(uri);
-
-//        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\files-to-test.zip");
-//        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\_rapideye\\Somalia_Mod.zip");
-//        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP");
-
-//        copyFileUsingFileChannel(path, localFile);
-        Path localPath = Paths.get(localFile);
-        copyFileUsingByteChannel(path, localPath);
-
-//        boolean downloadComplete = false;
-//        while (!downloadComplete) {
-//            downloadComplete = transferData(path, localFile);
-//        }
-
-        System.out.println("  Finished");
-    }
+//    public static void main(String[] args) throws Exception {
+//        System.out.println("TransferFileContentMain");
+//
+//        String url = "vfs:/snap-products/files-to-test.zip";
+//        String localFile = "D:/_test-extract-zip/files-to-test-downloaded.zip";
+//
+////        String url = "vfs:/snap-products/_rapideye/Somalia_Mod.zip";
+////        String localFile = "D:/_test-extract-zip/Somalia_Mod-downloaded.zip";
+//
+////        String url = "vfs:/snap-products/PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP";
+////        String localFile = "D:/_test-extract-zip/PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP";
+//
+//        HttpFileSystemProvider httpFileSystemProvider = new HttpFileSystemProvider();
+//        Map<String, ?> connectionData = Collections.emptyMap();
+//        httpFileSystemProvider.setConnectionData("http://localhost", connectionData);
+//        URI uri = new URI("http", url, null);
+//        Path path = httpFileSystemProvider.getPath(uri);
+//
+////        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\files-to-test.zip");
+////        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\_rapideye\\Somalia_Mod.zip");
+////        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP");
+//
+////        copyFileUsingFileChannel(path, localFile);
+//        Path localPath = Paths.get(localFile);
+//        copyFileUsingByteChannel(path, localPath);
+//
+////        boolean downloadComplete = false;
+////        while (!downloadComplete) {
+////            downloadComplete = transferData(path, localFile);
+////        }
+//
+//        System.out.println("  Finished");
+//    }
 
     public static void copyFileUsingByteChannel(Path sourcePath, Path destinationPath) throws IOException {
         Set<? extends OpenOption> options = Collections.emptySet();
         FileSystemProvider fileSystemProvider = sourcePath.getFileSystem().provider();
         try (FileChannel sourceFileChannel = fileSystemProvider.newFileChannel(sourcePath, options)) {
             long sourceFileSize = Files.size(sourcePath);
-            try (WritableByteChannel wbc = Channels.newChannel(Files.newOutputStream(destinationPath))) {
+            try (WritableByteChannel writableByteChannel = Channels.newChannel(Files.newOutputStream(destinationPath))) {
                 long transferredSize = 0;
-                long delta;
-                while ((delta = sourceFileChannel.transferTo(transferredSize, sourceFileSize - transferredSize, wbc)) > 0) {
-                    transferredSize += delta;
-                    System.out.println(transferredSize + " bytes received " + " delta=" + delta);
+                long bytesReadNow;
+                while ((bytesReadNow = sourceFileChannel.transferTo(transferredSize, sourceFileSize - transferredSize, writableByteChannel)) > 0) {
+                    transferredSize += bytesReadNow;
                 }
             }
         }
     }
+
     public static void copyFileUsingFileChannel(Path sourcePath, String destinationLocalFilePath) throws IOException {
         Set<? extends OpenOption> options = Collections.emptySet();
         FileSystemProvider fileSystemProvider = sourcePath.getFileSystem().provider();
         try (FileChannel sourceFileChannel = fileSystemProvider.newFileChannel(sourcePath, options)) {
             long sourceFileSize = Files.size(sourcePath);
-            try (FileOutputStream fos = new FileOutputStream(destinationLocalFilePath, false)) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(destinationLocalFilePath, false)) {
+                FileChannel destinationFileChannel = fileOutputStream.getChannel();
                 long transferredSize = 0;
-                long delta;
-                while ((delta = sourceFileChannel.transferTo(transferredSize, sourceFileSize - transferredSize, fos.getChannel())) > 0) {
-                    transferredSize += delta;
-                    System.out.println(transferredSize + " bytes received " + " delta=" + delta);
+                long bytesReadNow;
+                while ((bytesReadNow = sourceFileChannel.transferTo(transferredSize, sourceFileSize - transferredSize, destinationFileChannel)) > 0) {
+                    transferredSize += bytesReadNow;
                 }
             }
         }

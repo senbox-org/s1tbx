@@ -218,7 +218,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public FileChannel newFileChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
-        VFSPath remotePath = ObjectStoragePath.toRemotePath(path);
+        VFSPath remotePath = VFSPath.toRemotePath(path);
         return new VFSFileChannel(remotePath, options, attrs);
     }
 
@@ -416,7 +416,14 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         if (!type.equals(BasicFileAttributes.class)) {
             throw new UnsupportedOperationException("can only provide instance of BasicFileAttributes");
         }
-        return type.cast(ObjectStorageFileAttributes.fromPath((ObjectStoragePath) path));
+        VFSPath remotePath = VFSPath.toRemotePath(path);
+        BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
+        if (fileAttributes == null) {
+            AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
+            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
+            remotePath.setFileAttributes(fileAttributes);
+        }
+        return type.cast(fileAttributes);
     }
 
     /**

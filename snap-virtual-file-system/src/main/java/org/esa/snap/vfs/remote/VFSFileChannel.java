@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.Channels;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
@@ -317,7 +318,7 @@ public class VFSFileChannel extends FileChannel {
         }
     }
 
-    static HttpURLConnection buildProviderConnectionChannel(ObjectStoragePath path, long position, String httpMethod) throws IOException {
+    static HttpURLConnection buildProviderConnectionChannel(VFSPath path, long position, String httpMethod) throws IOException {
         URL url = path.buildURL();
         Map<String, String> requestProperties = new HashMap<>();
         String rangeSpec = "bytes=" + position + "-";
