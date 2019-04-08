@@ -1,7 +1,7 @@
 package org.esa.snap.vfs.remote.s3;
 
-import org.esa.snap.vfs.remote.ObjectStorageFileAttributes;
-import org.esa.snap.vfs.remote.ObjectStorageWalker;
+import org.esa.snap.vfs.remote.VFSFileAttributes;
+import org.esa.snap.vfs.remote.VFSWalker;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -21,14 +21,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Walker for S3 Object Storage VFS.
+ * Walker for S3 VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-class S3Walker implements ObjectStorageWalker {
+class S3Walker implements VFSWalker {
 
-    private static Logger logger = Logger.getLogger(ObjectStorageWalker.class.getName());
+    private static Logger logger = Logger.getLogger(VFSWalker.class.getName());
 
     private XMLReader xmlReader;
 
@@ -39,7 +39,7 @@ class S3Walker implements ObjectStorageWalker {
     private String root;
 
     /**
-     * Creates the new walker for S3 Object Storage VFS
+     * Creates the new walker for S3  VFS
      *
      * @param bucketAddress   The address of S3 service. (mandatory)
      * @param accessKeyId     The access key id S3 credential (username)
@@ -89,7 +89,7 @@ class S3Walker implements ObjectStorageWalker {
      */
     public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
         URLConnection urlConnection = S3ResponseHandler.getConnectionChannel(new URL(address), "GET", null, accessKeyId, secretAccessKey);
-        return ObjectStorageFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
+        return VFSFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
     }
 
     /**
@@ -105,6 +105,8 @@ class S3Walker implements ObjectStorageWalker {
             prefix = prefix.concat(this.delimiter);
         }
         StringBuilder paramBase = new StringBuilder();
+        prefix = prefix.replace(root, "");
+        prefix = prefix.replaceAll("^/", "");
         addParam(paramBase, "prefix", prefix.replace(root, ""));
         addParam(paramBase, "delimiter", delimiter);
 
@@ -112,8 +114,7 @@ class S3Walker implements ObjectStorageWalker {
         String nextContinuationToken = null;
         S3ResponseHandler handler;
         do {
-            prefix = prefix.isEmpty() ? root : prefix;
-            handler = new S3ResponseHandler(prefix, items, delimiter);
+            handler = new S3ResponseHandler(root + delimiter + prefix, items, delimiter);
             xmlReader.setContentHandler(handler);
             StringBuilder params = new StringBuilder(paramBase);
             addParam(params, "continuation-token", nextContinuationToken);

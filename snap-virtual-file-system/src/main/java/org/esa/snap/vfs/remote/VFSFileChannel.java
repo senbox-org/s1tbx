@@ -7,7 +7,20 @@ import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.ReadOnlyBufferException;
-import java.nio.channels.*;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.FileLockInterruptionException;
+import java.nio.channels.GatheringByteChannel;
+import java.nio.channels.NonReadableChannelException;
+import java.nio.channels.NonWritableChannelException;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.ScatteringByteChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
@@ -16,26 +29,26 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * File Channel for Object Storage VFS.
+ * File Channel for VFS.
  * A channel for reading, writing, mapping, and manipulating a file.
  *
  * <p> A file channel is a {@link SeekableByteChannel} that is connected toa file. It has a current <i>position</i> within its file which can be both {@link #position() <i>queried</i>} and {@link #position(long) <i>modified</i>}.  The file itself contains a variable-length sequence of bytes that can be read and written and whose current {@link #size <i>size</i>} can be queried.  The size of the file increases when bytes are written beyond its current size; the size of the file decreases when it is {@link #truncate <i>truncated</i>}.  The file may also have some associated <i>metadata</i> such as access permissions, content type, and last-modification time; this class does not define methods for metadata access. </p>
  *
  * @author Adrian Drăghici
  */
-public class ObjectStorageFileChannel extends FileChannel {
+public class VFSFileChannel extends FileChannel {
 
     private static final String NEGATIVE_POSITION_ERROR_MESSAGE = "position must be non-negative.";
 
     //TODO Jean remove byteChannel
     @Deprecated
     private SeekableByteChannel byteChannel;
-    private ObjectStoragePath path;
+    private VFSPath path;
     private Set<? extends OpenOption> options;
     private FileAttribute<?>[] attrs;
 
     /**
-     * Creates the new file channel for Object Storage VFS.
+     * Creates the new file channel for VFS.
      *
      * @param path    The VFS path
      * @param options The options for the channel
@@ -44,7 +57,7 @@ public class ObjectStorageFileChannel extends FileChannel {
      * @see OpenOption
      * @see FileAttribute
      */
-    ObjectStorageFileChannel(ObjectStoragePath path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
+    VFSFileChannel(VFSPath path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
         this.byteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs);
         this.path = path;
         this.options = options;
@@ -74,8 +87,8 @@ public class ObjectStorageFileChannel extends FileChannel {
      */
     @Override
     public long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
-        if (byteChannel instanceof ObjectStorageByteChannel) {
-            return ((ObjectStorageByteChannel) byteChannel).read(dsts, offset, length);
+        if (byteChannel instanceof VFSByteChannel) {
+            return ((VFSByteChannel) byteChannel).read(dsts, offset, length);
         }
         return -1;
     }
@@ -103,8 +116,8 @@ public class ObjectStorageFileChannel extends FileChannel {
      */
     @Override
     public long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
-        if (byteChannel instanceof ObjectStorageByteChannel) {
-            return ((ObjectStorageByteChannel) byteChannel).write(srcs, offset, length);
+        if (byteChannel instanceof VFSByteChannel) {
+            return ((VFSByteChannel) byteChannel).write(srcs, offset, length);
         }
         return -1;
     }

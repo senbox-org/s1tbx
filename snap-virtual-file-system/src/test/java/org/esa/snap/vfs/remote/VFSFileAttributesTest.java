@@ -13,18 +13,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test: File Attributes for Object Storage VFS.
+ * Test: File Attributes for VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public class ObjectStorageFileAttributesTest {
+public class VFSFileAttributesTest {
 
     @Test
     public void testFile() {
-        LocalDateTime dateTime = LocalDateTime.parse("2018-10-17T17:24:10.009Z", ObjectStorageFileAttributes.ISO_DATE_TIME);
+        LocalDateTime dateTime = LocalDateTime.parse("2018-10-17T17:24:10.009Z", VFSFileAttributes.ISO_DATE_TIME);
 
-        BasicFileAttributes fileAttributes = ObjectStorageFileAttributes.newFile("index.html", 34986, "2018-10-17T17:24:10.009Z");
+        BasicFileAttributes fileAttributes = VFSFileAttributes.newFile("index.html", 34986, "2018-10-17T17:24:10.009Z");
         assertEquals("index.html", fileAttributes.fileKey());
         assertTrue(fileAttributes.isRegularFile());
         assertFalse(fileAttributes.isDirectory());
@@ -36,26 +36,26 @@ public class ObjectStorageFileAttributesTest {
 
     @Test
     public void testDir() {
-        BasicFileAttributes fileAttributes = ObjectStorageFileAttributes.newDir("products/");
+        BasicFileAttributes fileAttributes = VFSFileAttributes.newDir("products/");
         assertEquals("products/", fileAttributes.fileKey());
         assertFalse(fileAttributes.isRegularFile());
         assertTrue(fileAttributes.isDirectory());
         assertFalse(fileAttributes.isSymbolicLink());
         assertFalse(fileAttributes.isOther());
         assertEquals(0, fileAttributes.size());
-        Assert.assertEquals(ObjectStorageFileAttributes.UNKNOWN_FILE_TIME, fileAttributes.lastModifiedTime());
+        Assert.assertEquals(VFSFileAttributes.UNKNOWN_FILE_TIME, fileAttributes.lastModifiedTime());
     }
 
     @Test
     public void testEmpty() {
-        BasicFileAttributes fileAttributes = ObjectStorageFileAttributes.getEmpty();
+        BasicFileAttributes fileAttributes = VFSFileAttributes.getEmpty();
         assertEquals("", fileAttributes.fileKey());
         assertFalse(fileAttributes.isRegularFile());
         assertFalse(fileAttributes.isDirectory());
         assertFalse(fileAttributes.isSymbolicLink());
         assertFalse(fileAttributes.isOther());
         assertEquals(0, fileAttributes.size());
-        Assert.assertEquals(ObjectStorageFileAttributes.UNKNOWN_FILE_TIME, fileAttributes.lastModifiedTime());
+        Assert.assertEquals(VFSFileAttributes.UNKNOWN_FILE_TIME, fileAttributes.lastModifiedTime());
     }
 
 }

@@ -8,7 +8,7 @@ import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 
 /**
- * File Store for Object Storage VFS.
+ * File Store for VFS.
  *
  * <p> Storage for files. A {@code FileStore} represents a storage pool, device, partition, volume, concrete file system or other implementation specific means of file storage. The {@code FileStore} for where a file is stored is obtained by invoking the {@link Files#getFileStore getFileStore} method, or all file stores can be enumerated by invoking the {@link FileSystem#getFileStores getFileStores} method.</p>
  *
@@ -17,7 +17,7 @@ import java.nio.file.attribute.FileStoreAttributeView;
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public class ObjectStorageFileStore extends FileStore {
+public class VFSFileStore extends FileStore {
 
     /**
      * Returns the name of this file store. The format of the name is highly implementation specific. It will typically be the name of the storage pool or volume.

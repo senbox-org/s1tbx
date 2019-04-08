@@ -11,13 +11,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * File Attributes for Object Storage VFS.
+ * File Attributes for VFS.
  * Basic attributes associated with a file or directory in a file system.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public abstract class ObjectStorageFileAttributes implements BasicFileAttributes {
+public abstract class VFSFileAttributes implements BasicFileAttributes {
 
     /**
      * The default file time for a file is EPOCH.
@@ -29,7 +29,7 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
      */
     static final DateTimeFormatter ISO_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
 
-    private static Logger logger = Logger.getLogger(ObjectStorageFileAttributes.class.getName());
+    private static Logger logger = Logger.getLogger(VFSFileAttributes.class.getName());
 
     /**
      * Creates new basic file attributes for a VFS file.
@@ -53,6 +53,24 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
      */
     public static BasicFileAttributes newDir(String prefix) {
         return new DirAttributes(prefix);
+    }
+
+    /**
+     * Returns the dir attributes for VFS root directory
+     *
+     * @return The new dir attributes
+     */
+    static BasicFileAttributes getRoot() {
+        return new DirAttributes("/");
+    }
+
+    /**
+     * Returns the empty basic file attributes
+     *
+     * @return The new basic file attributes
+     */
+    static BasicFileAttributes getEmpty() {
+        return new EmptyAttributes();
     }
 
     /**
@@ -136,13 +154,13 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
     }
 
     /**
-     * Regular File Attributes for Object Storage VFS.
+     * Regular File Attributes for VFS.
      * Basic attributes associated with a file in a file system.
      *
      * @author Norman Fomferra
      * @author Adrian Drăghici
      */
-    public static class RegularFileAttributes extends ObjectStorageFileAttributes {
+    public static class RegularFileAttributes extends VFSFileAttributes {
 
         private final String fileKey;
         private final long size;
@@ -215,13 +233,13 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
     }
 
     /**
-     * Dir Attributes for Object Storage VFS.
+     * Dir Attributes for VFS.
      * Basic attributes associated with a directory in a file system.
      *
      * @author Norman Fomferra
      * @author Adrian Drăghici
      */
-    private static class DirAttributes extends ObjectStorageFileAttributes {
+    private static class DirAttributes extends VFSFileAttributes {
 
         private final String fileKey;
 
@@ -256,12 +274,12 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
     }
 
     /**
-     * Empty Attributes for Object Storage VFS.
+     * Empty Attributes for VFS.
      *
      * @author Norman Fomferra
      * @author Adrian Drăghici
      */
-    private static class EmptyAttributes extends ObjectStorageFileAttributes {
+    private static class EmptyAttributes extends VFSFileAttributes {
 
         /**
          * Returns an object that uniquely identifies the given file, or {@code null} if a file key is not available.
@@ -272,24 +290,6 @@ public abstract class ObjectStorageFileAttributes implements BasicFileAttributes
         public Object fileKey() {
             return "";
         }
-    }
-
-    /**
-     * Returns the dir attributes for VFS root directory
-     *
-     * @return The new dir attributes
-     */
-    static BasicFileAttributes getRoot() {
-        return new DirAttributes("/");
-    }
-
-    /**
-     * Returns the empty basic file attributes
-     *
-     * @return The new basic file attributes
-     */
-    static BasicFileAttributes getEmpty() {
-        return new EmptyAttributes();
     }
 
 }

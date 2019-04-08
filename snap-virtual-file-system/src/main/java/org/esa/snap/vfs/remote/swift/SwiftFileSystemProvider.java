@@ -1,7 +1,6 @@
 package org.esa.snap.vfs.remote.swift;
 
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
-import org.esa.snap.vfs.remote.s3.S3FileSystem;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -10,16 +9,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * File System Service Provider for OpenStack Swift Object Storage VFS.
+ * File System Service Provider for OpenStack Swift VFS.
  *
  * @author Adrian Drăghici
  */
@@ -60,8 +53,6 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     private static final String SCHEME = "oss";
 
-    private static Logger logger = Logger.getLogger(SwiftFileSystemProvider.class.getName());
-
     private String address = "";
     private String authAddress = "";
     private String container = "";
@@ -73,64 +64,6 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
 
     public SwiftFileSystemProvider() {
         super();
-    }
-        /**
-         * Gets the OpenStack Swift Virtual File System without authentication.
-         *
-         * @param address   The address of OpenStack Swift service (mandatory)
-         * @param container The container name (bucket) (mandatory)
-         * @return The new OpenStack Swift Virtual File System
-         * @throws IOException If an I/O error occurs
-         * @link https://developer.openstack.org/api-ref/object-store/
-         */
-    public static FileSystem getSwiftFileSystem(String address, String container) throws IOException {
-        return getSwiftFileSystem(address, "", container, "", "", "", "");
-    }
-
-    /**
-     * Gets OpenStack Swift Virtual File System with authentication.
-     *
-     * @param address     The address of OpenStack Swift service (mandatory)
-     * @param authAddress The address of authentication service used by OpenStack Swift service (mandatory if credentials is provided)
-     * @param container   The container name (bucket) (mandatory)
-     * @param domain      The domain name OpenStack Swift credential
-     * @param projectId   The account ID/ Project/ Tenant name OpenStack Swift credential
-     * @param user        The username OpenStack Swift credential
-     * @param password    The password OpenStack Swift credential
-     * @link https://developer.openstack.org/api-ref/object-store/
-     */
-    public static FileSystem getSwiftFileSystem(String address, String authAddress, String container, String domain, String projectId, String user, String password) throws IOException {
-        FileSystem fs = null;
-        URI uri;
-        try {
-            uri = new URI(SCHEME + ":" + address);
-        } catch (Exception ex) {
-            logger.log(Level.WARNING, "Invalid URI for OpenStack Swift VFS. Details: " + ex.getMessage());
-            throw new IOException(ex);
-        }
-        try {
-            fs = FileSystems.getFileSystem(uri);
-        } catch (Exception ex) {
-            logger.log(Level.FINE, "OpenStack Swift VFS not loaded. Details: " + ex.getMessage());
-        } finally {
-            if (fs != null) {
-                fs.close();
-            }
-        }
-        try {
-            Map<String, String> env = new HashMap<>();
-            env.put(AUTH_ADDRESS_PROPERTY_NAME, authAddress);
-            env.put(CONTAINER_PROPERTY_NAME, container);
-            env.put(DOMAIN_PROPERTY_NAME, domain);
-            env.put(PROJECT_ID_PROPERTY_NAME, projectId);
-            env.put(USER_PROPERTY_NAME, user);
-            env.put(CREDENTIAL_PROPERTY_NAME, password);
-            fs = FileSystems.newFileSystem(uri, env, SwiftFileSystemProvider.class.getClassLoader());
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to initialize OpenStack Swift VFS. Details: " + ex.getMessage());
-            throw new AccessDeniedException(ex.getMessage());
-        }
-        return fs;
     }
 
     /**

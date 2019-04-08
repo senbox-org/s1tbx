@@ -65,9 +65,9 @@ public class NioPaths {
      *
      * @param uri the URI to convert
      * @return the resulting {@code Path}
-     * @throws IllegalArgumentException    if preconditions on the {@code uri} parameter do not hold. The format of the URI is provider specific.
+     * @throws IllegalArgumentException                  if preconditions on the {@code uri} parameter do not hold. The format of the URI is provider specific.
      * @throws java.nio.file.FileSystemNotFoundException The file system, identified by the URI, does not exist and cannot be created automatically, or the provider identified by the URI's scheme component is not installed
-     * @throws SecurityException           if a security manager is installed and it denies an unspecified permission to access the file system
+     * @throws SecurityException                         if a security manager is installed and it denies an unspecified permission to access the file system
      */
     public static Path get(URI uri) {
         return VFS.getInstance().getPath(uri);

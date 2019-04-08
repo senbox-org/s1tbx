@@ -1,7 +1,7 @@
 package org.esa.snap.vfs.remote.swift;
 
-import org.esa.snap.vfs.remote.ObjectStorageFileAttributes;
-import org.esa.snap.vfs.remote.ObjectStorageWalker;
+import org.esa.snap.vfs.remote.VFSFileAttributes;
+import org.esa.snap.vfs.remote.VFSWalker;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -21,13 +21,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Walker for OpenStack Swift Object Storage VFS.
+ * Walker for OpenStack Swift VFS.
  *
  * @author Adrian Drăghici
  */
-class SwiftWalker implements ObjectStorageWalker {
+class SwiftWalker implements VFSWalker {
 
-    private static Logger logger = Logger.getLogger(ObjectStorageWalker.class.getName());
+    private static Logger logger = Logger.getLogger(VFSWalker.class.getName());
 
     private XMLReader xmlReader;
 
@@ -42,7 +42,7 @@ class SwiftWalker implements ObjectStorageWalker {
     private String root;
 
     /**
-     * Creates the new walker for OpenStack Swift Object Storage VFS
+     * Creates the new walker for OpenStack Swift  VFS
      *
      * @param address     The address of OpenStack Swift service (mandatory)
      * @param authAddress The address of authentication service used by OpenStack Swift service (mandatory if credentials is provided)
@@ -73,19 +73,6 @@ class SwiftWalker implements ObjectStorageWalker {
     }
 
     /**
-     * Gets the VFS file basic attributes.
-     *
-     * @param address The VFS service address
-     * @param prefix  The VFS path to traverse
-     * @return The OpenStack Swift file basic attributes
-     * @throws IOException If an I/O error occurs
-     */
-    public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
-        URLConnection urlConnection = SwiftResponseHandler.getConnectionChannel(new URL(address), "GET", null, authAddress, domain, projectId, user, password);
-        return ObjectStorageFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
-    }
-
-    /**
      * Append the new request parameter represented by name and value to the request parameters builder.
      *
      * @param params The request parameters builder
@@ -101,6 +88,19 @@ class SwiftWalker implements ObjectStorageWalker {
             params.append("&");
         }
         params.append(name).append("=").append(URLEncoder.encode(value, "UTF8"));
+    }
+
+    /**
+     * Gets the VFS file basic attributes.
+     *
+     * @param address The VFS service address
+     * @param prefix  The VFS path to traverse
+     * @return The OpenStack Swift file basic attributes
+     * @throws IOException If an I/O error occurs
+     */
+    public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
+        URLConnection urlConnection = SwiftResponseHandler.getConnectionChannel(new URL(address), "GET", null, authAddress, domain, projectId, user, password);
+        return VFSFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
     }
 
     /**
@@ -129,7 +129,7 @@ class SwiftWalker implements ObjectStorageWalker {
         currentContainer = (currentContainer != null && !currentContainer.isEmpty()) ? currentContainer + delimiter : "";
         prefix = prefix.replace(root, "");
         prefix = prefix.replace(currentContainer, "");
-        prefix = prefix.contentEquals("/") ? "" : prefix;
+        prefix = prefix.replaceAll("^/", "");
         StringBuilder paramBase = new StringBuilder();
         addParam(paramBase, "format", "xml");
         addParam(paramBase, "limit", "1000");
@@ -140,7 +140,7 @@ class SwiftWalker implements ObjectStorageWalker {
         String marker = "";
         SwiftResponseHandler handler;
         do {
-            handler = new SwiftResponseHandler(root + currentContainer + prefix, items, delimiter);
+            handler = new SwiftResponseHandler(root + delimiter + currentContainer + prefix, items, delimiter);
             xmlReader.setContentHandler(handler);
             StringBuilder params = new StringBuilder(paramBase);
             addParam(params, "marker", marker);

@@ -1,7 +1,7 @@
 package org.esa.snap.vfs.remote.s3;
 
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.vfs.remote.ObjectStorageFileAttributes;
+import org.esa.snap.vfs.remote.VFSFileAttributes;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Response Handler for S3 Object Storage VFS.
+ * Response Handler for S3 VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
@@ -82,7 +82,7 @@ public class S3ResponseHandler extends DefaultHandler {
     private String delimiter;
 
     /**
-     * Creates the new response handler for S3 Object Storage VFS.
+     * Creates the new response handler for S3 VFS.
      *
      * @param prefix    The VFS path to traverse
      * @param items     The list with VFS paths for files and directories
@@ -218,9 +218,9 @@ public class S3ResponseHandler extends DefaultHandler {
             String currentElement = elementStack.removeLast();
             if (currentElement != null && currentElement.equals(localName)) {
                 if (currentElement.equals(PREFIX_ELEMENT) && elementStack.size() == 2 && elementStack.get(1).equals(COMMON_PREFIXES_ELEMENT)) {
-                    items.add(ObjectStorageFileAttributes.newDir(prefix + key));
+                    items.add(VFSFileAttributes.newDir(prefix + key));
                 } else if (currentElement.equals(CONTENTS_ELEMENT) && elementStack.size() == 1) {
-                    items.add(ObjectStorageFileAttributes.newFile(prefix + key, size, lastModified));
+                    items.add(VFSFileAttributes.newFile(prefix + key, size, lastModified));
                 }
             }
         } catch (Exception ex) {

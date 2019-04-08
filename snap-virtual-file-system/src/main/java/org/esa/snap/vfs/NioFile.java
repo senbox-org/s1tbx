@@ -43,6 +43,42 @@ public class NioFile extends File {
     private transient NioFile.PathStatus status;
 
     /**
+     * Creates a new File for VFS using the given path
+     *
+     * @param path The VFS path
+     */
+    public NioFile(Path path) {
+        super(path.toString());
+
+        this.path = path;
+    }
+
+
+    /* -- Constructors -- */
+
+    /**
+     * Creates a new File for VFS using the given path name
+     *
+     * @param pathname The VFS path name
+     */
+    public NioFile(String pathname) {
+        this(NioPaths.get(pathname));
+    }
+
+    private static String slashify(Path path, boolean isDirectory) {
+        String p = path.toString();
+        if (!path.getFileSystem().getSeparator().equals("/"))
+            p = p.replace(path.getFileSystem().getSeparator(), "/");
+        if (!p.startsWith("/"))
+            p = "/" + p;
+        if (!p.endsWith("/") && isDirectory)
+            p = p + "/";
+        return p;
+    }
+
+    /* -- Path-component accessors -- */
+
+    /**
      * Check if the file has an invalid path. Currently, the inspection of a file path is very limited, and it only covers Nul character check.
      * Returning true means the path is definitely invalid/garbage. But returning false does not guarantee that the path is valid.
      *
@@ -54,31 +90,6 @@ public class NioFile extends File {
         }
         return status == NioFile.PathStatus.INVALID;
     }
-
-
-    /* -- Constructors -- */
-
-    /**
-     * Creates a new File for VFS using the given path
-     *
-     * @param path The VFS path
-     */
-    public NioFile(Path path) {
-        super(path.toString());
-
-        this.path = path;
-    }
-
-    /**
-     * Creates a new File for VFS using the given path name
-     *
-     * @param pathname The VFS path name
-     */
-    public NioFile(String pathname) {
-        this(NioPaths.get(pathname));
-    }
-
-    /* -- Path-component accessors -- */
 
     /**
      * Returns the name of the file or directory denoted by this abstract pathname.  This is just the last name in the pathname's name sequence.  If the pathname's name sequence is empty, then the empty string is returned.
@@ -111,6 +122,9 @@ public class NioFile extends File {
         return path.getParent().toString();
     }
 
+
+    /* -- Path operations -- */
+
     /**
      * Returns the abstract pathname of this abstract pathname's parent, or <code>null</code> if this pathname does not name a parent directory.
      *
@@ -130,9 +144,6 @@ public class NioFile extends File {
             }
         return null;
     }
-
-
-    /* -- Path operations -- */
 
     /**
      * Converts this abstract pathname into a pathname string.  The resulting string uses the {@link #separator default name-separator character} to separate the names in the name sequence.
@@ -197,7 +208,7 @@ public class NioFile extends File {
         try {
             return new NioFile(absPath);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to get the absolute form of abstract pathname: " + absPath.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to get the absolute form of abstract pathname: " + absPath.toString() + ". Details: " + ex.getMessage());
             return new File(absPath.toString());
         }
     }
@@ -261,20 +272,9 @@ public class NioFile extends File {
         try {
             return new NioFile(canonPath);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE,"Unable to get the canonical form of abstract pathname:" + canonPath.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to get the canonical form of abstract pathname:" + canonPath.toString() + ". Details: " + ex.getMessage());
             return new File(canonPath.toString());
         }
-    }
-
-    private static String slashify(Path path, boolean isDirectory) {
-        String p = path.toString();
-        if (!path.getFileSystem().getSeparator().equals("/"))
-            p = p.replace(path.getFileSystem().getSeparator(), "/");
-        if (!p.startsWith("/"))
-            p = "/" + p;
-        if (!p.endsWith("/") && isDirectory)
-            p = p + "/";
-        return p;
     }
 
     /**
@@ -410,7 +410,7 @@ public class NioFile extends File {
         try {
             return !isInvalidPath() && canRead() && Files.isHidden(path);
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to check if path: " + path.toString() + " is hidden. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to check if path: " + path.toString() + " is hidden. Details: " + ex.getMessage());
             return false;
         }
     }
@@ -462,7 +462,7 @@ public class NioFile extends File {
             }
             return Files.size(path);
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to get the length of the file denoted by path: " + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to get the length of the file denoted by path: " + path.toString() + ". Details: " + ex.getMessage());
             return 0L;
         }
     }
@@ -505,7 +505,7 @@ public class NioFile extends File {
         try {
             return canWrite() && Files.deleteIfExists(path);
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to delete the file or directory denoted by path: " + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to delete the file or directory denoted by path: " + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }
@@ -551,7 +551,7 @@ public class NioFile extends File {
                 }
                 return files.toArray(new String[0]);
             } catch (IOException ex) {
-                logger.log(Level.SEVERE,"Unable to browse the path: " + path.toString() + " and get an array of strings naming the files and directories in the directory path. Details: " + ex.getMessage());
+                logger.log(Level.SEVERE, "Unable to browse the path: " + path.toString() + " and get an array of strings naming the files and directories in the directory path. Details: " + ex.getMessage());
             }
         }
         return new String[0];
@@ -617,7 +617,7 @@ public class NioFile extends File {
                 }
                 return files.toArray(new File[0]);
             } catch (IOException ex) {
-                logger.log(Level.SEVERE,"Unable to browse the path: " + path.toString() + " and get an array of path names denoting the files and directories in the directory path. Details: " + ex.getMessage());
+                logger.log(Level.SEVERE, "Unable to browse the path: " + path.toString() + " and get an array of path names denoting the files and directories in the directory path. Details: " + ex.getMessage());
             }
         }
         return new File[0];
@@ -693,7 +693,7 @@ public class NioFile extends File {
         try {
             return canRead() && Files.createDirectory(path) != null;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to create the directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create the directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }
@@ -716,7 +716,7 @@ public class NioFile extends File {
         try {
             canonFile = getCanonicalFile();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to create the directory named by abstract pathname:" + path.toString() + ", including any necessary but nonexistent parent directories. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to create the directory named by abstract pathname:" + path.toString() + ", including any necessary but nonexistent parent directories. Details: " + ex.getMessage());
             return false;
         }
 
@@ -746,7 +746,7 @@ public class NioFile extends File {
         try {
             return !this.isInvalidPath() && !((NioFile) dest).isInvalidPath() && !Files.move(path, path.resolveSibling(dest.toPath())).toString().isEmpty();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to rename the directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to rename the directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }
@@ -770,7 +770,7 @@ public class NioFile extends File {
         try {
             return !isInvalidPath() && Files.setLastModifiedTime(path, FileTime.fromMillis(time)) != null;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to set last-modified time of the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to set last-modified time of the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }
@@ -793,7 +793,7 @@ public class NioFile extends File {
             perms.add(PosixFilePermission.OTHERS_READ);
             return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to mark the file or directory named by abstract pathname:" + path.toString() + ", so that only read operations are allowed. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to mark the file or directory named by abstract pathname:" + path.toString() + ", so that only read operations are allowed. Details: " + ex.getMessage());
             return false;
         }
     }
@@ -822,7 +822,7 @@ public class NioFile extends File {
             }
             return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable set the owner's or everybody's write permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable set the owner's or everybody's write permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }
@@ -869,7 +869,7 @@ public class NioFile extends File {
             }
             return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable set the owner's or everybody's read permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable set the owner's or everybody's read permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }
@@ -918,7 +918,7 @@ public class NioFile extends File {
             }
             return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable set the owner's or everybody's execute permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable set the owner's or everybody's execute permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
         }
     }
@@ -975,7 +975,7 @@ public class NioFile extends File {
         try {
             return this.path.getFileSystem().provider().getFileStore(path).getTotalSpace();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to get the size of physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to get the size of physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
             return 0L;
         }
     }
@@ -1001,7 +1001,7 @@ public class NioFile extends File {
         try {
             return this.path.getFileSystem().provider().getFileStore(path).getUnallocatedSpace();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to get the number of unallocated bytes in the physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to get the number of unallocated bytes in the physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
             return 0L;
         }
     }
@@ -1026,7 +1026,7 @@ public class NioFile extends File {
         try {
             return this.path.getFileSystem().provider().getFileStore(path).getUsableSpace();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to get the number of bytes available to this virtual machine in the physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
+            logger.log(Level.SEVERE, "Unable to get the number of bytes available to this virtual machine in the physical memory unit where file or directory named by abstract pathname:" + path.toString() + " exists. Details: " + ex.getMessage());
             return 0L;
         }
     }

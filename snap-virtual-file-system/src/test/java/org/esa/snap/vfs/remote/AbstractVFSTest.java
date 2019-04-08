@@ -18,7 +18,7 @@ import static org.junit.Assume.assumeTrue;
 public abstract class AbstractVFSTest {
 
     protected Path vfsTestsFolderPath;
-    protected List<VFSRemoteFileRepository> vfsRepositories;
+    private List<VFSRemoteFileRepository> vfsRepositories;
 
     protected AbstractVFSTest() {
     }
@@ -57,7 +57,6 @@ public abstract class AbstractVFSTest {
     protected VFSRemoteFileRepository getHTTPRepo() {
         return vfsRepositories.get(0);
     }
-
 
     protected VFSRemoteFileRepository getS3Repo() {
         return vfsRepositories.get(1);

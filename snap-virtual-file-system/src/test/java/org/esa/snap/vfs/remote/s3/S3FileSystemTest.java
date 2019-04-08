@@ -39,14 +39,14 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Test: File System for S3 Object Storage VFS.
+ * Test: File System for S3 VFS.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
 public class S3FileSystemTest extends AbstractVFSTest {
 
-    private static final String TEST_DIR = "s3";
+    private static final String TEST_DIR = "mock-api/vfs/";
 
     private static AbstractRemoteFileSystem s3FileSystem;
     private S3MockService mockService;
@@ -56,17 +56,19 @@ public class S3FileSystemTest extends AbstractVFSTest {
     }
 
     private String getAccessKeyId() {
+        VFSRemoteFileRepository s3Repo = getS3Repo();
         String accessId = "";
-        if (!getS3Repo().getProperties().isEmpty()) {
-            accessId = getS3Repo().getProperties().get(0).getValue();
+        if (!s3Repo.getProperties().isEmpty()) {
+            accessId = s3Repo.getProperties().get(0).getValue();
         }
         return accessId;
     }
 
     private String getSecretAccessKey() {
+        VFSRemoteFileRepository s3Repo = getS3Repo();
         String secretAccessKey = "";
-        if (!getS3Repo().getProperties().isEmpty()) {
-            secretAccessKey = getS3Repo().getProperties().get(1).getValue();
+        if (!s3Repo.getProperties().isEmpty()) {
+            secretAccessKey = s3Repo.getProperties().get(1).getValue();
         }
         return secretAccessKey;
     }
@@ -106,13 +108,17 @@ public class S3FileSystemTest extends AbstractVFSTest {
     public void testScanner() throws Exception {
         VFSRemoteFileRepository s3Repo = getS3Repo();
         List<BasicFileAttributes> items;
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot()).walk(NioPaths.get(s3Repo.getRoot() + ""));
+
+        S3Walker walker = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot());
+        items = walker.walk(NioPaths.get(s3Repo.getRoot() + ""));
         assertEquals(2, items.size());
 
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot()).walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/"));
+        walker = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot());
+        items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        items = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot()).walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/"));
+        walker = new S3Walker(getBucketAddress(), getAccessKeyId(), getSecretAccessKey(), "/", s3Repo.getRoot());
+        items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
 

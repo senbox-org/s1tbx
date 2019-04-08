@@ -11,14 +11,14 @@ import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.SeekableByteChannel;
 
 /**
- * Byte Channel for Object Storage VFS.
+ * Byte Channel for VFS.
  * A byte channel that maintains a current <i>position</i> and allows the
  * position to be changed.
  *
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-class ObjectStorageByteChannel implements SeekableByteChannel {
+class VFSByteChannel implements SeekableByteChannel {
 
     /**
      * The connect type flag for this channel: GET
@@ -40,7 +40,7 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
      */
     private static final int CONNECT_MODE_DELETE = 4;
 
-    private final ObjectStoragePath path;
+    private final VFSPath path;
     private final long contentLength;
 
     private HttpURLConnection connection;
@@ -48,12 +48,12 @@ class ObjectStorageByteChannel implements SeekableByteChannel {
     private boolean samePosition;
 
     /**
-     * Creates the new byte channel for Object Storage VFS
+     * Creates the new byte channel for  VFS
      *
      * @param path The VFS path for which new byte channel is created
      * @throws IOException If an I/O error occurs
      */
-    ObjectStorageByteChannel(ObjectStoragePath path) throws IOException {
+    VFSByteChannel(VFSPath path) throws IOException {
         this.path = path;
         this.position = 0;
 
