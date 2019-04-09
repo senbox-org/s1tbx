@@ -739,6 +739,16 @@ public class VFSPath implements Path {
         return result;
     }
 
+    static VFSPath toRemotePath(Path path) {
+        if (path == null) {
+            throw new NullPointerException();
+        } else if (path instanceof VFSPath) {
+            return (VFSPath)path;
+        } else {
+            throw new ProviderMismatchException();
+        }
+    }
+
     /**
      * Creates the new Path for Object Storage VFS by converting given file attributes.
      *
