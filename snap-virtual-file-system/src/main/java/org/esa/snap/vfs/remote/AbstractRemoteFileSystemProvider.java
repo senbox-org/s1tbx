@@ -377,13 +377,45 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      * Checks the existence, and optionally the accessibility, of a file.
      *
      * @param path  the path to the file to check
-     * @param modes The access modes to check; may have zero elements
+     * @param accessModes The access modes to check; may have zero elements
      * @throws UnsupportedOperationException an implementation is required to support checking for
      *                                       {@code READ}, {@code WRITE}, and {@code EXECUTE} access. This exception is specified to allow for the {@code Access} enum to be extended in future releases.               if an I/O error occurs
      * @throws SecurityException             In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} is invoked when checking read access to the file or only the existence of the file, the {@link SecurityManager#checkWrite(String) checkWrite} is invoked when checking write access to the file, and {@link SecurityManager#checkExec(String) checkExec} is invoked when checking execute access.
      */
     @Override
-    public void checkAccess(Path path, AccessMode... modes) throws IOException {
+    public void checkAccess(Path path, AccessMode... accessModes) throws IOException {
+        VFSPath remotePath = VFSPath.toRemotePath(path);
+        if (accessModes.length == 0) {
+            checkRead(remotePath);
+        } else {
+            for (AccessMode mode: accessModes) {
+                if (mode == AccessMode.READ) {
+                    checkRead(remotePath);
+                } else {
+                    throw new IOException("The access modes must be empty or only '" + AccessMode.READ + "' is allowed.");
+                }
+            }
+        }
+//        if (accessModes.length == 0 || (accessModes.length == 1 && accessModes[0] == AccessMode.READ)) {
+//            VFSPath remotePath = VFSPath.toRemotePath(path);
+//            BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
+//            if (fileAttributes == null) {
+//                AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
+//                fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
+//                remotePath.setFileAttributes(fileAttributes);
+//            }
+//        } else {
+//            throw new IllegalArgumentException("The access modes must be empty or only '" + AccessMode.READ + "' is allowed.");
+//        }
+    }
+
+    private static void checkRead(VFSPath path) throws IOException {
+        BasicFileAttributes fileAttributes = path.getFileAttributes();
+        if (fileAttributes == null) {
+            AbstractRemoteFileSystem fileSystem = path.getFileSystem();
+            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(path.buildURL().toString(), path.toString());
+            path.setFileAttributes(fileAttributes);
+        }
     }
 
     /**
@@ -391,11 +423,11 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      *
      * @param path    the path to the file
      * @param type    the {@code Class} object corresponding to the file attribute view
-     * @param options options indicating how symbolic links are handled
+     * @param linkOptions options indicating how symbolic links are handled
      * @return a file attribute view of the specified type, or {@code null} if the attribute view type is not available
      */
     @Override
-    public <V extends FileAttributeView> V getFileAttributeView(Path path, Class<V> type, LinkOption... options) {
+    public <V extends FileAttributeView> V getFileAttributeView(Path path, Class<V> type, LinkOption... linkOptions) {
         throw new UnsupportedOperationException();
     }
 
@@ -405,25 +437,29 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      *
      * @param path    the path to the file
      * @param type    the {@code Class} of the file attributes required to read
-     * @param options options indicating how symbolic links are handled
+     * @param linkOptions options indicating how symbolic links are handled
      * @return the file attributes
      * @throws UnsupportedOperationException if an attributes of the given type are not supported
      * @throws IOException                   if an I/O error occurs
      * @throws SecurityException             In the case of the default provider, a security manager is installed, its {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the file
      */
     @Override
-    public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... options) throws IOException {
+    public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... linkOptions) throws IOException {
         if (!type.equals(BasicFileAttributes.class)) {
-            throw new UnsupportedOperationException("can only provide instance of BasicFileAttributes");
+            throw new IllegalArgumentException("The class type  must be '"+BasicFileAttributes.class+"'.");
         }
-        VFSPath remotePath = VFSPath.toRemotePath(path);
-        BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
-        if (fileAttributes == null) {
-            AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
-            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
-            remotePath.setFileAttributes(fileAttributes);
+        if (linkOptions.length == 0 || (linkOptions.length == 1 && linkOptions[0] == LinkOption.NOFOLLOW_LINKS)) {
+            VFSPath remotePath = VFSPath.toRemotePath(path);
+            BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
+            if (fileAttributes == null) {
+                AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
+                fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
+                remotePath.setFileAttributes(fileAttributes);
+            }
+            return type.cast(fileAttributes);
+        } else {
+            throw new IllegalArgumentException("The link options must be empty or only '" + LinkOption.NOFOLLOW_LINKS + "' is allowed.");
         }
-        return type.cast(fileAttributes);
     }
 
     /**

@@ -353,7 +353,9 @@ public class NioFile extends File {
      */
     @Override
     public boolean canWrite() {
-        return !isInvalidPath() && Files.isWritable(path);
+        //TODO Jean can not write on VFS
+        return false;
+        //return !isInvalidPath() && Files.isWritable(path);
     }
 
     /**
