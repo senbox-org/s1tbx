@@ -20,26 +20,6 @@ import java.nio.channels.SeekableByteChannel;
  */
 class VFSByteChannel implements SeekableByteChannel {
 
-    /**
-     * The connect type flag for this channel: GET
-     */
-    private static final int CONNECT_MODE_READ = 1;
-
-    /**
-     * The connect type flag for this channel: POST
-     */
-    private static final int CONNECT_MODE_UPLOAD = 2;
-
-    /**
-     * The connect type flag for this channel: PUT
-     */
-    private static final int CONNECT_MODE_WRITE = 3;
-
-    /**
-     * The connect type flag for this channel: DELETE
-     */
-    private static final int CONNECT_MODE_DELETE = 4;
-
     private final VFSPath path;
     private final long contentLength;
 
@@ -281,12 +261,10 @@ class VFSByteChannel implements SeekableByteChannel {
      * @param size The new size, a non-negative byte count
      * @return This channel
      * @throws NonWritableChannelException If this channel was not opened for writing
-     * @throws ClosedChannelException      If this channel is closed
      * @throws IllegalArgumentException    If the new size is negative
-     * @throws IOException                 If some other I/O error occurs
      */
     @Override
-    public SeekableByteChannel truncate(long size) throws IOException {
+    public SeekableByteChannel truncate(long size) {
         throw new UnsupportedOperationException();
     }
 
@@ -307,9 +285,9 @@ class VFSByteChannel implements SeekableByteChannel {
      * The number of bytes actually read is returned as an integer.
      *
      * @param inputStream The input stream from which the data is read
-     * @param array  The buffer into which the data is read
-     * @param offset The start offset in array <code>array</code> at which the data is written
-     * @param length The maximum number of bytes to read
+     * @param array       The buffer into which the data is read
+     * @param offset      The start offset in array <code>array</code> at which the data is written
+     * @param length      The maximum number of bytes to read
      * @return the total number of bytes read into the buffer, or <code>-1</code> if there is no more data because the end of the stream has been reached
      * @throws IOException If some other I/O error occurs
      */

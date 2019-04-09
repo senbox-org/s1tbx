@@ -60,7 +60,7 @@ class HttpWalker implements VFSWalker {
         if (isValidResponseCode(responseCode)) {
             // the address represents a directory
             return VFSFileAttributes.newDir(prefix);
-        } else /*if (responseCode == HttpURLConnection.HTTP_NOT_FOUND)*/ {
+        } else {
             // the address does not represent a directory
             connection = HttpResponseHandler.buildConnection(new URL(address), "GET", null, this.username, this.password);
             responseCode = connection.getResponseCode();

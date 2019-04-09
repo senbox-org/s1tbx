@@ -3,7 +3,6 @@ package org.esa.snap.vfs.remote;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.ReadOnlyBufferException;
@@ -23,11 +22,11 @@ import java.nio.channels.ScatteringByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
-import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * File Channel for VFS.
@@ -40,6 +39,8 @@ import java.util.Set;
 public class VFSFileChannel extends FileChannel {
 
     private static final String NEGATIVE_POSITION_ERROR_MESSAGE = "position must be non-negative.";
+
+    private static Logger logger = Logger.getLogger(VFSFileChannel.class.getName());
 
     //TODO Jean remove byteChannel
     @Deprecated
@@ -63,6 +64,15 @@ public class VFSFileChannel extends FileChannel {
         this.path = path;
         this.options = options;
         this.attrs = attrs;
+    }
+
+    static HttpURLConnection buildProviderConnectionChannel(VFSPath path, long position, String httpMethod) throws IOException {
+        URL url = path.buildURL();
+        Map<String, String> requestProperties = new HashMap<>();
+        String rangeSpec = "bytes=" + position + "-";
+        requestProperties.put("Range", rangeSpec);
+        AbstractRemoteFileSystemProvider fileSystemProvider = path.getFileSystem().provider();
+        return fileSystemProvider.getProviderConnectionChannel(url, httpMethod, requestProperties);
     }
 
     /**
@@ -236,7 +246,7 @@ public class VFSFileChannel extends FileChannel {
         int maximumBufferSize = 64 * 1024;
         long bytesTransferred = 0;
         if (target instanceof FileChannel) {
-            FileChannel fileChannel = (FileChannel)target;
+            FileChannel fileChannel = (FileChannel) target;
             while (bytesTransferred < count) {
                 bytesTransferred += transferToFileChannel(position + bytesTransferred, maximumBufferSize, fileChannel);
             }
@@ -256,11 +266,7 @@ public class VFSFileChannel extends FileChannel {
                 long remainingSize = connection.getContentLengthLong();
                 long buffer = Math.min(remainingSize, maximumBufferSize);
                 int capacity;
-                if (buffer > Integer.MAX_VALUE) {
-                    capacity = Integer.MAX_VALUE - 1;
-                } else {
-                    capacity = (int) buffer;
-                }
+                capacity = (int) buffer;
                 ByteBuffer byteBuffer = ByteBuffer.allocate(capacity);
                 long bytesTransferred = 0;
                 while (remainingSize > 0) {
@@ -278,7 +284,7 @@ public class VFSFileChannel extends FileChannel {
                     bytesTransferred += bytesReadNow;
                     remainingSize -= bytesReadNow;
 
-                    System.out.println(" transferToByteChannel => " +bytesTransferred + " bytes received, remainingSize="+remainingSize);
+                    logger.fine(" transferToByteChannel => " + bytesTransferred + " bytes received, remainingSize=" + remainingSize);
                 }
                 // EOF will leave buffer in fill state
                 byteBuffer.flip();
@@ -309,22 +315,13 @@ public class VFSFileChannel extends FileChannel {
                     bytesTransferred += bytesReadNow;
                     remainingSize -= bytesReadNow;
 
-                    System.out.println(" transferToFileChannel => " +bytesTransferred + " bytes received, remainingSize="+remainingSize);
+                    logger.fine(" transferToFileChannel => " + bytesTransferred + " bytes received, remainingSize=" + remainingSize);
                 }
                 return bytesTransferred;
             }
         } finally {
             connection.disconnect();
         }
-    }
-
-    static HttpURLConnection buildProviderConnectionChannel(VFSPath path, long position, String httpMethod) throws IOException {
-        URL url = path.buildURL();
-        Map<String, String> requestProperties = new HashMap<>();
-        String rangeSpec = "bytes=" + position + "-";
-        requestProperties.put("Range", rangeSpec);
-        AbstractRemoteFileSystemProvider fileSystemProvider = path.getFileSystem().provider();
-        return fileSystemProvider.getProviderConnectionChannel(url, httpMethod, requestProperties);
     }
 
     /**

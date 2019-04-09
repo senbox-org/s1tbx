@@ -4,7 +4,6 @@ import org.esa.snap.vfs.NioFile;
 
 import java.io.File;
 import java.io.IOError;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -84,7 +83,7 @@ public class VFSPath implements Path {
      * @param path           The path
      * @param fileAttributes The file attributes
      */
-    public VFSPath(AbstractRemoteFileSystem fileSystem, boolean absolute, String path, BasicFileAttributes fileAttributes) {
+    VFSPath(AbstractRemoteFileSystem fileSystem, boolean absolute, String path, BasicFileAttributes fileAttributes) {
         if (fileSystem == null) {
             throw new IllegalArgumentException("fileSystem");
         }
@@ -103,22 +102,75 @@ public class VFSPath implements Path {
         }
     }
 
-//    /**
-//     * Creates the new Path for  VFS by converting given file attributes.
-//     *
-//     * @param fileSystem     The VFS
-//     * @param fileAttributes The file attributes
-//     * @return The new VFS Path
-//     */
-//    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
-//        String separator = fileSystem.getSeparator();
-//        String pathName = fileAttributes.fileKey().toString();
-//        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
-//            int endIndex = pathName.length() - separator.length();
-//            pathName = pathName.substring(0, endIndex); // remove the separator from the end
-//        }
-//        return new VFSPath(fileSystem, true, pathName, fileAttributes);
-//    }
+    static VFSPath toRemotePath(Path path) {
+        if (path == null) {
+            throw new NullPointerException();
+        } else if (path instanceof VFSPath) {
+            return (VFSPath) path;
+        } else {
+            throw new ProviderMismatchException();
+        }
+    }
+
+    /**
+     * Creates the new Path for Object Storage VFS by converting given file attributes.
+     *
+     * @param fileSystem     The VFS
+     * @param fileAttributes The file attributes
+     * @return The new VFS Path
+     */
+    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
+        String separator = fileSystem.getSeparator();
+        String pathName = fileAttributes.fileKey().toString();
+        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
+            int endIndex = pathName.length() - separator.length();
+            pathName = pathName.substring(0, endIndex); // remove the separator from the end
+        }
+        return new VFSPath(fileSystem, true, pathName, fileAttributes);
+    }
+
+    /**
+     * Creates the new Path for Object Storage VFS from path name.
+     *
+     * @param fileSystem The VFS
+     * @param pathName   The name
+     * @return The new VFS Path
+     */
+    static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
+        String rootPathAsString = fileSystem.getRoot().getPath();
+        if (pathName.equals(rootPathAsString)) {
+            return fileSystem.getRoot();
+        }
+        boolean absolute = false;
+        int beginIndex = 0;
+        int endIndex = pathName.length();
+        if (pathName.startsWith(rootPathAsString)) {
+            absolute = true;
+        }
+        String separator = fileSystem.getSeparator();
+        if (pathName.endsWith(separator)) {
+            endIndex -= separator.length();
+        }
+        String p = pathName.substring(beginIndex, endIndex);
+        return new VFSPath(fileSystem, absolute, p, null);
+    }
+
+    private static String buildPath(String parentPath, String childPath, String fileSeparator) {
+        StringBuilder pathAsString = new StringBuilder();
+        if (parentPath.endsWith(fileSeparator)) {
+            int endIndex = parentPath.length() - fileSeparator.length();
+            pathAsString.append(parentPath, 0, endIndex); // do not add the file separator
+        } else {
+            pathAsString.append(parentPath);
+        }
+        if (!childPath.startsWith(fileSeparator)) {
+            // add the file separator between the parent path and the child path
+            pathAsString.append(fileSeparator);
+        }
+        pathAsString.append(childPath);
+
+        return pathAsString.toString();
+    }
 
     public String getPath() {
         return this.path;
@@ -225,7 +277,7 @@ public class VFSPath implements Path {
             return null;
         }
         String name = getNames()[nameCount - 1];
-        return new VFSPath(this.fileSystem, false, name, null);//this.fileAttributes);
+        return new VFSPath(this.fileSystem, false, name, null);
     }
 
     /**
@@ -246,12 +298,6 @@ public class VFSPath implements Path {
      */
     @Override
     public Path getParent() {
-//        int nameCount = getNameCount();
-//        if (nameCount == 0) {
-//            return null;
-//        }
-//        return subpath(0, nameCount - 1);
-        //TODO Jean return null if count <= 1 to copy files from zip archive on ZipFileSystem
         int nameCount = getNameCount();
         if (nameCount <= 1) {
             return null;
@@ -405,16 +451,6 @@ public class VFSPath implements Path {
     public Path normalize() {
         // We don't support links and special directories "." and ".."
         return this;
-    }
-
-    static VFSPath toRemotePath(Path path) {
-        if (path == null) {
-            throw new NullPointerException();
-        } else if (path instanceof VFSPath) {
-            return (VFSPath)path;
-        } else {
-            throw new ProviderMismatchException();
-        }
     }
 
     private boolean isEmpty() {
@@ -571,14 +607,8 @@ public class VFSPath implements Path {
      */
     @Override
     public URI toUri() {
-        String currentPathName = this.path;
-//        if (this.directory) {
-//            if (!currentPathName.endsWith(this.fileSystem.getSeparator())) {
-//                currentPathName += this.fileSystem.getSeparator();
-//            }
-//        }
         try {
-            return new URI(this.fileSystem.provider().getScheme(), currentPathName, null);
+            return new URI(this.fileSystem.provider().getScheme(), this.path, null);
         } catch (URISyntaxException ex) {
             throw new IllegalStateException(ex);
         }
@@ -616,14 +646,10 @@ public class VFSPath implements Path {
      *
      * @param options options indicating how symbolic links are handled
      * @return an absolute path represent the <em>real</em> path of the file located by this object
-     * @throws IOException       if the file does not exist or an I/O error occurs
      * @throws SecurityException In the case of the default provider, and a security manager is installed, its {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to the file, and where this path is not absolute, its {@link SecurityManager#checkPropertyAccess(String) checkPropertyAccess} method is invoked to check access to the system property {@code user.dir}
      */
     @Override
-    public Path toRealPath(LinkOption... options) throws IOException {
-//        if (options.length < 1) {
-//            throw new IOException("options is missing.");
-//        }
+    public Path toRealPath(LinkOption... options) {
         return toAbsolutePath();
     }
 
@@ -781,64 +807,5 @@ public class VFSPath implements Path {
         result = 31 * result + (this.absolute ? 1 : 0);
         result = 31 * result + this.path.hashCode();
         return result;
-    }
-    /**
-     * Creates the new Path for Object Storage VFS by converting given file attributes.
-     *
-     * @param fileSystem     The VFS
-     * @param fileAttributes The file attributes
-     * @return The new VFS Path
-     */
-    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
-        String separator = fileSystem.getSeparator();
-        String pathName = fileAttributes.fileKey().toString();
-        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
-            int endIndex = pathName.length() - separator.length();
-            pathName = pathName.substring(0, endIndex); // remove the separator from the end
-        }
-        return new VFSPath(fileSystem, true, pathName, fileAttributes);
-    }
-
-    /**
-     * Creates the new Path for Object Storage VFS from path name.
-     *
-     * @param fileSystem The VFS
-     * @param pathName   The name
-     * @return The new VFS Path
-     */
-    static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
-        String rootPathAsString = fileSystem.getRoot().getPath();
-        if (pathName.equals(rootPathAsString)) {
-            return fileSystem.getRoot();
-        }
-        boolean absolute = false;
-        int beginIndex = 0;
-        int endIndex = pathName.length();
-        if (pathName.startsWith(rootPathAsString)) {
-            absolute = true;
-        }
-        String separator = fileSystem.getSeparator();
-        if (pathName.endsWith(separator)) {
-            endIndex -= separator.length();
-        }
-        String p = pathName.substring(beginIndex, endIndex);
-        return new VFSPath(fileSystem, absolute, p, null);
-    }
-
-    private static String buildPath(String parentPath, String childPath, String fileSeparator) {
-        StringBuilder pathAsString = new StringBuilder();
-        if (parentPath.endsWith(fileSeparator)) {
-            int endIndex = parentPath.length() - fileSeparator.length();
-            pathAsString.append(parentPath.substring(0, endIndex)); // do not add the file separator
-        } else {
-            pathAsString.append(parentPath);
-        }
-        if (!childPath.startsWith(fileSeparator)) {
-            // add the file separator between the parent path and the child path
-            pathAsString.append(fileSeparator);
-        }
-        pathAsString.append(childPath);
-
-        return pathAsString.toString();
     }
 }

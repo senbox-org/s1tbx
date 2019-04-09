@@ -8,14 +8,14 @@ import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
  *
  * @author Jean Coravu
  */
-public class SwiftFileSystem extends AbstractRemoteFileSystem {
+class SwiftFileSystem extends AbstractRemoteFileSystem {
 
     /**
      * Creates the new File System for VFS.
      *
      * @param provider The VFS provider
      */
-    public SwiftFileSystem(AbstractRemoteFileSystemProvider provider, String fileSystemRoot) {
+    SwiftFileSystem(AbstractRemoteFileSystemProvider provider, String fileSystemRoot) {
         super(provider, fileSystemRoot);
     }
 }

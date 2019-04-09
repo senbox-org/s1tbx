@@ -7,14 +7,14 @@ import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
  *
  * @author Jean Coravu
  */
-public class HttpFileSystem extends AbstractRemoteFileSystem {
+class HttpFileSystem extends AbstractRemoteFileSystem {
 
     /**
      * Creates the new File System for VFS.
      *
      * @param provider The VFS provider
      */
-    public HttpFileSystem(HttpFileSystemProvider provider, String root) {
+    HttpFileSystem(HttpFileSystemProvider provider, String root) {
         super(provider, root);
     }
 }
