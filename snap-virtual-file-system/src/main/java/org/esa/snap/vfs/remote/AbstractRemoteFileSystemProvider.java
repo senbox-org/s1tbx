@@ -392,29 +392,9 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
                 if (mode == AccessMode.READ) {
                     checkRead(remotePath);
                 } else {
-                    throw new IOException("The access modes must be empty or only '" + AccessMode.READ + "' is allowed.");
+                    throw new IOException("The access mode '" + mode + "' is not allowed.");
                 }
             }
-        }
-//        if (accessModes.length == 0 || (accessModes.length == 1 && accessModes[0] == AccessMode.READ)) {
-//            VFSPath remotePath = VFSPath.toRemotePath(path);
-//            BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
-//            if (fileAttributes == null) {
-//                AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
-//                fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
-//                remotePath.setFileAttributes(fileAttributes);
-//            }
-//        } else {
-//            throw new IllegalArgumentException("The access modes must be empty or only '" + AccessMode.READ + "' is allowed.");
-//        }
-    }
-
-    private static void checkRead(VFSPath path) throws IOException {
-        BasicFileAttributes fileAttributes = path.getFileAttributes();
-        if (fileAttributes == null) {
-            AbstractRemoteFileSystem fileSystem = path.getFileSystem();
-            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(path.buildURL().toString(), path.toString());
-            path.setFileAttributes(fileAttributes);
         }
     }
 
@@ -445,20 +425,12 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... linkOptions) throws IOException {
-        if (!type.equals(BasicFileAttributes.class)) {
-            throw new IllegalArgumentException("The class type  must be '"+BasicFileAttributes.class+"'.");
-        }
         if (linkOptions.length == 0 || (linkOptions.length == 1 && linkOptions[0] == LinkOption.NOFOLLOW_LINKS)) {
             VFSPath remotePath = VFSPath.toRemotePath(path);
-            BasicFileAttributes fileAttributes = remotePath.getFileAttributes();
-            if (fileAttributes == null) {
-                AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
-                fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(remotePath.buildURL().toString(), remotePath.toString());
-                remotePath.setFileAttributes(fileAttributes);
-            }
+            BasicFileAttributes fileAttributes = checkRead(remotePath);
             return type.cast(fileAttributes);
         } else {
-            throw new IllegalArgumentException("The link options must be empty or only '" + LinkOption.NOFOLLOW_LINKS + "' is allowed.");
+            throw new IOException("The link options must be empty or only '" + LinkOption.NOFOLLOW_LINKS + "' is allowed.");
         }
     }
 
@@ -539,5 +511,15 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         if (getProviderAddress().isEmpty()) {
             throw new IllegalStateException("The VFS with scheme: " + getScheme() + " is not initialized.");
         }
+    }
+
+    private static BasicFileAttributes checkRead(VFSPath path) throws IOException {
+        BasicFileAttributes fileAttributes = path.getFileAttributes();
+        if (fileAttributes == null) {
+            AbstractRemoteFileSystem fileSystem = path.getFileSystem();
+            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(path.buildURL().toString(), path.toString());
+            path.setFileAttributes(fileAttributes);
+        }
+        return fileAttributes;
     }
 }

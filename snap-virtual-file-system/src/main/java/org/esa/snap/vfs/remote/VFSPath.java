@@ -103,23 +103,6 @@ public class VFSPath implements Path {
         }
     }
 
-//    /**
-//     * Creates the new Path for  VFS by converting given file attributes.
-//     *
-//     * @param fileSystem     The VFS
-//     * @param fileAttributes The file attributes
-//     * @return The new VFS Path
-//     */
-//    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
-//        String separator = fileSystem.getSeparator();
-//        String pathName = fileAttributes.fileKey().toString();
-//        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
-//            int endIndex = pathName.length() - separator.length();
-//            pathName = pathName.substring(0, endIndex); // remove the separator from the end
-//        }
-//        return new VFSPath(fileSystem, true, pathName, fileAttributes);
-//    }
-
     public String getPath() {
         return this.path;
     }
