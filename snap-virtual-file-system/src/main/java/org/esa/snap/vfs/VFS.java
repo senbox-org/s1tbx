@@ -52,7 +52,7 @@ public class VFS {
      *
      * @return the list with FS Providers
      */
-    public List<FileSystemProvider> getInstalledProviders() {
+    private List<FileSystemProvider> getInstalledProviders() {
         return installedProviders;
     }
 
@@ -150,7 +150,7 @@ public class VFS {
      * @param more  additional strings to be joined to form the path string
      * @return the resulting {@code VFSPath}
      */
-    public Path getVirtualPath(String first, String... more) {
+    private Path getVirtualPath(String first, String... more) {
         for (FileSystemProvider provider : VFS.getInstance().getInstalledProviders()) {
             if (provider instanceof AbstractRemoteFileSystemProvider) {
                 AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider) provider;

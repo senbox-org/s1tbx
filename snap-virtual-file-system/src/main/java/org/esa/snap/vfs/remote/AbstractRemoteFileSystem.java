@@ -60,7 +60,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
         this.rootPath = new VFSPath(this, true, root, VFSFileAttributes.getRoot());
     }
 
-    public final VFSWalker newObjectStorageWalker() {
+    final VFSWalker newObjectStorageWalker() {
         return this.provider.newObjectStorageWalker(this.rootPath.getPath());
     }
 
@@ -139,12 +139,9 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      */
     @Override
     public Iterable<Path> getRootDirectories() {
-        DirectoryStream.Filter<? super Path> filter = new DirectoryStream.Filter<Path>() {
-            @Override
-            public boolean accept(Path entry) throws IOException {
-                VFSPath remotePath = (VFSPath)entry;
-                return remotePath.getFileAttributes().isDirectory();
-            }
+        DirectoryStream.Filter<? super Path> filter = (DirectoryStream.Filter<Path>) entry -> {
+            VFSPath remotePath = (VFSPath)entry;
+            return remotePath.getFileAttributes().isDirectory();
         };
         return walkDir(this.rootPath, filter);
     }

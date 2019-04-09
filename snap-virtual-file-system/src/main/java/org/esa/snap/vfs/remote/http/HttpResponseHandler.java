@@ -10,7 +10,6 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Base64;
 import java.util.List;
@@ -132,7 +131,6 @@ class HttpResponseHandler {
      * Current implementation works only with Apache Server ('Index of' pages).
      * On the future will add implementation for other HTTP servers as needed.
      */
-    //TODO Jean rename the method; it does not return an object
     void getElements() {
         Elements rows = doc.getElementsByTag("tr");
         if (!rows.isEmpty()) {

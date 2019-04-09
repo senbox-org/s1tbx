@@ -1,11 +1,8 @@
 package org.esa.snap.vfs.remote;
 
-import org.esa.snap.vfs.remote.http.HttpFileSystemProvider;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -14,50 +11,20 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by jcoravu on 5/4/2019.
+ * The utility class for doing remote IO operations.
+ *
+ * @author Jean Coravu
  */
-public class TransferFileContentMain {
+public class TransferFileContentUtil {
 
-//    public static void main(String[] args) throws Exception {
-//        System.out.println("TransferFileContentMain");
-//
-//        String url = "vfs:/snap-products/files-to-test.zip";
-//        String localFile = "D:/_test-extract-zip/files-to-test-downloaded.zip";
-//
-////        String url = "vfs:/snap-products/_rapideye/Somalia_Mod.zip";
-////        String localFile = "D:/_test-extract-zip/Somalia_Mod-downloaded.zip";
-//
-////        String url = "vfs:/snap-products/PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP";
-////        String localFile = "D:/_test-extract-zip/PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP";
-//
-//        HttpFileSystemProvider httpFileSystemProvider = new HttpFileSystemProvider();
-//        Map<String, ?> connectionData = Collections.emptyMap();
-//        httpFileSystemProvider.setConnectionData("http://localhost", connectionData);
-//        URI uri = new URI("http", url, null);
-//        Path path = httpFileSystemProvider.getPath(uri);
-//
-////        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\files-to-test.zip");
-////        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\_rapideye\\Somalia_Mod.zip");
-////        Path path = Paths.get("C:\\Apache24\\htdocs\\snap-products\\PL1_OPER_HIR_P_S_3__20140225T143800_N13-908_W060-960_4011.SIP.ZIP");
-//
-////        copyFileUsingFileChannel(path, localFile);
-//        Path localPath = Paths.get(localFile);
-//        copyFileUsingByteChannel(path, localPath);
-//
-////        boolean downloadComplete = false;
-////        while (!downloadComplete) {
-////            downloadComplete = transferData(path, localFile);
-////        }
-//
-//        System.out.println("  Finished");
-//    }
+    private TransferFileContentUtil() {
+        //instantiation not allowed
+    }
 
     public static void copyFileUsingByteChannel(Path sourcePath, Path destinationPath) throws IOException {
         Set<? extends OpenOption> options = Collections.emptySet();
@@ -97,8 +64,7 @@ public class TransferFileContentMain {
 
             FileChannel destinationFileChannel = fileOutputStream.getChannel();
             ByteBuffer buffer = ByteBuffer.allocate(64 * 1024);
-            int bytesReadNow;
-            while ((bytesReadNow = readableByteChannel.read(buffer)) > 0) {
+            while ((readableByteChannel.read(buffer)) > 0) {
                 // prepare the buffer to be drained
                 buffer.flip();
                 // write to the channel, may block

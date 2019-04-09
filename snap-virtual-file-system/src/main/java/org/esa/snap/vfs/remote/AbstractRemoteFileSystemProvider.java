@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessMode;
@@ -54,7 +53,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     /**
      * The default value of delimiter property, used on VFS instance creation parameters.
      */
-    public static final String DELIMITER_PROPERTY_DEFAULT_VALUE = "/";
+    protected static final String DELIMITER_PROPERTY_DEFAULT_VALUE = "/";
 
     /**
      * The error message for missing method argument: path.

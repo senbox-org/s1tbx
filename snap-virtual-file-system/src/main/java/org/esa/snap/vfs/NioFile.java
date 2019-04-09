@@ -353,9 +353,7 @@ public class NioFile extends File {
      */
     @Override
     public boolean canWrite() {
-        //TODO Jean can not write on VFS
         return false;
-        //return !isInvalidPath() && Files.isWritable(path);
     }
 
     /**
@@ -438,7 +436,7 @@ public class NioFile extends File {
             }
             return Files.readAttributes(path, BasicFileAttributes.class).lastModifiedTime().toMillis();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE,"Unable to get the time that the file denoted by path: " + path.toString() + " was last modified. Details: " + ex.getMessage(), ex);
+            logger.log(Level.SEVERE, "Unable to get the time that the file denoted by path: " + path.toString() + " was last modified. Details: " + ex.getMessage(), ex);
             return 0L;
         }
     }
@@ -488,7 +486,8 @@ public class NioFile extends File {
         if (isInvalidPath()) {
             throw new IOException(INVALID_FILE_PATH_ERROR_MESSAGE);
         }
-        return canWrite() && Files.createFile(path) != null;
+        Files.createFile(path);
+        return canWrite();
     }
 
     /**
@@ -693,7 +692,8 @@ public class NioFile extends File {
     @Override
     public boolean mkdir() {
         try {
-            return canRead() && Files.createDirectory(path) != null;
+            Files.createDirectory(path);
+            return canRead();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Unable to create the directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
@@ -770,7 +770,8 @@ public class NioFile extends File {
     public boolean setLastModified(long time) {
         if (time < 0) throw new IllegalArgumentException("Negative time");
         try {
-            return !isInvalidPath() && Files.setLastModifiedTime(path, FileTime.fromMillis(time)) != null;
+            Files.setLastModifiedTime(path, FileTime.fromMillis(time));
+            return !isInvalidPath();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Unable to set last-modified time of the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
@@ -793,7 +794,8 @@ public class NioFile extends File {
             perms.add(PosixFilePermission.OWNER_READ);
             perms.add(PosixFilePermission.GROUP_READ);
             perms.add(PosixFilePermission.OTHERS_READ);
-            return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
+            Files.setPosixFilePermissions(path, perms);
+            return !isInvalidPath();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Unable to mark the file or directory named by abstract pathname:" + path.toString() + ", so that only read operations are allowed. Details: " + ex.getMessage());
             return false;
@@ -822,7 +824,8 @@ public class NioFile extends File {
                     perms.add(PosixFilePermission.OTHERS_WRITE);
                 }
             }
-            return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
+            Files.setPosixFilePermissions(path, perms);
+            return !isInvalidPath();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Unable set the owner's or everybody's write permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
@@ -869,7 +872,8 @@ public class NioFile extends File {
                     perms.add(PosixFilePermission.OTHERS_READ);
                 }
             }
-            return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
+            Files.setPosixFilePermissions(path, perms);
+            return !isInvalidPath();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Unable set the owner's or everybody's read permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;
@@ -918,7 +922,8 @@ public class NioFile extends File {
                     perms.add(PosixFilePermission.OTHERS_EXECUTE);
                 }
             }
-            return !isInvalidPath() && Files.setPosixFilePermissions(path, perms) != null;
+            Files.setPosixFilePermissions(path, perms);
+            return !isInvalidPath();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Unable set the owner's or everybody's execute permission for the file or directory named by abstract pathname:" + path.toString() + ". Details: " + ex.getMessage());
             return false;

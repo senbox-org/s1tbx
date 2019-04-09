@@ -6,7 +6,6 @@ import org.esa.snap.vfs.remote.VFSWalker;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 
 /**
