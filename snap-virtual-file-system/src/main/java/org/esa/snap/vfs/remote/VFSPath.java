@@ -295,7 +295,7 @@ public class VFSPath implements Path {
     @Override
     public boolean startsWith(Path other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other instanceof VFSPath) {
             return this.path.startsWith(((VFSPath) other).path);
@@ -424,7 +424,7 @@ public class VFSPath implements Path {
     @Override
     public Path resolve(String other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return resolve(parsePath(other));
     }
@@ -441,7 +441,7 @@ public class VFSPath implements Path {
     @Override
     public Path resolveSibling(Path other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other.toString().isEmpty()) {
             return this;
@@ -464,7 +464,7 @@ public class VFSPath implements Path {
     @Override
     public Path resolveSibling(String other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return resolveSibling(parsePath(other));
     }
@@ -492,7 +492,7 @@ public class VFSPath implements Path {
     @Override
     public Path relativize(Path other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         VFSPath path2 = (VFSPath) other;
         if (isAbsolute() != path2.isAbsolute()) {
@@ -559,7 +559,8 @@ public class VFSPath implements Path {
             return this;
         }
         // Just turn into absolute path as-is, because we don't have a "current working directory".
-        return new VFSPath(this.fileSystem, true, this.path, this.fileAttributes);
+        //return new VFSPath(this.fileSystem, true, this.path, this.fileAttributes);
+        throw new IllegalStateException("The path '"+this.path+"' cannot be converted as an absolute path.");
     }
 
     /**
@@ -741,11 +742,11 @@ public class VFSPath implements Path {
 
     static VFSPath toRemotePath(Path path) {
         if (path == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("The path is null.");
         } else if (path instanceof VFSPath) {
             return (VFSPath)path;
         } else {
-            throw new ProviderMismatchException();
+            throw new ProviderMismatchException("The path type '"+path.getClass().getName()+"' is incorrect. The allowed type is '"+VFSPath.class.getName()+"'.");
         }
     }
 
@@ -774,6 +775,7 @@ public class VFSPath implements Path {
      * @return The new VFS Path
      */
     static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
+//        java.nio.file.InvalidPathException: Illegal char <:> at index 4: http://www.geo-airbusds.com/dimapv2
         String rootPathAsString = fileSystem.getRoot().getPath();
         if (pathName.equals(rootPathAsString)) {
             return fileSystem.getRoot();
