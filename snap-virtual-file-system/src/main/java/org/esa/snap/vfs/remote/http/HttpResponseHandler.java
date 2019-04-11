@@ -145,6 +145,7 @@ class HttpResponseHandler {
                         items.add(VFSFileAttributes.newDir(prefix + name));
                     } else {
                         String lastModified = columns.get(2).text();
+                        //TODO Jean do not calculate the file size parsing the result from the HTML page content: invoke a new http request
                         long size = calculateSize(columns.get(3).text());
                         items.add(VFSFileAttributes.newFile(prefix + name, size, lastModified));
                     }
