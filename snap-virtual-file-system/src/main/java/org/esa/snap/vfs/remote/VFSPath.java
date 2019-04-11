@@ -102,76 +102,6 @@ public class VFSPath implements Path {
         }
     }
 
-    static VFSPath toRemotePath(Path path) {
-        if (path == null) {
-            throw new NullPointerException();
-        } else if (path instanceof VFSPath) {
-            return (VFSPath) path;
-        } else {
-            throw new ProviderMismatchException();
-        }
-    }
-
-    /**
-     * Creates the new Path for Object Storage VFS by converting given file attributes.
-     *
-     * @param fileSystem     The VFS
-     * @param fileAttributes The file attributes
-     * @return The new VFS Path
-     */
-    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
-        String separator = fileSystem.getSeparator();
-        String pathName = fileAttributes.fileKey().toString();
-        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
-            int endIndex = pathName.length() - separator.length();
-            pathName = pathName.substring(0, endIndex); // remove the separator from the end
-        }
-        return new VFSPath(fileSystem, true, pathName, fileAttributes);
-    }
-
-    /**
-     * Creates the new Path for Object Storage VFS from path name.
-     *
-     * @param fileSystem The VFS
-     * @param pathName   The name
-     * @return The new VFS Path
-     */
-    static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
-        String rootPathAsString = fileSystem.getRoot().getPath();
-        if (pathName.equals(rootPathAsString)) {
-            return fileSystem.getRoot();
-        }
-        boolean absolute = false;
-        int beginIndex = 0;
-        int endIndex = pathName.length();
-        if (pathName.startsWith(rootPathAsString)) {
-            absolute = true;
-        }
-        String separator = fileSystem.getSeparator();
-        if (pathName.endsWith(separator)) {
-            endIndex -= separator.length();
-        }
-        String p = pathName.substring(beginIndex, endIndex);
-        return new VFSPath(fileSystem, absolute, p, null);
-    }
-
-    private static String buildPath(String parentPath, String childPath, String fileSeparator) {
-        StringBuilder pathAsString = new StringBuilder();
-        if (parentPath.endsWith(fileSeparator)) {
-            int endIndex = parentPath.length() - fileSeparator.length();
-            pathAsString.append(parentPath, 0, endIndex); // do not add the file separator
-        } else {
-            pathAsString.append(parentPath);
-        }
-        if (!childPath.startsWith(fileSeparator)) {
-            // add the file separator between the parent path and the child path
-            pathAsString.append(fileSeparator);
-        }
-        pathAsString.append(childPath);
-
-        return pathAsString.toString();
-    }
-
     public String getPath() {
         return this.path;
     }
@@ -365,7 +295,7 @@ public class VFSPath implements Path {
     @Override
     public boolean startsWith(Path other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other instanceof VFSPath) {
             return this.path.startsWith(((VFSPath) other).path);
@@ -494,7 +424,7 @@ public class VFSPath implements Path {
     @Override
     public Path resolve(String other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return resolve(parsePath(other));
     }
@@ -511,7 +441,7 @@ public class VFSPath implements Path {
     @Override
     public Path resolveSibling(Path other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         if (other.toString().isEmpty()) {
             return this;
@@ -534,7 +464,7 @@ public class VFSPath implements Path {
     @Override
     public Path resolveSibling(String other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return resolveSibling(parsePath(other));
     }
@@ -562,7 +492,7 @@ public class VFSPath implements Path {
     @Override
     public Path relativize(Path other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         VFSPath path2 = (VFSPath) other;
         if (isAbsolute() != path2.isAbsolute()) {
@@ -629,7 +559,8 @@ public class VFSPath implements Path {
             return this;
         }
         // Just turn into absolute path as-is, because we don't have a "current working directory".
-        return new VFSPath(this.fileSystem, true, this.path, this.fileAttributes);
+        //return new VFSPath(this.fileSystem, true, this.path, this.fileAttributes);
+        throw new IllegalStateException("The path '"+this.path+"' cannot be converted as an absolute path.");
     }
 
     /**
@@ -807,5 +738,76 @@ public class VFSPath implements Path {
         result = 31 * result + (this.absolute ? 1 : 0);
         result = 31 * result + this.path.hashCode();
         return result;
+    }
+
+    static VFSPath toRemotePath(Path path) {
+        if (path == null) {
+            throw new NullPointerException("The path is null.");
+        } else if (path instanceof VFSPath) {
+            return (VFSPath)path;
+        } else {
+            throw new ProviderMismatchException("The path type '"+path.getClass().getName()+"' is incorrect. The allowed type is '"+VFSPath.class.getName()+"'.");
+        }
+    }
+
+    /**
+     * Creates the new Path for Object Storage VFS by converting given file attributes.
+     *
+     * @param fileSystem     The VFS
+     * @param fileAttributes The file attributes
+     * @return The new VFS Path
+     */
+    static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
+        String separator = fileSystem.getSeparator();
+        String pathName = fileAttributes.fileKey().toString();
+        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
+            int endIndex = pathName.length() - separator.length();
+            pathName = pathName.substring(0, endIndex); // remove the separator from the end
+        }
+        return new VFSPath(fileSystem, true, pathName, fileAttributes);
+    }
+
+    /**
+     * Creates the new Path for Object Storage VFS from path name.
+     *
+     * @param fileSystem The VFS
+     * @param pathName   The name
+     * @return The new VFS Path
+     */
+    static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
+//        java.nio.file.InvalidPathException: Illegal char <:> at index 4: http://www.geo-airbusds.com/dimapv2
+        String rootPathAsString = fileSystem.getRoot().getPath();
+        if (pathName.equals(rootPathAsString)) {
+            return fileSystem.getRoot();
+        }
+        boolean absolute = false;
+        int beginIndex = 0;
+        int endIndex = pathName.length();
+        if (pathName.startsWith(rootPathAsString)) {
+            absolute = true;
+        }
+        String separator = fileSystem.getSeparator();
+        if (pathName.endsWith(separator)) {
+            endIndex -= separator.length();
+        }
+        String p = pathName.substring(beginIndex, endIndex);
+        return new VFSPath(fileSystem, absolute, p, null);
+    }
+
+    private static String buildPath(String parentPath, String childPath, String fileSeparator) {
+        StringBuilder pathAsString = new StringBuilder();
+        if (parentPath.endsWith(fileSeparator)) {
+            int endIndex = parentPath.length() - fileSeparator.length();
+            pathAsString.append(parentPath.substring(0, endIndex)); // do not add the file separator
+        } else {
+            pathAsString.append(parentPath);
+        }
+        if (!childPath.startsWith(fileSeparator)) {
+            // add the file separator between the parent path and the child path
+            pathAsString.append(fileSeparator);
+        }
+        pathAsString.append(childPath);
+
+        return pathAsString.toString();
     }
 }
