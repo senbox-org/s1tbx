@@ -4,6 +4,7 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.image.ImageManager;
 import org.junit.Before;
@@ -68,7 +69,10 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+        final Band sourceBand = new Band("band", ProductData.TYPE_UINT16, 4, 4);
+        sourceBand.setSourceImage(sourceImage);
+
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceImage, imageLayout, noDataValue,
                                                               AggregationType.FlagAnd, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
@@ -98,7 +102,7 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+        final AggregatedOpImage image = new AggregatedOpImage(null, sourceImage, imageLayout, noDataValue,
                                                               AggregationType.FlagOr, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
@@ -128,7 +132,7 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+        final AggregatedOpImage image = new AggregatedOpImage(null, sourceImage, imageLayout, noDataValue,
                                                               AggregationType.FlagMedianAnd, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
@@ -158,7 +162,7 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+        final AggregatedOpImage image = new AggregatedOpImage(null, sourceImage, imageLayout, noDataValue,
                                                               AggregationType.FlagMedianOr, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 

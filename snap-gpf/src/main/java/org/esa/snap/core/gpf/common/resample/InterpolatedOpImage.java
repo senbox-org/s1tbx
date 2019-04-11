@@ -1,5 +1,7 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
+
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.GeometricOpImage;
@@ -25,12 +27,14 @@ class InterpolatedOpImage extends GeometricOpImage {
     private final double noDataValue;
     private final int dataBufferType;
     private InterpolationType interpolationType;
+    private RasterDataNode rasterDataNode;
 
-    InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataBufferType,
+    InterpolatedOpImage(RasterDataNode rasterDataNode,  RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataBufferType,
                                InterpolationType interpolationType, AffineTransform sourceImageToModelTransform,
                                AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
               createBackground(noDataValue));
+        this.rasterDataNode = rasterDataNode;
         this.noDataValue = noDataValue;
         final AffineTransform transform = new AffineTransform(referenceImageToModelTransform);
         transform.concatenate(sourceImageToModelTransform.createInverse());
@@ -70,7 +74,7 @@ class InterpolatedOpImage extends GeometricOpImage {
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
         final Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationType, dataBufferType);
-        interpolator.init(srcAccessor, dstAccessor, noDataValue);
+        interpolator.init(rasterDataNode, srcAccessor, dstAccessor, noDataValue);
         interpolator.interpolate(destRect, srcRect, scaleX, scaleY, offsetX, offsetY);
         if (dstAccessor.isDataCopy()) {
             dstAccessor.clampDataArrays();

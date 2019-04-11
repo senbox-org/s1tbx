@@ -363,11 +363,11 @@ public class ResamplingOp extends Operator {
                 }
                 if (Math.abs(sourceTransform.getScaleX()) >= Math.abs(referenceImageToModelTransform.getScaleX()) ||
                         Math.abs(sourceTransform.getScaleY()) >= Math.abs(referenceImageToModelTransform.getScaleY())) {
-                    targetImage = createInterpolatedImage(sourceImage, sourceBand.getNoDataValue(),
+                    targetImage = createInterpolatedImage(sourceBand, sourceImage, sourceBand.getNoDataValue(),
                             sourceBand.getImageToModelTransform(), sourceBand.isFlagBand() || sourceBand.isIndexBand());
                 } else if (Math.abs(sourceTransform.getScaleX()) <= Math.abs(referenceImageToModelTransform.getScaleX()) ||
                         Math.abs(sourceTransform.getScaleY()) <= Math.abs(referenceImageToModelTransform.getScaleY())) {
-                    targetImage = createAggregatedImage(sourceImage, dataBufferType, sourceBand.getNoDataValue(),
+                    targetImage = createAggregatedImage(sourceBand, sourceImage, dataBufferType, sourceBand.getNoDataValue(),
                             sourceBand.isFlagBand(), referenceMultiLevelModel);
                 } else if (Math.abs(sourceTransform.getScaleX()) < Math.abs(referenceImageToModelTransform.getScaleX())) {
                     AffineTransform intermediateTransform = new AffineTransform(
@@ -375,10 +375,10 @@ public class ResamplingOp extends Operator {
                             sourceTransform.getScaleY(), referenceImageToModelTransform.getTranslateX(), sourceTransform.getTranslateY());
                     final DefaultMultiLevelModel intermediateMultiLevelModel =
                             new DefaultMultiLevelModel(intermediateTransform, referenceWidth, sourceBand.getRasterHeight());
-                    targetImage = createAggregatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
+                    targetImage = createAggregatedImage(sourceBand, targetImage, dataBufferType, sourceBand.getNoDataValue(),
                                                         sourceBand.isFlagBand(), intermediateMultiLevelModel
                     );
-                    targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
+                    targetImage = createInterpolatedImage(sourceBand, targetImage, sourceBand.getNoDataValue(),
                                                           intermediateTransform,
                                                           sourceBand.isFlagBand() || sourceBand.isIndexBand());
                 } else if (Math.abs(sourceTransform.getScaleY()) < Math.abs(referenceImageToModelTransform.getScaleY())) {
@@ -387,10 +387,10 @@ public class ResamplingOp extends Operator {
                             referenceImageToModelTransform.getScaleY(), sourceTransform.getTranslateX(), referenceImageToModelTransform.getTranslateY());
                     final DefaultMultiLevelModel intermediateMultiLevelModel =
                             new DefaultMultiLevelModel(intermediateTransform, sourceBand.getRasterWidth(), referenceHeight);
-                    targetImage = createAggregatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
+                    targetImage = createAggregatedImage(sourceBand, targetImage, dataBufferType, sourceBand.getNoDataValue(),
                                                         sourceBand.isFlagBand(), intermediateMultiLevelModel
                     );
-                    targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
+                    targetImage = createInterpolatedImage(sourceBand, targetImage, sourceBand.getNoDataValue(),
                                                           intermediateTransform,
                                                           sourceBand.isFlagBand() || sourceBand.isIndexBand());
                 }
@@ -460,7 +460,7 @@ public class ResamplingOp extends Operator {
         return new DefaultMultiLevelImage(source);
     }
 
-    private MultiLevelImage createInterpolatedImage(MultiLevelImage sourceImage, double noDataValue,
+    private MultiLevelImage createInterpolatedImage(RasterDataNode sourceRDN, MultiLevelImage sourceImage, double noDataValue,
                                                     AffineTransform sourceImageToModelTransform, boolean isFlagOrIndexBand) {
         Interpolation interpolation;
         if (isFlagOrIndexBand) {
@@ -492,7 +492,7 @@ public class ResamplingOp extends Operator {
         return interpolationType;
     }
 
-    private MultiLevelImage createAggregatedImage(MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
+    private MultiLevelImage createAggregatedImage(RasterDataNode sourceRDN, MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
                                                   boolean isFlagBand, MultiLevelModel referenceModel) {
         AggregationType type;
         if (isFlagBand) {
@@ -523,7 +523,7 @@ public class ResamplingOp extends Operator {
                                                                                                referenceTileSize,
                                                                                                resolutionLevel);
                     try {
-                        return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue,
+                        return new AggregatedOpImage(sourceRDN, sourceLevelImage, imageLayout, noDataValue,
                                                      type, dataBufferType,
                                                      sourceModel.getImageToModelTransform(sourceLevel),
                                                      targetModel.getImageToModelTransform(targetLevel));
@@ -538,7 +538,7 @@ public class ResamplingOp extends Operator {
                                                                                            referenceWidth, referenceHeight,
                                                                                            referenceTileSize,
                                                                                            ResolutionLevel.MAXRES);
-                final RenderedImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue, type, dataBufferType,
+                final RenderedImage image = new AggregatedOpImage(sourceRDN, sourceImage, imageLayout, noDataValue, type, dataBufferType,
                                                                   sourceImage.getModel().getImageToModelTransform(0),
                                                                   referenceModel.getImageToModelTransform(0));
                 source = new DefaultMultiLevelSource(image, referenceModel);

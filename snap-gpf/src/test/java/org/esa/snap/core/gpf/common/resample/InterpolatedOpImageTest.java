@@ -112,7 +112,7 @@ public class InterpolatedOpImageTest {
         sourceBand.getSourceImage().getData().createCompatibleWritableRaster();
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
@@ -141,7 +141,7 @@ public class InterpolatedOpImageTest {
         sourceBand.getSourceImage().getData().createCompatibleWritableRaster();
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
@@ -170,7 +170,7 @@ public class InterpolatedOpImageTest {
         sourceBand.getSourceImage().getData().createCompatibleWritableRaster();
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
@@ -199,7 +199,7 @@ public class InterpolatedOpImageTest {
         sourceBand.getSourceImage().getData().createCompatibleWritableRaster();
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
@@ -228,7 +228,7 @@ public class InterpolatedOpImageTest {
         sourceBand.getSourceImage().getData().createCompatibleWritableRaster();
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
@@ -257,7 +257,7 @@ public class InterpolatedOpImageTest {
         sourceBand.getSourceImage().getData().createCompatibleWritableRaster();
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
@@ -319,7 +319,7 @@ public class InterpolatedOpImageTest {
         final Band sourceBand = createSourceBand(dataType);
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Cubic_Convolution,
                                                                   sourceBand.getImageToModelTransform(),
@@ -345,7 +345,7 @@ public class InterpolatedOpImageTest {
         final Band sourceBand = createSourceBand(dataType);
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
@@ -384,7 +384,7 @@ public class InterpolatedOpImageTest {
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
 
-        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                                   sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Nearest,
                                                                   sourceBand.getImageToModelTransform(),

@@ -206,7 +206,7 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(ProductData.TYPE_FLOAT64);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                 sourceBand.getNoDataValue(),
                 AggregationType.Mean, dataBufferType,
                 sourceBand.getImageToModelTransform(),
@@ -228,7 +228,7 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(ProductData.TYPE_FLOAT64);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                 sourceBand.getNoDataValue(),
                 AggregationType.Mean, dataBufferType,
                 sourceBand.getImageToModelTransform(),
@@ -250,7 +250,7 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(),
                                                               AggregationType.Mean, dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
@@ -279,7 +279,7 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(), AggregationType.Median,
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
@@ -301,7 +301,7 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(), AggregationType.Min,
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
@@ -323,7 +323,7 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(), AggregationType.Max,
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
@@ -345,7 +345,7 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(), AggregationType.First,
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
