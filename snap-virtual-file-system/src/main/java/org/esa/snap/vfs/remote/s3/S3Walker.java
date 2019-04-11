@@ -87,7 +87,7 @@ class S3Walker implements VFSWalker {
      * @return The S3 file basic attributes
      * @throws IOException If an I/O error occurs
      */
-    public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
+    public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
         URLConnection urlConnection = S3ResponseHandler.getConnectionChannel(new URL(address), "GET", null, accessKeyId, secretAccessKey);
         return VFSFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
     }
