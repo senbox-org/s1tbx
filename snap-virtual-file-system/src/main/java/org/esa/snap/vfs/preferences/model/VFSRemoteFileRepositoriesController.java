@@ -133,6 +133,7 @@ public final class VFSRemoteFileRepositoriesController {
         InputStream inputStream = null;
         try {
             if (!Files.exists(vfsConfigFile)) {
+                Files.createDirectories(vfsConfigFile.getParent());
                 Files.createFile(vfsConfigFile);
             }
             inputStream = Files.newInputStream(vfsConfigFile);
