@@ -22,6 +22,9 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.common.WriteOp;
+import org.esa.snap.core.gpf.common.resample.UpsamplerSpi;
+import org.esa.snap.core.gpf.common.resample.UpsamplerSpiRegistry;
+import org.esa.snap.core.gpf.common.resample.UpsamplerSpiRegistryImpl;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductsDescriptor;
@@ -96,9 +99,11 @@ public class GPF {
     static {
         defaultInstance = new GPF();
         defaultInstance.spiRegistry.loadOperatorSpis();
+        defaultInstance.upsamplerSpiRegistry.loadUpsamplerSpis();
     }
 
     private OperatorSpiRegistry spiRegistry;
+    private UpsamplerSpiRegistry upsamplerSpiRegistry;
 
     private ProductManager productManager;
 
@@ -108,6 +113,7 @@ public class GPF {
     protected GPF() {
         ServiceRegistryManager registryManager = ServiceRegistryManager.getInstance();
         spiRegistry = new OperatorSpiRegistryImpl(registryManager.getServiceRegistry(OperatorSpi.class));
+        upsamplerSpiRegistry = new UpsamplerSpiRegistryImpl(registryManager.getServiceRegistry(UpsamplerSpi.class));
     }
 
     /**
@@ -347,6 +353,15 @@ public class GPF {
      */
     public OperatorSpiRegistry getOperatorSpiRegistry() {
         return spiRegistry;
+    }
+
+    /**
+     * Gets the registry for upsampler SPIs.
+     *
+     * @return the registry for upsampler SPIs.
+     */
+    public UpsamplerSpiRegistry getUpsamplerSpiRegistry() {
+        return upsamplerSpiRegistry;
     }
 
     /**
