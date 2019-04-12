@@ -22,6 +22,9 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.common.WriteOp;
+import org.esa.snap.core.gpf.common.resample.DownsamplerSpi;
+import org.esa.snap.core.gpf.common.resample.DownsamplerSpiRegistry;
+import org.esa.snap.core.gpf.common.resample.DownsamplerSpiRegistryImpl;
 import org.esa.snap.core.gpf.common.resample.UpsamplerSpi;
 import org.esa.snap.core.gpf.common.resample.UpsamplerSpiRegistry;
 import org.esa.snap.core.gpf.common.resample.UpsamplerSpiRegistryImpl;
@@ -100,10 +103,12 @@ public class GPF {
         defaultInstance = new GPF();
         defaultInstance.spiRegistry.loadOperatorSpis();
         defaultInstance.upsamplerSpiRegistry.loadUpsamplerSpis();
+        defaultInstance.downsamplerSpiRegistry.loadDownsamplerSpis();
     }
 
     private OperatorSpiRegistry spiRegistry;
     private UpsamplerSpiRegistry upsamplerSpiRegistry;
+    private DownsamplerSpiRegistry downsamplerSpiRegistry;
 
     private ProductManager productManager;
 
@@ -114,6 +119,7 @@ public class GPF {
         ServiceRegistryManager registryManager = ServiceRegistryManager.getInstance();
         spiRegistry = new OperatorSpiRegistryImpl(registryManager.getServiceRegistry(OperatorSpi.class));
         upsamplerSpiRegistry = new UpsamplerSpiRegistryImpl(registryManager.getServiceRegistry(UpsamplerSpi.class));
+        downsamplerSpiRegistry = new DownsamplerSpiRegistryImpl(registryManager.getServiceRegistry(DownsamplerSpi.class));
     }
 
     /**
@@ -362,6 +368,15 @@ public class GPF {
      */
     public UpsamplerSpiRegistry getUpsamplerSpiRegistry() {
         return upsamplerSpiRegistry;
+    }
+
+    /**
+     * Gets the registry for downsampler SPIs.
+     *
+     * @return the registry for downsampler SPIs.
+     */
+    public DownsamplerSpiRegistry getDownsamplerSpiRegistry() {
+        return downsamplerSpiRegistry;
     }
 
     /**
