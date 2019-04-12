@@ -2099,7 +2099,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
         }
     }
 
-    private boolean isPixelWithinImageBounds(int x, int y) {
+    public boolean isPixelWithinImageBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < getRasterWidth() && y < getRasterHeight();
     }
 
