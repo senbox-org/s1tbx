@@ -1,6 +1,8 @@
 package org.esa.snap.vfs.remote;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -39,8 +41,6 @@ import java.util.logging.Logger;
 public class VFSFileChannel extends FileChannel {
 
     private static final String NEGATIVE_POSITION_ERROR_MESSAGE = "position must be non-negative.";
-
-    private static Logger logger = Logger.getLogger(VFSFileChannel.class.getName());
 
     //TODO Jean remove byteChannel
     @Deprecated
@@ -243,7 +243,7 @@ public class VFSFileChannel extends FileChannel {
         if (count < 0) {
             throw new IllegalArgumentException("count must be non-negative.");
         }
-        int maximumBufferSize = 64 * 1024;
+        int maximumBufferSize = 1024 * 1024;
         long bytesTransferred = 0;
         if (target instanceof FileChannel) {
             FileChannel fileChannel = (FileChannel) target;
@@ -262,7 +262,10 @@ public class VFSFileChannel extends FileChannel {
     private long transferToByteChannel(long position, int maximumBufferSize, WritableByteChannel destinationByteChannel) throws IOException {
         HttpURLConnection connection = buildProviderConnectionChannel(this.path, position, "GET");
         try {
-            try (ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream())) {
+            try (InputStream inputStream = connection.getInputStream();
+                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, maximumBufferSize);
+                 ReadableByteChannel readableByteChannel = Channels.newChannel(bufferedInputStream)) {
+
                 long remainingSize = connection.getContentLengthLong();
                 long buffer = Math.min(remainingSize, maximumBufferSize);
                 int capacity;
@@ -283,8 +286,6 @@ public class VFSFileChannel extends FileChannel {
 
                     bytesTransferred += bytesReadNow;
                     remainingSize -= bytesReadNow;
-
-                    logger.fine(" transferToByteChannel => " + bytesTransferred + " bytes received, remainingSize=" + remainingSize);
                 }
                 // EOF will leave buffer in fill state
                 byteBuffer.flip();
@@ -303,7 +304,10 @@ public class VFSFileChannel extends FileChannel {
     private long transferToFileChannel(long position, int maximumBufferSize, FileChannel destinationFileChannel) throws IOException {
         HttpURLConnection connection = buildProviderConnectionChannel(this.path, position, "GET");
         try {
-            try (ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream())) {
+            try (InputStream inputStream = connection.getInputStream();
+                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, maximumBufferSize);
+                 ReadableByteChannel readableByteChannel = Channels.newChannel(bufferedInputStream)) {
+
                 long remainingSize = connection.getContentLengthLong();
                 long buffer = Math.min(remainingSize, maximumBufferSize);
                 long bytesTransferred = 0;
@@ -314,8 +318,6 @@ public class VFSFileChannel extends FileChannel {
                     }
                     bytesTransferred += bytesReadNow;
                     remainingSize -= bytesReadNow;
-
-                    logger.fine(" transferToFileChannel => " + bytesTransferred + " bytes received, remainingSize=" + remainingSize);
                 }
                 return bytesTransferred;
             }

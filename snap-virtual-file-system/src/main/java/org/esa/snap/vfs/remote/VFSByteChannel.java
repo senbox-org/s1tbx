@@ -128,7 +128,7 @@ class VFSByteChannel implements SeekableByteChannel {
     public int read(ByteBuffer destinationBuffer) throws IOException {
         assertOpen();
         if (this.position >= this.contentLength) {
-            throw new EOFException(this.path.toString());
+            return -1;
         }
 
         if (!this.samePosition) {
@@ -163,7 +163,7 @@ class VFSByteChannel implements SeekableByteChannel {
     long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
         assertOpen();
         if (this.position >= this.contentLength) {
-            throw new EOFException(this.path.toString());
+            return -1;
         }
         this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
         long bytesRead = 0;
