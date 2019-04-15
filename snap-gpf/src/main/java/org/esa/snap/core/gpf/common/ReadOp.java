@@ -99,7 +99,6 @@ public class ReadOp extends Operator {
                     }
                 }
                 ProductUtils.copyProductNodes(openedProduct, targetProduct);
-                targetProduct.setFileLocation(openedProduct.getFileLocation());
 
             }else {
                 ProductReader productReader;
