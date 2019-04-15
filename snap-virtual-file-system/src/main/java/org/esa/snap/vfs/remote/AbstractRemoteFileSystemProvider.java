@@ -516,7 +516,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         BasicFileAttributes fileAttributes = path.getFileAttributes();
         if (fileAttributes == null) {
             AbstractRemoteFileSystem fileSystem = path.getFileSystem();
-            fileAttributes = fileSystem.newObjectStorageWalker().getObjectStorageFile(path.buildURL().toString(), path.toString());
+            fileAttributes = fileSystem.newObjectStorageWalker().getVFSBasicFileAttributes(path.buildURL().toString(), path.toString());
             path.setFileAttributes(fileAttributes);
         }
         return fileAttributes;

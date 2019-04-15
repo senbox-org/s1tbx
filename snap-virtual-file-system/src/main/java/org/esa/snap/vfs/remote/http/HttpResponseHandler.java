@@ -3,18 +3,19 @@ package org.esa.snap.vfs.remote.http;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.vfs.remote.VFSFileAttributes;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Response Handler for HTTP VFS.
@@ -23,46 +24,24 @@ import java.util.Set;
  */
 class HttpResponseHandler {
 
-    /**
-     * The keyword of data unit measure : KB (Kilobyte)
-     */
-    private static final String KB = "K";
-
-    /**
-     * The keyword of data unit measure : MB (Megabyte)
-     */
-    private static final String MB = "M";
-
-    /**
-     * The keyword of data unit measure : GB (Gigabyte)
-     */
-    private static final String GB = "G";
-
-    /**
-     * The keyword of data unit measure : TB (Terabyte)
-     */
-    private static final String TB = "T";
-
-    /**
-     * The keyword of data unit measure : PB (Petabyte)
-     */
-    private static final String PB = "P";
-
     private final Document doc;
-    private final List<BasicFileAttributes> items;
     private String prefix;
+    private String serviceAddress;
+    private String root;
+    private HttpWalker walker;
 
     /**
      * Creates the new response handler for HTTP VFS.
      *
      * @param doc    The HTML document to parse
      * @param prefix The VFS path to traverse
-     * @param items  The list with VFS paths for files and directories
      */
-    HttpResponseHandler(Document doc, String prefix, List<BasicFileAttributes> items) {
+    HttpResponseHandler(Document doc, String prefix, String serviceAddress, String root, HttpWalker walker) {
         this.doc = doc;
         this.prefix = prefix;
-        this.items = items;
+        this.serviceAddress = serviceAddress;
+        this.root = root;
+        this.walker = walker;
     }
 
     /**
@@ -131,54 +110,27 @@ class HttpResponseHandler {
      * Current implementation works only with Apache Server ('Index of' pages).
      * On the future will add implementation for other HTTP servers as needed.
      */
-    void getElements() {
-        Elements rows = doc.getElementsByTag("tr");
-        if (!rows.isEmpty()) {
-            rows.remove(0);
-            rows.remove(0);
-            rows.remove(rows.size() - 1);
-            for (Element row : rows) {
-                Elements columns = row.getElementsByTag("td");
-                String name = columns.get(1).selectFirst("a").attr("href");
-                if (!name.equals("/") && !name.startsWith("/")) {
-                    if (name.endsWith("/")) {
-                        items.add(VFSFileAttributes.newDir(prefix + name));
-                    } else {
-                        String lastModified = columns.get(2).text();
-                        //TODO Jean do not calculate the file size parsing the result from the HTML page content: invoke a new http request
-                        long size = calculateSize(columns.get(3).text());
-                        items.add(VFSFileAttributes.newFile(prefix + name, size, lastModified));
+    List<BasicFileAttributes> getElements() throws IOException {
+        List<BasicFileAttributes> items = new ArrayList<>();
+        Pattern p = Pattern.compile("<a href=\"(.*?)\">.*?</a>");
+        Matcher m = p.matcher(doc.html());
+        while (m.find()) {
+            String name = m.group(1);
+            if (!name.isEmpty() && !name.startsWith("/") && !name.startsWith("?") && !name.equals("/")) {
+                if (name.endsWith("/")) {
+                    items.add(VFSFileAttributes.newDir(prefix + name));
+                } else {
+                    String filePath = prefix.concat(name);
+                    String filePathUrl = filePath.replaceAll(root + "/?", "");
+                    String fileUrl = this.serviceAddress;
+                    if (!fileUrl.endsWith("/")) {
+                        fileUrl = fileUrl.concat("/");
                     }
+                    fileUrl = fileUrl.concat(filePathUrl);
+                    items.add(walker.getVFSFileAttributes(fileUrl, filePath));
                 }
             }
         }
+        return items;
     }
-
-    /**
-     * Returns the size of a file by converting it to base data unit measure (byte)
-     *
-     * @param sizeS The size of a file string
-     * @return the size of a file in bytes
-     */
-    private long calculateSize(String sizeS) {
-        String sizeUnit = sizeS.replaceAll("\\d", "");
-        sizeS = sizeS.replaceAll("\\D", "");
-        float size = Float.parseFloat(sizeS);
-        switch (sizeUnit) {
-            case KB:
-                return (long) (size * Math.pow(1024, 1));
-            case MB:
-                return (long) (size * Math.pow(1024, 2));
-            case GB:
-                return (long) (size * Math.pow(1024, 3));
-            case TB:
-                return (long) (size * Math.pow(1024, 4));
-            case PB:
-                return (long) (size * Math.pow(1024, 5));
-            default:
-                break;
-        }
-        return (long) size;
-    }
-
 }

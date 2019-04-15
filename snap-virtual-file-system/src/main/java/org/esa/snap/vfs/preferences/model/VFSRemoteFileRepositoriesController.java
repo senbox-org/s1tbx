@@ -132,12 +132,10 @@ public final class VFSRemoteFileRepositoriesController {
     public void loadProperties() throws IOException {
         InputStream inputStream = null;
         try {
-            if (!Files.exists(vfsConfigFile)) {
-                Files.createDirectories(vfsConfigFile.getParent());
-                Files.createFile(vfsConfigFile);
+            if (Files.exists(vfsConfigFile)) {
+                inputStream = Files.newInputStream(vfsConfigFile);
+                properties.load(inputStream);
             }
-            inputStream = Files.newInputStream(vfsConfigFile);
-            properties.load(inputStream);
             isChanged = false;
         } finally {
             if (inputStream != null) {

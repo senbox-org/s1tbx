@@ -98,7 +98,7 @@ class SwiftWalker implements VFSWalker {
      * @return The OpenStack Swift file basic attributes
      * @throws IOException If an I/O error occurs
      */
-    public BasicFileAttributes getObjectStorageFile(String address, String prefix) throws IOException {
+    public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
         URLConnection urlConnection = SwiftResponseHandler.getConnectionChannel(new URL(address), "GET", null, authAddress, domain, projectId, user, password);
         return VFSFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
     }
