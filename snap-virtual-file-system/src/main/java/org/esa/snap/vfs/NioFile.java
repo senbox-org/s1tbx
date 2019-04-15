@@ -548,7 +548,7 @@ public class NioFile extends File {
         if (Files.isDirectory(path)) {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, filter)) {
                 for (Path currentPath : stream) {
-                    files.add(currentPath.toString());
+                    files.add(currentPath.getFileName().toString());
                 }
                 return files.toArray(new String[0]);
             } catch (IOException ex) {
