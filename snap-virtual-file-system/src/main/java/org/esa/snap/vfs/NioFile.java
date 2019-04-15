@@ -119,7 +119,8 @@ public class NioFile extends File {
      */
     @Override
     public String getParent() {
-        return path.getParent().toString();
+        Path parent = path.getParent();
+        return parent != null ? parent.toString() : null;
     }
 
 
