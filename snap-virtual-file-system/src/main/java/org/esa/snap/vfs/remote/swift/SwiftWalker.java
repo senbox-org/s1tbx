@@ -110,7 +110,7 @@ class SwiftWalker implements VFSWalker {
      * @return The list of VFS files and directories
      * @throws IOException If an I/O error occurs
      */
-    public List<BasicFileAttributes> walk(Path dir) throws IOException {
+    public synchronized List<BasicFileAttributes> walk(Path dir) throws IOException {
         String prefix = dir.toString();
         if (!prefix.endsWith(this.delimiter)) {
             prefix = prefix.concat(this.delimiter);

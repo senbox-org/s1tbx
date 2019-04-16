@@ -109,7 +109,7 @@ class HttpWalker implements VFSWalker {
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public List<BasicFileAttributes> walk(Path dir) throws IOException {
+    public synchronized List<BasicFileAttributes> walk(Path dir) throws IOException {
         StringBuilder urlAsString = new StringBuilder();
         if (this.address.endsWith(this.delimiter)) {
             int endIndex = this.address.length() - this.delimiter.length();
