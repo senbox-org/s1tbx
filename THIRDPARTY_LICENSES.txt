@@ -1,114 +1,113 @@
-Name;Description / Use;IPR owner;License;Compatibile with SNAP/GPLv3 ;Comment;NONE;NONE;
-Java SE JRE;Java Runtime;Oracle;Oracle Binary Code License;YES;Distribution FAQs;http://www.oracle.com/technetwork/java/javase/overview/index.html;http://www.oracle.com/technetwork/java/javase/terms/license/index.html;https://java.com/en/download/faq/
-OpenJDK;OpenJDK;OpenJDK;GPL2 with CE;YES;Not yet used, but probably in the future FAQs: http://openjdk.java.net/faq/;http://openjdk.java.net/;http://openjdk.java.net/legal/gplv2+ce.html;NONE
-abdera;Atom client;Apache;Apache License;YES;NONE;http://abdera.apache.org/;https://www.apache.org/licenses/;NONE
-Abeel Java Toolkit (ajt);Used for classification;Thomas Abeel;LGPLv3;YES;NONE;http://www.gnu.de/documents/lgpl.de.html;http://www.gnu.de/documents/lgpl.de.html;NONE
-Apache Commons;Common libraries;Apache;Apache License;YES;NONE;http://commons.apache.org/;https://www.apache.org/licenses/;NONE
-axiom;XML handling;axoim;Apache License;YES;NONE;https://ws.apache.org/axiom/;https://www.apache.org/licenses/;NONE
-Berkeley DB Java Edition;DB Library;Oracle;Apache License;YES;NONE;http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index.html;https://www.apache.org/licenses/;NONE
-bounce;Java helpers;bounce;BSD 3 Clause;YES;NONE;http://www.edankert.com/bounce/;http://opensource.org/licenses/BSD-3-Clause;NONE
-c3p0;Augmenting JDBC drivers;c3p0;LGPLv2;YES;NONE;https://sourceforge.net/projects/c3p0/;http://www.gnu.de/documents/lgpl-2.1.de.html;NONE
-clibwrapper-jiio;JAI Image IO (native);Oracle;SUN License / BSD License;YES;NONE;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html;NONE
-derby;database;Derby;Apache License;YES;NONE;http://db.apache.org/derby/;https://www.apache.org/licenses/;NONE
-ehcache;Caching;EHCache;Apache License;YES;NONE;http://ehcache.org/;https://www.apache.org/licenses/;NONE
-EJML;Matrix library;Google;Apache License;YES;NONE;https://code.google.com/archive/p/efficient-java-matrix-library/;https://www.apache.org/licenses/;NONE
-emf;Modelling Framework;eclipse emf;Eclipse Public License;YES;NONE;https://projects.eclipse.org/projects/modeling.emf.emf;https://projects.eclipse.org/content/eclipse-public-license-1.0;NONE
-F2J;Fortran-to-Java BLAS/LAPACK;F2J;BSD Style;YES;NONE;http://icl.cs.utk.edu/f2j/;http://icl.cs.utk.edu/f2j/software/index.html;NONE
-GeographicLib-Java;Geographic calculation;GeographicLib;MIT;YES;NONE;https://sourceforge.net/projects/geographiclib/;https://opensource.org/licenses/mit-license.php;NONE
-geotools;Tools for working with geo-data;GeoTools;LGPLv2;YES;NONE;http://www.geotools.org/;../../AppData/Local/Temp/docs.geotools.org/latest/developer/introduction.html;NONE
-geronimo;Server;Geronimo;Apache License;YES;NONE;http://geronimo.apache.org/;https://www.apache.org/licenses/;NONE
-Gson ;Json IO;Google;Apache License;YES;NONE;https://github.com/google/gson;https://www.apache.org/licenses/;NONE
-Guava;General Library for Java;Google;Apache License;YES;NONE;https://github.com/google/guava;https://www.apache.org/licenses/;NONE
-hamcrest;Testing framework;Hamcrest;BSD 3 Clause;YES;NONE;http://hamcrest.org/;http://opensource.org/licenses/BSD-3-Clause;NONE
-hsqldb;database;http://hsqldb.org/;BSD Style;YES;NONE;http://hsqldb.org/;http://hsqldb.org/web/hsqlLicense.html;NONE
-ImageIO-EXT;ImageIO extensions;GeoSolutions;Apache License;YES;forked and modifed, contains specific fixes for SNAP;https://github.com/geosolutions-it/imageio-ext;https://www.apache.org/licenses/;NONE
-JAI;Java Advanced Imaging;Oracle;Sun Binary License;YES;In the SUPPLEMENTAL LICENSE TERMS Section 2 it is explicitly stated: Sun grants you a non-exclusive, non-transferable, limited license to reproduce and distribute the Software in binary code form only, provided that you (i) distribute the Software complete and unmodified and only bundled as part of your Programs, ...;http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-java-client-419417.html;https://download.java.net/media/jai/builds/release/1_1_3/LICENSE-jai.txt;NONE
-JAI-ext;JAI extensions;GeoSolutions;Apache License;YES;NONE;https://github.com/geosolutions-it/jai-ext;https://www.apache.org/licenses/;NONE
-JAI-imageio;JAI Image IO;Oracle;SUN License / BSD License;YES;NONE;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html;NONE
-JAI-tools;Tools for jai;jaitools;BSD 3 Clause;YES;NONE;https://code.google.com/archive/p/jaitools/;http://opensource.org/licenses/BSD-3-Clause;NONE
-Jama;Linear algebra;Jama;public-domain;YES;NONE;https://math.nist.gov/javanumerics/jama/;https://en.wikipedia.org/wiki/Public-domain_software;NONE
-James;Mail server;James;Apache License;YES;NONE;https://james.apache.org/;https://www.apache.org/licenses/;NONE
-JASYPT;Encryption;JASYPT;Apache License;YES;NONE;http://www.jasypt.org/;https://www.apache.org/licenses/;NONE
-java-cup-11b;LALR parser generator;cup;BSD Style;Yes;NONE;http://www2.cs.tum.edu/projects/cup/;http://www2.cs.tum.edu/projects/cup/licence.php;NONE
-javaml;Machine leatning;Java Machine Learning;GPLv2;Yes;NONE;http://java-ml.sourceforge.net/;https://sourceforge.net/p/java-ml/java-ml-code/ci/master/tree/legal/license.txt;NONE
-Javassist;Bytecode manipulation;Javassist;Apache License;YES;NONE;http://jboss-javassist.github.io/javassist/;https://www.apache.org/licenses/;NONE
-Jaxen;XPath Engine;Jaxen;BSD 3 Clause;YES;NONE;http://www.cafeconleche.org/jaxen;http://opensource.org/licenses/BSD-3-Clause;NONE
-JCIP;Included By 3rd party;http://jcip.net/;None;NONE;NONE;http://jcip.net/;NONE;NONE
-jcommon;Utils;jfree;LGPLv3;YES;NONE;NONE;https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl/2.6.12;NONE
-jcoord;Coord transformation;jcoord;GPLv2;YES;NONE;http://www.jstott.me.uk/jcoord/;http://www.jstott.me.uk/gpl/;NONE
-jdom;XML handling;jdom;Apache License;YES;NONE;http://jdom.org/;https://www.apache.org/licenses/;NONE
-jexcelapi;Excel files;jexcelapi;LGPLv3;YES;NONE;http://jexcelapi.sourceforge.net/;https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl/2.6.12;NONE
-jfreechart;Plot library;jfree;LGPLv3;YES;NONE;NONE;https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl/2.6.12;NONE
-jgridshift;Transformations;jgridshift;LGPLv2;YES;NONE;http://jgridshift.sourceforge.net/;http://www.gnu.de/documents/lgpl-2.1.de.html;NONE
-jhdf / jhdf5;HDF(5) support;HDF Group;BSD Style;YES;NONE;https://portal.hdfgroup.org/display/support/HDF-Java;https://bitbucket.hdfgroup.org/projects/HDFVIEW/repos/hdfview/browse/COPYING?raw;NONE
-JIDE Common;GUI library;Jidesoft;GPL with classpath exception ;YES;NONE;http://jidesoft.com/;http://openjdk.java.net/legal/gplv2+ce.html;NONE
-Jimfs;In-memory file system;Google;Apache License;YES;NONE;https://github.com/google/jimfs;https://www.apache.org/licenses/;NONE
-JNA;Native library access;JNA;LGPLv2;YES;NONE;https://github.com/java-native-access/jna;http://www.gnu.de/documents/lgpl-2.1.de.html;NONE
-Jniloader;Native lib loader;Sam Halliday;LGPLv3;YES;NONE;https://gitlab.com/fommil/attic/tree/master/jniloader;http://www.gnu.de/documents/lgpl.de.html;NONE
-JNN;Java Neural Net;Brockmann Consult;MIT;YES;NONE;https://github.com/bcdev/jnn;https://opensource.org/licenses/mit-license.php;NONE
-joda-time;Date and time handling;Joda;Apache License;YES;NONE;http://www.joda.org/joda-time/;https://www.apache.org/licenses/;NONE
-jpy;Java-Python bridge;Brockmann Consult;Apache License;YES;NONE;https://github.com/bcdev/jpy;https://www.apache.org/licenses/;NONE
-jsoup;Html parser;https://jsoup.org/;MIT;YES;NONE;https://jsoup.org/;https://opensource.org/licenses/mit-license.php;NONE
-jsr275;Units and measurements;???;BSD Style;YES;NONE;https://mvnrepository.com/artifact/net.java.dev.jsr-275/jsr-275;https://bitbucket.hdfgroup.org/projects/HDFVIEW/repos/hdfview/browse/COPYING?raw;NONE
-Jtransforms;Fourier transformations;Piotr Wendykier;BSD-2-Clause;YES;NONE;https://sites.google.com/site/piotrwendykier/software/jtransforms;http://opensource.org/licenses/BSD-2-Clause;NONE
-JTS;Topology Suite;JTS;http://jgridshift.sourceforge.net/;YES;NONE;https://sourceforge.net/projects/jts-topo-suite/;NONE;NONE
-junit;Unit level test support;Junit;Apache License / Eclipse Public License;YES;NONE;http://junit.org/;https://github.com/junit-team/junit5/blob/master/LICENSE.md;NONE
-Jython;Python for Java;Jython;PSF License;YES;NONE;NONE;http://www.jython.org/license.html;NONE
-libsvm;Support Vector Machines;LIBSVM ;BSD 3 Clause;YES;NONE;NONE;http://opensource.org/licenses/BSD-3-Clause;NONE
-matrix-toolkits-java ;Matrix library;Sam Halliday;LGPLv3;YES;NONE;https://gitlab.com/fommil/attic/tree/master/jniloader;http://www.gnu.de/documents/lgpl.de.html;NONE
-mockito;Testing framework;mockito;MIT;YES;NONE;http://site.mockito.org/;https://opensource.org/licenses/mit-license.php;NONE
-NetCDF-Java;NetCDF IO;Unidata;NetCDF C library license (MIT-style) ;YES;NONE;http://www.unidata.ucar.edu/software/netcdf-java/documentation.htm;http://www.unidata.ucar.edu/software/netcdf/copyright.html;NONE
-netlib;Linear algebra;Sam Halliday;BSD 3 Clause;YES;NONE;https://gitlab.com/fommil/attic/tree/master/jniloader;http://opensource.org/licenses/BSD-3-Clause;NONE
-nujan;NetCDF java writing;NCAR RAL;Modified MIT License;YES;No license file found;https://ral.ucar.edu/;NONE;NONE
-Objenesis;Class instantiation;Objenesis;Apache License;YES;NONE;http://objenesis.org/;https://www.apache.org/licenses/;NONE
-olingo;Open Data Protocol;olingo;Apache License;YES;NONE;http://olingo.apache.org/;https://www.apache.org/licenses/;NONE
-oro;Text processing;ORO;Apache License;YES;NONE;http://jakarta.apache.org/oro/;https://www.apache.org/licenses/;NONE
-picocontainer;class instantiation;picocontainer;BSD-2-Clause;YES;NONE;http://picocontainer.com/;http://opensource.org/licenses/BSD-2-Clause;NONE
-powermock;Testing framework;PowerMock;Apache License;YES;NONE;http://powermock.github.io/;https://www.apache.org/licenses/;NONE
-protobuf;Protocol Buffers ;Google;BSD 3 Clause;YES;NONE;https://github.com/google/protobuf;http://opensource.org/licenses/BSD-3-Clause;NONE
-quartz;Job scheduler;quartz-scheduler;Apache License;YES;NONE;http://www.quartz-scheduler.org/;https://www.apache.org/licenses/;NONE
-rhino;Java script engine;Rhino;Mozilla Public License;YES;NONE;http://www.mozilla.org/rhino/;https://github.com/mozilla/rhino/blob/master/LICENSE.txt;NONE
-sevenzipjbinding;Compression library;sevenzipjbinding;LGPLv2;YES;NONE;http://sevenzipjbind.sourceforge.net/;https://github.com/borisbrodski/sevenzipjbinding/blob/master/License.txt;NONE
-sl4j;Logging;slf4j;MIT;YES;NONE;http://www.slf4j.org/;https://opensource.org/licenses/mit-license.php;NONE
-swingx;GUI library;SwingX;LGPLv3;YES;not maintained, no project page;https://en.wikipedia.org/wiki/SwingLabs;https://www.gnu.org/licenses/lgpl-3.0.en.html;NONE
-thumbnailator;Image scaling;Coobird;MIT;YES;NONE;https://github.com/coobird/thumbnailator;https://opensource.org/licenses/mit-license.php;NONE
-udunits;Units support;Unidata;NetCDF C library license (MIT-style) ;YES;NONE;https://www.unidata.ucar.edu/software/udunits/;http://www.unidata.ucar.edu/software/netcdf/copyright.html;NONE
-velocity;Template engine;velocity;Apache License;YES;NONE;http://velocity.apache.org/;https://www.apache.org/licenses/;NONE
-weka-dev;Machine Learning;weka;GPL3;YES;NONE;https://www.cs.waikato.ac.nz/ml/weka/index.html;http://www.gnu.org/licenses/gpl-3.0.en.html;NONE
-werken-xpath;XML handling;werken-xpath;BSD Style;YES;NONE;https://sourceforge.net/projects/werken-xpath/;http://hsqldb.org/web/hsqlLicense.html;NONE
-woodstox;XML handling;woodstox;Apache License or BSD;YES;not maintained anymore;https://github.com/codehaus/woodstox;NONE;NONE
-xerces;XML handling;Xerces;Apache License;YES;NONE;http://xerces.apache.org/xerces2-j/;https://www.apache.org/licenses/;NONE
-xml-commons;XML handling;xml-commons;Apache License;YES;NONE;http://xerces.apache.org/xml-commons/;https://www.apache.org/licenses/;NONE
-xmlpull;XML handling;xmlpull;public-domain;YES;NONE;http://www.xmlpull.org/;https://en.wikipedia.org/wiki/Public-domain_software;NONE
-xpp3;XML handling;MXP;Public Domain;YES;NONE;http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/;https://mvnrepository.com/artifact/xpp3/xpp3;NONE
-xsd;XML handling;eclipse xsd;Eclipse Public License;YES;NONE;http://www.eclipse.org/modeling/mdt/downloads/?project=xsd;https://projects.eclipse.org/content/eclipse-public-license-1.0;NONE
-xstream;XML handling;Xstream;BSD License;YES;NONE;http://x-stream.github.io/;http://x-stream.github.io/license.html;NONE
-xz;Data compression;Tukaani;public-domain;YES;NONE;http://tukaani.org/xz/java.html;https://en.wikipedia.org/wiki/Public-domain_software;NONE
-worldwind;Globe visualisation;NASA;NASA OPEN SOURCE AGREEMENT;No;http://directory.fsf.org/wiki/License:NASA-OSA_v1.3 https://en.wikipedia.org/wiki/NASA_Open_Source_Agreement;http://worldwind.arc.nasa.gov/java;https://github.com/NASAWorldWind/WorldWindJava/blob/develop/LICENSE.txt;NONE
-javahelp;User Help;ORACLE;GPL;YES;Versions till 2.0.05 (which we use) are licensed under GPL and therfore compatible.;https://javaee.github.io/javahelp/;https://en.wikipedia.org/wiki/JavaHelp;NONE
-gluegen;Generate code to call C libraries;Gluegen;BSD-2-Clause;YES;NONE;https://jogamp.org/gluegen/www/;http://opensource.org/licenses/BSD-2-Clause;NONE
-JOGL;Java Binding for the OpenGL;JOGL;BSD-2-Clause;YES;NONE;https://jogamp.org/jogl/www/;http://opensource.org/licenses/BSD-2-Clause;NONE
-netbeans;Application platform;NetBeans;GPLv2 or CDDL;YES;NONE;https://netbeans.org/features/platform/index.html;https://netbeans.org/about/legal/product-licences.html;NONE
-asm;Bytecode manipulation;ASM;BSD 3 Clause;YES;NONE;https://asm.ow2.io/;http://opensource.org/licenses/BSD-3-Clause;NONE
-animal-sniffer-annotations;Animal Sniffer Annotations provides Java 1.5+ annotations which allow marking methods which Animal Sniffer should ignore signature violations of;Mojohaus;MIT license;YES;NONE;https://github.com/mojohaus/;http://www.opensource.org/licenses/mit-license.php;NONE
-apache-mime4j-core;Parser for e-mail message streams in plain rfc822 and MIME format;Apache;The Apache Software License, Version 2.0;YES;NONE;http://james.apache.org/mime4j/apache-mime4j-core/;http://www.apache.org/licenses/LICENSE-2.0.txt;NONE
-error_prone_annotations;Catch common Java mistakes as compile-time errors;Google;Apache 2.0;YES;NONE;https://github.com/google/error-prone;http://www.apache.org/licenses/LICENSE-2.0.txt;NONE
-j2objc-annotations;J2ObjC is an open-source command-line tool from Google that translates Java source code to Objective-C for the iOS (iPhone/iPad) platform;Google;The Apache Software License, Version 2.0;YES;NONE;https://github.com/google/j2objc/;http://www.apache.org/licenses/LICENSE-2.0.txt;NONE
-jblas;Fast linear algebra library for Java;jblas;BSD 3-clause style license;YES;NONE;https://github.com/mikiobraun/jblas;http://opensource.org/licenses/BSD-3-Clause;NONE
-jdom2;Accessing, manipulating, and outputting XML data from Java code;jdom;Similar to Apache License but with the acknowledgment clause removed;NONE;NONE;http://www.jdom.org/;https://raw.github.com/hunterhacker/jdom/master/LICENSE.txt;NONE
-je;Provides cursor based data access;oracle;Sleepycat License;YES;NONE;https://docs.oracle.com/cd/E17277_02/html/GettingStartedGuide/applicationoverview.html;http://download.oracle.com/maven/com/sleepycat/je/license.txt;NONE
-jlinda-core;Java Library for Interferometric Data Analysis;jlinda;GNU General Public License (GPL);YES;NONE;https://github.com/ppolabs/jlinda;http://www.gnu.org/licenses/gpl.html;NONE
-jlinda-nest;Java Library for Interferometric Data Analysis;jlinda;GNU General Public License (GPL);YES;NONE;https://github.com/ppolabs/jlinda;http://www.gnu.org/licenses/gpl.html;NONE
-jlinda-nest-ui;Java Library for Interferometric Data Analysis;jlinda;GNU General Public License (GPL);YES;NONE;NONE;http://www.gnu.org/licenses/gpl.html;NONE
-jsr305;Annotations for Software Defect Detection;???;The Apache Software License, Version 2.0;YES;NONE;https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305;http://www.apache.org/licenses/LICENSE-2.0.txt;NONE
-lucene;Text search engine library;Apache;The Apache Software License, Version 2.0;YES;NONE;https://lucene.apache.org/core/;http://www.apache.org/licenses/LICENSE-2.0.txt;NONE
-mlibwrapper-jai;NONE;Oracle;Copyright Sun Microsystems.  JAI Licence or JAVA RESEARCH LICENSE�;YES;NONE;http://www.oracle.com/technetwork/java/readme-1-1-1-142238.html;NONE;NONE
-prefuse-core;A toolkit for building interactive information visualization applications. ;Prefuse;BSD 3-clause;YES;NONE;http://prefuse.org/;http://prefuse.org/license-prefuse.txt;NONE
-stax2-api;Stax2 API is an extension to standard Stax API ('STandard Api for Xml procesing'), pull-parser API of JDK, added in JDK 6.;FasterXML;The BSD License;YES;NONE;https://github.com/FasterXML/stax2-api;http://www.opensource.org/licenses/bsd-license.php;NONE
-trove4j;GNU Trove: High performance collections for Java;Trove4j;GNU Lesser General Public License 2.1;YES;NONE;https://bitbucket.org/trove4j/trove;http://www.gnu.org/licenses/lgpl-2.1.txt;NONE
-xml-apis;XML handling;Apache;Apache 2.0 and W3C;YES;NONE;http://xml.apache.org/commons/;http://www.apache.org/licenses/LICENSE-2.0;NONE
-httpclient;Toolset for http protocol;Apache;Apache License;YES;NONE;http://hc.apache.org/;https://www.apache.org/licenses/;NONE
-Jtar;TAR library;jtar;Apache License;YES;NONE;https://code.google.com/archive/p/jtar/;https://www.apache.org/licenses/;NONE
-bouncycastle;Cryptography;bouncycastle;MIT;YES;NONE;http://www.bouncycastle.org/java.html;https://opensource.org/licenses/mit-license.php;NONE
-jewelCli;Command line interface;lexicalscope;Apache License;YES;NONE;http://jewelcli.lexicalscope.com/;https://www.apache.org/licenses/;NONE
-iText;PDF Library;lowagie;MPL;YES;NONE;http://www.lowagie.com/iText/;https://www.mozilla.org/en-US/MPL/;NONE
+Name;Description / Use;IPR owner;License;IPR URL;License URL
+abdera;Atom client;Apache;Apache License;http://abdera.apache.org/;https://www.apache.org/licenses/
+Abeel Java Toolkit (ajt);Used for classification;Thomas Abeel;LGPLv3;http://www.gnu.de/documents/lgpl.de.html;http://www.gnu.de/documents/lgpl.de.html
+animal-sniffer-annotations;Animal Sniffer Annotations;Mojohaus;MIT license;https://github.com/mojohaus/;http://www.opensource.org/licenses/mit-license.php
+Apache Commons;Common libraries;Apache;Apache License;http://commons.apache.org/;https://www.apache.org/licenses/
+apache-mime4j-core;Parser for e-mail message streams;Apache;The Apache Software License, Version 2.0;http://james.apache.org/mime4j/apache-mime4j-core/;http://www.apache.org/licenses/LICENSE-2.0.txt
+asm;Bytecode manipulation;ASM;BSD 3 Clause;https://asm.ow2.io/;http://opensource.org/licenses/BSD-3-Clause
+axiom;XML handling;axoim;Apache License;https://ws.apache.org/axiom/;https://www.apache.org/licenses/
+Berkeley DB Java Edition;DB Library;Oracle;Apache License;http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index.html;https://www.apache.org/licenses/
+bounce;Java helpers;bounce;BSD 3 Clause;http://www.edankert.com/bounce/;http://opensource.org/licenses/BSD-3-Clause
+bouncycastle;Cryptography;bouncycastle;MIT;http://www.bouncycastle.org/java.html;https://opensource.org/licenses/mit-license.php
+c3p0;Augmenting JDBC drivers;c3p0;LGPLv2;https://sourceforge.net/projects/c3p0/;http://www.gnu.de/documents/lgpl-2.1.de.html
+clibwrapper-jiio;JAI Image IO (native);Oracle;SUN License / BSD License;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html
+derby;database;Derby;Apache License;http://db.apache.org/derby/;https://www.apache.org/licenses/
+ehcache;Caching;EHCache;Apache License;http://ehcache.org/;https://www.apache.org/licenses/
+EJML;Matrix library;Google;Apache License;https://code.google.com/archive/p/efficient-java-matrix-library/;https://www.apache.org/licenses/
+emf;Modelling Framework;eclipse emf;Eclipse Public License;https://projects.eclipse.org/projects/modeling.emf.emf;https://projects.eclipse.org/content/eclipse-public-license-1.0
+error_prone_annotations;Catch common Java mistakes as compile-time errors;Google;Apache 2.0;https://github.com/google/error-prone;http://www.apache.org/licenses/LICENSE-2.0.txt
+F2J;Fortran-to-Java BLAS/LAPACK;F2J;BSD Style;http://icl.cs.utk.edu/f2j/;http://icl.cs.utk.edu/f2j/software/index.html
+GeographicLib-Java;Geographic calculation;GeographicLib;MIT;https://sourceforge.net/projects/geographiclib/;https://opensource.org/licenses/mit-license.php
+geotools;Tools for working with geo-data;GeoTools;LGPLv2;http://www.geotools.org/;http://docs.geotools.org/latest/userguide/welcome/license.html
+geronimo;Server;Geronimo;Apache License;http://geronimo.apache.org/;https://www.apache.org/licenses/
+gluegen;Generate code to call C libraries;Gluegen;BSD-2-Clause;https://jogamp.org/gluegen/www/;http://opensource.org/licenses/BSD-2-Clause
+Gson ;Json IO;Google;Apache License;https://github.com/google/gson;https://www.apache.org/licenses/
+Guava;General Library for Java;Google;Apache License;https://github.com/google/guava;https://www.apache.org/licenses/
+hamcrest;Testing framework;Hamcrest;BSD 3 Clause;http://hamcrest.org/;http://opensource.org/licenses/BSD-3-Clause
+hsqldb;database;http://hsqldb.org/;BSD Style;http://hsqldb.org/;http://hsqldb.org/web/hsqlLicense.html
+httpclient;Toolset for http protocol;Apache;Apache License;http://hc.apache.org/;https://www.apache.org/licenses/
+ImageIO-EXT;ImageIO extensions;GeoSolutions;Apache License;https://github.com/geosolutions-it/imageio-ext;https://www.apache.org/licenses/
+iText;PDF Library;lowagie;MPL;http://www.lowagie.com/iText/;https://www.mozilla.org/en-US/MPL/
+j2objc-annotations;J2ObjC is an open-source command-line tool from Google that translates Java source code to Objective-C for the iOS (iPhone/iPad) platform;Google;The Apache Software License, Version 2.0;https://github.com/google/j2objc/;http://www.apache.org/licenses/LICENSE-2.0.txt
+JAI;Java Advanced Imaging;Oracle;Sun Binary License;http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-java-client-419417.html;https://download.java.net/media/jai/builds/release/1_1_3/LICENSE-jai.txt
+JAI-ext;JAI extensions;GeoSolutions;Apache License;https://github.com/geosolutions-it/jai-ext;https://www.apache.org/licenses/
+JAI-imageio;JAI Image IO;Oracle;SUN License / BSD License;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html;http://www.oracle.com/technetwork/java/install-jai-imageio-1-0-01-139659.html
+JAI-tools;Tools for jai;jaitools;BSD 3 Clause;https://code.google.com/archive/p/jaitools/;http://opensource.org/licenses/BSD-3-Clause
+Jama;Linear algebra;Jama;public-domain;https://math.nist.gov/javanumerics/jama/;https://en.wikipedia.org/wiki/Public-domain_software
+James;Mail server;James;Apache License;https://james.apache.org/;https://www.apache.org/licenses/
+JASYPT;Encryption;JASYPT;Apache License;http://www.jasypt.org/;https://www.apache.org/licenses/
+Java SE JRE;Java Runtime;Oracle;Oracle Binary Code License;http://www.oracle.com/technetwork/java/javase/overview/index.html;http://www.oracle.com/technetwork/java/javase/terms/license/index.html
+java-cup-11b;LALR parser generator;cup;BSD Style;http://www2.cs.tum.edu/projects/cup/;http://www2.cs.tum.edu/projects/cup/licence.php
+javahelp;User Help;ORACLE;GPL;https://javaee.github.io/javahelp/;https://en.wikipedia.org/wiki/JavaHelp
+javaml;Machine leatning;Java Machine Learning;GPLv2;http://java-ml.sourceforge.net/;https://sourceforge.net/p/java-ml/java-ml-code/ci/master/tree/legal/license.txt
+Javassist;Bytecode manipulation;Javassist;Apache License;http://jboss-javassist.github.io/javassist/;https://www.apache.org/licenses/
+Jaxen;XPath Engine;Jaxen;BSD 3 Clause;http://www.cafeconleche.org/jaxen;http://opensource.org/licenses/BSD-3-Clause
+jblas;Fast linear algebra library for Java;jblas;BSD 3-clause style license;https://github.com/mikiobraun/jblas;http://opensource.org/licenses/BSD-3-Clause
+JCIP;Included By 3rd party;http://jcip.net/;None;http://jcip.net/;NONE
+jcommon;Utils;jfree;LGPLv3;NONE;https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl/2.6.12
+jcoord;Coord transformation;jcoord;GPLv2;http://www.jstott.me.uk/jcoord/;http://www.jstott.me.uk/gpl/
+jdom;XML handling;jdom;Apache License;http://jdom.org/;https://www.apache.org/licenses/
+jdom2;Accessing, manipulating, and outputting XML data from Java code;jdom;Similar to Apache License but with the acknowledgment clause removed;http://www.jdom.org/;https://raw.github.com/hunterhacker/jdom/master/LICENSE.txt
+je;Provides cursor based data access;oracle;Sleepycat License;https://docs.oracle.com/cd/E17277_02/html/GettingStartedGuide/applicationoverview.html;http://download.oracle.com/maven/com/sleepycat/je/license.txt
+jewelCli;Command line interface;lexicalscope;Apache License;http://jewelcli.lexicalscope.com/;https://www.apache.org/licenses/
+jexcelapi;Excel files;jexcelapi;LGPLv3;http://jexcelapi.sourceforge.net/;https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl/2.6.12
+jfreechart;Plot library;jfree;LGPLv3;NONE;https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl/2.6.12
+jgridshift;Transformations;jgridshift;LGPLv2;http://jgridshift.sourceforge.net/;http://www.gnu.de/documents/lgpl-2.1.de.html
+jhdf / jhdf5;HDF(5) support;HDF Group;BSD Style;https://portal.hdfgroup.org/display/support/HDF-Java;https://bitbucket.hdfgroup.org/projects/HDFVIEW/repos/hdfview/browse/COPYING?raw
+JIDE Common;GUI library;Jidesoft;GPL with classpath exception ;http://jidesoft.com/;http://openjdk.java.net/legal/gplv2+ce.html
+Jimfs;In-memory file system;Google;Apache License;https://github.com/google/jimfs;https://www.apache.org/licenses/
+jlinda-core;Java Library for Interferometric Data Analysis;jlinda;GNU General Public License (GPL);https://github.com/ppolabs/jlinda;http://www.gnu.org/licenses/gpl.html
+jlinda-nest;Java Library for Interferometric Data Analysis;jlinda;GNU General Public License (GPL);https://github.com/ppolabs/jlinda;http://www.gnu.org/licenses/gpl.html
+jlinda-nest-ui;Java Library for Interferometric Data Analysis;jlinda;GNU General Public License (GPL);NONE;http://www.gnu.org/licenses/gpl.html
+JNA;Native library access;JNA;LGPLv2;https://github.com/java-native-access/jna;http://www.gnu.de/documents/lgpl-2.1.de.html
+Jniloader;Native lib loader;Sam Halliday;LGPLv3;https://gitlab.com/fommil/attic/tree/master/jniloader;http://www.gnu.de/documents/lgpl.de.html
+JNN;Java Neural Net;Brockmann Consult;MIT;https://github.com/bcdev/jnn;https://opensource.org/licenses/mit-license.php
+joda-time;Date and time handling;Joda;Apache License;http://www.joda.org/joda-time/;https://www.apache.org/licenses/
+JOGL;Java Binding for the OpenGL;JOGL;BSD-2-Clause;https://jogamp.org/jogl/www/;http://opensource.org/licenses/BSD-2-Clause
+jpy;Java-Python bridge;Brockmann Consult;Apache License;https://github.com/bcdev/jpy;https://www.apache.org/licenses/
+jsoup;Html parser;https://jsoup.org/;MIT;https://jsoup.org/;https://opensource.org/licenses/mit-license.php
+jsr275;Units and measurements;???;BSD Style;https://mvnrepository.com/artifact/net.java.dev.jsr-275/jsr-275;https://bitbucket.hdfgroup.org/projects/HDFVIEW/repos/hdfview/browse/COPYING?raw
+jsr305;Annotations for Software Defect Detection;???;The Apache Software License, Version 2.0;https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305;http://www.apache.org/licenses/LICENSE-2.0.txt
+Jtar;TAR library;jtar;Apache License;https://code.google.com/archive/p/jtar/;https://www.apache.org/licenses/
+Jtransforms;Fourier transformations;Piotr Wendykier;BSD-2-Clause;https://sites.google.com/site/piotrwendykier/software/jtransforms;http://opensource.org/licenses/BSD-2-Clause
+JTS;Topology Suite;JTS;http://jgridshift.sourceforge.net/;https://sourceforge.net/projects/jts-topo-suite/;NONE
+junit;Unit level test support;Junit;Apache License / Eclipse Public License;http://junit.org/;https://github.com/junit-team/junit5/blob/master/LICENSE.md
+Jython;Python for Java;Jython;PSF License;NONE;http://www.jython.org/license.html
+libsvm;Support Vector Machines;LIBSVM ;BSD 3 Clause;NONE;http://opensource.org/licenses/BSD-3-Clause
+lucene;Text search engine library;Apache;The Apache Software License, Version 2.0;https://lucene.apache.org/core/;http://www.apache.org/licenses/LICENSE-2.0.txt
+matrix-toolkits-java ;Matrix library;Sam Halliday;LGPLv3;https://gitlab.com/fommil/attic/tree/master/jniloader;http://www.gnu.de/documents/lgpl.de.html
+mlibwrapper-jai;NONE;Oracle;Copyright Sun Microsystems.  JAI Licence or JAVA RESEARCH LICENSE;http://www.oracle.com/technetwork/java/readme-1-1-1-142238.html;NONE
+mockito;Testing framework;mockito;MIT;http://site.mockito.org/;https://opensource.org/licenses/mit-license.php
+netbeans;Application platform;NetBeans;GPLv2 or CDDL;https://netbeans.org/features/platform/index.html;https://netbeans.org/about/legal/product-licences.html
+NetCDF-Java;NetCDF IO;Unidata;NetCDF C library license (MIT-style) ;http://www.unidata.ucar.edu/software/netcdf-java/documentation.htm;http://www.unidata.ucar.edu/software/netcdf/copyright.html
+netlib;Linear algebra;Sam Halliday;BSD 3 Clause;https://gitlab.com/fommil/attic/tree/master/jniloader;http://opensource.org/licenses/BSD-3-Clause
+nujan;NetCDF java writing;NCAR RAL;Modified MIT License;https://ral.ucar.edu/;NONE
+Objenesis;Class instantiation;Objenesis;Apache License;http://objenesis.org/;https://www.apache.org/licenses/
+olingo;Open Data Protocol;olingo;Apache License;http://olingo.apache.org/;https://www.apache.org/licenses/
+oro;Text processing;ORO;Apache License;http://jakarta.apache.org/oro/;https://www.apache.org/licenses/
+picocontainer;class instantiation;picocontainer;BSD-2-Clause;http://picocontainer.com/;http://opensource.org/licenses/BSD-2-Clause
+powermock;Testing framework;PowerMock;Apache License;http://powermock.github.io/;https://www.apache.org/licenses/
+prefuse-core;A toolkit for building interactive information visualization applications;Prefuse;BSD 3-clause;http://prefuse.org/;http://prefuse.org/license-prefuse.txt
+protobuf;Protocol Buffers ;Google;BSD 3 Clause;https://github.com/google/protobuf;http://opensource.org/licenses/BSD-3-Clause
+quartz;Job scheduler;quartz-scheduler;Apache License;http://www.quartz-scheduler.org/;https://www.apache.org/licenses/
+rhino;Java script engine;Rhino;Mozilla Public License;http://www.mozilla.org/rhino/;https://github.com/mozilla/rhino/blob/master/LICENSE.txt
+sevenzipjbinding;Compression library;sevenzipjbinding;LGPLv2;http://sevenzipjbind.sourceforge.net/;https://github.com/borisbrodski/sevenzipjbinding/blob/master/License.txt
+sl4j;Logging;slf4j;MIT;http://www.slf4j.org/;https://opensource.org/licenses/mit-license.php
+stax2-api;Stax2 API is an extension to standard Stax API ('STandard Api for Xml procesing'), pull-parser API of JDK, added in JDK 6.;FasterXML;The BSD License;https://github.com/FasterXML/stax2-api;http://www.opensource.org/licenses/bsd-license.php
+swingx;GUI library;SwingX;LGPLv3;https://en.wikipedia.org/wiki/SwingLabs;https://www.gnu.org/licenses/lgpl-3.0.en.html
+thumbnailator;Image scaling;Coobird;MIT;https://github.com/coobird/thumbnailator;https://opensource.org/licenses/mit-license.php
+trove4j;GNU Trove: High performance collections for Java;Trove4j;GNU Lesser General Public License 2.1;https://bitbucket.org/trove4j/trove;http://www.gnu.org/licenses/lgpl-2.1.txt
+udunits;Units support;Unidata;NetCDF C library license (MIT-style) ;https://www.unidata.ucar.edu/software/udunits/;http://www.unidata.ucar.edu/software/netcdf/copyright.html
+velocity;Template engine;velocity;Apache License;http://velocity.apache.org/;https://www.apache.org/licenses/
+weka-dev;Machine Learning;weka;GPL3;https://www.cs.waikato.ac.nz/ml/weka/index.html;http://www.gnu.org/licenses/gpl-3.0.en.html
+werken-xpath;XML handling;werken-xpath;BSD Style;https://sourceforge.net/projects/werken-xpath/;http://hsqldb.org/web/hsqlLicense.html
+woodstox;XML handling;woodstox;Apache License or BSD;https://github.com/codehaus/woodstox;NONE
+worldwind;Globe visualisation;NASA;NASA OPEN SOURCE AGREEMENT;http://worldwind.arc.nasa.gov/java;https://github.com/NASAWorldWind/WorldWindJava/blob/develop/LICENSE.txt
+xerces;XML handling;Xerces;Apache License;http://xerces.apache.org/xerces2-j/;https://www.apache.org/licenses/
+xml-apis;XML handling;Apache;Apache 2.0 and W3C;http://xml.apache.org/commons/;http://www.apache.org/licenses/LICENSE-2.0
+xml-commons;XML handling;xml-commons;Apache License;http://xerces.apache.org/xml-commons/;https://www.apache.org/licenses/
+xmlpull;XML handling;xmlpull;public-domain;http://www.xmlpull.org/;https://en.wikipedia.org/wiki/Public-domain_software
+xpp3;XML handling;MXP;Public Domain;http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/;https://mvnrepository.com/artifact/xpp3/xpp3
+xsd;XML handling;eclipse xsd;Eclipse Public License;http://www.eclipse.org/modeling/mdt/downloads/?project=xsd;https://projects.eclipse.org/content/eclipse-public-license-1.0
+xstream;XML handling;Xstream;BSD License;http://x-stream.github.io/;http://x-stream.github.io/license.html
+xz;Data compression;Tukaani;public-domain;http://tukaani.org/xz/java.html;https://en.wikipedia.org/wiki/Public-domain_software

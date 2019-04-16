@@ -773,7 +773,11 @@
         <!-- Maven plugin configurations common to all SNAP modules -->
         <pluginManagement>
             <plugins>
-
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.19</version>
+                </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.5.1</version>
@@ -850,7 +854,7 @@
 
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.7</version>
+                    <version>3.1.0</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                     </configuration>
@@ -885,7 +889,9 @@
                         <subpackages>org.esa.snap.core:com.bc.ceres</subpackages>
                         <!-- Not possible to exclude packages; it is not considered by the plugin (as of v2.10.3, 18.11.2015) -->
                         <!--<excludePackageNames>org.esa.snap.core.gpf.internal:*.internal:*.impl:*.experimental</excludePackageNames>-->
-                        <additionalparam>-exclude com.bc.ceres.core.runtime:com.bc.ceres.swing:org.esa.snap.core.param.validators:org.esa.snap.core.param.editors:org.esa.snap.core.param:org.esa.snap.core.draw:org.esa.snap.core.dataop.projection:com.bc.ceres.binio.internal:com.bc.ceres.compiler:com.bc.ceres.swing.binding.internal:com.bc.ceres.core.runtime.internal:com.bc.ceres.jai.js:com.bc.ceres.launcher:com.bc.ceres.launcher.internal:com.bc.ceres.metadata:com.bc.ceres.nbmgen:com.bc.ceres.resource:com.bc.ceres.standalone:org.esa.snap.core.dataop.downloadable:org.esa.snap.core.dataop.maptransf.geotools:org.esa.snap.core.dataop.maptransf:org.esa.snap.core.gpf.doclet:org.esa.snap.core.gpf.internal:org.esa.snap.core.gpf.experimental:org.esa.snap.core.gpf.operators.tooladapter:org.esa.snap.core.jexp.impl</additionalparam>
+                        <additionalparam>-exclude
+                            com.bc.ceres.core.runtime:com.bc.ceres.swing:org.esa.snap.core.param.validators:org.esa.snap.core.param.editors:org.esa.snap.core.param:org.esa.snap.core.draw:org.esa.snap.core.dataop.projection:com.bc.ceres.binio.internal:com.bc.ceres.compiler:com.bc.ceres.swing.binding.internal:com.bc.ceres.core.runtime.internal:com.bc.ceres.jai.js:com.bc.ceres.launcher:com.bc.ceres.launcher.internal:com.bc.ceres.metadata:com.bc.ceres.nbmgen:com.bc.ceres.resource:com.bc.ceres.standalone:org.esa.snap.core.dataop.downloadable:org.esa.snap.core.dataop.maptransf.geotools:org.esa.snap.core.dataop.maptransf:org.esa.snap.core.gpf.doclet:org.esa.snap.core.gpf.internal:org.esa.snap.core.gpf.experimental:org.esa.snap.core.gpf.operators.tooladapter:org.esa.snap.core.jexp.impl
+                        </additionalparam>
                         <maxmemory>512M</maxmemory>
                         <doctitle>SNAP Engine API</doctitle>
                         <windowtitle>SNAP Engine API</windowtitle>
@@ -897,11 +903,15 @@
                         <groups>
                             <group>
                                 <title>Most important API</title>
-                                <packages>org.esa.snap.core.datamodel:org.esa.snap.core.dataio:org.esa.snap.core.gpf:org.esa.snap.core.gpf.pointop:org.esa.snap.core.gpf.annotations</packages>
+                                <packages>
+                                    org.esa.snap.core.datamodel:org.esa.snap.core.dataio:org.esa.snap.core.gpf:org.esa.snap.core.gpf.pointop:org.esa.snap.core.gpf.annotations
+                                </packages>
                             </group>
                             <group>
                                 <title>Frequently used API</title>
-                                <packages>org.esa.snap.core.util:org.esa.snap.core.image:org.esa.snap.core.layer:org.esa.snap.core.jexp:org.esa.snap.python:org.esa.snap.python.gpf</packages>
+                                <packages>
+                                    org.esa.snap.core.util:org.esa.snap.core.image:org.esa.snap.core.layer:org.esa.snap.core.jexp:org.esa.snap.python:org.esa.snap.python.gpf
+                                </packages>
                             </group>
                             <group>
                                 <title>Low-Level API</title>
@@ -910,7 +920,6 @@
                         </groups>
                     </configuration>
                 </plugin>
-
                 <plugin>
                     <artifactId>maven-surefire-report-plugin</artifactId>
                     <version>3.0.0-M3</version>
