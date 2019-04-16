@@ -1935,6 +1935,164 @@ public class Product extends ProductNode {
 //        return filename;
 //    }
 
+    /**
+     * Creates a string containing all available information at the given pixel position. The string returned is a line
+     * separated text with each line containing a key/value pair.
+     *
+     * @param pixelX the pixel X co-ordinate
+     * @param pixelY the pixel Y co-ordinate
+     * @return the info string at the given position
+     */
+    public String createPixelInfoString(final int pixelX, final int pixelY) {
+        final StringBuilder sb = new StringBuilder(1024);
+
+        sb.append("Product:\t");
+        sb.append(getName()).append("\n\n");
+
+        sb.append("Image-X:\t");
+        sb.append(pixelX);
+        sb.append("\tpixel\n");
+
+        sb.append("Image-Y:\t");
+        sb.append(pixelY);
+        sb.append("\tpixel\n");
+
+        if (getSceneGeoCoding() != null) {
+            final PixelPos pt = new PixelPos(pixelX + 0.5f, pixelY + 0.5f);
+            final GeoPos geoPos = getSceneGeoCoding().getGeoPos(pt, null);
+
+            sb.append("Longitude:\t");
+            sb.append(geoPos.getLonString());
+            sb.append("\tdegree\n");
+
+            sb.append("Latitude:\t");
+            sb.append(geoPos.getLatString());
+            sb.append("\tdegree\n");
+
+            if (getSceneGeoCoding() instanceof MapGeoCoding) {
+                final MapGeoCoding mapGeoCoding = (MapGeoCoding) getSceneGeoCoding();
+                final MapProjection mapProjection = mapGeoCoding.getMapInfo().getMapProjection();
+                final MapTransform mapTransform = mapProjection.getMapTransform();
+                final Point2D mapPoint = mapTransform.forward(geoPos, null);
+                final String mapUnit = mapProjection.getMapUnit();
+
+                sb.append("Map-X:\t");
+                sb.append(mapPoint.getX());
+                sb.append("\t").append(mapUnit).append("\n");
+
+                sb.append("Map-Y:\t");
+                sb.append(mapPoint.getY());
+                sb.append("\t").append(mapUnit).append("\n");
+            }
+        }
+
+        if (pixelX >= 0 && pixelX < getSceneRasterWidth()
+                && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
+
+            sb.append("\n");
+
+            boolean haveSpectralBand = false;
+            for (final Band band : getBands()) {
+                if (band.getSpectralWavelength() > 0.0) {
+                    haveSpectralBand = true;
+                    break;
+                }
+            }
+
+            if (haveSpectralBand) {
+                sb.append("BandName\tWavelength\tUnit\tBandwidth\tUnit\tValue\tUnit\tSolar Flux\tUnit\n");
+            } else {
+                sb.append("BandName\tValue\tUnit\n");
+            }
+            for (final Band band : getBands()) {
+                sb.append(band.getName());
+                sb.append(":\t");
+                if (band.getSpectralWavelength() > 0.0) {
+                    sb.append(band.getSpectralWavelength());
+                    sb.append("\t");
+                    sb.append("nm");
+                    sb.append("\t");
+                    sb.append(band.getSpectralBandwidth());
+                    sb.append("\t");
+                    sb.append("nm");
+                    sb.append("\t");
+                } else {
+                    if (haveSpectralBand) {
+                        sb.append("\t");
+                        sb.append("\t");
+                        sb.append("\t");
+                        sb.append("\t");
+                    }
+                }
+                sb.append(band.getPixelString(pixelX, pixelY));
+                sb.append("\t");
+                if (band.getUnit() != null) {
+                    sb.append(band.getUnit());
+                }
+                sb.append("\t");
+                final float solarFlux = band.getSolarFlux();
+                if (solarFlux > 0.0) {
+                    sb.append(solarFlux);
+                    sb.append("\t");
+                    sb.append("mW/(m^2*nm)");
+                    sb.append("\t");
+                }
+                sb.append("\n");
+            }
+
+            sb.append("\n");
+            for (int i = 0; i < getNumTiePointGrids(); i++) {
+                final TiePointGrid grid = getTiePointGridAt(i);
+                if (grid.hasRasterData()) {
+                    sb.append(grid.getName());
+                    sb.append(":\t");
+                    sb.append(grid.getPixelString(pixelX, pixelY));
+                    if (grid.getUnit() != null) {
+                        sb.append("\t");
+                        sb.append(grid.getUnit());
+                    }
+
+                    sb.append("\n");
+                }
+            }
+
+            for (int i = 0; i < getNumBands(); i++) {
+                final Band band = getBandAt(i);
+                final FlagCoding flagCoding = band.getFlagCoding();
+                if (flagCoding != null) {
+                    boolean ioException = false;
+                    final int[] flags = new int[1];
+                    if (band.hasRasterData()) {
+                        flags[0] = band.getPixelInt(pixelX, pixelY);
+                    } else {
+                        try {
+                            band.readPixels(pixelX, pixelY, 1, 1, flags, ProgressMonitor.NULL);
+                        } catch (IOException e) {
+                            ioException = true;
+                        }
+                    }
+                    sb.append("\n");
+                    if (ioException) {
+                        sb.append(RasterDataNode.IO_ERROR_TEXT);
+                    } else {
+                        for (int j = 0; j < flagCoding.getNumAttributes(); j++) {
+                            final MetadataAttribute flagAttr = flagCoding.getAttributeAt(j);
+                            final int mask = flagAttr.getData().getElemInt();
+                            final boolean flagSet = (flags[0] & mask) == mask;
+                            sb.append(band.getName());
+                            sb.append(".");
+                            sb.append(flagAttr.getName());
+                            sb.append(":\t");
+                            sb.append(flagSet ? "true" : "false");
+                            sb.append("\n");
+                        }
+                    }
+                }
+            }
+        }
+
+        return sb.toString();
+    }
 
     /**
      * Creates a string containing all available information at the given pixel position in the given raster.
