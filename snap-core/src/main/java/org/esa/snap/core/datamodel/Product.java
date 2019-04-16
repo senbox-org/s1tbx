@@ -1942,7 +1942,7 @@ public class Product extends ProductNode {
      *
      * @param pixelX      the pixel X co-ordinate in the given raster
      * @param pixelY      the pixel Y co-ordinate in the given raster
-     * @param raster      raster where the pixel (X, Y) where read
+     * @param raster      raster reference for the pixel position
      * @return the info string at the given position
      */
     public String createPixelInfoString(final int pixelX, final int pixelY,
