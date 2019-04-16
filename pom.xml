@@ -745,6 +745,7 @@
             </plugins>
         </pluginManagement>
 
+        
 		<plugins>
 			<plugin>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -758,6 +759,12 @@
                         </fileset>
                     </filesets>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.19</version>
             </plugin>
 
             <plugin>
