@@ -12,13 +12,11 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
- * @see org.esa.snap.python.gpf.PyOperatorSpiTest
+ * see org.esa.snap.python.gpf.PyOperatorSpiTest
  */
 public class PluginActivatorTest {
 
