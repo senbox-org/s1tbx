@@ -107,16 +107,16 @@ public class CfGeocodingPart extends ProfilePartIO {
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final boolean latLonPresent = isLatLonPresent(ncFile);
         if (!latLonPresent) {
+            latVarName = "lat";
+            lonVarName = "lon";
             if (geographicCRS) {
                 final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
                 final int w = product.getSceneRasterWidth();
                 final int h = product.getSceneRasterHeight();
                 final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
-                latVarName = "lat";
-                lonVarName = "lon";
                 addGeographicCoordinateVariables(ncFile, ul, br, latVarName, lonVarName);
             } else {
-                addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product));
+                addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product), latVarName, lonVarName);
             }
             latLonVarsAddedByGeocoding = true;
         } else {
@@ -212,13 +212,14 @@ public class CfGeocodingPart extends ProfilePartIO {
         lon.addAttribute(Constants.VALID_MAX_ATT_NAME, br.getLon());
     }
 
-    private void addLatLonBands(final NFileWriteable ncFile, Dimension tileSize) throws IOException {
-        final NVariable lat = ncFile.addVariable("lat", DataType.DOUBLE, tileSize, "y x");
+    private void addLatLonBands(final NFileWriteable ncFile, Dimension tileSize,
+                                String latVarName, String lonVarName) throws IOException {
+        final NVariable lat = ncFile.addVariable(latVarName, DataType.DOUBLE, tileSize, "y x");
         lat.addAttribute("units", "degrees_north");
         lat.addAttribute("long_name", "latitude coordinate");
         lat.addAttribute("standard_name", "latitude");
 
-        final NVariable lon = ncFile.addVariable("lon", DataType.DOUBLE, tileSize, "y x");
+        final NVariable lon = ncFile.addVariable(lonVarName, DataType.DOUBLE, tileSize, "y x");
         lon.addAttribute("units", "degrees_east");
         lon.addAttribute("long_name", "longitude coordinate");
         lon.addAttribute("standard_name", "longitude");
