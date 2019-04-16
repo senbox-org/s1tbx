@@ -80,7 +80,7 @@ class HttpWalker implements VFSWalker {
     @Override
     public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
         // check if the address represents a directory
-        HttpURLConnection connection = HttpResponseHandler.buildConnection(new URL(address + "/"), "GET", null, this.username, this.password);
+        HttpURLConnection connection = HttpResponseHandler.buildConnection(new URL(address + (address.endsWith("/") ? "" : "/")), "GET", null, this.username, this.password);
         int responseCode = connection.getResponseCode();
         if (isValidResponseCode(responseCode)) {
             // the address represents a directory
