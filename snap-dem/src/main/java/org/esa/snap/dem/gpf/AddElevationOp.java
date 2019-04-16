@@ -100,7 +100,6 @@ public final class AddElevationOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
 
         try {
             if (!demName.contains(externalDEMStr)) {
@@ -138,6 +137,7 @@ public final class AddElevationOp extends Operator {
                 if (!targetProduct.containsBand((band.getName()))) {
                     final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
                     targetBand.setSourceImage(band.getSourceImage());
+                    ProductUtils.copyImageGeometry(band,targetBand,true);
                 }
             }
         }
