@@ -62,6 +62,7 @@ import org.opengis.referencing.operation.MathTransform;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -1934,7 +1935,6 @@ public class Product extends ProductNode {
 //        return filename;
 //    }
 
-
     /**
      * Creates a string containing all available information at the given pixel position. The string returned is a line
      * separated text with each line containing a key/value pair.
@@ -2092,6 +2092,235 @@ public class Product extends ProductNode {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Creates a string containing all available information at the given pixel position in the given raster.
+     * The string returned is a line separated text with each line containing a key/value pair.
+     *
+     * @param pixelX      the pixel X co-ordinate in the given raster
+     * @param pixelY      the pixel Y co-ordinate in the given raster
+     * @param raster      raster reference for the pixel position
+     * @return the info string at the given position
+     */
+    public String createPixelInfoString(final int pixelX, final int pixelY,
+                                        final RasterDataNode raster) {
+        final StringBuilder sb = new StringBuilder(1024);
+
+        final boolean isMultiSize = isMultiSize();
+
+        sb.append("Product:\t");
+        sb.append(getName()).append("\n\n");
+
+        if (!isMultiSize){
+            sb.append("Image-X:\t");
+            sb.append(pixelX);
+            sb.append("\tpixel\n");
+
+            sb.append("Image-Y:\t");
+            sb.append(pixelY);
+            sb.append("\tpixel\n");
+        } else {
+            // Add the raster name to the identification of the pixel
+            sb.append("Image-X." + raster.getName() +":\t");
+            sb.append(pixelX);
+            sb.append("\tpixel\n");
+
+            sb.append("Image-Y." + raster.getName() +":\t");
+            sb.append(pixelY);
+            sb.append("\tpixel\n");
+        }
+
+        // All the positions computations will be done at the centre of pixel cell
+        final PixelPos pixelPosRef = new PixelPos(pixelX + 0.5f, pixelY + 0.5f);
+
+        final GeoCoding rasterGeocoding = raster.getGeoCoding();
+        GeoPos geoPos = null;
+        if (rasterGeocoding != null) {
+            geoPos = rasterGeocoding.getGeoPos(pixelPosRef, null);
+
+            sb.append("Longitude:\t");
+            sb.append(geoPos.getLonString());
+            sb.append("\tdegree\n");
+
+            sb.append("Latitude:\t");
+            sb.append(geoPos.getLatString());
+            sb.append("\tdegree\n");
+
+            if (getSceneGeoCoding() instanceof MapGeoCoding) {
+                final MapGeoCoding mapGeoCoding = (MapGeoCoding) getSceneGeoCoding();
+                final MapProjection mapProjection = mapGeoCoding.getMapInfo().getMapProjection();
+                final MapTransform mapTransform = mapProjection.getMapTransform();
+                final Point2D mapPoint = mapTransform.forward(geoPos, null);
+                final String mapUnit = mapProjection.getMapUnit();
+
+                sb.append("Map-X:\t");
+                sb.append(mapPoint.getX());
+                sb.append("\t").append(mapUnit).append("\n");
+
+                sb.append("Map-Y:\t");
+                sb.append(mapPoint.getY());
+                sb.append("\t").append(mapUnit).append("\n");
+            }
+        } // rasterGeoding not null
+
+
+
+
+        if (raster.isPixelWithinImageBounds(pixelX, pixelY)) {
+
+            sb.append("\n");
+
+            boolean haveSpectralBand = false;
+            for (final Band band : getBands()) {
+                if (band.getSpectralWavelength() > 0.0) {
+                    haveSpectralBand = true;
+                    break;
+                }
+            }
+
+            if (haveSpectralBand) {
+                sb.append("BandName\tWavelength\tUnit\tBandwidth\tUnit\tValue\tUnit\tSolar Flux\tUnit\n");
+            } else {
+                sb.append("BandName\tValue\tUnit\n");
+            }
+            for (final Band band : getBands()) {
+                sb.append(band.getName());
+                sb.append(":\t");
+                if (band.getSpectralWavelength() > 0.0) {
+                    sb.append(band.getSpectralWavelength());
+                    sb.append("\t");
+                    sb.append("nm");
+                    sb.append("\t");
+                    sb.append(band.getSpectralBandwidth());
+                    sb.append("\t");
+                    sb.append("nm");
+                    sb.append("\t");
+                } else {
+                    if (haveSpectralBand) {
+                        sb.append("\t");
+                        sb.append("\t");
+                        sb.append("\t");
+                        sb.append("\t");
+                    }
+                }
+
+                PixelPos pixelForBand = getPixelForBand(pixelPosRef, raster, band);
+                sb.append(band.getPixelString(MathUtils.floorInt(pixelForBand.getX()), MathUtils.floorInt(pixelForBand.getY())));
+                sb.append("\t");
+                if (band.getUnit() != null) {
+                    sb.append(band.getUnit());
+                }
+                sb.append("\t");
+                final float solarFlux = band.getSolarFlux();
+                if (solarFlux > 0.0) {
+                    sb.append(solarFlux);
+                    sb.append("\t");
+                    sb.append("mW/(m^2*nm)");
+                    sb.append("\t");
+                }
+                sb.append("\n");
+            } // end loop on bands
+
+            sb.append("\n");
+            for (int i = 0; i < getNumTiePointGrids(); i++) {
+                final TiePointGrid grid = getTiePointGridAt(i);
+                if (grid.hasRasterData()) {
+                    sb.append(grid.getName());
+                    sb.append(":\t");
+
+                    PixelPos pixelForGrid = getPixelForBand(pixelPosRef, raster, grid);
+                    sb.append(grid.getPixelString(MathUtils.floorInt(pixelForGrid.getX()), MathUtils.floorInt(pixelForGrid.getY())));
+
+                    if (grid.getUnit() != null) {
+                        sb.append("\t");
+                        sb.append(grid.getUnit());
+                    }
+
+                    sb.append("\n");
+                }
+            } // end loop on Tie Point grids
+
+            for (int i = 0; i < getNumBands(); i++) {
+                final Band band = getBandAt(i);
+                final FlagCoding flagCoding = band.getFlagCoding();
+                if (flagCoding != null) {
+                    boolean ioException = false;
+                    final int[] flags = new int[1];
+
+                    PixelPos pixelForBand = getPixelForBand(pixelPosRef, raster, band);
+                    if (band.hasRasterData()) {
+                        flags[0] = band.getPixelInt(MathUtils.floorInt(pixelForBand.getX()), MathUtils.floorInt(pixelForBand.getY()));
+                    } else {
+                        try {
+                            band.readPixels(MathUtils.floorInt(pixelForBand.getX()), MathUtils.floorInt(pixelForBand.getY()), 1, 1, flags, ProgressMonitor.NULL);
+                        } catch (IOException e) {
+                            ioException = true;
+                        }
+                    }
+                    sb.append("\n");
+                    if (ioException) {
+                        sb.append(RasterDataNode.IO_ERROR_TEXT);
+                    } else {
+                        for (int j = 0; j < flagCoding.getNumAttributes(); j++) {
+                            final MetadataAttribute flagAttr = flagCoding.getAttributeAt(j);
+                            final int mask = flagAttr.getData().getElemInt();
+                            final boolean flagSet = (flags[0] & mask) == mask;
+                            sb.append(band.getName());
+                            sb.append(".");
+                            sb.append(flagAttr.getName());
+                            sb.append(":\t");
+                            sb.append(flagSet ? "true" : "false");
+                            sb.append("\n");
+                        }
+                    }
+                } // flagcoding not null
+            } // end loop on bands number
+        } // end check pixelX and pixelY inside bounds
+
+        return sb.toString();
+    }
+
+    /**
+     * Convert the pixel X and Y read in a reference raster into another raster
+     * @param pixelPosRef      the pixel X and Y co-ordinate read in the reference raster
+     * @param referenceRaster  reference raster where the pixel X and Y co-ordinate where read
+     * @param currentRaster    current raster where we want the pixel X and Y to be expressed
+     * @return the pixel X and Y co-ordinate in current raster
+     */
+    public PixelPos getPixelForBand(final PixelPos pixelPosRef, final RasterDataNode referenceRaster,
+                                    final RasterDataNode currentRaster) {
+
+        PixelPos pixelForBand;
+
+        final boolean hasSameResolution = currentRaster.getImageToModelTransform().equals(referenceRaster.getImageToModelTransform());
+
+        // Same resolution for the current raster and the reference raster: no conversion to be done
+        if (hasSameResolution) {
+
+            pixelForBand = pixelPosRef;
+
+        } else { // Not the same resolution
+            try {
+                // Compute the model coordinate position (only for multi-size product)
+                final Point2D.Double sourcePixel = new Point2D.Double(pixelPosRef.getX(), pixelPosRef.getY());
+                final Point2D.Double modelCoord = (Point2D.Double) referenceRaster.getImageToModelTransform().transform(sourcePixel,null);
+                Point2D.Double point2DForBand = (Point2D.Double) currentRaster.getImageToModelTransform().createInverse().transform(modelCoord, null);
+                pixelForBand = new PixelPos(point2DForBand.x, point2DForBand.y);
+
+            } catch (NoninvertibleTransformException ne) {
+                // Use the geoPos to perform the conversion
+                final GeoCoding rasterGeocoding = referenceRaster.getGeoCoding();
+                GeoPos geoPos = rasterGeocoding.getGeoPos(pixelPosRef, null);
+                if (geoPos != null) {
+                    pixelForBand = currentRaster.getGeoCoding().getPixelPos(geoPos, null);
+                } else { // set the pixel outside image bounds to have error message
+                    pixelForBand = new PixelPos(-1, -1);
+                }
+            }
+        } // end check on band resolution vs current raster
+
+        return pixelForBand;
     }
 
     /**
