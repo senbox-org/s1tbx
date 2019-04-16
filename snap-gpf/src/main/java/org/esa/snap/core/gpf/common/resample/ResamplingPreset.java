@@ -16,8 +16,8 @@ public class ResamplingPreset {
 
     public static final String FILENAME_EXTENSION = ".res";
 
-    String resamplingPresetName;
-    ArrayList<BandResamplingPreset> bandResamplingPresets;
+    private String resamplingPresetName;
+    private ArrayList<BandResamplingPreset> bandResamplingPresets;
 
     public ResamplingPreset (String resamplingPresetName, ArrayList<BandResamplingPreset> bandResamplingPresets) {
         this.resamplingPresetName = resamplingPresetName;
@@ -50,6 +50,22 @@ public class ResamplingPreset {
         }
         FileUtils.getFilenameWithoutExtension(file);
         return new ResamplingPreset(FileUtils.getFilenameWithoutExtension(file),bandResamplingPresets);
+    }
 
+    public String getResamplingPresetName() {
+        return resamplingPresetName;
+    }
+
+    public ArrayList<BandResamplingPreset> getBandResamplingPresets() {
+        return bandResamplingPresets;
+    }
+
+    public BandResamplingPreset getBandResamplingPreset (String bandName) {
+        for (BandResamplingPreset bandResamplingPreset : bandResamplingPresets) {
+            if(bandResamplingPreset.getBandName().equals(bandName)){
+                return bandResamplingPreset;
+            }
+        }
+        return null;
     }
 }

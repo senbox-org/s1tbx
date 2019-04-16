@@ -4,9 +4,9 @@ package org.esa.snap.core.gpf.common.resample;
  * Created by obarrile on 13/04/2019.
  */
 public class BandResamplingPreset {
-    String bandName;
-    String downsamplingAlias;
-    String upsamplingAlias;
+    private String bandName;
+    private String downsamplingAlias;
+    private String upsamplingAlias;
 
     public BandResamplingPreset (String bandName, String downsamplingAlias, String upsamplingAlias) {
         this.bandName = bandName;
@@ -23,5 +23,17 @@ public class BandResamplingPreset {
             return null;
         }
         return new BandResamplingPreset(parts[0],parts[1],parts[2]);
+    }
+
+    public String getBandName() {
+        return bandName;
+    }
+
+    public String getDownsamplingAlias() {
+        return downsamplingAlias;
+    }
+
+    public String getUpsamplingAlias() {
+        return upsamplingAlias;
     }
 }

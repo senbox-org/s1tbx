@@ -55,6 +55,15 @@ public class ResamplingPresetManager {
         return _resamplingPresets.get(i);
     }
 
+    public ResamplingPreset getResamplingPreset(String resamplingName) {
+        for(ResamplingPreset resamplingPreset : _resamplingPresets) {
+            if(resamplingPreset.getResamplingPresetName().equals(resamplingName)){
+                return resamplingPreset;
+            }
+        }
+        return null;
+    }
+
     public ResamplingPreset[] getAllResamplingPresets() {
         return _resamplingPresets.toArray(new ResamplingPreset[_resamplingPresets.size()]);
     }

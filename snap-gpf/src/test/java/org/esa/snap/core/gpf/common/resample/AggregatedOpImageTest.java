@@ -6,6 +6,7 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.image.ImageManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -48,6 +50,14 @@ public class AggregatedOpImageTest {
                 return new BufferedImage(referenceWidth / (1 + level), referenceHeight / (1 + level), ProductData.TYPE_INT8);
             }
         }));
+    }
+
+    @Test
+    public void testMeanAggregator() throws Exception {
+        GPF gpf = GPF.getDefaultInstance();
+        Set aliases = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getAliases();
+        Downsampling downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi("Mean").createDownsampling();
+
     }
 
     @Test

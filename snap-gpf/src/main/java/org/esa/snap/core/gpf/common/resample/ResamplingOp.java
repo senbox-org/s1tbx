@@ -21,6 +21,7 @@ import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -116,6 +117,12 @@ public class ResamplingOp extends Operator {
             valueSet = {"First", "FlagAnd", "FlagOr", "FlagMedianAnd", "FlagMedianOr"},
             defaultValue = "First")
     private String flagDownsamplingMethod;
+
+    @Parameter(alias = "resamplingPreset",
+            label = "Resampling Preset",
+            description = "The resampling preset. This will over rules the settings for upsampling, downsampling and flagDownsampling.",
+            defaultValue = "")
+    private String resamplingPreset;
 
     @Parameter(label = "Resample on pyramid levels (for faster imaging)", defaultValue = "true",
             description = "This setting will increase performance when viewing the image, but accurate resamplings " +
@@ -494,7 +501,12 @@ public class ResamplingOp extends Operator {
 
     private MultiLevelImage createAggregatedImage(RasterDataNode sourceRDN, MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
                                                   boolean isFlagBand, MultiLevelModel referenceModel) {
-        AggregationType type;
+        //AggregationType type;
+        Downsampling downsampling;
+        GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(downsamplingMethod).createDownsampling();
+        if(resamplingPreset != null && resamplingPreset.length() >0 && ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset) != null) {
+
+        }
         if (isFlagBand) {
             if (flagAggregationType == null) {
                 throw new OperatorException("Invalid flag downsampling method");
