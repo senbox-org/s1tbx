@@ -55,7 +55,7 @@ class HttpWalker implements VFSWalker {
         try {
             String sizeString = fileConnection.getHeaderField("content-length");
             String lastModified = fileConnection.getHeaderField("last-modified");
-            if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
+            if (!StringUtils.isNotNullAndNotEmpty(sizeString) && !StringUtils.isNotNullAndNotEmpty(lastModified)) {
                 throw new IllegalStateException("filePath is not a file");
             }
             long size = Long.parseLong(sizeString);
