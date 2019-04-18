@@ -241,8 +241,9 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
-        AbstractRemoteFileSystem fs = (AbstractRemoteFileSystem) path.getFileSystem();
-        return fs.openByteChannel((VFSPath) path, options, attrs);
+        VFSPath remotePath = VFSPath.toRemotePath(path);
+        AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
+        return fileSystem.openByteChannel((VFSPath) path, options, attrs);
     }
 
     /**
@@ -257,9 +258,10 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public DirectoryStream<Path> newDirectoryStream(Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
+        VFSPath remoteDir = VFSPath.toRemotePath(dir);
         try {
-            AbstractRemoteFileSystem fs = (AbstractRemoteFileSystem) dir.getFileSystem();
-            Iterable<Path> directories = fs.walkDir(dir, filter);
+            AbstractRemoteFileSystem fileSystem = remoteDir.getFileSystem();
+            Iterable<Path> directories = fileSystem.walkDir(dir, filter);
             return new DirectoryStream<Path>() {
                 @Override
                 public Iterator<Path> iterator() {
@@ -274,6 +276,25 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         } catch (Exception ex) {
             throw new IOException(ex);
         }
+
+        //TODO Jean old code
+//        try {
+//            AbstractRemoteFileSystem fs = (AbstractRemoteFileSystem) dir.getFileSystem();
+//            Iterable<Path> directories = fs.walkDir(dir, filter);
+//            return new DirectoryStream<Path>() {
+//                @Override
+//                public Iterator<Path> iterator() {
+//                    return directories.iterator();
+//                }
+//
+//                @Override
+//                public void close() {
+//                    //stay open
+//                }
+//            };
+//        } catch (Exception ex) {
+//            throw new IOException(ex);
+//        }
     }
 
     /**

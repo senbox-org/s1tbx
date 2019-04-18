@@ -143,7 +143,11 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
             VFSPath remotePath = (VFSPath)entry;
             return remotePath.getFileAttributes().isDirectory();
         };
-        return walkDir(this.rootPath, filter);
+        try {
+            return walkDir(this.rootPath, filter);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to get the root directories.", ex);
+        }
     }
 
     /**
@@ -286,18 +290,14 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      * @param filter The filter for results
      * @return The browsing results
      */
-    Iterable<Path> walkDir(Path dir, DirectoryStream.Filter<? super Path> filter) {
+    Iterable<Path> walkDir(Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
         assertOpen();
         Path path = dir.toAbsolutePath();
         if (this.walker == null) {
             this.walker = newObjectStorageWalker();
         }
         List<BasicFileAttributes> files;
-        try {
-            files = this.walker.walk(path);
-        } catch (IOException ex) {
-            throw new IllegalStateException("Failed to get the files and directories for path '"+path.toString()+"'.", ex);
-        }
+        files = this.walker.walk(path);
         return files.stream()
                 .map(f -> VFSPath.fromFileAttributes(this, f))
                 .filter(p -> filterPath(p, filter))

@@ -6,10 +6,14 @@ import org.esa.snap.vfs.remote.VFSWalker;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
@@ -51,24 +55,6 @@ class HttpWalker implements VFSWalker {
         return (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE);
     }
 
-    private static BasicFileAttributes fetchFileAttributes(HttpURLConnection fileConnection, String filePath) {
-        try {
-            String sizeString = fileConnection.getHeaderField("content-length");
-            String lastModified = fileConnection.getHeaderField("last-modified");
-            if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
-                throw new IllegalStateException("filePath is not a file");
-            }
-            long size = Long.parseLong(sizeString);
-            DateFormat srcDf = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
-            Date lastModifiedDate = srcDf.parse(lastModified);
-            DateFormat destDf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
-            lastModified = destDf.format(lastModifiedDate);
-            return VFSFileAttributes.newFile(filePath, size, lastModified);
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to fetch file attributes", e);
-        }
-    }
-
     /**
      * Gets the VFS file basic attributes.
      *
@@ -81,23 +67,36 @@ class HttpWalker implements VFSWalker {
     public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
         // check if the address represents a directory
         HttpURLConnection connection = HttpResponseHandler.buildConnection(new URL(address + "/"), "GET", null, this.username, this.password);
-        int responseCode = connection.getResponseCode();
-        if (isValidResponseCode(responseCode)) {
-            // the address represents a directory
-            return VFSFileAttributes.newDir(prefix);
-        } else {
-            // the address does not represent a directory
-            return getVFSFileAttributes(address, prefix);
+        try {
+            int responseCode = connection.getResponseCode();
+            if (isValidResponseCode(responseCode)) {
+                // the address represents a directory
+                return VFSFileAttributes.newDir(prefix);
+            }
+        } finally {
+            connection.disconnect();
         }
+        // the address does not represent a directory
+        return getVFSFileAttributes(address, prefix);
     }
 
     BasicFileAttributes getVFSFileAttributes(String address, String prefix) throws IOException {
         HttpURLConnection connection = HttpResponseHandler.buildConnection(new URL(address), "GET", null, this.username, this.password);
-        int responseCode = connection.getResponseCode();
-        if (isValidResponseCode(responseCode)) {
-            return fetchFileAttributes(connection, prefix);
-        } else {
-            throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
+        try {
+            int responseCode = connection.getResponseCode();
+            if (isValidResponseCode(responseCode)) {
+                String sizeString = connection.getHeaderField("content-length");
+                String lastModified = connection.getHeaderField("last-modified");
+                if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
+                    throw new IllegalStateException("filePath is not a file '"+prefix+"'.");
+                }
+                long size = Long.parseLong(sizeString);
+                return VFSFileAttributes.newFile(prefix, size, lastModified);
+            } else {
+                throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
+            }
+        } finally {
+            connection.disconnect();
         }
     }
 
@@ -127,13 +126,22 @@ class HttpWalker implements VFSWalker {
         }
         urlAsString.append(urlPathAsString);
 
+        Document document;
         URL url = new URL(urlAsString.toString());
-        URLConnection connection = HttpResponseHandler.getConnectionChannel(url, "GET", null, this.username, this.password);
-        Document doc = Jsoup.parse(connection.getInputStream(), "UTF-8", url.toString());
+        HttpURLConnection connection = HttpResponseHandler.getConnectionChannel(url, "GET", null, this.username, this.password);
+        try {
+            try (InputStream inputStream = connection.getInputStream();
+                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 10 * 1024)) {
+
+                document = Jsoup.parse(bufferedInputStream, "UTF-8", url.toString());
+            }
+        } finally {
+            connection.disconnect();
+        }
         if (!dirPathAsString.endsWith(this.delimiter)) {
             dirPathAsString += this.delimiter;
         }
-        HttpResponseHandler handler = new HttpResponseHandler(doc, dirPathAsString, this.address, this.root, this);
+        HttpResponseHandler handler = new HttpResponseHandler(document, dirPathAsString, this.address, this.root, this);
         return handler.getElements();
     }
 }
