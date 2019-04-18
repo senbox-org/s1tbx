@@ -10,7 +10,8 @@
 
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="../style.css"></head><body>
+<link rel="stylesheet" href="../style.css"></head>
+<body>
 <table class="header">
 <tbody>
 <tr class="header">
@@ -91,8 +92,15 @@ achieve better co-registration result.<br>
     <li>bi-cubic<br>
     </li>
   </ul>
-  <li>Resampling Type: Interpolation methods for obtaining pixel values
-        from the source image. The interpolation methods available are the same as listed above.</li>
+  <li>Resampling
+Type: Interpolation methods for obtaining pixel values from the source
+image. The interpolation methods available are the same as listed
+above. Generally the accurate 21-point truncated sinc interpolation is
+encouraged to use for complex image interpolation. This, of course,
+will take longer processing time than using other interpolation method.
+With other interpolation method, however, some oscillation effect could
+be introduced in the interpolated image and in the coherence image
+generated later on. &nbsp;</li>
   <li>Mask out areas with no elevation:&nbsp; Checkbox indicating if
 areas without elevation should be masked out from co-registration. It
 is recommended to select this checkbox to avoid artefacts along the
