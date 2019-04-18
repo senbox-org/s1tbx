@@ -81,7 +81,7 @@ pipeline {
                 sh "/opt/scripts/saveInstallData.sh ${toolName}"
             }
         }
-        stage('Create SNAP Installer') {
+        stage('Launch SNAP Desktop build') {
             agent { label 'snap-test' }
             when {
                 expression {
@@ -89,8 +89,8 @@ pipeline {
                 }
             }
             steps {
-                echo "Launch snap-installer"
-                build job: 'snap-installer/master'
+                echo "Launch snap-desktop build"
+                build job: 'snap-desktop/master'
             }
         }
         stage('Create docker image') {
@@ -100,6 +100,11 @@ pipeline {
                     image 'snap-build-server.tilaa.cloud/scripts:1.0'
                     // We add the docker group from host (i.e. 999)
                     args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7 -v docker_local-update-center:/local-update-center -v /opt/maven/.docker:/home/snap/.docker -v docker_snap-installer:/snap-installer'
+                }
+            }
+            when {
+                expression {
+                    return "${env.GIT_BRANCH}" =~ /\d+\.x/;
                 }
             }
             steps {
@@ -117,7 +122,7 @@ pipeline {
                     agent { label 'snap-test' }
                     when {
                         expression {
-                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/;
+                            return "${env.GIT_BRANCH}" =~ /\d+\.x/;
                         }
                     }
                     steps {
@@ -132,7 +137,7 @@ pipeline {
                     agent { label 'snap-test' }
                     when {
                         expression {
-                            return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/;
+                            return "${env.GIT_BRANCH}" =~ /\d+\.x/;
                         }
                     }
                     steps {
