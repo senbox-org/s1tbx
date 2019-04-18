@@ -128,7 +128,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     @Override
     public String getProviderAddress() {
-        return this.address;
+        return this.address + this.container;
     }
 
     @Override
