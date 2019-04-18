@@ -167,7 +167,6 @@ public class SwiftResponseHandler extends DefaultHandler {
         if (method.equals("POST") || method.equals("PUT") || method.equals("DELETE")) {
             connection.setDoOutput(true);
         }
-        connection.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
         if (authorizationToken != null && !authorizationToken.isEmpty())
             connection.setRequestProperty("X-Auth-Token", authorizationToken);
         if (requestProperties != null && requestProperties.size() > 0) {
