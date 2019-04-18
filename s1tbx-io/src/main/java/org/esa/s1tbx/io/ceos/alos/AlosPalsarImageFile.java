@@ -101,14 +101,16 @@ public class AlosPalsarImageFile extends CEOSImageFile {
             String pol = imageFileName.substring(4, 6);
             String pol1 = imageFileName.substring(4, 9);
             if (pol1.equals("HH+VV") || pol1.equals("HH-VV") || pol1.equals("HV+VH") || pol1.equals("HV-VH") ) {
-                if (pol1.equals("HH+VV"))
-                    return "HHplusVV";
-                else if (pol1.equals("HH-VV"))
-                    return "HHminusVV";
-                else if (pol1.equals("HV+VH"))
-                    return "HVplusVH";
-                else
-                    return "HVminusVH";
+                switch (pol1) {
+                    case "HH+VV":
+                        return "HHplusVV";
+                    case "HH-VV":
+                        return "HHminusVV";
+                    case "HV+VH":
+                        return "HVplusVH";
+                    default:
+                        return "HVminusVH";
+                }
             } else if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
                 return pol;
             } else if (imageRecords[0] != null) {

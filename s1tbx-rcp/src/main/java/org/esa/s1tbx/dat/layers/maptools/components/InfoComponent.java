@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class InfoComponent implements MapToolsComponent {
 
     private final double[] pts, vpts;
-    private final ArrayList<String> infoList = new ArrayList<String>();
+    private final ArrayList<String> infoList = new ArrayList<>();
     private int maxLength;
     private static final Font font = new Font("Arial", Font.PLAIN, 12);
 

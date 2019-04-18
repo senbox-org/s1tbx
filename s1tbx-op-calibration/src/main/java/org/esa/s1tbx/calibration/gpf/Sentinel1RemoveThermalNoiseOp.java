@@ -1020,17 +1020,17 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             // create noise matrix for the tile
             double[][] noiseMatrix = new double[h][w];
-            for (int i = 0; i < noiseAzimuthVectors.length; i++) {
-                final int nx0 = Math.max(x0, noiseAzimuthVectors[i].firstRangeSample);
-                final int nxMax = Math.min(xMax, noiseAzimuthVectors[i].lastRangeSample);
-                final int ny0 = Math.max(y0, noiseAzimuthVectors[i].firstAzimuthLine);
-                final int nyMax = Math.min(yMax, noiseAzimuthVectors[i].lastAzimuthLine);
+            for (Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector : noiseAzimuthVectors) {
+                final int nx0 = Math.max(x0, noiseAzimuthVector.firstRangeSample);
+                final int nxMax = Math.min(xMax, noiseAzimuthVector.lastRangeSample);
+                final int ny0 = Math.max(y0, noiseAzimuthVector.firstAzimuthLine);
+                final int nyMax = Math.min(yMax, noiseAzimuthVector.lastAzimuthLine);
 
                 if (nx0 >= nxMax || ny0 >= nyMax) {
                     continue;
                 }
 
-                populateNoiseMatrixForTOPSGRD(pol, imageName, noiseAzimuthVectors[i], noiseRangeVectors,
+                populateNoiseMatrixForTOPSGRD(pol, imageName, noiseAzimuthVector, noiseRangeVectors,
                         x0, y0, nx0, nxMax, ny0, nyMax, noiseMatrix);
             }
 

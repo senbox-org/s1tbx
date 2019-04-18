@@ -57,7 +57,7 @@ public final class BinaryFileReader {
         try {
             return stream.readByte() & 0xFF;
         } catch (IOException e) {
-            final String message = String.format(EM_READING_X_TYPE, new Object[]{"B1"});
+            final String message = String.format(EM_READING_X_TYPE, "B1");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
     }
@@ -67,7 +67,7 @@ public final class BinaryFileReader {
         try {
             return stream.readUnsignedByte();
         } catch (IOException e) {
-            final String message = String.format(EM_READING_X_TYPE, new Object[]{"B2"});
+            final String message = String.format(EM_READING_X_TYPE, "B2");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
     }
@@ -77,7 +77,7 @@ public final class BinaryFileReader {
         try {
             return stream.readShort();
         } catch (IOException e) {
-            final String message = String.format(EM_READING_X_TYPE, new Object[]{"B2"});
+            final String message = String.format(EM_READING_X_TYPE, "B2");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
     }
@@ -87,7 +87,7 @@ public final class BinaryFileReader {
         try {
             return stream.readUnsignedShort();
         } catch (IOException e) {
-            final String message = String.format(EM_READING_X_TYPE, new Object[]{"B2"});
+            final String message = String.format(EM_READING_X_TYPE, "B2");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
     }
@@ -97,7 +97,7 @@ public final class BinaryFileReader {
         try {
             return stream.readInt();
         } catch (IOException e) {
-            final String message = String.format(EM_READING_X_TYPE, new Object[]{"B4"});
+            final String message = String.format(EM_READING_X_TYPE, "B4");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
     }
@@ -107,7 +107,7 @@ public final class BinaryFileReader {
         try {
             return stream.readLong();
         } catch (IOException e) {
-            final String message = String.format(EM_READING_X_TYPE, new Object[]{"B8"});
+            final String message = String.format(EM_READING_X_TYPE, "B8");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
     }
@@ -160,7 +160,7 @@ public final class BinaryFileReader {
                 number = Long.parseLong(newStr);
             } catch (NumberFormatException e2) {
                 final String message = String.format(EM_NOT_PARSABLE_X_STRING + " \"" + integerStr + '"',
-                        new Object[]{"integer"});
+                        "integer");
                 throw new IllegalBinaryFormatException(message, streamPosition, e);
             }
         }
@@ -175,7 +175,7 @@ public final class BinaryFileReader {
         try {
             return Double.parseDouble(doubleString);
         } catch (NumberFormatException e) {
-            final String message = String.format(EM_NOT_PARSABLE_X_STRING, new Object[]{"double"});
+            final String message = String.format(EM_NOT_PARSABLE_X_STRING, "double");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
     }
@@ -186,7 +186,7 @@ public final class BinaryFileReader {
             try {
                 numbers[i] = Double.parseDouble(readAn(n).trim());
             } catch (IllegalBinaryFormatException e) {
-                final String message = String.format(EM_READING_X_TYPE, new Object[]{"Gn[]"});
+                final String message = String.format(EM_READING_X_TYPE, "Gn[]");
                 throw new IllegalBinaryFormatException(message, streamPosition, e);
             }
         }
@@ -211,7 +211,7 @@ public final class BinaryFileReader {
         try {
             bytesRead = stream.read(bytes);
         } catch (IOException e) {
-            final String message = String.format(EM_READING_X_TYPE, new Object[]{"An"});
+            final String message = String.format(EM_READING_X_TYPE, "An");
             throw new IllegalBinaryFormatException(message, streamPosition, e);
         }
         if (bytesRead != n) {

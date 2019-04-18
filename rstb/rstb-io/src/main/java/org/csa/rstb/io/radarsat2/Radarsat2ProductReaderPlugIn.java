@@ -43,7 +43,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             final File metadataFile = findMetadataFile(file);
             if (metadataFile != null) {
 
-                final File[] files = file.getParentFile().listFiles();
+                final File[] files = metadataFile.getParentFile().listFiles();
                 if(files != null) {
                     for (File f : files) {
                         final String name = f.getName().toLowerCase();
@@ -54,6 +54,9 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                             return DecodeQualification.SUITABLE;
                         }
                     }
+                }
+                if(metadataFile.getParent().toUpperCase().startsWith("RS2")) {
+                    return DecodeQualification.INTENDED;
                 }
                 return DecodeQualification.SUITABLE;
             }

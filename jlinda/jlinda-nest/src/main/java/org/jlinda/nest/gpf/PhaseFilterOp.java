@@ -80,11 +80,11 @@ public class PhaseFilterOp extends Operator {
     private double[] kernelArray;
 
     // source maps
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<Integer, CplxContainer>();
-    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<Integer, CplxContainer>();
+    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
+    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<>();
 
     // target maps
-    private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
+    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
 
     // operator tags
     private static final boolean CREATE_VIRTUAL_BAND = true;
@@ -109,20 +109,28 @@ public class PhaseFilterOp extends Operator {
             System.out.println("BlockSize is not power of two!");
         }
 
-        if (kernelInput.equals("1 1 1 1 1")) {
-            kernelArray = new double[]{1. / 5, 1. / 5, 1. / 5, 1. / 5, 1. / 5};
-        } else if (kernelInput.equals("1 2 2 2 1")) {
-            kernelArray = new double[]{1. / 5, 2. / 5, 2. / 5, 2. / 5, 1. / 5};
-        } else if (kernelInput.equals("1 2 3 2 1")) {
-            kernelArray = new double[]{1. / 5, 2. / 5, 3. / 5, 2. / 5, 1. / 5};
-        } else if (kernelInput.equals("1 1 1")) {
-            kernelArray = new double[]{1. / 3, 1. / 3, 1./ 3};
-        } else if (kernelInput.equals("1 2 1")) {
-            kernelArray = new double[]{1. / 5, 2. / 5, 1. / 5};
-        } else if (kernelInput.equals("none")) {
-            kernelArray = null;
-        } else { // default
-            kernelArray = new double[]{1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5};
+        switch (kernelInput) {
+            case "1 1 1 1 1":
+                kernelArray = new double[]{1. / 5, 1. / 5, 1. / 5, 1. / 5, 1. / 5};
+                break;
+            case "1 2 2 2 1":
+                kernelArray = new double[]{1. / 5, 2. / 5, 2. / 5, 2. / 5, 1. / 5};
+                break;
+            case "1 2 3 2 1":
+                kernelArray = new double[]{1. / 5, 2. / 5, 3. / 5, 2. / 5, 1. / 5};
+                break;
+            case "1 1 1":
+                kernelArray = new double[]{1. / 3, 1. / 3, 1. / 3};
+                break;
+            case "1 2 1":
+                kernelArray = new double[]{1. / 5, 2. / 5, 1. / 5};
+                break;
+            case "none":
+                kernelArray = null;
+                break;
+            default:  // default
+                kernelArray = new double[]{1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5};
+                break;
         }
 
         if (method.contains("convolution")) {

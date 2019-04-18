@@ -21,7 +21,6 @@ import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
-import org.esa.snap.core.gpf.common.ImportVectorOp;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 

@@ -63,7 +63,7 @@
 
     <build>
         <plugins>
-            <plugin>
+            <!--plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
@@ -83,7 +83,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

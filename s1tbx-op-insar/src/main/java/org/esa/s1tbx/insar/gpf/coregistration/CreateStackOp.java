@@ -44,6 +44,7 @@ import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.ProductInformation;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -370,19 +371,19 @@ public class CreateStackOp extends Operator {
 
             for(InSARStackOverview.IfgStack stack : stackOverview) {
                 final InSARStackOverview.IfgPair[] slaves = stack.getMasterSlave();
-                System.out.println("======");
-                System.out.println("Master: " + StackUtils.createBandTimeStamp(
-                        slaves[0].getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
+                //System.out.println("======");
+                //System.out.println("Master: " + StackUtils.createBandTimeStamp(
+                //        slaves[0].getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
 
                 final MetadataElement masterElem = new MetadataElement("Master: " + StackUtils.createBandTimeStamp(
                         slaves[0].getMasterMetadata().getAbstractedMetadata().getProduct()).substring(1));
                 baselinesElem.addElement(masterElem);
 
                 for (InSARStackOverview.IfgPair slave : slaves) {
-                    System.out.println("Slave: " + StackUtils.createBandTimeStamp(
-                            slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1) +
-                            " perp baseline: " + slave.getPerpendicularBaseline() +
-                            " temp baseline: " + slave.getTemporalBaseline());
+                    //System.out.println("Slave: " + StackUtils.createBandTimeStamp(
+                    //        slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1) +
+                    //        " perp baseline: " + slave.getPerpendicularBaseline() +
+                    //        " temp baseline: " + slave.getTemporalBaseline());
 
                     final MetadataElement slaveElem = new MetadataElement("Slave: " + StackUtils.createBandTimeStamp(
                             slave.getSlaveMetadata().getAbstractedMetadata().getProduct()).substring(1));
@@ -394,11 +395,11 @@ public class CreateStackOp extends Operator {
                     addAttrib(slaveElem, "Height of Ambiguity", slave.getHeightAmb());
                     addAttrib(slaveElem, "Doppler Difference", slave.getDopplerDifference());
                 }
-                System.out.println();
+                //System.out.println();
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            SystemUtils.LOG.warning("Unable to calculate baselines. " + e.getMessage());
         }
     }
 

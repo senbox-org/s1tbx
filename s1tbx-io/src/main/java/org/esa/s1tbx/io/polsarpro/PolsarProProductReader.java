@@ -73,8 +73,7 @@ public class PolsarProProductReader extends EnviProductReader {
                 if (!imgFile.exists())
                     continue;
 
-                final BufferedReader headerReader = getHeaderReader(file);
-                try {
+                try (BufferedReader headerReader = getHeaderReader(file)) {
 
                     synchronized (headerReader) {
                         final Header header = new Header(headerReader);
@@ -87,10 +86,6 @@ public class PolsarProProductReader extends EnviProductReader {
                         }
                     }
 
-                } finally {
-                    if (headerReader != null) {
-                        headerReader.close();
-                    }
                 }
             }
         }

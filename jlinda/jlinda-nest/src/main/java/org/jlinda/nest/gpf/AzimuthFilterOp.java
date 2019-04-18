@@ -64,11 +64,11 @@ public class AzimuthFilterOp extends Operator {
     private float alphaHamming = (float) 0.75;
 
     // source
-    private LinkedHashMap<Integer, CplxContainer> masterMap = new LinkedHashMap<Integer, CplxContainer>();
-    private LinkedHashMap<Integer, CplxContainer> slaveMap = new LinkedHashMap<Integer, CplxContainer>();
+    private LinkedHashMap<Integer, CplxContainer> masterMap = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, CplxContainer> slaveMap = new LinkedHashMap<>();
 
     // target
-    private LinkedHashMap<String, ProductContainer> targetMap = new LinkedHashMap<String, ProductContainer>();
+    private LinkedHashMap<String, ProductContainer> targetMap = new LinkedHashMap<>();
 
     private static final int ORBIT_DEGREE = 3; // hardcoded
     private static final boolean CREATE_VIRTUAL_BAND = true;

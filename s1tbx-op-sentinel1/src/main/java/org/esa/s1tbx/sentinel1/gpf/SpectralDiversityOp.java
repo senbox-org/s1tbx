@@ -1312,9 +1312,9 @@ public class SpectralDiversityOp extends Operator {
             final FileOutputStream out = new FileOutputStream(logESDFile.getAbsolutePath(), false);
             p = new PrintStream(out);
 
-            for (int i = 0; i < numOverlaps; ++i) {
+            for (double[] aShiftLUT : shiftLUT) {
                 for (int j = 0; j < numBlocksPerOverlap; ++j) {
-                    p.format("%13.6f ", shiftLUT[i][j]);
+                    p.format("%13.6f ", aShiftLUT[j]);
                 }
                 p.println();
             }

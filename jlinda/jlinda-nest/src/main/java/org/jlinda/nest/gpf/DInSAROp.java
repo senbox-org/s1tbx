@@ -67,14 +67,14 @@ public class DInSAROp extends Operator {
 
 
     // source maps
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<Integer, CplxContainer>();
-    private HashMap<Integer, CplxContainer> slaveDefoMap = new HashMap<Integer, CplxContainer>();
+    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
+    private HashMap<Integer, CplxContainer> slaveDefoMap = new HashMap<>();
 
-    private HashMap<Integer, CplxContainer> masterTopoMap = new HashMap<Integer, CplxContainer>();
-    private HashMap<Integer, CplxContainer> slaveTopoMap = new HashMap<Integer, CplxContainer>();
+    private HashMap<Integer, CplxContainer> masterTopoMap = new HashMap<>();
+    private HashMap<Integer, CplxContainer> slaveTopoMap = new HashMap<>();
 
     // target maps
-    private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
+    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
 
     // dinsar core classes map
     private DInSAR dinsar;

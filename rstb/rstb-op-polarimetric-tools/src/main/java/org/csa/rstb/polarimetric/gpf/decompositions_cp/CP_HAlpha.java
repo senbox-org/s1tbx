@@ -24,7 +24,6 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -51,7 +50,7 @@ public class CP_HAlpha extends HAlphaC2 implements CompactPolProcessor {
 
         this.compactMode = compactMode;
         this.computeAlphaByT3 = computeAlphaByT3;
-        this.useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+        this.useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     /**

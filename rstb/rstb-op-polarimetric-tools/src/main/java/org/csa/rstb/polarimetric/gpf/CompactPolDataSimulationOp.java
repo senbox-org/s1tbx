@@ -31,7 +31,6 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -131,7 +130,7 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
-            useRCMConvention = Boolean.getBoolean(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention");
+            useRCMConvention = PolBandUtils.useRCMConvention();
 
             if (simulateNoiseFloor) {
                 sigma = Math.sqrt(FastMath.pow(10.0, noisePower / 10.0) / 2.0);

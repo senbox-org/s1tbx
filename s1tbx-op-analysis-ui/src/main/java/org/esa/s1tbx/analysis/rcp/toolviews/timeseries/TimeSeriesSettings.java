@@ -49,9 +49,7 @@ public class TimeSeriesSettings {
 
     public void setGraphDataList(final List<GraphData> dataList) {
         graphDataList.clear();
-        for (GraphData data : dataList) {
-            graphDataList.add(data);
-        }
+        graphDataList.addAll(dataList);
     }
 
     public final List<GraphData> getGraphDataList() {

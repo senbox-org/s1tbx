@@ -164,8 +164,8 @@ public class StackSplitWriter extends Operator {
         subsetInfo.productWriter.setFormatName(formatName);
         subsetInfo.productWriter.setIncrementalMode(false);
         subsetInfo.subsetProduct.setProductWriter(subsetInfo.productWriter);
-        for (int i = 0; i < bandNames.length; i++) {
-            Band band = targetProduct.getBand(bandNames[i]);
+        for (String bandName : bandNames) {
+            Band band = targetProduct.getBand(bandName);
             if (!(band instanceof VirtualBand)) {
                 bandMap.put(band, subsetInfo);
                 //System.out.println("createSubset: productName = " + productName + " put band " + band.getName());

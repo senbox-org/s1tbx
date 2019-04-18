@@ -138,7 +138,7 @@ abstract class FlatBinary implements DataReadersWriters {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append("FlatBinary");
         sb.append("{file=").append(file.getAbsoluteFile());
         sb.append(", format='").append(format).append('\'');

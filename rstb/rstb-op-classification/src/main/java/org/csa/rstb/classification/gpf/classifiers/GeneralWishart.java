@@ -212,7 +212,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
         category = new int[srcHeight][srcWidth];
         cluster = new int[srcHeight][srcWidth];
         final double[][] dominantPower = new double[srcHeight][srcWidth];
-        final ArrayList<ArrayList<ClusterInfo>> clusterCenterList = new ArrayList<ArrayList<ClusterInfo>>(numCategories);
+        final ArrayList<ArrayList<ClusterInfo>> clusterCenterList = new ArrayList<>(numCategories);
         maxClusterSize = 2 * srcHeight * srcWidth / numFinalClasses;
 
         final Dimension tileSize = new Dimension(256, 256);
@@ -764,7 +764,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
 //                final long endTime;
 
                 ArrayList<ArrayList<ClusterCenter>> newClusterCenters =
-                        new ArrayList<ArrayList<ClusterCenter>>(numCategories);
+                        new ArrayList<>(numCategories);
 
                 for (int i = 0; i < numCategories; ++i) {
                     ArrayList<ClusterCenter> newCenters = new ArrayList<>();
@@ -871,8 +871,8 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
             */
 
             // compute average power for each cluster
-            final ArrayList<ArrayList<Double>> clusterPower = new ArrayList<ArrayList<Double>>(numCategories);
-            colourIndexMap = new ArrayList<ArrayList<Integer>>(numCategories);
+            final ArrayList<ArrayList<Double>> clusterPower = new ArrayList<>(numCategories);
+            colourIndexMap = new ArrayList<>(numCategories);
             for (int i = 0; i < numCategories; ++i) {
                 ArrayList<Double> tmp1 = new ArrayList<>();
                 ArrayList<Integer> tmp2 = new ArrayList<>();

@@ -215,20 +215,22 @@ public final class PolarimetricMatricesOp extends Operator implements DualPolPro
                     throw new OperatorException("The source product is already in C4 format, no conversion is needed");
                 }
             } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
-                if (matrix.equals(T4)) {
-                    throw new OperatorException("Cannot convert source product from T3 format to T4 format");
-                } else if (matrix.equals(C4)) {
-                    throw new OperatorException("Cannot convert source product from T3 format to C4 format");
-                } else if (matrix.equals(T3)) {
-                    throw new OperatorException("The source product is already in T3 format, no conversion is needed");
+                switch (matrix) {
+                    case T4:
+                        throw new OperatorException("Cannot convert source product from T3 format to T4 format");
+                    case C4:
+                        throw new OperatorException("Cannot convert source product from T3 format to C4 format");
+                    case T3:
+                        throw new OperatorException("The source product is already in T3 format, no conversion is needed");
                 }
             } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
-                if (matrix.equals(T4)) {
-                    throw new OperatorException("Cannot convert source product from C3 format to T4 format");
-                } else if (matrix.equals(C4)) {
-                    throw new OperatorException("Cannot convert source product from C3 format to C4 format");
-                } else if (matrix.equals(C3)) {
-                    throw new OperatorException("The source product is already in C3 format, no conversion is needed");
+                switch (matrix) {
+                    case T4:
+                        throw new OperatorException("Cannot convert source product from C3 format to T4 format");
+                    case C4:
+                        throw new OperatorException("Cannot convert source product from C3 format to C4 format");
+                    case C3:
+                        throw new OperatorException("The source product is already in C3 format, no conversion is needed");
                 }
             } else if (sourceProductType != PolBandUtils.MATRIX.FULL) {
                 throw new OperatorException("Full-pol polarimetric product is expected");
