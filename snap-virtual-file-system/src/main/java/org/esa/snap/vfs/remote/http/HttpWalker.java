@@ -66,7 +66,7 @@ class HttpWalker implements VFSWalker {
     @Override
     public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
         // check if the address represents a directory
-        HttpURLConnection connection = HttpResponseHandler.buildConnection(new URL(address + "/"), "GET", null, this.username, this.password);
+        HttpURLConnection connection = HttpResponseHandler.buildConnection(new URL(address + (address.endsWith("/") ? "" : "/")), "GET", null, this.username, this.password);
         try {
             int responseCode = connection.getResponseCode();
             if (isValidResponseCode(responseCode)) {
@@ -108,7 +108,7 @@ class HttpWalker implements VFSWalker {
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public List<BasicFileAttributes> walk(Path dir) throws IOException {
+    public synchronized List<BasicFileAttributes> walk(Path dir) throws IOException {
         StringBuilder urlAsString = new StringBuilder();
         if (this.address.endsWith(this.delimiter)) {
             int endIndex = this.address.length() - this.delimiter.length();
