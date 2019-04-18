@@ -11,14 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -88,7 +82,7 @@ class HttpWalker implements VFSWalker {
                 String sizeString = connection.getHeaderField("content-length");
                 String lastModified = connection.getHeaderField("last-modified");
                 if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
-                    throw new IllegalStateException("filePath is not a file '"+prefix+"'.");
+                    throw new IOException("filePath is not a file '"+prefix+"'.");
                 }
                 long size = Long.parseLong(sizeString);
                 return VFSFileAttributes.newFile(prefix, size, lastModified);
