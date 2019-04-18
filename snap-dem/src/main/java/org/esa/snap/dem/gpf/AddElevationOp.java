@@ -100,7 +100,7 @@ public final class AddElevationOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
+
         try {
             if (!demName.contains(externalDEMStr)) {
                 DEMFactory.checkIfDEMInstalled(demName);
