@@ -1,18 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>Help - Polarimetric Classification</title>
+<html><head><title>Help - Polarimetric Classification</title>
 
 
-    <link rel="stylesheet" href="../style.css">
-</head>
+    <link rel="stylesheet" href="../style.css"></head>
 <body>
 <table class="header">
     <tbody>
     <tr class="header">
         <td class="header">&nbsp; Polarimetric Classification<br>
         </td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
-                                                                                 border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
     </tr>
     </tbody>
 </table>
@@ -23,7 +20,7 @@ classification for a full polarimetric SAR product:<br>
     </li>
     <li>Unsupervised Whishart Classification</li>
 </ul>
-<h4>Unsupervised Cloude-Pottier Classification<br>
+<h4>Cloude-Pottier Classification<br>
 </h4>&nbsp;&nbsp; The Cloude-Pottier classification is an unsupervised
 classification scheme which is based on the use of the Entropy (H) /
 Alpha (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-US">&#945;</span>)
@@ -44,14 +41,14 @@ Alpha plane:<br>
 
 <div style="margin-left: 280px;">Figure 1. H / Alpha plane<br>
 </div>
-<h4>Unsupervised Wishart Classification</h4>&nbsp;&nbsp; Similar to the
-Cloude-Pottier classification, the unsupervised Wishart classification
+<h4>H Alpha Wishart Classification</h4>&nbsp;&nbsp; Similar to the
+Cloude-Pottier classification, the unsupervised H Alpha Wishart classification
 also separates data into nine clusters using the zones defined in
 the&nbsp; H / Alpha plane above. Different from the Cloude-Pottier
-classification, the Wishart classification will continue to compute the
+classification, the H Alpha Wishart classification will continue to compute the
 centres of the nine clusters, then reclassify the pixels based on their
-Wishart distances to cluster centres. This procedure will repeat
-several time until the user defined total number of
+Wishart distances to the cluster centres. This procedure will repeat
+several times until the user defined total number of
 iterations is reached. To achieve accurate classification result, speckle filtering must be applied before the
 classification.<br>
 <br>
@@ -70,21 +67,24 @@ centre <span style="font-style: italic;">V<sub>m</sub></span> is defined<span st
 &nbsp;&nbsp; <br>
 &nbsp;&nbsp; where ln() is the natural logarithm function, |.| and
 Tr(.) indicate the determinant and the trace of the matrix respectively.<br>
-<h4>Unsupervised Freeman-Durden Wishart Classification</h4>
-&nbsp;&nbsp; Similar to the unsupervised Wishart classification method
-above this method is also a Wishart distance based classification.
-Instead of applying Wishart classification to clusters formed by
-H/Alpha decomposition, this method applys Wishart classification to
-clusters in each catgory of the Freeman-Durden decomposition.<br>
-<br>
-&nbsp;&nbsp; First Freeman-Durden decomposition is performed on speckle
-filtered quad-pol image. Then 30 clusters are created in each of the
-three categories (volume, double-bounce and surface) with approximately
-equal number of pixels in the clusters. The clusters in each category
-are then merged based on the Wishart distance between clusters. The
-merge process is repeated until user specified number of clusters is
-reached. Finally Wishart classification is applied to clusters in each
-category&nbsp; to classify pixels&nbsp; in the category.<br>
+<h4>Freeman-Durden Wishart Classification</h4>
+&nbsp; The Freeman-Durden classification is also a Wishart distance
+based classification. It basically implements the unsupervised PolSAR
+classification algorithm proposed by Lee et al. in [2]. In the
+algorithm, the pixels are first divided into three categories of
+surface, volume and double bounce scattering by applying the
+Freeman-Durden decomposition. Then 30 clusters are created in each
+category with approximately equal number of pixels based on the
+backscattering power of surface, volume and double bounce. Finally the
+clusters in each category are merged to a pre-selected number of
+classes based on Wishart distance between clusters.<br><h4>General Wishart Classification</h4>
+&nbsp;&nbsp; The General Wishart classification method
+generalizes&nbsp;the Freeman-Durden Wishart classification method
+above.&nbsp; In the General Wishart classification, the initial
+decomposition method is generalized from Freeman-Durden method to other
+decomposition method, such as Sinclair decomposition, Yamaguchi
+decomposition etc. The rest of the algorithm is the same as the
+Freeman-Durden classification algorithm.<br>
 
 <h4>Input and Output</h4>
 
@@ -105,7 +105,7 @@ category&nbsp; to classify pixels&nbsp; in the category.<br>
     <li>Window Size: dimension of sliding window for computing mean covariance or coherency matrix</li>
 </ul>
 <br>
-<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricClassification_cloude_pottier.jpg"><br>
+<img style="width: 438px; height: 443px;" alt="" src="images/polarimetricClassification_cloude_pottier.jpg"><br>
 
 <div style="text-align: left;">&nbsp;&nbsp;&nbsp;
     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
@@ -113,20 +113,20 @@ category&nbsp; to classify pixels&nbsp; in the category.<br>
     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
     &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Figure 2. Dialog box for Unsupervised Cloude-Pottier classification<br>
+    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Figure 2. Dialog box for&nbsp;Cloude-Pottier classification<br>
 </div>
 <br><br>
-For Unsupervised Wishart classification, the following parameters are used (see Figure 3):<br>
+For H Alpha Wishart classification, the following parameters are used (see Figure 3):<br>
 <ul>
     <li>Classification: the classification method</li>
     <li>Window Size: dimension of sliding window for computing mean covariance or coherency matrix</li>
     <li>Maximum Number of Iterations: the maximum number of iterations<br>
     </li>
 </ul>
-<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricClassification_unsupervised_wishart.jpg"><br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 3. Dialog box for Unsupervised Wishart classification<br>
+<img style="width: 437px; height: 443px;" alt="" src="images/polarimetricClassification_unsupervised_wishart.jpg"><br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 3. Dialog box for H Alpha Wishart classification<br>
 <br>
-For Unsupervised Freeman-Durden Wishart classification, the following parameters are used (see Figure 4):<br>
+For the Freeman-Durden Wishart classification, the following parameters are used (see Figure 4):<br>
 <ul>
     <li>Classification: the classification method</li>
     <li>Window Size: dimension of sliding window for computing mean covariance or coherency matrix</li>
@@ -145,14 +145,17 @@ For Unsupervised Freeman-Durden Wishart classification, the following parameters
 
 </ul>
 
-<p><img style="width: 450px; height: 450px;" alt="" src="images/polarimetricClassification_unsupervised_freeman_durden_wishart.jpg"><br>
+<p><img style="width: 437px; height: 443px;" alt="" src="images/polarimetricClassification_unsupervised_freeman_durden_wishart.jpg"><br>
 </p>
 
-<p>Figure 4. Dialog box for Unsupervised Freeman-Durden Wishart classification</p>
+<p>Figure 4. Dialog box for the Freeman-Durden Wishart classification</p><p></p>
 
-<p><br>
+<p>
+For the General Wishart classification, the following parameters are used (see Figure 4):<br>
+</p><ul><li>Classification: the classification method</li><li>Window Size: dimension of sliding window for computing mean covariance or coherency matrixp</li><li>Initial Number of Classes: the initial number of clusters</li><li>Final Number of Classes: the final number of classes after classification</li><li>Threshold for Mixed Category: the threshold used in classifying
+        pixels to the mixed category</li><li>Decomposition: The initial decomposition method. The following decomposition methods are currently supported: Sinclair, Pauli, Freeman-Durden, Generalized Freeman-Durden, Yamaguchi, van Zyl, Cloude and Touzi</li></ul><p>
 
-</p>
+<img style="width: 435px; height: 444px;" alt="" src="images/polarimetricClassification_unsupervised_general_wishart.jpg"></p><p>Figure 5. Dialog box for the General Wishart classification</p><p></p>
 
 <p> Reference:&nbsp;</p>
 
@@ -167,5 +170,4 @@ For Unsupervised Freeman-Durden Wishart classification, the following parameters
 
 
 <hr>
-</body>
-</html>
+</body></html>
