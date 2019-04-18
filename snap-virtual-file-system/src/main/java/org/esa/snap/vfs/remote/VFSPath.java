@@ -126,7 +126,6 @@ public class VFSPath implements Path {
      * @return The new VFS Path
      */
     static VFSPath parsePath(AbstractRemoteFileSystem fileSystem, String pathName) {
-//        java.nio.file.InvalidPathException: Illegal char <:> at index 4: http://www.geo-airbusds.com/dimapv2
         String rootPathAsString = fileSystem.getRoot().getPath();
         if (pathName.equals(rootPathAsString)) {
             return fileSystem.getRoot();
@@ -354,13 +353,8 @@ public class VFSPath implements Path {
      */
     @Override
     public boolean startsWith(Path other) {
-        if (other == null) {
-            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
-        }
-        if (other instanceof VFSPath) {
-            return this.path.startsWith(((VFSPath) other).path);
-        }
-        return this.path.startsWith(other.toString());
+        VFSPath remotePath = VFSPath.toRemotePath(other);
+        return this.path.startsWith(remotePath.path);
     }
 
     /**
@@ -376,7 +370,7 @@ public class VFSPath implements Path {
     @Override
     public boolean startsWith(String other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return startsWith(parsePath(other));
     }
@@ -396,13 +390,8 @@ public class VFSPath implements Path {
      */
     @Override
     public boolean endsWith(Path other) {
-        if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
-        }
-        if (other instanceof VFSPath) {
-            return this.path.endsWith(((VFSPath) other).path);
-        }
-        return this.path.endsWith(other.toString());
+        VFSPath remotePath = VFSPath.toRemotePath(other);
+        return this.path.endsWith(remotePath.path);
     }
 
     /**
@@ -420,7 +409,7 @@ public class VFSPath implements Path {
     @Override
     public boolean endsWith(String other) {
         if (other == null) {
-            throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
+            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
         }
         return endsWith(parsePath(other));
     }
@@ -500,17 +489,15 @@ public class VFSPath implements Path {
      */
     @Override
     public Path resolveSibling(Path other) {
-        if (other == null) {
-            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
-        }
-        if (other.toString().isEmpty()) {
+        VFSPath remotePath = toRemotePath(other);
+        if (remotePath.toString().isEmpty()) {
             return this;
         }
         Path parent = getParent();
-        if (parent == null || other.isAbsolute()) {
-            return other;
+        if (parent == null || remotePath.isAbsolute()) {
+            return remotePath;
         }
-        return parent.resolve(other);
+        return parent.resolve(remotePath);
     }
 
     /**
@@ -551,23 +538,18 @@ public class VFSPath implements Path {
      */
     @Override
     public Path relativize(Path other) {
-        if (other == null) {
-            throw new NullPointerException(OTHER_MISSING_ERROR_MESSAGE);
-        }
-        VFSPath path2 = (VFSPath) other;
-        if (isAbsolute() != path2.isAbsolute()) {
+        VFSPath remotePath = toRemotePath(other);
+        if (isAbsolute() != remotePath.isAbsolute()) {
             throw new IllegalArgumentException(OTHER_MISSING_ERROR_MESSAGE);
         }
-
         String[] names1 = getNames();
-        String[] names2 = path2.getNames();
+        String[] names2 = remotePath.getNames();
         for (int i = 0; i < names1.length; i++) {
             if (i >= names2.length || !names1[i].equals(names2[i])) {
-                return path2;
+                return remotePath;
             }
         }
-
-        return path2.subpath(names1.length, path2.getNameCount());
+        return remotePath.subpath(names1.length, remotePath.getNameCount());
     }
 
     /**
@@ -716,19 +698,19 @@ public class VFSPath implements Path {
      */
     @Override
     public int compareTo(Path other) {
-        VFSPath otherPath = (VFSPath) other;
-        int n = Math.min(getNameCount(), otherPath.getNameCount());
+        VFSPath remotePath = toRemotePath(other);
+        int n = Math.min(getNameCount(), remotePath.getNameCount());
 
         for (int i = 0; i < n; i++) {
             String name1 = getNames()[i];
-            String name2 = otherPath.getNames()[i];
+            String name2 = remotePath.getNames()[i];
             int delta = name1.compareTo(name2);
             if (delta != 0) {
                 return delta;
             }
         }
         String name1 = n < getNameCount() ? getNames()[n] : null;
-        String name2 = n < otherPath.getNameCount() ? otherPath.getNames()[n] : null;
+        String name2 = n < remotePath.getNameCount() ? remotePath.getNames()[n] : null;
         if (name1 == null && name2 == null) {
             return 0;
         }
