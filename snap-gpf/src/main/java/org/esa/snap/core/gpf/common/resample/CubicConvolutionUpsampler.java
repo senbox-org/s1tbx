@@ -4,12 +4,12 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.image.ImageManager;
 
 /**
- * Created by obarrile on 11/04/2019.
+ * Created by obarrile on 19/04/2019.
  */
-public class NearestUpsampler implements Upsampling {
+public class CubicConvolutionUpsampler implements Upsampling {
     @Override
     public String getName() {
-        return "Nearest";
+        return "Cubic_Convolution";
     }
 
     @Override
@@ -20,13 +20,13 @@ public class NearestUpsampler implements Upsampling {
     @Override
     public Interpolator createUpsampler(RasterDataNode rasterDataNode) {
         int dataBufferType = ImageManager.getDataBufferType(rasterDataNode.getDataType());
-        return InterpolatorFactory.createInterpolator(InterpolationType.Nearest,dataBufferType);
+        return InterpolatorFactory.createInterpolator(InterpolationType.Cubic_Convolution,dataBufferType);
     }
 
     public static class Spi extends UpsamplerSpi {
 
         public Spi() {
-            super(NearestUpsampler.class,"Nearest");
+            super(CubicConvolutionUpsampler.class,"Cubic_Convolution");
         }
     }
 }

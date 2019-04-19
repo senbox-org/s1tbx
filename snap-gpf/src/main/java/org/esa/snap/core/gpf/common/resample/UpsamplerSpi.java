@@ -6,12 +6,24 @@ package org.esa.snap.core.gpf.common.resample;
 public abstract class UpsamplerSpi {
 
     private final String upsamplerAlias;
+    private final Class<? extends Upsampling> upsamplingClass;
 
-    protected UpsamplerSpi(String  upsamplerAlias) {
-        this.upsamplerAlias = upsamplerAlias;
+    protected UpsamplerSpi(Class<? extends Upsampling> upsamplingClass, String alias) {
+
+        this.upsamplerAlias = alias;
+        this.upsamplingClass = upsamplingClass;
     }
 
     public String getAlias() {
         return upsamplerAlias;
+    }
+
+    public Upsampling createUpsampling() {
+        try {
+            return upsamplingClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
