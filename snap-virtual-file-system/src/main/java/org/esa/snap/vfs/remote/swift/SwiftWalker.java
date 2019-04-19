@@ -137,27 +137,31 @@ class SwiftWalker implements VFSWalker {
      */
     public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
         try {
-            return getVFSFileAttributes(address, prefix + (prefix.endsWith("/") ? "" : "/"));
-        } catch (Exception ex) {
-            return getVFSFileAttributes(address, prefix);
+            return getVFSFileAttributes(prefix + (prefix.endsWith("/") ? "" : "/"));
+        } catch (IOException ex) {
+            return getVFSFileAttributes(prefix);
         }
     }
 
-    private BasicFileAttributes getVFSFileAttributes(String address, String prefix) throws IOException {
+    private BasicFileAttributes getVFSFileAttributes(String prefix) throws IOException {
         String swiftPrefix = buildPrefix(prefix);
         String swiftURL = buildSwiftURL(swiftPrefix, "");
         HttpURLConnection connection = SwiftResponseHandler.getConnectionChannel(new URL(swiftURL), "GET", null, authAddress, domain, projectId, user, password);
-        int responseCode = connection.getResponseCode();
-        if (isValidResponseCode(responseCode)) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            while ((line = reader.readLine()) != null) {
-                content.append(line);
+        try {
+            int responseCode = connection.getResponseCode();
+            if (isValidResponseCode(responseCode)) {
+                StringBuilder content = new StringBuilder();
+                String line;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
+                }
+                return fetchAttributes(content.toString(), prefix);
+            } else {
+                throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
             }
-            return fetchAttributes(content.toString(), prefix);
-        } else {
-            throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
+        } finally {
+            connection.disconnect();
         }
     }
 
@@ -180,8 +184,13 @@ class SwiftWalker implements VFSWalker {
             String swiftURL = buildSwiftURL(swiftPrefix, marker);
             try {
                 HttpURLConnection connection = SwiftResponseHandler.getConnectionChannel(new URL(swiftURL), "GET", null, authAddress, domain, projectId, user, password);
-                InputStream input = connection.getInputStream();
-                xmlReader.parse(new InputSource(input));
+                try {
+                    try (InputStream input = connection.getInputStream()) {
+                        xmlReader.parse(new InputSource(input));
+                    }
+                } finally {
+                    connection.disconnect();
+                }
             } catch (SAXException ex) {
                 logger.log(Level.SEVERE, "Unable to get a list of OpenStack Swift VFS files and directories from to the given prefix. Details: " + ex.getMessage());
                 throw new IOException(ex);
