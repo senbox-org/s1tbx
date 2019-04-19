@@ -28,11 +28,11 @@ class AggregatedOpImage extends GeometricOpImage {
     private final float offsetX;
     private final float offsetY;
     private final double noDataValue;
-    private AggregationType aggregationType;
+    private Downsampling downsampling;
     private final int dataBufferType;
     private RasterDataNode rasterDataNode;
 
-    AggregatedOpImage(RasterDataNode rasterDataNode, RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataBufferType,
+    AggregatedOpImage(RasterDataNode rasterDataNode, RenderedImage sourceImage, ImageLayout layout, double noDataValue, Downsampling downsampling, int dataBufferType,
                       AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
                 createBackground(noDataValue));
@@ -46,7 +46,7 @@ class AggregatedOpImage extends GeometricOpImage {
                 (float) (sourceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX());
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
-        this.aggregationType = aggregationType;
+        this.downsampling = downsampling;
         this.dataBufferType = dataBufferType;
         OperatorContext.setTileCache(this);
     }
@@ -79,7 +79,8 @@ class AggregatedOpImage extends GeometricOpImage {
 
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
-        final Aggregator aggregator = AggregatorFactory.createAggregator(aggregationType, dataBufferType);
+        //final Aggregator aggregator = AggregatorFactory.createAggregator(downsampling, dataBufferType);
+        Aggregator aggregator = downsampling.createDownsampler(rasterDataNode);
         aggregator.init(rasterDataNode, srcAccessor, dstAccessor, noDataValue);
 
         for (int dstY = 0; dstY < dstH; dstY++) {

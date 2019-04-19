@@ -218,7 +218,8 @@ public class AggregatedOpImageTest {
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                 sourceBand.getNoDataValue(),
-                AggregationType.Mean, dataBufferType,
+                ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Mean),
+                dataBufferType,
                 sourceBand.getImageToModelTransform(),
                 referenceBand.getImageToModelTransform());
 
@@ -240,7 +241,8 @@ public class AggregatedOpImageTest {
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                 sourceBand.getNoDataValue(),
-                AggregationType.Mean, dataBufferType,
+                ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Mean),
+                dataBufferType,
                 sourceBand.getImageToModelTransform(),
                 referenceBand.getImageToModelTransform());
 
@@ -262,7 +264,8 @@ public class AggregatedOpImageTest {
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(),
-                                                              AggregationType.Mean, dataBufferType,
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Mean),
+                                                              dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
@@ -290,7 +293,8 @@ public class AggregatedOpImageTest {
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Median,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Median),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
@@ -312,7 +316,8 @@ public class AggregatedOpImageTest {
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Min,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Min),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
@@ -334,7 +339,8 @@ public class AggregatedOpImageTest {
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Max,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Max),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
@@ -356,7 +362,8 @@ public class AggregatedOpImageTest {
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.First,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.First),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());

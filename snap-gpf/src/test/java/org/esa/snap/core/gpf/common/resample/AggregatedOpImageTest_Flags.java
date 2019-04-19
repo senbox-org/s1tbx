@@ -73,7 +73,8 @@ public class AggregatedOpImageTest_Flags {
         sourceBand.setSourceImage(sourceImage);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceImage, imageLayout, noDataValue,
-                                                              AggregationType.FlagAnd, ProductData.TYPE_UINT16, sourceTransform,
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.FlagAnd),
+                                                              ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
@@ -102,8 +103,12 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final AggregatedOpImage image = new AggregatedOpImage(null, sourceImage, imageLayout, noDataValue,
-                                                              AggregationType.FlagOr, ProductData.TYPE_UINT16, sourceTransform,
+        final Band sourceBand = new Band("band", ProductData.TYPE_UINT16, 4, 4);
+        sourceBand.setSourceImage(sourceImage);
+
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceImage, imageLayout, noDataValue,
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.FlagOr),
+                                                              ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
@@ -132,8 +137,12 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final AggregatedOpImage image = new AggregatedOpImage(null, sourceImage, imageLayout, noDataValue,
-                                                              AggregationType.FlagMedianAnd, ProductData.TYPE_UINT16, sourceTransform,
+        final Band sourceBand = new Band("band", ProductData.TYPE_UINT16, 4, 4);
+        sourceBand.setSourceImage(sourceImage);
+
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceImage, imageLayout, noDataValue,
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.FlagMedianAnd),
+                                                              ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
@@ -162,8 +171,12 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final AggregatedOpImage image = new AggregatedOpImage(null, sourceImage, imageLayout, noDataValue,
-                                                              AggregationType.FlagMedianOr, ProductData.TYPE_UINT16, sourceTransform,
+        final Band sourceBand = new Band("band", ProductData.TYPE_UINT16, 4, 4);
+        sourceBand.setSourceImage(sourceImage);
+
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceImage, imageLayout, noDataValue,
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.FlagMedianOr),
+                                                              ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
