@@ -5,6 +5,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.gpf.GPF;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.geom.AffineTransform;
@@ -66,4 +67,19 @@ public class ResampleUtils {
         return true;
     }
 
+    public static Downsampling getDownsamplingFromAggregatorType(AggregationType type) {
+        DownsamplerSpi spi = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(type.toString());
+        if(spi == null) {
+            return null;
+        }
+        return spi.createDownsampling();
+    }
+
+    public static Upsampling getUpsamplingFromInterpolationType(InterpolationType type) {
+        UpsamplerSpi spi = GPF.getDefaultInstance().getUpsamplerSpiRegistry().getUpsamplerSpi(type.toString());
+        if(spi == null) {
+            return null;
+        }
+        return spi.createUpsampling();
+    }
 }
