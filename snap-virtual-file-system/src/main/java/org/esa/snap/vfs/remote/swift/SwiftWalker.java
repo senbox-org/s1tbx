@@ -12,6 +12,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -99,10 +100,10 @@ class SwiftWalker implements VFSWalker {
         return (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE);
     }
 
-    private BasicFileAttributes fetchAttributes(String response, String path) {
+    private BasicFileAttributes fetchAttributes(String response, String path) throws IOException {
         try {
             String prefix = buildPrefix(path);
-            Pattern pattern = Pattern.compile("<.xml version=\"1.0\" encoding=\"UTF-8\".>\\s*<container name=\"" + container + "\">\\s*<object>\\s*<name>" + prefix + "</name>\\s*<hash>[0-9abcdef]*</hash>\\s*<bytes>(\\d*)</bytes>\\s*<last_modified>([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z)</last_modified>\\s*</object>");
+            Pattern pattern = Pattern.compile("<.xml version=\"1.0\" encoding=\"UTF-8\".>\\s*<container name=\"" + container + "\">\\s*<object>\\s*<name>" + prefix + "</name>\\s*<hash>[0-9abcdef\\-]*</hash>\\s*<bytes>(\\d*)</bytes>\\s*<last_modified>([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z)</last_modified>\\s*</object>");
             Matcher matcher = pattern.matcher(response);
             if (matcher.find()) {
                 String sizeString = matcher.group(1);
@@ -120,9 +121,9 @@ class SwiftWalker implements VFSWalker {
                     return VFSFileAttributes.newDir(path);
                 }
             }
-            throw new IllegalStateException(path + ": Not found");
+            throw new IOException(path + ": Not found");
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to fetch file attributes", e);
+            throw new IOException("Unable to fetch file attributes", e);
         }
     }
 
@@ -178,7 +179,9 @@ class SwiftWalker implements VFSWalker {
             xmlReader.setContentHandler(handler);
             String swiftURL = buildSwiftURL(swiftPrefix, marker);
             try {
-                xmlReader.parse(new InputSource(SwiftResponseHandler.getConnectionChannel(new URL(swiftURL), "GET", null, authAddress, domain, projectId, user, password).getInputStream()));
+                HttpURLConnection connection = SwiftResponseHandler.getConnectionChannel(new URL(swiftURL), "GET", null, authAddress, domain, projectId, user, password);
+                InputStream input = connection.getInputStream();
+                xmlReader.parse(new InputSource(input));
             } catch (SAXException ex) {
                 logger.log(Level.SEVERE, "Unable to get a list of OpenStack Swift VFS files and directories from to the given prefix. Details: " + ex.getMessage());
                 throw new IOException(ex);
