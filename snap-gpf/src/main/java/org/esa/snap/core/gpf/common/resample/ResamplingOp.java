@@ -99,7 +99,7 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "upsampling",
             label = "Upsampling method",
             description = "The method used for interpolation (upsampling to a finer resolution).",
-            valueSet = {"Nearest", "Bilinear", "Bicubic"},
+            valueSet = {"Nearest", "Bilinear", "Bicubic", "Cubic_Convolution"},
             defaultValue = "Nearest"
     )
     private String upsamplingMethod;
@@ -473,13 +473,22 @@ public class ResamplingOp extends Operator {
         Interpolation interpolation = null;
         Upsampling upsampling = null;
 
+
+        String bandUpsamplingMethod = upsamplingMethod;
+
+        if(resamplingPreset != null && resamplingPreset.length() >0 && ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset) != null) {
+            ResamplingPreset myResamplingPreset = ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset);
+            BandResamplingPreset bandResamplingPreset  = myResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
+            if(bandResamplingPreset != null) {
+                bandUpsamplingMethod = bandResamplingPreset.getUpsamplingAlias();
+            }
+        } else if(isFlagOrIndexBand) {
+            bandUpsamplingMethod = "Nearest";
+        }
+
         try {
             //do it using Interpolation scaler
-            if (isFlagOrIndexBand) {
-                interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-            } else {
-                interpolation = getInterpolation();
-            }
+            interpolation = getInterpolation(bandUpsamplingMethod);
         } catch (IllegalArgumentException e){
             //do it using similar method to downsampling. Using InterpolatedOpImage
             interpolation = null;
@@ -554,6 +563,25 @@ public class ResamplingOp extends Operator {
         } else if ("Bilinear".equalsIgnoreCase(upsamplingMethod)) {
             interpolationType = Interpolation.INTERP_BILINEAR;
         } else if ("Bicubic".equalsIgnoreCase(upsamplingMethod)) {
+            interpolationType = Interpolation.INTERP_BICUBIC;
+        } else {
+            interpolationType = -1;
+        }
+        return interpolationType;
+    }
+
+    private Interpolation getInterpolation(String otherUpsamplingMethod) {
+        int interpolation = getInterpolationType(otherUpsamplingMethod);
+        return Interpolation.getInstance(interpolation);
+    }
+
+    private int getInterpolationType(String otherUpsamplingMethod) {
+        final int interpolationType;
+        if ("Nearest".equalsIgnoreCase(otherUpsamplingMethod)) {
+            interpolationType = Interpolation.INTERP_NEAREST;
+        } else if ("Bilinear".equalsIgnoreCase(otherUpsamplingMethod)) {
+            interpolationType = Interpolation.INTERP_BILINEAR;
+        } else if ("Bicubic".equalsIgnoreCase(otherUpsamplingMethod)) {
             interpolationType = Interpolation.INTERP_BICUBIC;
         } else {
             interpolationType = -1;
@@ -714,7 +742,7 @@ public class ResamplingOp extends Operator {
 
     //todo this method has been copied from ReprojectionOp. Find a common place? - tf 20160210
     private void validateInterpolationParameter() {
-        if (getInterpolationType() == -1) {
+        if (getInterpolationType() == -1 && GPF.getDefaultInstance().getUpsamplerSpiRegistry().getUpsamplerSpi(upsamplingMethod) == null) {
             throw new OperatorException("Invalid upsampling method: " + upsamplingMethod);
         }
     }
