@@ -10,10 +10,8 @@ import org.xml.sax.XMLReader;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -23,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Walker for OpenStack Swift VFS.
@@ -100,33 +96,6 @@ class SwiftWalker implements VFSWalker {
         return (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE);
     }
 
-    private BasicFileAttributes fetchAttributes(String response, String path) throws IOException {
-        try {
-            String prefix = buildPrefix(path);
-            Pattern pattern = Pattern.compile("<.xml version=\"1.0\" encoding=\"UTF-8\".>\\s*<container name=\"" + container + "\">\\s*<object>\\s*<name>" + prefix + "</name>\\s*<hash>[0-9abcdef\\-]*</hash>\\s*<bytes>(\\d*)</bytes>\\s*<last_modified>([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z)</last_modified>\\s*</object>");
-            Matcher matcher = pattern.matcher(response);
-            if (matcher.find()) {
-                String sizeString = matcher.group(1);
-                String lastModified = matcher.group(2);
-                if (StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
-                    long size = Long.parseLong(sizeString);
-                    if (size > 0) {
-                        return VFSFileAttributes.newFile(path, size, lastModified);
-                    } else {
-                        return VFSFileAttributes.newDir(path);
-                    }
-                }
-            } else {
-                if (path.endsWith(":")) {
-                    return VFSFileAttributes.newDir(path);
-                }
-            }
-            throw new IOException(path + ": Not found");
-        } catch (Exception e) {
-            throw new IOException("Unable to fetch file attributes", e);
-        }
-    }
-
     /**
      * Gets the VFS file basic attributes.
      *
@@ -136,27 +105,32 @@ class SwiftWalker implements VFSWalker {
      * @throws IOException If an I/O error occurs
      */
     public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
-        try {
-            return getVFSFileAttributes(prefix + (prefix.endsWith("/") ? "" : "/"));
-        } catch (IOException ex) {
-            return getVFSFileAttributes(prefix);
-        }
-    }
-
-    private BasicFileAttributes getVFSFileAttributes(String prefix) throws IOException {
-        String swiftPrefix = buildPrefix(prefix);
-        String swiftURL = buildSwiftURL(swiftPrefix, "");
-        HttpURLConnection connection = SwiftResponseHandler.getConnectionChannel(new URL(swiftURL), "GET", null, authAddress, domain, projectId, user, password);
+        HttpURLConnection connection = SwiftResponseHandler.buildConnection(new URL(address + (address.endsWith("/") ? "" : "/")), "GET", null, authAddress, domain, projectId, user, password);
         try {
             int responseCode = connection.getResponseCode();
             if (isValidResponseCode(responseCode)) {
-                StringBuilder content = new StringBuilder();
-                String line;
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                while ((line = reader.readLine()) != null) {
-                    content.append(line);
+                // the address represents a directory
+                return VFSFileAttributes.newDir(prefix);
+            }
+        } finally {
+            connection.disconnect();
+        }
+        // the address does not represent a directory
+        return getVFSFileAttributes(address, prefix);
+    }
+
+    private BasicFileAttributes getVFSFileAttributes(String address, String prefix) throws IOException {
+        HttpURLConnection connection = SwiftResponseHandler.buildConnection(new URL(address), "GET", null, authAddress, domain, projectId, user, password);
+        try {
+            int responseCode = connection.getResponseCode();
+            if (isValidResponseCode(responseCode)) {
+                String sizeString = connection.getHeaderField("content-length");
+                String lastModified = connection.getHeaderField("last-modified");
+                if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
+                    throw new IOException("filePath is not a file '" + prefix + "'.");
                 }
-                return fetchAttributes(content.toString(), prefix);
+                long size = Long.parseLong(sizeString);
+                return VFSFileAttributes.newFile(prefix, size, lastModified);
             } else {
                 throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
             }

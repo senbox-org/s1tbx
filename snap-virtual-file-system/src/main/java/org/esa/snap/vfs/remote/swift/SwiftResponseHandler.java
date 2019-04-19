@@ -107,28 +107,28 @@ public class SwiftResponseHandler extends DefaultHandler {
             connection.setRequestProperty("user-agent", "SNAP Virtual File System");
             PrintWriter out = new PrintWriter(connection.getOutputStream());
             out.print("{\n" +
-                              "    \"auth\": {\n" +
-                              "        \"identity\": {\n" +
-                              "            \"methods\": [\n" +
-                              "                \"password\"\n" +
-                              "            ],\n" +
-                              "            \"password\": {\n" +
-                              "                \"user\": {\n" +
-                              "                    \"domain\": {\n" +
-                              "                        \"name\": \"" + domain + "\"\n" +
-                              "                    },\n" +
-                              "                    \"name\": \"" + user + "\",\n" +
-                              "                    \"password\": \"" + password + "\"\n" +
-                              "                }\n" +
-                              "            }\n" +
-                              "        },\n" +
-                              "        \"scope\": {\n" +
-                              "            \"project\": {\n" +
-                              "                \"id\": \"" + projectId + "\"\n" +
-                              "            }\n" +
-                              "        }\n" +
-                              "    }\n" +
-                              "}");
+                    "    \"auth\": {\n" +
+                    "        \"identity\": {\n" +
+                    "            \"methods\": [\n" +
+                    "                \"password\"\n" +
+                    "            ],\n" +
+                    "            \"password\": {\n" +
+                    "                \"user\": {\n" +
+                    "                    \"domain\": {\n" +
+                    "                        \"name\": \"" + domain + "\"\n" +
+                    "                    },\n" +
+                    "                    \"name\": \"" + user + "\",\n" +
+                    "                    \"password\": \"" + password + "\"\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "        },\n" +
+                    "        \"scope\": {\n" +
+                    "            \"project\": {\n" +
+                    "                \"id\": \"" + projectId + "\"\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "}");
             out.flush();
             if (connection.getResponseCode() == 201) {
                 return connection.getHeaderField("X-Subject-Token");
@@ -154,6 +154,17 @@ public class SwiftResponseHandler extends DefaultHandler {
      * @throws IOException If an I/O error occurs
      */
     static HttpURLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String authAddress, String domain, String projectId, String user, String password) throws IOException {
+        HttpURLConnection connection = buildConnection(url, method, requestProperties, authAddress, domain, projectId, user, password);
+        int responseCode = connection.getResponseCode();
+        if (responseCode < 200 || responseCode >= 300) {
+            /* error from server */
+            throw new IOException(url + ": response code " + responseCode + ": " + connection.getResponseMessage());
+        } else {
+            return connection;
+        }
+    }
+
+    static HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties, String authAddress, String domain, String projectId, String user, String password) throws IOException {
         String authorizationToken = getAuthorizationToken(authAddress, domain, projectId, user, password);
         HttpURLConnection connection;
         if (url.getProtocol().equals("https")) {
@@ -176,13 +187,7 @@ public class SwiftResponseHandler extends DefaultHandler {
             }
         }
         connection.setRequestProperty("user-agent", "SNAP Virtual File System");
-        int responseCode = connection.getResponseCode();
-        if (responseCode < 200 || responseCode >= 300) {
-            /* error from server */
-            throw new IOException(url + ": response code " + responseCode + ": " + connection.getResponseMessage());
-        } else {
-            return connection;
-        }
+        return connection;
     }
 
     /**
