@@ -124,6 +124,15 @@ public class ResamplingOp extends Operator {
             defaultValue = "")
     private String resamplingPreset;
 
+    //over rules resamplingPreset
+    @Parameter(alias = "bandResamplings",
+            label = "Band Resamplings",
+            description = "The band resamplings. This will over rules the settings for resamplingPreset.",
+            defaultValue = "")
+    private String bandResamplings;
+
+
+
     @Parameter(label = "Resample on pyramid levels (for faster imaging)", defaultValue = "true",
             description = "This setting will increase performance when viewing the image, but accurate resamplings " +
                     "are only retrieved when zooming in on a pixel.")
@@ -469,21 +478,30 @@ public class ResamplingOp extends Operator {
 
     private MultiLevelImage createInterpolatedImage(RasterDataNode sourceRDN, MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
                                                     AffineTransform sourceImageToModelTransform, boolean isFlagOrIndexBand, MultiLevelModel referenceModel) {
-
         Interpolation interpolation = null;
         Upsampling upsampling = null;
 
-
         String bandUpsamplingMethod = upsamplingMethod;
+
+        if(isFlagOrIndexBand) {
+            bandUpsamplingMethod = "Nearest";
+        }
 
         if(resamplingPreset != null && resamplingPreset.length() >0 && ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset) != null) {
             ResamplingPreset myResamplingPreset = ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset);
-            BandResamplingPreset bandResamplingPreset  = myResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
-            if(bandResamplingPreset != null) {
+            BandResamplingPreset bandResamplingPreset = myResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
+            if (bandResamplingPreset != null) {
                 bandUpsamplingMethod = bandResamplingPreset.getUpsamplingAlias();
             }
-        } else if(isFlagOrIndexBand) {
-            bandUpsamplingMethod = "Nearest";
+        }
+
+        //over rules resampling preset with bandResampling
+        ResamplingPreset myResamplingPreset2 = ResamplingPreset.loadResamplingPreset(bandResamplings,"bandResampling");
+        if(myResamplingPreset2 != null) {
+            BandResamplingPreset bandResamplingPreset2 = myResamplingPreset2.getBandResamplingPreset(sourceRDN.getName());
+            if (bandResamplingPreset2 != null) {
+                bandUpsamplingMethod = bandResamplingPreset2.getUpsamplingAlias();
+            }
         }
 
         try {
@@ -503,7 +521,7 @@ public class ResamplingOp extends Operator {
 
 
         ////////////////////////
-        //New implementation
+        //New implementation (similar to createAggregatedImage)
         ////////////////////////
         MultiLevelSource source;
         Upsampling finalUpsampling = upsampling;
@@ -593,26 +611,30 @@ public class ResamplingOp extends Operator {
                                                   boolean isFlagBand, MultiLevelModel referenceModel) {
         //AggregationType type;
         Downsampling downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(downsamplingMethod).createDownsampling();
+
+        if(isFlagBand) {
+            downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(flagDownsamplingMethod).createDownsampling();
+        }
+
+
         if(resamplingPreset != null && resamplingPreset.length() >0 && ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset) != null) {
             ResamplingPreset myResamplingPreset = ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset);
             BandResamplingPreset bandResamplingPreset  = myResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
             if(bandResamplingPreset != null) {
                 downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(bandResamplingPreset.getDownsamplingAlias()).createDownsampling();
             }
-        } else if(isFlagBand) {
-            downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(flagDownsamplingMethod).createDownsampling();
         }
-        /*if (isFlagBand) {
-            if (flagAggregationType == null) {
-                throw new OperatorException("Invalid flag downsampling method");
+
+        //over rules resampling preset with bandResampling
+        ResamplingPreset myResamplingPreset2 = ResamplingPreset.loadResamplingPreset(bandResamplings,"bandResampling");
+        if(myResamplingPreset2 != null) {
+            BandResamplingPreset bandResamplingPreset2 = myResamplingPreset2.getBandResamplingPreset(sourceRDN.getName());
+            if (bandResamplingPreset2 != null) {
+                downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(bandResamplingPreset2.getDownsamplingAlias()).createDownsampling();
+
             }
-            type = flagAggregationType;
-        } else {
-            if (aggregationType == null) {
-                throw new OperatorException("Invalid downsampling method");
-            }
-            type = aggregationType;
-        }*/
+        }
+
         MultiLevelSource source;
         Downsampling finalDownsampling = downsampling;
         if (resampleOnPyramidLevels) {

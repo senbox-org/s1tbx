@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * Created by obarrile on 13/04/2019.
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 public class ResamplingPreset {
 
     public static final String FILENAME_EXTENSION = ".res";
+    private static final String STRING_SEPARATOR = ",";
 
     private String resamplingPresetName;
     private ArrayList<BandResamplingPreset> bandResamplingPresets;
@@ -50,6 +52,33 @@ public class ResamplingPreset {
         }
         FileUtils.getFilenameWithoutExtension(file);
         return new ResamplingPreset(FileUtils.getFilenameWithoutExtension(file),bandResamplingPresets);
+    }
+
+    /**
+     * Loads a resampling preset from an String
+     *
+     * @param string the string
+     *
+     * @return the resampling preset, never null
+     *
+     */
+    public static ResamplingPreset loadResamplingPreset(final String string, String presetName) {
+        if(string == null) {
+            return null;
+        }
+        ArrayList<BandResamplingPreset> bandResamplingPresets = new ArrayList<>();
+        String[] parts = string.split(STRING_SEPARATOR);
+        if(parts == null || parts.length < 1) {
+            return null;
+        }
+        for(String part : parts) {
+            BandResamplingPreset bandResamplingPreset = BandResamplingPreset.loadBandResamplingPreset(part);
+            if(bandResamplingPreset == null) {
+                continue;
+            }
+            bandResamplingPresets.add(bandResamplingPreset);
+        }
+        return new ResamplingPreset(presetName,bandResamplingPresets);
     }
 
     public String getResamplingPresetName() {
