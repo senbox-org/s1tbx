@@ -13,13 +13,12 @@ public class CubicConvolutionUpsampler implements Upsampling {
     }
 
     @Override
-    public boolean isCompatible(RasterDataNode rasterDataNode) {
+    public boolean isCompatible(RasterDataNode rasterDataNode, int dataBufferType) {
         return true;
     }
 
     @Override
-    public Interpolator createUpsampler(RasterDataNode rasterDataNode) {
-        int dataBufferType = ImageManager.getDataBufferType(rasterDataNode.getDataType());
+    public Interpolator createUpsampler(RasterDataNode rasterDataNode, int dataBufferType) {
         return InterpolatorFactory.createInterpolator(InterpolationType.Cubic_Convolution,dataBufferType);
     }
 

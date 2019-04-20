@@ -80,7 +80,7 @@ class AggregatedOpImage extends GeometricOpImage {
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
         //final Aggregator aggregator = AggregatorFactory.createAggregator(downsampling, dataBufferType);
-        Aggregator aggregator = downsampling.createDownsampler(rasterDataNode);
+        Aggregator aggregator = downsampling.createDownsampler(rasterDataNode, dataBufferType);
         aggregator.init(rasterDataNode, srcAccessor, dstAccessor, noDataValue);
 
         for (int dstY = 0; dstY < dstH; dstY++) {

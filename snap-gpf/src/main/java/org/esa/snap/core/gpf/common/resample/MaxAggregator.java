@@ -14,13 +14,12 @@ public class MaxAggregator implements Downsampling {
     }
 
     @Override
-    public boolean isCompatible(RasterDataNode rasterDataNode) {
+    public boolean isCompatible(RasterDataNode rasterDataNode, int dataBufferType) {
         return true;
     }
 
     @Override
-    public Aggregator createDownsampler(RasterDataNode rasterDataNode) {
-        int dataBufferType = ImageManager.getDataBufferType(rasterDataNode.getDataType());
+    public Aggregator createDownsampler(RasterDataNode rasterDataNode, int dataBufferType) {
         return AggregatorFactory.createAggregator(AggregationType.Max,dataBufferType);
     }
 

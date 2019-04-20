@@ -7,5 +7,5 @@ import org.esa.snap.core.datamodel.RasterDataNode;
  */
 public interface ResamplingMethod {
     String getName();
-    boolean isCompatible(RasterDataNode rasterDataNode);
+    boolean isCompatible(RasterDataNode rasterDataNode, int dataBufferType);
 }

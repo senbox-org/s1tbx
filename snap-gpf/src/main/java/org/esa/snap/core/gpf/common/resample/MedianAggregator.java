@@ -14,13 +14,12 @@ public class MedianAggregator implements Downsampling {
     }
 
     @Override
-    public boolean isCompatible(RasterDataNode rasterDataNode) {
+    public boolean isCompatible(RasterDataNode rasterDataNode, int dataBufferType) {
         return true;
     }
 
     @Override
-    public Aggregator createDownsampler(RasterDataNode rasterDataNode) {
-        int dataBufferType = ImageManager.getDataBufferType(rasterDataNode.getDataType());
+    public Aggregator createDownsampler(RasterDataNode rasterDataNode, int dataBufferType) {
         return AggregatorFactory.createAggregator(AggregationType.Median,dataBufferType);
     }
 

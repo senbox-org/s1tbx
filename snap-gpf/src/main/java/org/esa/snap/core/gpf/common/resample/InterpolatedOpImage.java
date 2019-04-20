@@ -74,7 +74,7 @@ class InterpolatedOpImage extends GeometricOpImage {
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
         //final Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationType, dataBufferType);
-        Interpolator interpolator = upsampling.createUpsampler(rasterDataNode);
+        Interpolator interpolator = upsampling.createUpsampler(rasterDataNode, dataBufferType);
         interpolator.init(rasterDataNode, srcAccessor, dstAccessor, noDataValue);
         interpolator.interpolate(destRect, srcRect, scaleX, scaleY, offsetX, offsetY);
         if (dstAccessor.isDataCopy()) {

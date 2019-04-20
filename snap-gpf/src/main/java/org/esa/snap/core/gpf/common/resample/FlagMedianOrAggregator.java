@@ -16,8 +16,7 @@ public class FlagMedianOrAggregator implements Downsampling {
     }
 
     @Override
-    public boolean isCompatible(RasterDataNode rasterDataNode) {
-        int dataBufferType = ImageManager.getDataBufferType(rasterDataNode.getDataType());
+    public boolean isCompatible(RasterDataNode rasterDataNode, int dataBufferType) {
         if (dataBufferType == DataBuffer.TYPE_FLOAT || dataBufferType == DataBuffer.TYPE_DOUBLE) {
             return false;
         }
@@ -25,8 +24,7 @@ public class FlagMedianOrAggregator implements Downsampling {
     }
 
     @Override
-    public Aggregator createDownsampler(RasterDataNode rasterDataNode) {
-        int dataBufferType = ImageManager.getDataBufferType(rasterDataNode.getDataType());
+    public Aggregator createDownsampler(RasterDataNode rasterDataNode, int dataBufferType) {
         return AggregatorFactory.createAggregator(AggregationType.FlagMedianOr,dataBufferType);
     }
 
