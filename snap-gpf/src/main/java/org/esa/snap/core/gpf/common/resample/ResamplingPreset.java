@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 public class ResamplingPreset {
 
     public static final String FILENAME_EXTENSION = ".res";
-    private static final String STRING_SEPARATOR = ",";
+    public static final String STRING_SEPARATOR = ",";
 
     private String resamplingPresetName;
     private ArrayList<BandResamplingPreset> bandResamplingPresets;
