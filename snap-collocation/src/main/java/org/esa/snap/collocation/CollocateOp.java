@@ -186,11 +186,12 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(masterProduct);
-        ensureSingleRasterSize(slaveProduct);
 
         validateProduct(masterProduct);
-        validateProduct(slaveProduct);
+
+        //for slave, we only need geoCoding. It is not needed singleSize anymore.
+        ensureSceneGeoCoding(slaveProduct);
+
         if (renameMasterComponents && StringUtils.isNullOrEmpty(masterComponentPattern)) {
             throw new OperatorException(format("Parameter ''{0}'' must be set to a non-empty string pattern.", "masterComponentPattern"));
         }
@@ -334,26 +335,38 @@ public class CollocateOp extends Operator {
             OperatorException {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
-            final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
-                    slaveProduct.getSceneGeoCoding(),
-                    slaveProduct.getSceneRasterWidth(),
-                    slaveProduct.getSceneRasterHeight(),
-                    masterProduct.getSceneGeoCoding(),
-                    targetRectangle);
-            final Rectangle sourceRectangle = getBoundingBox(
-                    sourcePixelPositions,
-                    slaveProduct.getSceneRasterWidth(),
-                    slaveProduct.getSceneRasterHeight());
-            pm.worked(1);
-
             for (final Band targetBand : targetProduct.getBands()) {
+                RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
+                PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
+                        sourceRaster.getGeoCoding(),
+                        sourceRaster.getRasterWidth(),
+                        sourceRaster.getRasterHeight(),
+                        masterProduct.getSceneGeoCoding(),
+                        targetRectangle);
+                Rectangle sourceRectangle = getBoundingBox(
+                        sourcePixelPositions,
+                        sourceRaster.getRasterWidth(),
+                        sourceRaster.getRasterHeight());
+                pm.worked(1);
+
                 checkForCancellation();
                 final Tile targetTile = targetTileMap.get(targetBand);
                 ProgressMonitor subPM = SubProgressMonitor.create(pm, 1);
                 if (targetBand == collocationFlagBand) {
+                    sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
+                            slaveProduct.getSceneGeoCoding(),
+                            slaveProduct.getSceneRasterWidth(),
+                            slaveProduct.getSceneRasterHeight(),
+                            masterProduct.getSceneGeoCoding(),
+                            targetRectangle);
+                    sourceRectangle = getBoundingBox(
+                            sourcePixelPositions,
+                            slaveProduct.getSceneRasterWidth(),
+                            slaveProduct.getSceneRasterHeight());
+                    pm.worked(1);
                     computePresenceFlag(sourceRectangle, sourcePixelPositions, targetTile, subPM);
                 } else {
-                    final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
+                    //final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
                     collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile, subPM);
                 }
             }
@@ -367,20 +380,29 @@ public class CollocateOp extends Operator {
         final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
 
         if (targetBand == collocationFlagBand || sourceRaster.getProduct() == slaveProduct) {
-            final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
-                    slaveProduct.getSceneGeoCoding(),
-                    slaveProduct.getSceneRasterWidth(),
-                    slaveProduct.getSceneRasterHeight(),
-                    masterProduct.getSceneGeoCoding(),
-                    targetTile.getRectangle());
-            final Rectangle sourceRectangle = getBoundingBox(
-                    sourcePixelPositions,
-                    slaveProduct.getSceneRasterWidth(),
-                    slaveProduct.getSceneRasterHeight());
-
             if (targetBand == collocationFlagBand) {
+                PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
+                        slaveProduct.getSceneGeoCoding(),
+                        slaveProduct.getSceneRasterWidth(),
+                        slaveProduct.getSceneRasterHeight(),
+                        masterProduct.getSceneGeoCoding(),
+                        targetTile.getRectangle());
+                Rectangle sourceRectangle = getBoundingBox(
+                        sourcePixelPositions,
+                        slaveProduct.getSceneRasterWidth(),
+                        slaveProduct.getSceneRasterHeight());
                 computePresenceFlag(sourceRectangle, sourcePixelPositions, targetTile, pm);
             } else {
+                PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
+                        sourceRaster.getGeoCoding(),
+                        sourceRaster.getRasterWidth(),
+                        sourceRaster.getRasterHeight(),
+                        masterProduct.getSceneGeoCoding(),
+                        targetTile.getRectangle());
+                Rectangle sourceRectangle = getBoundingBox(
+                        sourcePixelPositions,
+                        sourceRaster.getRasterWidth(),
+                        sourceRaster.getRasterHeight());
                 collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile, pm);
             }
         } else {
