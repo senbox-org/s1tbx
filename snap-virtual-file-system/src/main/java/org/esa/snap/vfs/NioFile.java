@@ -354,7 +354,7 @@ public class NioFile extends File {
      */
     @Override
     public boolean canWrite() {
-        return false;
+        return !isInvalidPath() && Files.isWritable(path);
     }
 
     /**
