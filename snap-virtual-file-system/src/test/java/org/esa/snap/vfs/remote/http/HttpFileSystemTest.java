@@ -109,15 +109,15 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
         List<BasicFileAttributes> items;
 
-        HttpWalker walker = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot());
+        HttpWalker walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), null);
         items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/"));
         assertEquals(2, items.size());
 
-        walker = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot());
+        walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), null);
         items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        walker = new HttpWalker(getAddress(), getUser(), getPassword(), "/", httpRepo.getRoot());
+        walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), null);
         items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }

@@ -1,6 +1,7 @@
 package org.esa.snap.vfs.remote.s3;
 
 import org.esa.snap.vfs.remote.VFSFileAttributes;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.esa.snap.vfs.remote.VFSWalker;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -82,14 +83,15 @@ class S3Walker implements VFSWalker {
     /**
      * Gets the VFS file basic attributes.
      *
-     * @param address The VFS service address
-     * @param prefix  The VFS path to traverse
      * @return The S3 file basic attributes
      * @throws IOException If an I/O error occurs
      */
-    public BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException {
+    @Override
+    public BasicFileAttributes readBasicFileAttributes(VFSPath path) throws IOException {
+        String address = path.buildURL().toString();
+        String filePath = path.toString();
         URLConnection urlConnection = S3ResponseHandler.getConnectionChannel(new URL(address), "GET", null, accessKeyId, secretAccessKey);
-        return VFSFileAttributes.newFile(prefix, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
+        return VFSFileAttributes.newFile(filePath, urlConnection.getContentLengthLong(), urlConnection.getHeaderField("last-modified"));
     }
 
     /**

@@ -1,12 +1,19 @@
 package org.esa.snap.vfs.remote.http;
 
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
+import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.VFSWalker;
+import org.esa.snap.vfs.remote.swift.SwiftFileSystemProvider;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * File System Service Provider for the HTTP VFS.
@@ -34,6 +41,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
     private String username;
     private String password;
     private String delimiter;
+    private String authorizationToken;
 
     public HttpFileSystemProvider() {
         super();
@@ -57,6 +65,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
         this.password = password != null ? password : "";
     }
 
+    @Override
     public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
         String newUsername = (String) connectionData.get(USERNAME_PROPERTY_NAME);
         String newCredential = (String) connectionData.get(CREDENTIAL_PROPERTY_NAME);
@@ -75,7 +84,7 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     @Override
     protected VFSWalker newObjectStorageWalker(String fileSystemRoot) {
-        return new HttpWalker(this.address, this.username, this.password, this.delimiter, fileSystemRoot);
+        return new HttpWalker(this.address, this.delimiter, fileSystemRoot, this);
     }
 
     /**
@@ -94,19 +103,6 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
     }
 
     /**
-     * Gets the connection channel for this VFS provider.
-     *
-     * @param url               The URL address to connect
-     * @param method            The HTTP method (GET POST DELETE etc)
-     * @param requestProperties The properties used on the connection
-     * @return The connection channel
-     * @throws IOException If an I/O error occurs
-     */
-    public HttpURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        return HttpResponseHandler.getConnectionChannel(url, method, requestProperties, this.username, this.password);
-    }
-
-    /**
      * Gets the URI scheme that identifies this VFS provider.
      *
      * @return The URI scheme
@@ -114,5 +110,51 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
     @Override
     public String getScheme() {
         return SCHEME;
+    }
+
+    @Override
+    public HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException {
+        synchronized (this) {
+            if (this.authorizationToken == null) {
+                this.authorizationToken = getAuthorizationToken(this.username, this.password);
+                if (this.authorizationToken == null) {
+                    this.authorizationToken = ""; // do not request later the authorization token
+                }
+            }
+        }
+        return buildConnection(url, method, requestProperties, this.username, this.password);
+    }
+
+    /**
+     * Creates the authorization token used for HTTP authentication.
+     *
+     * @param username The username HTTP credential
+     * @param password The password HTTP credential
+     * @return The authorization token
+     */
+    private static String getAuthorizationToken(String username, String password) {
+        return (!StringUtils.isNotNullAndNotEmpty(username) && !StringUtils.isNotNullAndNotEmpty(password)) ? Base64.getEncoder().encodeToString((username + ":" + password).getBytes()) : "";
+    }
+
+    static HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties, String username, String password) throws IOException {
+        String authorizationToken = getAuthorizationToken(username, password);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(method);
+        connection.setDoInput(true);
+        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT") || method.equalsIgnoreCase("DELETE")) {
+            connection.setDoOutput(true);
+        }
+        connection.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+        if (authorizationToken != null && !authorizationToken.isEmpty()) {
+            connection.setRequestProperty("authorization", "Basic " + authorizationToken);
+        }
+        if (requestProperties != null && requestProperties.size() > 0) {
+            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
+            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
+                connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
+            }
+        }
+        connection.setRequestProperty("user-agent", "SNAP Virtual File System");
+        return connection;
     }
 }

@@ -16,12 +16,10 @@ public interface VFSWalker {
     /**
      * Gets the VFS file basic attributes.
      *
-     * @param address The VFS service address
-     * @param prefix  The VFS path to traverse
      * @return The S3 file basic attributes
      * @throws IOException If an I/O error occurs
      */
-    BasicFileAttributes getVFSBasicFileAttributes(String address, String prefix) throws IOException;
+    BasicFileAttributes readBasicFileAttributes(VFSPath path) throws IOException;
 
     /**
      * Gets a list of VFS files and directories from to the given prefix.
