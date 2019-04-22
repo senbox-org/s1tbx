@@ -100,16 +100,9 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
         return this.delimiter;
     }
 
-    /**
-     * Gets the connection channel for this VFS provider.
-     *
-     * @param url               The URL address to connect
-     * @param method            The HTTP method (GET POST DELETE etc)
-     * @param requestProperties The properties used on the connection
-     * @return The connection channel
-     * @throws IOException If an I/O error occurs
-     */
-    public HttpURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
+    @Override
+    public HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException {
+        //TODO Jean to be implemented
         return S3ResponseHandler.getConnectionChannel(url, method, requestProperties, accessKeyId, secretAccessKey);
     }
 

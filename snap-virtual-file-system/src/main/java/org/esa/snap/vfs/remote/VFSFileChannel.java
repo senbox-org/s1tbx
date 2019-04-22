@@ -72,7 +72,21 @@ public class VFSFileChannel extends FileChannel {
         String rangeSpec = "bytes=" + position + "-";
         requestProperties.put("Range", rangeSpec);
         AbstractRemoteFileSystemProvider fileSystemProvider = path.getFileSystem().provider();
-        return fileSystemProvider.getProviderConnectionChannel(url, httpMethod, requestProperties);
+        boolean success = true;
+        HttpURLConnection connection = fileSystemProvider.buildConnection(url, httpMethod, requestProperties);
+        try {
+            int responseCode = connection.getResponseCode();
+            if (HttpUtils.isValidResponseCode(responseCode)) {
+                return connection;
+            } else {
+                success = false;
+                throw new IOException(url.toString() + ": response code " + responseCode + ": " + connection.getResponseMessage());
+            }
+        } finally {
+            if (!success) {
+                connection.disconnect();
+            }
+        }
     }
 
     /**

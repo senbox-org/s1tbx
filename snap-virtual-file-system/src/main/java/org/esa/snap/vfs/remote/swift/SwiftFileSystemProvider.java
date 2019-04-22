@@ -1,13 +1,18 @@
 package org.esa.snap.vfs.remote.swift;
 
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
-import org.xml.sax.SAXException;
+import org.esa.snap.vfs.remote.HttpUtils;
+import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * File System Service Provider for OpenStack Swift VFS.
@@ -15,6 +20,8 @@ import java.util.Map;
  * @author Adrian Drăghici
  */
 public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
+
+    private static Logger logger = Logger.getLogger(SwiftFileSystemProvider.class.getName());
 
     /**
      * The name of authentication address property, used on OpenStack Swift VFS instance creation parameters and defining remote file repository properties.
@@ -59,6 +66,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
     private String user = "";
     private String password = "";
     private String delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
+    private String authorizationToken;
 
     public SwiftFileSystemProvider() {
         super();
@@ -86,6 +94,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
         this.password = password != null ? password : "";
     }
 
+    @Override
     public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
         String newAuthAddress = (String) connectionData.get(AUTH_ADDRESS_PROPERTY_NAME);
         String newContainer = (String) connectionData.get(CONTAINER_PROPERTY_NAME);
@@ -114,11 +123,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
         if (!(this.domain.isEmpty() && this.projectId.isEmpty() && this.user.isEmpty() && this.password.isEmpty()) && this.authAddress.isEmpty()) {
             throw new IllegalArgumentException("Missing 'authAddress' property.\nPlease provide authentication address required to access authentication service.");
         }
-        try {
-            return new SwiftWalker(address, authAddress, container, domain, projectId, user, password, delimiter, fileSystemRoot);
-        } catch (ParserConfigurationException | SAXException ex) {
-            throw new IllegalStateException(ex);
-        }
+        return new SwiftWalker(address, container, delimiter, fileSystemRoot, this);
     }
 
     /**
@@ -137,19 +142,6 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
     }
 
     /**
-     * Gets the connection channel for this VFS provider.
-     *
-     * @param url               The URL address to connect
-     * @param method            The HTTP method (GET POST DELETE etc)
-     * @param requestProperties The properties used on the connection
-     * @return The connection channel
-     * @throws IOException If an I/O error occurs
-     */
-    public HttpURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        return SwiftResponseHandler.getConnectionChannel(url, method, requestProperties, authAddress, domain, projectId, user, password);
-    }
-
-    /**
      * Gets the URI scheme that identifies this VFS provider.
      *
      * @return The URI scheme
@@ -157,5 +149,101 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
     @Override
     public String getScheme() {
         return SCHEME;
+    }
+
+    @Override
+    public HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException {
+        synchronized (this) {
+            if (this.authorizationToken == null) {
+                try {
+                    this.authorizationToken = getAuthorizationToken(this.authAddress, this.domain, this.projectId, this.user, this.password);
+                    if (this.authorizationToken == null) {
+                        this.authorizationToken = ""; // do not request later the authorization token
+                    }
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, "Unable to create authorization token used for OpenStack Swift authentication. Details: " + ex.getMessage(), ex);
+                }
+            }
+        }
+        return buildConnection(url, method, requestProperties, this.authorizationToken);
+    }
+
+    /**
+     * Creates the authorization token used for OpenStack Swift authentication.
+     *
+     * @param authAddress The address of authentication service used by OpenStack Swift service (mandatory if credentials is provided)
+     * @param domain      The domain name OpenStack Swift credential
+     * @param projectId   The account ID/ Project/ Tenant name OpenStack Swift credential
+     * @param user        The username OpenStack Swift credential
+     * @param password    The password OpenStack Swift credential
+     * @return The authorization token
+     */
+    private static String getAuthorizationToken(String authAddress, String domain, String projectId, String user, String password) throws IOException {
+        URL authUrl = new URL(authAddress);
+        HttpURLConnection connection = (HttpURLConnection) authUrl.openConnection();
+        try {
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setConnectTimeout(60000);
+            connection.setReadTimeout(60000);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Connection", "keep-alive");
+            connection.setRequestProperty("user-agent", "SNAP Virtual File System");
+            try (OutputStream outputStream = connection.getOutputStream();
+                 PrintWriter out = new PrintWriter(outputStream)) {
+
+                out.print("{\n" +
+                        "    \"auth\": {\n" +
+                        "        \"identity\": {\n" +
+                        "            \"methods\": [\n" +
+                        "                \"password\"\n" +
+                        "            ],\n" +
+                        "            \"password\": {\n" +
+                        "                \"user\": {\n" +
+                        "                    \"domain\": {\n" +
+                        "                        \"name\": \"" + domain + "\"\n" +
+                        "                    },\n" +
+                        "                    \"name\": \"" + user + "\",\n" +
+                        "                    \"password\": \"" + password + "\"\n" +
+                        "                }\n" +
+                        "            }\n" +
+                        "        },\n" +
+                        "        \"scope\": {\n" +
+                        "            \"project\": {\n" +
+                        "                \"id\": \"" + projectId + "\"\n" +
+                        "            }\n" +
+                        "        }\n" +
+                        "    }\n" +
+                        "}");
+                out.flush();
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                    return connection.getHeaderField("X-Subject-Token");
+                }
+            }
+        } finally {
+            connection.disconnect();
+        }
+        return null;
+    }
+
+    private static HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties, String authorizationToken) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(method);
+        connection.setDoInput(true);
+        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT") || method.equalsIgnoreCase("DELETE")) {
+            connection.setDoOutput(true);
+        }
+        if (authorizationToken != null && !authorizationToken.isEmpty()) {
+            connection.setRequestProperty("X-Auth-Token", authorizationToken);
+        }
+        if (requestProperties != null && requestProperties.size() > 0) {
+            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
+            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
+                connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
+            }
+        }
+        connection.setRequestProperty("user-agent", "SNAP Virtual File System");
+        return connection;
     }
 }

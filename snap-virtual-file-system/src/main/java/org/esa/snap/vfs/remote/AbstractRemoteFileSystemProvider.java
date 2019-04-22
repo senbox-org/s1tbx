@@ -48,7 +48,7 @@ import java.util.Set;
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvider {
+public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvider implements IRemoteConnectionBuilder {
 
     /**
      * The default value of delimiter property, used on VFS instance creation parameters.
@@ -105,18 +105,9 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
 
     public abstract String getProviderFileSeparator();
 
-    /**
-     * Gets the connection channel for this VFS provider.
-     *
-     * @param url               The URL address to connect
-     * @param method            The HTTP method (GET POST DELETE etc)
-     * @param requestProperties The properties used on the connection
-     * @return The connection channel
-     * @throws IOException If an I/O error occurs
-     */
-    public abstract HttpURLConnection getProviderConnectionChannel(URL url, String method, Map<String, String> requestProperties) throws IOException;
-
     protected abstract AbstractRemoteFileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env);
+
+    public abstract HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException;
 
     /**
      * Constructs a new {@code FileSystem} object identified by a URI. This method is invoked by the {@link FileSystems#newFileSystem(URI, Map)} method to open a new file system identified by a URI.
@@ -259,42 +250,19 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     @Override
     public DirectoryStream<Path> newDirectoryStream(Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
         VFSPath remoteDir = VFSPath.toRemotePath(dir);
-        try {
-            AbstractRemoteFileSystem fileSystem = remoteDir.getFileSystem();
-            Iterable<Path> directories = fileSystem.walkDir(dir, filter);
-            return new DirectoryStream<Path>() {
-                @Override
-                public Iterator<Path> iterator() {
-                    return directories.iterator();
-                }
+        AbstractRemoteFileSystem fileSystem = remoteDir.getFileSystem();
+        Iterable<Path> directories = fileSystem.walkDir(dir, filter);
+        return new DirectoryStream<Path>() {
+            @Override
+            public Iterator<Path> iterator() {
+                return directories.iterator();
+            }
 
-                @Override
-                public void close() {
-                    //stay open
-                }
-            };
-        } catch (Exception ex) {
-            throw new IOException(ex);
-        }
-
-        //TODO Jean old code
-//        try {
-//            AbstractRemoteFileSystem fs = (AbstractRemoteFileSystem) dir.getFileSystem();
-//            Iterable<Path> directories = fs.walkDir(dir, filter);
-//            return new DirectoryStream<Path>() {
-//                @Override
-//                public Iterator<Path> iterator() {
-//                    return directories.iterator();
-//                }
-//
-//                @Override
-//                public void close() {
-//                    //stay open
-//                }
-//            };
-//        } catch (Exception ex) {
-//            throw new IOException(ex);
-//        }
+            @Override
+            public void close() {
+                //stay open
+            }
+        };
     }
 
     /**
@@ -537,7 +505,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         BasicFileAttributes fileAttributes = path.getFileAttributes();
         if (fileAttributes == null) {
             AbstractRemoteFileSystem fileSystem = path.getFileSystem();
-            fileAttributes = fileSystem.newObjectStorageWalker().getVFSBasicFileAttributes(path.buildURL().toString(), path.toString());
+            fileAttributes = fileSystem.newObjectStorageWalker().readBasicFileAttributes(path);
             path.setFileAttributes(fileAttributes);
         }
         return fileAttributes;

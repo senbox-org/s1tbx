@@ -74,14 +74,15 @@ public class VFSPath implements Path {
      */
     VFSPath(AbstractRemoteFileSystem fileSystem, boolean absolute, String path, BasicFileAttributes fileAttributes) {
         if (fileSystem == null) {
-            throw new IllegalArgumentException("fileSystem");
+            throw new NullPointerException("The filesystem is null.");
         }
         if (path == null) {
-            throw new IllegalArgumentException("path");
+            throw new NullPointerException("The path is null.");
         }
+
         this.fileSystem = fileSystem;
         this.absolute = absolute;
-        this.path = path;
+        this.path = replaceFileSeparator(path);
         this.fileAttributes = fileAttributes;
 
         if (this.path.isEmpty()) {
@@ -109,13 +110,18 @@ public class VFSPath implements Path {
      * @return The new VFS Path
      */
     static VFSPath fromFileAttributes(AbstractRemoteFileSystem fileSystem, BasicFileAttributes fileAttributes) {
-        String separator = fileSystem.getSeparator();
+        String rootPathAsString = fileSystem.getRoot().getPath();
         String pathName = fileAttributes.fileKey().toString();
-        if (fileAttributes.isDirectory() && pathName.endsWith(separator)) {
-            int endIndex = pathName.length() - separator.length();
-            pathName = pathName.substring(0, endIndex); // remove the separator from the end
+        if (pathName.equals(rootPathAsString)) {
+            Class<?> rootFileAttributesType = fileSystem.getRoot().getFileAttributes().getClass();
+            if (fileAttributes.getClass().equals(rootFileAttributesType)) {
+                return fileSystem.getRoot();
+            } else {
+                throw new IllegalArgumentException("The file attributes type '"+fileAttributes.getClass().getName()+"' does not match with the file system root type '"+rootFileAttributesType+"'.");
+            }
         }
-        return new VFSPath(fileSystem, true, pathName, fileAttributes);
+        boolean absolute = pathName.startsWith(rootPathAsString);
+        return new VFSPath(fileSystem, absolute, pathName, fileAttributes);
     }
 
     /**
@@ -130,31 +136,21 @@ public class VFSPath implements Path {
         if (pathName.equals(rootPathAsString)) {
             return fileSystem.getRoot();
         }
-        boolean absolute = false;
-        int beginIndex = 0;
-        int endIndex = pathName.length();
-        if (pathName.startsWith(rootPathAsString)) {
-            absolute = true;
-        }
-        String separator = fileSystem.getSeparator();
-        if (pathName.endsWith(separator)) {
-            endIndex -= separator.length();
-        }
-        String p = pathName.substring(beginIndex, endIndex);
-        return new VFSPath(fileSystem, absolute, p, null);
+        boolean absolute = pathName.startsWith(rootPathAsString);
+        return new VFSPath(fileSystem, absolute, pathName, null);
     }
 
-    private static String buildPath(String parentPath, String childPath, String fileSeparator) {
+    private static String buildPath(String parentPath, String childPath, String fileSystemSeparator) {
         StringBuilder pathAsString = new StringBuilder();
-        if (parentPath.endsWith(fileSeparator)) {
-            int endIndex = parentPath.length() - fileSeparator.length();
+        if (parentPath.endsWith(fileSystemSeparator)) {
+            int endIndex = parentPath.length() - fileSystemSeparator.length();
             pathAsString.append(parentPath, 0, endIndex); // do not add the file separator
         } else {
             pathAsString.append(parentPath);
         }
-        if (!childPath.startsWith(fileSeparator)) {
+        if (!childPath.startsWith(fileSystemSeparator)) {
             // add the file separator between the parent path and the child path
-            pathAsString.append(fileSeparator);
+            pathAsString.append(fileSystemSeparator);
         }
         pathAsString.append(childPath);
 
@@ -170,16 +166,16 @@ public class VFSPath implements Path {
      *
      * @return The VFS file URL
      */
-    URL buildURL() throws MalformedURLException {
+    public URL buildURL() throws MalformedURLException {
         String fileSystemRootAsString = this.fileSystem.getRoot().getPath();
         String providerAddress = this.fileSystem.provider().getProviderAddress();
-        String providerFileSeparator = this.fileSystem.provider().getProviderFileSeparator();
+        String fileSystemSeparator = this.fileSystem.getSeparator();
         String pathAsString = this.path;
         if (pathAsString.startsWith(fileSystemRootAsString)) {
             // remote the file system root from the path
             pathAsString = pathAsString.substring(fileSystemRootAsString.length());
         }
-        String urlAsString = buildPath(providerAddress, pathAsString, providerFileSeparator);
+        String urlAsString = buildPath(providerAddress, pathAsString, fileSystemSeparator);
         return new URL(urlAsString.replaceAll(" ", "%20"));
     }
 
@@ -332,9 +328,9 @@ public class VFSPath implements Path {
      */
     @Override
     public Path subpath(int beginIndex, int endIndex) {
-        String[] subPath = Arrays.copyOfRange(names, beginIndex, endIndex);
-        String subPathName = String.join(fileSystem.getSeparator(), subPath);
-        return new VFSPath(this.fileSystem, beginIndex == 0 && absolute, subPathName, null);
+        String[] subPath = Arrays.copyOfRange(this.names, beginIndex, endIndex);
+        String subPathName = String.join(this.fileSystem.getSeparator(), subPath);
+        return new VFSPath(this.fileSystem, beginIndex == 0 && this.absolute, subPathName, null);
     }
 
     /**
@@ -778,6 +774,18 @@ public class VFSPath implements Path {
         int result = this.fileSystem.hashCode();
         result = 31 * result + (this.absolute ? 1 : 0);
         result = 31 * result + this.path.hashCode();
+        return result;
+    }
+
+    private String replaceFileSeparator(String path) {
+        String fileSystemSeparator = this.fileSystem.getSeparator();
+        String[] separatorsToReplace = new String[] {"\\\\", "/"};
+        String result = path;
+        for (int i=0; i<separatorsToReplace.length; i++) {
+            if (!separatorsToReplace[i].equals(fileSystemSeparator)) {
+                result = result.replaceAll(separatorsToReplace[i], fileSystemSeparator);
+            }
+        }
         return result;
     }
 }

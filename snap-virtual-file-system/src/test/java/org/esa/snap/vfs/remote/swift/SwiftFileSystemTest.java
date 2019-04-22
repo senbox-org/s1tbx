@@ -152,15 +152,16 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         List<BasicFileAttributes> items;
 
-        SwiftWalker walker = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", swiftRepo.getRoot());
+        //TODO Jean replace null with an object
+        SwiftWalker walker = new SwiftWalker(getAddress(), getContainer(), "/", swiftRepo.getRoot(), null);
         items = walker.walk(NioPaths.get(swiftRepo.getRoot() + ""));
         assertEquals(2, items.size());
 
-        walker = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", swiftRepo.getRoot());
+        walker = new SwiftWalker(getAddress(), getContainer(), "/", swiftRepo.getRoot(), null);
         items = walker.walk(NioPaths.get(swiftRepo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        walker = new SwiftWalker(getAddress(), getAuthAddress(), getContainer(), getDomain(), getProjectId(), getUser(), getPassword(), "/", swiftRepo.getRoot());
+        walker = new SwiftWalker(getAddress(), getContainer(), "/", swiftRepo.getRoot(), null);
         items = walker.walk(NioPaths.get(swiftRepo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
