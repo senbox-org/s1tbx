@@ -100,14 +100,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private ConcurrentHashMap<String, Double> t0Map = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Double> deltaTsMap = new ConcurrentHashMap<>();
 
-    // The key to these maps is pol, e.g. "HH"
-    private ConcurrentHashMap<String, NoiseAzimuthBlock[] > noiseAzimuthBlockMap = new ConcurrentHashMap<>();
-
     // key is pol+swath, e.g. "HH+IW1" or "HH+EW1"
     private ConcurrentHashMap<String, double[]> swathStartEndTimesMap = new ConcurrentHashMap<>();
-
-    // Only for TOPS SLC. Key is something like "ew1_hh"
-    private ConcurrentHashMap<String, BurstBlock[] > burstBlockMap = new ConcurrentHashMap<>();
 
     public static float trgFloorValue = 0.01234567890000f;
 
