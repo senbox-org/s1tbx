@@ -19,6 +19,7 @@ package org.esa.snap.collocation;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.IndexCoding;
@@ -44,6 +45,8 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 
 import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +83,10 @@ public class CollocateOp extends Operator {
 
     @SourceProducts(alias = "sourceProducts", description = "The source product which serves as slave.")
     private Product[] sourceProducts;
+
+    @Parameter(description = "A comma-separated list of file paths specifying the source products")
+    String[] sourceProductPaths;
+
 
     @SourceProduct(alias = "master", description = "The source product which serves as master.", optional = true)
     private Product master;
@@ -133,9 +140,7 @@ public class CollocateOp extends Operator {
     private transient Map<Band, RasterDataNode> sourceRasterMap;
     private Band[] collocationFlagBands;
 
-    public Product getMasterProduct() {
-        return masterProduct;
-    }
+    ArrayList<Product> disposableProducts = new ArrayList<>();
 
     public void setMasterProduct(Product masterProduct) {
         this.master = masterProduct;
@@ -202,17 +207,29 @@ public class CollocateOp extends Operator {
     public void initialize() throws OperatorException {
 
         //for compatibility, allow have slave and master instead of sourceProducts
-        if((sourceProducts == null || sourceProducts.length == 0) && master != null && slaveProduct != null) {
-            sourceProducts = new Product[2];
-            sourceProducts[0] = master;
-            sourceProducts[1] = slaveProduct;
+        //The first step is to copy them to sourceProducts
+        if(master != null) {
+            if((masterProductName != null || masterProductName.length() > 0) && !masterProductName.equals(master.getName())) {
+                throw new OperatorException("Incompatible master definition");
+            }
             masterProductName = master.getName();
+            addToSourceProducts(master);
+        }
+        if(slaveProduct != null) {
+            addToSourceProducts(slaveProduct);
         }
 
-        if(sourceProducts.length < 2) {
+        int sourcePathCount = 0;
+        if (sourceProductPaths != null) {
+            sourcePathCount = sourceProductPaths.length;
+        }
 
+        //sourceProducts and sourcePAths must be at least two
+        if(sourceProducts.length + sourcePathCount < 2) {
             throw new OperatorException("At least two source products have to be defined");
         }
+
+        //Define master and slave products from sourceProducts and sourceProductPaths
         ArrayList<Product> slaveProductList = new ArrayList<>();
         boolean found = false;
         for(Product product : sourceProducts) {
@@ -224,11 +241,30 @@ public class CollocateOp extends Operator {
             }
         }
 
-        //Set the master product from the source product if masterProductName has not been defined. The first single size.
+        if(sourceProductPaths != null) {
+            for (String sourceProductPath : sourceProductPaths) {
+                File file = new File(sourceProductPath);
+                try {
+                    Product sourceProduct = ProductIO.readProduct(file);
+                    if (sourceProduct.getName().equals(masterProductName) && masterProduct == null) {
+                        masterProduct = sourceProduct;
+                    } else {
+                        slaveProductList.add(sourceProduct);
+                        disposableProducts.add(sourceProduct);
+                    }
+                } catch (IOException e) {
+                    String msgPattern = "Failed to read file '%s'. %s: %s";
+                    getLogger().severe(String.format(msgPattern, file, e.getClass().getSimpleName(), e.getMessage()));
+                }
+            }
+        }
+
+        //Set the master product from the source product if masterProductName has not been defined: The first single sized product.
         if(masterProduct == null && (masterProductName == null || masterProductName.length() == 0)) {
             //no master product, so the first one single size will be selected
             for(Product product : slaveProductList) {
                 if (!product.isMultiSize()) {
+                    getLogger().warning(String.format("Master product selected automatically: %s", product.getName()));
                     masterProduct = product;
                     slaveProductList.remove(product);
                     break;
@@ -500,6 +536,9 @@ public class CollocateOp extends Operator {
     @Override
     public void dispose() {
         sourceRasterMap = null;
+        for(Product product : disposableProducts) {
+            product.dispose();
+        }
         super.dispose();
     }
 
@@ -809,6 +848,20 @@ public class CollocateOp extends Operator {
             }
 
             return false;
+        }
+    }
+
+    private void addToSourceProducts(Product product) {
+        if(sourceProducts == null) {
+            sourceProducts = new Product[1];
+            sourceProducts[0] = product;
+        } else {
+            ArrayList<Product> productList = new ArrayList<>();
+            for(Product prod : sourceProducts) {
+                productList.add(prod);
+            }
+            productList.add(product);
+            sourceProducts = productList.toArray(new Product[productList.size()]);
         }
     }
 
