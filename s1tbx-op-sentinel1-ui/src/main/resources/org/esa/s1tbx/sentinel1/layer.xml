@@ -139,6 +139,17 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="DoubleDifferenceInterferogramOp"/>
             </file>
+            <file name="org-esa-s1tbx-sentinel1-gpf-TOPSARDerampDemodOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 TOPS DerampDemod"/>
+                <attr name="operatorName" stringvalue="TOPSAR-DerampDemod"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS DerampDemod"/>
+                <attr name="ShortDescription" stringvalue="DerampDemod a Sentinel-1 TOPSAR product"/>
+                <attr name="targetProductNameSuffix" stringvalue="_drdm"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="TOPSARDerampDemodOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -208,6 +219,10 @@
                 <file name="org-esa-s1tbx-sentinel1-gpf-EAPPhaseCorrectionOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-EAPPhaseCorrectionOp-Action.instance"/>
                     <attr name="position" intvalue="800"/>
+                </file>
+                <file name="org-esa-s1tbx-sentinel1-gpf-TOPSARDerampDemodOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-TOPSARDerampDemodOp-Action.instance"/>
+                    <attr name="position" intvalue="600"/>
                 </file>
             </folder>
 
