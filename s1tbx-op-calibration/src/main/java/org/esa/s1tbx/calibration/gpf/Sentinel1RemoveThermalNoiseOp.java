@@ -46,7 +46,7 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 
 /**
@@ -89,7 +89,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private ThermalNoiseInfo[] noise = null;
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
     private List<String> selectedPolList = null;
-    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
+    private final ConcurrentHashMap<String, String[]> targetBandNameToSourceBandName = new ConcurrentHashMap<>(2);
 
     // For after IPF 2.9.0 ...
     private double version = 0.0f;
@@ -97,17 +97,17 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean isGRD = false;
 
     // The key is something like "s1a-iw-grd-hh-..."
-    private HashMap<String, Double> t0Map = new HashMap<>();
-    private HashMap<String, Double> deltaTsMap = new HashMap<>();
+    private ConcurrentHashMap<String, Double> t0Map = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Double> deltaTsMap = new ConcurrentHashMap<>();
 
     // The key to these maps is pol, e.g. "HH"
-    private HashMap<String, NoiseAzimuthBlock[] > noiseAzimuthBlockMap = new HashMap<>();
+    private ConcurrentHashMap<String, NoiseAzimuthBlock[] > noiseAzimuthBlockMap = new ConcurrentHashMap<>();
 
     // key is pol+swath, e.g. "HH+IW1" or "HH+EW1"
-    private HashMap<String, double[]> swathStartEndTimesMap = new HashMap<>();
+    private ConcurrentHashMap<String, double[]> swathStartEndTimesMap = new ConcurrentHashMap<>();
 
     // Only for TOPS SLC. Key is something like "ew1_hh"
-    private HashMap<String, BurstBlock[] > burstBlockMap = new HashMap<>();
+    private ConcurrentHashMap<String, BurstBlock[] > burstBlockMap = new ConcurrentHashMap<>();
 
     public static float trgFloorValue = 0.01234567890000f;
 
@@ -905,7 +905,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
         final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
-        final HashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap = new HashMap<>();
+        final ConcurrentHashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap = new ConcurrentHashMap<>();
 
         int linesPerBurst = 0;
         for (MetadataElement elem : annotationDataSetListElem) {
@@ -950,7 +950,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     }
 
     private void populateNoiseMatrixForTOPSSLC(final Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector,
-                                               final HashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap,
+                                               final ConcurrentHashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap,
                                                final int linesPerBurst,
                                                final int x0, final int y0, final int w, final int h,
                                                final double[][] noiseMatrix) {
