@@ -648,8 +648,7 @@ public class CollocateOp extends Operator {
                 }
                 if (rename) {
                     if(slaveProducts.length == 1) {
-                        targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()));
-                        targetMask.setName(pattern.replace(SLAVE_NUMBER_ID_REFERENCE, ""));
+                        targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()).replace(SLAVE_NUMBER_ID_REFERENCE, ""));
                     } else {
                         int id=-1;
                         for(int i = 0 ; i < slaveProducts.length ; i++) {
