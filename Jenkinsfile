@@ -95,7 +95,7 @@ pipeline {
             steps {
                 echo "Launch snap-desktop build"
                 build job: "snap-desktop/${env.GIT_BRANCH}", parameters: [
-                    [$class: 'BooleanParameterValue', name: 'launchTests', value: ${params.launchTests}]
+                    [$class: 'BooleanParameterValue', name: 'launchTests', value: Boolean.valueOf("${params.launchTests}") ]
                 ],
                 quietPeriod: 0,
                 propagate: true,
