@@ -367,6 +367,8 @@ public class CollocateOp extends Operator {
                     targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
                     if(slaveProducts.length > 1) {
                         targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(i));
+                    } else {
+                        targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, "");
                     }
                 }
                 Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
@@ -384,6 +386,8 @@ public class CollocateOp extends Operator {
                     targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
                     if(slaveProducts.length > 1) {
                         targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(i));
+                    } else {
+                        targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, "");
                     }
                 }
                 originalSlaveNames.put(sourceGrid.getName(), targetBandName);
@@ -645,6 +649,7 @@ public class CollocateOp extends Operator {
                 if (rename) {
                     if(slaveProducts.length == 1) {
                         targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()));
+                        targetMask.setName(pattern.replace(SLAVE_NUMBER_ID_REFERENCE, ""));
                     } else {
                         int id=-1;
                         for(int i = 0 ; i < slaveProducts.length ; i++) {
@@ -684,11 +689,22 @@ public class CollocateOp extends Operator {
         setIndexCoding(targetBand, sourceBand.getIndexCoding(), renameComponents, renamePattern);
     }
 
-    private static void setFlagCoding(Band band, FlagCoding flagCoding, boolean rename, String pattern) {
+    private void setFlagCoding(Band band, FlagCoding flagCoding, boolean rename, String pattern) {
         if (flagCoding != null) {
             String flagCodingName = flagCoding.getName();
             if (rename) {
-                flagCodingName = pattern.replace(SOURCE_NAME_REFERENCE, flagCodingName);
+                if(slaveProducts.length == 1) {
+                    flagCodingName = pattern.replace(SOURCE_NAME_REFERENCE, flagCodingName).replace(SLAVE_NUMBER_ID_REFERENCE, "");
+                } else {
+                    int id=-1;
+                    for(int i = 0 ; i < slaveProducts.length ; i++) {
+                        if(band.getProduct().getName().equals(slaveProducts[i].getName())) {
+                            id = i;
+                            break;
+                        }
+                    }
+                    flagCodingName = pattern.replace(SOURCE_NAME_REFERENCE, flagCodingName).replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(id));
+                }
             }
             final Product product = band.getProduct();
             if (!product.getFlagCodingGroup().contains(flagCodingName)) {
@@ -698,11 +714,22 @@ public class CollocateOp extends Operator {
         }
     }
 
-    private static void setIndexCoding(Band band, IndexCoding indexCoding, boolean rename, String pattern) {
+    private void setIndexCoding(Band band, IndexCoding indexCoding, boolean rename, String pattern) {
         if (indexCoding != null) {
             String indexCodingName = indexCoding.getName();
             if (rename) {
-                indexCodingName = pattern.replace(SOURCE_NAME_REFERENCE, indexCodingName);
+                if(slaveProducts.length == 1) {
+                    indexCodingName = pattern.replace(SOURCE_NAME_REFERENCE, indexCodingName).replace(SLAVE_NUMBER_ID_REFERENCE, "");
+                } else {
+                    int id=-1;
+                    for(int i = 0 ; i < slaveProducts.length ; i++) {
+                        if(band.getProduct().getName().equals(slaveProducts[i].getName())) {
+                            id = i;
+                            break;
+                        }
+                    }
+                    indexCodingName = pattern.replace(SOURCE_NAME_REFERENCE, indexCodingName).replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(id));
+                }
             }
             final Product product = band.getProduct();
             if (!product.getIndexCodingGroup().contains(indexCodingName)) {
@@ -776,17 +803,32 @@ public class CollocateOp extends Operator {
 
     private void setAutoGrouping() {
         List<String> paths = new ArrayList<>();
-        collectAutoGrouping(paths, this.masterProduct.getAutoGrouping(), renameMasterComponents ? masterComponentPattern : null);
+        collectAutoGrouping(paths, this.masterProduct, renameMasterComponents ? masterComponentPattern : null);
         for(Product slaveProduct : slaveProducts) {
-            collectAutoGrouping(paths, slaveProduct.getAutoGrouping(), renameSlaveComponents ? slaveComponentPattern : null);
+            collectAutoGrouping(paths, slaveProduct, renameSlaveComponents ? slaveComponentPattern : null);
         }
         targetProduct.setAutoGrouping(String.join(":", paths));
     }
 
-    private void collectAutoGrouping(List<String> paths, Product.AutoGrouping autoGrouping, String componentPattern) {
+    private void collectAutoGrouping(List<String> paths, Product product, String componentPattern) {
+        Product.AutoGrouping autoGrouping = product.getAutoGrouping();
         if (autoGrouping == null) {
             return;
         }
+        String replacementSlaveNumberId = "";
+        if(slaveProducts.length == 1) {
+            replacementSlaveNumberId = "";
+        } else {
+            int id=-1;
+            for(int i = 0 ; i < slaveProducts.length ; i++) {
+                if(product.getName().equals(slaveProducts[i].getName())) {
+                    id = i;
+                    break;
+                }
+            }
+            replacementSlaveNumberId =  String.valueOf(id);
+        }
+
         for (String[] pattern : autoGrouping) {
             String[] clone = pattern.clone();
             if (componentPattern != null) {
@@ -800,7 +842,7 @@ public class CollocateOp extends Operator {
                     }
                 }
 
-                last = componentPattern.replace(SOURCE_NAME_REFERENCE, last);
+                last = componentPattern.replace(SOURCE_NAME_REFERENCE, last).replace(SLAVE_NUMBER_ID_REFERENCE, "*");
                 clone[clone.length - 1] = last;
             }
             paths.add(String.join("/", clone));
