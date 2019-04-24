@@ -155,29 +155,34 @@ class VFSByteChannel implements SeekableByteChannel {
     /**
      * Reads a sequence of bytes from this channel into the given buffers.
      *
-     * @param dsts   The buffers array
+     * @param destinationBuffers   The buffers array
      * @param offset The offset
      * @param length The length
      * @return The number of bytes actually read
      */
-    long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
+    long read(ByteBuffer[] destinationBuffers, int offset, int length) throws IOException {
         assertOpen();
         if (this.position >= this.contentLength) {
             return -1;
         }
-        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
+
+        if (!this.samePosition) {
+            this.connection.disconnect();
+            this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
+        }
+        InputStream inputStream = this.connection.getInputStream();
+
         long bytesRead = 0;
-        InputStream stream = this.connection.getInputStream();
-        for (ByteBuffer dst : dsts) {
-            int numRemaining = dst.remaining();
-            if (dst.hasArray()) {
-                byte[] bytes = dst.array();
-                numRemaining = readBytes(stream, bytes, offset, length);
-                dst.put(bytes, dst.arrayOffset(), numRemaining);
+        for (ByteBuffer buffer : destinationBuffers) {
+            int numRemaining = buffer.remaining();
+            if (buffer.hasArray()) {
+                byte[] bytes = buffer.array();
+                numRemaining = readBytes(inputStream, bytes, offset, length);
+                buffer.put(bytes, buffer.arrayOffset(), numRemaining);
             } else {
                 byte[] bytes = new byte[numRemaining];
-                numRemaining = readBytes(stream, bytes, offset, length);
-                dst.put(bytes, 0, numRemaining);
+                numRemaining = readBytes(inputStream, bytes, offset, length);
+                buffer.put(bytes, 0, numRemaining);
             }
             bytesRead += numRemaining;
         }

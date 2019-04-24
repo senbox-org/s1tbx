@@ -321,17 +321,16 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     /**
      * Tests if two paths locate the same file. This method works in exactly the manner specified by the {@link Files#isSameFile} method.
      *
-     * @param path  one path to the file
+     * @param path1  one path to the file
      * @param path2 the other path
      * @return {@code true} if, and only if, the two paths locate the same file
      * @throws SecurityException In the case of the default provider, and a security manager is installed, the {@link SecurityManager#checkRead(String) checkRead} method is invoked to check read access to both files.
      */
     @Override
-    public boolean isSameFile(Path path, Path path2) {
-        if (path == null) {
-            throw new NullPointerException(PATH_NULL_ERROR_MESSAGE);
-        }
-        return path.equals(path2);
+    public boolean isSameFile(Path path1, Path path2) {
+        VFSPath remotePath1 = VFSPath.toRemotePath(path1);
+        VFSPath remotePath2 = VFSPath.toRemotePath(path2);
+        return remotePath1.equals(remotePath2);
     }
 
     /**
@@ -344,6 +343,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     @Override
     public boolean isHidden(Path path) {
+        VFSPath.toRemotePath(path); // check the path type
         return false;
     }
 
