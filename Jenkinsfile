@@ -24,6 +24,9 @@ pipeline {
         snapMajorVersion = ''
     }
     agent { label 'snap-test' }
+    parameters {
+        booleanParam(name: 'launchTests', defaultValue: true, description: 'When true all stages are launched, When false only stages "Package", "Deploy" and "Save installer data" are launched.')
+    }
     stages {
         stage('Package') {
             agent {
@@ -73,7 +76,8 @@ pipeline {
             }
             when {
                 expression {
-                    return "${env.GIT_BRANCH}" == 'master';
+                    // We save snap installer data on master branch and branch x.x.x (Ex: 8.0.0) or branch x.x.x-rcx (ex: 8.0.0-rc1) when we want to create a release
+                    return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/);
                 }
             }
             steps {
@@ -85,12 +89,17 @@ pipeline {
             agent { label 'snap-test' }
             when {
                 expression {
-                    return "${env.GIT_BRANCH}" == 'master';
+                    return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/);
                 }
             }
             steps {
                 echo "Launch snap-desktop build"
-                build job: 'snap-desktop/master'
+                build job: "snap-desktop/${env.GIT_BRANCH}", parameters: [
+                    [$class: 'BooleanParameterValue', name: 'launchTests', value: ${params.launchTests}]
+                ],
+                quietPeriod: 0,
+                propagate: true,
+                wait: true
             }
         }
         stage('Create docker image') {
