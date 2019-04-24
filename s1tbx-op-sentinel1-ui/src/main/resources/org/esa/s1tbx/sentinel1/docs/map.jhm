@@ -17,4 +17,5 @@
     <mapID target="DoubleDifferenceInterferogramOp" url="operators/DoubleDifferenceInterferogramOp.html"/>
     <mapID target="BackGeocodingOp" url="operators/BackGeocodingOp.html"/>
 	<mapID target="EAPPhaseCorrection" url="operators/EAPPhaseCorrection.html"/>
+	<mapID target="TOPSARDerampDemodOp" url="operators/TOPSARDerampDemodOp.html"/>
 </map>
