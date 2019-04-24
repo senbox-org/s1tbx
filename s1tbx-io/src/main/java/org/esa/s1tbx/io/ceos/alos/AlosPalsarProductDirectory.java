@@ -357,48 +357,52 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             }
         }
         if(isESA){
-            MetadataElement abs_metadata = product.getMetadataRoot().getElement("Abstracted_Metadata");
-            if(! abs_metadata.containsElement("SRGR_Coefficients")){
-                MetadataElement srgr_coef = new MetadataElement("SRGR_Coefficients");
-                abs_metadata.addElement(srgr_coef);
-            }
-            MetadataElement srgr_coef = abs_metadata.getElement("SRGR_Coefficients");
+            try{
+                MetadataElement abs_metadata = product.getMetadataRoot().getElement("Abstracted_Metadata");
+                if(! abs_metadata.containsElement("SRGR_Coefficients")){
+                    MetadataElement srgr_coef = new MetadataElement("SRGR_Coefficients");
+                    abs_metadata.addElement(srgr_coef);
+                }
+                MetadataElement srgr_coef = abs_metadata.getElement("SRGR_Coefficients");
+                MetadataElement opm = product.getMetadataRoot().getElement("Original_Product_Metadata");
+                if(opm.containsElement("Leader")) {
+                    MetadataElement leader = opm.getElement("Leader");
+                    if (leader.containsElement("Scene Parameters")){
+                        MetadataElement scene_parameters = leader.getElement("Scene Parameters");
+                        int coeff_count = 1;
+                        MetadataElement srgr_coef_list1 = new MetadataElement("srgr_coef_list.1");
 
-            MetadataElement opm = product.getMetadataRoot().getElement("Original_Product_Metadata");
-            if(opm.containsElement("Leader")) {
-                MetadataElement leader = opm.getElement("Leader");
-                if (leader.containsElement("Map Projection")){
-                    MetadataElement map_projection = leader.getElement("Map Projection");
-                    int coeff_count = 1;
-                    MetadataElement srgr_coef_list1 = new MetadataElement("srgr_coef_list.1");
+                        double coef1 = scene_parameters.getAttributeDouble("Image range to slant constant term") * 1000;
+                        double coef2 = scene_parameters.getAttributeDouble("Image range to slant linear term");
+                        double coef3 = scene_parameters.getAttributeDouble("Image range to slant quadratic term") / 1000;
+                        double coef4 = scene_parameters.getAttributeDouble("Image range to slant cubic term") / 1000000;
 
+                        MetadataAttribute srgr_coef1 = new MetadataAttribute("srgr_coef", ProductData.TYPE_FLOAT64);
+                        MetadataAttribute srgr_coef2 = new MetadataAttribute("srgr_coef", ProductData.TYPE_FLOAT64);
+                        MetadataAttribute srgr_coef3 = new MetadataAttribute("srgr_coef", ProductData.TYPE_FLOAT64);
+                        MetadataAttribute srgr_coef4 = new MetadataAttribute("srgr_coef", ProductData.TYPE_FLOAT64);
 
-                    for(MetadataAttribute attribute : map_projection.getAttributes()){
-                        if(attribute.getName().contains("Line to Pixel coefficient")){
-                            MetadataAttribute c = attribute;
-                            String name = c.getName();
-                            System.out.println(name);
+                        srgr_coef1.getData().setElemFloat((float) coef1);
+                        srgr_coef2.getData().setElemFloat((float) coef2);
+                        srgr_coef3.getData().setElemFloat((float) coef3);
+                        srgr_coef4.getData().setElemFloat((float) coef4);
+                        MetadataAttribute [] srgr_array = new MetadataAttribute[]{srgr_coef1,srgr_coef2,srgr_coef3,srgr_coef4};
 
-                            name = name.replace("Line to Pixel coefficients ", "");
-                            System.out.println(name);
-                            coeff_count = Integer.parseInt(name.substring(0, 1));
-                            MetadataElement ce = new MetadataElement("coefficient." + coeff_count);
-
-                            c.setName("srgr_coef");
-                            ce.addAttribute(c);
+                        for(int x = 1; x < 5; x++){
+                            MetadataElement ce = new MetadataElement("coefficient." + x);
+                            ce.addAttribute(srgr_array[x - 1]);
                             srgr_coef_list1.addElement(ce);
                         }
+                        srgr_coef.addElement(srgr_coef_list1);
+                        srgr_coef_list1.addAttribute(abs_metadata.getElement("Doppler_Centroid_Coefficients").getElement("dop_coef_list").getAttribute("zero_doppler_time"));
+                        MetadataAttribute ground_range_origin = new MetadataAttribute("ground_range_origin", ProductData.TYPE_FLOAT64);
+                        ground_range_origin.getData().setElemFloat((float) 0.0);
+                        srgr_coef_list1.addAttribute(ground_range_origin);
                     }
-                    srgr_coef.addElement(srgr_coef_list1);
-                    srgr_coef_list1.addAttribute(abs_metadata.getElement("Doppler_Centroid_Coefficients").getElement("dop_coef_list").getAttribute("zero_doppler_time"));
-                    MetadataAttribute ground_range_origin = new MetadataAttribute("ground_range_origin", ProductData.TYPE_FLOAT64);
-                    ground_range_origin.getData().setElemFloat((float) 0.0);
-                    srgr_coef_list1.addAttribute(ground_range_origin);
-
-
                 }
+            }catch(Exception e){
+                e.printStackTrace();
             }
-
         }
     }
 
