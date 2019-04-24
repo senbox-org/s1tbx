@@ -43,6 +43,7 @@ public class CollocateOpTest {
 
         CollocateOp op = new CollocateOp();
         op.setParameterDefaultValues();
+        op.setSlaveComponentPattern("${ORIGINAL_NAME}_S");
 
         // test default settings
         assertEquals("COLLOCATED", op.getTargetProductType());
@@ -134,6 +135,7 @@ public class CollocateOpTest {
 
         CollocateOp op = new CollocateOp();
         op.setParameterDefaultValues();
+        op.setSlaveComponentPattern("${ORIGINAL_NAME}_S");
 
         // test default settings
         assertEquals("COLLOCATED", op.getTargetProductType());
@@ -219,6 +221,7 @@ public class CollocateOpTest {
 
         CollocateOp op = new CollocateOp();
         op.setParameterDefaultValues();
+        op.setSlaveComponentPattern("${ORIGINAL_NAME}_S");
 
         op.setMasterProduct(masterProduct);
         op.setSlaveProduct(slaveProduct);
