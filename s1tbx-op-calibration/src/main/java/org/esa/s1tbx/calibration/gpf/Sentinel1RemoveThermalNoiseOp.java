@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -89,7 +90,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private ThermalNoiseInfo[] noise = null;
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
     private List<String> selectedPolList = null;
-    private final ConcurrentHashMap<String, String[]> targetBandNameToSourceBandName = new ConcurrentHashMap<>(2);
+    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
     // For after IPF 2.9.0 ...
     private double version = 0.0f;
@@ -899,7 +900,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         final MetadataElement annotationElem = origMetadataRoot.getElement("annotation");
         final MetadataElement[] annotationDataSetListElem = annotationElem.getElements();
-        final ConcurrentHashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap = new ConcurrentHashMap<>();
+        final HashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap = new HashMap<>();
 
         int linesPerBurst = 0;
         for (MetadataElement elem : annotationDataSetListElem) {
@@ -944,7 +945,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     }
 
     private void populateNoiseMatrixForTOPSSLC(final Sentinel1Utils.NoiseAzimuthVector noiseAzimuthVector,
-                                               final ConcurrentHashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap,
+                                               final HashMap<String, Sentinel1Utils.NoiseVector> burstToRangeVectorMap,
                                                final int linesPerBurst,
                                                final int x0, final int y0, final int w, final int h,
                                                final double[][] noiseMatrix) {
