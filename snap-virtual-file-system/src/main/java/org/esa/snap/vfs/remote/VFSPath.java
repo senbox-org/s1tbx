@@ -79,10 +79,9 @@ public class VFSPath implements Path {
         if (path == null) {
             throw new NullPointerException("The path is null.");
         }
-
         this.fileSystem = fileSystem;
         this.absolute = absolute;
-        this.path = replaceFileSeparator(path);
+        this.path = replaceFileSeparator(path, this.fileSystem.getSeparator());
         this.fileAttributes = fileAttributes;
 
         if (this.path.isEmpty()) {
@@ -777,13 +776,24 @@ public class VFSPath implements Path {
         return result;
     }
 
-    private String replaceFileSeparator(String path) {
-        String fileSystemSeparator = this.fileSystem.getSeparator();
-        String[] separatorsToReplace = new String[] {"\\\\", "/"};
+    private static String replaceFileSeparator(String path, String fileSystemSeparator) {
+        String[] separatorsToReplace = new String[] {"\\", "/"};
         String result = path;
         for (int i=0; i<separatorsToReplace.length; i++) {
             if (!separatorsToReplace[i].equals(fileSystemSeparator)) {
-                result = result.replaceAll(separatorsToReplace[i], fileSystemSeparator);
+                // different file system separator
+                StringBuilder str = new StringBuilder();
+                int index = 0;
+                while (index < result.length()) {
+                    if (result.regionMatches(index, separatorsToReplace[i], 0, separatorsToReplace[i].length())) {
+                        str.append(fileSystemSeparator);
+                        index += separatorsToReplace[i].length();
+                    } else {
+                        str.append(result.charAt(index));
+                        index++;
+                    }
+                }
+                result = str.toString();
             }
         }
         return result;
