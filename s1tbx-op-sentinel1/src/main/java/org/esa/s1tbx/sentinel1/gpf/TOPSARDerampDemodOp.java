@@ -44,7 +44,7 @@ import java.util.List;
         description = "Bursts co-registration using orbit and DEM")
 public final class TOPSARDerampDemodOp extends Operator {
 
-    @SourceProduct
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
 
     @TargetProduct
@@ -120,6 +120,12 @@ public final class TOPSARDerampDemodOp extends Operator {
         validator.checkIfSARProduct();
         validator.checkIfSentinel1Product();
         validator.checkIfSLC();
+        if (StackUtils.isCoregisteredStack(sourceProduct)) {
+            throw new OperatorException("Input should not be a coregistered stack");
+        }
+        if (validator.isDebursted()) {
+            throw new OperatorException("Input should not be a deburst product");
+        }
     }
 
     /**
