@@ -78,7 +78,7 @@ public class HttpMockService {
                 if (Files.isDirectory(responsePath)) {
                     response = getHTMLResponse(uriPath);
                     contentType = "text/html";
-                } else if (Files.isRegularFile(responsePath)) {
+                } else if (Files.isRegularFile(responsePath) && !uriPath.endsWith("/")) {
                     response = readFile(responsePath);
                     contentType = "application/octet-stream";
                 } else {
@@ -86,8 +86,13 @@ public class HttpMockService {
                     httpStatus = HttpURLConnection.HTTP_NOT_FOUND;
                 }
             } catch (Exception ex) {
-                response = ex.getMessage().getBytes();
-                httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                if (ex instanceof IllegalArgumentException) {
+                    response = "Bad request".getBytes();
+                    httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
+                } else {
+                    response = "Internal error".getBytes();
+                    httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                }
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockHTTP");
@@ -99,7 +104,9 @@ public class HttpMockService {
         private byte[] readFile(Path inputFile) throws IOException {
             InputStream is = Files.newInputStream(inputFile);
             byte data[] = new byte[is.available()];
-            is.read(data);
+            if (is.read(data) < 0) {
+                throw new IOException();
+            }
             is.close();
             return data;
         }
@@ -116,12 +123,12 @@ public class HttpMockService {
             while (paths.hasNext()) {
                 Path pathItem = paths.next();
                 if (Files.isDirectory(pathItem)) {
-                    String directoryPath = pathItem.toString().replace(path.toString(), "").replaceAll("\\" + path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                    String directoryPath = pathItem.toString().replace(path.toString(), "").replace(path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                     html.append(DIRECTORY_HTML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
                 } else {
                     long fileSize = Files.size(pathItem);
                     String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
-                    String filePath = pathItem.toString().replace(path.toString(), "").replaceAll("\\" + path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                    String filePath = pathItem.toString().replace(path.toString(), "").replace(path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                     html.append(FILE_HTML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
                 }
             }

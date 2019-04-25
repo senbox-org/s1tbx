@@ -10,7 +10,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.EOFException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -55,24 +54,6 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         return getHTTPRepo().getAddress();
     }
 
-    private String getUser() {
-        VFSRemoteFileRepository httpRepo = getHTTPRepo();
-        String user = "";
-        if (!httpRepo.getProperties().isEmpty()) {
-            user = httpRepo.getProperties().get(0).getValue();
-        }
-        return user;
-    }
-
-    private String getPassword() {
-        VFSRemoteFileRepository httpRepo = getHTTPRepo();
-        String password = "";
-        if (!httpRepo.getProperties().isEmpty()) {
-            password = httpRepo.getProperties().get(1).getValue();
-        }
-        return password;
-    }
-
     @Before
     public void setUpHttpFileSystemTest() {
         try {
@@ -82,7 +63,7 @@ public class HttpFileSystemTest extends AbstractVFSTest {
             assumeNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
             URI uri = new URI(httpRepo.getScheme(), httpRepo.getRoot(), null);
-            FileSystem fs = fileSystemProvider.newFileSystem(uri, null);
+            FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assumeNotNull(fs);
             httpFileSystem = (AbstractRemoteFileSystem) fs;
             Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
@@ -107,17 +88,20 @@ public class HttpFileSystemTest extends AbstractVFSTest {
     @Test
     public void testScanner() throws Exception {
         VFSRemoteFileRepository httpRepo = getHTTPRepo();
+
+        HttpFileSystemProvider fileSystemProvider = (HttpFileSystemProvider) VFS.getInstance().getFileSystemProviderByScheme(httpRepo.getScheme());
+
         List<BasicFileAttributes> items;
 
-        HttpWalker walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), null);
+        HttpWalker walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/"));
         assertEquals(2, items.size());
 
-        walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), null);
+        walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), null);
+        walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
@@ -158,9 +142,9 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         Iterable<Path> rootDirectories = httpFileSystem.getRootDirectories();
         Iterator<Path> iterator = rootDirectories.iterator();
         assertTrue(iterator.hasNext());
-        assertEquals(httpRepo.getRoot() + "/rootDir1", iterator.next().toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir1/", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals(httpRepo.getRoot() + "/rootDir2", iterator.next().toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir2/", iterator.next().toString());
         assertFalse(iterator.hasNext());
     }
 
@@ -220,12 +204,8 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         assertEquals(1891, channel.size());
 
         buffer = ByteBuffer.wrap(new byte[10]);
-        try {
-            numRead = channel.read(buffer);
-            fail("EOFException expected, but read " + numRead + " bytes");
-        } catch (EOFException ignored) {
-            //ok
-        }
+        numRead = channel.read(buffer);
+        assertEquals(-1, numRead);
     }
 
     @Test
@@ -252,11 +232,11 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         Iterator<Path> iterator = Files.walk(path).iterator();
         assertTrue(iterator.hasNext());
         Path next = iterator.next();
-        assertEquals(httpRepo.getRoot() + "/rootDir1", next.toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir1/", next.toString());
         assertTrue(next.isAbsolute());
         assertTrue(iterator.hasNext());
         next = iterator.next();
-        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1", next.toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1/", next.toString());
         assertTrue(next.isAbsolute());
         assertTrue(iterator.hasNext());
         next = iterator.next();
@@ -264,11 +244,11 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         assertTrue(next.isAbsolute());
         assertTrue(iterator.hasNext());
         next = iterator.next();
-        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1/subDir", next.toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir1/subDir/", next.toString());
         assertTrue(next.isAbsolute());
         assertTrue(iterator.hasNext());
         next = iterator.next();
-        assertEquals(httpRepo.getRoot() + "/rootDir1/dir2", next.toString());
+        assertEquals(httpRepo.getRoot() + "/rootDir1/dir2/", next.toString());
         assertTrue(next.isAbsolute());
     }
 

@@ -84,7 +84,7 @@ class S3MockService {
                         response = "Not Found".getBytes();
                         httpStatus = HttpURLConnection.HTTP_NOT_FOUND;
                     }
-                } else if (Files.isRegularFile(responsePath)) {
+                } else if (Files.isRegularFile(responsePath) && !uriPath.endsWith("/")) {
                     response = readFile(responsePath);
                     contentType = "application/octet-stream";
                 } else {
@@ -92,9 +92,13 @@ class S3MockService {
                     httpStatus = HttpURLConnection.HTTP_NOT_FOUND;
                 }
             } catch (Exception ex) {
-                response = ex.getMessage().getBytes();
-                httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
-
+                if (ex instanceof IllegalArgumentException) {
+                    response = "Bad request".getBytes();
+                    httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
+                } else {
+                    response = "Internal error".getBytes();
+                    httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                }
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockS3");
@@ -115,7 +119,9 @@ class S3MockService {
         private byte[] readFile(Path inputFile) throws IOException {
             InputStream is = Files.newInputStream(inputFile);
             byte data[] = new byte[is.available()];
-            is.read(data);
+            if (is.read(data) < 0) {
+                throw new IOException();
+            }
             is.close();
             return data;
         }
@@ -139,6 +145,9 @@ class S3MockService {
             }
             uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
             Path path = serviceRootPath.resolve(uriPath);
+            if (Files.isRegularFile(path) && uriPath.endsWith("/")) {
+                throw new IllegalArgumentException("dir requested, but was file");
+            }
             Iterator<Path> paths = Files.walk(path, 1).iterator();
             boolean markerReached = marker.isEmpty();
             int index = 0;
@@ -151,12 +160,12 @@ class S3MockService {
                     markerReached = pathItem.endsWith(markerPath);
                 } else {
                     if (Files.isDirectory(pathItem)) {
-                        String directoryPath = pathItem.toString().replace(bucketPath.toString(), "").replaceAll("\\" + bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                        String directoryPath = pathItem.toString().replace(bucketPath.toString(), "").replace(bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                         xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
                     } else {
                         long fileSize = Files.size(pathItem);
                         String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
-                        String filePath = pathItem.toString().replace(bucketPath.toString(), "").replaceAll("\\" + bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                        String filePath = pathItem.toString().replace(bucketPath.toString(), "").replace(bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                         xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
                     }
                 }

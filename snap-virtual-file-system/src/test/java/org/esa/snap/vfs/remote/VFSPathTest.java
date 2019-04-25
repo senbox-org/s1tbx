@@ -48,7 +48,7 @@ public class VFSPathTest extends AbstractVFSTest {
             assumeNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
             URI uri = new URI(httpRepo.getScheme(), httpRepo.getRoot(), null);
-            FileSystem fs = fileSystemProvider.newFileSystem(uri, null);
+            FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assumeNotNull(fs);
             this.fs = (AbstractRemoteFileSystem) fs;
             Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
@@ -189,37 +189,37 @@ public class VFSPathTest extends AbstractVFSTest {
 
         path = VFSPath.parsePath(fs, "");
         assertEquals("", path.resolve("").toString());
-        assertEquals("", path.resolve("/").toString());
-        assertEquals("gus", path.resolve("gus").toString());
-        assertEquals("gus", path.resolve("gus/").toString());
-        assertEquals("/gus", path.resolve("/gus/").toString());
+        assertEquals("/", path.resolve("/").toString());
+        assertEquals("/gus", path.resolve("gus").toString());
+        assertEquals("/gus/", path.resolve("gus/").toString());
+        assertEquals("/gus/", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(fs, "/");
-        assertEquals("", path.resolve("").toString());
-        assertEquals("", path.resolve("/").toString());
-        assertEquals("gus", path.resolve("gus").toString());
-        assertEquals("gus", path.resolve("gus/").toString());
-        assertEquals("/gus", path.resolve("/gus/").toString());
+        assertEquals("/", path.resolve("").toString());
+        assertEquals("/", path.resolve("/").toString());
+        assertEquals("/gus", path.resolve("gus").toString());
+        assertEquals("/gus/", path.resolve("gus/").toString());
+        assertEquals("/gus/", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(fs, "foo/bar/");
-        assertEquals("foo/bar", path.resolve("").toString());
-        assertEquals("foo/bar", path.resolve("/").toString());
+        assertEquals("foo/bar/", path.resolve("").toString());
+        assertEquals("foo/bar/", path.resolve("/").toString());
         assertEquals("foo/bar/gus", path.resolve("gus").toString());
-        assertEquals("foo/bar/gus", path.resolve("gus/").toString());
-        assertEquals("foo/bar/gus", path.resolve("/gus/").toString());
+        assertEquals("foo/bar/gus/", path.resolve("gus/").toString());
+        assertEquals("foo/bar/gus/", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(fs, "/foo/bar/");
-        assertEquals("/foo/bar", path.resolve("").toString());
-        assertEquals("/foo/bar", path.resolve("/").toString());
+        assertEquals("/foo/bar/", path.resolve("").toString());
+        assertEquals("/foo/bar/", path.resolve("/").toString());
         assertEquals("/foo/bar/gus", path.resolve("gus").toString());
-        assertEquals("/foo/bar/gus", path.resolve("gus/").toString());
-        assertEquals("/foo/bar/gus", path.resolve("/gus/").toString());
+        assertEquals("/foo/bar/gus/", path.resolve("gus/").toString());
+        assertEquals("/foo/bar/gus/", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(fs, "foo/bar");
         try {
             path.resolve((String) null);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignored) {
+        } catch (NullPointerException ignored) {
             //ok
         }
     }
@@ -230,31 +230,31 @@ public class VFSPathTest extends AbstractVFSTest {
 
         path = VFSPath.parsePath(fs, "");
         assertEquals("", path.resolveSibling("").toString());
-        assertEquals("", path.resolveSibling("/").toString());
+        assertEquals("/", path.resolveSibling("/").toString());
         assertEquals("gus", path.resolveSibling("gus").toString());
-        assertEquals("gus", path.resolveSibling("gus/").toString());
-        assertEquals("/gus", path.resolveSibling("/gus/").toString());
+        assertEquals("gus/", path.resolveSibling("gus/").toString());
+        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
 
         path = VFSPath.parsePath(fs, "/");
-        assertEquals("", path.resolveSibling("").toString());
-        assertEquals("/Test:", path.resolveSibling("/Test:/").toString());
+        assertEquals("/", path.resolveSibling("").toString());
+        assertEquals("/Test:/", path.resolveSibling("/Test:/").toString());
         assertEquals("gus", path.resolveSibling("gus").toString());
-        assertEquals("gus", path.resolveSibling("gus/").toString());
-        assertEquals("/gus", path.resolveSibling("/gus/").toString());
+        assertEquals("gus/", path.resolveSibling("gus/").toString());
+        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
 
         path = VFSPath.parsePath(fs, "foo/bar/");
-        assertEquals("foo/bar", path.resolveSibling("").toString());
-        assertEquals("foo/bar", path.resolveSibling("/").toString());
+        assertEquals("foo/bar/", path.resolveSibling("").toString());
+        assertEquals("foo/", path.resolveSibling("/").toString());
         assertEquals("foo/gus", path.resolveSibling("gus").toString());
-        assertEquals("foo/gus", path.resolveSibling("gus/").toString());
-        assertEquals("foo/gus", path.resolveSibling("/gus/").toString());
+        assertEquals("foo/gus/", path.resolveSibling("gus/").toString());
+        assertEquals("foo/gus/", path.resolveSibling("/gus/").toString());
 
         path = VFSPath.parsePath(fs, "/foo/bar/");
-        assertEquals("/foo/bar", path.resolveSibling("").toString());
-        assertEquals("/foo/bar", path.resolveSibling("/").toString());
+        assertEquals("/foo/bar/", path.resolveSibling("").toString());
+        assertEquals("/foo/", path.resolveSibling("/").toString());
         assertEquals("/foo/gus", path.resolveSibling("gus").toString());
-        assertEquals("/foo/gus", path.resolveSibling("gus/").toString());
-        assertEquals("/foo/gus", path.resolveSibling("/gus/").toString());
+        assertEquals("/foo/gus/", path.resolveSibling("gus/").toString());
+        assertEquals("/foo/gus/", path.resolveSibling("/gus/").toString());
     }
 
     @Test
@@ -266,13 +266,13 @@ public class VFSPathTest extends AbstractVFSTest {
         assertNull(path.getParent());
 
         path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/");
-        assertEquals("", path.getParent().toString());
+        assertNull(path.getParent());
 
         path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello");
         assertEquals(httpRepo.getRoot(), path.getParent().toString());
 
         path = VFSPath.parsePath(fs, "hello/");
-        assertEquals("", path.getParent().toString());
+        assertNull(path.getParent());
 
         path = VFSPath.parsePath(fs, httpRepo.getRoot() + "/hello/there");
         assertEquals(httpRepo.getRoot() + "/hello", path.getParent().toString());
@@ -289,24 +289,24 @@ public class VFSPathTest extends AbstractVFSTest {
         assertEquals("", path.toString());
 
         path = VFSPath.parsePath(fs, "/");
-        assertEquals("", path.toString());
+        assertEquals("/", path.toString());
 
         path = VFSPath.parsePath(fs, "hello");
         assertEquals("hello", path.toString());
 
         path = VFSPath.parsePath(fs, "hello/");
-        assertEquals("hello", path.toString());
+        assertEquals("hello/", path.toString());
 
         path = VFSPath.parsePath(fs, "/hello");
         assertEquals("/hello", path.toString());
 
         path = VFSPath.parsePath(fs, "/hello/");
-        assertEquals("/hello", path.toString());
+        assertEquals("/hello/", path.toString());
 
         path = VFSPath.parsePath(fs, "/hello/there");
         assertEquals("/hello/there", path.toString());
 
         path = VFSPath.parsePath(fs, "/hello/there/");
-        assertEquals("/hello/there", path.toString());
+        assertEquals("/hello/there/", path.toString());
     }
 }

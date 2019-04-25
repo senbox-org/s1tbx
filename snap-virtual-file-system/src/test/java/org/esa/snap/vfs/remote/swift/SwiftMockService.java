@@ -84,7 +84,7 @@ class SwiftMockService {
                             response = new byte[0];
                             contentType = "application/octet-stream";
                         }
-                    } else if (Files.isRegularFile(responsePath)) {
+                    } else if (Files.isRegularFile(responsePath) && !uriPath.endsWith("/")) {
                         response = readFile(responsePath);
                         contentType = "application/octet-stream";
                     } else {
@@ -97,11 +97,12 @@ class SwiftMockService {
                 }
             } catch (Exception ex) {
                 if (ex instanceof IllegalArgumentException) {
-                    response = ex.getMessage().getBytes();
+                    response = "Bad request".getBytes();
+                    httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
                 } else {
                     response = "Internal error".getBytes();
+                    httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
                 }
-                httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockSwiftS3");
@@ -122,7 +123,9 @@ class SwiftMockService {
         private byte[] readFile(Path inputFile) throws IOException {
             InputStream is = Files.newInputStream(inputFile);
             byte data[] = new byte[is.available()];
-            is.read(data);
+            if (is.read(data) < 0) {
+                throw new IOException();
+            }
             is.close();
             return data;
         }
@@ -154,6 +157,9 @@ class SwiftMockService {
             }
             uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
             Path path = serviceRootPath.resolve(uriPath);
+            if (Files.isRegularFile(path) && uriPath.endsWith("/")) {
+                throw new IllegalArgumentException("dir requested, but was file");
+            }
             Iterator<Path> paths = Files.walk(path, 1).iterator();
             boolean markerReached = marker.isEmpty();
             int index = 0;
@@ -166,12 +172,12 @@ class SwiftMockService {
                     markerReached = pathItem.endsWith(markerPath);
                 } else {
                     if (Files.isDirectory(pathItem)) {
-                        String directoryPath = pathItem.toString().replace(containerPath.toString(), "").replaceAll("\\" + containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                        String directoryPath = pathItem.toString().replace(containerPath.toString(), "").replace(containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                         xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
                     } else {
                         long fileSize = Files.size(pathItem);
                         String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
-                        String filePath = pathItem.toString().replace(containerPath.toString(), "").replaceAll("\\" + containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                        String filePath = pathItem.toString().replace(containerPath.toString(), "").replace(containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                         xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
                     }
                 }
