@@ -22,6 +22,7 @@
                 <tocitem text="Slice Assembly" target="SliceAssemblyOp"/>
                 <tocitem text="TOPSAR Merge" target="TOPSARMergeOp"/>
 				<tocitem text="EAP Phase Correction" target="EAPPhaseCorrection"/>
+                <tocitem text="TOPSAR Deramp Demod" target="TOPSARDerampDemodOp"/>
             </tocitem>
         </tocitem>
     </tocitem>

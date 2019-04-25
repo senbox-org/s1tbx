@@ -26,6 +26,10 @@ public class ReaderTest {
     }
 
     protected Product testReader(final File inputFile) throws Exception {
+        return testReader(inputFile, readerPlugIn);
+    }
+
+    protected Product testReader(final File inputFile, final ProductReaderPlugIn readerPlugIn) throws Exception {
         if(!inputFile.exists()){
             TestUtils.skipTest(this, inputFile +" not found");
             return null;
@@ -36,6 +40,7 @@ public class ReaderTest {
             throw new Exception("Reader not intended");
         }
 
+        final ProductReader reader = readerPlugIn.createReaderInstance();
         final Product product = reader.readProductNodes(inputFile, null);
         if(product == null) {
             throw new Exception("Unable to read product");
