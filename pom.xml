@@ -726,7 +726,7 @@
                             <configuration>
                                 <name>s1tbx.nbmSpecVersion</name>
                                 <value>${project.version}</value>
-                                <regex>-SNAPSHOT</regex>
+                                <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
                                 <replacement>.0</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
