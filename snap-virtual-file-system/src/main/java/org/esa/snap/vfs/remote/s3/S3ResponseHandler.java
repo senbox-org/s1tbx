@@ -1,21 +1,13 @@
 package org.esa.snap.vfs.remote.s3;
 
-import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.vfs.remote.VFSFileAttributes;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,61 +83,6 @@ public class S3ResponseHandler extends DefaultHandler {
         this.prefix = prefix;
         this.items = items;
         this.delimiter = delimiter;
-    }
-
-    /**
-     * Creates the authorization token used for S3 authentication.
-     *
-     * @param accessKeyId     The access key id S3 credential (username)
-     * @param secretAccessKey The secret access key S3 credential (password)
-     * @return The authorization token
-     */
-    private static String getAuthorizationToken(String accessKeyId, String secretAccessKey) {//not real S3 authentication - only for function definition
-        return (!StringUtils.isNotNullAndNotEmpty(accessKeyId) && !StringUtils.isNotNullAndNotEmpty(secretAccessKey)) ? Base64.getEncoder().encodeToString((accessKeyId + ":" + secretAccessKey).getBytes()) : "";
-    }
-
-    /**
-     * Creates the connection channel.
-     *
-     * @param url               The URL address to connect
-     * @param method            The HTTP method (GET POST DELETE etc)
-     * @param requestProperties The properties used on the connection
-     * @param accessKeyId       The access key id S3 credential (username)
-     * @param secretAccessKey   The secret access key S3 credential (password)
-     * @return The connection channel
-     * @throws IOException If an I/O error occurs
-     */
-    static HttpURLConnection getConnectionChannel(URL url, String method, Map<String, String> requestProperties, String accessKeyId, String secretAccessKey) throws IOException {
-        String authorizationToken = getAuthorizationToken(accessKeyId, secretAccessKey);
-        HttpURLConnection connection;
-        if (url.getProtocol().equals("https")) {
-            connection = (HttpsURLConnection) url.openConnection();
-        } else {
-            connection = (HttpURLConnection) url.openConnection();
-        }
-        connection.setRequestMethod(method);
-        connection.setDoInput(true);
-        method = method.toUpperCase();
-        if (method.equals("POST") || method.equals("PUT") || method.equals("DELETE")) {
-            connection.setDoOutput(true);
-        }
-        connection.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-        if (authorizationToken != null && !authorizationToken.isEmpty())
-            connection.setRequestProperty("authorization", "Basic " + authorizationToken);
-        if (requestProperties != null && requestProperties.size() > 0) {
-            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
-            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
-                connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-            }
-        }
-        connection.setRequestProperty("user-agent", "SNAP Virtual File System");
-        int responseCode = connection.getResponseCode();
-        if (responseCode < 200 || responseCode >= 300) {
-            /* error from server */
-            throw new IOException(url + ": response code " + responseCode + ": " + connection.getResponseMessage());
-        } else {
-            return connection;
-        }
     }
 
     /**

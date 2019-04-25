@@ -2,15 +2,15 @@ package org.esa.snap.vfs.remote.s3;
 
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.VFSWalker;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
 
 /**
  * File System Service Provider for S3 VFS.
@@ -35,8 +35,6 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     private static final String SCHEME = "s3";
 
-    private static Logger logger = Logger.getLogger(S3FileSystemProvider.class.getName());
-
     private String bucketAddress = "";
     private String accessKeyId = "";
     private String secretAccessKey = "";
@@ -44,6 +42,30 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
 
     public S3FileSystemProvider() {
         super();
+    }
+
+    /**
+     * Creates the authorization token used for S3 authentication.
+     *
+     * @param accessKeyId     The access key id S3 credential (username)
+     * @param secretAccessKey The secret access key S3 credential (password)
+     * @return The authorization token
+     */
+    private static String getAuthorizationToken(String accessKeyId, String secretAccessKey) {//not real S3 authentication - only for function definition
+        try {
+            if (accessKeyId == null || accessKeyId.isEmpty() || secretAccessKey == null || secretAccessKey.isEmpty()) {
+                throw new NullPointerException();
+            }
+            String data = "";
+            SecretKeySpec signingKey = new SecretKeySpec(secretAccessKey.getBytes(), "HmacSHA1");
+            Mac mac = Mac.getInstance("HmacSHA1");
+            mac.init(signingKey);
+            byte[] macSignature = mac.doFinal(data.getBytes());
+            String signature = Base64.getEncoder().encodeToString(macSignature);
+            return "AWS " + accessKeyId + ":" + signature;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -77,12 +99,7 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     @Override
     protected VFSWalker newObjectStorageWalker(String fileSystemRoot) {
-        try {
-            return new S3Walker(bucketAddress, accessKeyId, secretAccessKey, delimiter, fileSystemRoot);
-        } catch (ParserConfigurationException | SAXException ex) {
-            logger.log(Level.SEVERE, "Unable to create walker instance used by S3 VFS to traverse tree. Details: " + ex.getMessage());
-            throw new IllegalStateException(ex);
-        }
+        return new S3Walker(bucketAddress, delimiter, fileSystemRoot, this);
     }
 
     /**
@@ -102,8 +119,24 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
 
     @Override
     public HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        //TODO Jean to be implemented
-        return S3ResponseHandler.getConnectionChannel(url, method, requestProperties, accessKeyId, secretAccessKey);
+        String authorizationToken = getAuthorizationToken(accessKeyId, secretAccessKey);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(method);
+        connection.setDoInput(true);
+        method = method.toUpperCase();
+        if (method.equals("POST") || method.equals("PUT") || method.equals("DELETE")) {
+            connection.setDoOutput(true);
+        }
+        if (authorizationToken != null && !authorizationToken.isEmpty())
+            connection.setRequestProperty("Authorization ", "Basic " + authorizationToken);
+        if (requestProperties != null && requestProperties.size() > 0) {
+            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
+            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
+                connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
+            }
+        }
+        connection.setRequestProperty("user-agent", "SNAP Virtual File System");
+        return connection;
     }
 
     /**
