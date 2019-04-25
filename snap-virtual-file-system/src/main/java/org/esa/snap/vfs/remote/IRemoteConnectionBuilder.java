@@ -6,9 +6,11 @@ import java.net.URL;
 import java.util.Map;
 
 /**
- * Created by jcoravu on 19/4/2019.
+ * IRemoteConnectionBuilder for provide HttpURLConnection on VFS
+ *
+ * @author Jean Coravu
  */
 public interface IRemoteConnectionBuilder {
 
-    public HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException;
+    HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException;
 }

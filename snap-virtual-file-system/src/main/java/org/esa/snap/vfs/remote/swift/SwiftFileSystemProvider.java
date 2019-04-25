@@ -1,8 +1,6 @@
 package org.esa.snap.vfs.remote.swift;
 
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
-import org.esa.snap.vfs.remote.HttpUtils;
-import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -36,12 +36,11 @@ class SwiftWalker extends AbstractRemoteWalker {
     /**
      * Creates the new walker for OpenStack Swift  VFS
      *
-     * @param address     The address of OpenStack Swift service (mandatory)
-     * @param container   The container name (bucket) (mandatory)
-     * @param delimiter   The VFS path delimiter
-     * @param root        The root of S3 provider
-     * @throws ParserConfigurationException If an serious configuration error occurs
-     * @throws SAXException                 Any SAX exception, possibly wrapping another exception
+     * @param address                 The address of OpenStack Swift service (mandatory)
+     * @param container               The container name (bucket) (mandatory)
+     * @param delimiter               The VFS path delimiter
+     * @param root                    The root of S3 provider
+     * @param remoteConnectionBuilder The connection builder
      */
     SwiftWalker(String address, String container, String delimiter, String root, IRemoteConnectionBuilder remoteConnectionBuilder) {
         super(remoteConnectionBuilder);

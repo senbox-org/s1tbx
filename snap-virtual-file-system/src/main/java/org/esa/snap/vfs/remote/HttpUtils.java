@@ -3,7 +3,9 @@ package org.esa.snap.vfs.remote;
 import java.net.HttpURLConnection;
 
 /**
- * Created by jcoravu on 19/4/2019.
+ * HttpUtils for VFS
+ *
+ * @author Jean Coravu
  */
 public class HttpUtils {
 

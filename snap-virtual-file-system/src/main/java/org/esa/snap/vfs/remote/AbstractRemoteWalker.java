@@ -8,7 +8,10 @@ import java.net.URL;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * Created by jcoravu on 19/4/2019.
+ * AbstractRemoteWalker for VFSWalker
+ *
+ * @author Jean Coravu
+ * @author Adrian Drăghici
  */
 public abstract class AbstractRemoteWalker implements VFSWalker {
 
@@ -53,7 +56,7 @@ public abstract class AbstractRemoteWalker implements VFSWalker {
                 String sizeString = connection.getHeaderField("content-length");
                 String lastModified = connection.getHeaderField("last-modified");
                 if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
-                    throw new IOException("filePath is not a file '"+filePath+"'.");
+                    throw new IOException("filePath is not a file '" + filePath + "'.");
                 }
                 long size = Long.parseLong(sizeString);
                 return VFSFileAttributes.newFile(filePath, size, lastModified);
