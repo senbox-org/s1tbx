@@ -44,6 +44,8 @@
         <slf4j.version>1.6.6</slf4j.version> <!-- used by netcdf, yes we hate that! -->
         <geotools.version>17.1</geotools.version>
         <jide.version>3.6.1</jide.version>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <buildDate>${maven.build.timestamp}</buildDate>
     </properties>
 
     <modules>
@@ -973,15 +975,28 @@
                     <version>1.10</version>
                     <executions>
                         <execution>
-                            <id>regex-property</id>
+                            <id>create-nbmSpecVersion</id>
                             <goals>
                                 <goal>regex-property</goal>
                             </goals>
                             <configuration>
                                 <name>snap.nbmSpecVersion</name>
                                 <value>${project.version}</value>
-                                <regex>-SNAPSHOT</regex>
+                                <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
                                 <replacement>.0</replacement>
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>create-nbmImplVersion</id>
+                            <goals>
+                                <goal>regex-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>snap.nbmImplVersion</name>
+                                <value>${project.version}</value>
+                                <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
+                                <replacement>.${buildDate}</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
                         </execution>
