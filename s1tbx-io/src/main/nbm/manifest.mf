@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: ${s1tbx.nbmSpecVersion}
+OpenIDE-Module-Implementation-Version: ${s1tbx.nbmImplVersion}
 AutoUpdate-Show-In-Client: false
 AutoUpdate-Essential-Module: false
 OpenIDE-Module-Layer: org/esa/s1tbx/io/layer.xml
