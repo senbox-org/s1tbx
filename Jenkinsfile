@@ -82,7 +82,7 @@ pipeline {
             }
             steps {
                 echo "Save data for SNAP Installer ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh "/opt/scripts/saveInstallData.sh ${toolName}"
+                sh "/opt/scripts/saveInstallData.sh ${toolName} ${env.GIT_BRANCH}"
             }
         }
         stage('Launch SNAP Desktop build') {
