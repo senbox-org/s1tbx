@@ -94,7 +94,7 @@ pipeline {
             }
             steps {
                 echo "Launch snap-installer"
-                build job: 'snap-installer/${env.GIT_BRANCH}'
+                build job: "snap-installer/${env.GIT_BRANCH}"
             }
         }
         stage('Create docker image') {
