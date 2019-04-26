@@ -72,11 +72,20 @@ public final class SceneFactory {
         for (String rasterName : rasterNames) {
             final RasterDataNode sourceRaster = sourceProduct.getRasterDataNode(rasterName);
             if (sourceRaster != null) {
+                ProductSubsetDef auxiliarSubsetDef = null;
+                if(subsetDef == null || subsetDef.getRegionMap() == null) {
+                    auxiliarSubsetDef = subsetDef;
+                } else {
+                    auxiliarSubsetDef = new ProductSubsetDef();
+                    auxiliarSubsetDef.setRegion(subsetDef.getRegionMap().get(sourceRaster.getName()));
+                    auxiliarSubsetDef.setSubSampling(subsetDef.getSubSamplingX(),subsetDef.getSubSamplingY());
+                }
+
                 final Scene sourceRasterScene = SceneFactory.createScene(sourceRaster);
                 final RasterDataNode targetRaster = targetProduct.getRasterDataNode(rasterName);
                 if (targetRaster != null) {
                     final Scene targetRasterScene = SceneFactory.createScene(targetRaster);
-                    if (transferGeoCoding(sourceRasterScene, targetRasterScene, subsetDef)) {
+                    if (transferGeoCoding(sourceRasterScene, targetRasterScene, auxiliarSubsetDef)) {
                         numTransferred++;
                     } else {
                         SystemUtils.LOG.warning(
