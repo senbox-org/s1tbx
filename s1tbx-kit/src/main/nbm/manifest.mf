@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: ${s1tbx.nbmSpecVersion}
+OpenIDE-Module-Implementation-Version: ${s1tbx.nbmImplVersion}
 OpenIDE-Module-Display-Category: Sentinel-1 Toolbox
 AutoUpdate-Show-In-Client: true
 AutoUpdate-Essential-Module: false

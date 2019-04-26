@@ -24,6 +24,8 @@
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
+		<maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <buildDate>${maven.build.timestamp}</buildDate>
 
         <snap.version>7.0.0-rc1</snap.version>
         <!--
@@ -719,7 +721,7 @@
                     <version>1.12</version>
                     <executions>
                         <execution>
-                            <id>regex-property</id>
+                            <id>create-nbmSpecVersion</id>
                             <goals>
                                 <goal>regex-property</goal>
                             </goals>
@@ -728,6 +730,19 @@
                                 <value>${project.version}</value>
                                 <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
                                 <replacement>.0</replacement>
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
+                        </execution>
+						<execution>
+                            <id>create-nbmImplVersion</id>
+                            <goals>
+                                <goal>regex-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>s1tbx.nbmImplVersion</name>
+                                <value>${project.version}</value>
+                                <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
+                                <replacement>.${buildDate}</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
                         </execution>

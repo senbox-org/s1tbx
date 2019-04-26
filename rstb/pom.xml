@@ -118,18 +118,31 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                            <id>regex-property</id>
+                            <id>create-nbmSpecVersion</id>
                             <goals>
                                 <goal>regex-property</goal>
                             </goals>
                             <configuration>
-                                <name>rstb.nbmSpecVersion</name>
+                                <name>rstb.nbmImplVersion</name>
                                 <value>${project.version}</value>
                                 <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
                                 <replacement>.0</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
                     </execution>
+					<execution>
+                            <id>create-nbmImplVersion</id>
+                            <goals>
+                                <goal>regex-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>rstb.nbmImplVersion</name>
+                                <value>${project.version}</value>
+                                <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
+                                <replacement>.${buildDate}</replacement>
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
+                        </execution>
                 </executions>
             </plugin>
             <plugin>
