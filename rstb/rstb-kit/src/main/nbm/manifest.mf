@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: ${rstb.nbmSpecVersion}
+OpenIDE-Module-Implementation-Version: ${rstb.nbmImplVersion}
 OpenIDE-Module-Display-Category: Radarsat Toolbox
 AutoUpdate-Show-In-Client: true
 AutoUpdate-Essential-Module: false
