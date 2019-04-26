@@ -36,23 +36,25 @@ public class Benchmark {
      */
     private List<BenchmarkSingleCalculus> benchmarkCalculus;
 
-    public Benchmark(/*List<Integer> tileSizes, */List<String> readerTileDimension, List<Integer> cacheSizes, List<Integer> nbThreads){
+    public Benchmark(List<Integer> tileSizes, List<String> readerTileDimension, List<Integer> cacheSizes, List<Integer> nbThreads){
 
-        if(readerTileDimension.isEmpty() || cacheSizes.isEmpty() || nbThreads.isEmpty()){
+        if(tileSizes.isEmpty() || readerTileDimension.isEmpty() || cacheSizes.isEmpty() || nbThreads.isEmpty()){
             throw new IllegalArgumentException("All benchmark parameters need to be filled");
         }
 
         benchmarkCalculus = new ArrayList<>();
 
         // duplicate the first values, as the first run is always slower, but do not show the output
-        benchmarkCalculus.add(new BenchmarkSingleCalculus(readerTileDimension.get(0), cacheSizes.get(0), nbThreads.get(0), true));
+        benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSizes.get(0), readerTileDimension.get(0), cacheSizes.get(0), nbThreads.get(0), true));
 
         //generate possible calculus list
 
-        for (String dim : readerTileDimension) {
-            for (Integer cacheSize : cacheSizes) {
-                for (Integer nbThread : nbThreads) {
-                    benchmarkCalculus.add(new BenchmarkSingleCalculus(dim, cacheSize, nbThread));
+        for(Integer tileSize : tileSizes) {
+            for (String dim : readerTileDimension) {
+                for (Integer cacheSize : cacheSizes) {
+                    for (Integer nbThread : nbThreads) {
+                        benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSize, dim, cacheSize, nbThread));
+                    }
                 }
             }
         }
@@ -77,7 +79,7 @@ public class Benchmark {
     public void loadBenchmarkPerfParams(BenchmarkSingleCalculus benchmarkSingleCalculus){
         ConfigurationOptimizer confOptimizer = ConfigurationOptimizer.getInstance();
         PerformanceParameters benchmarkPerformanceParameters = confOptimizer.getActualPerformanceParameters();
-        //benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalculus.getTileSize());
+        benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalculus.getTileSize());
         benchmarkPerformanceParameters.setTileWidth(benchmarkSingleCalculus.getTileWidth());
         benchmarkPerformanceParameters.setTileHeight(benchmarkSingleCalculus.getTileHeight());
         benchmarkPerformanceParameters.setCacheSize(benchmarkSingleCalculus.getCacheSize());
@@ -94,7 +96,7 @@ public class Benchmark {
 
     public String toString(){
         String benchmarksPrint = "Benchmark results sorted by execution time\n";
-        benchmarksPrint += "(Tile dimension, Cache size, Nb threads) = Execution time \n\n";
+        benchmarksPrint += "(Tile size, Cache size, Nb threads) = Execution time \n\n";
         for(BenchmarkSingleCalculus benchmarkSingleCalcul : this.benchmarkCalculus){
             if(benchmarkSingleCalcul.isHidden()) {
                 continue;
@@ -108,8 +110,8 @@ public class Benchmark {
         return BenchmarkSingleCalculus.getColumnNames();
     }
 
-    public String[] getColumnsNamesWithoutTileSize(){
-        return BenchmarkSingleCalculus.getColumnNamesWithoutTileSize();
+    public String[] getColumnsNamesWithoutTileDimension(){
+        return BenchmarkSingleCalculus.getColumnNamesWithoutTileDimension();
     }
 
     public int[][] getRows(){
@@ -150,9 +152,9 @@ public class Benchmark {
         return rows;
     }
 
-    public int[][] getRowsToShowWhitoutTileSize() {
+    public int[][] getRowsToShowWhitoutTileDimension() {
         int numRows = 0;
-        int numColumns = getColumnsNamesWithoutTileSize().length;
+        int numColumns = getColumnsNamesWithoutTileDimension().length;
 
         for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
             if (!this.benchmarkCalculus.get(i).isHidden()) {
@@ -166,7 +168,7 @@ public class Benchmark {
         int index = 0;
         for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
             if (!this.benchmarkCalculus.get(i).isHidden()) {
-                rows[index] = this.benchmarkCalculus.get(i).getDataWithoutTileSize();
+                rows[index] = this.benchmarkCalculus.get(i).getDataWithoutTileDimension();
                 index++;
             }
         }
