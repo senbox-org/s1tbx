@@ -15,11 +15,13 @@
  */
 package org.esa.snap.core.dataio;
 
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.util.Guardian;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -42,6 +44,11 @@ public class ProductSubsetDef {
      * The spatial subset.
      */
     private Rectangle region = null;
+
+    /**
+     * The spatial subset for each RasterDataNode
+     */
+    private HashMap<String,Rectangle> regionMap = null;
 
     /**
      * Subsampling in X direction.
@@ -213,6 +220,9 @@ public class ProductSubsetDef {
         return region != null ? new Rectangle(region) : null;
     }
 
+    public HashMap<String,Rectangle> getRegionMap() {
+        return regionMap;
+    }
     /**
      * Sets the spatial subset as a rectangular region.
      *
@@ -225,6 +235,10 @@ public class ProductSubsetDef {
         } else {
             setRegion(region.x, region.y, region.width, region.height);
         }
+    }
+
+    public void setRegionMap(HashMap<String,Rectangle> regionMap) {
+        this.regionMap = regionMap;
     }
 
     /**
@@ -285,11 +299,20 @@ public class ProductSubsetDef {
      * @return the required raster size, never <code>null</code>
      */
     public Dimension getSceneRasterSize(int maxWidth, int maxHeight) {
+        return getSceneRasterSize(maxWidth, maxHeight, null);
+    }
+
+    public Dimension getSceneRasterSize(int maxWidth, int maxHeight, String bandName) {
+
         int width = maxWidth;
         int height = maxHeight;
         if (region != null) {
             width = region.width;
             height = region.height;
+        }
+        if(bandName != null && regionMap != null && regionMap.containsKey(bandName)) {
+            width = regionMap.get(bandName).width;
+            height = regionMap.get(bandName).height;
         }
         return new Dimension((width - 1) / subSamplingX + 1,
                              (height - 1) / subSamplingY + 1);

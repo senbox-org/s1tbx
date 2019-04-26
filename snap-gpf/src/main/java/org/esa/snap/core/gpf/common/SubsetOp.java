@@ -55,6 +55,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import static java.lang.Math.*;
@@ -92,6 +93,12 @@ public class SubsetOp extends Operator {
                           "Use the following format: <x>,<y>,<width>,<height>\n" +
                           "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
     private Rectangle region = null;
+
+    HashMap<String,Rectangle> finalRegionMap = new HashMap<>();
+
+    @Parameter(description = "The band used to indicate the pixel coordinates.", alias = "referenceBand" ,
+            rasterDataNodeType = Band.class, label = "Reference Band")
+    private String referenceBand = null;
 
     @Parameter(converter = JtsGeometryConverter.class,
             description = "The subset region in geographical coordinates using WKT-format,\n" +
@@ -171,8 +178,6 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
-
         subsetReader = new ProductSubsetBuilder();
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         if (tiePointGridNames != null) {
@@ -196,7 +201,12 @@ public class SubsetOp extends Operator {
         }
 
         if (geoRegion != null) {
-            region = computePixelRegion(sourceProduct, geoRegion, 0);
+            if(sourceProduct.isMultiSize()) {
+                subsetDef.setRegionMap(computeRegionMap(geoRegion,sourceProduct,null));
+            } else {
+                region = computePixelRegion(sourceProduct, geoRegion, 0);
+            }
+
             if (region.isEmpty()) {
                 targetProduct = new Product("Empty_" + sourceProduct.getName(), "EMPTY", 0, 0);
                 String msg = "No intersection with source product boundary " + sourceProduct.getName();
@@ -210,13 +220,17 @@ public class SubsetOp extends Operator {
         }
         
         if (region != null && !region.isEmpty()) {
-            if (region.width == 0 || region.x + region.width > sourceProduct.getSceneRasterWidth()) {
-                region.width = sourceProduct.getSceneRasterWidth() - region.x;
+            if(referenceBand == null || referenceBand.length() == 0) {
+                if (region.width == 0 || region.x + region.width > sourceProduct.getSceneRasterWidth()) {
+                    region.width = sourceProduct.getSceneRasterWidth() - region.x;
+                }
+                if (region.height == 0 || region.y + region.height > sourceProduct.getSceneRasterHeight()) {
+                    region.height = sourceProduct.getSceneRasterHeight() - region.y;
+                }
+                subsetDef.setRegion(region);
+            } else {
+                subsetDef.setRegionMap(computeRegionMap (region, referenceBand, sourceProduct, null));
             }
-            if (region.height == 0 || region.y + region.height > sourceProduct.getSceneRasterHeight()) {
-                region.height = sourceProduct.getSceneRasterHeight() - region.y;
-            }
-            subsetDef.setRegion(region);
         }
 
         subsetDef.setSubSampling(subSamplingX, subSamplingY);
@@ -298,8 +312,74 @@ public class SubsetOp extends Operator {
                                                       product.getSceneRasterHeight()));
     }
 
+    public static Rectangle computePixelRegion(RasterDataNode rasterDataNode, Geometry geoRegion, int numBorderPixels) {
+        final Geometry productGeometry = computeProductGeometry(rasterDataNode);
+        final Geometry regionIntersection = geoRegion.intersection(productGeometry);
+        if (regionIntersection.isEmpty()) {
+            return new Rectangle();
+        }
+        final PixelRegionFinder pixelRegionFinder = new PixelRegionFinder(rasterDataNode.getGeoCoding(),true);
+        regionIntersection.apply(pixelRegionFinder);
+        final Rectangle pixelRegion = pixelRegionFinder.getPixelRegion();
+        pixelRegion.grow(numBorderPixels, numBorderPixels);
+        return pixelRegion.intersection(new Rectangle(rasterDataNode.getRasterWidth(),
+                                                      rasterDataNode.getRasterHeight()));
+    }
+
+    public static Geometry computeGeoRegion(RasterDataNode rasterDataNode, Rectangle pixelRegion) {
+
+        final int step = Math.min(pixelRegion.width, pixelRegion.height) / 8;
+        GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(rasterDataNode, pixelRegion, step, false);
+        final Polygon[] polygons = new Polygon[paths.length];
+        final GeometryFactory factory = new GeometryFactory();
+        for (int i = 0; i < paths.length; i++) {
+            polygons[i] = convertAwtPathToJtsPolygon(paths[i], factory);
+        }
+
+        if(polygons.length == 1) {
+            return polygons[0];
+        } else {
+            return factory.createMultiPolygon(polygons);
+        }
+        //final DouglasPeuckerSimplifier peuckerSimplifier = new DouglasPeuckerSimplifier(
+        //        polygons.length == 1 ? polygons[0] : factory.createMultiPolygon(polygons));
+        //return peuckerSimplifier.getResultGeometry();
+    }
+
+    public static Geometry computeGeoRegion(Product product, Rectangle pixelRegion) {
+
+        final int step = Math.min(pixelRegion.width, pixelRegion.height) / 8;
+        GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(product, pixelRegion, step, false);
+        final Polygon[] polygons = new Polygon[paths.length];
+        final GeometryFactory factory = new GeometryFactory();
+        for (int i = 0; i < paths.length; i++) {
+            polygons[i] = convertAwtPathToJtsPolygon(paths[i], factory);
+        }
+
+        if(polygons.length == 1) {
+            return polygons[0];
+        } else {
+            return factory.createMultiPolygon(polygons);
+        }
+        //final DouglasPeuckerSimplifier peuckerSimplifier = new DouglasPeuckerSimplifier(
+        //        polygons.length == 1 ? polygons[0] : factory.createMultiPolygon(polygons));
+        //return peuckerSimplifier.getResultGeometry();
+    }
+
     static Geometry computeProductGeometry(Product product) {
         final GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(product);
+        final Polygon[] polygons = new Polygon[paths.length];
+        final GeometryFactory factory = new GeometryFactory();
+        for (int i = 0; i < paths.length; i++) {
+            polygons[i] = convertAwtPathToJtsPolygon(paths[i], factory);
+        }
+        final DouglasPeuckerSimplifier peuckerSimplifier = new DouglasPeuckerSimplifier(
+                polygons.length == 1 ? polygons[0] : factory.createMultiPolygon(polygons));
+        return peuckerSimplifier.getResultGeometry();
+    }
+
+    static Geometry computeProductGeometry(RasterDataNode rasterDataNode) {
+        final GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(rasterDataNode);
         final Polygon[] polygons = new Polygon[paths.length];
         final GeometryFactory factory = new GeometryFactory();
         for (int i = 0; i < paths.length; i++) {
@@ -336,6 +416,91 @@ public class SubsetOp extends Operator {
     }
 
 
+    public static HashMap<String,Rectangle> computeRegionMap (Rectangle region, Product product, String[] rasterNames) {
+        if(rasterNames == null || rasterNames.length == 0) {
+            rasterNames = product.getBandNames();
+        }
+
+        HashMap<String,Rectangle> regionMap = new HashMap<>();
+        HashMap<String,Geometry> geometryMap = new HashMap<>();
+        HashMap<String,Rectangle> finalRegionMap = new HashMap<>();
+
+        Geometry geoRegion = computeGeoRegion(product,region);
+        Geometry finalGeometry = null;
+        for(String rasterName : rasterNames) {
+            RasterDataNode rasterDataNode = product.getBand(rasterName);
+            if(rasterDataNode == null) {
+                continue;
+            }
+            Rectangle rect = computePixelRegion(rasterDataNode, geoRegion, 0);
+            regionMap.put(rasterDataNode.getName(),rect);
+            Geometry geom = computeGeoRegion(rasterDataNode,rect);
+            geometryMap.put(rasterDataNode.getName(),geom);
+            if(finalGeometry == null) {
+                finalGeometry = geom;
+            } else if(geom.covers(finalGeometry)) {
+                finalGeometry = geom;
+            }
+        }
+
+        for(String rasterName : rasterNames) {
+            RasterDataNode rasterDataNode = product.getBand(rasterName);
+            if(rasterDataNode == null) {
+                continue;
+            }
+            Rectangle rect = computePixelRegion(rasterDataNode, finalGeometry, 0);
+            finalRegionMap.put(rasterDataNode.getName(),rect);
+        }
+
+        return finalRegionMap;
+    }
+
+    public static HashMap<String,Rectangle> computeRegionMap (Rectangle region, String referenceBandName, Product product, String[] rasterNames) {
+        if(rasterNames == null || rasterNames.length == 0) {
+            rasterNames = product.getBandNames();
+        }
+
+        HashMap<String,Rectangle> regionMap = new HashMap<>();
+        RasterDataNode referenceNode = product.getBand(referenceBandName);
+
+        Geometry geoRegion = computeGeoRegion(referenceNode,region);
+
+        for(String rasterName : rasterNames) {
+            RasterDataNode rasterDataNode = product.getBand(rasterName);
+            if(rasterDataNode == null) {
+                continue;
+            }
+            if(rasterDataNode.getGeoCoding().equals(referenceNode.getGeoCoding())) {
+                regionMap.put(rasterDataNode.getName(),region);
+                continue;
+            }
+            Rectangle rect = computePixelRegion(rasterDataNode, geoRegion, 0);
+            regionMap.put(rasterDataNode.getName(),rect);
+        }
+
+        return regionMap;
+    }
+
+    public static HashMap<String,Rectangle> computeRegionMap (Geometry geoRegion, Product product, String[] rasterNames) {
+        if(rasterNames == null || rasterNames.length == 0) {
+            rasterNames = product.getBandNames();
+        }
+
+        HashMap<String,Rectangle> regionMap = new HashMap<>();
+
+        for(String rasterName : rasterNames) {
+            RasterDataNode rasterDataNode = product.getBand(rasterName);
+            if(rasterDataNode == null) {
+                continue;
+            }
+
+            Rectangle rect = computePixelRegion(rasterDataNode, geoRegion, 0);
+            regionMap.put(rasterDataNode.getName(),rect);
+        }
+
+        return regionMap;
+    }
+
     public static class Spi extends OperatorSpi {
 
         public Spi() {
@@ -350,13 +515,19 @@ public class SubsetOp extends Operator {
         private int y1;
         private int x2;
         private int y2;
+        boolean round = false;
 
         private PixelRegionFinder(GeoCoding geoCoding) {
+            this(geoCoding, false);
+        }
+
+        private PixelRegionFinder(GeoCoding geoCoding, boolean round) {
             this.geoCoding = geoCoding;
             x1 = Integer.MAX_VALUE;
             x2 = Integer.MIN_VALUE;
             y1 = Integer.MAX_VALUE;
             y2 = Integer.MIN_VALUE;
+            this.round = round;
         }
 
         @Override
@@ -364,10 +535,17 @@ public class SubsetOp extends Operator {
             final GeoPos geoPos = new GeoPos(coordinate.y, coordinate.x);
             final PixelPos pixelPos = geoCoding.getPixelPos(geoPos, null);
             if (pixelPos.isValid()) {
-                x1 = min(x1, (int) floor(pixelPos.x));
-                x2 = max(x2, (int) ceil(pixelPos.x));
-                y1 = min(y1, (int) floor(pixelPos.y));
-                y2 = max(y2, (int) ceil(pixelPos.y));
+                if(round) {
+                    x1 = min(x1, (int) round(pixelPos.x));
+                    x2 = max(x2, (int) round(pixelPos.x));
+                    y1 = min(y1, (int) round(pixelPos.y));
+                    y2 = max(y2, (int) round(pixelPos.y));
+                } else {
+                    x1 = min(x1, (int) floor(pixelPos.x));
+                    x2 = max(x2, (int) ceil(pixelPos.x));
+                    y1 = min(y1, (int) floor(pixelPos.y));
+                    y2 = max(y2, (int) ceil(pixelPos.y));
+                }
             }
         }
 
