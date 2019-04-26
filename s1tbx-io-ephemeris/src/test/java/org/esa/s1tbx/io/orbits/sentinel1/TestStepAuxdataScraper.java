@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.orbits.sentinel1;
 
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ import static junit.framework.TestCase.*;
 /**
  * find files on step
  */
+@Ignore
 public class TestStepAuxdataScraper {
 
     @BeforeClass
