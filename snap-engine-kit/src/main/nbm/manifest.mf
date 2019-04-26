@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
-OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
 OpenIDE-Module-Implementation-Version: ${snap.nbmImplVersion}
 OpenIDE-Module-Display-Category: SNAP Engine
 AutoUpdate-Show-In-Client: true
