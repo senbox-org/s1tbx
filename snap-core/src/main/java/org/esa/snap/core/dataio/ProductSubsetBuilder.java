@@ -564,30 +564,36 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 //@todo 1 se/se - extract copy of a band or virtual band to create deep clone of band and virtual band
                 if (!treatVirtualBandsAsRealBands && sourceBand instanceof VirtualBand) {
                     VirtualBand virtualSource = (VirtualBand) sourceBand;
-                    if(getSubsetDef() == null || getSubsetDef().getRegionMap() == null) {
+                    if(getSubsetDef() == null) {
                         destBand = new VirtualBand(bandName,
                                                    sourceBand.getDataType(),
                                                    getSceneRasterWidth(),
                                                    getSceneRasterHeight(),
                                                    virtualSource.getExpression());
                     } else {
+                        Dimension dim = getSubsetDef().getSceneRasterSize(sourceBand.getRasterWidth(),
+                                                                          sourceBand.getRasterHeight(),
+                                                                          sourceBand.getName());
                         destBand = new VirtualBand(bandName,
                                                    sourceBand.getDataType(),
-                                                   getSubsetDef().getRegionMap().get(sourceBand.getName()).width,
-                                                   getSubsetDef().getRegionMap().get(sourceBand.getName()).height,
+                                                   dim.width,
+                                                   dim.height,
                                                    virtualSource.getExpression());
                     }
                 } else {
-                    if(getSubsetDef() == null || getSubsetDef().getRegionMap() == null) {
+                    if(getSubsetDef() == null) {
                         destBand = new Band(bandName,
                                             sourceBand.getDataType(),
                                             getSceneRasterWidth(),
                                             getSceneRasterHeight());
                     }else {
+                        Dimension dim = getSubsetDef().getSceneRasterSize(sourceBand.getRasterWidth(),
+                                                                          sourceBand.getRasterHeight(),
+                                                                          sourceBand.getName());
                         destBand = new Band(bandName,
                                             sourceBand.getDataType(),
-                                            getSubsetDef().getRegionMap().get(sourceBand.getName()).width,
-                                            getSubsetDef().getRegionMap().get(sourceBand.getName()).height);
+                                            dim.width,
+                                            dim.height);
                     }
                 }
                 if (sourceBand.getUnit() != null) {
@@ -630,22 +636,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 if (isFullScene(getSubsetDef(), sourceBand) && sourceBand.isStxSet()) {
                     copyStx(sourceBand, destBand);
                 }
-
-
-
-
-
-                /*if(sourceBand.getGeoCoding() instanceof AbstractGeoCoding) {
-                    ProductSubsetDef subsetDef = new ProductSubsetDef();
-                    subsetDef.setRegion(getSubsetDef().getRegionMap().get(sourceBand.getName()));
-                    subsetDef.setSubSampling(getSubsetDef().getSubSamplingX(),getSubsetDef().getSubSamplingY());
-                    Scene dest = SceneFactory.createScene(destBand);
-                    ((AbstractGeoCoding)sourceBand.getGeoCoding()).transferGeoCoding(SceneFactory.createScene(sourceBand),
-                                                                                     dest,
-                                                                                     subsetDef);
-                }*/
-
-                       
 
                 product.addBand(destBand);
                 bandMap.put(destBand, sourceBand);
