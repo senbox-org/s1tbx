@@ -209,7 +209,7 @@ public class CollocateOp extends Operator {
         //for compatibility, allow have slave and master instead of sourceProducts
         //The first step is to copy them to sourceProducts
         if(master != null) {
-            if((masterProductName != null || masterProductName.length() > 0) && !masterProductName.equals(master.getName())) {
+            if((masterProductName != null && masterProductName.length() > 0) && !masterProductName.equals(master.getName())) {
                 throw new OperatorException("Incompatible master definition");
             }
             masterProductName = master.getName();
@@ -399,11 +399,19 @@ public class CollocateOp extends Operator {
             }
 
             //add PRESENT flag
-            collocationFlagBands[i] = targetProduct.addBand(collocationFlagsBandNames[i], ProductData.TYPE_INT8);
-            FlagCoding collocationFlagCoding = new FlagCoding(collocationFlagsBandNames[i]);
-            collocationFlagCoding.addFlag(String.format("SLAVE_%d_PRESENT",i), 1, "Data for the slave is present.");
-            collocationFlagBands[i].setSampleCoding(collocationFlagCoding);
-            targetProduct.getFlagCodingGroup().add(collocationFlagCoding);
+            if(slaveProducts.length == 1) {
+                collocationFlagBands[i] = targetProduct.addBand(collocationFlagsBandNames[i], ProductData.TYPE_INT8);
+                FlagCoding collocationFlagCoding = new FlagCoding(collocationFlagsBandNames[i]);
+                collocationFlagCoding.addFlag(String.format("SLAVE_PRESENT"), 1, "Data for the slave is present.");
+                collocationFlagBands[i].setSampleCoding(collocationFlagCoding);
+                targetProduct.getFlagCodingGroup().add(collocationFlagCoding);
+            } else {
+                collocationFlagBands[i] = targetProduct.addBand(collocationFlagsBandNames[i], ProductData.TYPE_INT8);
+                FlagCoding collocationFlagCoding = new FlagCoding(collocationFlagsBandNames[i]);
+                collocationFlagCoding.addFlag(String.format("SLAVE_%d_PRESENT", i), 1, "Data for the slave is present.");
+                collocationFlagBands[i].setSampleCoding(collocationFlagCoding);
+                targetProduct.getFlagCodingGroup().add(collocationFlagCoding);
+            }
 
             // Copy master geo-coding
             ProductUtils.copyGeoCoding(masterProduct, targetProduct);
