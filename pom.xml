@@ -935,7 +935,7 @@
 
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
+                    <version>3.1.1</version>
                 </plugin>
 
                 <plugin>
