@@ -1,0 +1,9 @@
+{
+  "testProducts": [
+    {
+      "id": "S1A_S1_GRDM",
+      "relativePath": "s1tbx/SAR/S1/S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip",
+      "description": "Sentinel-1 GRD product"
+    }
+  ]
+}
