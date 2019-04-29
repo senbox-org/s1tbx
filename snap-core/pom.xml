@@ -201,7 +201,7 @@
                             <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>/..</directory>
+                                    <directory>../</directory>
                                     <includes>
                                         <include>VERSION.txt</include>
                                         <include>THIRDPARTY_LICENSES.txt</include>
