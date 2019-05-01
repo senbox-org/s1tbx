@@ -2,7 +2,7 @@
   "testProducts": [
     {
       "id": "Gamma_rslc",
-      "relativePath": "s1tbx/SAR/Gamma/rslc/20030309.rslc.par",
+      "relativePath": "SAR/Gamma/rslc/20030309.rslc.par",
       "description": "Gamma RSLC product"
     }
   ]

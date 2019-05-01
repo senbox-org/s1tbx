@@ -2,7 +2,7 @@
   "testProducts": [
     {
       "id": "RS1-SGF-HH",
-      "relativePath": "s1tbx/SAR/RS1/RS1_m0700850_S7_20121103_232202_HH_SGF.zip",
+      "relativePath": "SAR/RS1/RS1_m0700850_S7_20121103_232202_HH_SGF.zip",
       "description": "RADARSAT-1 SGF product"
     }
   ]

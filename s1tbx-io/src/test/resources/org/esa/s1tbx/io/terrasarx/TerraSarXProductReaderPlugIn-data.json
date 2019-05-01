@@ -2,12 +2,12 @@
   "testProducts": [
     {
       "id": "TerraSAR-X_Staring_Spotlight_MGD",
-      "relativePath": "s1tbx/SAR/TerraSAR-X/Oslo_StaringSpotlight/TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446/TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446.xml",
+      "relativePath": "SAR/TerraSAR-X/Oslo_StaringSpotlight/TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446/TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446.xml",
       "description": "TerraSAR-X Staring Spotlight MGD product"
     },
     {
       "id": "TanDEM-X_SM_COS",
-      "relativePath": "s1tbx/SAR/TanDEM-X/HintonTDX_20110829/TDM1_SAR__COS_BIST_SM_S_SRA_20110829T013013_20110829T013021.xml",
+      "relativePath": "SAR/TanDEM-X/HintonTDX_20110829/TDM1_SAR__COS_BIST_SM_S_SRA_20110829T013013_20110829T013021.xml",
       "description": "TanDEM-X Stripmap COS product"
     }
   ]

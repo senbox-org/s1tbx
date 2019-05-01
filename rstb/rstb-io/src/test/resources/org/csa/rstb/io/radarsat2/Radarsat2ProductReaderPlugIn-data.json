@@ -2,7 +2,7 @@
   "testProducts": [
     {
       "id": "RADARSAT-2-QuadPol-SLC-Product",
-      "relativePath": "s1tbx/SAR/RS2/RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC.zip",
+      "relativePath": "SAR/RS2/RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC.zip",
       "description": "RADARSAT-2 Quad Pol SLC product"
     }
   ]
