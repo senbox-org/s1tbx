@@ -54,8 +54,8 @@ public class ZipUtils {
 
             final Optional result = productZip.stream()
                     .filter(ze -> !ze.isDirectory())
-                    .filter(ze -> ze.getName().toLowerCase().endsWith(suffix))
-                    .filter(ze -> ze.getName().toLowerCase().startsWith(prefix))
+                    .filter(ze -> ze.getName().toLowerCase().endsWith(suffix.toLowerCase()))
+                    .filter(ze -> ze.getName().toLowerCase().startsWith(prefix.toLowerCase()))
                     .findFirst();
             return result.isPresent();
         } catch (Exception e) {
