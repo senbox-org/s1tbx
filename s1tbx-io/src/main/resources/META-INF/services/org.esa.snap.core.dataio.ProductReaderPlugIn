@@ -17,4 +17,3 @@ org.esa.s1tbx.io.sentinel1.Sentinel1ProductReaderPlugIn
 org.esa.s1tbx.io.snaphu.SNAPHUProductReaderPlugIn
 org.esa.s1tbx.io.terrasarx.TerraSarXProductReaderPlugIn
 org.esa.s1tbx.io.TAXI.RATProductReaderPlugIn
-org.esa.s1tbx.io.uavsar.UAVSARReaderPlugIn

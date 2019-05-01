@@ -4,11 +4,9 @@
 * Support for RCM products
 * Support for PAZ
 * Support for RISAT-1
-* Support for UAVSAR
 * Compact polarimetric tools
 * Improved Terrain Flattening
 * Improved thermal noise filtering
-* Decision Tree Classifier
 
 #New in S1TBX 6.0
 
