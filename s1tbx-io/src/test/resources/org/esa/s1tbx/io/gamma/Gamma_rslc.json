@@ -1,0 +1,144 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "Gamma_rslc",
+	"expectedContent": {
+		"metadata": [
+			{
+				"path": "Header/state_vector_velocity_12",
+				"value": "1262.13867     -1318.40573     -7332.28443   m/s m/s m/s"
+			},
+			{
+				"path": "Header/doppler_poly_ddot",
+				"value": "0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00  Hz/s^2 Hz/s^2/m Hz/s^2/m^2 Hz/s^2/m^3"
+			},
+			{
+				"path": "Header/doppler_poly_ddot",
+				"value": "0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00  Hz/s^2 Hz/s^2/m Hz/s^2/m^2 Hz/s^2/m^3"
+			},
+			{
+				"path": "Header/state_vector_interval",
+				"value": "60.000000   s"
+			},
+			{
+				"path": "Header/state_vector_position_5",
+				"value": "5635452.8840    2431486.8870    3687684.0110   m   m   m"
+			},
+			{
+				"path": "Header/line_header_size",
+				"value": "0"
+			},
+			{
+				"path": "Header/sensor",
+				"value": "ASAR_IS2_VV"
+			},
+			{
+				"path": "Header/azimuth_deskew",
+				"value": "ON"
+			},
+			{
+				"path": "Header/state_vector_velocity_13",
+				"value": "807.37358     -1462.36968     -7368.76529   m/s m/s m/s"
+			},
+			{
+				"path": "Header/earth_semi_minor_axis",
+				"value": "6356752.3141   m"
+			}
+		],
+		"sceneHeight": 12000,
+		"sceneWidth": 2500,
+		"startTime": "01-JAN-2000 00:00:00.000000",
+		"endTime": "01-JAN-2000 00:00:00.000000",
+		"bands": [
+			{
+				"bandWidth": 2500,
+				"noDataValueUsed": "false",
+				"bandHeight": 12000,
+				"expectedPixels": [
+					{
+						"x": 1078,
+						"y": 6450,
+						"value": -30.0
+					},
+					{
+						"x": 1856,
+						"y": 7786,
+						"value": 125.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "i_20030309.rslc",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "real"
+			},
+			{
+				"bandWidth": 2500,
+				"noDataValueUsed": "false",
+				"bandHeight": 12000,
+				"expectedPixels": [
+					{
+						"x": 130,
+						"y": 2138,
+						"value": -14.0
+					},
+					{
+						"x": 1712,
+						"y": 10207,
+						"value": -41.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "q_20030309.rslc",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "imaginary"
+			},
+			{
+				"bandWidth": 2500,
+				"noDataValueUsed": "true",
+				"bandHeight": 12000,
+				"expectedPixels": [
+					{
+						"x": 727,
+						"y": 3082,
+						"value": 17810.0
+					},
+					{
+						"x": 1526,
+						"y": 4383,
+						"value": 505.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity_20030309.rslc",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			},
+			{
+				"bandWidth": 2500,
+				"noDataValueUsed": "false",
+				"bandHeight": 12000,
+				"expectedPixels": [
+					{
+						"x": 1375,
+						"y": 8944,
+						"value": 2.0988708
+					},
+					{
+						"x": 1520,
+						"y": 11141,
+						"value": -2.4216745
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Phase_20030309.rslc",
+				"noDataValue": "0.0",
+				"description": "Phase from complex data",
+				"geophysicalUnit": "phase"
+			}
+		]
+	}
+}
