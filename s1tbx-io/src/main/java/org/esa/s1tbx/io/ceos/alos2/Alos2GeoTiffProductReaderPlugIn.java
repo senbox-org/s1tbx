@@ -44,15 +44,14 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.UNABLE;
             }
             if(input instanceof String || input instanceof File){
-                final String extension = FileUtils.getExtension((File)imageIOInput).toUpperCase();
+                final String extension = FileUtils.getExtension((File)imageIOInput);
 
-                if (extension.equals(".ZIP")){
+                if (extension != null && extension.toUpperCase().equals(".ZIP")){
                     return checkZIPFile(imageIOInput);
                 }
                 final String name = ((File) imageIOInput).getAbsolutePath();
                 return checkFileName(name);
             }
-
 
             return DecodeQualification.UNABLE;
 
@@ -64,8 +63,6 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     // Additional helper functions for getDecodeQualification
     private DecodeQualification checkFileName(String name){
-        final Object imageIOInput;
-        imageIOInput = new File(name);
         if (!(name.toUpperCase().contains("ALOS2"))){
             return DecodeQualification.UNABLE;
         }
@@ -76,25 +73,23 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                                 name.toUpperCase().contains("-VH-") ||
                                 name.toUpperCase().contains("-VV-")))){
 
-            File parentFolder = ((File) imageIOInput).getParentFile();
-            for (File f : parentFolder.listFiles()){
-                String fname = f.getName().toLowerCase();
-                if (fname.equals("summary.txt")){
-                    // File name contains the right keywords, and the folder contains the metadata file.
-                    return DecodeQualification.INTENDED;
+            final File file = new File(name);
+            File[] files = file.getParentFile().listFiles();
+            if(files != null) {
+                for (File f : files) {
+                    String fname = f.getName().toLowerCase();
+                    if (fname.equals("summary.txt")) {
+                        // File name contains the right keywords, and the folder contains the metadata file.
+                        return DecodeQualification.INTENDED;
+                    }
                 }
             }
             // No metadata file
             return DecodeQualification.UNABLE;
-
-
-        }
-        else{
+        } else{
             return DecodeQualification.UNABLE;
         }
-
     }
-
 
     private DecodeQualification checkZIPFile(Object input) throws IOException {
         final Object imageIOInput;
