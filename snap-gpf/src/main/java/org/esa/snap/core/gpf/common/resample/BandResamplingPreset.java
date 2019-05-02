@@ -46,4 +46,10 @@ public class BandResamplingPreset {
     public void setUpsamplingAlias(String upsamplingAlias) {
         this.upsamplingAlias = upsamplingAlias;
     }
+
+
+    @Override
+    public String toString() {
+        return bandName + SEPARATOR + downsamplingAlias + SEPARATOR + upsamplingAlias;
+    }
 }

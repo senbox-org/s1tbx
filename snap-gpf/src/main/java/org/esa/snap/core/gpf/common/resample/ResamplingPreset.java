@@ -1,10 +1,13 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -28,6 +31,15 @@ public class ResamplingPreset {
             this.bandResamplingPresets.add(bandResamplingPreset);
         }
     }
+
+    public ResamplingPreset (String resamplingPresetName, BandResamplingPreset[] bandResamplingPresets) {
+        this.resamplingPresetName = resamplingPresetName;
+        this.bandResamplingPresets = new ArrayList();
+        for (BandResamplingPreset bandResamplingPreset : bandResamplingPresets) {
+            this.bandResamplingPresets.add(bandResamplingPreset);
+        }
+    }
+
     /**
      * Loads a resampling preset from the given file
      *
@@ -96,5 +108,79 @@ public class ResamplingPreset {
             }
         }
         return null;
+    }
+
+    /**
+     * Save the resampling preset to a file
+     * @param file
+     * @return true if success
+     */
+    public boolean saveToFile(File file) {
+        BufferedWriter writer = null;
+        boolean success = true;
+        try {
+            writer = new BufferedWriter(new FileWriter(file, false));
+            for(BandResamplingPreset bandResamplingPreset : bandResamplingPresets) {
+                writer.write(bandResamplingPreset.toString());
+                writer.write("\n");
+            }
+        } catch (IOException e) {
+            //do nothing
+            success = false;
+        } finally {
+            if(writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+        }
+        return success;
+    }
+
+    /**
+     * Svae resampling preset to a file, but copying only the bandresampling presets for the bands contained in product.
+     * @param file
+     * @param product
+     * @return
+     */
+    public boolean saveToFile(File file, Product product) {
+        BufferedWriter writer = null;
+        boolean success = true;
+        try {
+            writer = new BufferedWriter(new FileWriter(file, false));
+            for(BandResamplingPreset bandResamplingPreset : bandResamplingPresets) {
+                if(product.containsRasterDataNode(bandResamplingPreset.getBandName())) {
+                    writer.write(bandResamplingPreset.toString());
+                    writer.write("\n");
+                }
+            }
+        } catch (IOException e) {
+            //do nothing
+            success = false;
+        } finally {
+            if(writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+        }
+        return success;
+    }
+
+    public boolean isCompatibleWithProduct(Product product) {
+        if(product == null) {
+            return false;
+        }
+        for(BandResamplingPreset bandResamplingPreset : bandResamplingPresets) {
+            String bandName = bandResamplingPreset.getBandName();
+            if(!product.containsBand(bandName) && !product.getAutoGrouping().contains(bandName)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

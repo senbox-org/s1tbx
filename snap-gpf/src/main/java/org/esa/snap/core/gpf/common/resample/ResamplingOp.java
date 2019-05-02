@@ -55,6 +55,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 /**
@@ -99,7 +102,7 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "upsampling",
             label = "Upsampling method",
             description = "The method used for interpolation (upsampling to a finer resolution).",
-            valueSet = {"Nearest", "Bilinear", "Bicubic", "Cubic_Convolution"},
+            valueSet = {"Nearest", "Bilinear", "Bicubic"/*, "Cubic_Convolution"*/}, //TODO this has to be extended with upsampling registry
             defaultValue = "Nearest"
     )
     private String upsamplingMethod;
@@ -107,14 +110,14 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "downsampling",
             label = "Downsampling method",
             description = "The method used for aggregation (downsampling to a coarser resolution).",
-            valueSet = {"First", "Min", "Max", "Mean", "Median"},
+            valueSet = {"First", "Min", "Max", "Mean", "Median"}, //TODO this has to be extended with downsampling registry
             defaultValue = "First")
     private String downsamplingMethod;
 
     @Parameter(alias = "flagDownsampling",
             label = "Flag downsampling method",
             description = "The method used for aggregation (downsampling to a coarser resolution) of flags.",
-            valueSet = {"First", "FlagAnd", "FlagOr", "FlagMedianAnd", "FlagMedianOr"},
+            valueSet = {"First", "FlagAnd", "FlagOr", "FlagMedianAnd", "FlagMedianOr"}, //TODO this has to be extended with downsampling registry
             defaultValue = "First")
     private String flagDownsamplingMethod;
 
@@ -123,6 +126,7 @@ public class ResamplingOp extends Operator {
             description = "The resampling preset. This will over rules the settings for upsampling, downsampling and flagDownsampling.",
             defaultValue = "")
     private String resamplingPreset;
+    private ResamplingPreset selectedResamplingPreset = null;
 
     //over rules resamplingPreset
     @Parameter(alias = "bandResamplings",
@@ -160,6 +164,7 @@ public class ResamplingOp extends Operator {
         validateInterpolationParameter();
         setReferenceValues();
         setResamplingTypes();
+        loadResamplingPreset();
         targetProduct = new Product(sourceProduct.getName() + "_" + NAME_EXTENSION, sourceProduct.getProductType(),
                                     referenceWidth, referenceHeight);
         resampleBands();
@@ -487,20 +492,26 @@ public class ResamplingOp extends Operator {
             bandUpsamplingMethod = "Nearest";
         }
 
-        if(resamplingPreset != null && resamplingPreset.length() >0 && ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset) != null) {
-            ResamplingPreset myResamplingPreset = ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset);
-            BandResamplingPreset bandResamplingPreset = myResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
+        //Load ResamplingPreset and set upsampling methid if it is valid
+        if(selectedResamplingPreset != null) {
+            BandResamplingPreset bandResamplingPreset = selectedResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
             if (bandResamplingPreset != null) {
-                bandUpsamplingMethod = bandResamplingPreset.getUpsamplingAlias();
+                String bandUpsamplingMethodTemp = bandResamplingPreset.getUpsamplingAlias();
+                if(GPF.getDefaultInstance().getUpsamplerSpiRegistry().getAliases().contains(bandUpsamplingMethodTemp)) {
+                    bandUpsamplingMethod = bandUpsamplingMethodTemp;
+                }
             }
         }
 
-        //over rules resampling preset with bandResampling
+        //over rules resampling preset with bandResampling if valid
         ResamplingPreset myResamplingPreset2 = ResamplingPreset.loadResamplingPreset(bandResamplings,"bandResampling");
         if(myResamplingPreset2 != null) {
             BandResamplingPreset bandResamplingPreset2 = myResamplingPreset2.getBandResamplingPreset(sourceRDN.getName());
             if (bandResamplingPreset2 != null) {
-                bandUpsamplingMethod = bandResamplingPreset2.getUpsamplingAlias();
+                String bandUpsamplingMethodTemp = bandResamplingPreset2.getUpsamplingAlias();
+                if(GPF.getDefaultInstance().getUpsamplerSpiRegistry().getAliases().contains(bandUpsamplingMethodTemp)) {
+                    bandUpsamplingMethod = bandUpsamplingMethodTemp;
+                }
             }
         }
 
@@ -513,6 +524,7 @@ public class ResamplingOp extends Operator {
             upsampling = GPF.getDefaultInstance().getUpsamplerSpiRegistry().getUpsamplerSpi(upsamplingMethod).createUpsampling();
         }
 
+        //do it using Interpolation scaler. This is how it was done for Nearest, Bilinear and Bicubic
         if(interpolation != null) {
             return Resample.createInterpolatedMultiLevelImage(sourceImage, noDataValue, sourceImageToModelTransform,
                                                               referenceWidth, referenceHeight, referenceTileSize,
@@ -521,7 +533,7 @@ public class ResamplingOp extends Operator {
 
 
         ////////////////////////
-        //New implementation (similar to createAggregatedImage)
+        //New implementation fro v7.0 (similar to createAggregatedImage)
         ////////////////////////
         MultiLevelSource source;
         Upsampling finalUpsampling = upsampling;
@@ -566,7 +578,6 @@ public class ResamplingOp extends Operator {
             }
         }
         return new DefaultMultiLevelImage(source);
-
     }
 
     private Interpolation getInterpolation() {
@@ -616,22 +627,26 @@ public class ResamplingOp extends Operator {
             downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(flagDownsamplingMethod).createDownsampling();
         }
 
-
-        if(resamplingPreset != null && resamplingPreset.length() >0 && ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset) != null) {
-            ResamplingPreset myResamplingPreset = ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset);
-            BandResamplingPreset bandResamplingPreset  = myResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
-            if(bandResamplingPreset != null) {
-                downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(bandResamplingPreset.getDownsamplingAlias()).createDownsampling();
+        //Load ResamplingPreset and set downsampling if it is valid
+        if(selectedResamplingPreset != null) {
+            BandResamplingPreset bandResamplingPreset = selectedResamplingPreset.getBandResamplingPreset(sourceRDN.getName());
+            if (bandResamplingPreset != null) {
+                String bandDownsamplingMethodTemp = bandResamplingPreset.getDownsamplingAlias();
+                if(GPF.getDefaultInstance().getDownsamplerSpiRegistry().getAliases().contains(bandDownsamplingMethodTemp)) {
+                    downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(bandDownsamplingMethodTemp).createDownsampling();
+                }
             }
         }
 
-        //over rules resampling preset with bandResampling
+        //over rules resampling preset with bandResampling if valid
         ResamplingPreset myResamplingPreset2 = ResamplingPreset.loadResamplingPreset(bandResamplings,"bandResampling");
         if(myResamplingPreset2 != null) {
             BandResamplingPreset bandResamplingPreset2 = myResamplingPreset2.getBandResamplingPreset(sourceRDN.getName());
             if (bandResamplingPreset2 != null) {
-                downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(bandResamplingPreset2.getDownsamplingAlias()).createDownsampling();
-
+                String bandDownsamplingMethodTemp = bandResamplingPreset2.getDownsamplingAlias();
+                if(GPF.getDefaultInstance().getDownsamplerSpiRegistry().getAliases().contains(bandDownsamplingMethodTemp)) {
+                    downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi(bandDownsamplingMethodTemp).createDownsampling();
+                }
             }
         }
 
@@ -772,6 +787,29 @@ public class ResamplingOp extends Operator {
     private void setResamplingTypes() {
         aggregationType = getAggregationType(downsamplingMethod);
         flagAggregationType = getAggregationType(flagDownsamplingMethod);
+    }
+
+    private void loadResamplingPreset() {
+        selectedResamplingPreset = null;
+        if(resamplingPreset == null || resamplingPreset.length() == 0) {
+            return;
+        }
+        //try to find it in manager
+        selectedResamplingPreset = ResamplingPresetManager.getInstance().getResamplingPreset(resamplingPreset);
+        if(selectedResamplingPreset != null) {
+            return;
+        }
+
+        //if not found in manager, try to load it as a file
+        if(!Files.exists(Paths.get(resamplingPreset))) {
+            return;
+        }
+
+        try {
+            selectedResamplingPreset = ResamplingPreset.loadResamplingPreset(Paths.get(resamplingPreset).toFile());
+        } catch (IOException e) {
+            return;
+        }
     }
 
     private AggregationType getAggregationType(String aggregationMethod) {
