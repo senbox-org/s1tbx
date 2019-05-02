@@ -815,4 +815,41 @@ public class StringUtils {
         }
         return str.toString();
     }
+
+    /**
+     * Makes the strings in the given array unique.
+     * Strings which occur more than once in the array get an appendix with the index of its occurrence.
+     * Example:
+     * <pre>
+     *     'name', 'duplicate', 'other', 'duplicate'
+     * --> 'name', 'duplicate_1', 'other', 'duplicate_2'
+     *</pre>
+     *
+     * @param strings the strings to make unique
+     * @return a new array with the changed names
+     *
+     */
+    public static String[] makeStringsUnique(String[] strings) {
+        List<String> nameList = new ArrayList<>();
+        List<String> duplicated = new ArrayList<>();
+        String[] clonedNames = strings.clone();
+        for (String name : clonedNames) {
+            if (!nameList.contains(name)) {
+                nameList.add(name);
+            } else {
+                // duplicated
+                duplicated.add(name);
+            }
+        }
+        for (String duplicatedName : duplicated) {
+            int index = 1;
+            for (int i = 0; i < clonedNames.length; i++) {
+                if (clonedNames[i].equals(duplicatedName)) {
+                    clonedNames[i] = duplicatedName + "_" + index++;
+                }
+            }
+        }
+        return clonedNames;
+
+    }
 }

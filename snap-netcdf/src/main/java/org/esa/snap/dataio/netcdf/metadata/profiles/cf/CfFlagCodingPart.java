@@ -19,6 +19,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
@@ -104,11 +105,10 @@ public class CfFlagCodingPart extends ProfilePartIO {
         final Attribute flagMeanings = variable.findAttribute(FLAG_MEANINGS);
         final String[] flagNames;
         if (flagMeanings != null) {
-            flagNames = flagMeanings.getStringValue().split(" ");
+            flagNames = StringUtils.makeStringsUnique(flagMeanings.getStringValue().split(" "));
         } else {
             flagNames = null;
         }
-
         return createFlagCoding(codingName, maskValues, flagNames);
     }
 

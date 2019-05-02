@@ -16,36 +16,35 @@
 
 package org.esa.snap.core.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.HashMap;
 
-public class StringUtilsTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-    public StringUtilsTest(String testName) {
-        super(testName);
-    }
+public class StringUtilsTest {
 
-    public static Test suite() {
-        return new TestSuite(StringUtilsTest.class);
-    }
 
+    @Test
     public void testNullOrEmpty() {
-        assertEquals(true, StringUtils.isNullOrEmpty(null));
-        assertEquals(true, StringUtils.isNullOrEmpty(""));
-        assertEquals(false, StringUtils.isNullOrEmpty("a"));
+        assertTrue(StringUtils.isNullOrEmpty(null));
+        assertTrue(StringUtils.isNullOrEmpty(""));
+        assertFalse(StringUtils.isNullOrEmpty("a"));
     }
 
+    @Test
     public void testNotNullAndNotEmpty() {
-        assertEquals(false, StringUtils.isNotNullAndNotEmpty(null));
-        assertEquals(false, StringUtils.isNotNullAndNotEmpty(""));
-        assertEquals(true, StringUtils.isNotNullAndNotEmpty("a"));
+        assertFalse(StringUtils.isNotNullAndNotEmpty(null));
+        assertFalse(StringUtils.isNotNullAndNotEmpty(""));
+        assertTrue(StringUtils.isNotNullAndNotEmpty("a"));
     }
 
+    @Test
     public void testJoinAndSplit() {
 
         Object[] tokensOrig = {"Fischer's", "Fritz", "fischt", "frische", "", "Fische"};
@@ -55,14 +54,13 @@ public class StringUtilsTest extends TestCase {
         assertEquals(StringUtils.join(tokensOrig, " "), textOrig1);
         assertEquals(StringUtils.join(tokensOrig, "|"), textOrig2);
 
-        assertEquals(ArrayUtils.equalArrays(StringUtils.split(textOrig1, new char[]{' '}, false),
-                                            tokensOrig),
-                     true);
-        assertEquals(ArrayUtils.equalArrays(StringUtils.split(textOrig2, new char[]{'|'}, false),
-                                            tokensOrig),
-                     true);
+        assertTrue(ArrayUtils.equalArrays(StringUtils.split(textOrig1, new char[]{' '}, false),
+                                                 tokensOrig));
+        assertTrue(ArrayUtils.equalArrays(StringUtils.split(textOrig2, new char[]{'|'}, false),
+                                                 tokensOrig));
     }
 
+    @Test
     public void testIsIntegerString() {
         assertTrue(StringUtils.isIntegerString("234567", 8));
         assertTrue(StringUtils.isIntegerString("-437543", 8));
@@ -74,15 +72,16 @@ public class StringUtilsTest extends TestCase {
         assertTrue(StringUtils.isIntegerString("-278495"));
         assertTrue(StringUtils.isIntegerString("00001"));
         assertTrue(StringUtils.isIntegerString("-00001"));
-        assertTrue(!StringUtils.isIntegerString(null));
-        assertTrue(!StringUtils.isIntegerString(""));
-        assertTrue(!StringUtils.isIntegerString("?"));
-        assertTrue(!StringUtils.isIntegerString("0000x"));
-        assertTrue(!StringUtils.isIntegerString("2784A5"));
-        assertTrue(!StringUtils.isIntegerString("   278495  "));
-        assertTrue(!StringUtils.isIntegerString("   -278495 "));
+        assertFalse(StringUtils.isIntegerString(null));
+        assertFalse(StringUtils.isIntegerString(""));
+        assertFalse(StringUtils.isIntegerString("?"));
+        assertFalse(StringUtils.isIntegerString("0000x"));
+        assertFalse(StringUtils.isIntegerString("2784A5"));
+        assertFalse(StringUtils.isIntegerString("   278495  "));
+        assertFalse(StringUtils.isIntegerString("   -278495 "));
     }
 
+    @Test
     public void testToStringArray() {
         Object[] objArray;
         String[] strArray;
@@ -90,33 +89,34 @@ public class StringUtilsTest extends TestCase {
         // null --> null
         objArray = null;
         strArray = StringUtils.toStringArray(objArray);
-        assertEquals(null, strArray);
+        Assert.assertNull(strArray);
 
         // {type1, type2, type3} --> {str1, str2, str3}
-        objArray = new Object[]{"Zorro!", new Integer(17), new Character('X')};
+        objArray = new Object[]{"Zorro!", 17, 'X'};
         strArray = StringUtils.toStringArray(objArray);
-        assertNotNull(strArray);
+        Assert.assertNotNull(strArray);
         assertEquals(3, strArray.length);
         assertEquals("Zorro!", strArray[0]);
         assertEquals("17", strArray[1]);
         assertEquals("X", strArray[2]);
 
         // {type1, null, type3} --> {str1, null, str3}
-        objArray = new Object[]{"Zorro!", null, new Character('X')};
+        objArray = new Object[]{"Zorro!", null, 'X'};
         strArray = StringUtils.toStringArray(objArray);
-        assertNotNull(strArray);
+        Assert.assertNotNull(strArray);
         assertEquals(3, strArray.length);
         assertEquals("Zorro!", strArray[0]);
-        assertEquals(null, strArray[1]);
+        Assert.assertNull(strArray[1]);
         assertEquals("X", strArray[2]);
 
         // {str1, str2, str3} == {str1, str2, str3}
         objArray = new String[]{"Zorro", "Robin Hood", "Tommy Lee Jones"};
         strArray = StringUtils.toStringArray(objArray);
-        assertNotNull(strArray);
-        assertSame(objArray, strArray);
+        Assert.assertNotNull(strArray);
+        Assert.assertSame(objArray, strArray);
     }
 
+    @Test
     public void testAddToArray() {
         String[] array = new String[]{"ab", "cd", "ef"};
 
@@ -140,22 +140,23 @@ public class StringUtilsTest extends TestCase {
         assertEquals("90", newArray[4]);
 
         try {
-            newArray = StringUtils.addToArray(null, "er");
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            StringUtils.addToArray(null, "er");
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
         try {
-            newArray = StringUtils.addToArray(array, null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            StringUtils.addToArray(array, null);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
         try {
-            newArray = StringUtils.addToArray(null, null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            StringUtils.addToArray(null, null);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
+    @Test
     public void testRemoveFromArray() {
         String[] strings;
         strings = StringUtils.removeFromArray(new String[]{"A", "B", "C"}, "A");
@@ -169,9 +170,10 @@ public class StringUtilsTest extends TestCase {
 
         strings = StringUtils.removeFromArray(new String[]{"A", "B", "C"}, "D");
         assertTrue("String[]{\"A\",\"B\",\"C\"} expected",
-                   ArrayUtils.equalArrays(new String[]{"A", "B", "C"}, strings));
+                          ArrayUtils.equalArrays(new String[]{"A", "B", "C"}, strings));
     }
 
+    @Test
     public void testFail() {
         String[] strings;
         strings = StringUtils.removeFromArray(new String[]{"A", "B", "C"}, new String[]{"A"});
@@ -185,12 +187,13 @@ public class StringUtilsTest extends TestCase {
 
         strings = StringUtils.removeFromArray(new String[]{"A", "B", "C"}, new String[]{"D"});
         assertTrue("String[]{\"A\",\"B\",\"C\"} expected",
-                   ArrayUtils.equalArrays(new String[]{"A", "B", "C"}, strings));
+                          ArrayUtils.equalArrays(new String[]{"A", "B", "C"}, strings));
 
         strings = StringUtils.removeFromArray(new String[]{"A", "B", "C", "D"}, new String[]{"D", "B"});
         assertTrue("String[]{\"A\",\"C\"} expected", ArrayUtils.equalArrays(new String[]{"A", "C"}, strings));
     }
 
+    @Test
     public void testAddArrays() {
         String[] array1 = new String[]{"a", "b"};
         String[] array2 = new String[]{"c", "d", "e"};
@@ -219,43 +222,44 @@ public class StringUtilsTest extends TestCase {
         assertEquals("c", newArray[6]);
 
         try {
-            newArray = StringUtils.addArrays(null, array1);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            StringUtils.addArrays(null, array1);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
         try {
-            newArray = StringUtils.addArrays(array2, null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            StringUtils.addArrays(array2, null);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
         try {
-            newArray = StringUtils.addArrays(null, null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            StringUtils.addArrays(null, null);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
+    @Test
     public void testIsInArray() {
         String[] array = new String[]{"abc", "bcd", "cde"};
-        assertEquals(true, StringUtils.contains(array, "abc"));
-        assertEquals(true, StringUtils.contains(array, "bcd"));
-        assertEquals(true, StringUtils.contains(array, "cde"));
-        assertEquals(false, StringUtils.contains(array, "ace"));
+        assertTrue(StringUtils.contains(array, "abc"));
+        assertTrue(StringUtils.contains(array, "bcd"));
+        assertTrue(StringUtils.contains(array, "cde"));
+        assertFalse(StringUtils.contains(array, "ace"));
 
         try {
             StringUtils.contains(null, null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
         try {
             StringUtils.contains(array, null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
         try {
             StringUtils.contains(null, "ac");
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
@@ -276,6 +280,7 @@ public class StringUtilsTest extends TestCase {
 //        assertEquals(expected_1, StringUtils.replaceSubstring(original_1, toReplace_1, replaceWith_1));
 //    }
 
+    @Test
     public void testToIntArray() {
         int[] current;
         String values;
@@ -294,8 +299,8 @@ public class StringUtilsTest extends TestCase {
         //ignore not integer values
         values = "" + Integer.MIN_VALUE + ",-1,0,a,1," + Integer.MAX_VALUE;
         try {
-            current = StringUtils.toIntArray(values, null);
-            fail("NumberFormatException expected");
+            StringUtils.toIntArray(values, null);
+            Assert.fail("NumberFormatException expected");
         } catch (NumberFormatException e) {
             // exception expected
         }
@@ -305,8 +310,8 @@ public class StringUtilsTest extends TestCase {
                 "," + Integer.MIN_VALUE + ",-1,0,1," + Integer.MAX_VALUE +
                 "," + ((long) Integer.MAX_VALUE + 1);
         try {
-            current = StringUtils.toIntArray(values, null);
-            fail("NumberFormatException expected");
+            StringUtils.toIntArray(values, null);
+            Assert.fail("NumberFormatException expected");
         } catch (RuntimeException e) {
             // exception expected
         }
@@ -314,20 +319,21 @@ public class StringUtilsTest extends TestCase {
         //IllegalArgumentException
         try {
             int[] ints = StringUtils.toIntArray("", null);
-            assertNotNull(ints);
+            Assert.assertNotNull(ints);
             assertEquals(0, ints.length);
         } catch (IllegalArgumentException e) {
-            fail("IllegalArgumentException not expected");
+            Assert.fail("IllegalArgumentException not expected");
         }
 
         //IllegalArgumentException
         try {
             StringUtils.toIntArray(null, null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
+    @Test
     public void testGetCSVString() {
         final byte[] bytes = new byte[]{Byte.MAX_VALUE, Byte.MIN_VALUE, 0, 1, -1};
         String csvString = StringUtils.arrayToCsv(bytes);
@@ -335,6 +341,7 @@ public class StringUtilsTest extends TestCase {
     }
 
 
+    @Test
     public void testGetSeparateString() {
 
         final byte[] bytes = new byte[]{Byte.MAX_VALUE, Byte.MIN_VALUE, 0, 1, -1};
@@ -354,10 +361,10 @@ public class StringUtilsTest extends TestCase {
 
         final double[] doubles = new double[]{Double.MAX_VALUE, Double.MIN_VALUE, 0, 1, -1};
         assertEquals("1.7976931348623157E308" +
-                             "4.9E-324" +
-                             "0.0" +
-                             "1.0" +
-                             "-1.0", StringUtils.arrayToString(doubles, ""));
+                                    "4.9E-324" +
+                                    "0.0" +
+                                    "1.0" +
+                                    "-1.0", StringUtils.arrayToString(doubles, ""));
 
         final String[] strings = new String[]{"a", "b", "string", "noch einer", "a_%&§$\"!"};
         assertEquals("a,b,string,noch einer,a_%&§$\"!", StringUtils.arrayToString(strings, ","));
@@ -366,19 +373,19 @@ public class StringUtilsTest extends TestCase {
         final boolean[] booleans = new boolean[]{false, true, true, false, true, false};
         assertEquals("false,true,true,false,true,false", StringUtils.arrayToString(booleans, ","));
 
-        final HashMap hashMap = new HashMap();
-        hashMap.put("wert1", new Integer(8));
+        final HashMap<String, java.io.Serializable> hashMap = new HashMap<>();
+        hashMap.put("wert1", 8);
         hashMap.put("wert2", "string");
 
         final Object[] objects = new Object[]{new Rectangle(3, 4, 5, 6), new Point(12, 13), hashMap};
         assertEquals("java.awt.Rectangle[x=3,y=4,width=5,height=6]," +
-                             "java.awt.Point[x=12,y=13]," +
-                             "{wert1=8, wert2=string}", StringUtils.arrayToString(objects, ","));
+                                    "java.awt.Point[x=12,y=13]," +
+                                    "{wert1=8, wert2=string}", StringUtils.arrayToString(objects, ","));
 
         try {
             // the parameter is not an array
             StringUtils.arrayToString("string", ",");
-            fail("IllegalArgumentException expected");
+            Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected exception
         }
@@ -386,12 +393,13 @@ public class StringUtilsTest extends TestCase {
         try {
             // the parameter is null
             StringUtils.arrayToString(null, ",");
-            fail("IllegalArgumentException expected");
+            Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected exception
         }
     }
 
+    @Test
     public void testCsvToStringArray() {
         String[] strings = StringUtils.csvToArray("4, b ,  ,2,(-:  :-),8");
         String[] expected = new String[]{"4", " b ", "  ", "2", "(-:  :-)", "8"};
@@ -413,19 +421,20 @@ public class StringUtilsTest extends TestCase {
 
         try {
             StringUtils.csvToArray(null);
-            fail("IllegalArgumentException expected");
+            Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected exception
         }
 
         try {
             StringUtils.csvToArray("");
-            fail("IllegalArgumentException expected");
+            Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected exception
         }
     }
 
+    @Test
     public void testCreateValidName() {
         char[] validChars;
         String validName;
@@ -447,6 +456,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals(expectedName, validName);
     }
 
+    @Test
     public void testAreEntriesUnique() {
         String[] expFail_1 = {"bla", "blubber", "bla"};
         String[] expFail_2 = {"laber", "schwafel", "sülz", "schwafel"};
@@ -456,48 +466,49 @@ public class StringUtilsTest extends TestCase {
         // null not allowed as parameter
         try {
             StringUtils.areEntriesUnique(null);
-            fail("IllegalArgumentException expected");
+            Assert.fail("IllegalArgumentException expected");
         } catch (Exception e) {
             assertTrue(e instanceof IllegalArgumentException);
         }
 
-        assertEquals(false, StringUtils.areEntriesUnique(expFail_1));
-        assertEquals(false, StringUtils.areEntriesUnique(expFail_2));
-        assertEquals(true, StringUtils.areEntriesUnique(expPass_1));
-        assertEquals(true, StringUtils.areEntriesUnique(expPass_2));
+        assertFalse(StringUtils.areEntriesUnique(expFail_1));
+        assertFalse(StringUtils.areEntriesUnique(expFail_2));
+        assertTrue(StringUtils.areEntriesUnique(expPass_1));
+        assertTrue(StringUtils.areEntriesUnique(expPass_2));
 
-        final String[] strings1 = new String[]{new String("alois"), new String("blois"), new String("alois")};
-        assertEquals(false, StringUtils.areEntriesUnique(strings1));
+        final String[] strings1 = new String[]{"alois", "blois", "alois"};
+        assertFalse(StringUtils.areEntriesUnique(strings1));
 
-        final String[] strings2 = new String[]{new String("alois"), new String("blois"), null};
-        assertEquals(true, StringUtils.areEntriesUnique(strings2));
+        final String[] strings2 = new String[]{"alois", "blois", null};
+        assertTrue(StringUtils.areEntriesUnique(strings2));
 
-        final String[] strings3 = new String[]{new String("alois"), new String("blois"), null, null};
-        assertEquals(false, StringUtils.areEntriesUnique(strings3));
+        final String[] strings3 = new String[]{"alois", "blois", null, null};
+        assertFalse(StringUtils.areEntriesUnique(strings3));
     }
 
+    @Test
     public void testSplit() {
         try {
             StringUtils.split(null, new char[]{','}, true);
-            fail("IllegalArgumentException expected");
+            Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected Exception because the text is null
         }
 
         final String[] strings1 = StringUtils.split("", new char[]{','}, true);
-        assertNotNull(strings1);
+        Assert.assertNotNull(strings1);
         assertEquals(0, strings1.length);
 
         final String[] strings2 = StringUtils.split("  ", new char[]{','}, true);
-        assertNotNull(strings2);
+        Assert.assertNotNull(strings2);
         assertEquals(1, strings2.length);
 
         final String[] strings3 = StringUtils.split(",", new char[]{','}, true);
-        assertNotNull(strings3);
+        Assert.assertNotNull(strings3);
         assertEquals(2, strings3.length);
 
         final String[] strings4 = StringUtils.split("  aaa , , bbb ,  ccc ", new char[]{','}, true);
-        assertNotNull(strings4);
+        Assert.assertNotNull(strings4);
         assertEquals(4, strings4.length);
         assertEquals("aaa", strings4[0]);
         assertEquals("", strings4[1]);
@@ -505,6 +516,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals("ccc", strings4[3]);
     }
 
+    @Test
     public void testReplaceIdentifier() {
         String string;
         String regex;
@@ -515,7 +527,7 @@ public class StringUtilsTest extends TestCase {
         replacement = "";
         try {
             StringUtils.replaceWord(string, regex, replacement);
-            fail("IllegalArgumentException expected because string is null");
+            Assert.fail("IllegalArgumentException expected because string is null");
         } catch (IllegalArgumentException expected) {
         }
 
@@ -524,7 +536,7 @@ public class StringUtilsTest extends TestCase {
         replacement = "";
         try {
             StringUtils.replaceWord(string, regex, replacement);
-            fail("IllegalArgumentException expected because regex is empty");
+            Assert.fail("IllegalArgumentException expected because regex is empty");
         } catch (IllegalArgumentException expected) {
         }
 
@@ -533,7 +545,7 @@ public class StringUtilsTest extends TestCase {
         replacement = "";
         try {
             StringUtils.replaceWord(string, regex, replacement);
-            fail("IllegalArgumentException expected because regex is null");
+            Assert.fail("IllegalArgumentException expected because regex is null");
         } catch (IllegalArgumentException expected) {
         }
 
@@ -542,7 +554,7 @@ public class StringUtilsTest extends TestCase {
         replacement = null;
         try {
             StringUtils.replaceWord(string, regex, replacement);
-            fail("IllegalArgumentException expected because replacement is null");
+            Assert.fail("IllegalArgumentException expected because replacement is null");
         } catch (IllegalArgumentException expected) {
         }
 
@@ -554,9 +566,10 @@ public class StringUtilsTest extends TestCase {
         StringUtils.replaceWord(string, regex, replacement);
 
         assertEquals("raster+band_1 - band2 * raster.flag + _band + asdbandfer and raster>120",
-                     StringUtils.replaceWord(string, regex, replacement));
+                            StringUtils.replaceWord(string, regex, replacement));
     }
 
+    @Test
     public void testIsNumeric() {
 
         assertFalse(StringUtils.isNumeric("nan", Byte.class));
@@ -579,6 +592,7 @@ public class StringUtilsTest extends TestCase {
 
     }
 
+    @Test
     public void testIndexOfSpecificOccurrence() {
         String a = "ababab";
         assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "a", 0));
@@ -592,6 +606,16 @@ public class StringUtilsTest extends TestCase {
         assertEquals(5, StringUtils.indexOfSpecificOccurrence(a, "b", 3));
         assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "a", 4));
         assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "b", 4));
+    }
+
+    @Test
+    public void testMakestringsUnique() {
+        String[] inputNames = {"abc", "duplicate", "def", "twin", "ghj", "duplicate", "duplicate", "twin"};
+
+        String[] actualNames = StringUtils.makeStringsUnique(inputNames);
+        String[] expectedNames = {"abc", "duplicate_1", "def", "twin_1", "ghj", "duplicate_2", "duplicate_3", "twin_2"};
+
+        Assert.assertArrayEquals(expectedNames, actualNames);
     }
 
 }

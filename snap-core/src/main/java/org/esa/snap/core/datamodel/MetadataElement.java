@@ -212,7 +212,7 @@ public class MetadataElement extends ProductNode {
             return;
         }
         if (attributes == null) {
-            attributes = new ProductNodeGroup<MetadataAttribute>(this, "attributes", true);
+            attributes = new ProductNodeGroup<>(this, "attributes", true);
         }
         attributes.add(attribute);
     }
