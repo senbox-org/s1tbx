@@ -1,0 +1,14 @@
+{
+  "testProducts": [
+    {
+      "id": "PAZ_SM_SSC",
+      "relativePath": "SAR/PAZ/Mojave Interferometric pair/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228.xml",
+      "description": "PAZ Stripmap SSC product"
+    },
+    {
+      "id": "PAZ_SC_MGD",
+      "relativePath": "SAR/PAZ/NewDelhi/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712.xml",
+      "description": "PAZ ScanSAR MGD product"
+    }
+  ]
+}

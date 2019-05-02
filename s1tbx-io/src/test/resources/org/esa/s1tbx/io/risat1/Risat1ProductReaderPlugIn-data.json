@@ -1,0 +1,29 @@
+{
+  "testProducts": [
+    {
+      "id": "RISAT-1_MRS_GRD",
+      "relativePath": "SAR/RISAT1/MRS/1382msd1_s7_GroundRange/BAND_META.txt",
+      "description": "RISAT-1 MRS Ground Range product"
+    },
+    {
+      "id": "RISAT-1_FRS_GRD",
+      "relativePath": "SAR/RISAT1/FRS-1/9441sd1_s33_GroundRange/BAND_META.txt",
+      "description": "RISAT-1 FRS Ground Range product"
+    },
+    {
+      "id": "RISAT-1_FRS_SLC",
+      "relativePath": "SAR/RISAT1/FRS-1/9441sd1_s33_SLC/BAND_META.txt",
+      "description": "RISAT-1 FRS SLC product"
+    },
+    {
+      "id": "RISAT-1_CFRS_SLC",
+      "relativePath": "SAR/RISAT1/CP/CFRS1_LEVEL1_SINGLE_LOOK_COMPLEX/BAND_META.txt",
+      "description": "RISAT-1 Level-1 CFRS SLC product"
+    },
+    {
+      "id": "RISAT-1_CFRS_SLC_L2",
+      "relativePath": "SAR/RISAT1/CP/CFRS1_LEVEL2_CEOS/BAND_META.txt",
+      "description": "RISAT-1 Level-2 CFRS Ground Range product"
+    }
+  ]
+}
