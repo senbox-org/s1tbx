@@ -454,7 +454,7 @@ public class CPM implements PolynomialModel {
                     Qy_1 = onesEJML(numObservations);
                     break;
                 case "none":
-                    logger.info("No weighting.");
+                    //logger.info("No weighting.");
                     Qy_1 = onesEJML(numObservations);
                     break;
                 default:
