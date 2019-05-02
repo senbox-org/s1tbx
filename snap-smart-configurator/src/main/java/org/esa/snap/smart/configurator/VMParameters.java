@@ -16,7 +16,6 @@
 
 package org.esa.snap.smart.configurator;
 
-import oracle.jrockit.jfr.StringConstantPool;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
