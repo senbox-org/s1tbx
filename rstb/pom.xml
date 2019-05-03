@@ -132,7 +132,7 @@
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
                     </execution>
-					<execution>
+                    <execution>
                         <id>create-nbmImplVersion</id>
                         <goals>
                             <goal>regex-property</goal>

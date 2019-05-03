@@ -1,9 +1,0 @@
-{
-  "testProducts": [
-    {
-      "id": "ALOSPalsarProduct",
-      "relativePath": "s1tbx/SAR/ALOS/ALPSRS267172700-L1.5.zip",
-      "description": "ALOS PALSAR product"
-    }
-  ]
-}

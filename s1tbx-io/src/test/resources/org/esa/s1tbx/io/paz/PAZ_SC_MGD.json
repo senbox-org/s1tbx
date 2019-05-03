@@ -1,0 +1,194 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "PAZ_SC_MGD",
+	"expectedContent": {
+		"metadata": [
+			{
+				"path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector4/time",
+				"value": "16-JUN-2018 00:46:40.000000"
+			},
+			{
+				"path": "Original_Product_Metadata/level1Product/noise/imageNoise[117]/noiseEstimate/coefficient[4]/coefficient",
+				"value": "-1.19402740158715859E+13"
+			},
+			{
+				"path": "Original_Product_Metadata/level1Product/instrument/settings[2]/rxBandwidth/code",
+				"value": "1"
+			},
+			{
+				"path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list/coefficient.12/srgr_coef",
+				"value": "4.952784581903613E-59"
+			},
+			{
+				"path": "Original_Product_Metadata/level1Product/productComponents/auxRasterFiles[7]/file/location/path",
+				"value": "AUXRASTER"
+			},
+			{
+				"path": "Original_Product_Metadata/level1Product/noise/imageNoise[3]/noiseEstimate/coefficient/exponent",
+				"value": "0"
+			},
+			{
+				"path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list.20/coefficient.3/dop_coef",
+				"value": "-8.323863811467444E8"
+			},
+			{
+				"path": "Original_Product_Metadata/level1Product/calibration/nominalGeometricPerformance/azimuthRes",
+				"value": "1.85000000000000000E+01"
+			},
+			{
+				"path": "Original_Product_Metadata/level1Product/instrument/settings[2]/rxGainSetting/rxGain/rxGain",
+				"value": "6.77641481161117554E-03"
+			},
+			{
+				"path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list/coefficient.6/srgr_coef",
+				"value": "-1.838526858374146E-24"
+			}
+		],
+		"tiePointGrids": [
+			{
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [
+					{
+						"x": 659,
+						"y": 3238,
+						"value": 29.115694
+					},
+					{
+						"x": 8664,
+						"y": 15461,
+						"value": 28.317425
+					}
+				],
+				"name": "latitude",
+				"subSamplingY": "60.59",
+				"subSamplingX": "60.51196172248804"
+			},
+			{
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [
+					{
+						"x": 3678,
+						"y": 4668,
+						"value": 77.60895
+					},
+					{
+						"x": 7721,
+						"y": 6639,
+						"value": 77.241425
+					}
+				],
+				"name": "longitude",
+				"subSamplingY": "60.59",
+				"subSamplingX": "60.51196172248804"
+			},
+			{
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [
+					{
+						"x": 6956,
+						"y": 13548,
+						"value": 47.30972
+					},
+					{
+						"x": 7693,
+						"y": 16876,
+						"value": 47.679092
+					}
+				],
+				"name": "incident_angle",
+				"subSamplingY": "60.59",
+				"subSamplingX": "60.51196172248804"
+			},
+			{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [
+					{
+						"x": 2001,
+						"y": 12106,
+						"value": 4627146.0
+					},
+					{
+						"x": 6565,
+						"y": 16604,
+						"value": 4810171.5
+					}
+				],
+				"name": "slant_range_time",
+				"subSamplingY": "6059.0",
+				"subSamplingX": "4215.666666666667"
+			}
+		],
+		"sceneHeight": 18177,
+		"sceneWidth": 12647,
+		"geoCoding": {
+			"coordinates": [
+				{
+					"x": 5454.0,
+					"y": 9771.0,
+					"lon": 77.38723285796692,
+					"lat": 28.696610287271569
+				},
+				{
+					"x": 9389.0,
+					"y": 11795.0,
+					"lon": 77.03406968901247,
+					"lat": 28.59514819650727
+				}
+			],
+			"reverseAccuracy": 0.578327086792342
+		},
+		"startTime": "16-JUN-2018 00:46:50.930510",
+		"endTime": "16-JUN-2018 00:47:12.158832",
+		"bands": [
+			{
+				"bandWidth": 12647,
+				"noDataValueUsed": "false",
+				"bandHeight": 18177,
+				"expectedPixels": [
+					{
+						"x": 9563,
+						"y": 8808,
+						"value": 96.0
+					},
+					{
+						"x": 12024,
+						"y": 8831,
+						"value": 69.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Amplitude_HH",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "amplitude"
+			},
+			{
+				"bandWidth": 12647,
+				"noDataValueUsed": "true",
+				"bandHeight": 18177,
+				"expectedPixels": [
+					{
+						"x": 4305,
+						"y": 16348,
+						"value": 7396.0
+					},
+					{
+						"x": 126,
+						"y": 8557,
+						"value": 9604.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity_HH",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}

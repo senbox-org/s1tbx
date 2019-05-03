@@ -24,8 +24,6 @@
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
-		<maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <buildDate>${maven.build.timestamp}</buildDate>
 
         <snap.version>7.0.0-rc2</snap.version>
         <!--
@@ -37,6 +35,8 @@
 		<s1tbx.version>7.0.0-rc2</s1tbx.version>
         <rstb.version>7.5.0-rc2</rstb.version>
         <jlinda.version>7.0.0-rc2</jlinda.version>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <buildDate>${maven.build.timestamp}</buildDate>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <buildDate>${maven.build.timestamp}</buildDate>
         

@@ -1,0 +1,241 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "RISAT-1_CFRS_SLC_L2",
+	"expectedContent": {
+		"metadata": [
+			{
+				"path": "Original_Product_Metadata/ProductMetadata/Calibration_Constant_RV",
+				"value": "64.707"
+			},
+			{
+				"path": "Original_Product_Metadata/ProductMetadata/Calibration_Constant_Beta0_RH",
+				"value": "65.217"
+			},
+			{
+				"path": "Original_Product_Metadata/RCH_Metadata/Volume/File Pointer Record 1/File Pointer Number",
+				"value": "1"
+			},
+			{
+				"path": "Original_Product_Metadata/ProductMetadata/ResampCode",
+				"value": "CC"
+			},
+			{
+				"path": "Original_Product_Metadata/RCV_Metadata/Image Descriptor 1/Image Record/Mid-pixel longitude",
+				"value": "76632080"
+			},
+			{
+				"path": "Original_Product_Metadata/RCH_Metadata/Leader/Data Quality/Second Record Subtype",
+				"value": "18"
+			},
+			{
+				"path": "Original_Product_Metadata/RCH_Metadata/Image Descriptor 1/Image Record/SAR image data record index",
+				"value": "1"
+			},
+			{
+				"path": "Original_Product_Metadata/RCV_Metadata/Volume/File Pointer Record 2/Record Length",
+				"value": "360"
+			},
+			{
+				"path": "Original_Product_Metadata/RCH_Metadata/Volume/File Pointer Record 1/MaxRecordLength",
+				"value": "50436"
+			},
+			{
+				"path": "Original_Product_Metadata/RCV_Metadata/Volume/File Pointer Record 2/FirstRecordLength",
+				"value": "16252"
+			}
+		],
+		"tiePointGrids": [
+			{
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [
+					{
+						"x": 757,
+						"y": 2969,
+						"value": 12.13511
+					},
+					{
+						"x": 9951,
+						"y": 14178,
+						"value": 11.906006
+					}
+				],
+				"name": "latitude",
+				"subSamplingY": "1852.0",
+				"subSamplingX": "1613.0"
+			},
+			{
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [
+					{
+						"x": 4225,
+						"y": 4281,
+						"value": 76.56883
+					},
+					{
+						"x": 8867,
+						"y": 6088,
+						"value": 76.664604
+					}
+				],
+				"name": "longitude",
+				"subSamplingY": "1852.0",
+				"subSamplingX": "1613.0"
+			},
+			{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [
+					{
+						"x": 7989,
+						"y": 12424,
+						"value": 32.925533
+					},
+					{
+						"x": 8836,
+						"y": 15476,
+						"value": -9999.0
+					}
+				],
+				"name": "incident_angle",
+				"subSamplingY": "31.0",
+				"subSamplingX": "31.0"
+			},
+			{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [
+					{
+						"x": 2298,
+						"y": 11102,
+						"value": 6431505.0
+					},
+					{
+						"x": 7540,
+						"y": 15227,
+						"value": -99990.0
+					}
+				],
+				"name": "slant_range_time",
+				"subSamplingY": "31.0",
+				"subSamplingX": "31.0"
+			}
+		],
+		"sceneHeight": 16669,
+		"sceneWidth": 14525,
+		"geoCoding": {
+			"coordinates": [
+				{
+					"x": 6264.0,
+					"y": 8960.0,
+					"lon": 76.61041955301519,
+					"lat": 12.012591354672829
+				},
+				{
+					"x": 10784.0,
+					"y": 10816.0,
+					"lon": 76.70362095417842,
+					"lat": 11.974296988857118
+				}
+			],
+			"reverseAccuracy": 0.022224136556360464
+		},
+		"startTime": "08-OCT-2014 12:35:14.522000",
+		"endTime": "08-OCT-2014 12:35:19.122000",
+		"bands": [
+			{
+				"bandWidth": 14525,
+				"noDataValueUsed": "true",
+				"bandHeight": 16669,
+				"expectedPixels": [
+					{
+						"x": 10983,
+						"y": 8078,
+						"value": 1959.0
+					},
+					{
+						"x": 13810,
+						"y": 8098,
+						"value": "NaN"
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Amplitude_RCH",
+				"noDataValue": "0.0",
+				"description": "Amplitude",
+				"geophysicalUnit": "amplitude"
+			},
+			{
+				"bandWidth": 14525,
+				"noDataValueUsed": "true",
+				"bandHeight": 16669,
+				"expectedPixels": [
+					{
+						"x": 4944,
+						"y": 14992,
+						"value": 1503076.0
+					},
+					{
+						"x": 144,
+						"y": 7847,
+						"value": "NaN"
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity_RCH",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			},
+			{
+				"bandWidth": 14525,
+				"noDataValueUsed": "true",
+				"bandHeight": 16669,
+				"expectedPixels": [
+					{
+						"x": 4756,
+						"y": 3285,
+						"value": 559.0
+					},
+					{
+						"x": 3968,
+						"y": 719,
+						"value": "NaN"
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Amplitude_RCV",
+				"noDataValue": "0.0",
+				"description": "Amplitude",
+				"geophysicalUnit": "amplitude"
+			},
+			{
+				"bandWidth": 14525,
+				"noDataValueUsed": "true",
+				"bandHeight": 16669,
+				"expectedPixels": [
+					{
+						"x": 14110,
+						"y": 10080,
+						"value": "NaN"
+					},
+					{
+						"x": 8313,
+						"y": 11948,
+						"value": 324900.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity_RCV",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}

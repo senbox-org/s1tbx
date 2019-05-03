@@ -1,0 +1,9 @@
+{
+  "testProducts": [
+    {
+      "id": "Gamma_rslc",
+      "relativePath": "SAR/Gamma/rslc/20030309.rslc.par",
+      "description": "Gamma RSLC product"
+    }
+  ]
+}

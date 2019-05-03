@@ -148,7 +148,7 @@
                 <attr name="helpId" stringvalue="importPCIDSK"/>
                 <attr name="ShortDescription" stringvalue="Import a PCI file format"/>
             </file>
-            <file name="org-esa-s1tbx-io-importUAVSAR.instance">
+            <!--file name="org-esa-s1tbx-io-importUAVSAR.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="UAVSAR"/>
@@ -156,7 +156,7 @@
                 <attr name="useAllFileFilter" boolvalue="false"/>
                 <attr name="helpId" stringvalue="importUAVSAR"/>
                 <attr name="ShortDescription" stringvalue="Import a UAVSAR Product"/>
-            </file>
+            </file-->
         </folder>
         <folder name="Writers">
             <file name="org-esa-s1tbx-io-exportPolSARPro.instance">

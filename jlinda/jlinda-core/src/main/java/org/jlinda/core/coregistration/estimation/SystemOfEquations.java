@@ -38,7 +38,7 @@ public class SystemOfEquations {
      */
     public void fillDesignMatrix() {
 
-        logger.info("Setting up design matrix for LS adjustment");
+        //logger.info("Setting up design matrix for LS adjustment");
         for (int i = 0; i < nObs; i++) {
 
             /** azimuth direction */

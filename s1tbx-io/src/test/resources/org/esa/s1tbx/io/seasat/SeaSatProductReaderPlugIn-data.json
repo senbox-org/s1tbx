@@ -1,0 +1,9 @@
+{
+  "testProducts": [
+    {
+      "id": "SeaSat_STD",
+      "relativePath": "SAR/Seasat/SS_00263_STD_F0886_tif.zip",
+      "description": "SeaSat STD product"
+    }
+  ]
+}

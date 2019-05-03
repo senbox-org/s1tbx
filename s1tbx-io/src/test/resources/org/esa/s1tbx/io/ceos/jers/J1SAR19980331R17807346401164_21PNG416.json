@@ -1,0 +1,176 @@
+{
+    "id": "J1SAR19980331R17807346401164_21PNG416",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 6000,
+        "sceneHeight": 6400,
+        "startTime": "01-JAN-2000 00:00:00.000000",
+        "endTime": "01-JAN-2000 00:00:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2587.0,
+                    "y": 3440.0,
+                    "lat": 78.35044206635044,
+                    "lon": -15.210430643548108
+                },
+                {
+                    "x": 4454.0,
+                    "y": 4153.0,
+                    "lat": 78.18400092115333,
+                    "lon": -15.927782602179157
+                }
+            ],
+            "reverseAccuracy": 0.8103729769254642
+        },
+        "tiePointGrids": [
+            {
+                "name": "latitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "666.0",
+                "subSamplingY": "711.0",
+                "expectedPixels": [
+                    {
+                        "x": 313,
+                        "y": 1140,
+                        "value": 78.49471
+                    },
+                    {
+                        "x": 4110,
+                        "y": 5443,
+                        "value": 78.26953
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "666.0",
+                "subSamplingY": "711.0",
+                "expectedPixels": [
+                    {
+                        "x": 1745,
+                        "y": 1643,
+                        "value": -14.121784
+                    },
+                    {
+                        "x": 3663,
+                        "y": 2337,
+                        "value": -14.854941
+                    }
+                ]
+            },
+            {
+                "name": "slant_range_time",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "600.0",
+                "subSamplingY": "640.0",
+                "expectedPixels": [
+                    {
+                        "x": 3300,
+                        "y": 4770,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3650,
+                        "y": 5942,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "Amplitude",
+                "description": "Amplitude",
+                "bandWidth": 6000,
+                "bandHeight": 6400,
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 949,
+                        "y": 4262,
+                        "value": 2891.0
+                    },
+                    {
+                        "x": 3114,
+                        "y": 5846,
+                        "value": 6026.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity",
+                "description": "Intensity from complex data",
+                "bandWidth": 6000,
+                "bandHeight": 6400,
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 4536,
+                        "y": 3101,
+                        "value": 6205081.0
+                    },
+                    {
+                        "x": 5704,
+                        "y": 3109,
+                        "value": 1.4546596E7
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector8/time",
+                "value": "31-MAR-0098 12:57:00.000000"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 1/ReferencedFilePortionStart",
+                "value": "1"
+            },
+            {
+                "path": "Original_Product_Metadata/Leader/Data Quality/Record Length",
+                "value": "1620"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 3/Number of records",
+                "value": "1"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 1/RecordLengthType",
+                "value": "VARIABLE LEN"
+            },
+            {
+                "path": "Original_Product_Metadata/Image Descriptor 1/Image Record/Record Length",
+                "value": "12192"
+            },
+            {
+                "path": "Original_Product_Metadata/Leader/Platform Position/Velocity vector Y' 23",
+                "value": "-3871.89415435341"
+            },
+            {
+                "path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector13/x_vel",
+                "value": "6273.0180755969"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 3/MaxRecordLength",
+                "value": "720"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 3/Record Length",
+                "value": "360"
+            }
+        ]
+    }
+}

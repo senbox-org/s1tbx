@@ -1,0 +1,195 @@
+{
+    "id": "ALOSPalsarProduct",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 3700,
+        "sceneHeight": 3000,
+        "startTime": "29-JAN-2011 15:42:30.732000",
+        "endTime": "29-JAN-2011 15:43:13.734000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1595.0,
+                    "y": 1612.0,
+                    "lat": 45.70612357012427,
+                    "lon": -75.97132789182001
+                },
+                {
+                    "x": 2747.0,
+                    "y": 1946.0,
+                    "lat": 45.21387900040607,
+                    "lon": -74.60638167266731
+                }
+            ],
+            "reverseAccuracy": 0.011617119946777166
+        },
+        "tiePointGrids": [
+            {
+                "name": "latitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "411.0",
+                "subSamplingY": "333.0",
+                "expectedPixels": [
+                    {
+                        "x": 193,
+                        "y": 534,
+                        "value": 46.9034
+                    },
+                    {
+                        "x": 2534,
+                        "y": 2551,
+                        "value": 44.71644
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "411.0",
+                "subSamplingY": "333.0",
+                "expectedPixels": [
+                    {
+                        "x": 1076,
+                        "y": 770,
+                        "value": -76.43114
+                    },
+                    {
+                        "x": 2258,
+                        "y": 1095,
+                        "value": -75.00379
+                    }
+                ]
+            },
+            {
+                "name": "slant_range_time",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "370.0",
+                "subSamplingY": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 2035,
+                        "y": 2236,
+                        "value": 5342423.0
+                    },
+                    {
+                        "x": 2250,
+                        "y": 2785,
+                        "value": 5271805.5
+                    }
+                ]
+            },
+            {
+                "name": "incident_angle",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "370.0",
+                "subSamplingY": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 585,
+                        "y": 1998,
+                        "value": 39.82211
+                    },
+                    {
+                        "x": 1920,
+                        "y": 2740,
+                        "value": 31.338219
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "Amplitude_HH",
+                "description": "Amplitude_HH",
+                "bandWidth": 3700,
+                "bandHeight": 3000,
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2797,
+                        "y": 1453,
+                        "value": 6133.0
+                    },
+                    {
+                        "x": 3517,
+                        "y": 1457,
+                        "value": 7655.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_HH",
+                "description": "Intensity from complex data",
+                "bandWidth": 3700,
+                "bandHeight": 3000,
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1259,
+                        "y": 2698,
+                        "value": 2.3668224E7
+                    },
+                    {
+                        "x": 36,
+                        "y": 1412,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector8/time",
+                "value": "29-JAN-2011 15:37:00.000000"
+            },
+            {
+                "path": "Original_Product_Metadata/Image Descriptor 1/Image Record/SAR channel code",
+                "value": "0"
+            },
+            {
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list/coefficient.2/dop_coef",
+                "value": "0.0068369"
+            },
+            {
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list/coefficient.3/dop_coef",
+                "value": "0.0"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 1/RecordLengthType",
+                "value": "VARIABLE LEN"
+            },
+            {
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list/coefficient.3/dop_coef",
+                "value": "0.0"
+            },
+            {
+                "path": "Original_Product_Metadata/Work Report/Ver_PSR_CorPrcSigmaSAR",
+                "value": "12.01"
+            },
+            {
+                "path": "Original_Product_Metadata/Trailer/File Descriptor/Radar par. update record length",
+                "value": "0"
+            },
+            {
+                "path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list/coefficient.1/dop_coef",
+                "value": "-59.5156662"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 3/ReferencedFilePortionEnd",
+                "value": "601"
+            }
+        ]
+    }
+}

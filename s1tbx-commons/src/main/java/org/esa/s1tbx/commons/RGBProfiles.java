@@ -27,55 +27,6 @@ public class RGBProfiles {
 
     static void registerRGBProfiles() {
         final RGBImageProfileManager manager = RGBImageProfileManager.getInstance();
-        manager.addProfile(new RGBImageProfile("Pauli",
-                                               new String[]{
-                                                       "((i_HH-i_VV)*(i_HH-i_VV)+(q_HH-q_VV)*(q_HH-q_VV))/2",
-                                                       "((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/2",
-                                                       "((i_HH+i_VV)*(i_HH+i_VV)+(q_HH+q_VV)*(q_HH+q_VV))/2"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Pauli Sigma0",
-                                               new String[]{
-                                                       "sqrt(Sigma0_HH-Sigma0_VV)",
-                                                       "sqrt(Sigma0_HV+Sigma0_VH)",
-                                                       "sqrt(Sigma0_HH+Sigma0_VV)"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Pauli Gamma0",
-                                                new String[]{
-                                                        "sqrt(Gamma0_HH-Gamma0_VV)",
-                                                        "sqrt(Gamma0_HV+Gamma0_VH)",
-                                                        "sqrt(Gamma0_HH+Gamma0_VV)"
-                                                }
-        ));
-        manager.addProfile(new RGBImageProfile("Pauli Beta0",
-                                                new String[]{
-                                                        "sqrt(Beta0_HH-Beta0_VV)",
-                                                        "sqrt(Beta0_HV+Beta0_VH)",
-                                                        "sqrt(Beta0_HH+Beta0_VV)"
-                                                }
-        ));
-        manager.addProfile(new RGBImageProfile("Pauli Intensity",
-                                                new String[]{
-                                                        "sqrt(Intensity_HH-Intensity_VV)",
-                                                        "sqrt(Intensity_HV+Intensity_VH)",
-                                                        "sqrt(Intensity_HH+Intensity_VV)"
-                                                }
-        ));
-        manager.addProfile(new RGBImageProfile("Pauli Amplitude",
-                                                new String[]{
-                                                        "sqrt(Amplitude_HH-Amplitude_VV)",
-                                                        "sqrt(Amplitude_HV+Amplitude_VH)",
-                                                        "sqrt(Amplitude_HH+Amplitude_VV)"
-                                                }
-        ));
-        manager.addProfile(new RGBImageProfile("Sinclair",
-                                               new String[]{
-                                                       "i_VV*i_VV+q_VV*q_VV",
-                                                       "((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/4",
-                                                       "i_HH*i_HH+q_HH*q_HH"
-                                               }
-        ));
 
         addProfile(manager, TYPE.RATIO);
         addProfile(manager, TYPE.MULTIPLE);

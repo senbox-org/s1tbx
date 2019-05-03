@@ -1,0 +1,195 @@
+{
+    "id": "RS1-SGF-HH",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 9019,
+        "sceneHeight": 9322,
+        "startTime": "03-NOV-2012 23:21:45.089000",
+        "endTime": "03-NOV-2012 23:22:02.759000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 3890.0,
+                    "y": 5011.0,
+                    "lat": 43.34925560547213,
+                    "lon": -80.01854851600736
+                },
+                {
+                    "x": 6696.0,
+                    "y": 6049.0,
+                    "lat": 43.28146512916941,
+                    "lon": -79.56698725154472
+                }
+            ],
+            "reverseAccuracy": 0.06895783089657925
+        },
+        "tiePointGrids": [
+            {
+                "name": "slant_range_time",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "901.0",
+                "subSamplingY": "932.0",
+                "expectedPixels": [
+                    {
+                        "x": 470,
+                        "y": 1660,
+                        "value": 7087982.0
+                    },
+                    {
+                        "x": 6178,
+                        "y": 7929,
+                        "value": 7434280.0
+                    }
+                ]
+            },
+            {
+                "name": "incident_angle",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "901.0",
+                "subSamplingY": "932.0",
+                "expectedPixels": [
+                    {
+                        "x": 2623,
+                        "y": 2394,
+                        "value": 45.61408
+                    },
+                    {
+                        "x": 5506,
+                        "y": 3405,
+                        "value": 47.244415
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "1002.0",
+                "subSamplingY": "1035.0",
+                "expectedPixels": [
+                    {
+                        "x": 4960,
+                        "y": 6948,
+                        "value": 43.15189
+                    },
+                    {
+                        "x": 5486,
+                        "y": 8655,
+                        "value": 42.970943
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "1002.0",
+                "subSamplingY": "1035.0",
+                "expectedPixels": [
+                    {
+                        "x": 1427,
+                        "y": 6208,
+                        "value": -80.364624
+                    },
+                    {
+                        "x": 4682,
+                        "y": 8515,
+                        "value": -79.815285
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "Amplitude",
+                "description": "Amplitude",
+                "bandWidth": 9019,
+                "bandHeight": 9322,
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 6819,
+                        "y": 4517,
+                        "value": 2301.0
+                    },
+                    {
+                        "x": 8575,
+                        "y": 4529,
+                        "value": 2212.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity",
+                "description": "Intensity from complex data",
+                "bandWidth": 9019,
+                "bandHeight": 9322,
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3070,
+                        "y": 8384,
+                        "value": 6.8492176E7
+                    },
+                    {
+                        "x": 89,
+                        "y": 4388,
+                        "value": 3.0558784E7
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector5/time",
+                "value": "03-NOV-2012 23:42:00.333023"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 1/ReferencedFilePortionStart",
+                "value": "1"
+            },
+            {
+                "path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list.1/coefficient.5/srgr_coef",
+                "value": "8.9563114E-20"
+            },
+            {
+                "path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list.1/coefficient.4/srgr_coef",
+                "value": "-2.0010505E-13"
+            },
+            {
+                "path": "Original_Product_Metadata/Leader/Detailed Processing/Doppler centroid confidence measure 18",
+                "value": "0.0"
+            },
+            {
+                "path": "Original_Product_Metadata/Image Descriptor 1/Image Record/Actual count of left-fill pixels",
+                "value": "0"
+            },
+            {
+                "path": "Original_Product_Metadata/Volume/File Pointer Record 1/RecordLengthType",
+                "value": "VARIABLE LEN"
+            },
+            {
+                "path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list.1/coefficient.3/srgr_coef",
+                "value": "2.9971578E-7"
+            },
+            {
+                "path": "Original_Product_Metadata/Trailer/File Descriptor/Specification number",
+                "value": "CEOS-SAR-CCT"
+            },
+            {
+                "path": "Original_Product_Metadata/Image Descriptor 1/Image Record/Mid-pixel longitude",
+                "value": "-80043144"
+            }
+        ]
+    }
+}

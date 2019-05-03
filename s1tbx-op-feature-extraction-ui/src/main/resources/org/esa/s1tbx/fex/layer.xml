@@ -120,11 +120,11 @@
         </folder>
         <folder name="Raster">
             <folder name="Classification">
-                <attr name="position" intvalue="450"/>
+                <!--attr name="position" intvalue="450"/>
                 <file name="org-esa-s1tbx-fex-gpf-DecisionTree-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-DecisionTree-Action.instance"/>
                     <attr name="position" intvalue="500"/>
-                </file>
+                </file-->
             </folder>
         </folder>
     </folder>
