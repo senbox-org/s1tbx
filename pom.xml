@@ -37,8 +37,6 @@
         <jlinda.version>7.0.0-rc2</jlinda.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <buildDate>${maven.build.timestamp}</buildDate>
-        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <buildDate>${maven.build.timestamp}</buildDate>
         
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>	
