@@ -538,7 +538,7 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public FileLock lock(long position, long size, boolean shared) throws IOException {
-        throw new IOException(new UnsupportedOperationException());
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -566,7 +566,7 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public FileLock tryLock(long position, long size, boolean shared) throws IOException {
-        throw new IOException(new UnsupportedOperationException());
+        throw new UnsupportedOperationException();
     }
 
     /**
