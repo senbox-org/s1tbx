@@ -39,6 +39,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <brandingToken>rstb</brandingToken>
         <user.language>en</user.language>
+		<maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+        <buildDate>${maven.build.timestamp}</buildDate>
     </properties>
 
     <organization>
@@ -123,7 +125,7 @@
                                 <goal>regex-property</goal>
                             </goals>
                             <configuration>
-                                <name>rstb.nbmImplVersion</name>
+                                <name>rstb.nbmSpecVersion</name>
                                 <value>${project.version}</value>
                                 <regex>(-SNAPSHOT)|(-rc[0-9]+)</regex>
                                 <replacement>.0</replacement>
