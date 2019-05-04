@@ -140,7 +140,7 @@ public class ResamplingPreset {
     }
 
     /**
-     * Svae resampling preset to a file, but copying only the bandresampling presets for the bands contained in product.
+     * Save resampling preset to a file, but copying only the bandresampling presets for the bands contained in product.
      * @param file
      * @param product
      * @return

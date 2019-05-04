@@ -57,7 +57,7 @@ public class AggregatedOpImageTest {
         GPF gpf = GPF.getDefaultInstance();
         Set aliases = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getAliases();
         Downsampling downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi("Mean").createDownsampling();
-
+        assertNotNull(downsampling);
     }
 
     @Test

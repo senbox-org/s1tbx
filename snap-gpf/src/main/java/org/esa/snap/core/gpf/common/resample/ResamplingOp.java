@@ -102,7 +102,7 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "upsampling",
             label = "Upsampling method",
             description = "The method used for interpolation (upsampling to a finer resolution).",
-            valueSet = {"Nearest", "Bilinear", "Bicubic"/*, "Cubic_Convolution"*/}, //TODO this has to be extended with upsampling registry
+            valueSet = {"Nearest", "Bilinear", "Bicubic"/*, "Cubic_Convolution"*/}, //TODO this has to be extended in the future with upsampling registry
             defaultValue = "Nearest"
     )
     private String upsamplingMethod;
@@ -110,7 +110,7 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "downsampling",
             label = "Downsampling method",
             description = "The method used for aggregation (downsampling to a coarser resolution).",
-            valueSet = {"First", "Min", "Max", "Mean", "Median"}, //TODO this has to be extended with downsampling registry
+            valueSet = {"First", "Min", "Max", "Mean", "Median"}, //TODO this has to be extended in the future with downsampling registry
             defaultValue = "First")
     private String downsamplingMethod;
 
@@ -533,7 +533,7 @@ public class ResamplingOp extends Operator {
 
 
         ////////////////////////
-        //New implementation fro v7.0 (similar to createAggregatedImage)
+        //New implementation for v7.0 (similar to createAggregatedImage). Used with interpolation different to Nearest, Bilinear, Bicubic
         ////////////////////////
         MultiLevelSource source;
         Upsampling finalUpsampling = upsampling;
