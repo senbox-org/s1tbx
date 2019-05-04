@@ -1,0 +1,9 @@
+org.esa.snap.core.gpf.common.resample.MeanAggregator$Spi
+org.esa.snap.core.gpf.common.resample.MedianAggregator$Spi
+org.esa.snap.core.gpf.common.resample.MinAggregator$Spi
+org.esa.snap.core.gpf.common.resample.MaxAggregator$Spi
+org.esa.snap.core.gpf.common.resample.FirstAggregator$Spi
+org.esa.snap.core.gpf.common.resample.FlagAndAggregator$Spi
+org.esa.snap.core.gpf.common.resample.FlagMedianOrAggregator$Spi
+org.esa.snap.core.gpf.common.resample.FlagMedianAndAggregator$Spi
+org.esa.snap.core.gpf.common.resample.FlagOrAggregator$Spi

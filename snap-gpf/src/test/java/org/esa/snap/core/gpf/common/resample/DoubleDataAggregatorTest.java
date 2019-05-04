@@ -25,7 +25,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Mean meanDataAggregator = new DoubleDataAggregator.Mean();
-        meanDataAggregator.init(srcAccessor, destAccessor, -1.);
+        meanDataAggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(meanDataAggregator);
 
@@ -39,7 +39,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Mean meanDataAggregator = new DoubleDataAggregator.Mean();
-        meanDataAggregator.init(srcAccessor, destAccessor, Double.NaN);
+        meanDataAggregator.init(null, srcAccessor, destAccessor, Double.NaN);
 
         aggregate(meanDataAggregator);
 
@@ -53,7 +53,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Mean meanDataAggregator = new DoubleDataAggregator.Mean();
-        meanDataAggregator.init(srcAccessor, destAccessor, -1.);
+        meanDataAggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(meanDataAggregator);
 
@@ -68,7 +68,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Mean meanDataAggregator = new DoubleDataAggregator.Mean();
-        meanDataAggregator.init(srcAccessor, destAccessor, -1.);
+        meanDataAggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(meanDataAggregator);
 
@@ -82,7 +82,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Median aggregator = new DoubleDataAggregator.Median();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -96,7 +96,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Median aggregator = new DoubleDataAggregator.Median();
-        aggregator.init(srcAccessor, destAccessor, Double.NaN);
+        aggregator.init(null, srcAccessor, destAccessor, Double.NaN);
 
         aggregate(aggregator);
 
@@ -110,7 +110,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Median aggregator = new DoubleDataAggregator.Median();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -125,7 +125,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Median aggregator = new DoubleDataAggregator.Median();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -139,7 +139,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Min aggregator = new DoubleDataAggregator.Min();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -153,7 +153,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Min aggregator = new DoubleDataAggregator.Min();
-        aggregator.init(srcAccessor, destAccessor, Double.NaN);
+        aggregator.init(null, srcAccessor, destAccessor, Double.NaN);
 
         aggregate(aggregator);
 
@@ -167,7 +167,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Min aggregator = new DoubleDataAggregator.Min();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -182,7 +182,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Min aggregator = new DoubleDataAggregator.Min();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -196,7 +196,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Max aggregator = new DoubleDataAggregator.Max();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -210,7 +210,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Max aggregator = new DoubleDataAggregator.Max();
-        aggregator.init(srcAccessor, destAccessor, Double.NaN);
+        aggregator.init(null, srcAccessor, destAccessor, Double.NaN);
 
         aggregate(aggregator);
 
@@ -224,7 +224,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Max aggregator = new DoubleDataAggregator.Max();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -239,7 +239,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.Max aggregator = new DoubleDataAggregator.Max();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -253,7 +253,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.First aggregator = new DoubleDataAggregator.First();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -267,7 +267,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.First aggregator = new DoubleDataAggregator.First();
-        aggregator.init(srcAccessor, destAccessor, Double.NaN);
+        aggregator.init(null, srcAccessor, destAccessor, Double.NaN);
 
         aggregate(aggregator);
 
@@ -281,7 +281,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.First aggregator = new DoubleDataAggregator.First();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
@@ -296,7 +296,7 @@ public class DoubleDataAggregatorTest {
         final RasterAccessor srcAccessor = createAccessor(4, 4, srcData);
         final RasterAccessor destAccessor = createAccessor(2, 2, new double[]{-2., -2., -2., -2.});
         final DoubleDataAggregator.First aggregator = new DoubleDataAggregator.First();
-        aggregator.init(srcAccessor, destAccessor, -1.);
+        aggregator.init(null, srcAccessor, destAccessor, -1.);
 
         aggregate(aggregator);
 
