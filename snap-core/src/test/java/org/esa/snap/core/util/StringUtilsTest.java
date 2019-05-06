@@ -609,11 +609,13 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testMakestringsUnique() {
-        String[] inputNames = {"abc", "duplicate", "def", "twin", "ghj", "duplicate", "duplicate", "twin"};
+    public void testMakeStringsUnique() {
+        String[] inputNames = {"abc", "duplicate", "def", "twin", "case_duplicate", "ghj", "duplicate", "duplicate",
+                "twin", "CASE_DUPLICATE"};
 
         String[] actualNames = StringUtils.makeStringsUnique(inputNames);
-        String[] expectedNames = {"abc", "duplicate_1", "def", "twin_1", "ghj", "duplicate_2", "duplicate_3", "twin_2"};
+        String[] expectedNames = {"abc", "duplicate_1", "def", "twin_1", "case_duplicate_1", "ghj", "duplicate_2",
+                "duplicate_3", "twin_2", "CASE_DUPLICATE_2"};
 
         Assert.assertArrayEquals(expectedNames, actualNames);
     }
