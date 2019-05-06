@@ -1,0 +1,195 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "ERS2_PRI_CEOS",
+	"expectedContent": {
+		"metadata": [
+			{
+				"path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector2/time",
+				"value": "29-JAN-1996 09:02:29.714005"
+			},
+			{
+				"path": "Original_Product_Metadata/Volume/File Pointer Record 1/ReferencedFilePortionStart",
+				"value": "1"
+			},
+			{
+				"path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list/coefficient.3/srgr_coef",
+				"value": "6.111222807669001E-7"
+			},
+			{
+				"path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list/coefficient.3/srgr_coef",
+				"value": "6.111222807669001E-7"
+			},
+			{
+				"path": "Original_Product_Metadata/Leader/Facility Related PCS/Record Length",
+				"value": "12288"
+			},
+			{
+				"path": "Original_Product_Metadata/Image Descriptor 1/Image Record/Record Length",
+				"value": "16012"
+			},
+			{
+				"path": "Original_Product_Metadata/Volume/File Pointer Record 1/RecordLengthType",
+				"value": "VARIABLE LEN"
+			},
+			{
+				"path": "Abstracted_Metadata/SRGR_Coefficients/srgr_coef_list/coefficient.2/srgr_coef",
+				"value": "0.3294887897530599"
+			},
+			{
+				"path": "Original_Product_Metadata/Leader/Facility Related/Processor gain #2",
+				"value": "1.0"
+			},
+			{
+				"path": "Original_Product_Metadata/Image Descriptor 1/Image Record/Record Length",
+				"value": "16012"
+			}
+		],
+		"tiePointGrids": [
+			{
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [
+					{
+						"x": 417,
+						"y": 1463,
+						"value": 44.537247
+					},
+					{
+						"x": 5480,
+						"y": 6985,
+						"value": 44.049675
+					}
+				],
+				"name": "latitude",
+				"subSamplingY": "912.0",
+				"subSamplingX": "888.0"
+			},
+			{
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [
+					{
+						"x": 2327,
+						"y": 2109,
+						"value": 26.89529
+					},
+					{
+						"x": 4884,
+						"y": 2999,
+						"value": 26.47538
+					}
+				],
+				"name": "longitude",
+				"subSamplingY": "912.0",
+				"subSamplingX": "888.0"
+			},
+			{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [
+					{
+						"x": 4400,
+						"y": 6120,
+						"value": 23.13783
+					},
+					{
+						"x": 4866,
+						"y": 7624,
+						"value": 23.537891
+					}
+				],
+				"name": "incident_angle",
+				"subSamplingY": "821.2000122070312",
+				"subSamplingX": "800.0"
+			},
+			{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [
+					{
+						"x": 1266,
+						"y": 5469,
+						"value": 5583400.5
+					},
+					{
+						"x": 4153,
+						"y": 7501,
+						"value": 5669755.0
+					}
+				],
+				"name": "slant_range_time",
+				"subSamplingY": "821.2000122070312",
+				"subSamplingX": "800.0"
+			}
+		],
+		"sceneHeight": 8212,
+		"sceneWidth": 8000,
+		"geoCoding": {
+			"coordinates": [
+				{
+					"x": 3450.0,
+					"y": 4414.0,
+					"lon": 26.645786356127866,
+					"lat": 44.28463706154431
+				},
+				{
+					"x": 5939.0,
+					"y": 5328.0,
+					"lon": 26.23738333649688,
+					"lat": 44.24266752613741
+				}
+			],
+			"reverseAccuracy": 0.04154012574144872
+		},
+		"startTime": "29-JAN-1996 09:02:25.929000",
+		"endTime": "29-JAN-1996 09:02:41.294000",
+		"bands": [
+			{
+				"bandWidth": 8000,
+				"noDataValueUsed": "true",
+				"bandHeight": 8212,
+				"expectedPixels": [
+					{
+						"x": 6049,
+						"y": 3979,
+						"value": 259.0
+					},
+					{
+						"x": 7606,
+						"y": 3989,
+						"value": 113.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Amplitude",
+				"noDataValue": "0.0",
+				"description": "Amplitude",
+				"geophysicalUnit": "amplitude"
+			},
+			{
+				"bandWidth": 8000,
+				"noDataValueUsed": "true",
+				"bandHeight": 8212,
+				"expectedPixels": [
+					{
+						"x": 2723,
+						"y": 7386,
+						"value": 115600.0
+					},
+					{
+						"x": 79,
+						"y": 3865,
+						"value": 274576.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}

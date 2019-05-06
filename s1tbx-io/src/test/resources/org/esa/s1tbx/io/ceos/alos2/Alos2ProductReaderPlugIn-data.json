@@ -1,0 +1,14 @@
+{
+  "testProducts": [
+    {
+      "id": "ALOS2_SLC_CEOS",
+      "relativePath": "SAR/ALOS2/InSAR_Pair/0000014141_001001_ALOS2023212900-141028/VOL-ALOS2023212900-141028-UBSR1.1__D",   
+      "description": "ALOS2 SLC CEOS product"
+    },
+	{
+      "id": "ALOS2_GRD_CEOS",
+      "relativePath": "SAR/ALOS2/GRD/0000021462_001001_ALOS2004060740-140620/VOL-ALOS2004060740-140620-UBDL1.5GUA",   
+      "description": "ALOS2 GRD CEOS product"
+    }
+  ]
+}

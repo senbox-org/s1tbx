@@ -1,0 +1,14 @@
+{
+  "testProducts": [
+    {
+      "id": "ERS2_PRI_CEOS",
+      "relativePath": "SAR/ERS/ERS2.SAR.PRI_29JAN1996_orbit04055_frame2714/SCENE1/VDF_DAT.001",
+      "description": "ERS2 PRI CEOS product"
+    },
+	{
+      "id": "ERS2_SLC_CEOS",
+      "relativePath": "SAR/ERS/ERS_Tandem_Etna/ERS1_SLCI_VMP_CEOS_01081995_orbit 21159 frame 0747_IPAF/SCENE1/VDF_DAT.001",
+      "description": "ERS2 SLC CEOS product"
+    }
+  ]
+}
