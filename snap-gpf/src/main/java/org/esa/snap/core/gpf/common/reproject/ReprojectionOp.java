@@ -216,7 +216,16 @@ public class ReprojectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
+        //ensureSingleRasterSize(sourceProduct);
+        if(collocationProduct != null) {
+            try {
+                ensureSingleRasterSize(collocationProduct);
+            } catch (OperatorException e) {
+                //Catch exception in order to clarify the error message
+                throw new OperatorException("The product selected as reference (Collocation product) contains rasters of different sizes and cannot be used as input.\n" +
+                                                          "Please consider resampling it so that all rasters have the same size.");
+            }
+        }
         validateCrsParameters();
         validateResamplingParameter();
         validateReferencingParameters();

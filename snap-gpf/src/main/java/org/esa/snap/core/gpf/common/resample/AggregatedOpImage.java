@@ -1,5 +1,6 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 
 import javax.media.jai.BorderExtender;
@@ -27,13 +28,15 @@ class AggregatedOpImage extends GeometricOpImage {
     private final float offsetX;
     private final float offsetY;
     private final double noDataValue;
-    private AggregationType aggregationType;
+    private Downsampling downsampling;
     private final int dataBufferType;
+    private RasterDataNode rasterDataNode;
 
-    AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataBufferType,
+    AggregatedOpImage(RasterDataNode rasterDataNode, RenderedImage sourceImage, ImageLayout layout, double noDataValue, Downsampling downsampling, int dataBufferType,
                       AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
                 createBackground(noDataValue));
+        this.rasterDataNode = rasterDataNode;
         this.noDataValue = noDataValue;
         final AffineTransform transform = new AffineTransform(referenceImageToModelTransform);
         transform.concatenate(sourceImageToModelTransform.createInverse());
@@ -43,7 +46,7 @@ class AggregatedOpImage extends GeometricOpImage {
                 (float) (sourceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX());
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
-        this.aggregationType = aggregationType;
+        this.downsampling = downsampling;
         this.dataBufferType = dataBufferType;
         OperatorContext.setTileCache(this);
     }
@@ -76,8 +79,9 @@ class AggregatedOpImage extends GeometricOpImage {
 
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
-        final Aggregator aggregator = AggregatorFactory.createAggregator(aggregationType, dataBufferType);
-        aggregator.init(srcAccessor, dstAccessor, noDataValue);
+        //final Aggregator aggregator = AggregatorFactory.createAggregator(downsampling, dataBufferType);
+        Aggregator aggregator = downsampling.createDownsampler(rasterDataNode, dataBufferType);
+        aggregator.init(rasterDataNode, srcAccessor, dstAccessor, noDataValue);
 
         for (int dstY = 0; dstY < dstH; dstY++) {
             double srcYFO0 = offsetY + scaleY * (dstY + destRect.y);

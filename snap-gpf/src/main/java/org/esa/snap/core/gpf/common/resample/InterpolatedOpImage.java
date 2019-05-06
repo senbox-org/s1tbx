@@ -1,5 +1,7 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
+
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.GeometricOpImage;
@@ -24,13 +26,15 @@ class InterpolatedOpImage extends GeometricOpImage {
     private final float offsetY;
     private final double noDataValue;
     private final int dataBufferType;
-    private InterpolationType interpolationType;
+    private Upsampling upsampling;
+    private RasterDataNode rasterDataNode;
 
-    InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataBufferType,
-                               InterpolationType interpolationType, AffineTransform sourceImageToModelTransform,
+    InterpolatedOpImage(RasterDataNode rasterDataNode,  RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataBufferType,
+                               Upsampling upsampling, AffineTransform sourceImageToModelTransform,
                                AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
               createBackground(noDataValue));
+        this.rasterDataNode = rasterDataNode;
         this.noDataValue = noDataValue;
         final AffineTransform transform = new AffineTransform(referenceImageToModelTransform);
         transform.concatenate(sourceImageToModelTransform.createInverse());
@@ -40,7 +44,7 @@ class InterpolatedOpImage extends GeometricOpImage {
                 (float) (sourceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX());
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
-        this.interpolationType = interpolationType;
+        this.upsampling = upsampling;
         this.dataBufferType = dataBufferType;
     }
 
@@ -69,8 +73,9 @@ class InterpolatedOpImage extends GeometricOpImage {
         final Rectangle srcRect = mapDestRect(destRect, 0);
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
-        final Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationType, dataBufferType);
-        interpolator.init(srcAccessor, dstAccessor, noDataValue);
+        //final Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationType, dataBufferType);
+        Interpolator interpolator = upsampling.createUpsampler(rasterDataNode, dataBufferType);
+        interpolator.init(rasterDataNode, srcAccessor, dstAccessor, noDataValue);
         interpolator.interpolate(destRect, srcRect, scaleX, scaleY, offsetX, offsetY);
         if (dstAccessor.isDataCopy()) {
             dstAccessor.clampDataArrays();

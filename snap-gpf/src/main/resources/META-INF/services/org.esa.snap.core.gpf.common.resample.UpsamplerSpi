@@ -1,0 +1,3 @@
+org.esa.snap.core.gpf.common.resample.NearestUpsampler$Spi
+org.esa.snap.core.gpf.common.resample.BilinearUpsampler$Spi
+org.esa.snap.core.gpf.common.resample.CubicConvolutionUpsampler$Spi

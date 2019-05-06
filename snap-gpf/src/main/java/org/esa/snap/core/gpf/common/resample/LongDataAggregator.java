@@ -1,5 +1,7 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
+
 import javax.media.jai.RasterAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,9 +13,11 @@ import java.util.List;
 public abstract class LongDataAggregator implements Aggregator {
 
     private LongDataAccessor accessor;
+    protected RasterDataNode rasterDataNode;
 
-    public void init(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
+    public void init(RasterDataNode rasterDataNode, RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
         this.accessor = DataAccessorFactory.createLongDataAccessor(srcAccessor, dstAccessor, noDataValue);
+        this.rasterDataNode = rasterDataNode;
     }
 
     protected long getSrcData(int index) {
@@ -29,6 +33,10 @@ public abstract class LongDataAggregator implements Aggregator {
     }
 
     protected int getSrcOffset() { return accessor.getSrcOffset(); }
+
+    public void dispose() {
+
+    };
 
     static class Mean extends LongDataAggregator {
 
