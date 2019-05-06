@@ -20,6 +20,7 @@ import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -83,11 +84,11 @@ public class ACE2_5MinFileInfo {
         return _noDataValue;
     }
 
-    public static ACE2_5MinFileInfo create(final File file) throws IOException {
+    public static ACE2_5MinFileInfo create(final Path file) throws IOException {
         return createFromDataFile(file);
     }
 
-    private static ACE2_5MinFileInfo createFromDataFile(final File dataFile) throws IOException {
+    private static ACE2_5MinFileInfo createFromDataFile(final Path dataFile) throws IOException {
         final ACE2_5MinFileInfo fileInfo = new ACE2_5MinFileInfo();
         fileInfo.setFromData(dataFile);
         return fileInfo;
@@ -104,11 +105,12 @@ public class ACE2_5MinFileInfo {
         return null;
     }
 
-    private void setFromData(final File dataFile) throws IOException {
-        final String ext = FileUtils.getExtension(dataFile.getName());
+    private void setFromData(final Path dataPath) throws IOException {
+        final String fileName = dataPath.getFileName().toString();
+        final String ext = FileUtils.getExtension(fileName);
         if (ext != null && ext.equalsIgnoreCase(".zip")) {
-            final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".ACE2";
-            final ZipFile zipFile = new ZipFile(dataFile);
+            final String baseName = FileUtils.getFilenameWithoutExtension(fileName) + ".ACE2";
+            final ZipFile zipFile = new ZipFile(dataPath.toFile());
             try {
                 final ZipEntry zipEntry = getZipEntryIgnoreCase(zipFile, baseName);
                 if (zipEntry == null) {
@@ -119,7 +121,7 @@ public class ACE2_5MinFileInfo {
                 zipFile.close();
             }
         } else {
-            setFromData(dataFile.getName(), dataFile.length());
+            setFromData(fileName, dataPath.toFile().length());
         }
     }
 
