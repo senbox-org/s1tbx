@@ -67,6 +67,15 @@
                 <attr name="helpId" stringvalue="importKompsat5"/>
                 <attr name="ShortDescription" stringvalue="Open Kompsat-5 data product."/>
             </file>
+            <file name="org-esa-s1tbx-io-importRISAT1.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="RISAT-1"/>
+                <attr name="formatName" stringvalue="RISAT-1"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importRISAT1"/>
+                <attr name="ShortDescription" stringvalue="Open RISAT1 data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importSeaSatProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -247,10 +256,10 @@
                     </file>
                 </folder>
                 <folder name="Generic Formats">
-                    <file name="org-esa-s1tbx-io-importPCIDSK.shadow">
+                    <!--file name="org-esa-s1tbx-io-importPCIDSK.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importPCIDSK.instance"/>
                         <attr name="position" intvalue="3000"/>
-                    </file>
+                    </file-->
                 </folder>
                 <folder name="SAR Formats">
                     <file name="org-esa-s1tbx-io-importGammaProduct.shadow">

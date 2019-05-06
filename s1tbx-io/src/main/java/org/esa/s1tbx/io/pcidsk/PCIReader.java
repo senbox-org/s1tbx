@@ -27,7 +27,6 @@ import java.util.StringTokenizer;
 public class PCIReader extends AbstractProductReader {
 
     private int numBands = 1;
-    private int dataType = ProductData.TYPE_FLOAT32;
 
     private long startPosImageRecords = 0;
     private int imageHeaderLength = 0;
@@ -122,7 +121,12 @@ public class PCIReader extends AbstractProductReader {
         final Long imagSize = rasterWidth * rasterHeight * 4;
         long cnt = 0;
         for (BinaryRecord rec : imgHdrList) {
-            final Band band = new Band(rec.getAttributeString("Text describing Channel contents"), dataType, (int) rasterWidth, (int) rasterHeight);
+            String bandName = rec.getAttributeString("Text describing Channel contents").trim();
+            if(product.containsBand(bandName)) {
+                bandName += "_"+String.valueOf(cnt+1);
+            }
+            int dataType = getDataType(rec.getAttributeString("Image data type").trim());
+            final Band band = new Band(bandName, dataType, (int) rasterWidth, (int) rasterHeight);
 
             // Currently, "Data measurement units" is not implemented and contains blanks. This code is for the future when
             // it is implemented.
@@ -166,6 +170,25 @@ public class PCIReader extends AbstractProductReader {
         product.setFileLocation(inputFile);
 
         return product;
+    }
+
+    private int getDataType(final String dataTypeStr) {
+        switch (dataTypeStr) {
+            case "8":
+                return ProductData.TYPE_INT8;
+            case "16":
+                return ProductData.TYPE_INT16;
+            case "32":
+                return ProductData.TYPE_INT32;
+            case "8U":
+                return ProductData.TYPE_UINT8;
+            case "16U":
+                return ProductData.TYPE_UINT16;
+            case "32U":
+                return ProductData.TYPE_UINT32;
+            default:
+                return ProductData.TYPE_FLOAT32;
+        }
     }
 
     @Override
