@@ -684,7 +684,7 @@
                                 <value>target/test-data</value>
                             </property>
                         </systemProperties>
-						<argLine>${surefire.jvm.args}</argLine>
+						<argLine>${surefire.jvm.args} @{argLine}</argLine>
                     </configuration>
                     
                 </plugin>
@@ -842,6 +842,19 @@
                         <goals>
                             <goal>jar</goal>
                             <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.3</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                 </executions>

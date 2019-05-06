@@ -44,7 +44,13 @@ pipeline {
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install -U -DskipTests=false"
+                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install sonar:sonar -U -DskipTests=false"
+            }
+            post {
+                always {
+                    junit "**/target/surefire-reports/*.xml"
+                    jacoco(execPattern: '**/*.exec')
+                }
             }
         }
         stage('Deploy') {
