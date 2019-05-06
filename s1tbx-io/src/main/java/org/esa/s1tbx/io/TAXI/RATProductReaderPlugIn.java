@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -41,9 +42,9 @@ public class RATProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            final String filename = file.getName().toLowerCase();
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            final String filename = path.getFileName().toString().toLowerCase();
             if (filename.endsWith(EXT)) {
                 return DecodeQualification.INTENDED;
             }

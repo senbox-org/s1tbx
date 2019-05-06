@@ -44,6 +44,7 @@ import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -105,8 +106,8 @@ public class Radarsat2ProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            dataDir = createDirectory(fileFromInput);
+            final Path pathFromInput = ReaderUtils.getPathFromInput(getInput());
+            dataDir = createDirectory(pathFromInput.toFile());
             dataDir.readProductDirectory();
             final Product product = dataDir.createProduct();
 
@@ -116,7 +117,7 @@ public class Radarsat2ProductReader extends SARReader {
             addCalibrationLUT(product);
 
             product.getGcpGroup();
-            product.setFileLocation(fileFromInput);
+            product.setFileLocation(pathFromInput.toFile());
             product.setProductReader(this);
 
             setQuicklookBandName(product);

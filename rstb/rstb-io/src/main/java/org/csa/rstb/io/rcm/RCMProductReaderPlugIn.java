@@ -23,6 +23,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -48,32 +49,34 @@ public class RCMProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
 
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            if (file.getName().startsWith(PRODUCT_PREFIX) && ZipUtils.isZip(file)) {
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            if (path.getFileName().toString().startsWith(PRODUCT_PREFIX) && ZipUtils.isZip(path)) {
                 return DecodeQualification.INTENDED;
             }
-            if (findMetadataFile(file) != null) {
+            if (findMetadataFile(path) != null) {
                 return DecodeQualification.INTENDED;
             }
         }
         return DecodeQualification.UNABLE;
     }
 
-    public static File findMetadataFile(final File folder) {
-        if (folder.isDirectory() && folder.getName().startsWith(PRODUCT_PREFIX)) {
+    public static File findMetadataFile(final Path folderPath) {
+        final String folderName = folderPath.getFileName().toString();
+        File folder = folderPath.toFile();
+        if (folder.isDirectory() && folderName.startsWith(PRODUCT_PREFIX)) {
             final File[] fileList = folder.listFiles();
             if (fileList != null) {
                 for (File f : fileList) {
-                    if (isValidProductName(f.getName())) {
-                        String name = f.getName();
+                    final String name = f.toPath().getFileName().toString();
+                    if (isValidProductName(name)) {
                         if (!(name.endsWith("MUX.xml") || name.endsWith("PAN.xml"))) {
                             return f;
                         }
                     }
                 }
             }
-        } else if (isValidProductName(folder.getName()) && folder.getParentFile().getName().startsWith(PRODUCT_PREFIX)) {
+        } else if (isValidProductName(folderName) && folderPath.getParent().getFileName().startsWith(PRODUCT_PREFIX)) {
             return folder;
         }
         return null;

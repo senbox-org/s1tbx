@@ -36,6 +36,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 
 public class GenericComplexReader extends GenericReader {
 
@@ -102,9 +103,10 @@ public class GenericComplexReader extends GenericReader {
         }
 
 
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+        final File inputFile = inputPath.toFile();
 
-        final Product product = new Product(inputFile.getName(), "Complex", rasterWidth, rasterHeight);
+        final Product product = new Product(inputPath.getFileName().toString(), "Complex", rasterWidth, rasterHeight);
 
         final Band bandI = new Band("i", dataType, rasterWidth, rasterHeight);
         final Band bandQ = new Band("q", dataType, rasterWidth, rasterHeight);

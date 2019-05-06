@@ -23,6 +23,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -44,15 +45,14 @@ public class UAVSARReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
 
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-
-            String ext = FileUtils.getExtension(file);
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            String ext = FileUtils.getExtension(path.getFileName().toString());
             if (ext != null) {
                 ext = ext.toLowerCase();
                 for (String uavExt : FORMAT_FILE_EXTENSIONS) {
                     if (ext.endsWith(uavExt)) {
-                        if (UAVSARReader.findAnnotationFile(file) != null)
+                        if (UAVSARReader.findAnnotationFile(path.toFile()) != null)
                             return DecodeQualification.INTENDED;
                     }
                 }

@@ -26,6 +26,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * The product reader for RCM products.
@@ -76,9 +77,10 @@ public class RCMProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            File fileFromInput = ReaderUtils.getFileFromInput(getInput());
+            Path path = ReaderUtils.getPathFromInput(getInput());
+            File fileFromInput = path.toFile();
             if (fileFromInput.isDirectory()) {
-                fileFromInput = RCMProductReaderPlugIn.findMetadataFile(fileFromInput);
+                fileFromInput = RCMProductReaderPlugIn.findMetadataFile(path);
             }
             dataDir = createDirectory(fileFromInput);
             dataDir.readProductDirectory();

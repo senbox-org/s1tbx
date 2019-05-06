@@ -38,6 +38,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 
 /**
  * The product reader for ImageIO products.
@@ -93,11 +94,11 @@ public class GenericReader extends AbstractProductReader {
             }
         }
 
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+        final File inputFile = inputPath.toFile();
 
-        final Product product = new Product(inputFile.getName(),
-                "Generic",
-                rasterWidth, rasterHeight);
+        final Product product = new Product(inputPath.getFileName().toString(),
+                "Generic", rasterWidth, rasterHeight);
         product.setFileLocation(inputFile);
 
         int bandCnt = 1;
@@ -111,7 +112,6 @@ public class GenericReader extends AbstractProductReader {
         product.getGcpGroup();
         product.setProductReader(this);
         product.setModified(false);
-        product.setFileLocation(inputFile);
 
         imageInputStream = FileImageInputStreamExtImpl.createInputStream(inputFile);
         imageInputStream.setByteOrder(byteOrder);
