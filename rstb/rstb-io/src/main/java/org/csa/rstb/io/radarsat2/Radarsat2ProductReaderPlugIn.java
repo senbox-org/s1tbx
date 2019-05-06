@@ -23,6 +23,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -38,15 +39,15 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            final File metadataFile = findMetadataFile(file);
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            final File metadataFile = findMetadataFile(path);
             if (metadataFile != null) {
 
                 final File[] files = metadataFile.getParentFile().listFiles();
                 if(files != null) {
                     for (File f : files) {
-                        final String name = f.getName().toLowerCase();
+                        final String name = f.toPath().getFileName().toString().toLowerCase();
                         if (name.startsWith("lut") || name.startsWith("imagery")) {
                             return DecodeQualification.INTENDED;
                         }
@@ -60,9 +61,9 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
                 return DecodeQualification.SUITABLE;
             }
-            final String filename = file.getName().toLowerCase();
+            final String filename = path.getFileName().toString().toLowerCase();
             if (filename.endsWith(".zip") && filename.startsWith("rs2") &&
-                    ZipUtils.findInZip(file, "", Radarsat2Constants.PRODUCT_HEADER_NAME)) {
+                    ZipUtils.findInZip(path.toFile(), "", Radarsat2Constants.PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -71,18 +72,19 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    public static File findMetadataFile(final File folder) {
+    public static File findMetadataFile(final Path folderPath) {
+        final File folder = folderPath.toFile();
         if (folder.isDirectory()) {
             final File[] fileList = folder.listFiles();
             if (fileList != null) {
                 for (File f : fileList) {
-                    final String fileName = f.getName().toLowerCase();
+                    final String fileName = f.toPath().getFileName().toString().toLowerCase();
                     if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
                             fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
                         return f;
                     }
                     if (f.isDirectory()) {
-                        final File foundFile = findMetadataFile(f);
+                        final File foundFile = findMetadataFile(f.toPath());
                         if (foundFile != null) {
                             return foundFile;
                         }
@@ -90,7 +92,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
             }
         } else {
-            final String fileName = folder.getName().toLowerCase();
+            final String fileName = folderPath.getFileName().toString().toLowerCase();
             if (fileName.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
                     fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)){
                 return folder;

@@ -28,6 +28,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import javax.imageio.stream.ImageInputStream;
 import java.io.*;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class UAVSARReader extends SARReader {
         if (listFiles == null)
             return null;
         for (File f : listFiles) {
-            final String ext = FileUtils.getExtension(f);
+            final String ext = FileUtils.getExtension(f.toPath().getFileName().toString());
             if (ext != null && ext.equalsIgnoreCase(".ann")) {
                 return f;
             }
@@ -93,12 +94,13 @@ public class UAVSARReader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+        final File inputFile = inputPath.toFile();
 
         final File annFile = findAnnotationFile(inputFile);
         final MetadataElement annElem = readAnnotation(annFile);
 
-        getProductType(inputFile);
+        getProductType(inputPath.getFileName().toString());
         getDimensions(annElem);
 
         final Product product = new Product(FileUtils.getFilenameWithoutExtension(annFile),
@@ -193,8 +195,8 @@ public class UAVSARReader extends SARReader {
         }
     }
 
-    private void getProductType(final File inputFile) {
-        final String ext = FileUtils.getExtension(inputFile);
+    private void getProductType(final String fileName) {
+        final String ext = FileUtils.getExtension(fileName);
         if (ext != null) {
             productTypeStr = ext.substring(1).toUpperCase();
             switch (productTypeStr) {
