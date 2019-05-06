@@ -4,7 +4,12 @@
 * Support for RCM products
 * Support for PAZ
 * Support for RISAT-1
+* Support for ALOS-2 in GeoTiff
+* Support for Kompsat-5 in GeoTiff
+* Terrain Correction of ALOS-1 from ESA On the fly products
+* Automatic orbit download via QC Rest API
 * Compact polarimetric tools
+* TOPS Deramp/Demod operator
 * Improved Terrain Flattening
 * Improved thermal noise filtering
 
