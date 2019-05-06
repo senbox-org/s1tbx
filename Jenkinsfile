@@ -48,7 +48,8 @@ pipeline {
             }
             post {
                 always {
-                    junit "**/target/surefire-reports/*.xml"
+                    // Remove junit report sending because they are in txt (not supported by jenkins)
+                    //junit "**/target/surefire-reports/*.xml"
                     jacoco(execPattern: '**/*.exec')
                 }
             }
