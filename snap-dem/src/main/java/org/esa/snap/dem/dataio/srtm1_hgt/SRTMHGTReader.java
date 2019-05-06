@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -66,15 +67,16 @@ public class SRTMHGTReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
         try {
-            if (inputFile == null) {
+            if (inputPath == null) {
                 throw new IOException("Unable to read hgt file " + getInput().toString());
             }
 
-            final String ext = FileUtils.getExtension(inputFile);
+            final String inputFileName = inputPath.getFileName().toString();
+            final String ext = FileUtils.getExtension(inputFileName);
             if (".zip".equalsIgnoreCase(ext)) {
-                final ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
+                final ZipFile productZip = new ZipFile(inputPath.toFile(), ZipFile.OPEN_READ);
                 // get first hgt
                 final Enumeration<? extends ZipEntry> entries = productZip.entries();
                 while(entries.hasMoreElements()) {
@@ -87,7 +89,7 @@ public class SRTMHGTReader extends AbstractProductReader {
                     }
                 }
             } else {
-                imageInputStream = new FileImageInputStream(inputFile);
+                imageInputStream = new FileImageInputStream(inputPath.toFile());
                 imageInputStream.setByteOrder(ByteOrder.BIG_ENDIAN);
             }
 
@@ -102,16 +104,17 @@ public class SRTMHGTReader extends AbstractProductReader {
         final int width = SRTM1HgtElevationModelDescriptor.PIXEL_RES;
         final int height = SRTM1HgtElevationModelDescriptor.PIXEL_RES;
 
-        final Product product = new Product(inputFile.getName(), "HGT", width, height);
+        final String inputFileName = inputPath.getFileName().toString();
+        final Product product = new Product(inputFileName, "HGT", width, height);
 
         final Band band = new Band("elevation", ProductData.TYPE_INT16, width, height);
         band.setUnit(Unit.METERS);
         product.addBand(band);
 
-        addGeoCoding(product, inputFile);
+        addGeoCoding(product, inputPath.toFile());
 
         product.setProductReader(this);
-        product.setFileLocation(inputFile);
+        product.setFileLocation(inputPath.toFile());
         product.setModified(false);
 
         return product;
