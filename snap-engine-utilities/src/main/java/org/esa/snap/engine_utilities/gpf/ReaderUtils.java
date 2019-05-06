@@ -244,7 +244,7 @@ public final class ReaderUtils {
         }
     }
 
-    private static void createFineTiePointGrid(final int coarseGridWidth,
+    public static void createFineTiePointGrid(final int coarseGridWidth,
                                               final int coarseGridHeight,
                                               final int fineGridWidth,
                                               final int fineGridHeight,
