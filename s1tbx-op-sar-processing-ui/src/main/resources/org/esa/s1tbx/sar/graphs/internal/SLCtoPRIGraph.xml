@@ -42,8 +42,9 @@
 	  <sourceBands>
       </sourceBands>
       <nRgLooks>1</nRgLooks>
-	  <nAzLooks>1</nAzLooks>
-	  <outputIntensity>true</outputIntensity>
+      <nAzLooks>1</nAzLooks>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="Write">
