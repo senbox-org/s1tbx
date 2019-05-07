@@ -22,6 +22,7 @@ pipeline {
         toolVersion = ''
         deployDirName = ''
         snapMajorVersion = ''
+        sonarOption = ""
     }
     agent { label 'snap-test' }
     parameters {
@@ -42,14 +43,18 @@ pipeline {
                     toolVersion = sh(returnStdout: true, script: "cat pom.xml | grep '<version>' | head -1 | cut -d '>' -f 2 | cut -d '-' -f 1").trim()
                     snapMajorVersion = sh(returnStdout: true, script: "echo ${toolVersion} | cut -d '.' -f 1").trim()
                     deployDirName = "${toolName}/${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
+                    if ("${branchVersion}" == "master") {
+                        // Only use sonar on master branch
+                        sonarOption = "sonar:sonar"
+                    }
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install sonar:sonar -U -DskipTests=false"
+                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install ${sonarOption} -U -DskipTests=false"
             }
             post {
                 always {
                     // Remove junit report sending because they are in txt (not supported by jenkins)
-                    //junit "**/target/surefire-reports/*.xml"
+                    // junit "**/target/surefire-reports/*.xml"
                     jacoco(execPattern: '**/*.exec')
                 }
             }
