@@ -5,7 +5,7 @@
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>6.0.10-SNAPSHOT</version>
+        <version>6.0.10</version>
     </parent>
 
     <artifactId>snap-getasse30-dem</artifactId>
