@@ -51,7 +51,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
     protected void setUp() {
         GlobalTestTools.deleteTestDataOutputDirectory();
         _productWriter = (DimapProductWriter) _writerPlugIn.createWriterInstance();
-        _outputDir = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "testproduct");
+        _outputDir = new File(GlobalTestConfig.getSnapTestDataOutputDirectory(), "testproduct");
         _outputFile = new File(_outputDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
     }
 

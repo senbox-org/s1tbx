@@ -33,7 +33,7 @@ public class ProductDataUByteTest extends TestCase {
 
     @Override
     protected void setUp() throws IOException {
-        File outputDir = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
+        File outputDir = GlobalTestConfig.getSnapTestDataOutputFile("ProductData");
         Assume.assumeTrue(outputDir.mkdirs() || outputDir.exists());
         File streamFile = new File(outputDir, "ubyte.img");
         Assume.assumeTrue(streamFile.createNewFile() || streamFile.exists());
@@ -50,7 +50,7 @@ public class ProductDataUByteTest extends TestCase {
             _outputStream.close();
         } catch (IOException ignored) {
         }
-        FileUtils.deleteTree(GlobalTestConfig.getBeamTestDataOutputDirectory());
+        FileUtils.deleteTree(GlobalTestConfig.getSnapTestDataOutputDirectory());
     }
 
     public void testSingleValueConstructor() {

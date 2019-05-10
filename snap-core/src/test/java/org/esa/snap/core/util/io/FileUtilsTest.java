@@ -147,7 +147,7 @@ public class FileUtilsTest {
 
     @Test
     public void testDeleteFileTree() {
-        File treeRoot = GlobalTestConfig.getBeamTestDataOutputDirectory();
+        File treeRoot = GlobalTestConfig.getSnapTestDataOutputDirectory();
         File firstDir = new File(treeRoot, "firstDir");
         File firstFile = new File(treeRoot, "firstFile");
         File secondDir = new File(firstDir, "secondDir");
@@ -206,7 +206,7 @@ public class FileUtilsTest {
 
     @Test
     public void testDeleteFileTree_DeleteEmptyDirectories() {
-        File treeRoot = GlobalTestConfig.getBeamTestDataOutputDirectory();
+        File treeRoot = GlobalTestConfig.getSnapTestDataOutputDirectory();
         treeRoot.mkdirs();
         assertTrue("treeRoot exists expected", treeRoot.exists());
         File firstDir = new File(treeRoot, "firstDir");

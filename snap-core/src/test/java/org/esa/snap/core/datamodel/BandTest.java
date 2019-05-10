@@ -557,7 +557,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
         bandFloat64.setPixels(0, 0, 3, 2, testFloat64s);
         product.addBand(bandFloat64);
 
-        final File outputDirectory = GlobalTestConfig.getBeamTestDataOutputDirectory();
+        final File outputDirectory = GlobalTestConfig.getSnapTestDataOutputDirectory();
         final File file = new File(outputDirectory, name + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
         ProductIO.writeProduct(product,
                                file,

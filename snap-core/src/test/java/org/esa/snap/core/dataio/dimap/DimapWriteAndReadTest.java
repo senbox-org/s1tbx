@@ -58,7 +58,7 @@ public class DimapWriteAndReadTest extends TestCase {
         GlobalTestTools.deleteTestDataOutputDirectory();
         _writer = new DimapProductWriter(_writerPlugIn);
         _reader = new DimapProductReader(_readerPlugIn);
-        _ioDir = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "testproduct");
+        _ioDir = new File(GlobalTestConfig.getSnapTestDataOutputDirectory(), "testproduct");
         _product = createProduct();
     }
 

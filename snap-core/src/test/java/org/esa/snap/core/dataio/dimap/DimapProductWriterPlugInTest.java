@@ -67,7 +67,7 @@ public class DimapProductWriterPlugInTest extends TestCase {
 
     public void testWriteProductNodes() {
         Product product = new Product("test", "TEST", 10, 10);
-        File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("DIMAP/test.dim");
+        File outputFile = GlobalTestConfig.getSnapTestDataOutputFile("DIMAP/test.dim");
         try {
             _productWriter.writeProductNodes(product, outputFile);
         } catch (IOException e) {

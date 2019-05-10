@@ -64,7 +64,7 @@ public class DimapProductReaderPlugInTest extends TestCase {
     }
 
     public void testCanDecodeInput() {
-        File file = GlobalTestConfig.getBeamTestDataOutputFile("DIMAP/test2.dim");
+        File file = GlobalTestConfig.getSnapTestDataOutputFile("DIMAP/test2.dim");
         try {
             file.getParentFile().mkdirs();
             file.createNewFile();
@@ -91,7 +91,7 @@ public class DimapProductReaderPlugInTest extends TestCase {
 
     public void testReadProductNodes() {
 
-        File inputFile = GlobalTestConfig.getBeamTestDataOutputFile("DIMAP/test2.dim");
+        File inputFile = GlobalTestConfig.getSnapTestDataOutputFile("DIMAP/test2.dim");
         Product product = null;
         try {
             product = _productReader.readProductNodes(inputFile, null);
