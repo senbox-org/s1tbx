@@ -282,8 +282,7 @@ public class VFSFileChannel extends FileChannel {
 
                 long remainingSize = connection.getContentLengthLong();
                 long buffer = Math.min(remainingSize, maximumBufferSize);
-                int capacity;
-                capacity = (int) buffer;
+                int capacity = (int) buffer;
                 ByteBuffer byteBuffer = ByteBuffer.allocate(capacity);
                 long bytesTransferred = 0;
                 while (remainingSize > 0) {
