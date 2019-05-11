@@ -19,7 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.commons.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -76,7 +75,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
     private MetadataElement absRoot = null;
     private MetadataElement origMetadataRoot = null;
-    private boolean thermalNoiseCorrectionPerformed = false;
     private boolean absoluteCalibrationPerformed = false;
     private boolean isComplex = false;
     private boolean inputSigmaBand = false;
@@ -96,22 +94,15 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean isTOPS = false;
     private boolean isGRD = false;
 
-    // The key is something like "s1a-iw-grd-hh-..."
-    private HashMap<String, Double> t0Map = new HashMap<>();
-    private HashMap<String, Double> deltaTsMap = new HashMap<>();
-
-    // The key to these maps is pol, e.g. "HH"
-    private HashMap<String, NoiseAzimuthBlock[] > noiseAzimuthBlockMap = new HashMap<>();
-
-    // key is pol+swath, e.g. "HH+IW1" or "HH+EW1"
-    private HashMap<String, double[]> swathStartEndTimesMap = new HashMap<>();
-
-    // Only for TOPS SLC. Key is something like "ew1_hh"
-    private HashMap<String, BurstBlock[] > burstBlockMap = new HashMap<>();
-
     public static float trgFloorValue = 0.01234567890000f;
 
     private static final String PRODUCT_SUFFIX = "_NR";
+
+    private static class TimeMaps {
+        private final HashMap<String, Double> t0Map = new HashMap<>();
+        private final HashMap<String, Double> deltaTsMap = new HashMap<>();
+        private final HashMap<String, double[]> swathStartEndTimesMap = new HashMap<>();
+    }
 
     /**
      * Default constructor. The graph processing framework
@@ -218,7 +209,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final MetadataElement imageAnnotationElem = productElem.getElement("imageAnnotation");
         final MetadataElement processingInformationElem = imageAnnotationElem.getElement("processingInformation");
 
-        thermalNoiseCorrectionPerformed = Boolean.parseBoolean(
+        Boolean thermalNoiseCorrectionPerformed = Boolean.parseBoolean(
                 processingInformationElem.getAttribute("thermalNoiseCorrectionPerformed").getData().getElemString());
 
         if (removeThermalNoise && thermalNoiseCorrectionPerformed) {
@@ -479,10 +470,12 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final int x0, final int y0, final int w, final int h, final String targetBandName) {
 
         if (version >= 2.9) {
+            final TimeMaps timeMaps = new TimeMaps();
+
             if (isTOPS && isGRD) {
-                return buildNoiseLUTForTOPSGRD(x0, y0, w, h, targetBandName);
+                return buildNoiseLUTForTOPSGRD(x0, y0, w, h, targetBandName, timeMaps);
             } else if (isTOPSARSLC) {
-                return buildNoiseLUTForTOPSSLC(x0, y0, w, h, targetBandName);
+                return buildNoiseLUTForTOPSSLC(x0, y0, w, h, targetBandName, timeMaps);
             }
         }
         return null;
@@ -746,7 +739,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @param calInfo Object of CalibrationInfo class.
      * @param lut     LUT for calibration.
      */
-    public static void computeTileCalibrationLUTs(final int y, final int x0, final int w,
+    private static void computeTileCalibrationLUTs(final int y, final int x0, final int w,
                                                   final Sentinel1Calibrator.CalibrationInfo calInfo,
                                                   final double azT0, final double azT1,
                                                   final float[] vec0LUT, final float[] vec1LUT,
@@ -875,7 +868,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     }
 
     private double[][] buildNoiseLUTForTOPSSLC(
-            final int x0, final int y0, final int w, final int h, final String targetBandName) {
+            final int x0, final int y0, final int w, final int h, final String targetBandName, final TimeMaps timeMaps) {
 
         final String targetBandPol = getBandPol(targetBandName).toLowerCase();
         final String targetBandSwath = getBandSwath(targetBandName).toLowerCase();
@@ -892,7 +885,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 continue;
             }
 
-            getT0andDeltaTS(imageName);
+            getT0andDeltaTS(imageName, timeMaps);
 
             final MetadataElement noiElem = dataSetListElem.getElement("noise");
 
@@ -981,7 +974,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     }
 
     private double[][] buildNoiseLUTForTOPSGRD(
-            final int x0, final int y0, final int w, final int h, final String targetBandName) {
+            final int x0, final int y0, final int w, final int h, final String targetBandName, final TimeMaps timeMaps) {
 
         final int xMax = x0 + w - 1;
         final int yMax = y0 + h - 1;
@@ -1031,7 +1024,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 }
 
                 populateNoiseMatrixForTOPSGRD(pol, imageName, noiseAzimuthVector, noiseRangeVectors,
-                        x0, y0, nx0, nxMax, ny0, nyMax, noiseMatrix);
+                        x0, y0, nx0, nxMax, ny0, nyMax, noiseMatrix, timeMaps);
             }
 
             return noiseMatrix;
@@ -1044,17 +1037,18 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                                      final Sentinel1Utils.NoiseVector[] noiseRangeVectors,
                                      final int x0, final int y0,
                                      final int nx0, final int nxMax, final int ny0, final int nyMax,
-                                     final double[][] noiseMatrix) {
+                                     final double[][] noiseMatrix, final TimeMaps timeMaps) {
 
-        getT0andDeltaTS(imageName);
-        final double firstLineTime = t0Map.get(imageName);
-        final double lineTimeInterval = deltaTsMap.get(imageName);
+        getT0andDeltaTS(imageName, timeMaps);
+        final double firstLineTime = timeMaps.t0Map.get(imageName);
+        final double lineTimeInterval = timeMaps.deltaTsMap.get(imageName);
         final double startAzimTime = firstLineTime + noiseAzimuthVector.firstAzimuthLine * lineTimeInterval;
         final double endAzimTime = firstLineTime + noiseAzimuthVector.lastAzimuthLine * lineTimeInterval;
         final String swath = noiseAzimuthVector.swath;
 
         int[] noiseRangeVecIndices = getNoiseRangeVectorIndices(pol, swath, startAzimTime, endAzimTime,
-                noiseRangeVectors, noiseAzimuthVector.firstAzimuthLine, noiseAzimuthVector.lastAzimuthLine);
+                noiseRangeVectors, noiseAzimuthVector.firstAzimuthLine, noiseAzimuthVector.lastAzimuthLine,
+                timeMaps);
 
         if (noiseRangeVecIndices != null && noiseRangeVecIndices.length > 0) {
 
@@ -1195,7 +1189,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                                      final double startAzimTime, final double endAzimTime,
                                      final Sentinel1Utils.NoiseVector[] noiseRangeVectors,
                                      // for debugging...
-                                     final int startAzimLine, final int endAzimLine) {
+                                     final int startAzimLine, final int endAzimLine, final TimeMaps timeMaps) {
 
         // Each noise range vector has an azimuth time (and corresponding azimuth line) associated with it.
         // We want to find the noise range vectors in "noiseRangeVectors" whose azimuth time lies with
@@ -1218,7 +1212,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         if (list.size() == 0) {
             int idx = -1;
             final double[] startEndTimes = new double[2];
-            getSwathStartEndTimes(pol, swath, startEndTimes);
+            getSwathStartEndTimes(pol, swath, startEndTimes, timeMaps);
             /*
             System.out.println("getNoiseRangeVectorIndices: " + pol + " " + swath
                     + " startAzimLine = " + startAzimLine + " endAzimLine = " + endAzimLine
@@ -1288,15 +1282,16 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 //        return indices;
 //    }
 
-    private void getSwathStartEndTimes(final String pol, final String swath, final double[] startEndtimes) {
+    private void getSwathStartEndTimes(final String pol, final String swath, final double[] startEndtimes,
+                                       final TimeMaps timeMaps) {
 
         final String key = pol + "+" + swath;
 
         startEndtimes[0] = 0; // start time
         startEndtimes[1] = 0; // end time
 
-        if (swathStartEndTimesMap.containsKey(key)) {
-            double[] times = swathStartEndTimesMap.get(key);
+        if (timeMaps.swathStartEndTimesMap.containsKey(key)) {
+            double[] times = timeMaps.swathStartEndTimesMap.get(key);
             startEndtimes[0] = times[0];
             startEndtimes[1] = times[1];
             return;
@@ -1322,12 +1317,12 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         final int startLine = swathBoundList[0].getAttributeInt("firstAzimuthLine");
                         final int lastIdx = swathBoundList.length - 1;
                         final int endLine = swathBoundList[lastIdx].getAttributeInt("lastAzimuthLine");
-                        if (t0Map.containsKey(imageName) && deltaTsMap.containsKey(imageName)) {
-                            final double t0 = t0Map.get(imageName);
-                            final double deltaTs = deltaTsMap.get(imageName);
+                        if (timeMaps.t0Map.containsKey(imageName) && timeMaps.deltaTsMap.containsKey(imageName)) {
+                            final double t0 = timeMaps.t0Map.get(imageName);
+                            final double deltaTs = timeMaps.deltaTsMap.get(imageName);
                             startEndtimes[0] = t0 + (startLine * deltaTs);
                             startEndtimes[1] = t0 + (endLine * deltaTs);
-                            swathStartEndTimesMap.put(key, startEndtimes);
+                            timeMaps.swathStartEndTimesMap.put(key, startEndtimes);
                             /*
                             System.out.println("getSwathStartEndTimes: " + key + " -> [" + startEndtimes[0] + ", " + startEndtimes[1] + "]"
                                 + " [" + startLine + ", " + endLine + "]");
@@ -1368,7 +1363,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         return noiseRangeVector.pixels.length - 2;
     }
 
-    private void getT0andDeltaTS(final String imageName) {
+    private void getT0andDeltaTS(final String imageName, final TimeMaps timeMaps) {
 
         // imageName is something like s1a-iw-grd-hh-...
 
@@ -1385,11 +1380,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
                 double t01 = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // just for comparison
                 double t0 = Sentinel1Utils.getTime(imageInformationElem ,"productFirstLineUtcTime").getMJD();
-                t0Map.put(imageName, t0);
+                timeMaps.t0Map.put(imageName, t0);
 
                 double deltaTS1 = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // just for comparison
                 double deltaTS = imageInformationElem.getAttributeDouble("azimuthTimeInterval") / Constants.secondsInDay; // s to day
-                deltaTsMap.put(imageName, deltaTS);
+                timeMaps.deltaTsMap.put(imageName, deltaTS);
 
                 //System.out.println("getT0andDeltaTS: " + imageName + ": t01 = " + t01 + " t0 = " + t0 + " deltaTS1 = " + deltaTS1 + " deltaTS = " + deltaTS);
 
@@ -1432,97 +1427,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             return "EW5";
         }
         return "";
-    }
-
-    private double getNoiseValue(final int x, final int y, final NoiseAzimuthBlock[] noiseAzimuthBlocks) {
-
-        for (NoiseAzimuthBlock noiseAzimuthBlock : noiseAzimuthBlocks) {
-            final int firstAzimuthLine = noiseAzimuthBlock.firstAzimuthLine;
-            final int lastAzimuthLine = noiseAzimuthBlock.lastAzimuthLine;
-            final int firstRangeSample = noiseAzimuthBlock.firstRangeSample;
-            final int lastRangeSample = noiseAzimuthBlock.lastRangeSample;
-            if (isTOPS) {
-                if (x >= firstRangeSample && x <= lastRangeSample && y >= firstAzimuthLine && y <= lastAzimuthLine) {
-                    final double val = noiseAzimuthBlock.noiseMatrix[y - firstAzimuthLine][x - firstRangeSample];
-                    if (removeThermalNoise) {
-                        return val;
-                    } else {
-                        return -val;
-                    }
-                }
-            } else if (x >= firstRangeSample && x <= lastRangeSample) {
-                final double val = noiseAzimuthBlock.noiseMatrix[0][x - firstRangeSample];
-                if (removeThermalNoise) {
-                    return val;
-                } else {
-                    return -val;
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    private double getNoiseValue(final int x, final int y, final BurstBlock[] burstBlocks) {
-
-        for (int i = 0; i < burstBlocks.length; i++) {
-            final int firstLine = burstBlocks[i].firstLine;
-            final int lastLine = burstBlocks[i].lastLine;
-            // linesPerBurst = lastLine - firstLine + 1
-            if (y >= firstLine && y <= lastLine) {
-                final int firstValidSample = burstBlocks[i].firstValidSample[y - firstLine];
-                final int lastValidSample = burstBlocks[i].lastValidSample[y - firstLine];
-                if (x >= firstValidSample && x <= lastValidSample) {
-                    if (y > burstBlocks[i].azimuthNoise.length-1) {
-                        System.out.println("Sentinel1RemoveThermalNoiseOp: ERROR: i = " + i + " y = " + y + " burstBlocks[i].azimuthNoise.length = " + burstBlocks[i].azimuthNoise.length);
-                    }
-                    final double azimuthNoise = burstBlocks[i].azimuthNoise[y];
-                    if (x > burstBlocks[i].rangeNoise.length - 1){
-                        System.out.println("Sentinel1RemoveThermalNoiseOp: ERROR: i = " + i + " x = " + x + " burstBlocks[i].rangeNoise.length = " + burstBlocks[i].rangeNoise.length);
-                    }
-                    final double rangeNoise = burstBlocks[i].rangeNoise[x];
-                    final double val = azimuthNoise * rangeNoise;
-                    if (removeThermalNoise) {
-                        return  val;
-                    } else {
-                        return -val;
-                    }
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    private static int getIndex(final String s, final char c, final int n) {
-        // Find the index of the n'th occurrence of c in s
-        int cnt = 0;
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == c) {
-                cnt++;
-                if (cnt == n) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    private static String getKey(final String imageName) {
-        final int idx1 = getIndex(imageName, '-', 1);
-        final int idx2 = getIndex(imageName, '-', 2);
-        final int idx3 = getIndex(imageName, '-', 3);
-        final int idx4 = getIndex(imageName, '-', 4);
-        String s = imageName.substring(idx1+1, idx2) + imageName.substring(idx3, idx4);
-        return s.replace('-', '_');
-    }
-
-    private int getLineFromTime(final String imageName, final double azimTime) {
-
-        final double t0 = t0Map.get(imageName);
-        final double lineTimeInterval = deltaTsMap.get(imageName);
-
-        return (int) ((azimTime - t0) / lineTimeInterval);
     }
 
     public static class ThermalNoiseInfo {
@@ -1599,31 +1503,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             this.rangeNoise = rangeNoise;
             this.azimuthNoise = azimuthNoise;
         }
-    }
-
-    // TODO This is taken from Sentinel1Utils. Should just make it public there.
-    private static int[] getIntArray(final MetadataElement elem, final String tag) {
-
-        final MetadataAttribute attribute = elem.getAttribute(tag);
-        if (attribute == null) {
-            throw new OperatorException(tag + " attribute not found");
-        }
-
-        int[] array = null;
-        if (attribute.getDataType() == ProductData.TYPE_ASCII) {
-            final String dataStr = attribute.getData().getElemString();
-            final String[] items = dataStr.split(" ");
-            array = new int[items.length];
-            for (int i = 0; i < items.length; i++) {
-                try {
-                    array[i] = Integer.parseInt(items[i]);
-                } catch (NumberFormatException e) {
-                    throw new OperatorException("Failed in getting" + tag + " array");
-                }
-            }
-        }
-
-        return array;
     }
 
     /**
