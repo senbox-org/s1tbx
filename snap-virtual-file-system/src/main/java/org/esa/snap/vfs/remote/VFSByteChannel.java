@@ -25,7 +25,6 @@ class VFSByteChannel implements SeekableByteChannel {
 
     private HttpURLConnection connection;
     private long position;
-    private boolean samePosition;
 
     /**
      * Creates the new byte channel for  VFS
@@ -39,7 +38,6 @@ class VFSByteChannel implements SeekableByteChannel {
 
         this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
         this.contentLength = connection.getContentLengthLong();
-        this.samePosition = false;
     }
 
     /**
@@ -87,8 +85,14 @@ class VFSByteChannel implements SeekableByteChannel {
         if (newPosition >= this.contentLength) {
             throw new EOFException(this.path.toString());
         }
-        this.samePosition = (this.position == newPosition);
+
+        if (this.position != newPosition) {
+            this.connection.disconnect();
+            this.connection = null;
+            this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, newPosition, "GET");
+        }
         this.position = newPosition;
+
         return this;
     }
 
@@ -128,14 +132,8 @@ class VFSByteChannel implements SeekableByteChannel {
     public int read(ByteBuffer destinationBuffer) throws IOException {
         assertOpen();
         if (this.position >= this.contentLength) {
-            return -1;
+            return -1; // end of file
         }
-
-        if (!this.samePosition) {
-            this.connection.disconnect();
-            this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
-        }
-        InputStream inputStream = this.connection.getInputStream();
 
         int offset;
         byte[] bytes;
@@ -147,7 +145,7 @@ class VFSByteChannel implements SeekableByteChannel {
             bytes = new byte[bytesToRead];
             offset = 0;
         }
-        int bytesTransferred = readBytes(inputStream, bytes, offset, bytesToRead);
+        int bytesTransferred = readBytes(bytes, offset, bytesToRead);
         destinationBuffer.put(bytes, offset, bytesTransferred);
         return bytesTransferred;
     }
@@ -165,23 +163,16 @@ class VFSByteChannel implements SeekableByteChannel {
         if (this.position >= this.contentLength) {
             return -1;
         }
-
-        if (!this.samePosition) {
-            this.connection.disconnect();
-            this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "GET");
-        }
-        InputStream inputStream = this.connection.getInputStream();
-
         long bytesRead = 0;
         for (ByteBuffer buffer : destinationBuffers) {
             int numRemaining = buffer.remaining();
             if (buffer.hasArray()) {
                 byte[] bytes = buffer.array();
-                numRemaining = readBytes(inputStream, bytes, offset, length);
+                numRemaining = readBytes(bytes, offset, length);
                 buffer.put(bytes, buffer.arrayOffset(), numRemaining);
             } else {
                 byte[] bytes = new byte[numRemaining];
-                numRemaining = readBytes(inputStream, bytes, offset, length);
+                numRemaining = readBytes(bytes, offset, length);
                 buffer.put(bytes, 0, numRemaining);
             }
             bytesRead += numRemaining;
@@ -199,66 +190,68 @@ class VFSByteChannel implements SeekableByteChannel {
      */
     @Override
     public int write(ByteBuffer src) throws IOException {
-        assertOpen();
-        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
-        OutputStream stream = this.connection.getOutputStream();
-        int numRemaining = src.remaining();
-        int numWritten = 0;
-        if (src.hasArray()) {
-            byte[] bytes = src.array();
-            writeBytes(stream, bytes, src.arrayOffset(), numRemaining);
-            numWritten = bytes.length;
-        } else {
-            while (numRemaining > 0) {
-                int length = numRemaining;
-                byte[] bytes = new byte[length];
-                src.get(bytes, numWritten, length);
-                writeBytes(stream, bytes, 0, numRemaining);
-                numWritten += length;
-                numRemaining -= length;
-            }
-            throw new NonWritableChannelException();
-        }
-        return numWritten;
+        throw new UnsupportedOperationException();
+
+//        assertOpen();
+//        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
+//        OutputStream stream = this.connection.getOutputStream();
+//        int numRemaining = src.remaining();
+//        int numWritten = 0;
+//        if (src.hasArray()) {
+//            byte[] bytes = src.array();
+//            writeBytes(stream, bytes, src.arrayOffset(), numRemaining);
+//            numWritten = bytes.length;
+//        } else {
+//            while (numRemaining > 0) {
+//                int length = numRemaining;
+//                byte[] bytes = new byte[length];
+//                src.get(bytes, numWritten, length);
+//                writeBytes(stream, bytes, 0, numRemaining);
+//                numWritten += length;
+//                numRemaining -= length;
+//            }
+//            throw new NonWritableChannelException();
+//        }
+//        return numWritten;
     }
 
-    /**
-     * Writes a sequence of bytes to this channel from the given buffers.
-     *
-     * @param srcs   The source ByteBuffer array
-     * @param offset The offset
-     * @param length The length
-     * @return The number of bytes actually written
-     * @throws ClosedChannelException If this channel is closed
-     * @throws IOException            If some other I/O error occurs
-     */
-    long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
-        assertOpen();
-        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
-        long bytesWritten = 0;
-        OutputStream stream = this.connection.getOutputStream();
-        for (ByteBuffer src : srcs) {
-            int numRemaining = src.remaining();
-            int numWritten = 0;
-            if (src.hasArray()) {
-                byte[] bytes = src.array();
-                writeBytes(stream, bytes, offset, length);
-                numWritten = bytes.length;
-            } else {
-                while (numRemaining > 0) {
-                    int size = numRemaining;
-                    byte[] bytes = new byte[size];
-                    src.get(bytes, numWritten, size);
-                    writeBytes(stream, bytes, offset, length);
-                    numWritten += size;
-                    numRemaining -= size;
-                }
-                throw new NonWritableChannelException();
-            }
-            bytesWritten += numWritten;
-        }
-        return bytesWritten;
-    }
+//    /**
+//     * Writes a sequence of bytes to this channel from the given buffers.
+//     *
+//     * @param srcs   The source ByteBuffer array
+//     * @param offset The offset
+//     * @param length The length
+//     * @return The number of bytes actually written
+//     * @throws ClosedChannelException If this channel is closed
+//     * @throws IOException            If some other I/O error occurs
+//     */
+//    long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
+//        assertOpen();
+//        this.connection = VFSFileChannel.buildProviderConnectionChannel(this.path, this.position, "PUT");
+//        long bytesWritten = 0;
+//        OutputStream stream = this.connection.getOutputStream();
+//        for (ByteBuffer src : srcs) {
+//            int numRemaining = src.remaining();
+//            int numWritten = 0;
+//            if (src.hasArray()) {
+//                byte[] bytes = src.array();
+//                writeBytes(stream, bytes, offset, length);
+//                numWritten = bytes.length;
+//            } else {
+//                while (numRemaining > 0) {
+//                    int size = numRemaining;
+//                    byte[] bytes = new byte[size];
+//                    src.get(bytes, numWritten, size);
+//                    writeBytes(stream, bytes, offset, length);
+//                    numWritten += size;
+//                    numRemaining -= size;
+//                }
+//                throw new NonWritableChannelException();
+//            }
+//            bytesWritten += numWritten;
+//        }
+//        return bytesWritten;
+//    }
 
     /**
      * Truncates the entity, to which this channel is connected, to the given size.
@@ -289,14 +282,14 @@ class VFSByteChannel implements SeekableByteChannel {
      * An attempt is made to read as many as <code>length</code> bytes, but a smaller number may be read.
      * The number of bytes actually read is returned as an integer.
      *
-     * @param inputStream The input stream from which the data is read
      * @param array       The buffer into which the data is read
      * @param offset      The start offset in array <code>array</code> at which the data is written
      * @param length      The maximum number of bytes to read
      * @return the total number of bytes read into the buffer, or <code>-1</code> if there is no more data because the end of the stream has been reached
      * @throws IOException If some other I/O error occurs
      */
-    private int readBytes(InputStream inputStream, byte[] array, int offset, int length) throws IOException {
+    private int readBytes(byte[] array, int offset, int length) throws IOException {
+        InputStream inputStream = this.connection.getInputStream();
         int bytesTransferred = 0;
         while (length > 0) {
             int bytesReadNow = inputStream.read(array, offset, length);
@@ -311,16 +304,16 @@ class VFSByteChannel implements SeekableByteChannel {
         return bytesTransferred;
     }
 
-    /**
-     * Writes <code>length</code> bytes from the specified byte array starting at offset <code>offset</code> to the given output stream.
-     *
-     * @param stream The output stream to which the data is written
-     * @param array  The buffer from which the data is read
-     * @param offset The start offset in array <code>array</code> from which the data is read
-     * @param length The number of bytes to write
-     * @throws IOException If some other I/O error occurs
-     */
-    private void writeBytes(OutputStream stream, byte[] array, int offset, int length) throws IOException {
-        stream.write(array, offset, length);
-    }
+//    /**
+//     * Writes <code>length</code> bytes from the specified byte array starting at offset <code>offset</code> to the given output stream.
+//     *
+//     * @param stream The output stream to which the data is written
+//     * @param array  The buffer from which the data is read
+//     * @param offset The start offset in array <code>array</code> from which the data is read
+//     * @param length The number of bytes to write
+//     * @throws IOException If some other I/O error occurs
+//     */
+//    private void writeBytes(OutputStream stream, byte[] array, int offset, int length) throws IOException {
+//        stream.write(array, offset, length);
+//    }
 }

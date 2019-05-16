@@ -28,7 +28,6 @@ import java.nio.file.attribute.FileAttribute;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * File Channel for VFS.
@@ -42,12 +41,10 @@ public class VFSFileChannel extends FileChannel {
 
     private static final String NEGATIVE_POSITION_ERROR_MESSAGE = "position must be non-negative.";
 
-    //TODO Jean remove byteChannel
-    @Deprecated
-    private SeekableByteChannel byteChannel;
-    private VFSPath path;
-    private Set<? extends OpenOption> options;
-    private FileAttribute<?>[] attrs;
+    private final VFSByteChannel byteChannel;
+    private final VFSPath path;
+    private final Set<? extends OpenOption> options;
+    private final FileAttribute<?>[] attrs;
 
     /**
      * Creates the new file channel for VFS.
@@ -60,7 +57,8 @@ public class VFSFileChannel extends FileChannel {
      * @see FileAttribute
      */
     VFSFileChannel(VFSPath path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
-        this.byteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs);
+        AbstractRemoteFileSystemProvider fileSystemProvider = path.getFileSystem().provider();
+        this.byteChannel = fileSystemProvider.newByteChannel(path, options, attrs);
         this.path = path;
         this.options = options;
         this.attrs = attrs;
@@ -98,7 +96,7 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        return byteChannel.read(dst);
+        return this.byteChannel.read(dst);
     }
 
     /**
@@ -112,10 +110,7 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
-        if (byteChannel instanceof VFSByteChannel) {
-            return ((VFSByteChannel) byteChannel).read(dsts, offset, length);
-        }
-        return -1;
+        return this.byteChannel.read(dsts, offset, length);
     }
 
     /**
@@ -127,7 +122,8 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public int write(ByteBuffer src) throws IOException {
-        return byteChannel.write(src);
+        throw new UnsupportedOperationException();
+//        return this.byteChannel.write(src);
     }
 
     /**
@@ -141,10 +137,8 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
-        if (byteChannel instanceof VFSByteChannel) {
-            return ((VFSByteChannel) byteChannel).write(srcs, offset, length);
-        }
-        return -1;
+        throw new UnsupportedOperationException();
+//        return this.byteChannel.write(srcs, offset, length);
     }
 
     /**
@@ -156,7 +150,7 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public long position() throws IOException {
-        return byteChannel.position();
+        return this.byteChannel.position();
     }
 
     /**
@@ -172,7 +166,7 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public FileChannel position(long newPosition) throws IOException {
-        byteChannel = byteChannel.position(newPosition);
+        this.byteChannel.position(newPosition);
         return this;
     }
 
@@ -185,7 +179,7 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public long size() throws IOException {
-        return byteChannel.size();
+        return this.byteChannel.size();
     }
 
     /**
@@ -202,8 +196,9 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public FileChannel truncate(long size) throws IOException {
-        byteChannel = byteChannel.truncate(size);
-        return this;
+        throw new UnsupportedOperationException();
+//        this.byteChannel.truncate(size);
+//        return this;
     }
 
     /**
@@ -369,7 +364,7 @@ public class VFSFileChannel extends FileChannel {
             throw new IllegalArgumentException("count must be non-negative.");
         }
         long bytesTransferred;
-        try (SeekableByteChannel dstByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
+        try (SeekableByteChannel dstByteChannel = this.path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
             if (position > dstByteChannel.size()) {
                 return 0;
             }
@@ -408,7 +403,7 @@ public class VFSFileChannel extends FileChannel {
         if (position < 0) {
             throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
         }
-        try (SeekableByteChannel srcByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
+        try (SeekableByteChannel srcByteChannel = this.path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
             if (position > srcByteChannel.size()) {
                 return 0;
             }
@@ -434,16 +429,17 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public int write(ByteBuffer src, long position) throws IOException {
-        if (position < 0) {
-            throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
-        }
-        try (SeekableByteChannel dstByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
-            if (position > dstByteChannel.size()) {
-                return 0;
-            }
-            dstByteChannel.position(position);
-            return dstByteChannel.write(src);
-        }
+        throw new UnsupportedOperationException();
+//        if (position < 0) {
+//            throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
+//        }
+//        try (SeekableByteChannel dstByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
+//            if (position > dstByteChannel.size()) {
+//                return 0;
+//            }
+//            dstByteChannel.position(position);
+//            return dstByteChannel.write(src);
+//        }
     }
 
     /**
@@ -484,24 +480,26 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     public MappedByteBuffer map(MapMode mode, long position, long size) throws IOException {
-        if (position < 0) {
-            throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
-        }
-        if (size < 0) {
-            throw new IllegalArgumentException("size must be non-negative.");
-        }
-        if (size > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("size must be no greater than Integer.MAX_VALUE.");
-        }
-        int length = (int) size;
-        try (SeekableByteChannel srcByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs).position(position)) {
-            ByteBuffer dst = ByteBuffer.allocate(length);
-            srcByteChannel.read(dst);
-            MappedByteBuffer buffer = (MappedByteBuffer) MappedByteBuffer.allocateDirect(dst.array().length);
-            buffer.put(dst.array());
-            buffer.position(0);
-            return buffer;
-        }
+        throw new UnsupportedOperationException();
+
+//        if (position < 0) {
+//            throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
+//        }
+//        if (size < 0) {
+//            throw new IllegalArgumentException("size must be non-negative.");
+//        }
+//        if (size > Integer.MAX_VALUE) {
+//            throw new IllegalArgumentException("size must be no greater than Integer.MAX_VALUE.");
+//        }
+//        int length = (int) size;
+//        try (SeekableByteChannel srcByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs).position(position)) {
+//            ByteBuffer dst = ByteBuffer.allocate(length);
+//            srcByteChannel.read(dst);
+//            MappedByteBuffer buffer = (MappedByteBuffer) MappedByteBuffer.allocateDirect(dst.array().length);
+//            buffer.put(dst.array());
+//            buffer.position(0);
+//            return buffer;
+//        }
     }
 
     /**
@@ -579,6 +577,6 @@ public class VFSFileChannel extends FileChannel {
      */
     @Override
     protected void implCloseChannel() throws IOException {
-        byteChannel.close();
+        this.byteChannel.close();
     }
 }

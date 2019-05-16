@@ -231,7 +231,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      *                                       {@code DELETE_ON_CLOSE} option.
      */
     @Override
-    public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
+    public VFSByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
         VFSPath remotePath = VFSPath.toRemotePath(path);
         AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
         return fileSystem.openByteChannel((VFSPath) path, options, attrs);

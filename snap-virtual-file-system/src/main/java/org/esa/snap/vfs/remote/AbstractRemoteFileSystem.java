@@ -263,7 +263,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      * @return The Byte Channel
      * @throws IOException If an I/O error occurs
      */
-    SeekableByteChannel openByteChannel(VFSPath path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
+    VFSByteChannel openByteChannel(VFSPath path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
         boolean plainReadWriteMode = options.isEmpty() || options.size() == 1 && (options.contains(StandardOpenOption.READ) || options.contains(StandardOpenOption.WRITE));
         boolean noCreateAttributes = attrs.length == 0;
         if (plainReadWriteMode && noCreateAttributes) {

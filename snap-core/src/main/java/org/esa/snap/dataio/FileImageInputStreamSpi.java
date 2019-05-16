@@ -17,7 +17,6 @@
 
 package org.esa.snap.dataio;
 
-import com.sun.media.imageio.stream.FileChannelImageInputStream;
 import com.sun.media.imageioimpl.stream.ChannelImageInputStreamSpi;
 
 import javax.imageio.stream.FileCacheImageInputStream;
@@ -38,25 +37,15 @@ public class FileImageInputStreamSpi extends ChannelImageInputStreamSpi {
 
     @Override
     public ImageInputStream createInputStreamInstance(Object input, boolean useCache, File cacheDir) throws IOException {
-        if (!File.class.isInstance(input))
+        if (!File.class.isInstance(input)) {
             throw new IllegalArgumentException("This SPI accepts only java.io.File");
-        ImageInputStream stream = null;
+        }
         File inputFile = (File) input;
         // We need to make sure the underlying channel is closed, because it may hold a reference to our file and
         // the respective Java classes do not close it.
-        //return super.createInputStreamInstance(new RandomAccessFile(inputFile.getAbsolutePath(), "r").getChannel(), useCache, cacheDir);
-//        FileChannel channel = new RandomAccessFile(inputFile.getAbsolutePath(), "r").getChannel();
         FileChannel channel = FileChannel.open(inputFile.toPath(), StandardOpenOption.READ);
         if (useCache) {
-            stream = new FileCacheImageInputStream(Channels.newInputStream(channel), cacheDir) {
-                @Override
-                public void close() throws IOException {
-                    channel.close();
-                    super.close();
-                }
-            };
-        } else {
-            stream = new FileChannelImageInputStream(channel) {
+            return new FileCacheImageInputStream(Channels.newInputStream(channel), cacheDir) {
                 @Override
                 public void close() throws IOException {
                     channel.close();
@@ -64,8 +53,13 @@ public class FileImageInputStreamSpi extends ChannelImageInputStreamSpi {
                 }
             };
         }
-
-        return stream;
+        return new FileChannelImageInputStream(new FileChannelInputStream(channel)) {
+            @Override
+            public void close() throws IOException {
+                channel.close();
+                super.close();
+            }
+        };
     }
 
     @Override
