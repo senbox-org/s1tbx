@@ -3,7 +3,6 @@ package org.esa.snap.vfs.remote;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.ClosedFileSystemException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;

@@ -1,11 +1,8 @@
 package org.esa.snap.vfs.remote;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessMode;
 import java.nio.file.CopyOption;
 import java.nio.file.DirectoryStream;
@@ -55,11 +52,6 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      */
     protected static final String DELIMITER_PROPERTY_DEFAULT_VALUE = "/";
 
-    /**
-     * The error message for missing method argument: path.
-     */
-    private static final String PATH_NULL_ERROR_MESSAGE = "Path is missing.";
-
     private final Map<String, AbstractRemoteFileSystem> fileSystems;
 
     /**
@@ -106,8 +98,6 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     public abstract String getProviderFileSeparator();
 
     protected abstract AbstractRemoteFileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env);
-
-    public abstract HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException;
 
     /**
      * Constructs a new {@code FileSystem} object identified by a URI. This method is invoked by the {@link FileSystems#newFileSystem(URI, Map)} method to open a new file system identified by a URI.
