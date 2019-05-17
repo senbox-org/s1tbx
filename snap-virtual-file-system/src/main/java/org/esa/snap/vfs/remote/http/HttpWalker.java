@@ -3,6 +3,7 @@ package org.esa.snap.vfs.remote.http;
 import org.esa.snap.vfs.remote.AbstractRemoteWalker;
 import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
+import org.esa.snap.vfs.remote.VFSFileAttributes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -13,7 +14,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Walker for HTTP VFS.
@@ -88,7 +92,32 @@ class HttpWalker extends AbstractRemoteWalker {
         if (!dirPathAsString.endsWith(this.delimiter)) {
             dirPathAsString += this.delimiter;
         }
-        HttpResponseHandler handler = new HttpResponseHandler(document, dirPathAsString, this.address, this.root, this);
-        return handler.getElements();
+        return parseElements(document, dirPathAsString);
+    }
+
+    private List<BasicFileAttributes> parseElements(Document document, String prefix) throws IOException {
+        List<BasicFileAttributes> items = new ArrayList<>();
+        Pattern p = Pattern.compile("<a href=\"(.*?)\">.*?</a>");
+        Matcher m = p.matcher(document.html());
+        while (m.find()) {
+            String name = m.group(1);
+            if (!name.isEmpty() && !name.startsWith("/") && !name.startsWith("?") && !name.equals("/")) {
+                if (name.endsWith("/")) {
+                    items.add(VFSFileAttributes.newDir(prefix + name));
+                } else {
+                    String filePath = prefix.concat(name);
+                    String filePathUrl = filePath.replaceAll(this.root + "/?", "");
+                    String fileUrl = this.address;
+                    if (!fileUrl.endsWith("/")) {
+                        fileUrl = fileUrl.concat("/");
+                    }
+                    fileUrl = fileUrl.concat(filePathUrl);
+                    RegularFileMetadataCallback fileSizeQueryCallback = new RegularFileMetadataCallback(fileUrl, this.remoteConnectionBuilder);
+                    BasicFileAttributes regularFileAttributes = VFSFileAttributes.newFile(filePath, fileSizeQueryCallback);
+                    items.add(regularFileAttributes);
+                }
+            }
+        }
+        return items;
     }
 }

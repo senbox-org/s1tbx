@@ -1,7 +1,5 @@
 package org.esa.snap.vfs.remote;
 
-import org.esa.snap.core.util.StringUtils;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -47,24 +45,8 @@ public abstract class AbstractRemoteWalker implements VFSWalker {
         return readFileAttributes(address, path.toString());
     }
 
-    public BasicFileAttributes readFileAttributes(String address, String filePath) throws IOException {
-        URL fileURL = new URL(address);
-        HttpURLConnection connection = this.remoteConnectionBuilder.buildConnection(fileURL, "GET", null);
-        try {
-            int responseCode = connection.getResponseCode();
-            if (HttpUtils.isValidResponseCode(responseCode)) {
-                String sizeString = connection.getHeaderField("content-length");
-                String lastModified = connection.getHeaderField("last-modified");
-                if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
-                    throw new IOException("filePath is not a file '" + filePath + "'.");
-                }
-                long size = Long.parseLong(sizeString);
-                return VFSFileAttributes.newFile(filePath, size, lastModified);
-            } else {
-                throw new IOException(address + ": response code " + responseCode + ": " + connection.getResponseMessage());
-            }
-        } finally {
-            connection.disconnect();
-        }
+    protected BasicFileAttributes readFileAttributes(String urlAddress, String filePath) throws IOException {
+        RegularFileMetadata regularFileMetadata = HttpUtils.readRegularFileMetadata(urlAddress, this.remoteConnectionBuilder);
+        return VFSFileAttributes.newFile(filePath, regularFileMetadata);
     }
 }

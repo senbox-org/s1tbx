@@ -1,5 +1,8 @@
 package org.esa.snap.vfs.remote;
 
+import org.esa.snap.vfs.remote.http.RegularFileMetadataCallback;
+
+import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
@@ -19,6 +22,8 @@ import java.util.logging.Logger;
  */
 public abstract class VFSFileAttributes implements BasicFileAttributes {
 
+    private static final Logger logger = Logger.getLogger(VFSFileAttributes.class.getName());
+
     /**
      * The default file time for a file is EPOCH.
      */
@@ -28,8 +33,6 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
      * The date-time format used.
      */
     static final DateTimeFormatter ISO_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
-
-    private static Logger logger = Logger.getLogger(VFSFileAttributes.class.getName());
 
     /**
      * Creates new basic file attributes for a VFS file.
@@ -41,7 +44,27 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
      * @see RegularFileAttributes
      */
     public static BasicFileAttributes newFile(String fileKey, long size, String lastModified) {
-        return new RegularFileAttributes(fileKey, lastModified, size);
+        return newFile(fileKey, new RegularFileMetadata(lastModified, size));
+    }
+
+    public static BasicFileAttributes newFile(String fileKey, RegularFileMetadata regularFileMetadata) {
+        if (fileKey == null) {
+            throw new NullPointerException("fileKey is null");
+        }
+        if (regularFileMetadata == null) {
+            throw new NullPointerException("regularFileMetadata is null");
+        }
+        return new RegularFileAttributes(fileKey, regularFileMetadata, null);
+    }
+
+    public static BasicFileAttributes newFile(String fileKey, RegularFileMetadataCallback regularFileMetadataCallback) {
+        if (fileKey == null) {
+            throw new NullPointerException("fileKey is null");
+        }
+        if (regularFileMetadataCallback == null) {
+            throw new NullPointerException("regularFileMetadataCallback is null");
+        }
+        return new RegularFileAttributes(fileKey, null, regularFileMetadataCallback);
     }
 
     /**
@@ -62,25 +85,6 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
      */
     static BasicFileAttributes getRoot() {
         return new DirAttributes("/");
-    }
-
-    /**
-     * Returns the empty basic file attributes
-     *
-     * @return The new basic file attributes
-     */
-    static BasicFileAttributes getEmpty() {
-        return new EmptyAttributes();
-    }
-
-    /**
-     * Returns the size of the file (in bytes). The size may differ from the actual size on the file system due to compression, support for sparse files, or other reasons. The size of files that are not {@link #isRegularFile regular} files is implementation specific and therefore unspecified.
-     *
-     * @return The file size, in bytes
-     */
-    @Override
-    public long size() {
-        return 0;
     }
 
     /**
@@ -113,25 +117,6 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
         return UNKNOWN_FILE_TIME;
     }
 
-    /**
-     * Tells whether the file is a regular file with opaque content.
-     *
-     * @return {@code true} if the file is a regular file with opaque content
-     */
-    @Override
-    public boolean isRegularFile() {
-        return false;
-    }
-
-    /**
-     * Tells whether the file is a directory.
-     *
-     * @return {@code true} if the file is a directory
-     */
-    @Override
-    public boolean isDirectory() {
-        return false;
-    }
 
     /**
      * Tells whether the file is a symbolic link.
@@ -163,21 +148,30 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
     public static class RegularFileAttributes extends VFSFileAttributes {
 
         private final String fileKey;
-        private final long size;
-        private final String lastModified;
+        private final RegularFileMetadataCallback fileSizeQueryCallback;
+
         private FileTime lastModifiedTime;
+        private RegularFileMetadata regularFileMetadata;
 
         /**
          * Creates new basic file attributes for a VFS file.
          *
          * @param fileKey      The unique identifier of file
-         * @param size         The size of file
-         * @param lastModified The time of last file change
          */
-        RegularFileAttributes(String fileKey, String lastModified, long size) {
+        RegularFileAttributes(String fileKey, RegularFileMetadata regularFileMetadata, RegularFileMetadataCallback fileSizeQueryCallback) {
             this.fileKey = fileKey;
-            this.size = size;
-            this.lastModified = lastModified;
+            this.regularFileMetadata = regularFileMetadata;
+            this.fileSizeQueryCallback = fileSizeQueryCallback;
+        }
+
+        /**
+         * Tells whether the file is a directory.
+         *
+         * @return {@code true} if the file is a directory
+         */
+        @Override
+        public boolean isDirectory() {
+            return false;
         }
 
         /**
@@ -206,8 +200,9 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
          * @return The file size, in bytes
          */
         @Override
-        public long size() {
-            return size;
+        public synchronized long size() {
+            readMetadataIfNeeded();
+            return this.regularFileMetadata.getSize();
         }
 
         /**
@@ -217,18 +212,30 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
          */
         @Override
         public synchronized FileTime lastModifiedTime() {
-            if (lastModifiedTime == null) {
-                lastModifiedTime = UNKNOWN_FILE_TIME;
+            readMetadataIfNeeded();
+            if (this.lastModifiedTime == null) {
+                this.lastModifiedTime = UNKNOWN_FILE_TIME;
+                String lastModified = this.regularFileMetadata.getLastModified();
                 if (lastModified != null) {
                     try {
                         LocalDateTime dateTime = LocalDateTime.parse(lastModified, ISO_DATE_TIME);
-                        lastModifiedTime = FileTime.from(dateTime.toInstant(ZoneOffset.UTC));
+                        this.lastModifiedTime = FileTime.from(dateTime.toInstant(ZoneOffset.UTC));
                     } catch (DateTimeParseException ex) {
                         logger.log(Level.FINE, "Unable to convert the string: " + lastModified + " to LocalDateTime. Details: " + ex.getMessage());
                     }
                 }
             }
-            return lastModifiedTime;
+            return this.lastModifiedTime;
+        }
+
+        private void readMetadataIfNeeded() {
+            if (this.regularFileMetadata == null) {
+                try {
+                    this.regularFileMetadata = this.fileSizeQueryCallback.readFileMetadata();
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to read the metadata for file '"+this.fileKey+"'.", e);
+                }
+            }
         }
     }
 
@@ -253,6 +260,16 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
         }
 
         /**
+         * Tells whether the file is a regular file with opaque content.
+         *
+         * @return {@code true} if the file is a regular file with opaque content
+         */
+        @Override
+        public boolean isRegularFile() {
+            return false;
+        }
+
+        /**
          * Returns an object that uniquely identifies the given file, or {@code null} if a file key is not available.
          *
          * @return The object that uniquely identifies the given file, or {@code null}
@@ -271,25 +288,15 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
         public boolean isDirectory() {
             return true;
         }
-    }
-
-    /**
-     * Empty Attributes for VFS.
-     *
-     * @author Norman Fomferra
-     * @author Adrian Drăghici
-     */
-    private static class EmptyAttributes extends VFSFileAttributes {
 
         /**
-         * Returns an object that uniquely identifies the given file, or {@code null} if a file key is not available.
+         * Returns the size of the file (in bytes). The size may differ from the actual size on the file system due to compression, support for sparse files, or other reasons. The size of files that are not {@link #isRegularFile regular} files is implementation specific and therefore unspecified.
          *
-         * @return The object that uniquely identifies the given file, or {@code null}
+         * @return The file size, in bytes
          */
         @Override
-        public Object fileKey() {
-            return "";
+        public long size() {
+            return 0;
         }
     }
-
 }

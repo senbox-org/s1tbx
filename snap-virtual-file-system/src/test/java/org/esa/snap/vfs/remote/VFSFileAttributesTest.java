@@ -45,17 +45,4 @@ public class VFSFileAttributesTest {
         assertEquals(0, fileAttributes.size());
         Assert.assertEquals(VFSFileAttributes.UNKNOWN_FILE_TIME, fileAttributes.lastModifiedTime());
     }
-
-    @Test
-    public void testEmpty() {
-        BasicFileAttributes fileAttributes = VFSFileAttributes.getEmpty();
-        assertEquals("", fileAttributes.fileKey());
-        assertFalse(fileAttributes.isRegularFile());
-        assertFalse(fileAttributes.isDirectory());
-        assertFalse(fileAttributes.isSymbolicLink());
-        assertFalse(fileAttributes.isOther());
-        assertEquals(0, fileAttributes.size());
-        Assert.assertEquals(VFSFileAttributes.UNKNOWN_FILE_TIME, fileAttributes.lastModifiedTime());
-    }
-
 }

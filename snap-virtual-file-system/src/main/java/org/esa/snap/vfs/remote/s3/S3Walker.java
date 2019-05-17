@@ -100,6 +100,7 @@ class S3Walker extends AbstractRemoteWalker {
      * @return The list of VFS files and directories
      * @throws IOException If an I/O error occurs
      */
+    @Override
     public synchronized List<BasicFileAttributes> walk(Path dir) throws IOException {
         String dirPath = dir.toString();
         String s3Prefix = buildPrefix(dirPath + (dirPath.endsWith("/") ? "" : "/"));
@@ -141,13 +142,11 @@ class S3Walker extends AbstractRemoteWalker {
         return items;
     }
 
-
     private String buildPrefix(String prefix) {
         prefix = prefix.replace(root, "");
         prefix = prefix.replaceAll("^/", "");
         return prefix;
     }
-
 
     private String buildS3URL(String prefix, String nextContinuationToken) throws IOException {
         StringBuilder paramBase = new StringBuilder();
