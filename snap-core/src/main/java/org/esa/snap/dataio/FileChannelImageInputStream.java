@@ -49,7 +49,7 @@ class FileChannelImageInputStream extends ImageInputStreamImpl {
         try {
             checkClosed();
 
-            return this.fileChannelInputStream.lenght();
+            return this.fileChannelInputStream.length();
         } catch (IOException e) {
             return -1L;
         }

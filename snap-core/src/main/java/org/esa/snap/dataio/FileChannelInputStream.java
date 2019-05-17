@@ -68,7 +68,7 @@ class FileChannelInputStream extends InputStream {
         this.oneByteBuffer = null;
     }
 
-    public long lenght() throws IOException {
+    public long length() throws IOException {
         checkClosed();
 
         return this.fileChannel.size();

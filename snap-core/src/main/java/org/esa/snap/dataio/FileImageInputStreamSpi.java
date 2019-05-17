@@ -35,6 +35,10 @@ import java.nio.file.StandardOpenOption;
  */
 public class FileImageInputStreamSpi extends ChannelImageInputStreamSpi {
 
+    public FileImageInputStreamSpi() {
+        super();
+    }
+
     @Override
     public ImageInputStream createInputStreamInstance(Object input, boolean useCache, File cacheDir) throws IOException {
         if (!File.class.isInstance(input)) {
