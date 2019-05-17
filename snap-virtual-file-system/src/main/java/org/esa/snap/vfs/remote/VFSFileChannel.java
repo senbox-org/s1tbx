@@ -481,25 +481,6 @@ public class VFSFileChannel extends FileChannel {
     @Override
     public MappedByteBuffer map(MapMode mode, long position, long size) throws IOException {
         throw new UnsupportedOperationException();
-
-//        if (position < 0) {
-//            throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
-//        }
-//        if (size < 0) {
-//            throw new IllegalArgumentException("size must be non-negative.");
-//        }
-//        if (size > Integer.MAX_VALUE) {
-//            throw new IllegalArgumentException("size must be no greater than Integer.MAX_VALUE.");
-//        }
-//        int length = (int) size;
-//        try (SeekableByteChannel srcByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs).position(position)) {
-//            ByteBuffer dst = ByteBuffer.allocate(length);
-//            srcByteChannel.read(dst);
-//            MappedByteBuffer buffer = (MappedByteBuffer) MappedByteBuffer.allocateDirect(dst.array().length);
-//            buffer.put(dst.array());
-//            buffer.position(0);
-//            return buffer;
-//        }
     }
 
     /**
