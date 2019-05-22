@@ -281,6 +281,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
     private void addAbstractedMetadataHeader(Product product, MetadataElement root) {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
 
         BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
         if (mapProjRec == null)
@@ -308,8 +309,17 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
         final ProductData.UTC startTime = getUTCScanStartTime(sceneRec, detProcRec);
         final ProductData.UTC endTime = getUTCScanStopTime(sceneRec, detProcRec);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
+        final MetadataElement leaderElem = origProdRoot.getElement("Leader");
+        final MetadataElement sceneParametersElem = leaderElem.getElement("Scene Parameters");
+        final String lineTimeDirct = sceneParametersElem.getAttributeString("Time direction indicator along line direction");
+        if (lineTimeDirct.equals("DECREASE")) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, endTime);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, startTime);
+        } else {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
+        }
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         if (mapProjRec != null) {
