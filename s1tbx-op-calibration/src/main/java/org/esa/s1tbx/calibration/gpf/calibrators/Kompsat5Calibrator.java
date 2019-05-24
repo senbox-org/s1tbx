@@ -131,7 +131,8 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
             getCalibrationConstant();
 
-            calibrationFactor = (rescalingFactor / calibrationConstant) * FastMath.sin(referenceIncidenceAngle);
+            calibrationFactor = (rescalingFactor / calibrationConstant) * 2.0 * referenceIncidenceAngle /
+                    (FastMath.sin(2.0*referenceIncidenceAngle) * FastMath.cos(referenceIncidenceAngle));
 
             windowSize = 9; // hardcoded for now
             halfWindowSize = windowSize / 2;
