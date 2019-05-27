@@ -50,6 +50,7 @@ import org.esa.snap.core.util.geotiff.EPSGCodes;
 import org.esa.snap.core.util.geotiff.GeoTIFFCodes;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.jai.JAIUtils;
+import org.esa.snap.dataio.FileImageInputStreamSpi;
 import org.esa.snap.dataio.geotiff.internal.GeoKeyEntry;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffConstants;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffException;
@@ -70,6 +71,8 @@ import org.xml.sax.SAXException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageInputStreamSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -103,6 +106,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private static final int FIRST_IMAGE = 0;
 
     private ImageInputStream inputStream;
+    protected ImageInputStreamSpi imageInputStreamSpi;
     private Map<Band, Integer> bandMap;
 
     private TIFFImageReader imageReader;
@@ -110,6 +114,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     public GeoTiffProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
+        registerSpi();
     }
 
     @Override
@@ -259,10 +264,38 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
     }
 
+    /**
+     * Registers a file image input strwM SPI for image input stream, if none is yet registered.
+     */
+    protected void registerSpi() {
+        final IIORegistry defaultInstance = IIORegistry.getDefaultInstance();
+        Iterator<ImageInputStreamSpi> serviceProviders = defaultInstance.getServiceProviders(ImageInputStreamSpi.class, true);
+        ImageInputStreamSpi toUnorder = null;
+        if (defaultInstance.getServiceProviderByClass(FileImageInputStreamSpi.class) == null) {
+            // register only if not already registered
+            while (serviceProviders.hasNext()) {
+                ImageInputStreamSpi current = serviceProviders.next();
+                if (current.getInputClass() == File.class) {
+                    toUnorder = current;
+                    break;
+                }
+            }
+            imageInputStreamSpi = new FileImageInputStreamSpi();
+            defaultInstance.registerServiceProvider(imageInputStreamSpi);
+            if (toUnorder != null) {
+                // Make the custom Spi to be the first one to be used.
+                defaultInstance.setOrdering(ImageInputStreamSpi.class, imageInputStreamSpi, toUnorder);
+            }
+        }
+    }
+
     @Override
     public synchronized void close() throws IOException {
         super.close();
         inputStream.close();
+        if (imageInputStreamSpi != null) {
+            IIORegistry.getDefaultInstance().deregisterServiceProvider(imageInputStreamSpi);
+        }
     }
 
     Product readGeoTIFFProduct(final ImageInputStream stream, final File inputFile) throws IOException {
