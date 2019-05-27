@@ -45,7 +45,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     private double rescalingFactor = 0.0;
     private double calibrationConstant = 0.0;
     private double calibrationFactor = 0.0;
-    private double pixelArea = 0.0;
+    private double cellSize = 0.0;
     private int windowSize = 0;
     private int halfWindowSize = 0;
     private int sourceImageWidth = 0;
@@ -109,9 +109,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
             switch (acquisitionMode) {
                 case "HIGH RESOLUTION":
-                    final double rs = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-                    final double as = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-                    pixelArea = rs * as;
+                    cellSize = computeCellSize();
                     highResolutionMode = true;
                     break;
                 case "STANDARD":
@@ -121,6 +119,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("Only High Resolution and Standard modes are currently supported");
             }
 
+            // todo: the incidence angle should be computed using information from the GIM layer
             referenceIncidenceAngle = absRoot.getAttributeDouble(
                     AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
 
@@ -131,8 +130,8 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
             getCalibrationConstant();
 
-            calibrationFactor = (rescalingFactor / calibrationConstant) * 2.0 * referenceIncidenceAngle /
-                    (FastMath.sin(2.0*referenceIncidenceAngle) * FastMath.cos(referenceIncidenceAngle));
+            calibrationFactor = rescalingFactor * rescalingFactor * calibrationConstant * referenceIncidenceAngle /
+                    FastMath.cos(referenceIncidenceAngle);
 
             windowSize = 9; // hardcoded for now
             halfWindowSize = windowSize / 2;
@@ -150,15 +149,15 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    /**
-     * Update the metadata in the target product.
-     */
-    private void updateTargetProductMetadata() {
-
-        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        if (abs != null) {
-            abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
-        }
+    private double computeCellSize() {
+        final MetadataElement auxElem = origMetadataRoot.getElement("Auxiliary");
+        final MetadataElement rootElem = auxElem.getElement("Root");
+        final MetadataElement subSwathsElem = rootElem.getElement("SubSwaths");
+        final MetadataElement subSwathElem = subSwathsElem.getElement("SubSwath");
+        final double rangeFocusingBandwidth = subSwathElem.getAttributeDouble("RangeFocusingBandwidth");
+        final double azimuthInstrumentGeometricResolution =
+                subSwathElem.getAttributeDouble("AzimuthInstrumentGeometricResolution");
+        return azimuthInstrumentGeometricResolution * Constants.lightSpeed / (2.0*rangeFocusingBandwidth);
     }
 
     /**
@@ -170,6 +169,20 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         final MetadataElement subSwathsElem = rootElem.getElement("SubSwaths");
         final MetadataElement subSwathElem = subSwathsElem.getElement("SubSwath");
         calibrationConstant = subSwathElem.getAttributeDouble("CalibrationConstant");
+        if (calibrationConstant > 1.0) {
+            calibrationConstant = 1.0 / calibrationConstant;
+        }
+    }
+
+    /**
+     * Update the metadata in the target product.
+     */
+    private void updateTargetProductMetadata() {
+
+        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if (abs != null) {
+            abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
+        }
     }
 
     /**
@@ -206,7 +219,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         sigma *= calibrationFactor;
 
         if (highResolutionMode) {
-            sigma /= pixelArea;
+            sigma /= cellSize;
         }
 
         if (outputImageScaleInDb) { // convert calibration result to dB
@@ -286,7 +299,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 double sigma = dn2Mean * calibrationFactor;
 
                 if (highResolutionMode) {
-                    sigma /= pixelArea;
+                    sigma /= cellSize;
                 }
 
                 if (isComplex && outputImageInComplex) {
