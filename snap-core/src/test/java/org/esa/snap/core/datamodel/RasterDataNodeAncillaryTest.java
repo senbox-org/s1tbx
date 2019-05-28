@@ -15,11 +15,14 @@
  */
 package org.esa.snap.core.datamodel;
 
-import static org.junit.Assert.*;
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class RasterDataNodeAncillaryTest {
 
@@ -63,18 +66,18 @@ public class RasterDataNodeAncillaryTest {
 
         assertEquals(a_unc, a.getAncillaryVariable("uncertainty"));
         assertArrayEquals(new RasterDataNode[]{a_unc, a_var}, a.getAncillaryVariables("uncertainty"));
-        assertArrayEquals(new String[]{"uncertainty"}, a_var.getAncillaryRelations());
+        assertArrayEquals(new String[]{"variance", "uncertainty"}, a_var.getAncillaryRelations());
 
         a.removeAncillaryVariable(a_var);
         a.removeAncillaryVariable(a_unc);
 
-        assertEquals(null, a.getAncillaryVariable("uncertainty"));
+        assertNull(a.getAncillaryVariable("uncertainty"));
         assertArrayEquals(new RasterDataNode[]{}, a.getAncillaryVariables("uncertainty"));
         assertArrayEquals(new String[]{"uncertainty"}, a_unc.getAncillaryRelations());
 
-        assertEquals(null, a.getAncillaryVariable("variance"));
+        assertNull(a.getAncillaryVariable("variance"));
         assertArrayEquals(new RasterDataNode[]{}, a.getAncillaryVariables("variance"));
-        assertArrayEquals(new String[]{"uncertainty"}, a_var.getAncillaryRelations());
+        assertArrayEquals(new String[]{"variance", "uncertainty"}, a_var.getAncillaryRelations());
 
         assertEquals("" +
                      "ancillaryRelations;ancillaryVariables;" +
@@ -149,7 +152,6 @@ public class RasterDataNodeAncillaryTest {
     }
 
     @Test
-    @Ignore
     public void testAncillaryRelationLost() {
         Band an_anc_var = product.addBand("anyAncillarryBand", "X / (Y + 1)");
         Band an_other_band = product.addBand("any_Band", "Y / (X + 1)");

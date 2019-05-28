@@ -7,7 +7,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Thomas Storm
@@ -15,7 +17,7 @@ import static org.junit.Assert.*;
 public class PixelCsvWriterTest {
     
     @Test
-    @Ignore
+    @Ignore("Not yet fully implemented")
     public void testWriteCsv() throws Exception {
         final StringBuilder actual = new StringBuilder();
         final PixelCsvWriter csvWriter = new PixelCsvWriter(new WriteStrategy() {

@@ -46,7 +46,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -59,7 +58,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class DimapDocumentTest {
 
@@ -103,23 +105,6 @@ public class DimapDocumentTest {
         String xml2 = writeXml(createProductFromXML(xml1));
 
         // verification
-        assertEquals(xml1, xml2);
-    }
-
-    @Test
-    @Ignore //can not work becaus GCP Points are not writen to the XML header
-    public void testCreateProduct_with_GcpGeoCoding() throws ParseException {
-        // preparation
-        int geocodingType = GCP_GEOCODING;
-        Product product = createProduct(geocodingType);
-
-        // execution
-        String xml1 = writeXml(product);
-        Product productFromXML = createProductFromXML(xml1);
-        GeoCoding gc1 = product.getSceneGeoCoding();
-        GeoCoding gc2 = productFromXML.getSceneGeoCoding();
-
-        String xml2 = writeXml(productFromXML);
         assertEquals(xml1, xml2);
     }
 

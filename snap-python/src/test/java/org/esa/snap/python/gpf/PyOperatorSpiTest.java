@@ -14,8 +14,12 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Norman Fomferra
@@ -34,7 +38,7 @@ public class PyOperatorSpiTest {
      * correctly looked up.
      */
     @Test
-    public void testOperatorSpiIsLoaded() throws Exception {
+    public void testOperatorSpiIsLoaded() {
         OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         OperatorSpi ndviOpSpi = registry.getOperatorSpi("py_ndvi_op");
         assertNotNull(ndviOpSpi);
@@ -46,9 +50,9 @@ public class PyOperatorSpiTest {
     }
 
     @Test
-    public void testPathUriWithSpaces() throws Exception {
+    public void testPathUriWithSpaces() {
 
-        assumeTrue(System.getProperty("os.name").contains("Win"));
+        assumeTrue("Runs only on windows", System.getProperty("os.name").contains("Win"));
 
         File file1 = new File("C:\\Program Files (x86)");
         URI uri1 = file1.toURI();

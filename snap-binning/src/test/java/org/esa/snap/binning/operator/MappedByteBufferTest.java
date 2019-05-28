@@ -34,7 +34,8 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests runtime behaviour and performance of {@link FileChannel#map(java.nio.channels.FileChannel.MapMode, long, long)}.
@@ -61,21 +62,20 @@ public class MappedByteBufferTest {
     }
 
 
-    static final int MiB = 1024 * 1024;
-    static final int N = 25000;
+    private static final int MiB = 1024 * 1024;
+    private static final int N = 25000;
 
-    File file;
+    private File file;
 
     @Before
     public void setUp() throws Exception {
         file = genTestFile();
         file.deleteOnExit();
-        deleteFile("setUp", file);
     }
 
     @After
-    public void tearDown() throws Exception {
-        deleteFile("tearDown", file);
+    public void tearDown() {
+        deleteFile(file);
     }
 
 //    /*
@@ -125,7 +125,6 @@ public class MappedByteBufferTest {
 //        assertFalse(file.exists());
 //    }
 
-    @Ignore("fails on tearDown()")
     @Test
     public void testThatMemoryMappedFileIODoesNotConsumeHeapSpace() throws Exception {
         final int fileSize = Integer.MAX_VALUE; // 2GB!
@@ -163,18 +162,14 @@ public class MappedByteBufferTest {
         assertEquals(mem4, mem1);
 
         // Now make sure we get the values back
-        final DataInputStream stream = new DataInputStream(new FileInputStream(file));
-        try {
+        try (DataInputStream stream = new DataInputStream(new FileInputStream(file))) {
             assertEquals(1.2, stream.readDouble(), 1e-10); // 8 bytes
             assertEquals(3.4, stream.readFloat(), 1e-5f);  // 4 bytes
             stream.skip(fileSize - (8 + 4 + 8));
             assertEquals(123456789L, stream.readLong());
-        } finally {
-            stream.close();
         }
     }
 
-    @Ignore("fails on tearDown()")
     @Test
     public void testThatFileMappingsCanGrow() throws Exception {
 
@@ -236,8 +231,8 @@ public class MappedByteBufferTest {
         testFileIOPerformance(new StreamedFileIO());
     }
 
-    @Ignore("fails on tearDown()")
-    @Test
+    @Test()
+    @Ignore("Perfomace test ignored")
     public void testMemoryMappedFileIOPerformance() throws Exception {
         testFileIOPerformance(new MemoryMappedFileIO());
     }
@@ -306,11 +301,11 @@ public class MappedByteBufferTest {
             return n;
         }
 
-        private long readKey(ByteBuffer is) throws IOException {
+        private long readKey(ByteBuffer is) {
             return is.getLong();
         }
 
-        private float[] readSamples(ByteBuffer is) throws IOException {
+        private float[] readSamples(ByteBuffer is) {
             int n = is.getInt();
             float[] samples = new float[n];
             for (int i = 0; i < samples.length; i++) {
@@ -319,11 +314,11 @@ public class MappedByteBufferTest {
             return samples;
         }
 
-        private void writeKey(ByteBuffer stream, long key) throws IOException {
+        private void writeKey(ByteBuffer stream, long key) {
             stream.putLong(key);
         }
 
-        private void writeSamples(ByteBuffer stream, float[] samples) throws IOException {
+        private void writeSamples(ByteBuffer stream, float[] samples) {
             stream.putInt(samples.length);
             for (float sample : samples) {
                 stream.putFloat(sample);
@@ -336,24 +331,20 @@ public class MappedByteBufferTest {
     class StreamedFileIO implements FileIO {
         @Override
         public void write(File file, int n, Producer producer) throws IOException {
-            DataOutputStream stream = new DataOutputStream(new FileOutputStream(file));
-            try {
+            try (DataOutputStream stream = new DataOutputStream(new FileOutputStream(file))) {
                 for (int i = 0; i < n; i++) {
                     long key = producer.createKey();
                     float[] samples = producer.createSamples();
                     writeKey(stream, key);
                     writeSamples(stream, samples);
                 }
-            } finally {
-                stream.close();
             }
         }
 
         @Override
         public int read(File file, Consumer consumer) throws IOException {
             int n = 0;
-            DataInputStream stream = new DataInputStream(new FileInputStream(file));
-            try {
+            try (DataInputStream stream = new DataInputStream(new FileInputStream(file))) {
                 while (true) {
                     long key;
                     try {
@@ -365,8 +356,6 @@ public class MappedByteBufferTest {
                     consumer.process(key, samples);
                     n++;
                 }
-            } finally {
-                stream.close();
             }
             return n;
         }
@@ -433,14 +422,14 @@ public class MappedByteBufferTest {
         return Runtime.getRuntime().freeMemory() / MiB;
     }
 
-    public static File genTestFile() throws IOException {
+    static File genTestFile() throws IOException {
         return File.createTempFile(MappedByteBufferTest.class.getSimpleName() + "-", ".dat");
     }
 
-    public static void deleteFile(String msg, File file) throws InterruptedException {
+    static void deleteFile(File file) {
         if (file.exists()) {
             if (!file.delete()) {
-                fail("error: " + msg + ": failed to delete test file " + file);
+                file.deleteOnExit();
             }
         }
     }

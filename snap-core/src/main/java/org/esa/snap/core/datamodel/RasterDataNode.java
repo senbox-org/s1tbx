@@ -2541,7 +2541,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
                     change = true;
                 }
             }
-            variable.setAncillaryRelations(relations);
+            variable.setAncillaryRelations(StringUtils.addArrays(variable.getAncillaryRelations(), relations));
         }
         if (change) {
             fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);

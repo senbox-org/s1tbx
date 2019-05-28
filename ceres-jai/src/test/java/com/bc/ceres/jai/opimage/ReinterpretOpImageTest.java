@@ -111,7 +111,7 @@ public class ReinterpretOpImageTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("Performance Tests")
     public void testScalingTypePerformance() {
         testScalingTypePerformance(LINEAR);
         testScalingTypePerformance(EXPONENTIAL);

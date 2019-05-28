@@ -39,7 +39,9 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.jdom.Document;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -434,8 +436,8 @@ public class DimapProductHelpersTest {
     @Before
     public void setUp() throws Exception {
         product = new Product("product", "type", 200, 300);
-        product.addBand("b1", ProductData.TYPE_INT8);
-        product.addBand("b2", ProductData.TYPE_INT8);
+        product.addBand("b1", ProductData.TYPE_FLOAT32);
+        product.addBand("b2", ProductData.TYPE_FLOAT32);
     }
 
     @Test
@@ -692,27 +694,33 @@ public class DimapProductHelpersTest {
     @Test
     @Ignore
     public void testCreateGeoCodingForPixelGeoCoding() throws IOException {
-        final Band latBand = product.getBand("b1");
-        final Band lonBand = product.getBand("b2");
-        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
-        latBand.setDataElems(bandData);
-        lonBand.setDataElems(bandData);
-        final PixelGeoCoding sourcePixelGeoCoding = new PixelGeoCoding(latBand, lonBand,
-                                                                       "Not NaN", 4, ProgressMonitor.NULL);
-        final byte[] bytes = createPixelGeoCodingString(sourcePixelGeoCoding).getBytes();
-        final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
-        final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
+        String origGCProperty = System.getProperty("snap.useAlternatePixelGeoCoding", "false");
+        try {
+            System.setProperty("snap.useAlternatePixelGeoCoding", "true");
+            final Band latBand = product.getBand("b1");
+            final Band lonBand = product.getBand("b2");
+            final float[] bandData = new float[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+            latBand.setDataElems(bandData);
+            lonBand.setDataElems(bandData);
+            final PixelGeoCoding sourcePixelGeoCoding = new PixelGeoCoding(latBand, lonBand,
+                                                                           "Not NaN", 4, ProgressMonitor.NULL);
+            final byte[] bytes = createPixelGeoCodingString(sourcePixelGeoCoding).getBytes();
+            final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
+            final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
 
-        assertNotNull(geoCoding);
-        assertEquals(PixelGeoCoding.class, geoCoding.getClass());
-        final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
+            assertNotNull(geoCoding);
+            assertEquals(PixelGeoCoding.class, geoCoding.getClass());
+            final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
 
-        assertEquals("b1", pixelGeoCoding.getLatBand().getName());
-        assertEquals("b2", pixelGeoCoding.getLonBand().getName());
-        assertEquals("Not NaN", pixelGeoCoding.getValidMask());
-        assertEquals(4, pixelGeoCoding.getSearchRadius());
-        assertNotNull(pixelGeoCoding.getPixelPosEstimator());
-        assertEqual(fxyGeoCoding, (FXYGeoCoding) pixelGeoCoding.getPixelPosEstimator());
+            assertEquals("b1", pixelGeoCoding.getLatBand().getName());
+            assertEquals("b2", pixelGeoCoding.getLonBand().getName());
+            assertEquals("Not NaN", pixelGeoCoding.getValidMask());
+            assertEquals(4, pixelGeoCoding.getSearchRadius());
+            assertNotNull(pixelGeoCoding.getPixelPosEstimator());
+            assertEqual(fxyGeoCoding, (FXYGeoCoding) pixelGeoCoding.getPixelPosEstimator());
+        } finally {
+            System.setProperty("snap.useAlternatePixelGeoCoding", origGCProperty);
+        }
 
     }
 

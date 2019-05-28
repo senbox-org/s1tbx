@@ -24,7 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Marco Peters
@@ -45,7 +46,7 @@ public class GloballyShiftedDataTest {
         // Fails on Linux: "Unable to load library 'netcdf': libnetcdf.so: cannot open shared object file: No such file or directory"
         // why is it failing writing Netcdf files in test mode but not when SNAP is installed?
         // Probably because we use the Nujan lib for writing usually.
-        Assume.assumeTrue(isWindows());
+        Assume.assumeTrue("Runs only on windows", isWindows());
         
         tempFile = File.createTempFile(GloballyShiftedDataTest.class.getSimpleName(), ".nc");
 //        tempFile = new File(String.format("%s\\%s.nc", System.getProperty("user.home"), GloballyShiftedDataTest.class.getSimpleName()));

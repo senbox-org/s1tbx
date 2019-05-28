@@ -33,7 +33,12 @@ import org.junit.Test;
 import java.awt.image.Raster;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Olaf Danne
@@ -181,9 +186,8 @@ public class CsvProductReaderTest {
         assertFalse(CsvProductReader.isSquareNumber(11));
     }
 
-    // Metadata support not yet implemented, therefore test is ignored
     @Test
-    @Ignore
+    @Ignore("Metadata support not yet implemented, therefore test is ignored")
     public void testReadMetaData() throws Exception {
         final Product product = readTestProduct("simple_format_example.txt");
         final MetadataElement[] metadataElements = product.getMetadataRoot().getElements();
