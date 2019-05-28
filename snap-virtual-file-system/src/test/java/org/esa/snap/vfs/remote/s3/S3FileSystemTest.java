@@ -63,7 +63,7 @@ public class S3FileSystemTest extends AbstractVFSTest {
             mockService = new S3MockService(new URL(s3Repo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
-            fail("Test requirements not meets.");
+            fail("Testing requirements are not met.");
         }
     }
 
