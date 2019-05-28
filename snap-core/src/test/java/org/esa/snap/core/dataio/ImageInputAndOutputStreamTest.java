@@ -36,7 +36,7 @@ public class ImageInputAndOutputStreamTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         deleteOutput();
-        final File outputDirectory = GlobalTestConfig.getBeamTestDataOutputDirectory();
+        final File outputDirectory = GlobalTestConfig.getSnapTestDataOutputDirectory();
         outputDirectory.mkdirs();
 
         _testFile = new File(outputDirectory, "testData");

@@ -29,7 +29,7 @@ public class ProductSetReaderOpTest {
 
     @BeforeClass
     public static void setup() {
-        outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductSetReaderOpTest/writtenProduct.dim");
+        outputFile = GlobalTestConfig.getSnapTestDataOutputFile("ProductSetReaderOpTest/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
     }
 

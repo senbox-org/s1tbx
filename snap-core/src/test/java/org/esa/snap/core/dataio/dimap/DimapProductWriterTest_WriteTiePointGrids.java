@@ -50,7 +50,7 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
     protected void setUp() {
         GlobalTestTools.deleteTestDataOutputDirectory();
         _productWriter = new DimapProductWriter(_writerPlugIn);
-        _outputDir = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "testproduct");
+        _outputDir = new File(GlobalTestConfig.getSnapTestDataOutputDirectory(), "testproduct");
         _outputFile = new File(_outputDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
     }
 

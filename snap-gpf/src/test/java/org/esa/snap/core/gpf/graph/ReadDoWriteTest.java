@@ -61,7 +61,7 @@ public class ReadDoWriteTest {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(doSpi);
         URI inputURI = GPFFacadeTest.class.getResource("test-product.dim").toURI();
         inputFile = new File(inputURI);
-        outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ReadDoWriteTest/writtenProduct.dim");
+        outputFile = GlobalTestConfig.getSnapTestDataOutputFile("ReadDoWriteTest/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
 
         TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();

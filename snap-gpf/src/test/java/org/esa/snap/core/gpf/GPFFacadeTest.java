@@ -344,7 +344,7 @@ public class GPFFacadeTest {
         source.setPreferredTileSize(200, 200);
         stackOp.setSourceProduct(source);
         Product targetProduct = stackOp.getTargetProduct();
-        File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("GPFFacadeTest/testWriteProduct.dim");
+        File outputFile = GlobalTestConfig.getSnapTestDataOutputFile("GPFFacadeTest/testWriteProduct.dim");
         try {
             outputFile.getParentFile().mkdirs();
             GPF.writeProduct(targetProduct, outputFile, "BEAM-DIMAP", false, true, ProgressMonitor.NULL);
@@ -361,7 +361,7 @@ public class GPFFacadeTest {
         source.setPreferredTileSize(200, 200);
         stackOp.setSourceProduct(source);
         Product targetProduct = stackOp.getTargetProduct();
-        File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("GPFFacadeTest/testWriteProduct.dim");
+        File outputFile = GlobalTestConfig.getSnapTestDataOutputFile("GPFFacadeTest/testWriteProduct.dim");
         try {
             outputFile.getParentFile().mkdirs();
             GPF.writeProduct(targetProduct, outputFile, "BEAM-DIMAP", true, true, ProgressMonitor.NULL);

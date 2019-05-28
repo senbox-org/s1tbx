@@ -48,30 +48,30 @@ public class GlobalTestConfigTest extends TestCase {
     public void testGetEnvisatTestDataDir() {
         File file = null;
         try {
-            file = GlobalTestConfig.getBeamTestDataInputDirectory();
+            file = GlobalTestConfig.getSnapTestDataInputDirectory();
         } catch (SecurityException e) {
             fail("SecurityException not expected");
         }
         assertNotNull(file);
 
-        System.setProperty(GlobalTestConfig.BEAM_TEST_DATA_INPUT_DIR_PROPERTY_NAME,
+        System.setProperty(GlobalTestConfig.SNAP_TEST_DATA_INPUT_DIR_PROPERTY_NAME,
                            SystemUtils.convertToLocalPath("C:/envi/test/data/"));
         try {
-            file = GlobalTestConfig.getBeamTestDataInputDirectory();
+            file = GlobalTestConfig.getSnapTestDataInputDirectory();
         } catch (SecurityException e) {
             fail("SecurityException not expected");
         }
         assertEquals(new File(SystemUtils.convertToLocalPath("C:/envi/test/data/")), file);
 
-        System.getProperties().remove(GlobalTestConfig.BEAM_TEST_DATA_INPUT_DIR_PROPERTY_NAME);
+        System.getProperties().remove(GlobalTestConfig.SNAP_TEST_DATA_INPUT_DIR_PROPERTY_NAME);
         try {
-            file = GlobalTestConfig.getBeamTestDataInputDirectory();
+            file = GlobalTestConfig.getSnapTestDataInputDirectory();
         } catch (SecurityException e) {
             fail("SecurityException not expected");
         }
         final File defaultFile = new File(SystemUtils.getApplicationHomeDir(),
                                           SystemUtils.convertToLocalPath(
-                                                  GlobalTestConfig.BEAM_TEST_DATA_INPUT_DIR_DEFAULT_PATH));
+                                                  GlobalTestConfig.SNAP_TEST_DATA_INPUT_DIR_DEFAULT_PATH));
         assertEquals(defaultFile, file);
     }
 

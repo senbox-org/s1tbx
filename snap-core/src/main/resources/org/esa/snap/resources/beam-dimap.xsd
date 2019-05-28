@@ -30,7 +30,7 @@
     <xsd:complexType name="BEAM_Metadata_Id">
         <xsd:sequence>
             <xsd:element name="METADATA_FORMAT" type="BEAM_METADATA_FORMAT" fixed="DIMAP"/>
-            <xsd:element name="METADATA_PROFILE" type="xsd:sting" fixed="BEAM-DATAMODEL-V1"/>
+            <xsd:element name="METADATA_PROFILE" type="xsd:string" fixed="BEAM-DATAMODEL-V1"/>
         </xsd:sequence>
     </xsd:complexType>
 
