@@ -6,19 +6,22 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.image.ImageManager;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.media.jai.ImageLayout;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.*;
+
 
 /**
  * @author Tonio Fincke
@@ -47,6 +50,14 @@ public class AggregatedOpImageTest {
                 return new BufferedImage(referenceWidth / (1 + level), referenceHeight / (1 + level), ProductData.TYPE_INT8);
             }
         }));
+    }
+
+    @Test
+    public void testMeanAggregator() throws Exception {
+        GPF gpf = GPF.getDefaultInstance();
+        Set aliases = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getAliases();
+        Downsampling downsampling = GPF.getDefaultInstance().getDownsamplerSpiRegistry().getDownsamplerSpi("Mean").createDownsampling();
+        assertNotNull(downsampling);
     }
 
     @Test
@@ -199,14 +210,62 @@ public class AggregatedOpImageTest {
         test_first(ProductData.TYPE_UINT16);
     }
 
+    @Test
+    public void testCreateBackwardMapRect_integer_offset() throws NoninvertibleTransformException {
+        final Band sourceBand = createSourceBand(ProductData.TYPE_FLOAT64, 2);
+        final int dataBufferType = ImageManager.getDataBufferType(ProductData.TYPE_FLOAT64);
+        final ImageLayout imageLayout = createImageLayout(sourceBand);
+
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
+                sourceBand.getNoDataValue(),
+                ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Mean),
+                dataBufferType,
+                sourceBand.getImageToModelTransform(),
+                referenceBand.getImageToModelTransform());
+
+        Rectangle destRect = new Rectangle(-1, -1, 1, 1);
+        Rectangle srcRect = image.backwardMapRect(destRect, 0);
+
+        assertNotNull(srcRect);
+        assertEquals(-1, srcRect.x);
+        assertEquals(-1, srcRect.y);
+        assertEquals(2, srcRect.width);
+        assertEquals(2, srcRect.height);
+    }
+
+    @Test
+    public void testCreateBackwardMapRect_float_offset() throws NoninvertibleTransformException {
+        final Band sourceBand = createSourceBand(ProductData.TYPE_FLOAT64, 3);
+        final int dataBufferType = ImageManager.getDataBufferType(ProductData.TYPE_FLOAT64);
+        final ImageLayout imageLayout = createImageLayout(sourceBand);
+
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
+                sourceBand.getNoDataValue(),
+                ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Mean),
+                dataBufferType,
+                sourceBand.getImageToModelTransform(),
+                referenceBand.getImageToModelTransform());
+
+        Rectangle destRect = new Rectangle(-1, -1, 1, 1);
+        Rectangle srcRect = image.backwardMapRect(destRect, 0);
+
+        assertNotNull(srcRect);
+        assertEquals(-2, srcRect.x);
+        assertEquals(-2, srcRect.y);
+        assertEquals(3, srcRect.width);
+        assertEquals(3, srcRect.height);
+
+    }
+
     private void test_mean(int dataType) throws NoninvertibleTransformException {
         final Band sourceBand = createSourceBand(dataType);
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(),
-                                                              AggregationType.Mean, dataBufferType,
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Mean),
+                                                              dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
@@ -233,8 +292,9 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Median,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Median),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
@@ -255,8 +315,9 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Min,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Min),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
@@ -277,8 +338,9 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Max,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.Max),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
@@ -299,8 +361,9 @@ public class AggregatedOpImageTest {
         final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.First,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceBand, sourceBand.getSourceImage(), imageLayout,
+                                                              sourceBand.getNoDataValue(),
+                                                              ResampleUtils.getDownsamplingFromAggregatorType(AggregationType.First),
                                                               dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
@@ -325,10 +388,14 @@ public class AggregatedOpImageTest {
     }
 
     private Band createSourceBand(int dataType) {
+        return createSourceBand(dataType, 2);
+    }
+
+    private Band createSourceBand(int dataType, float translate) {
         final Product sourceProduct = new Product("dummy", "dummy", 4, 4);
         final Band sourceBand = sourceProduct.addBand("sourceBand", "((X - 0.5) * 4) + (Y - 0.5)", dataType);
         sourceBand.setNoDataValue(117);
-        sourceBand.setImageToModelTransform(new AffineTransform(2, 0, 0, 2, 2, 2));
+        sourceBand.setImageToModelTransform(new AffineTransform(2, 0, 0, 2, translate, translate));
         return sourceBand;
     }
 

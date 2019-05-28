@@ -20,4 +20,12 @@ public interface MosaickingGrid extends PlanetaryGrid {
 
     GeoCoding getGeoCoding(Rectangle outputRegion);
 
+    static Rectangle alignToTileGrid(Rectangle rectangle, Dimension tileSize) {
+        int minX = (rectangle.x / tileSize.width) * tileSize.width;
+        int maxX = (rectangle.x + rectangle.width + tileSize.width - 1) / tileSize.width * tileSize.width;
+        int minY = (rectangle.y / tileSize.height) * tileSize.height;
+        int maxY = (rectangle.y + rectangle.height + tileSize.height - 1) / tileSize.height * tileSize.height;
+        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+    }
+
 }

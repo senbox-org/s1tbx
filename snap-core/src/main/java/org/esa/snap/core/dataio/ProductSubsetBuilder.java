@@ -17,6 +17,7 @@ package org.esa.snap.core.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.snap.core.datamodel.AbstractGeoCoding;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
@@ -29,6 +30,8 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
@@ -561,16 +564,37 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 //@todo 1 se/se - extract copy of a band or virtual band to create deep clone of band and virtual band
                 if (!treatVirtualBandsAsRealBands && sourceBand instanceof VirtualBand) {
                     VirtualBand virtualSource = (VirtualBand) sourceBand;
-                    destBand = new VirtualBand(bandName,
-                                               sourceBand.getDataType(),
-                                               getSceneRasterWidth(),
-                                               getSceneRasterHeight(),
-                                               virtualSource.getExpression());
+                    if(getSubsetDef() == null) {
+                        destBand = new VirtualBand(bandName,
+                                                   sourceBand.getDataType(),
+                                                   getSceneRasterWidth(),
+                                                   getSceneRasterHeight(),
+                                                   virtualSource.getExpression());
+                    } else {
+                        Dimension dim = getSubsetDef().getSceneRasterSize(sourceBand.getRasterWidth(),
+                                                                          sourceBand.getRasterHeight(),
+                                                                          sourceBand.getName());
+                        destBand = new VirtualBand(bandName,
+                                                   sourceBand.getDataType(),
+                                                   dim.width,
+                                                   dim.height,
+                                                   virtualSource.getExpression());
+                    }
                 } else {
-                    destBand = new Band(bandName,
-                                        sourceBand.getDataType(),
-                                        getSceneRasterWidth(),
-                                        getSceneRasterHeight());
+                    if(getSubsetDef() == null) {
+                        destBand = new Band(bandName,
+                                            sourceBand.getDataType(),
+                                            getSceneRasterWidth(),
+                                            getSceneRasterHeight());
+                    }else {
+                        Dimension dim = getSubsetDef().getSceneRasterSize(sourceBand.getRasterWidth(),
+                                                                          sourceBand.getRasterHeight(),
+                                                                          sourceBand.getName());
+                        destBand = new Band(bandName,
+                                            sourceBand.getDataType(),
+                                            dim.width,
+                                            dim.height);
+                    }
                 }
                 if (sourceBand.getUnit() != null) {
                     destBand.setUnit(sourceBand.getUnit());
@@ -609,9 +633,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 } else {
                     destBand.setSampleCoding(null);
                 }
-                if (isFullScene(getSubsetDef()) && sourceBand.isStxSet()) {
+                if (isFullScene(getSubsetDef(), sourceBand) && sourceBand.isStxSet()) {
                     copyStx(sourceBand, destBand);
                 }
+
                 product.addBand(destBand);
                 bandMap.put(destBand, sourceBand);
             }
@@ -642,7 +667,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
             if (isNodeAccepted(gridName) || (gridName.equals(latGridName) || gridName.equals(lonGridName))) {
                 final TiePointGrid tiePointGrid = TiePointGrid.createSubset(sourceTiePointGrid, getSubsetDef());
-                if (isFullScene(getSubsetDef()) && sourceTiePointGrid.isStxSet()) {
+                if (isFullScene(getSubsetDef(), sourceTiePointGrid) && sourceTiePointGrid.isStxSet()) {
                     copyStx(sourceTiePointGrid, tiePointGrid);
                 }
                 product.addTiePointGrid(tiePointGrid);
@@ -690,6 +715,23 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         final Rectangle sourceRegion = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(), getSceneRasterHeight());
         return subsetDef.getRegion() == null
                 || subsetDef.getRegion().equals(sourceRegion)
+                && subsetDef.getSubSamplingX() == 1
+                && subsetDef.getSubSamplingY() == 1;
+    }
+
+    private boolean isFullScene(ProductSubsetDef subsetDef, RasterDataNode rasterDataNode) {
+        if (subsetDef == null) {
+            return true;
+        }
+        final Rectangle sourceRegion = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(), getSceneRasterHeight());
+        if(subsetDef.getRegionMap() == null) {
+            return subsetDef.getRegion() == null
+                    || subsetDef.getRegion().equals(sourceRegion)
+                    && subsetDef.getSubSamplingX() == 1
+                    && subsetDef.getSubSamplingY() == 1;
+        }
+        return subsetDef.getRegionMap().get(rasterDataNode.getName()) == null
+                || subsetDef.getRegionMap().get(rasterDataNode.getName()).equals(sourceRegion)
                 && subsetDef.getSubSamplingX() == 1
                 && subsetDef.getSubSamplingY() == 1;
     }

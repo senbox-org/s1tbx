@@ -524,6 +524,29 @@ public class ProductUtils {
         return geoPoints.toArray(new GeoPos[geoPoints.size()]);
     }
 
+    public static GeoPos[] createGeoBoundary(RasterDataNode rasterDataNode, Rectangle region, int step,
+                                             final boolean usePixelCenter) {
+        Guardian.assertNotNull("rasterDataNode", rasterDataNode);
+        final GeoCoding gc = rasterDataNode.getGeoCoding();
+        if (gc == null) {
+            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
+        }
+        if (region == null) {
+            region = new Rectangle(0,
+                                   0,
+                                   rasterDataNode.getRasterWidth(),
+                                   rasterDataNode.getRasterHeight());
+        }
+        final PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
+        final ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
+        for (final PixelPos pixelPos : points) {
+            final GeoPos gcGeoPos = gc.getGeoPos(pixelPos, null);
+            if (true) { // including valid positions only leads to unit test failures 'very elsewhere' rq-20140414
+                geoPoints.add(gcGeoPos);
+            }
+        }
+        return geoPoints.toArray(new GeoPos[geoPoints.size()]);
+    }
     /**
      * Creates the geographical boundary of the given region within the given raster and returns it as a list of
      * geographical coordinates.
@@ -569,6 +592,12 @@ public class ProductUtils {
         return createGeoBoundaryPaths(product, rect, step > 0 ? step : 1);
     }
 
+    public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode) {
+        final Rectangle rect = new Rectangle(0, 0, rasterDataNode.getRasterWidth(), rasterDataNode.getRasterHeight());
+        final int step = Math.min(rect.width, rect.height) / 8;
+        return createGeoBoundaryPaths(rasterDataNode, rect, step > 0 ? step : 1,false);
+    }
+
     /**
      * Converts the geographic boundary of the region within the given product into one, two or three shape objects. If
      * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
@@ -590,6 +619,11 @@ public class ProductUtils {
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
         return createGeoBoundaryPaths(product, region, step, usePixelCenter);
+    }
+
+    public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step) {
+        final boolean usePixelCenter = false;
+        return createGeoBoundaryPaths(rasterDataNode, region, step, usePixelCenter);
     }
 
     /**
@@ -616,6 +650,21 @@ public class ProductUtils {
             throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
         }
         final GeoPos[] geoPoints = createGeoBoundary(product, region, step, usePixelCenter);
+        normalizeGeoPolygon(geoPoints);
+
+        final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);
+
+        return pathList.toArray(new GeneralPath[pathList.size()]);
+    }
+
+    public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step,
+                                                       final boolean usePixelCenter) {
+        Guardian.assertNotNull("rasterDataNode", rasterDataNode);
+        final GeoCoding gc = rasterDataNode.getGeoCoding();
+        if (gc == null) {
+            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
+        }
+        final GeoPos[] geoPoints = createGeoBoundary(rasterDataNode, region, step, usePixelCenter);
         normalizeGeoPolygon(geoPoints);
 
         final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);

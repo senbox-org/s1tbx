@@ -4,6 +4,7 @@ AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP
 OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
+OpenIDE-Module-Implementation-Version: ${snap.nbmImplVersion}
 OpenIDE-Module-Long-Description: <p>Provides an API as well as an operator for creating an accurate, shapefile-based land-water mask.</p><p><b>Vendor:</b> Brockmann Consult Gmb
  H</p><p><b>Contact address:</b> Max-Planck-Str. 2, 21502 Geesthacht (
  Germany)</p><p><b>Copyright:</b> (C) 2014 by Brockmann Consult GmbH</

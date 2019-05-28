@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -43,10 +44,9 @@ public class SRTMHGTReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
 
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-
-            String name = file.getName().toLowerCase();
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            String name = path.getFileName().toString().toLowerCase();
             for (String prodExt : FORMAT_FILE_EXTENSIONS) {
                 if (name.endsWith(prodExt)) {
                     return DecodeQualification.INTENDED;

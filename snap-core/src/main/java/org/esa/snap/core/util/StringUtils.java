@@ -815,4 +815,44 @@ public class StringUtils {
         }
         return str.toString();
     }
+
+    /**
+     * Makes the strings in the given array unique.
+     * Strings which occur more than once in the array get an appendix with the index of its occurrence.
+     * Strings that only differ in their capitalization will be treated as having the same string value, but in the
+     * output they will keep their respective capitalization
+     * Example:
+     * <pre>
+     *     'name', 'duplicate', 'other', 'duplicate', 'case_duplicate', 'CASE_DUPLICATE'
+     * --> 'name', 'duplicate_1', 'other', 'duplicate_2', 'case_duplicate_1', 'CASE_DUPLICATE_2'
+     *</pre>
+     *
+     * @param strings the strings to make unique
+     * @return a new array with the changed names
+     *
+     */
+    public static String[] makeStringsUnique(String[] strings) {
+        List<String> nameList = new ArrayList<>();
+        List<String> duplicated = new ArrayList<>();
+        String[] clonedNames = strings.clone();
+        for (String name : clonedNames) {
+            String nameToLowerCase = name.toLowerCase();
+            if (!nameList.contains(nameToLowerCase)) {
+                nameList.add(nameToLowerCase);
+            } else {
+                // duplicated
+                duplicated.add(nameToLowerCase);
+            }
+        }
+        for (String duplicatedName : duplicated) {
+            int index = 1;
+            for (int i = 0; i < clonedNames.length; i++) {
+                if (clonedNames[i].toLowerCase().equals(duplicatedName)) {
+                    clonedNames[i] = clonedNames[i] + "_" + index++;
+                }
+            }
+        }
+        return clonedNames;
+    }
+
 }

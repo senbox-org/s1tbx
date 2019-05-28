@@ -126,7 +126,7 @@ public class TestUtils {
                     final float[] floatValues = new float[w];
                     b.readPixels(x0, y, w, 1, floatValues, ProgressMonitor.NULL);
                     for (float f : floatValues) {
-                        if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN)) {
+                        if (!(f == b.getNoDataValue() || f == 0 || Float.isNaN(f))) {
                             allNoData = false;
                         }
                     }

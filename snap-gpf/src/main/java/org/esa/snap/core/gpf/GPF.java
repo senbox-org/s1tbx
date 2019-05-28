@@ -22,6 +22,12 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.common.WriteOp;
+import org.esa.snap.core.gpf.common.resample.DownsamplerSpi;
+import org.esa.snap.core.gpf.common.resample.DownsamplerSpiRegistry;
+import org.esa.snap.core.gpf.common.resample.DownsamplerSpiRegistryImpl;
+import org.esa.snap.core.gpf.common.resample.UpsamplerSpi;
+import org.esa.snap.core.gpf.common.resample.UpsamplerSpiRegistry;
+import org.esa.snap.core.gpf.common.resample.UpsamplerSpiRegistryImpl;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductsDescriptor;
@@ -96,9 +102,13 @@ public class GPF {
     static {
         defaultInstance = new GPF();
         defaultInstance.spiRegistry.loadOperatorSpis();
+        defaultInstance.upsamplerSpiRegistry.loadUpsamplerSpis();
+        defaultInstance.downsamplerSpiRegistry.loadDownsamplerSpis();
     }
 
     private OperatorSpiRegistry spiRegistry;
+    private UpsamplerSpiRegistry upsamplerSpiRegistry;
+    private DownsamplerSpiRegistry downsamplerSpiRegistry;
 
     private ProductManager productManager;
 
@@ -108,6 +118,8 @@ public class GPF {
     protected GPF() {
         ServiceRegistryManager registryManager = ServiceRegistryManager.getInstance();
         spiRegistry = new OperatorSpiRegistryImpl(registryManager.getServiceRegistry(OperatorSpi.class));
+        upsamplerSpiRegistry = new UpsamplerSpiRegistryImpl(registryManager.getServiceRegistry(UpsamplerSpi.class));
+        downsamplerSpiRegistry = new DownsamplerSpiRegistryImpl(registryManager.getServiceRegistry(DownsamplerSpi.class));
     }
 
     /**
@@ -347,6 +359,24 @@ public class GPF {
      */
     public OperatorSpiRegistry getOperatorSpiRegistry() {
         return spiRegistry;
+    }
+
+    /**
+     * Gets the registry for upsampler SPIs.
+     *
+     * @return the registry for upsampler SPIs.
+     */
+    public UpsamplerSpiRegistry getUpsamplerSpiRegistry() {
+        return upsamplerSpiRegistry;
+    }
+
+    /**
+     * Gets the registry for downsampler SPIs.
+     *
+     * @return the registry for downsampler SPIs.
+     */
+    public DownsamplerSpiRegistry getDownsamplerSpiRegistry() {
+        return downsamplerSpiRegistry;
     }
 
     /**

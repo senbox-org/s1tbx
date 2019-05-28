@@ -20,6 +20,7 @@ import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -76,9 +77,9 @@ public class ACEFileInfo {
         return _noDataValue;
     }
 
-    public static ACEFileInfo create(final File file) throws IOException {
+    public static ACEFileInfo create(final Path path) throws IOException {
         final ACEFileInfo fileInfo = new ACEFileInfo();
-        fileInfo.setFromData(file);
+        fileInfo.setFromData(path);
         return fileInfo;
     }
 
@@ -93,11 +94,12 @@ public class ACEFileInfo {
         return null;
     }
 
-    private void setFromData(final File dataFile) throws IOException {
-        final String ext = FileUtils.getExtension(dataFile.getName());
+    private void setFromData(final Path dataPath) throws IOException {
+        final String fileName = dataPath.getFileName().toString();
+        final String ext = FileUtils.getExtension(fileName);
         if (ext != null && ext.equalsIgnoreCase(".zip")) {
-            final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".ACE";
-            final ZipFile zipFile = new ZipFile(dataFile);
+            final String baseName = FileUtils.getFilenameWithoutExtension(fileName) + ".ACE";
+            final ZipFile zipFile = new ZipFile(dataPath.toFile());
             try {
                 final ZipEntry zipEntry = getZipEntryIgnoreCase(zipFile, baseName);
                 if (zipEntry == null) {
@@ -108,7 +110,7 @@ public class ACEFileInfo {
                 zipFile.close();
             }
         } else {
-            setFromData(dataFile.getName());
+            setFromData(fileName);
         }
     }
 

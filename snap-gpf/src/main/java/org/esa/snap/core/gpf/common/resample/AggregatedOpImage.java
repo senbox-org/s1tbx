@@ -1,5 +1,6 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 
 import javax.media.jai.BorderExtender;
@@ -27,13 +28,15 @@ class AggregatedOpImage extends GeometricOpImage {
     private final float offsetX;
     private final float offsetY;
     private final double noDataValue;
-    private AggregationType aggregationType;
+    private Downsampling downsampling;
     private final int dataBufferType;
+    private RasterDataNode rasterDataNode;
 
-    AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataBufferType,
+    AggregatedOpImage(RasterDataNode rasterDataNode, RenderedImage sourceImage, ImageLayout layout, double noDataValue, Downsampling downsampling, int dataBufferType,
                       AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
                 createBackground(noDataValue));
+        this.rasterDataNode = rasterDataNode;
         this.noDataValue = noDataValue;
         final AffineTransform transform = new AffineTransform(referenceImageToModelTransform);
         transform.concatenate(sourceImageToModelTransform.createInverse());
@@ -43,7 +46,7 @@ class AggregatedOpImage extends GeometricOpImage {
                 (float) (sourceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX());
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
-        this.aggregationType = aggregationType;
+        this.downsampling = downsampling;
         this.dataBufferType = dataBufferType;
         OperatorContext.setTileCache(this);
     }
@@ -76,8 +79,9 @@ class AggregatedOpImage extends GeometricOpImage {
 
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
-        final Aggregator aggregator = AggregatorFactory.createAggregator(aggregationType, dataBufferType);
-        aggregator.init(srcAccessor, dstAccessor, noDataValue);
+        //final Aggregator aggregator = AggregatorFactory.createAggregator(downsampling, dataBufferType);
+        Aggregator aggregator = downsampling.createDownsampler(rasterDataNode, dataBufferType);
+        aggregator.init(rasterDataNode, srcAccessor, dstAccessor, noDataValue);
 
         for (int dstY = 0; dstY < dstH; dstY++) {
             double srcYFO0 = offsetY + scaleY * (dstY + destRect.y);
@@ -123,10 +127,10 @@ class AggregatedOpImage extends GeometricOpImage {
     @Override
     protected Rectangle forwardMapRect(Rectangle rectangle, int i) {
         //calculates the dest rectangle for a source rectangle
-        final int x = (int) (rectangle.getX() * (1 / scaleX) - offsetX);
-        final int y = (int) (rectangle.getY() * (1 / scaleY) - offsetY);
-        final int width = (int) Math.ceil(rectangle.getWidth() * (1 / scaleX));
-        final int height = (int) Math.ceil(rectangle.getHeight() * (1 / scaleY));
+        final int x = (int) Math.floor(rectangle.getX() * (1 / scaleX) - offsetX);
+        final int y = (int) Math.floor(rectangle.getY() * (1 / scaleY) - offsetY);
+        final int width = (int) Math.ceil((rectangle.getX() + rectangle.getWidth()) * (1 / scaleX) - offsetX) - x;
+        final int height = (int) Math.ceil((rectangle.getY() + rectangle.getHeight()) * (1 / scaleY) - offsetY) - y;
         return new Rectangle(x, y, width, height);
     }
 
@@ -144,10 +148,10 @@ class AggregatedOpImage extends GeometricOpImage {
     @Override
     protected Rectangle backwardMapRect(Rectangle rectangle, int i) {
         //calculates the source rectangle for a dest rectangle
-        final int x = (int) (offsetX + rectangle.getX() * scaleX);
-        final int y = (int) (offsetY + rectangle.getY() * scaleY);
-        final int width = (int) Math.ceil(rectangle.getWidth() * scaleX);
-        final int height = (int) Math.ceil(rectangle.getHeight() * scaleY);
+        final int x = (int) Math.floor(offsetX + rectangle.getX() * scaleX);
+        final int y = (int) Math.floor(offsetY + rectangle.getY() * scaleY);
+        final int width = (int) Math.ceil(offsetX + (rectangle.getX() + rectangle.getWidth()) * scaleX) - x;
+        final int height = (int) Math.ceil(offsetY + (rectangle.getY() + rectangle.getHeight()) * scaleY) - y;
         return new Rectangle(x, y, width, height);
     }
 

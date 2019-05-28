@@ -34,9 +34,9 @@ public class GloballyShiftedDataTest {
     // This test relates to https://senbox.atlassian.net/browse/SNAP-950 and https://senbox.atlassian.net/browse/SNAP-951
 
     private static File tempFile;
-    private static final int WIDTH = 8100;
-    private static final int HEIGHT = 4050;
-    private static final int STEP_HEIGHT = 50;
+    private static final int WIDTH = 810;
+    private static final int HEIGHT = 405;
+    private static final int STEP_HEIGHT = 5;
     private static final int HALF_WIDTH = WIDTH / 2;
     private Product product;
 
@@ -172,10 +172,11 @@ public class GloballyShiftedDataTest {
             }
 
             // for visual inspection
+            // Look at it in SNAP or some other GIS software OS image preview doesn't show the data well.
+            // needs to be tiff 32-bit int is not supported by png
 //            String userHome = System.getProperty("user.home");
-//            String path = String.format("%s\\%s_Level%d.png", userHome, GloballyShiftedDataTest.class.getSimpleName(), level);
+//            String path = String.format("%s\\%s_Level%d.tif", userHome, GloballyShiftedDataTest.class.getSimpleName(), level);
 //            File imageFile = new File(path);
-              // needs to be tiff 32-bit int is not supported by png
 //            ImageIO.write(levelImage, "TIFF", imageFile);
         }
 

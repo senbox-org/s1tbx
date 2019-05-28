@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 
@@ -46,9 +47,9 @@ public class ACE2_5MinReaderPlugIn implements ProductReaderPlugIn {
      * is capable of decoding the input's content.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            final String fileName = file.getName().toUpperCase();
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            final String fileName = path.getFileName().toString().toUpperCase();
             if (fileName.endsWith(".ACE2")) {
                 return DecodeQualification.INTENDED;
             }

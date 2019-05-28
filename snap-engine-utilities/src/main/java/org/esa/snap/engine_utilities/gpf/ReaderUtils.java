@@ -30,6 +30,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.Arrays;
 
@@ -63,7 +64,7 @@ public final class ReaderUtils {
         if (sepPos < 0) {
             sepPos = origName.length();
         }
-        return newPrefix + origName.substring(sepPos, origName.length());
+        return newPrefix + origName.substring(sepPos);
     }
 
     public static Band createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String suffix) {
@@ -112,6 +113,24 @@ public final class ReaderUtils {
             return new File((String) input);
         } else if (input instanceof File) {
             return (File) input;
+        }
+        return null;
+    }
+
+    /**
+     * Returns a <code>File</code> if the given input is a <code>String</code> or <code>File</code>,
+     * otherwise it returns null;
+     *
+     * @param input an input object of unknown type
+     * @return a <code>File</code> or <code>null</code> it the input can not be resolved to a <code>File</code>.
+     */
+    public static Path getPathFromInput(final Object input) {
+        if (input instanceof String) {
+            return new File((String) input).toPath();
+        } else if (input instanceof File) {
+            return ((File)input).toPath();
+        } else if (input instanceof Path) {
+            return (Path)input;
         }
         return null;
     }

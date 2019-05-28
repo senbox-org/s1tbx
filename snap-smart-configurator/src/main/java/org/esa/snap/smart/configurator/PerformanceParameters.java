@@ -48,7 +48,7 @@ public class PerformanceParameters {
     /**
      * Preferences key for the default tile size in pixels
      */
-    //private static final String PROPERTY_DEFAULT_TILE_SIZE = "snap.jai.defaultTileSize";
+    private static final String PROPERTY_DEFAULT_TILE_SIZE = "snap.jai.defaultTileSize";
 
     /**
      * Preferences key for the default reader tile width
@@ -71,7 +71,7 @@ public class PerformanceParameters {
     private Path cachePath;
     private int nbThreads;
 
-    //private int defaultTileSize;
+    private int defaultTileSize;
     private String tileWidth;
     private String tileHeight;
 
@@ -94,7 +94,7 @@ public class PerformanceParameters {
         this.setCachePath(clone.getCachePath());
 
         this.setNbThreads(clone.getNbThreads());
-        //this.setDefaultTileSize(clone.getDefaultTileSize());
+        this.setDefaultTileSize(clone.getDefaultTileSize());
         this.setTileHeight(clone.getTileHeight());
         this.setTileWidth(clone.getTileWidth());
         this.setCacheSize(clone.getCacheSize());
@@ -150,13 +150,13 @@ public class PerformanceParameters {
 
 
 
-    /*public int getDefaultTileSize() {
+    public int getDefaultTileSize() {
         return defaultTileSize;
-    }*/
+    }
 
-    /*public void setDefaultTileSize(int defaultTileSize) {
+    public void setDefaultTileSize(int defaultTileSize) {
         this.defaultTileSize = defaultTileSize;
-    }*/
+    }
 
     public String getTileWidth() {
         return tileWidth;
@@ -223,7 +223,7 @@ public class PerformanceParameters {
 
         final int defaultNbThreads = JavaSystemInfos.getInstance().getNbCPUs();
         actualParameters.setNbThreads(preferences.getInt(SystemUtils.SNAP_PARALLELISM_PROPERTY_NAME, defaultNbThreads));
-        //actualParameters.setDefaultTileSize(preferences.getInt(PROPERTY_DEFAULT_TILE_SIZE, 0));
+        actualParameters.setDefaultTileSize(preferences.getInt(PROPERTY_DEFAULT_TILE_SIZE, 0));
         actualParameters.setTileWidth(preferences.get(SYSPROP_READER_TILE_WIDTH, null));
         actualParameters.setTileHeight(preferences.get(SYSPROP_READER_TILE_HEIGHT, null));
         actualParameters.setCacheSize(preferences.getInt(PROPERTY_JAI_CACHE_SIZE, 1024));
@@ -240,6 +240,8 @@ public class PerformanceParameters {
 
         if(!loadConfiguration().getVMParameters().equals(confToSave.getVMParameters())) {
             confToSave.vmParameters.save();
+            confToSave.vmParameters.saveToVMOptions(VMParameters.getGptVmOptionsPath());
+            confToSave.vmParameters.saveToVMOptions(VMParameters.getPconvertVmOptionsPath());
         }
 
 
@@ -263,14 +265,14 @@ public class PerformanceParameters {
 
 
         int parallelism = confToSave.getNbThreads();
-        //int defaultTileSize = confToSave.getDefaultTileSize();
+        int defaultTileSize = confToSave.getDefaultTileSize();
         int jaiCacheSize = confToSave.getCacheSize();
         String tileWidth = confToSave.getTileWidth();
         String tileHeight = confToSave.getTileHeight();
 
         preferences.putInt(SystemUtils.SNAP_PARALLELISM_PROPERTY_NAME, parallelism);
 
-        /*if(tileWidth == null) {
+        if(tileWidth == null) {
             preferences.remove(SYSPROP_READER_TILE_WIDTH);
         } else {
             preferences.put(SYSPROP_READER_TILE_WIDTH,tileWidth);
@@ -279,8 +281,9 @@ public class PerformanceParameters {
             preferences.remove(SYSPROP_READER_TILE_HEIGHT);
         } else {
             preferences.put(SYSPROP_READER_TILE_HEIGHT,tileHeight);
-        }*/
+        }
 
+        preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, defaultTileSize);
         preferences.putInt(PROPERTY_JAI_CACHE_SIZE, jaiCacheSize);
 
         preferences.flush();
@@ -288,6 +291,7 @@ public class PerformanceParameters {
         // effective change of jai parameters
         JAIUtils.setDefaultTileCacheCapacity(jaiCacheSize);
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
+        JAI.setDefaultTileSize(new Dimension(defaultTileSize,defaultTileSize));
 
     }
 

@@ -66,10 +66,12 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -119,6 +121,18 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+
+            <!--execute each test class in its own JVM process.
+                Added because of problem on some platforms when executing gpf tests.
+             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <reuseForks>false</reuseForks>
+                    <forkCount>1</forkCount>
                 </configuration>
             </plugin>
         </plugins>

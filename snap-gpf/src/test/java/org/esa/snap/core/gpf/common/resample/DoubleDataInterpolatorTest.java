@@ -34,7 +34,7 @@ public class DoubleDataInterpolatorTest {
                 RasterAccessor.findCompatibleTags(new RenderedImage[]{vb.getSourceImage()}, vb.getSourceImage());
         vbData = vb.getSourceImage().getData();
         final RasterAccessor accessor = new RasterAccessor(vbData, new Rectangle(4, 4), compatibleTags[0], null);
-        cubicConvolutionInterpolator.init(accessor, accessor, Double.NaN);
+        cubicConvolutionInterpolator.init(vb, accessor, accessor, Double.NaN);
         srcScanlineStride = accessor.getScanlineStride();
         srcOffset = accessor.getBandOffset(0);
     }

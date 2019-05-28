@@ -1,5 +1,11 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
+OpenIDE-Module-Implementation-Version: ${snap.nbmImplVersion}
 OpenIDE-Module-Display-Category: SNAP Engine
 AutoUpdate-Show-In-Client: true
 AutoUpdate-Essential-Module: true
+OpenIDE-Module-Long-Description: The SNAP Engine provides sensor-independent core functionality for remote sensing applications.
+ <p>The changes for this version can be viewed in our
+  <a href="https://senbox.atlassian.net/issues/?filter=-4&jql=project%20%3D%20SNAP%20AND%20fixVersion%20%3D%20${snap.majorVersion}.${snap.minorVersion}.${snap.incrementalVersion}">issue tracker</a></p>
+ <p><b>Publication date:</b> ${snap.buildDate}<br/>
+ <b>License:</b> http://www.gnu.org/licenses/gpl.html</p>

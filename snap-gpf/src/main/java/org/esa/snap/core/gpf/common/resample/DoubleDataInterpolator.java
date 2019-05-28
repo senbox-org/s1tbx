@@ -1,7 +1,11 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
+
 import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFormatTag;
 import java.awt.Rectangle;
+import java.awt.image.Raster;
 
 /**
  * @author Tonio Fincke
@@ -9,8 +13,10 @@ import java.awt.Rectangle;
 public abstract class DoubleDataInterpolator implements Interpolator {
 
     private DoubleDataAccessor accessor;
+    protected RasterDataNode rasterDataNode;
 
-    public void init(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
+    public void init(RasterDataNode rasterDataNode, RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
+        this.rasterDataNode = rasterDataNode;
         this.accessor = DataAccessorFactory.createDoubleDataAccessor(srcAccessor, dstAccessor, noDataValue);
     }
 
@@ -41,6 +47,11 @@ public abstract class DoubleDataInterpolator implements Interpolator {
     int getDstOffset() {
         return accessor.getDstOffset();
     }
+
+    public void dispose(){
+
+    };
+
 
     static class NearestNeighbour extends DoubleDataInterpolator {
 

@@ -51,6 +51,8 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     private boolean geographicCRS;
     private boolean latLonVarsAddedByGeocoding;
+    private String latVarName;
+    private String lonVarName;
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
@@ -105,16 +107,32 @@ public class CfGeocodingPart extends ProfilePartIO {
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final boolean latLonPresent = isLatLonPresent(ncFile);
         if (!latLonPresent) {
+            latVarName = "lat";
+            lonVarName = "lon";
             if (geographicCRS) {
                 final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
                 final int w = product.getSceneRasterWidth();
                 final int h = product.getSceneRasterHeight();
                 final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
-                addGeographicCoordinateVariables(ncFile, ul, br);
+                addGeographicCoordinateVariables(ncFile, ul, br, latVarName, lonVarName);
             } else {
-                addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product));
+                addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product), latVarName, lonVarName);
             }
             latLonVarsAddedByGeocoding = true;
+        } else {
+            if (geographicCRS) {
+                // for geographicCRS one-dimensional lat/lons are expected
+                // but if lat/Lon bands already exist they are two dimensional
+                // so we create new internal lat/lon variables which are one-dimensional
+                final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+                final int w = product.getSceneRasterWidth();
+                final int h = product.getSceneRasterHeight();
+                final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
+                latVarName = "lat_intern";
+                lonVarName = "lon_intern";
+                latLonVarsAddedByGeocoding = true;
+                addGeographicCoordinateVariables(ncFile, ul, br, latVarName, lonVarName);
+            }
         }
         ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, false);
     }
@@ -136,8 +154,8 @@ public class CfGeocodingPart extends ProfilePartIO {
         final GeoPos geoPos = new GeoPos();
 
         NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        NVariable latVariable = ncFile.findVariable("lat");
-        NVariable lonVariable = ncFile.findVariable("lon");
+        NVariable latVariable = ncFile.findVariable(latVarName);
+        NVariable lonVariable = ncFile.findVariable(lonVarName);
         if (geographicCRS) {
             final double[] lat = new double[h];
             final double[] lon = new double[w];
@@ -178,15 +196,15 @@ public class CfGeocodingPart extends ProfilePartIO {
                CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
-    private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br) throws IOException {
-        final NVariable lat = ncFile.addVariable("lat", DataType.DOUBLE, null, "lat");
+    private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br, String latVarName, String lonVarName) throws IOException {
+        final NVariable lat = ncFile.addVariable(latVarName, DataType.DOUBLE, null, latVarName);
         lat.addAttribute("units", "degrees_north");
         lat.addAttribute("long_name", "latitude");
         lat.addAttribute("standard_name", "latitude");
         lat.addAttribute(Constants.VALID_MIN_ATT_NAME, br.getLat());
         lat.addAttribute(Constants.VALID_MAX_ATT_NAME, ul.getLat());
 
-        final NVariable lon = ncFile.addVariable("lon", DataType.DOUBLE, null, "lon");
+        final NVariable lon = ncFile.addVariable(lonVarName, DataType.DOUBLE, null, lonVarName);
         lon.addAttribute("units", "degrees_east");
         lon.addAttribute("long_name", "longitude");
         lon.addAttribute("standard_name", "longitude");
@@ -194,13 +212,14 @@ public class CfGeocodingPart extends ProfilePartIO {
         lon.addAttribute(Constants.VALID_MAX_ATT_NAME, br.getLon());
     }
 
-    private void addLatLonBands(final NFileWriteable ncFile, Dimension tileSize) throws IOException {
-        final NVariable lat = ncFile.addVariable("lat", DataType.DOUBLE, tileSize, "y x");
+    private void addLatLonBands(final NFileWriteable ncFile, Dimension tileSize,
+                                String latVarName, String lonVarName) throws IOException {
+        final NVariable lat = ncFile.addVariable(latVarName, DataType.DOUBLE, tileSize, "y x");
         lat.addAttribute("units", "degrees_north");
         lat.addAttribute("long_name", "latitude coordinate");
         lat.addAttribute("standard_name", "latitude");
 
-        final NVariable lon = ncFile.addVariable("lon", DataType.DOUBLE, tileSize, "y x");
+        final NVariable lon = ncFile.addVariable(lonVarName, DataType.DOUBLE, tileSize, "y x");
         lon.addAttribute("units", "degrees_east");
         lon.addAttribute("long_name", "longitude coordinate");
         lon.addAttribute("standard_name", "longitude");

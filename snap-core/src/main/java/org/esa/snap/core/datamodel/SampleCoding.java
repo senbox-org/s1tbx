@@ -21,6 +21,7 @@ import org.esa.snap.core.util.Guardian;
 /**
  * Provides the information required to decode integer sample values that
  * are combined of single flags (bit indexes).
+ *
  * @since BEAM 4.2
  */
 public class SampleCoding extends MetadataElement {
@@ -52,11 +53,9 @@ public class SampleCoding extends MetadataElement {
         if (attribute.getData().getNumElems() == 0) {
             throw new IllegalArgumentException("attribute value is missing");
         }
-        /*
-        if (!attribute.getData().isScalar()) {
-            throw new IllegalArgumentException("attribute value is not a scalar");
+        if (containsAttribute(attribute.getName())) {
+            throw new IllegalArgumentException("SampleCoding contains already an attribute with the name '" + attribute.getName() + "'");
         }
-        */
         super.addAttribute(attribute);
     }
 
@@ -66,8 +65,8 @@ public class SampleCoding extends MetadataElement {
      * @param name        the coding name
      * @param value       the value
      * @param description the description text
-     * @throws IllegalArgumentException if <code>name</code> is null
      * @return A new attribute representing the coded sample.
+     * @throws IllegalArgumentException if <code>name</code> is null
      */
     public MetadataAttribute addSample(String name, int value, String description) {
         return addSamples(name, new int[]{value}, description);
@@ -79,8 +78,8 @@ public class SampleCoding extends MetadataElement {
      * @param name        the coding name
      * @param values      the values
      * @param description the description text
-     * @throws IllegalArgumentException if <code>name</code> is null
      * @return A new attribute representing the coded sample.
+     * @throws IllegalArgumentException if <code>name</code> is null
      */
     public MetadataAttribute addSamples(String name, int[] values, String description) {
         Guardian.assertNotNull("name", name);

@@ -23,7 +23,7 @@ and source code at https://github.com/bcdev/jpy
 EXCLUDED_NB_CLUSTERS = {'platform', 'ide', 'bin', 'etc'}
 
 EXCLUDED_DIR_NAMES = {'org.esa.snap.snap-worldwind', 'org.esa.snap.snap-rcp', 'org.esa.snap.snap-product-library',
-                      'org.esa.snap.ceres-ui', 'org.esa.snap.snap-sta-ui'}
+                      'org.esa.snap.snap-sta-ui'}
 
 EXCLUDED_JAR_NAMES = {'org-esa-snap-netbeans-docwin.jar', 'org-esa-snap-netbeans-tile.jar',
                       'org-esa-snap-snap-worldwind.jar', 'org-esa-snap-snap-tango.jar', 'org-esa-snap-snap-rcp.jar',
@@ -32,6 +32,7 @@ EXCLUDED_JAR_NAMES = {'org-esa-snap-netbeans-docwin.jar', 'org-esa-snap-netbeans
 
 import glob
 import os
+
 import sys
 
 if sys.version_info >= (3, 0, 0,):

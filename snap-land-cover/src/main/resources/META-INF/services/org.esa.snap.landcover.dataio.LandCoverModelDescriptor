@@ -9,6 +9,8 @@ org.esa.snap.landcover.dataio.AAFC.AESBEOS2013CropModelDescriptor
 org.esa.snap.landcover.dataio.AAFC.AESBEOS2014CropModelDescriptor
 org.esa.snap.landcover.dataio.AAFC.AESBEOS2015CropModelDescriptor
 org.esa.snap.landcover.dataio.AAFC.AESBEOS2016CropModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2017CropModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2018CropModelDescriptor
 org.esa.snap.landcover.dataio.AAFC.ACGEO2016CropSMAPVEXModelDescriptor
 org.esa.snap.landcover.dataio.glc2000.GLC2000ModelDescriptor
 org.esa.snap.landcover.dataio.globcover.GlobCoverModelDescriptor

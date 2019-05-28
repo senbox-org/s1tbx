@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -70,22 +71,23 @@ public class ACEReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         initReader();
 
-        final File dataFile = ReaderUtils.getFileFromInput(getInput());
-        _fileInfo = ACEFileInfo.create(dataFile);
+        final Path dataPath = ReaderUtils.getPathFromInput(getInput());
+        final String inputFileName = dataPath.getFileName().toString();
+        _fileInfo = ACEFileInfo.create(dataPath);
 
         final String fileName;
         try {
-            final String ext = FileUtils.getExtension(dataFile);
+            final String ext = FileUtils.getExtension(inputFileName);
             if (ext != null && ext.equalsIgnoreCase(".zip")) {
-                final String entryName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".ACE";
-                _zipFile = new ZipFile(dataFile);
+                final String entryName = FileUtils.getFilenameWithoutExtension(inputFileName) + ".ACE";
+                _zipFile = new ZipFile(dataPath.toFile());
                 final ZipEntry entry = getZipEntryIgnoreCase(entryName);
                 final InputStream inputStream = _zipFile.getInputStream(entry);
                 _imageInputStream = new FileCacheImageInputStream(inputStream, createCacheDir());
                 fileName = FileUtils.getFilenameWithoutExtension(entryName);
             } else {
-                _imageInputStream = new FileImageInputStream(dataFile);
-                fileName = FileUtils.getFilenameWithoutExtension(dataFile);
+                _imageInputStream = new FileImageInputStream(dataPath.toFile());
+                fileName = FileUtils.getFilenameWithoutExtension(inputFileName);
             }
             _imageInputStream.setByteOrder(ByteOrder.LITTLE_ENDIAN);
         } catch (IOException e) {
@@ -97,7 +99,7 @@ public class ACEReader extends AbstractProductReader {
         }
 
         initProduct(ACEReaderPlugIn.FORMAT_NAME + '_' + fileName);
-        _product.setFileLocation(dataFile);
+        _product.setFileLocation(dataPath.toFile());
         return _product;
     }
 

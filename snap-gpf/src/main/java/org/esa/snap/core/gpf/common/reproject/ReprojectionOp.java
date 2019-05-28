@@ -79,7 +79,7 @@ import java.util.HashMap;
  * Beside plain reprojection it is able to use a Digital Elevation Model (DEM) to orthorectify a data product and
  * to collocate one product with another.
  * <p>
- * The following XML sample shows how to integrate the <code>Reproject</code> operator in a processing graph (an
+ * The following XML sample shows how to integrate the {@code Reproject} operator in a processing graph (an
  * Lambert_Azimuthal_Equal_Area projection using the WGS-84 datum):
  * <pre>
  *    &lt;node id="reprojectNode"&gt;
@@ -137,8 +137,8 @@ import java.util.HashMap;
         version = "1.0",
         authors = "Marco Zühlke, Marco Peters, Ralf Quast, Norman Fomferra",
         copyright = "(c) 2009 by Brockmann Consult",
-        description = "Reprojection of a source product to a target Coordinate Reference System.",
-        internal = false)
+        description = "Reprojection of a source product to a target Coordinate Reference System."
+)
 @SuppressWarnings({"UnusedDeclaration"})
 public class ReprojectionOp extends Operator {
 
@@ -216,7 +216,16 @@ public class ReprojectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
+        //ensureSingleRasterSize(sourceProduct);
+        if(collocationProduct != null) {
+            try {
+                ensureSingleRasterSize(collocationProduct);
+            } catch (OperatorException e) {
+                //Catch exception in order to clarify the error message
+                throw new OperatorException("The product selected as reference (Collocation product) contains rasters of different sizes and cannot be used as input.\n" +
+                                                          "Please consider resampling it so that all rasters have the same size.");
+            }
+        }
         validateCrsParameters();
         validateResamplingParameter();
         validateReferencingParameters();
@@ -351,8 +360,7 @@ public class ReprojectionOp extends Operator {
         targetProduct.addBand(targetBand);
         targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
         targetBand.setNoDataValue(targetNoDataValue.doubleValue());
-        targetBand.setNoDataValueUsed(targetBand.getRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                                              targetBand.getRasterHeight() == targetProduct.getSceneRasterHeight());
+        targetBand.setNoDataValueUsed(true);
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
         GeoCoding bandGeoCoding = reprojectionSettings.getGeoCoding();

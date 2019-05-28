@@ -44,8 +44,21 @@ public class ZipUtils {
         return false;
     }
 
+    public static boolean isZipped(final Path path) {
+        final String name = path.getFileName().toString().toLowerCase();
+        for (String ext : extList) {
+            if (name.endsWith(ext))
+                return true;
+        }
+        return false;
+    }
+
     public static boolean isZip(final File inputFile) {
         return inputFile.getName().toLowerCase().endsWith(".zip");
+    }
+
+    public static boolean isZip(final Path inputPath) {
+        return inputPath.getFileName().toString().toLowerCase().endsWith(".zip");
     }
 
     public static boolean findInZip(final File file, final String prefix, final String suffix) {
@@ -54,8 +67,8 @@ public class ZipUtils {
 
             final Optional result = productZip.stream()
                     .filter(ze -> !ze.isDirectory())
-                    .filter(ze -> ze.getName().toLowerCase().endsWith(suffix))
-                    .filter(ze -> ze.getName().toLowerCase().startsWith(prefix))
+                    .filter(ze -> ze.getName().toLowerCase().endsWith(suffix.toLowerCase()))
+                    .filter(ze -> ze.getName().toLowerCase().startsWith(prefix.toLowerCase()))
                     .findFirst();
             return result.isPresent();
         } catch (Exception e) {

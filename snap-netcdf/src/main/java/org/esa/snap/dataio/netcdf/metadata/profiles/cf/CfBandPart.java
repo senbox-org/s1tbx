@@ -318,10 +318,11 @@ public class CfBandPart extends ProfilePartIO {
     private static void addSamples(SampleCoding sampleCoding, Attribute sampleMeanings, Attribute sampleValues,
                                    boolean msb) {
         final String[] meanings = getSampleMeanings(sampleMeanings);
-        final int sampleCount = Math.min(meanings.length, sampleValues.getLength());
+        String[] uniqueNames = StringUtils.makeStringsUnique(meanings);
+        final int sampleCount = Math.min(uniqueNames.length, sampleValues.getLength());
 
         for (int i = 0; i < sampleCount; i++) {
-            final String sampleName = CfFlagCodingPart.replaceNonWordCharacters(meanings[i]);
+            final String sampleName = CfFlagCodingPart.replaceNonWordCharacters(uniqueNames[i]);
             switch (sampleValues.getDataType()) {
                 case BYTE:
                     sampleCoding.addSample(sampleName,
@@ -355,12 +356,12 @@ public class CfBandPart extends ProfilePartIO {
     }
 
     private static void addSamples(SampleCoding sampleCoding, Attribute sampleMeanings, Attribute sampleMasks,
-                                   Attribute sampleValues,
-                                   boolean msb) {
+                                   Attribute sampleValues, boolean msb) {
         final String[] meanings = getSampleMeanings(sampleMeanings);
-        final int sampleCount = Math.min(meanings.length, sampleMasks.getLength());
+        String[] uniqueNames = StringUtils.makeStringsUnique(meanings);
+        final int sampleCount = Math.min(uniqueNames.length, sampleMasks.getLength());
         for (int i = 0; i < sampleCount; i++) {
-            final String sampleName = CfFlagCodingPart.replaceNonWordCharacters(meanings[i]);
+            final String sampleName = CfFlagCodingPart.replaceNonWordCharacters(uniqueNames[i]);
             switch (sampleMasks.getDataType()) {
                 case BYTE:
                     int[] byteValues = {DataType.unsignedByteToShort(sampleMasks.getNumericValue(i).byteValue()),

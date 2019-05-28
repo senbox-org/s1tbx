@@ -85,7 +85,7 @@ public class PlateCarreeGrid implements MosaickingGrid {
 
     @Override
     public long getNumBins() {
-        return ((long) numRows) * (long) numCols;
+        return numRows * (long) numCols;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class PlateCarreeGrid implements MosaickingGrid {
 
     @Override
     public long getFirstBinIndex(int row) {
-        return ((long) row) * ((long) numCols);
+        return row * ((long) numCols);
     }
 
     @Override
@@ -180,12 +180,12 @@ public class PlateCarreeGrid implements MosaickingGrid {
 
     public Rectangle[] getDataSliceRectangles(Geometry productGeometry, Dimension tileSize) {
         Rectangle productBoundingBox = computeBounds(productGeometry);
-        Rectangle gridAlignedBoundingBox = alignToTileGrid(productBoundingBox, tileSize);
+        Rectangle gridAlignedBoundingBox = MosaickingGrid.alignToTileGrid(productBoundingBox, tileSize);
         final int xStart = gridAlignedBoundingBox.x / tileSize.width;
         final int yStart = gridAlignedBoundingBox.y / tileSize.height;
         final int width = gridAlignedBoundingBox.width / tileSize.width;
         final int height = gridAlignedBoundingBox.height / tileSize.height;
-        List<Rectangle> rectangles = new ArrayList<Rectangle>(width * height);
+        List<Rectangle> rectangles = new ArrayList<>(width * height);
 
         for (int y = yStart; y < yStart + height; y++) {
             for (int x = xStart; x < xStart + width; x++) {
@@ -205,8 +205,9 @@ public class PlateCarreeGrid implements MosaickingGrid {
     public GeoCoding getGeoCoding(Rectangle outputRegion) {
         try {
             return new CrsGeoCoding(DefaultGeographicCRS.WGS84, outputRegion.width, outputRegion.height,
-                                    -180.0D + this.pixelSize * (double) outputRegion.x,
-                                    90.0D - this.pixelSize * (double) outputRegion.y, this.pixelSize, this.pixelSize, 0.5D, 0.5D);
+                                    -180.0D + this.pixelSize * outputRegion.x,
+                                    90.0D - this.pixelSize * outputRegion.y,
+                                    this.pixelSize, this.pixelSize, 0.0D, 0.0D);
         } catch (TransformException | FactoryException e) {
             throw new IllegalArgumentException(e);
         }
@@ -236,15 +237,6 @@ public class PlateCarreeGrid implements MosaickingGrid {
         return region;
     }
 
-    private Rectangle alignToTileGrid(Rectangle rectangle, Dimension tileSize) {
-        int minX = rectangle.x / tileSize.width * tileSize.width;
-        int maxX = (rectangle.x + rectangle.width + tileSize.width - 1) / tileSize.width * tileSize.width;
-        int minY = (rectangle.y / tileSize.height) * tileSize.height;
-        int maxY = (rectangle.y + rectangle.height + tileSize.height - 1) / tileSize.height * tileSize.height;
-
-        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-    }
-
     private Geometry getTileGeometry(int tileX, int tileY, Dimension tileSize) {
         int tileWidth = tileSize.width;
         int tileHeight = tileSize.height;
@@ -263,46 +255,5 @@ public class PlateCarreeGrid implements MosaickingGrid {
     private double tileYToDegree(int tileY, int tileHeight) {
         return 90.0 - (tileY * tileHeight * 180.0 / numRows);
     }
-
-//    // TODO Compare with implementation in SubsetOp
-    //probably not used; maybe on calvalus
-//    public Geometry computeProductGeometry(Product product) {
-//        try {
-//            final GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(product);
-//            final Polygon[] polygons = new Polygon[paths.length];
-//
-//            for (int i = 0; i < paths.length; i++) {
-//                polygons[i] = convertToJtsPolygon(paths[i].getPathIterator(null));
-//            }
-//            final DouglasPeuckerSimplifier peuckerSimplifier = new DouglasPeuckerSimplifier(
-//                    polygons.length == 1 ? polygons[0] : geometryFactory.createMultiPolygon(polygons));
-//            return peuckerSimplifier.getResultGeometry();
-//        } catch (Exception e) {
-//            return null;
-//        }
-//    }
-
-//    private Polygon convertToJtsPolygon(PathIterator pathIterator) {
-//        ArrayList<double[]> coordList = new ArrayList<double[]>();
-//        int lastOpenIndex = 0;
-//        while (!pathIterator.isDone()) {
-//            final double[] coords = new double[6];
-//            final int segType = pathIterator.currentSegment(coords);
-//            if (segType == PathIterator.SEG_CLOSE) {
-//                // we should only detect a single SEG_CLOSE
-//                coordList.add(coordList.get(lastOpenIndex));
-//                lastOpenIndex = coordList.size();
-//            } else {
-//                coordList.add(coords);
-//            }
-//            pathIterator.next();
-//        }
-//        final Coordinate[] coordinates = new Coordinate[coordList.size()];
-//        for (int i1 = 0; i1 < coordinates.length; i1++) {
-//            final double[] coord = coordList.get(i1);
-//            coordinates[i1] = new Coordinate(coord[0], coord[1]);
-//        }
-//        return geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
-//    }
 
 }

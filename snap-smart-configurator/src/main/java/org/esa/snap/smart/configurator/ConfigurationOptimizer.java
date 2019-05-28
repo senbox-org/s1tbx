@@ -17,6 +17,7 @@
 
 package org.esa.snap.smart.configurator;
 
+import Jama.util.Maths;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 
@@ -123,12 +124,17 @@ public class ConfigurationOptimizer {
         long optimisedJVMMem = reservedRAM + freeRAM;
         performanceParameters.setVmXMX(optimisedJVMMem);
 
+        Double doubleCache = optimisedJVMMem*0.7;
+
+        performanceParameters.setCacheSize(doubleCache.intValue()); //70% of XmX
+
         if(optimisedJVMMem > DEFAULT_MIN_XMS) {
             performanceParameters.setVmXMS(DEFAULT_MIN_XMS);
         } else {
             performanceParameters.setVmXMS(optimisedJVMMem);
         }
     }
+
 
     /**
      * Compute the optimised path parameters.

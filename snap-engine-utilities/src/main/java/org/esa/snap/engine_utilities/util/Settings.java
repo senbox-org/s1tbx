@@ -50,6 +50,10 @@ public final class Settings {
     }
 
     public String get(final String key, final String deafault) {
+        String propVal = System.getProperty(key);
+        if(propVal != null) {
+            return propVal;
+        }
         return auxdataPreferences.get(key, deafault);
     }
 

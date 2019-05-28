@@ -503,7 +503,7 @@ public class PConvertMain {
                 try {
                     String filename = FileUtils.createValidFilename(product.getName());
                     File outputFile = new File(_outputDir, filename);
-                    outputFile = FileUtils.exchangeExtension(outputFile, "." + _formatExt);
+                    outputFile = FileUtils.ensureExtension(outputFile, "." + _formatExt);
                     if (_imageFormat) {
                         convertToImage(product, outputFile);
                     } else {

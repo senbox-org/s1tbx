@@ -18,6 +18,7 @@ package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
@@ -93,7 +94,7 @@ public class CfIndexCodingPart extends ProfilePartIO {
         final Attribute flagMeanings = variable.findAttribute(FLAG_MEANINGS);
         final String[] flagNames;
         if (flagMeanings != null) {
-            flagNames = flagMeanings.getStringValue().split(" ");
+            flagNames = StringUtils.makeStringsUnique(flagMeanings.getStringValue().split(" "));
         } else {
             flagNames = null;
         }

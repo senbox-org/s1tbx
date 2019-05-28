@@ -30,7 +30,7 @@ import java.awt.image.Raster;
  * @since BEAM 4.7
  */
 class WarpFromSourceCoordinates extends Warp {
-    
+
     private final OpImage opImage;
 
     WarpFromSourceCoordinates(OpImage opImage) {
@@ -43,16 +43,20 @@ class WarpFromSourceCoordinates extends Warp {
      */
     @Override
     public float[] warpSparseRect(int xmin, int ymin, int width, int height, int periodX, int periodY, float[] destRect) {
-        if (periodX < 1) throw new IllegalArgumentException(String.valueOf(periodX));
-        if (periodY < 1) throw new IllegalArgumentException(String.valueOf(periodY));
-        
-        final int xmax  = xmin + width;
-        final int ymax  = ymin + height;
-        final int count = ((width+(periodX-1))/periodX) * ((height+(periodY-1))/periodY);
-        if (destRect == null) {
-            destRect = new float[2*count];
+        if (periodX < 1) {
+            throw new IllegalArgumentException(String.valueOf(periodX));
         }
-        
+        if (periodY < 1) {
+            throw new IllegalArgumentException(String.valueOf(periodY));
+        }
+
+        final int xmax = xmin + width;
+        final int ymax = ymin + height;
+        final int count = ((width + (periodX - 1)) / periodX) * ((height + (periodY - 1)) / periodY);
+        if (destRect == null) {
+            destRect = new float[2 * count];
+        }
+
         Rectangle bounds = new Rectangle(xmin, ymin, width, height);
         int xIDNew = opImage.XToTileX(xmin);
         int yIDNew = opImage.YToTileY(ymin);
@@ -70,10 +74,10 @@ class WarpFromSourceCoordinates extends Warp {
         int lineStride = srcImD.lineStride;
 
         int index = 0;
-        for (int y=ymin; y<ymax; y+=periodY) {
+        for (int y = ymin; y < ymax; y += periodY) {
             int sxPos = sxStart;
             int syPos = syStart;
-            for (int x=xmin; x<xmax; x+=periodX) {
+            for (int x = xmin; x < xmax; x += periodX) {
                 destRect[index++] = data[sxPos];
                 destRect[index++] = data[syPos];
                 sxPos += pixelStride;
@@ -84,4 +88,38 @@ class WarpFromSourceCoordinates extends Warp {
         }
         return destRect;
     }
+
+    /*
+     * In contrast to the parent method it does not only check the boundary of the destRect for valid coordinates but
+     * checks by a shrinking rectangle up to the center
+     */
+    public Rectangle mapDestRect(Rectangle destRect) {
+
+        Rectangle currentMappedRect;
+        Rectangle rectToMap = (Rectangle) destRect.clone();
+        double x = Double.POSITIVE_INFINITY;
+        double y = Double.POSITIVE_INFINITY;
+        double width = Double.NEGATIVE_INFINITY;
+        double height = Double.NEGATIVE_INFINITY;
+        Rectangle mappedRect = new Rectangle();
+        int loopCount = 0;
+        do {
+            loopCount++;
+            currentMappedRect = super.mapDestRect(rectToMap);
+            x = Math.min(x, currentMappedRect.getX());
+            y = Math.min(y, currentMappedRect.getY());
+            width = Math.max(width, currentMappedRect.getWidth());
+            height = Math.max(height, currentMappedRect.getHeight());
+            rectToMap.grow(-1, -1);
+            mappedRect.setRect(x, y, width, height);
+        } while (!rectToMap.isEmpty() && (mappedRect.getMaxX() <= 0 && mappedRect.getMaxY() <= 0));
+        // checking the complete area would be more correct but would have impact in performance. Finding the some data is
+        // already sufficient to make the reprojection work.
+        //        } while (!rectToMap.isEmpty());
+
+        return mappedRect;
+
+    }
+
+
 }
