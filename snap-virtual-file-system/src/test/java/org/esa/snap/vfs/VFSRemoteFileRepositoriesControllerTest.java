@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -62,7 +63,8 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
     @Before
     public void setUpVFSRemoteFileRepositoriesControllerTest() {
         configFile = vfsTestsFolderPath.resolve("vfs.properties");
-        newConfigFile = vfsTestsFolderPath.resolve("vfs_new.properties");
+        Path tempFolderPath = Paths.get(System.getProperty("user.home"));
+        newConfigFile = tempFolderPath.resolve("vfs_new.properties");
         assumeTrue(Files.exists(configFile));
         assumeFalse(Files.exists(newConfigFile));
     }
