@@ -56,7 +56,7 @@ public class VFSPathTest extends AbstractVFSTest {
             mockService = new HttpMockService(new URL(httpRepo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
-            fail("Testing requirements are not met.");
+            fail("Testing requirements are not met. " + e.getMessage());
         }
     }
 
