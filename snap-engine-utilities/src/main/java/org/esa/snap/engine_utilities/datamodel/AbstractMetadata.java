@@ -139,6 +139,8 @@ public final class AbstractMetadata {
     public static final String range_sampling_rate = "range_sampling_rate";
     public static final String avg_scene_height = "avg_scene_height";
     public static final String multilook_flag = "multilook_flag";
+    public static final String bistatic_correction_applied = "bistatic_correction_applied";
+
     // cosmo calibration
     public static final String ref_inc_angle = "ref_inc_angle";
     public static final String ref_slant_range = "ref_slant_range";
@@ -296,6 +298,7 @@ public final class AbstractMetadata {
         addAbstractedAttribute(absRoot, ref_slant_range, ProductData.TYPE_FLOAT64, "", "Reference slant range");
         addAbstractedAttribute(absRoot, ref_slant_range_exp, ProductData.TYPE_FLOAT64, "", "Reference slant range exponent");
         addAbstractedAttribute(absRoot, rescaling_factor, ProductData.TYPE_FLOAT64, "", "Rescaling factor");
+        addAbstractedAttribute(absRoot, bistatic_correction_applied, ProductData.TYPE_UINT8, "flag", "");
 
         addAbstractedAttribute(absRoot, range_sampling_rate, ProductData.TYPE_FLOAT64, "MHz", "Range Sampling Rate");
 
