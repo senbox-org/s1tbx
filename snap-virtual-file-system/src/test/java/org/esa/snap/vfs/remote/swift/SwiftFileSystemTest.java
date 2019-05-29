@@ -93,7 +93,8 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
             authMockService = new SwiftAuthMockService(new URL(getAuthAddress()));
             authMockService.start();
         } catch (Exception e) {
-            fail("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
+            //fail("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
+            assumeTrue("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e), false);
         }
     }
 
