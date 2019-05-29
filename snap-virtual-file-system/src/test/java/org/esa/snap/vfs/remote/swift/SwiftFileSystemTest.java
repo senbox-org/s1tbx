@@ -1,5 +1,6 @@
 package org.esa.snap.vfs.remote.swift;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
@@ -92,7 +93,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
             authMockService = new SwiftAuthMockService(new URL(getAuthAddress()));
             authMockService.start();
         } catch (Exception e) {
-            fail("Testing requirements are not met. " + e.getMessage());
+            fail("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
         }
     }
 

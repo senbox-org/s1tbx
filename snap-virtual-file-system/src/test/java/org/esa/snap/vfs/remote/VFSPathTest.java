@@ -1,5 +1,6 @@
 package org.esa.snap.vfs.remote;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 import org.esa.snap.vfs.remote.http.HttpMockService;
@@ -56,7 +57,7 @@ public class VFSPathTest extends AbstractVFSTest {
             mockService = new HttpMockService(new URL(httpRepo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
-            fail("Testing requirements are not met. " + e.getMessage());
+            fail("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
         }
     }
 
