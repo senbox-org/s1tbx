@@ -15,9 +15,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author Tonio Fincke
@@ -26,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 public class ResampleTest_Aggregate {
 
     @Test
-    public void testCreateAggregatedMultiLevelImage_First() {
+    public void testCreateAggregatedMultiLevelImage_First() throws Exception {
         final Band sourceBand = createSourceBand();
         final Band referenceBand = createReferenceBand();
 
@@ -53,7 +52,7 @@ public class ResampleTest_Aggregate {
     }
 
     @Test
-    public void testCreateAggregatedMultiLevelImage_Min() {
+    public void testCreateAggregatedMultiLevelImage_Min() throws Exception {
         final Band sourceBand = createSourceBand();
         final Band referenceBand = createReferenceBand();
 
@@ -80,7 +79,7 @@ public class ResampleTest_Aggregate {
     }
 
     @Test
-    public void testCreateAggregatedMultiLevelImage_Max() {
+    public void testCreateAggregatedMultiLevelImage_Max() throws Exception {
         final Band sourceBand = createSourceBand();
         final Band referenceBand = createReferenceBand();
 
@@ -107,7 +106,7 @@ public class ResampleTest_Aggregate {
     }
 
     @Test
-    public void testCreateAggregatedMultiLevelImage_Median() {
+    public void testCreateAggregatedMultiLevelImage_Median() throws Exception {
         final Band sourceBand = createSourceBand_Median();
         final Band referenceBand = createReferenceBand();
 
@@ -134,7 +133,7 @@ public class ResampleTest_Aggregate {
     }
 
     @Test
-    public void testCreateAggregatedMultiLevelImage_Mean() {
+    public void testCreateAggregatedMultiLevelImage_Mean() throws Exception {
         final Band sourceBand = createSourceBand();
         final Band referenceBand = createReferenceBand();
 

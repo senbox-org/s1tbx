@@ -33,18 +33,17 @@ import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PixelPosEstimatorTest {
 
     @BeforeClass
-    public static void init() {
+    public static void init() throws Exception {
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(134217728);
     }
 
     @Test
-    @Ignore("too long to be executed by default")
+    @Ignore
     public void testGetPixelPosForSimulatedSwath() {
         final int nx = 512;
         final int ny = 36000;

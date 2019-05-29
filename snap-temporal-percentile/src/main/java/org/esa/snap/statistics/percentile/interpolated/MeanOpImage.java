@@ -1,5 +1,7 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
+import org.esa.snap.core.gpf.OperatorException;
+
 import javax.media.jai.PointOpImage;
 import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFormatTag;
@@ -12,7 +14,7 @@ import java.util.Vector;
 
 class MeanOpImage extends PointOpImage {
 
-    MeanOpImage(Vector<RenderedImage> sources) {
+    public MeanOpImage(Vector<RenderedImage> sources) {
         super(sources, null, null, true);
     }
 
@@ -32,7 +34,7 @@ class MeanOpImage extends PointOpImage {
             computeRectDouble(sourceRasterAccessors, d);
             break;
         default:
-            throw new UnsupportedOperationException("Unable to compute raster for non floating number data type");
+            throw new OperatorException("Unable to compute raster for non floating number data type");
         }
         d.copyDataToRaster();
     }

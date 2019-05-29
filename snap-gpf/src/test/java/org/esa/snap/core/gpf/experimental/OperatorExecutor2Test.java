@@ -30,9 +30,7 @@ import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Requirements:
@@ -42,7 +40,7 @@ import static org.junit.Assert.assertNotNull;
  * 4. Immediate Execution
  * 5. Configurable with respect to e.g. parallelism, execution order
  */
-@Ignore("long running and experimental")
+@Ignore
 public class OperatorExecutor2Test {
 
     @Test

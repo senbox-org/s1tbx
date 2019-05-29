@@ -1,3 +1,0 @@
-org.esa.snap.vfs.remote.s3.S3FileSystemProvider
-org.esa.snap.vfs.remote.http.HttpFileSystemProvider
-org.esa.snap.vfs.remote.swift.SwiftFileSystemProvider

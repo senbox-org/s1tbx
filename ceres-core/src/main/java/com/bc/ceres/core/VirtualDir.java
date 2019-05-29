@@ -26,13 +26,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -59,15 +64,12 @@ public abstract class VirtualDir {
     public abstract String getBasePath();
 
     /**
-     * @return The File object of the directory.
-     */
-    public abstract File getBaseFile();
-
-    /**
      * Opens a reader for the given relative path.
      *
      * @param path The relative file path.
+     *
      * @return A reader for the specified relative path.
+     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public Reader getReader(String path) throws IOException {
@@ -79,7 +81,9 @@ public abstract class VirtualDir {
      * Files having '.gz' extensions are automatically decompressed.
      *
      * @param path The relative file path.
+     *
      * @return An input stream for the specified relative path.
+     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public abstract InputStream getInputStream(String path) throws IOException;
@@ -88,7 +92,9 @@ public abstract class VirtualDir {
      * Gets the file for the given relative path.
      *
      * @param path The relative file or directory path.
+     *
      * @return Gets the file or directory for the specified file path.
+     *
      * @throws IOException If the file or directory does not exist or if it can't be extracted from a ZIP-file.
      */
     public abstract File getFile(String path) throws IOException;
@@ -102,9 +108,11 @@ public abstract class VirtualDir {
      * guaranteed to appear in alphabetical order.
      *
      * @param path The relative directory path.
+     *
      * @return An array of strings naming the files and directories in the
      * directory denoted by the given relative directory path.
      * The array will be empty if the directory is empty.
+     *
      * @throws IOException If the directory given by the relative path does not exists.
      */
     public abstract String[] list(String path) throws IOException;
@@ -122,6 +130,7 @@ public abstract class VirtualDir {
      * @return An array of strings naming the relative directory path
      * and filename to all files.
      * The array will be empty if the directory is empty.
+     *
      * @throws IOException If an I/O error is thrown when accessing the virtual dir.
      */
     public abstract String[] listAllFiles() throws IOException;
@@ -135,19 +144,20 @@ public abstract class VirtualDir {
      * Creates an instance of a virtual directory object from a given directory or ZIP-file.
      *
      * @param file A directory or a ZIP-file.
+     *
      * @return The virtual directory instance, or {@code null} if {@code file} is not a directory or a ZIP-file or
      * the ZIP-file could not be opened for read access..
      */
     public static VirtualDir create(File file) {
-        if (file.isDirectory()) {
-            return new Dir(file);
+            if (file.isDirectory()) {
+                return new Dir(file);
+            }
+            try {
+                return new Zip(new ZipFile(file));
+            } catch (IOException ignored) {
+                return null;
+            }
         }
-        try {
-            return new Zip(new ZipFile(file));
-        } catch (IOException ignored) {
-            return null;
-        }
-    }
     /*
      The replacement for usage with the NIO implementation has been disabled,
      because some Sentinel 1 product result in problems in the zipfs code.
@@ -226,11 +236,6 @@ public abstract class VirtualDir {
         }
 
         @Override
-        public File getBaseFile() {
-            return dir;
-        }
-
-        @Override
         public InputStream getInputStream(String path) throws IOException {
             if (path.endsWith(".gz")) {
                 return new GZIPInputStream(new BufferedInputStream(new FileInputStream(getFile(path))));
@@ -240,7 +245,7 @@ public abstract class VirtualDir {
 
         @Override
         public File getFile(String path) throws IOException {
-            File child = dir.toPath().resolve(path).toFile();
+            File child = new File(dir, path);
             if (!child.exists()) {
                 throw new FileNotFoundException(child.getPath());
             }
@@ -314,11 +319,6 @@ public abstract class VirtualDir {
         @Override
         public String getBasePath() {
             return zipFile.getName();
-        }
-
-        @Override
-        public File getBaseFile() {
-            return new File(zipFile.getName());
         }
 
         @Override
@@ -502,11 +502,6 @@ public abstract class VirtualDir {
         }
 
         @Override
-        public File getBaseFile() {
-            return virtualDirPath.toFile();
-        }
-
-        @Override
         public InputStream getInputStream(String path) throws IOException {
             Path resolve = virtualDirPath.resolve(path);
             if (Files.exists(resolve)) {
@@ -522,7 +517,7 @@ public abstract class VirtualDir {
 
         @Override
         public synchronized File getFile(String path) throws IOException {
-            Path resolve = virtualDirPath.resolve(path);
+            Path resolve = virtualDirPath.resolve   (path);
             if (!Files.exists(resolve)) {
                 throw new FileNotFoundException(resolve.toString());
             }
@@ -533,7 +528,7 @@ public abstract class VirtualDir {
                 }
                 Path tempFilePath = tempZipFilePathStore.resolve(path);
                 if (Files.notExists(tempFilePath)) {
-                    if (Files.notExists(tempFilePath.getParent())) {
+                    if(Files.notExists(tempFilePath.getParent())){
                         Files.createDirectories(tempFilePath.getParent());
                     }
                     Files.copy(resolve, tempFilePath);
@@ -662,8 +657,8 @@ public abstract class VirtualDir {
             }
         }
         throw new IllegalStateException("Failed to create directory within "
-                + TEMP_DIR_ATTEMPTS + " attempts (tried "
-                + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
+                                        + TEMP_DIR_ATTEMPTS + " attempts (tried "
+                                        + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
     }
 
     private static File getBaseTempDir() throws IOException {

@@ -20,6 +20,8 @@ import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.Matrix;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -36,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ProductSceneCrsTest {
     @Test
-    public void testSceneCrsComparisons() {
+    public void testSceneCrsComparisons() throws Exception {
         Product product;
         DummyProductBuilder builder = new DummyProductBuilder();
 
@@ -96,8 +98,8 @@ public class ProductSceneCrsTest {
         assertEquals(at3, CRS.findMathTransform(crs1, crs3));
     }
 
+    @Ignore
     @Test
-    @Ignore("org.opengis.parameter.InvalidParameterValueException: Argument \"info\" should not be null")
     public void testNotSoObviousCase() throws Exception {
         MathTransform2D geoCodingTransform = new NonLinearGarbageTransform();
         DefaultDerivedCRS crs1 = new DefaultDerivedCRS("IMG1", WGS84, geoCodingTransform, DISPLAY);
@@ -121,17 +123,17 @@ public class ProductSceneCrsTest {
         }
 
         @Override
-        public Matrix derivative(Point2D point2D) {
+        public Matrix derivative(Point2D point2D) throws TransformException {
             return new GeneralMatrix(10);
         }
 
         @Override
-        public Matrix derivative(DirectPosition directPosition) throws MismatchedDimensionException {
+        public Matrix derivative(DirectPosition directPosition) throws MismatchedDimensionException, TransformException {
             return new GeneralMatrix(10);
         }
 
         @Override
-        public MathTransform2D inverse() {
+        public MathTransform2D inverse() throws NoninvertibleTransformException {
             return new NonLinearGarbageTransform();
         }
 
@@ -146,33 +148,33 @@ public class ProductSceneCrsTest {
         }
 
         @Override
-        public DirectPosition transform(DirectPosition directPosition, DirectPosition directPosition1) throws MismatchedDimensionException {
+        public DirectPosition transform(DirectPosition directPosition, DirectPosition directPosition1) throws MismatchedDimensionException, TransformException {
             return directPosition;
         }
 
         @Override
-        public Point2D transform(Point2D point2D, Point2D point2D1) {
+        public Point2D transform(Point2D point2D, Point2D point2D1) throws TransformException {
             return point2D;
         }
 
         @Override
-        public void transform(double[] doubles, int i, double[] doubles1, int i1, int i2) {
+        public void transform(double[] doubles, int i, double[] doubles1, int i1, int i2) throws TransformException {
         }
 
         @Override
-        public void transform(float[] floats, int i, float[] floats1, int i1, int i2) {
+        public void transform(float[] floats, int i, float[] floats1, int i1, int i2) throws TransformException {
         }
 
         @Override
-        public void transform(float[] floats, int i, double[] doubles, int i1, int i2) {
+        public void transform(float[] floats, int i, double[] doubles, int i1, int i2) throws TransformException {
         }
 
         @Override
-        public void transform(double[] doubles, int i, float[] floats, int i1, int i2) {
+        public void transform(double[] doubles, int i, float[] floats, int i1, int i2) throws TransformException {
         }
 
         @Override
-        public Shape createTransformedShape(Shape shape) {
+        public Shape createTransformedShape(Shape shape) throws TransformException {
             return shape;
         }
 

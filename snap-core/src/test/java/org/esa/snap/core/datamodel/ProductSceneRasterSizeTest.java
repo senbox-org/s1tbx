@@ -41,6 +41,7 @@ import static java.lang.Math.PI;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ProductSceneRasterSizeTest {
@@ -225,10 +226,10 @@ public class ProductSceneRasterSizeTest {
         configureAndTestMultiSizeProductImages(450, 300, 100, product, b1, b2, b3);
     }
 
-    // todo - [multisize_products] remove @Ignore and let test succeed
+    // todo - [multisize_products] remove @Ignore and let test succeed, see SNAP-145 (nf)
+    @Ignore
     @Test
-    @Ignore("tileSize not as expected in test")
-    public void testImageLayoutForMultiSizeProducts_WithoutPreferredTileSize_WithCustomSourceImages() {
+    public void testImageLayoutForMultiSizeProducts_WithoutPreferredTileSize_WithCustomSourceImages() throws Exception {
         int size = 900;
         int tileSize1 = 256;
         int tileSize2 = 128;
@@ -242,10 +243,10 @@ public class ProductSceneRasterSizeTest {
         configureAndTestMultiSizeProductImages(tileSize1, tileSize2, tileSize3, product, b1, b2, b3);
     }
 
-    // todo - [multisize_products] remove @Ignore and let test succeed
+    // todo - [multisize_products] remove @Ignore and let test succeed, see SNAP-145 (nf)
+    @Ignore
     @Test
-    @Ignore("tileSize not as expected in test")
-    public void testImageLayoutForMultiSizeProducts_WithPreferredTileSize_WithCustomSourceImages() {
+    public void testImageLayoutForMultiSizeProducts_WithPreferredTileSize_WithCustomSourceImages() throws Exception {
         int size = 900;
         int tileSize1 = 256;
         int tileSize2 = 128;
