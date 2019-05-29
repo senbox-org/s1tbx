@@ -1,0 +1,42 @@
+<filesystem>
+
+    <!-- Define action in Actions/Readers/ -->
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-s1tbx-io-importIceyeProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="ICEYE"/>
+                <attr name="formatName" stringvalue="IceyeProduct"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importIceyeProduct"/>
+                <attr name="ShortDescription" stringvalue="Open ICEYE slc product."/>
+            </file>
+        </folder>
+    </folder>
+
+    <!-- Place action into menu File/Import/Optical Sensors/[Format] -->
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="SAR Sensors">
+                    <file name="org-esa-s1tbx-io-importIceyeProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-s1tbx-io-importIceyeProduct.instance"/>
+                        <attr name="position" intvalue="2100"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <!-- Place help -->
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="com-iceye-esa-snap-iceye-slc-reader-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="3818"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>

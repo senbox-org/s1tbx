@@ -66,6 +66,7 @@
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
 		<module>s1tbx-rcp</module>
+		<module>snap_iceye_reader</module>
         
         <module>s1tbx-kit</module>
 	</modules>
