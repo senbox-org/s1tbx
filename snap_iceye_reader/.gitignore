@@ -1,0 +1,11 @@
+# structures
+/target
+
+# intellij idea
+/.idea
+*.iml
+
+#STS
+.classpath
+.project
+.settings/

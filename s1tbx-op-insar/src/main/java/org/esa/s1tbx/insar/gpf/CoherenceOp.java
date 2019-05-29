@@ -57,9 +57,8 @@ import javax.media.jai.BorderExtender;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 @OperatorMetadata(alias = "Coherence",
         category = "Radar/Interferometric/Products",
@@ -139,6 +138,9 @@ public class CoherenceOp extends Operator {
             defaultValue = "100")
     private String tileExtensionPercent = "100";
 
+    @Parameter(label = "Single Master", defaultValue = "true")
+    private Boolean singleMaster = true;
+
     // source
     private Map<String, CplxContainer> masterMap = new HashMap<>();
     private Map<String, CplxContainer> slaveMap = new HashMap<>();
@@ -199,6 +201,10 @@ public class CoherenceOp extends Operator {
                     sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
             if (slaveElem != null) {
                 slvRoot = slaveElem.getElements()[0];
+            }
+
+            if(singleMaster == null) {
+                singleMaster = true;
             }
 
             checkUserInput();
@@ -325,12 +331,41 @@ public class CoherenceOp extends Operator {
 
     private void constructTargetMetadata() {
 
-        for (String keyMaster : masterMap.keySet()) {
+        if(singleMaster) {
+            for (String keyMaster : masterMap.keySet()) {
 
-            CplxContainer master = masterMap.get(keyMaster);
+                CplxContainer master = masterMap.get(keyMaster);
 
-            for (String keySlave : slaveMap.keySet()) {
-                final CplxContainer slave = slaveMap.get(keySlave);
+                for (String keySlave : slaveMap.keySet()) {
+                    final CplxContainer slave = slaveMap.get(keySlave);
+
+                    if ((master.polarisation == null || slave.polarisation == null) ||
+                            (master.polarisation != null && slave.polarisation != null &&
+                                    master.polarisation.equals(slave.polarisation))) {
+                        // generate name for product bands
+                        final String productName = keyMaster + '_' + keySlave;
+
+                        final ProductContainer productContainer = new ProductContainer(productName, master, slave, false);
+
+                        // put ifg-product bands into map
+                        targetMap.put(productName, productContainer);
+                    }
+                }
+            }
+        } else {
+            final SortedSet<String> allKeys = new TreeSet<>();
+            allKeys.addAll(masterMap.keySet());
+            allKeys.addAll(slaveMap.keySet());
+            String[] keys  = allKeys.toArray(new String[0]);
+
+            for(int i=0; i < keys.length-1; ++i) {
+                String keyMaster = keys[i];
+                CplxContainer master = masterMap.get(keyMaster);
+                if(master == null) {
+                    master = slaveMap.get(keyMaster);
+                }
+                String keySlave = keys[i+1];
+                CplxContainer slave = slaveMap.get(keySlave);
 
                 if ((master.polarisation == null || slave.polarisation == null) ||
                         (master.polarisation != null && slave.polarisation != null &&
@@ -338,10 +373,10 @@ public class CoherenceOp extends Operator {
                     // generate name for product bands
                     final String productName = keyMaster + '_' + keySlave;
 
-                    final ProductContainer product = new ProductContainer(productName, master, slave, false);
+                    final ProductContainer productContainer = new ProductContainer(productName, master, slave, false);
 
                     // put ifg-product bands into map
-                    targetMap.put(productName, product);
+                    targetMap.put(productName, productContainer);
                 }
             }
         }
@@ -357,7 +392,10 @@ public class CoherenceOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         if (isComplex) {
-            for (String key : targetMap.keySet()) {
+            List<String> sortedKeys = new ArrayList<>();
+            sortedKeys.addAll(targetMap.keySet());
+            Collections.sort(sortedKeys);
+            for (String key : sortedKeys) {
                 final java.util.List<String> targetBandNames = new ArrayList<>();
 
                 final ProductContainer container = targetMap.get(key);
@@ -375,7 +413,6 @@ public class CoherenceOp extends Operator {
                 container.addBand(Unit.COHERENCE, coherenceBand.getName());
                 coherenceBand.setUnit(Unit.COHERENCE);
                 targetBandNames.add(coherenceBand.getName());
-
 
                 if (subtractTopographicPhase && OUTPUT_PHASE) {
                     final String targetBandTgp = "tgp" + tag;
@@ -395,7 +432,7 @@ public class CoherenceOp extends Operator {
 
                 String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
                 StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
-                                                     targetBandNames.toArray(new String[targetBandNames.size()]));
+                                                     targetBandNames.toArray(new String[0]));
             }
         } else {
             final int numSrcBands = sourceProduct.getNumBands();
@@ -435,7 +472,7 @@ public class CoherenceOp extends Operator {
         return bandName;
     }
 
-    private void getMstApproxSceneCentreXYZ() throws Exception {
+    private void getMstApproxSceneCentreXYZ() {
 
         final int numOfBursts = subSwath[subSwathIndex - 1].numOfBursts;
         mstSceneCentreXYZ = new Point[numOfBursts];
@@ -466,26 +503,23 @@ public class CoherenceOp extends Operator {
 
     private void constructFlatEarthPolynomialsForTOPSARProduct() throws Exception {
 
-        for (String keyMaster : masterMap.keySet()) {
+        for (String key : targetMap.keySet()) {
 
-            CplxContainer master = masterMap.get(keyMaster);
+            final ProductContainer container = targetMap.get(key);
+            final CplxContainer master = container.sourceMaster;
+            final CplxContainer slave = container.sourceSlave;
 
-            for (String keySlave : slaveMap.keySet()) {
+            for (int s = 0; s < numSubSwaths; s++) {
 
-                CplxContainer slave = slaveMap.get(keySlave);
+                final int numBursts = subSwath[s].numOfBursts;
 
-                for (int s = 0; s < numSubSwaths; s++) {
+                for (int b = 0; b < numBursts; b++) {
 
-                    final int numBursts = subSwath[s].numOfBursts;
+                    final String polynomialName = slave.name + '_' + s + '_' + b;
 
-                    for (int b = 0; b < numBursts; b++) {
-
-                        final String polynomialName = slave.name + '_' + s + '_' + b;
-
-                        flatEarthPolyMap.put(polynomialName, InterferogramOp.estimateFlatEarthPolynomial(
-                                master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
-                                srpNumberPoints, subSwath, su));
-                    }
+                    flatEarthPolyMap.put(polynomialName, InterferogramOp.estimateFlatEarthPolynomial(
+                            master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
+                            srpNumberPoints, subSwath, su));
                 }
             }
         }
@@ -493,18 +527,15 @@ public class CoherenceOp extends Operator {
 
     private void constructFlatEarthPolynomials() throws Exception {
 
-        for (String keyMaster : masterMap.keySet()) {
+        for (String key : targetMap.keySet()) {
 
-            CplxContainer master = masterMap.get(keyMaster);
+            final ProductContainer container = targetMap.get(key);
+            final CplxContainer master = container.sourceMaster;
+            final CplxContainer slave = container.sourceSlave;
 
-            for (String keySlave : slaveMap.keySet()) {
-
-                CplxContainer slave = slaveMap.get(keySlave);
-
-                flatEarthPolyMap.put(slave.name, InterferogramOp.estimateFlatEarthPolynomial(
+            flatEarthPolyMap.put(slave.name, InterferogramOp.estimateFlatEarthPolynomial(
                         master.metaData, master.orbit, slave.metaData, slave.orbit, sourceImageWidth,
                         sourceImageHeight, srpPolynomialDegree, srpNumberPoints, sourceProduct));
-            }
         }
     }
 
