@@ -69,6 +69,10 @@ public class CsvWriterBuilder {
             case PRODUCT: {
                 return new ProductCsvWriter(targetFile);
             }
+            // todo - PixelCsvWriter is not implemented
+//            case PIXEL: {
+//                return new PixelCsvWriter(writer, outputFormat);
+//            }
             case FEATURE: {
                 return new FeatureCsvWriter(writer, outputFormat);
             }

@@ -28,6 +28,17 @@ public class CsvWriterBuilderTest {
                 .targetFormat(OutputFormat.ODESA)
                 .targetFile("target.csv")
                 .build();
+        assertEquals(FeatureCsvWriter.class, featureWriter.getClass());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testType_Pixel() {
+        final CsvWriter pixelWriter = new CsvWriterBuilder()
+                .sourceType(SourceType.PIXEL)
+                .targetType(TargetType.FILE)
+                .targetFormat(OutputFormat.ODESA)
+                .targetFile("target.csv")
+                .build();
 
     }
 

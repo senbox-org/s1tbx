@@ -234,6 +234,11 @@
             <artifactId>snap-unmix</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-virtual-file-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-watermask</artifactId>

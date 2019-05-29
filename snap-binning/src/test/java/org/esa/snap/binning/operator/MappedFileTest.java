@@ -2,36 +2,32 @@ package org.esa.snap.binning.operator;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.MappedByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Norman
  */
 public class MappedFileTest {
 
-    int MiB = 1024 * 1024;
+    private int MiB = 1024 * 1024;
 
-    File file;
+    private File file;
 
     @Before
     public void setUp() throws Exception {
         file = MappedByteBufferTest.genTestFile();
-        file.deleteOnExit();
-        MappedByteBufferTest.deleteFile("setUp", file);
     }
 
     @After
-    public void tearDown() throws Exception {
-        MappedByteBufferTest.deleteFile("tearDown", file);
+    public void tearDown() {
+        MappedByteBufferTest.deleteFile(file);
     }
 
-    @Ignore("fails on tearDown()")
     @Test
     public void testRemap() throws Exception {
 

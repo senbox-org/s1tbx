@@ -152,7 +152,7 @@ public class ResampleTest_Interpolate {
     }
 
     @Test
-    @Ignore     //todo fix test
+    @Ignore("todo fix test")     //todo fix test
     public void testCreateScaledImage_AffineProvidedForSourceAndReference_ScaleAndTransform() throws Exception {
         int sourceWidth = 2;
         int sourceHeight = 2;
