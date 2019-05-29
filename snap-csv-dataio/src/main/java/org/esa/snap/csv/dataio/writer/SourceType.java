@@ -8,6 +8,5 @@ public enum SourceType {
 
     PRODUCT,
     FEATURE,
-    PIXEL
 
 }
