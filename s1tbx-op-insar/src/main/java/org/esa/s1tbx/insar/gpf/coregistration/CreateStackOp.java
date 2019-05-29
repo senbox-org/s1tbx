@@ -113,7 +113,7 @@ public class CreateStackOp extends Operator {
 
     @Parameter(valueSet = {INITIAL_OFFSET_ORBIT, INITIAL_OFFSET_GEOLOCATION},
             defaultValue = INITIAL_OFFSET_ORBIT,
-            description = "Method to be used in computation of initial offset between master and slave",
+            description = "Method for computing initial offset between master and slave",
             label = "Initial Offset Method")
     private String initialOffsetMethod = INITIAL_OFFSET_ORBIT;
 
@@ -140,12 +140,12 @@ public class CreateStackOp extends Operator {
             for (final Product prod : sourceProduct) {
                 final InputProductValidator validator = new InputProductValidator(prod);
                 if(validator.isTOPSARProduct() && !validator.isDebursted()) {
-                    throw new OperatorException("S1 TOPS SLC products should use TOPS Coregistration.");
+                    throw new OperatorException("For S1 TOPS SLC products, TOPS Coregistration should be used");
                 }
 
                 if (prod.getSceneGeoCoding() == null) {
                     throw new OperatorException(
-                            MessageFormat.format("Product ''{0}'' has no geo-coding.", prod.getName()));
+                            MessageFormat.format("Product ''{0}'' has no geo-coding", prod.getName()));
                 }
             }
 
@@ -234,9 +234,15 @@ public class CreateStackOp extends Operator {
                 for (final Band srcBand : slaveBandList) {
                     if (srcBand.getProduct() == masterProduct) {
                         suffix = StackUtils.MST + StackUtils.createBandTimeStamp(srcBand.getProduct());
+                        int dataType;
+                        if (!extent.equals(MAX_EXTENT)) {
+                            dataType = srcBand.getDataType();
+                        } else {
+                            dataType = ProductData.TYPE_FLOAT32;
+                        }
 
                         final Band targetBand = new Band(srcBand.getName() + suffix,
-                                                         srcBand.getDataType(),
+                                                         dataType,
                                                          targetProduct.getSceneRasterWidth(),
                                                          targetProduct.getSceneRasterHeight());
                         masterProductBands.add(targetBand.getName());
@@ -271,8 +277,15 @@ public class CreateStackOp extends Operator {
 
                     if (targetProduct.getBand(tgtBandName) == null) {
                         final Product srcProduct = srcBand.getProduct();
+                        int dataType;
+                        if (resamplingType.contains("NONE")) {
+                            dataType = srcBand.getDataType();
+                        } else {
+                            dataType = ProductData.TYPE_FLOAT32;
+                        }
+
                         final Band targetBand = new Band(tgtBandName,
-                                                         srcBand.getDataType(),
+                                                         dataType,
                                                          targetProduct.getSceneRasterWidth(),
                                                          targetProduct.getSceneRasterHeight());
                         sourceRasterMap.put(targetBand, srcBand);
