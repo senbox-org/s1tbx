@@ -2,9 +2,7 @@ package org.esa.snap.vfs.remote.http;
 
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
-import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.VFSWalker;
-import org.esa.snap.vfs.remote.swift.SwiftFileSystemProvider;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -12,8 +10,6 @@ import java.net.URL;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * File System Service Provider for the HTTP VFS.

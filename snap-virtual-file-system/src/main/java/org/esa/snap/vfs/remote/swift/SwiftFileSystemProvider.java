@@ -2,7 +2,11 @@ package org.esa.snap.vfs.remote.swift;
 
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -199,7 +203,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
         if (!(this.domain.isEmpty() && this.projectId.isEmpty() && this.user.isEmpty() && this.password.isEmpty()) && this.authAddress.isEmpty()) {
             throw new IllegalArgumentException("Missing 'authAddress' property.\nPlease provide authentication address required to access authentication service.");
         }
-        return new SwiftWalker(address, container, delimiter, fileSystemRoot, this);
+        return new SwiftWalker(this.address, this.container, this.delimiter, fileSystemRoot, this);
     }
 
     /**
