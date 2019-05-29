@@ -3,12 +3,9 @@ package org.esa.snap.vfs.remote.s3;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.VFSWalker;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +16,16 @@ import java.util.Set;
  * @author Adrian Drăghici
  */
 public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
+
+    /**
+     * The name of bucket property, used on S3 VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String BUCKET_PROPERTY_NAME = "bucket";
+
+    /**
+     * The name of AWS Region property, used on S3 VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String AWS_REGION_PROPERTY_NAME = "region";
 
     /**
      * The name of access key ID property, used on S3 VFS instance creation parameters and defining remote file repository properties.
@@ -35,56 +42,41 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     private static final String SCHEME = "s3";
 
-    private String bucketAddress = "";
+    private String address = "";
+    private String bucket = "";
+    private String region = "";
     private String accessKeyId = "";
     private String secretAccessKey = "";
     private String delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
+    private S3AuthenticationV4 s3AuthenticationV4 = null;
 
     public S3FileSystemProvider() {
         super();
     }
 
     /**
-     * Creates the authorization token used for S3 authentication.
-     *
-     * @param accessKeyId     The access key id S3 credential (username)
-     * @param secretAccessKey The secret access key S3 credential (password)
-     * @return The authorization token
-     */
-    private static String getAuthorizationToken(String accessKeyId, String secretAccessKey) {//not real S3 authentication - only for function definition
-        try {
-            if (accessKeyId == null || accessKeyId.isEmpty() || secretAccessKey == null || secretAccessKey.isEmpty()) {
-                throw new NullPointerException();
-            }
-            String data = "";
-            SecretKeySpec signingKey = new SecretKeySpec(secretAccessKey.getBytes(), "HmacSHA1");
-            Mac mac = Mac.getInstance("HmacSHA1");
-            mac.init(signingKey);
-            byte[] macSignature = mac.doFinal(data.getBytes());
-            String signature = Base64.getEncoder().encodeToString(macSignature);
-            return "AWS " + accessKeyId + ":" + signature;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
      * Save connection data on this provider.
      *
-     * @param bucketAddress   The bucket Address
+     * @param address         The address of AWS S3 service
+     * @param bucket          The bucket name
+     * @param region          The region of AWS S3 service
      * @param accessKeyId     The access key id S3 credential (username)
      * @param secretAccessKey The secret access key S3 credential (password)
      */
-    private void setupConnectionData(String bucketAddress, String accessKeyId, String secretAccessKey) {
-        this.bucketAddress = bucketAddress != null ? bucketAddress : "";
+    private void setupConnectionData(String address, String bucket, String region, String accessKeyId, String secretAccessKey) {
+        this.address = address != null ? address : "";
+        this.bucket = bucket != null ? bucket : "";
+        this.region = region != null ? region : "";
         this.accessKeyId = accessKeyId != null ? accessKeyId : "";
         this.secretAccessKey = secretAccessKey != null ? secretAccessKey : "";
     }
 
     public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
+        String newRegion = (String) connectionData.get(AWS_REGION_PROPERTY_NAME);
+        String newBucket = (String) connectionData.get(BUCKET_PROPERTY_NAME);
         String newAccessKeyId = (String) connectionData.get(ACCESS_KEY_ID_PROPERTY_NAME);
         String newSecretAccessKey = (String) connectionData.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
-        setupConnectionData(serviceAddress, newAccessKeyId, newSecretAccessKey);
+        setupConnectionData(serviceAddress, newBucket, newRegion, newAccessKeyId, newSecretAccessKey);
     }
 
     @Override
@@ -99,7 +91,10 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     @Override
     protected VFSWalker newObjectStorageWalker(String fileSystemRoot) {
-        return new S3Walker(bucketAddress, delimiter, fileSystemRoot, this);
+        if (this.bucket.isEmpty()) {
+            throw new IllegalArgumentException("Missing 'bucket' property.\nPlease provide a bucket name.");
+        }
+        return new S3Walker(this.address, this.bucket, this.delimiter, fileSystemRoot, this);
     }
 
     /**
@@ -109,7 +104,7 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     @Override
     public String getProviderAddress() {
-        return this.bucketAddress;
+        return this.address + this.bucket;
     }
 
     @Override
@@ -119,20 +114,30 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
 
     @Override
     public HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        String authorizationToken = getAuthorizationToken(accessKeyId, secretAccessKey);
+        method = method.toUpperCase();
+        if (this.s3AuthenticationV4 == null) {
+            this.s3AuthenticationV4 = new S3AuthenticationV4(method, this.region, this.accessKeyId, this.secretAccessKey);
+        }
+        String authorizationToken = this.s3AuthenticationV4.getAuthorizationToken(url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(method);
         connection.setDoInput(true);
-        method = method.toUpperCase();
         if (method.equals("POST") || method.equals("PUT") || method.equals("DELETE")) {
             connection.setDoOutput(true);
         }
         if (authorizationToken != null && !authorizationToken.isEmpty())
-            connection.setRequestProperty("Authorization ", "Basic " + authorizationToken);
+            connection.setRequestProperty("Authorization", authorizationToken);
         if (requestProperties != null && requestProperties.size() > 0) {
             Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
             for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
                 connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
+            }
+        }
+        Map<String, String> awsRequestProperties = this.s3AuthenticationV4.getAwsHeaders();
+        if (awsRequestProperties != null && awsRequestProperties.size() > 0) {
+            Set<Map.Entry<String, String>> awsRequestPropertiesSet = awsRequestProperties.entrySet();
+            for (Map.Entry<String, String> awsRequestProperty : awsRequestPropertiesSet) {
+                connection.setRequestProperty(awsRequestProperty.getKey(), awsRequestProperty.getValue());
             }
         }
         connection.setRequestProperty("user-agent", "SNAP Virtual File System");

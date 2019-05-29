@@ -1,6 +1,10 @@
 package org.esa.snap.vfs.remote.s3;
 
-import org.esa.snap.vfs.remote.*;
+import org.esa.snap.vfs.remote.AbstractRemoteWalker;
+import org.esa.snap.vfs.remote.HttpUtils;
+import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
+import org.esa.snap.vfs.remote.VFSFileAttributes;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -27,22 +31,25 @@ import java.util.List;
  */
 class S3Walker extends AbstractRemoteWalker {
 
-    private String bucketAddress;
+    private String address;
+    private String bucket;
     private String delimiter;
     private String root;
 
     /**
      * Creates the new walker for S3  VFS
      *
-     * @param bucketAddress           The address of S3 service. (mandatory)
+     * @param address                 The address of S3 service. (mandatory)
+     * @param bucket                  The bucket name (mandatory)
      * @param delimiter               The VFS path delimiter
      * @param root                    The root of S3 provider
      * @param remoteConnectionBuilder The connection builder
      */
-    S3Walker(String bucketAddress, String delimiter, String root, IRemoteConnectionBuilder remoteConnectionBuilder) {
+    S3Walker(String address, String bucket, String delimiter, String root, IRemoteConnectionBuilder remoteConnectionBuilder) {
         super(remoteConnectionBuilder);
 
-        this.bucketAddress = bucketAddress;
+        this.address = address;
+        this.bucket = bucket;
         this.delimiter = delimiter;
         this.root = root;
     }
@@ -149,12 +156,14 @@ class S3Walker extends AbstractRemoteWalker {
     }
 
     private String buildS3URL(String prefix, String nextContinuationToken) throws IOException {
+        String currentBucket = this.bucket;
+        currentBucket = (currentBucket != null && !currentBucket.isEmpty()) ? currentBucket + delimiter : "";
         StringBuilder paramBase = new StringBuilder();
         addParam(paramBase, "prefix", prefix);
         addParam(paramBase, "delimiter", delimiter);
         StringBuilder params = new StringBuilder(paramBase);
         addParam(params, "continuation-token", nextContinuationToken);
-        String s3URL = bucketAddress;
+        String s3URL = address + (address.endsWith(delimiter) ? "" : delimiter) + currentBucket;
         if (params.length() > 0) {
             s3URL += "?" + params;
         }
