@@ -1,5 +1,6 @@
 package org.esa.snap.vfs.remote.s3;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.VFS;
 import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
@@ -71,7 +72,7 @@ public class S3FileSystemTest extends AbstractVFSTest {
             mockService = new S3MockService(new URL(s3Repo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
-            fail("Testing requirements are not met. " + e.getMessage());
+            fail("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
         }
     }
 
