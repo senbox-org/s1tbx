@@ -25,7 +25,7 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.attribute.FileAttribute;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,7 +66,7 @@ public class VFSFileChannel extends FileChannel {
 
     static HttpURLConnection buildProviderConnectionChannel(VFSPath path, long position, String httpMethod) throws IOException {
         URL url = path.buildURL();
-        Map<String, String> requestProperties = new HashMap<>();
+        Map<String, String> requestProperties = new LinkedHashMap<>();
         String rangeSpec = "bytes=" + position + "-";
         requestProperties.put("Range", rangeSpec);
         AbstractRemoteFileSystemProvider fileSystemProvider = path.getFileSystem().provider();
@@ -121,9 +121,8 @@ public class VFSFileChannel extends FileChannel {
      * @param src The source ByteBuffer
      */
     @Override
-    public int write(ByteBuffer src) throws IOException {
+    public int write(ByteBuffer src) {
         throw new UnsupportedOperationException();
-//        return this.byteChannel.write(src);
     }
 
     /**
@@ -136,9 +135,8 @@ public class VFSFileChannel extends FileChannel {
      * @param length The length
      */
     @Override
-    public long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
+    public long write(ByteBuffer[] srcs, int offset, int length) {
         throw new UnsupportedOperationException();
-//        return this.byteChannel.write(srcs, offset, length);
     }
 
     /**
@@ -190,15 +188,11 @@ public class VFSFileChannel extends FileChannel {
      * @param size The new size, a non-negative byte count
      * @return This file channel
      * @throws NonWritableChannelException If this channel was not opened for writing
-     * @throws ClosedChannelException      If this channel is closed
      * @throws IllegalArgumentException    If the new size is negative
-     * @throws IOException                 If some other I/O error occurs
      */
     @Override
-    public FileChannel truncate(long size) throws IOException {
+    public FileChannel truncate(long size) {
         throw new UnsupportedOperationException();
-//        this.byteChannel.truncate(size);
-//        return this;
     }
 
     /**
@@ -215,11 +209,9 @@ public class VFSFileChannel extends FileChannel {
      * <p> This method is only guaranteed to force changes that were made to this channel's file via the methods defined in this class.  It may or may not force changes that were made by modifying the content of a {@link MappedByteBuffer <i>mapped byte buffer</i>} obtained by invoking the {@link #map map} method.  Invoking the {@link MappedByteBuffer#force force} method of the mapped byte buffer will force changes made to the buffer's content to be written.  </p>
      *
      * @param metaData If <tt>true</tt> then this method is required to force changes to both the file's content and metadata to be written to storage; otherwise, it need only force content changes to be written
-     * @throws ClosedChannelException If this channel is closed
-     * @throws IOException            If some other I/O error occurs
      */
     @Override
-    public void force(boolean metaData) throws IOException {
+    public void force(boolean metaData) {
         throw new UnsupportedOperationException();
     }
 
@@ -422,24 +414,10 @@ public class VFSFileChannel extends FileChannel {
      * @return The number of bytes written, possibly zero
      * @throws IllegalArgumentException    If the position is negative
      * @throws NonWritableChannelException If this channel was not opened for writing
-     * @throws ClosedChannelException      If this channel is closed
-     * @throws AsynchronousCloseException  If another thread closes this channel while the write operation is in progress
-     * @throws ClosedByInterruptException  If another thread interrupts the current thread while the write operation is in progress, thereby closing the channel and setting the current thread's interrupt status
-     * @throws IOException                 If some other I/O error occurs
      */
     @Override
-    public int write(ByteBuffer src, long position) throws IOException {
+    public int write(ByteBuffer src, long position) {
         throw new UnsupportedOperationException();
-//        if (position < 0) {
-//            throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
-//        }
-//        try (SeekableByteChannel dstByteChannel = path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
-//            if (position > dstByteChannel.size()) {
-//                return 0;
-//            }
-//            dstByteChannel.position(position);
-//            return dstByteChannel.write(src);
-//        }
     }
 
     /**
@@ -474,12 +452,11 @@ public class VFSFileChannel extends FileChannel {
      * @throws NonReadableChannelException If the <tt>mode</tt> is {@link MapMode#READ_ONLY READ_ONLY} but this channel was not opened for reading
      * @throws NonWritableChannelException If the <tt>mode</tt> is {@link MapMode#READ_WRITE READ_WRITE} or {@link MapMode#PRIVATE PRIVATE} but this channel was not opened for both reading and writing
      * @throws IllegalArgumentException    If the preconditions on the parameters do not hold
-     * @throws IOException                 If some other I/O error occurs
      * @see MapMode
      * @see MappedByteBuffer
      */
     @Override
-    public MappedByteBuffer map(MapMode mode, long position, long size) throws IOException {
+    public MappedByteBuffer map(MapMode mode, long position, long size) {
         throw new UnsupportedOperationException();
     }
 
@@ -502,20 +479,15 @@ public class VFSFileChannel extends FileChannel {
      * @param size     The size of the locked region; must be non-negative, and the sum <tt>position</tt>&nbsp;+&nbsp;<tt>size</tt> must be non-negative
      * @param shared   <tt>true</tt> to request a shared lock, in which case this channel must be open for reading (and possibly writing); <tt>false</tt> to request an exclusive lock, in which case this channel must be open for writing (and possibly reading)
      * @return A lock object representing the newly-acquired lock
-     * @throws IllegalArgumentException      If the preconditions on the parameters do not hold
-     * @throws ClosedChannelException        If this channel is closed
-     * @throws AsynchronousCloseException    If another thread closes this channel while the invoking thread is blocked in this method
-     * @throws FileLockInterruptionException If the invoking thread is interrupted while blocked in this method
      * @throws OverlappingFileLockException  If a lock that overlaps the requested region is already held by this Java virtual machine, or if another thread is already blocked in this method and is attempting to lock an overlapping region
      * @throws NonReadableChannelException   If <tt>shared</tt> is <tt>true</tt> this channel was not opened for reading
      * @throws NonWritableChannelException   If <tt>shared</tt> is <tt>false</tt> but this channel was not opened for writing
-     * @throws IOException                   If some other I/O error occurs
      * @see #lock()
      * @see #tryLock()
      * @see #tryLock(long, long, boolean)
      */
     @Override
-    public FileLock lock(long position, long size, boolean shared) throws IOException {
+    public FileLock lock(long position, long size, boolean shared) {
         throw new UnsupportedOperationException();
     }
 
@@ -535,15 +507,13 @@ public class VFSFileChannel extends FileChannel {
      * @param shared   <tt>true</tt> to request a shared lock, <tt>false</tt> to request an exclusive lock
      * @return A lock object representing the newly-acquired lock, or <tt>null</tt> if the lock could not be acquired because another program holds an overlapping lock
      * @throws IllegalArgumentException     If the preconditions on the parameters do not hold
-     * @throws ClosedChannelException       If this channel is closed
      * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this Java virtual machine, or if another thread is already blocked in this method and is attempting to lock an overlapping region of the same file
-     * @throws IOException                  If some other I/O error occurs
      * @see #lock()
      * @see #lock(long, long, boolean)
      * @see #tryLock()
      */
     @Override
-    public FileLock tryLock(long position, long size, boolean shared) throws IOException {
+    public FileLock tryLock(long position, long size, boolean shared) {
         throw new UnsupportedOperationException();
     }
 

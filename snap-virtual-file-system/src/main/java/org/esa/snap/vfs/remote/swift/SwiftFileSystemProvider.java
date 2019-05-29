@@ -203,7 +203,7 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
         if (!(this.domain.isEmpty() && this.projectId.isEmpty() && this.user.isEmpty() && this.password.isEmpty()) && this.authAddress.isEmpty()) {
             throw new IllegalArgumentException("Missing 'authAddress' property.\nPlease provide authentication address required to access authentication service.");
         }
-        return new SwiftWalker(address, container, delimiter, fileSystemRoot, this);
+        return new SwiftWalker(this.address, this.container, this.delimiter, fileSystemRoot, this);
     }
 
     /**
