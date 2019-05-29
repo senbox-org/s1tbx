@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -32,12 +33,14 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     private static final String REPO_2_NAME = "s3_vfs_test";
     private static final String REPO_2_SCHEMA = "s3";
-    private static final String REPO_2_ADDRESS = "http://localhost:777/mock-api/vfs/";
-    private static final String REPO_2_PROPS_IDs = "1553076251344;1553076252344";
-    private static final String REPO_2_PROP_1_NAME = "accessKeyId";
-    private static final String REPO_2_PROP_1_VALUE = "AKIAIOSFODNN7EXAMPLE";
-    private static final String REPO_2_PROP_2_NAME = "secretAccessKey";
-    private static final String REPO_2_PROP_2_VALUE = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";
+    private static final String REPO_2_ADDRESS = "http://localhost:777/mock-api/";
+    private static final String REPO_2_PROPS_IDs = "1553076251344;1553076252344;1553076253344";
+    private static final String REPO_2_PROP_1_NAME = "bucket";
+    private static final String REPO_2_PROP_1_VALUE = "vfs";
+    private static final String REPO_2_PROP_2_NAME = "accessKeyId";
+    private static final String REPO_2_PROP_2_VALUE = "AKIAIOSFODNN7EXAMPLE";
+    private static final String REPO_2_PROP_3_NAME = "secretAccessKey";
+    private static final String REPO_2_PROP_3_VALUE = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";
 
     private static final String REPO_3_NAME = "swift_vfs_test";
     private static final String REPO_3_SCHEMA = "oss";
@@ -62,7 +65,8 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
     @Before
     public void setUpVFSRemoteFileRepositoriesControllerTest() {
         configFile = vfsTestsFolderPath.resolve("vfs.properties");
-        newConfigFile = vfsTestsFolderPath.resolve("vfs_new.properties");
+        Path tempFolderPath = Paths.get(System.getProperty("user.home"));
+        newConfigFile = tempFolderPath.resolve("vfs_new.properties");
         assumeTrue(Files.exists(configFile));
         assumeFalse(Files.exists(newConfigFile));
     }
@@ -391,6 +395,11 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
         assertNotNull(repoPropName.getValue());
         assertEquals(REPO_2_PROP_2_NAME, repoPropName.getValue());
 
+        repoPropName = vfsRemoteFileRepositoriesController.getRemoteRepositoryPropertyName(reposIdsList[1], repoPropsIdsList[2]);
+        assertNotNull(repoPropName);
+        assertNotNull(repoPropName.getValue());
+        assertEquals(REPO_2_PROP_3_NAME, repoPropName.getValue());
+
         repoPropsIds = vfsRemoteFileRepositoriesController.getRemoteRepositoryPropertiesIds(reposIdsList[2]);
         assertNotNull(repoPropsIds);
         assertNotNull(repoPropsIds.getValue());
@@ -499,6 +508,11 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
         assertNotNull(repoPropValue.getValue());
         assertEquals(REPO_2_PROP_2_VALUE, repoPropValue.getValue());
 
+        repoPropValue = vfsRemoteFileRepositoriesController.getRemoteRepositoryPropertyValue(reposIdsList[1], repoPropsIdsList[2]);
+        assertNotNull(repoPropValue);
+        assertNotNull(repoPropValue.getValue());
+        assertEquals(REPO_2_PROP_3_VALUE, repoPropValue.getValue());
+
         repoPropsIds = vfsRemoteFileRepositoriesController.getRemoteRepositoryPropertiesIds(reposIdsList[2]);
         assertNotNull(repoPropsIds);
         assertNotNull(repoPropsIds.getValue());
@@ -569,6 +583,11 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
         assertNotNull(repoPropValue);
         assertNotNull(repoPropValue.getValue());
         assertEquals(REPO_2_PROP_2_VALUE, repoPropValue.getValue());
+
+        repoPropValue = vfsRemoteFileRepositoriesController.getRemoteRepositoryPropertyValue(reposIdsList[1], repoPropsIdsList[2]);
+        assertNotNull(repoPropValue);
+        assertNotNull(repoPropValue.getValue());
+        assertEquals(REPO_2_PROP_3_VALUE, repoPropValue.getValue());
 
         String newRepoPropValue = "new_value";
         vfsRemoteFileRepositoriesController.setRemoteRepositoryPropertyValue(reposIdsList[1], repoPropsIdsList[0], newRepoPropValue);
@@ -689,7 +708,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
         repoProps = repo.getProperties();
         assertNotNull(repoProps);
         assertFalse(repoProps.isEmpty());
-        assertEquals(2, repoProps.size());
+        assertEquals(3, repoProps.size());
 
         Property repoProp = repoProps.get(0);
         assertNotNull(repoProp.getName());
@@ -702,6 +721,12 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
         assertEquals(REPO_2_PROP_2_NAME, repoProp.getName());
         assertNotNull(repoProp.getValue());
         assertEquals(REPO_2_PROP_2_VALUE, repoProp.getValue());
+
+        repoProp = repoProps.get(2);
+        assertNotNull(repoProp.getName());
+        assertEquals(REPO_2_PROP_3_NAME, repoProp.getName());
+        assertNotNull(repoProp.getValue());
+        assertEquals(REPO_2_PROP_3_VALUE, repoProp.getValue());
 
         repo = reposList.get(2);
         assertNotNull(repo);
