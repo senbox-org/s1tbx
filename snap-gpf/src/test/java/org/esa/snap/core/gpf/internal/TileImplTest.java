@@ -23,14 +23,17 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.image.VirtualBandOpImage;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.media.jai.BorderExtenderConstant;
 import java.awt.Rectangle;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 public class TileImplTest {
 
@@ -127,31 +130,6 @@ public class TileImplTest {
         assertEquals(N - 2, tile.getSampleInt(W - 2, H - 1));
         assertEquals(N - 1, tile.getSampleInt(W - 1, H - 1));
 
-    }
-
-    // Note: NF ignored this test, because I have removed the automatic cropping of out-of-range samples.
-    // Cropping is something that should be done in a user-specific way.
-    //
-    @Ignore
-    @Test
-    public void testSetSamplePreventsOverflow() {
-        Product product = new Product("n", "t", 1, 1);
-        Band band = product.addBand("x", ProductData.TYPE_INT8);
-        band.setRasterData(band.createCompatibleRasterData());
-        double scalingFactor = 2.5;
-        band.setScalingFactor(scalingFactor);
-
-        Tile scaledTile = createTile(band);
-
-        int maxRawValue = Byte.MAX_VALUE;
-        double geoPhysicalValueOutOfRawRange = (maxRawValue + 1) * scalingFactor;
-        scaledTile.setSample(0, 0, geoPhysicalValueOutOfRawRange);
-        assertEquals(maxRawValue * scalingFactor, scaledTile.getSampleDouble(0, 0), 1.0e-6);
-
-        int minRawValue = Byte.MIN_VALUE;
-        geoPhysicalValueOutOfRawRange = (minRawValue - 1) * scalingFactor;
-        scaledTile.setSample(0, 0, geoPhysicalValueOutOfRawRange);
-        assertEquals(minRawValue * scalingFactor, scaledTile.getSampleDouble(0, 0), 1.0e-6);
     }
 
     @Test

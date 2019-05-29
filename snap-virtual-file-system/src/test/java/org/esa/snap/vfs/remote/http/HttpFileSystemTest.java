@@ -71,7 +71,7 @@ public class HttpFileSystemTest extends AbstractVFSTest {
             mockService = new HttpMockService(new URL(httpRepo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
-            fail("Test requirements not meets.");
+            fail("Testing requirements are not met. " + e. getMessage());
         }
     }
 

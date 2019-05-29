@@ -94,7 +94,7 @@ public class PixelGeoCoding2Test {
     }
 
     @Test
-    @Ignore
+    @Ignore("just timing measurement")
     public void testGetPixelPos_PixelCenterAccuracy_withTimeStop() throws Exception {
         try {
             Config.instance().preferences().putBoolean("snap.pixelGeoCoding.fractionAccuracy", false);
@@ -135,7 +135,7 @@ public class PixelGeoCoding2Test {
     }
 
     @Test
-    @Ignore
+    @Ignore("just timing measurement")
     public void testGetPixelPos_FractionAccuracy_withTimeStop() throws Exception {
         try {
             Config.instance().preferences().putBoolean("snap.pixelGeoCoding.fractionAccuracy", true);

@@ -2,7 +2,9 @@ package org.esa.snap.csv.dataio.writer;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -11,7 +13,7 @@ import static org.junit.Assert.*;
 public class CsvWriterBuilderTest {
 
     @Test
-    public void testTypes() throws Exception {
+    public void testTypes() {
         final CsvWriter productWriter = new CsvWriterBuilder()
                 .sourceType(SourceType.PRODUCT)
                 .targetType(TargetType.FILE)
@@ -19,14 +21,6 @@ public class CsvWriterBuilderTest {
                 .targetFile("target.csv")
                 .build();
         assertEquals(CsvWriterBuilder.ProductCsvWriter.class, productWriter.getClass());
-
-        final CsvWriter pixelWriter = new CsvWriterBuilder()
-                .sourceType(SourceType.PIXEL)
-                .targetType(TargetType.FILE)
-                .targetFormat(OutputFormat.ODESA)
-                .targetFile("target.csv")
-                .build();
-        assertEquals(PixelCsvWriter.class, pixelWriter.getClass());
 
         final CsvWriter featureWriter = new CsvWriterBuilder()
                 .sourceType(SourceType.FEATURE)
@@ -37,8 +31,19 @@ public class CsvWriterBuilderTest {
         assertEquals(FeatureCsvWriter.class, featureWriter.getClass());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testType_Pixel() {
+        final CsvWriter pixelWriter = new CsvWriterBuilder()
+                .sourceType(SourceType.PIXEL)
+                .targetType(TargetType.FILE)
+                .targetFormat(OutputFormat.ODESA)
+                .targetFile("target.csv")
+                .build();
+
+    }
+
     @Test
-    public void testValidation() throws Exception {
+    public void testValidation() {
         try {
             new CsvWriterBuilder().build();
             fail();

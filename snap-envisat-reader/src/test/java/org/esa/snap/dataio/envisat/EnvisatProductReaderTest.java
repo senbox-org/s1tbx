@@ -21,7 +21,6 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -30,7 +29,9 @@ import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Scanner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class EnvisatProductReaderTest {
 
@@ -41,7 +42,6 @@ public class EnvisatProductReaderTest {
         readerPlugIn = new EnvisatProductReaderPlugIn();
     }
 
-    @Ignore
     @Test
     public void testAatsrGeoLocation_UpperRightCorner() throws IOException, URISyntaxException {
         final EnvisatProductReader reader = (EnvisatProductReader) readerPlugIn.createReaderInstance();
@@ -90,7 +90,6 @@ public class EnvisatProductReaderTest {
         }
     }
 
-    @Ignore
     @Test
     public void testAatsrGeoLocation_Center() throws IOException, URISyntaxException {
         final EnvisatProductReader reader = (EnvisatProductReader) readerPlugIn.createReaderInstance();
