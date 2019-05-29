@@ -86,7 +86,7 @@ class S3MockService {
                 uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
                 Path responsePath = this.serviceRootPath.resolve(uriPath);
                 if (Files.isDirectory(responsePath)) {
-                    if (responsePath.equals(this.serviceRootPath)) {
+                    if (responsePath.getParent().equals(this.serviceRootPath)) {
                         response = getXMLResponse(uriPath, httpExchange.getRequestURI().getQuery());
                         contentType = "application/xml";
                     } else {

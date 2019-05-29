@@ -39,6 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -49,7 +50,7 @@ import static org.junit.Assume.assumeTrue;
  */
 public class S3FileSystemTest extends AbstractVFSTest {
 
-    private static final String TEST_DIR = "mock-api/vfs/";
+    private static final String TEST_DIR = "mock-api/";
 
     private AbstractRemoteFileSystem s3FileSystem;
     private S3MockService mockService;
@@ -60,6 +61,15 @@ public class S3FileSystemTest extends AbstractVFSTest {
         } else {
             return getS3Repo().getAddress();
         }
+    }
+
+    private String getBucket() {
+        VFSRemoteFileRepository s3Repo = getSwiftRepo();
+        String bucket = "";
+        if (!s3Repo.getProperties().isEmpty()) {
+            bucket = s3Repo.getProperties().get(0).getValue();
+        }
+        return bucket;
     }
 
     @Before
@@ -103,26 +113,26 @@ public class S3FileSystemTest extends AbstractVFSTest {
 
         List<BasicFileAttributes> items;
 
-        S3Walker walker = new S3Walker(getAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
+        S3Walker walker = new S3Walker(getBucketAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + ""));
         assertEquals(2, items.size());
 
-        walker = new S3Walker(getAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
+        walker = new S3Walker(getBucketAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        walker = new S3Walker(getAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
+        walker = new S3Walker(getBucketAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
 
     @Test
     public void testGET() throws Exception {
-        String address = getAddress();
-        if (address.endsWith("/")) {
-            address = address.substring(0, address.lastIndexOf('/'));
+        String address = getBucketAddress();
+        if (!address.endsWith("/")) {
+            address = address.concat("/");
         }
-        URL url = new URL(address + "/rootDir1/dir1/file.jpg");
+        URL url = new URL(address + getBucket() + "/rootDir1/dir1/file.jpg");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setDoInput(true);
