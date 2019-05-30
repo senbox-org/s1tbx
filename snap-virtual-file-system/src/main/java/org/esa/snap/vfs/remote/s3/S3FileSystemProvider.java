@@ -76,9 +76,9 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @param secretAccessKey The secret access key S3 credential (password)
      */
     private void setupConnectionData(String bucketAddress, String accessKeyId, String secretAccessKey) {
-        this.bucketAddress = bucketAddress != null ? bucketAddress : "";
-        this.accessKeyId = accessKeyId != null ? accessKeyId : "";
-        this.secretAccessKey = secretAccessKey != null ? secretAccessKey : "";
+        this.bucketAddress = bucketAddress != null ? bucketAddress : this.bucketAddress;
+        this.accessKeyId = accessKeyId != null ? accessKeyId : this.accessKeyId;
+        this.secretAccessKey = secretAccessKey != null ? secretAccessKey : this.secretAccessKey;
     }
 
     public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {

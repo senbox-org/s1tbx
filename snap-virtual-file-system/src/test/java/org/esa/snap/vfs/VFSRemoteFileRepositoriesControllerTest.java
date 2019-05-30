@@ -28,12 +28,12 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     private static final String REPO_1_NAME = "http_vfs_test";
     private static final String REPO_1_SCHEMA = "http";
-    private static final String REPO_1_ADDRESS = "http://localhost:777/mock-api/";
+    private static final String REPO_1_ADDRESS = "http://localhost:0/mock-api/";
     private static final String REPO_1_PROPS_IDS = "";
 
     private static final String REPO_2_NAME = "s3_vfs_test";
     private static final String REPO_2_SCHEMA = "s3";
-    private static final String REPO_2_ADDRESS = "http://localhost:777/mock-api/vfs/";
+    private static final String REPO_2_ADDRESS = "http://localhost:0/mock-api/vfs/";
     private static final String REPO_2_PROPS_IDS = "1553076251344;1553076252344";
     private static final String REPO_2_PROP_1_NAME = "accessKeyId";
     private static final String REPO_2_PROP_1_VALUE = "AKIAIOSFODNN7EXAMPLE";
@@ -42,7 +42,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     private static final String REPO_3_NAME = "swift_vfs_test";
     private static final String REPO_3_SCHEMA = "oss";
-    private static final String REPO_3_ADDRESS = "http://localhost:777/mock-api/";
+    private static final String REPO_3_ADDRESS = "http://localhost:0/mock-api/";
     private static final String REPO_3_PROPS_IDS = "1553076351344;1553076352344;1553076353344;1553076354344;1553076355344;1553076356344";
     private static final String REPO_3_PROP_1_NAME = "container";
     private static final String REPO_3_PROP_1_VALUE = "vfs";

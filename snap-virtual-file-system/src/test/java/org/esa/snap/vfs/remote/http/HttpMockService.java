@@ -15,24 +15,29 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.junit.Assume.assumeTrue;
 
 public class HttpMockService {
 
     private HttpServer mockServer;
+    private String mockServiceAddress;
 
     public HttpMockService(URL serviceAddress, Path serviceRootPath) throws IOException {
         mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
+        int port = this.mockServer.getAddress().getPort();
+        mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
         mockServer.createContext(serviceAddress.getPath(), new HTTPMockServiceHandler(serviceRootPath));
     }
 
     public static void main(String[] args) {
         try {
-            HttpMockService mockService = new HttpMockService(new URL("http://localhost:777/mock-api/"), Paths.get(System.getProperty("swift.mock-service.root")));
+            HttpMockService mockService = new HttpMockService(new URL("http://localhost:0/mock-api/"), Paths.get(System.getProperty("http.mock-service.root")));
             mockService.start();
+            Logger.getLogger(HttpMockService.class.getName()).info("HTTP mock service started at: " + mockService.getMockServiceAddress());
         } catch (IOException e) {
-            Logger.getLogger(HttpMockService.class.getName()).severe("Unable to start S3 mock service.\nReason: " + e.getMessage());
+            Logger.getLogger(HttpMockService.class.getName()).severe("Unable to start HTTP mock service.\nReason: " + e.getMessage());
         }
     }
 
@@ -42,6 +47,10 @@ public class HttpMockService {
 
     public void stop() {
         mockServer.stop(1);
+    }
+
+    public String getMockServiceAddress() {
+        return mockServiceAddress;
     }
 
     private class HTTPMockServiceHandler implements HttpHandler {
@@ -85,14 +94,12 @@ public class HttpMockService {
                     response = "Not Found".getBytes();
                     httpStatus = HttpURLConnection.HTTP_NOT_FOUND;
                 }
+            } catch (IllegalArgumentException ex) {
+                response = "Bad request".getBytes();
+                httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
             } catch (Exception ex) {
-                if (ex instanceof IllegalArgumentException) {
-                    response = "Bad request".getBytes();
-                    httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
-                } else {
-                    response = "Internal error".getBytes();
-                    httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
-                }
+                response = "Internal error".getBytes();
+                httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockHTTP");
@@ -102,13 +109,13 @@ public class HttpMockService {
         }
 
         private byte[] readFile(Path inputFile) throws IOException {
-            InputStream is = Files.newInputStream(inputFile);
-            byte data[] = new byte[is.available()];
-            if (is.read(data) < 0) {
-                throw new IOException();
+            try (InputStream is = Files.newInputStream(inputFile)) {
+                byte[] data = new byte[is.available()];
+                if (is.read(data) < 0) {
+                    throw new IOException();
+                }
+                return data;
             }
-            is.close();
-            return data;
         }
 
         private byte[] getHTMLResponse(String uriPath) throws IOException {
@@ -118,18 +125,20 @@ public class HttpMockService {
             }
             String prefix = uriPath;
             Path path = serviceRootPath.resolve(uriPath);
-            Iterator<Path> paths = Files.walk(path, 1).iterator();
-            paths.next();
-            while (paths.hasNext()) {
-                Path pathItem = paths.next();
-                if (Files.isDirectory(pathItem)) {
-                    String directoryPath = pathItem.toString().replace(path.toString(), "").replace(path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
-                    html.append(DIRECTORY_HTML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
-                } else {
-                    long fileSize = Files.size(pathItem);
-                    String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
-                    String filePath = pathItem.toString().replace(path.toString(), "").replace(path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
-                    html.append(FILE_HTML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
+            try (Stream<Path> pathsStream = Files.walk(path, 1)) {
+                Iterator<Path> paths = pathsStream.iterator();
+                paths.next();
+                while (paths.hasNext()) {
+                    Path pathItem = paths.next();
+                    if (Files.isDirectory(pathItem)) {
+                        String directoryPath = pathItem.toString().replace(path.toString(), "").replace(path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                        html.append(DIRECTORY_HTML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
+                    } else {
+                        long fileSize = Files.size(pathItem);
+                        String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
+                        String filePath = pathItem.toString().replace(path.toString(), "").replace(path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                        html.append(FILE_HTML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
+                    }
                 }
             }
             return RESPONSE_HTML.replace(PREFIX_CONTENT, prefix).replace(HTTP_CONTENT, html.toString()).getBytes();

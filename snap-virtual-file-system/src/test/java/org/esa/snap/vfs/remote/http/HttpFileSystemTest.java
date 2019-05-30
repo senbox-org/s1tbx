@@ -29,6 +29,7 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,7 +55,11 @@ public class HttpFileSystemTest extends AbstractVFSTest {
     private HttpMockService mockService;
 
     private String getAddress() {
-        return getHTTPRepo().getAddress();
+        if (this.mockService != null) {
+            return mockService.getMockServiceAddress();
+        } else {
+            return getHTTPRepo().getAddress();
+        }
     }
 
     @Before
@@ -62,16 +67,17 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         try {
             VFSRemoteFileRepository httpRepo = getHTTPRepo();
             assumeNotNull(httpRepo);
+            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
+            mockService = new HttpMockService(new URL(httpRepo.getAddress()), serviceRootPath);
             FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(httpRepo.getScheme());
             assumeNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
+            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(mockService.getMockServiceAddress(), new LinkedHashMap<>());
             URI uri = new URI(httpRepo.getScheme(), httpRepo.getRoot(), null);
             FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assumeNotNull(fs);
             httpFileSystem = (AbstractRemoteFileSystem) fs;
-            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
             assumeTrue(Files.exists(serviceRootPath));
-            mockService = new HttpMockService(new URL(httpRepo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
             Logger.getLogger(HttpFileSystemTest.class.getName()).log(Level.WARNING, "Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));

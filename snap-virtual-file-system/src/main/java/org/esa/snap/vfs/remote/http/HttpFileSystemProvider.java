@@ -49,6 +49,39 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
     }
 
     /**
+     * Creates the authorization token used for HTTP authentication.
+     *
+     * @param username The username HTTP credential
+     * @param password The password HTTP credential
+     * @return The authorization token
+     */
+    private static String getAuthorizationToken(String username, String password) {
+        return (!StringUtils.isNotNullAndNotEmpty(username) && !StringUtils.isNotNullAndNotEmpty(password)) ? Base64.getEncoder().encodeToString((username + ":" + password).getBytes()) : "";
+    }
+
+    static HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties, String username, String password) throws IOException {
+        String authorizationToken = getAuthorizationToken(username, password);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(method);
+        connection.setDoInput(true);
+        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT") || method.equalsIgnoreCase("DELETE")) {
+            connection.setDoOutput(true);
+        }
+        connection.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+        if (authorizationToken != null && !authorizationToken.isEmpty()) {
+            connection.setRequestProperty("authorization", "Basic " + authorizationToken);
+        }
+        if (requestProperties != null && requestProperties.size() > 0) {
+            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
+            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
+                connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
+            }
+        }
+        connection.setRequestProperty("user-agent", "SNAP Virtual File System");
+        return connection;
+    }
+
+    /**
      * Save connection data on this provider.
      *
      * @param address  The address of HTTP service. (mandatory)
@@ -56,9 +89,9 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @param password The password HTTP credential
      */
     private void setupConnectionData(String address, String username, String password) {
-        this.address = address != null ? address : "";
-        this.username = username != null ? username : "";
-        this.password = password != null ? password : "";
+        this.address = address != null ? address : this.address;
+        this.username = username != null ? username : this.address;
+        this.password = password != null ? password : this.address;
     }
 
     @Override
@@ -119,38 +152,5 @@ public class HttpFileSystemProvider extends AbstractRemoteFileSystemProvider {
             }
         }
         return buildConnection(url, method, requestProperties, this.username, this.password);
-    }
-
-    /**
-     * Creates the authorization token used for HTTP authentication.
-     *
-     * @param username The username HTTP credential
-     * @param password The password HTTP credential
-     * @return The authorization token
-     */
-    private static String getAuthorizationToken(String username, String password) {
-        return (!StringUtils.isNotNullAndNotEmpty(username) && !StringUtils.isNotNullAndNotEmpty(password)) ? Base64.getEncoder().encodeToString((username + ":" + password).getBytes()) : "";
-    }
-
-    static HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties, String username, String password) throws IOException {
-        String authorizationToken = getAuthorizationToken(username, password);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod(method);
-        connection.setDoInput(true);
-        if (method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT") || method.equalsIgnoreCase("DELETE")) {
-            connection.setDoOutput(true);
-        }
-        connection.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-        if (authorizationToken != null && !authorizationToken.isEmpty()) {
-            connection.setRequestProperty("authorization", "Basic " + authorizationToken);
-        }
-        if (requestProperties != null && requestProperties.size() > 0) {
-            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
-            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
-                connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-            }
-        }
-        connection.setRequestProperty("user-agent", "SNAP Virtual File System");
-        return connection;
     }
 }

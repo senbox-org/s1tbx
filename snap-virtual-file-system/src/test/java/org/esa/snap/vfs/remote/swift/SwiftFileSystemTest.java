@@ -29,6 +29,7 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +56,11 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
 
 
     private String getAddress() {
-        return getSwiftRepo().getAddress();
+        if (this.mockService != null) {
+            return mockService.getMockServiceAddress();
+        } else {
+            return getSwiftRepo().getAddress();
+        }
     }
 
     private String getContainer() {
@@ -81,16 +86,17 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         try {
             VFSRemoteFileRepository swiftRepo = getSwiftRepo();
             assertNotNull(swiftRepo);
+            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
+            mockService = new SwiftMockService(new URL(swiftRepo.getAddress()), serviceRootPath);
             FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(swiftRepo.getScheme());
             assertNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
+            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(mockService.getMockServiceAddress(), new LinkedHashMap<>());
             URI uri = new URI(swiftRepo.getScheme(), swiftRepo.getRoot(), null);
             FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assertNotNull(fs);
             swiftFileSystem = (AbstractRemoteFileSystem) fs;
-            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
             assumeTrue(Files.exists(serviceRootPath));
-            mockService = new SwiftMockService(new URL(swiftRepo.getAddress()), serviceRootPath);
             mockService.start();
             authMockService = new SwiftAuthMockService(new URL(getAuthAddress()));
             authMockService.start();

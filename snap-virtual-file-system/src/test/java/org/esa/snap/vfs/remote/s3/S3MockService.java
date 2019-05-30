@@ -15,21 +15,26 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 
 class S3MockService {
 
     private HttpServer mockServer;
+    private String mockServiceAddress;
 
     S3MockService(URL serviceAddress, Path serviceRootPath) throws IOException {
         mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
+        int port = this.mockServer.getAddress().getPort();
+        mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
         mockServer.createContext(serviceAddress.getPath(), new S3MockServiceHandler(serviceRootPath));
     }
 
     public static void main(String[] args) {
         try {
-            S3MockService mockService = new S3MockService(new URL("http://localhost:777/mock-api/"), Paths.get(System.getProperty("s3.mock-service.root")));
+            S3MockService mockService = new S3MockService(new URL("http://localhost:0/mock-api/"), Paths.get(System.getProperty("s3.mock-service.root")));
             mockService.start();
+            Logger.getLogger(S3MockService.class.getName()).info("S3 mock service started at: " + mockService.getMockServiceAddress());
         } catch (IOException e) {
             Logger.getLogger(S3MockService.class.getName()).severe("Unable to start S3 mock service.\nReason: " + e.getMessage());
         }
@@ -41,6 +46,10 @@ class S3MockService {
 
     void stop() {
         mockServer.stop(1);
+    }
+
+    String getMockServiceAddress() {
+        return mockServiceAddress;
     }
 
     private class S3MockServiceHandler implements HttpHandler {
@@ -91,14 +100,12 @@ class S3MockService {
                     response = "Not Found".getBytes();
                     httpStatus = HttpURLConnection.HTTP_NOT_FOUND;
                 }
+            } catch (IllegalArgumentException ex) {
+                response = "Bad request".getBytes();
+                httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
             } catch (Exception ex) {
-                if (ex instanceof IllegalArgumentException) {
-                    response = "Bad request".getBytes();
-                    httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
-                } else {
-                    response = "Internal error".getBytes();
-                    httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
-                }
+                response = "Internal error".getBytes();
+                httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockS3");
@@ -117,30 +124,30 @@ class S3MockService {
         }
 
         private byte[] readFile(Path inputFile) throws IOException {
-            InputStream is = Files.newInputStream(inputFile);
-            byte data[] = new byte[is.available()];
-            if (is.read(data) < 0) {
-                throw new IOException();
+            try (InputStream is = Files.newInputStream(inputFile)) {
+                byte[] data = new byte[is.available()];
+                if (is.read(data) < 0) {
+                    throw new IOException();
+                }
+                return data;
             }
-            is.close();
-            return data;
         }
 
         private byte[] getXMLResponse(String uriPath, String uriQuery) throws IOException {
             int limit = 1000;
             Path bucketPath = serviceRootPath.resolve(uriPath);
             StringBuilder xml = new StringBuilder();
-            String prefix = getRequestParameter(uriQuery, "prefix");
-            if (!prefix.isEmpty() && !prefix.endsWith("/")) {
+            String prefixParameterValue = getRequestParameter(uriQuery, "prefix");
+            if (!prefixParameterValue.isEmpty() && !prefixParameterValue.endsWith("/")) {
                 throw new IllegalArgumentException("Invalid prefix parameter.");
             }
-            if (!uriPath.endsWith("/") && !prefix.startsWith("/")) {
+            if (!uriPath.endsWith("/") && !prefixParameterValue.startsWith("/")) {
                 uriPath = uriPath.concat("/");
             }
-            uriPath = uriPath.concat(prefix);
-            String marker = getRequestParameter(uriQuery, "continuation-token");
-            marker = marker.replaceAll("/$", "");
-            if (!marker.isEmpty() && !marker.startsWith(prefix)) {
+            uriPath = uriPath.concat(prefixParameterValue);
+            String markerParameterValue = getRequestParameter(uriQuery, "continuation-token");
+            markerParameterValue = markerParameterValue.replaceAll("/$", "");
+            if (!markerParameterValue.isEmpty() && !markerParameterValue.startsWith(prefixParameterValue)) {
                 throw new IllegalArgumentException("Invalid continuation-token parameter.");
             }
             uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
@@ -148,30 +155,33 @@ class S3MockService {
             if (Files.isRegularFile(path) && uriPath.endsWith("/")) {
                 throw new IllegalArgumentException("dir requested, but was file");
             }
-            Iterator<Path> paths = Files.walk(path, 1).iterator();
-            boolean markerReached = marker.isEmpty();
-            int index = 0;
-            paths.next();
-            while (paths.hasNext() && index < limit) {
-                index++;
-                Path pathItem = paths.next();
-                if (!markerReached) {
-                    Path markerPath = bucketPath.resolve(marker);
-                    markerReached = pathItem.endsWith(markerPath);
-                } else {
-                    if (Files.isDirectory(pathItem)) {
-                        String directoryPath = pathItem.toString().replace(bucketPath.toString(), "").replace(bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
-                        xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
+            String isTruncated;
+            try (Stream<Path> pathsStream = Files.walk(path, 1)) {
+                Iterator<Path> paths = pathsStream.iterator();
+                boolean markerReached = markerParameterValue.isEmpty();
+                int index = 0;
+                paths.next();
+                while (paths.hasNext() && index < limit) {
+                    index++;
+                    Path pathItem = paths.next();
+                    if (!markerReached) {
+                        Path markerPath = bucketPath.resolve(markerParameterValue);
+                        markerReached = pathItem.endsWith(markerPath);
                     } else {
-                        long fileSize = Files.size(pathItem);
-                        String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
-                        String filePath = pathItem.toString().replace(bucketPath.toString(), "").replace(bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
-                        xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
+                        if (Files.isDirectory(pathItem)) {
+                            String directoryPath = pathItem.toString().replace(bucketPath.toString(), "").replace(bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                            xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
+                        } else {
+                            long fileSize = Files.size(pathItem);
+                            String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
+                            String filePath = pathItem.toString().replace(bucketPath.toString(), "").replace(bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                            xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
+                        }
                     }
                 }
+                isTruncated = paths.hasNext() ? "true" : "false";
             }
-            String isTruncated = paths.hasNext() ? "true" : "false";
-            return RESPONSE_XML.replace(PREFIX_CONTENT, prefix).replace(MARKER_CONTENT, marker).replace(MAX_KEYS_CONTENT, "" + limit).replace(IS_TRUNCATED_CONTENT, isTruncated).replace(BUCKET_CONTENT, xml.toString()).getBytes();
+            return RESPONSE_XML.replace(PREFIX_CONTENT, prefixParameterValue).replace(MARKER_CONTENT, markerParameterValue).replace(MAX_KEYS_CONTENT, "" + limit).replace(IS_TRUNCATED_CONTENT, isTruncated).replace(BUCKET_CONTENT, xml.toString()).getBytes();
         }
     }
 

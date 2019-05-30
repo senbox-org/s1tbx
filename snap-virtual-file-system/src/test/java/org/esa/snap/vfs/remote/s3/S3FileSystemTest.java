@@ -29,6 +29,7 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,8 +54,12 @@ public class S3FileSystemTest extends AbstractVFSTest {
     private AbstractRemoteFileSystem s3FileSystem;
     private S3MockService mockService;
 
-    private String getBucketAddress() {
-        return getS3Repo().getAddress();
+    private String getAddress() {
+        if (this.mockService != null) {
+            return mockService.getMockServiceAddress();
+        } else {
+            return getS3Repo().getAddress();
+        }
     }
 
     @Before
@@ -62,16 +67,17 @@ public class S3FileSystemTest extends AbstractVFSTest {
         try {
             VFSRemoteFileRepository s3Repo = getS3Repo();
             assertNotNull(s3Repo);
+            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
+            mockService = new S3MockService(new URL(s3Repo.getAddress()), serviceRootPath);
             FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(s3Repo.getScheme());
             assertNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
+            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(mockService.getMockServiceAddress(), new LinkedHashMap<>());
             URI uri = new URI(s3Repo.getScheme(), s3Repo.getRoot(), null);
             FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assertNotNull(fs);
             s3FileSystem = (AbstractRemoteFileSystem) fs;
-            Path serviceRootPath = vfsTestsFolderPath.resolve(TEST_DIR);
             assumeTrue(Files.exists(serviceRootPath));
-            mockService = new S3MockService(new URL(s3Repo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
             Logger.getLogger(S3FileSystemTest.class.getName()).log(Level.WARNING, "Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
@@ -97,22 +103,22 @@ public class S3FileSystemTest extends AbstractVFSTest {
 
         List<BasicFileAttributes> items;
 
-        S3Walker walker = new S3Walker(getBucketAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
+        S3Walker walker = new S3Walker(getAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + ""));
         assertEquals(2, items.size());
 
-        walker = new S3Walker(getBucketAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
+        walker = new S3Walker(getAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        walker = new S3Walker(getBucketAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
+        walker = new S3Walker(getAddress(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
 
     @Test
     public void testGET() throws Exception {
-        String address = getBucketAddress();
+        String address = getAddress();
         if (address.endsWith("/")) {
             address = address.substring(0, address.lastIndexOf('/'));
         }

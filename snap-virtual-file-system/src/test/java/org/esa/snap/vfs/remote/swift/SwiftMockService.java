@@ -16,21 +16,26 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 
 class SwiftMockService {
 
     private HttpServer mockServer;
+    private String mockServiceAddress;
 
     SwiftMockService(URL serviceAddress, Path serviceRootPath) throws IOException {
         mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
+        int port = this.mockServer.getAddress().getPort();
+        mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
         mockServer.createContext(serviceAddress.getPath(), new SwiftMockServiceHandler(serviceRootPath));
     }
 
     public static void main(String[] args) {
         try {
-            SwiftMockService mockService = new SwiftMockService(new URL("http://localhost:777/mock-api/swift/v1/"), Paths.get(System.getProperty("swift.mock-service.root")));
+            SwiftMockService mockService = new SwiftMockService(new URL("http://localhost:0/mock-api/swift/v1/"), Paths.get(System.getProperty("swift.mock-service.root")));
             mockService.start();
+            Logger.getLogger(SwiftMockService.class.getName()).info("Swift mock service started at: " + mockService.getMockServiceAddress());
         } catch (IOException e) {
             Logger.getLogger(SwiftMockService.class.getName()).severe("Unable to start Swift mock service.\nReason: " + e.getMessage());
         }
@@ -42,6 +47,10 @@ class SwiftMockService {
 
     void stop() {
         mockServer.stop(1);
+    }
+
+    String getMockServiceAddress() {
+        return mockServiceAddress;
     }
 
     private class SwiftMockServiceHandler implements HttpHandler {
@@ -95,14 +104,12 @@ class SwiftMockService {
                     response = "AccessDenied".getBytes();
                     httpStatus = HttpURLConnection.HTTP_FORBIDDEN;
                 }
+            } catch (IllegalArgumentException ex) {
+                response = "Bad request".getBytes();
+                httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
             } catch (Exception ex) {
-                if (ex instanceof IllegalArgumentException) {
-                    response = "Bad request".getBytes();
-                    httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
-                } else {
-                    response = "Internal error".getBytes();
-                    httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
-                }
+                response = "Internal error".getBytes();
+                httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockSwiftS3");
@@ -121,13 +128,13 @@ class SwiftMockService {
         }
 
         private byte[] readFile(Path inputFile) throws IOException {
-            InputStream is = Files.newInputStream(inputFile);
-            byte data[] = new byte[is.available()];
-            if (is.read(data) < 0) {
-                throw new IOException();
+            try (InputStream is = Files.newInputStream(inputFile)) {
+                byte[] data = new byte[is.available()];
+                if (is.read(data) < 0) {
+                    throw new IOException();
+                }
+                return data;
             }
-            is.close();
-            return data;
         }
 
         private byte[] getXMLResponse(String uriPath, String uriQuery) throws IOException {
@@ -135,24 +142,24 @@ class SwiftMockService {
             String container = uriPath.replaceAll("/.*", "");
             Path containerPath = serviceRootPath.resolve(container);
             StringBuilder xml = new StringBuilder();
-            String limit_s = getRequestParameter(uriQuery, "limit");
-            if (!limit_s.isEmpty()) {
-                if (Integer.parseInt(limit_s) > limit) {
+            String limitParameterValue = getRequestParameter(uriQuery, "limit");
+            if (!limitParameterValue.isEmpty()) {
+                if (Integer.parseInt(limitParameterValue) > limit) {
                     throw new IllegalArgumentException("Invalid limit parameter.");
                 }
-                limit = Integer.parseInt(limit_s);
+                limit = Integer.parseInt(limitParameterValue);
             }
-            String prefix = getRequestParameter(uriQuery, "prefix");
-            if (!prefix.isEmpty() && !prefix.endsWith("/")) {
+            String prefixParameterValue = getRequestParameter(uriQuery, "prefix");
+            if (!prefixParameterValue.isEmpty() && !prefixParameterValue.endsWith("/")) {
                 throw new IllegalArgumentException("Invalid prefix parameter.");
             }
-            if (!uriPath.endsWith("/") && !prefix.startsWith("/")) {
+            if (!uriPath.endsWith("/") && !prefixParameterValue.startsWith("/")) {
                 uriPath = uriPath.concat("/");
             }
-            uriPath = uriPath.concat(prefix);
-            String marker = getRequestParameter(uriQuery, "marker");
-            marker = marker.replaceAll("/$", "");
-            if (!marker.isEmpty() && !marker.startsWith(prefix)) {
+            uriPath = uriPath.concat(prefixParameterValue);
+            String markerParameterValue = getRequestParameter(uriQuery, "marker");
+            markerParameterValue = markerParameterValue.replaceAll("/$", "");
+            if (!markerParameterValue.isEmpty() && !markerParameterValue.startsWith(prefixParameterValue)) {
                 throw new IllegalArgumentException("Invalid marker parameter.");
             }
             uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
@@ -160,25 +167,27 @@ class SwiftMockService {
             if (Files.isRegularFile(path) && uriPath.endsWith("/")) {
                 throw new IllegalArgumentException("dir requested, but was file");
             }
-            Iterator<Path> paths = Files.walk(path, 1).iterator();
-            boolean markerReached = marker.isEmpty();
-            int index = 0;
-            paths.next();
-            while (paths.hasNext() && index < limit) {
-                index++;
-                Path pathItem = paths.next();
-                if (!markerReached) {
-                    Path markerPath = containerPath.resolve(marker);
-                    markerReached = pathItem.endsWith(markerPath);
-                } else {
-                    if (Files.isDirectory(pathItem)) {
-                        String directoryPath = pathItem.toString().replace(containerPath.toString(), "").replace(containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
-                        xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
+            try (Stream<Path> pathsStream = Files.walk(path, 1)) {
+                Iterator<Path> paths = pathsStream.iterator();
+                boolean markerReached = markerParameterValue.isEmpty();
+                int index = 0;
+                paths.next();
+                while (paths.hasNext() && index < limit) {
+                    index++;
+                    Path pathItem = paths.next();
+                    if (!markerReached) {
+                        Path markerPath = containerPath.resolve(markerParameterValue);
+                        markerReached = pathItem.endsWith(markerPath);
                     } else {
-                        long fileSize = Files.size(pathItem);
-                        String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
-                        String filePath = pathItem.toString().replace(containerPath.toString(), "").replace(containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
-                        xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
+                        if (Files.isDirectory(pathItem)) {
+                            String directoryPath = pathItem.toString().replace(containerPath.toString(), "").replace(containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                            xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
+                        } else {
+                            long fileSize = Files.size(pathItem);
+                            String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
+                            String filePath = pathItem.toString().replace(containerPath.toString(), "").replace(containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
+                            xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
+                        }
                     }
                 }
             }

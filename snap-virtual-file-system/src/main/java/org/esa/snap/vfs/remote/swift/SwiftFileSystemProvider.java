@@ -165,13 +165,13 @@ public class SwiftFileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @link https://developer.openstack.org/api-ref/object-store/
      */
     private void setupConnectionData(String address, String authAddress, String container, String domain, String projectId, String user, String password) {
-        this.address = address != null ? address : "";
-        this.authAddress = authAddress != null ? authAddress : "";
-        this.container = container != null ? container : "";
-        this.domain = domain != null ? domain : "";
-        this.projectId = projectId != null ? projectId : "";
+        this.address = address != null ? address : this.address;
+        this.authAddress = authAddress != null ? authAddress : this.authAddress;
+        this.container = container != null ? container : this.container;
+        this.domain = domain != null ? domain : this.domain;
+        this.projectId = projectId != null ? projectId : this.projectId;
         this.user = user != null ? user : this.user;
-        this.password = password != null ? password : "";
+        this.password = password != null ? password : this.password;
     }
 
     @Override
