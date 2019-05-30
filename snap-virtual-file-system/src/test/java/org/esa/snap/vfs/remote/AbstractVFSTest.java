@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -40,7 +42,8 @@ public abstract class AbstractVFSTest {
 
         this.vfsTestsFolderPath = testFolderPath.resolve("_virtual_file_system");
         if (!Files.exists(vfsTestsFolderPath)) {
-            fail("The VFS test directory path " + vfsTestsFolderPath.toString() + " is not valid.");
+            Logger.getLogger(AbstractVFSTest.class.getName()).log(Level.WARNING, "The VFS test directory path {0} is not valid.", vfsTestsFolderPath);
+            assumeTrue(false);
         }
     }
 
@@ -50,7 +53,8 @@ public abstract class AbstractVFSTest {
             vfsRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(configFile);
             VFS.getInstance().initRemoteInstalledProviders(vfsRepositories);
         } catch (Exception exception) {
-            fail("Failed to initialize VFS.");
+            Logger.getLogger(AbstractVFSTest.class.getName()).log(Level.WARNING, "Failed to initialize VFS.");
+            assumeTrue(false);
         }
     }
 

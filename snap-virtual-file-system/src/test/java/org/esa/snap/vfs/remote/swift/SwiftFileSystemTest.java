@@ -30,12 +30,14 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -47,7 +49,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
 
     private static final String TEST_DIR = "mock-api/";
 
-    private static AbstractRemoteFileSystem swiftFileSystem;
+    private AbstractRemoteFileSystem swiftFileSystem;
     private SwiftMockService mockService;
     private SwiftAuthMockService authMockService;
 
@@ -93,8 +95,8 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
             authMockService = new SwiftAuthMockService(new URL(getAuthAddress()));
             authMockService.start();
         } catch (Exception e) {
-            //fail("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
-            assumeTrue("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e), false);
+            Logger.getLogger(SwiftFileSystemTest.class.getName()).log(Level.WARNING, "Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
+            assumeTrue(false);
         }
     }
 
@@ -167,9 +169,9 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         Iterable<Path> rootDirectories = swiftFileSystem.getRootDirectories();
         Iterator<Path> iterator = rootDirectories.iterator();
         assertTrue(iterator.hasNext());
-        assertEquals(swiftRepo.getRoot() +"/rootDir1/", iterator.next().toString());
+        assertEquals(swiftRepo.getRoot() + "/rootDir1/", iterator.next().toString());
         assertTrue(iterator.hasNext());
-        assertEquals(swiftRepo.getRoot() +"/rootDir2/", iterator.next().toString());
+        assertEquals(swiftRepo.getRoot() + "/rootDir2/", iterator.next().toString());
         assertFalse(iterator.hasNext());
     }
 
@@ -179,25 +181,28 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         FileSystemProvider provider = swiftFileSystem.provider();
         HashSet<OpenOption> openOptions = new HashSet<>();
         openOptions.add(StandardOpenOption.READ);
-        SeekableByteChannel channel1 = provider.newByteChannel(swiftFileSystem.getPath(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg"), openOptions);
-        SeekableByteChannel channel2 = provider.newByteChannel(swiftFileSystem.getPath(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg"), openOptions);
-        SeekableByteChannel channel3 = provider.newByteChannel(swiftFileSystem.getPath(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg"), openOptions);
-        assertTrue(swiftFileSystem.isOpen());
-        assertTrue(channel1.isOpen());
-        assertTrue(channel2.isOpen());
-        assertTrue(channel3.isOpen());
-        swiftFileSystem.close();
-        assertFalse(swiftFileSystem.isOpen());
-        assertFalse(channel1.isOpen());
-        assertFalse(channel2.isOpen());
-        assertFalse(channel3.isOpen());
+        try (
+                SeekableByteChannel channel1 = provider.newByteChannel(swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+                SeekableByteChannel channel2 = provider.newByteChannel(swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+                SeekableByteChannel channel3 = provider.newByteChannel(swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions)
+        ) {
+            assertTrue(swiftFileSystem.isOpen());
+            assertTrue(channel1.isOpen());
+            assertTrue(channel2.isOpen());
+            assertTrue(channel3.isOpen());
+            swiftFileSystem.close();
+            assertFalse(swiftFileSystem.isOpen());
+            assertFalse(channel1.isOpen());
+            assertFalse(channel2.isOpen());
+            assertFalse(channel3.isOpen());
+        }
     }
 
     @Test
     public void testByteChannel() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         FileSystemProvider provider = swiftFileSystem.provider();
-        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg");
+        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg");
         HashSet<OpenOption> openOptions = new HashSet<>();
         openOptions.add(StandardOpenOption.READ);
         SeekableByteChannel channel = provider.newByteChannel(path, openOptions);
@@ -236,7 +241,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
     @Test
     public void testBasicFileAttributes() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
-        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg");
+        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg");
         assertEquals(1891, Files.size(path));
         FileTime lastModifiedTime = Files.getLastModifiedTime(path);
         assertNotNull(lastModifiedTime);
@@ -245,36 +250,38 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
     @Test
     public void testPathsGet() {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
-        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg");
+        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg");
         assertNotNull(path);
-        assertEquals(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg", path.toString());
+        assertEquals(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg", path.toString());
     }
 
     @Test
     public void testFilesWalk() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
-        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() +"/rootDir1/");
-        Iterator<Path> iterator = Files.walk(path).iterator();
-        assertTrue(iterator.hasNext());
-        Path next = iterator.next();
-        assertEquals(swiftRepo.getRoot() +"/rootDir1/", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(swiftRepo.getRoot() +"/rootDir1/dir1/", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(swiftRepo.getRoot() +"/rootDir1/dir1/file.jpg", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(swiftRepo.getRoot() +"/rootDir1/dir1/subDir/", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(swiftRepo.getRoot() +"/rootDir1/dir2/", next.toString());
-        assertTrue(next.isAbsolute());
+        Path path = swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/");
+        try (Stream<Path> iteratorStream = Files.walk(path)) {
+            Iterator<Path> iterator = iteratorStream.iterator();
+            assertTrue(iterator.hasNext());
+            Path next = iterator.next();
+            assertEquals(swiftRepo.getRoot() + "/rootDir1/", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(swiftRepo.getRoot() + "/rootDir1/dir1/", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(swiftRepo.getRoot() + "/rootDir1/dir1/subDir/", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(swiftRepo.getRoot() + "/rootDir1/dir2/", next.toString());
+            assertTrue(next.isAbsolute());
+        }
     }
 
 }

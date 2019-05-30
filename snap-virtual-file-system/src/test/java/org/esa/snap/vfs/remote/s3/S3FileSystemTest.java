@@ -30,12 +30,14 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -48,7 +50,7 @@ public class S3FileSystemTest extends AbstractVFSTest {
 
     private static final String TEST_DIR = "mock-api/vfs/";
 
-    private static AbstractRemoteFileSystem s3FileSystem;
+    private AbstractRemoteFileSystem s3FileSystem;
     private S3MockService mockService;
 
     private String getBucketAddress() {
@@ -72,8 +74,8 @@ public class S3FileSystemTest extends AbstractVFSTest {
             mockService = new S3MockService(new URL(s3Repo.getAddress()), serviceRootPath);
             mockService.start();
         } catch (Exception e) {
-            //fail("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
-            assumeTrue("Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e), false);
+            Logger.getLogger(S3FileSystemTest.class.getName()).log(Level.WARNING, "Testing requirements are not met. " + e.getMessage() + "\n" + ExceptionUtils.getFullStackTrace(e));
+            assumeTrue(false);
         }
     }
 
@@ -112,7 +114,7 @@ public class S3FileSystemTest extends AbstractVFSTest {
     public void testGET() throws Exception {
         String address = getBucketAddress();
         if (address.endsWith("/")) {
-            address = address.substring(0, address.lastIndexOf("/"));
+            address = address.substring(0, address.lastIndexOf('/'));
         }
         URL url = new URL(address + "/rootDir1/dir1/file.jpg");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -155,18 +157,21 @@ public class S3FileSystemTest extends AbstractVFSTest {
         FileSystemProvider provider = s3FileSystem.provider();
         HashSet<OpenOption> openOptions = new HashSet<>();
         openOptions.add(StandardOpenOption.READ);
-        SeekableByteChannel channel1 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
-        SeekableByteChannel channel2 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
-        SeekableByteChannel channel3 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
-        assertTrue(s3FileSystem.isOpen());
-        assertTrue(channel1.isOpen());
-        assertTrue(channel2.isOpen());
-        assertTrue(channel3.isOpen());
-        s3FileSystem.close();
-        assertFalse(s3FileSystem.isOpen());
-        assertFalse(channel1.isOpen());
-        assertFalse(channel2.isOpen());
-        assertFalse(channel3.isOpen());
+        try (
+                SeekableByteChannel channel1 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+                SeekableByteChannel channel2 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions);
+                SeekableByteChannel channel3 = provider.newByteChannel(s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg"), openOptions)
+        ) {
+            assertTrue(s3FileSystem.isOpen());
+            assertTrue(channel1.isOpen());
+            assertTrue(channel2.isOpen());
+            assertTrue(channel3.isOpen());
+            s3FileSystem.close();
+            assertFalse(s3FileSystem.isOpen());
+            assertFalse(channel1.isOpen());
+            assertFalse(channel2.isOpen());
+            assertFalse(channel3.isOpen());
+        }
     }
 
     @Test
@@ -230,27 +235,29 @@ public class S3FileSystemTest extends AbstractVFSTest {
     public void testFilesWalk() throws Exception {
         VFSRemoteFileRepository s3Repo = getS3Repo();
         Path path = s3FileSystem.getPath(s3Repo.getRoot() + "/rootDir1/");
-        Iterator<Path> iterator = Files.walk(path).iterator();
-        assertTrue(iterator.hasNext());
-        Path next = iterator.next();
-        assertEquals(s3Repo.getRoot() + "/rootDir1/", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/subDir/", next.toString());
-        assertTrue(next.isAbsolute());
-        assertTrue(iterator.hasNext());
-        next = iterator.next();
-        assertEquals(s3Repo.getRoot() + "/rootDir1/dir2/", next.toString());
-        assertTrue(next.isAbsolute());
+        try (Stream<Path> iteratorStream = Files.walk(path)) {
+            Iterator<Path> iterator = iteratorStream.iterator();
+            assertTrue(iterator.hasNext());
+            Path next = iterator.next();
+            assertEquals(s3Repo.getRoot() + "/rootDir1/", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/file.jpg", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(s3Repo.getRoot() + "/rootDir1/dir1/subDir/", next.toString());
+            assertTrue(next.isAbsolute());
+            assertTrue(iterator.hasNext());
+            next = iterator.next();
+            assertEquals(s3Repo.getRoot() + "/rootDir1/dir2/", next.toString());
+            assertTrue(next.isAbsolute());
+        }
     }
 
 }
