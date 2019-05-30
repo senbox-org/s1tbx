@@ -34,8 +34,7 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
     private final JComboBox<String> filter = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
             PolarimetricSpeckleFilterOp.IDAN_FILTER,
             PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER,
-            PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER,
-            PolarimetricSpeckleFilterOp.NON_LOCAL_FILTER});
+            PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER});
 
     private final JComboBox<String> numLooks = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.NUM_LOOKS_1,
             PolarimetricSpeckleFilterOp.NUM_LOOKS_2,

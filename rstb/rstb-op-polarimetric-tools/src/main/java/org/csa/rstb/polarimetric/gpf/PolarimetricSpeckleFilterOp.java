@@ -53,7 +53,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {BOXCAR_SPECKLE_FILTER, IDAN_FILTER, REFINED_LEE_FILTER, LEE_SIGMA_FILTER, NON_LOCAL_FILTER},
+    @Parameter(valueSet = {BOXCAR_SPECKLE_FILTER, IDAN_FILTER, REFINED_LEE_FILTER, LEE_SIGMA_FILTER},
             defaultValue = REFINED_LEE_FILTER, label = "Filter")
     private String filter = REFINED_LEE_FILTER;
 
