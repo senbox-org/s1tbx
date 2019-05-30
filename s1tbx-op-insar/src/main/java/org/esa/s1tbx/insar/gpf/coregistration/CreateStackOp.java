@@ -297,6 +297,9 @@ public class CreateStackOp extends Operator {
                         }
 
                         fixDependencies(targetBand, slaveBandList, suffix);
+                        
+                        // Disable using of no data value in slave so that valid 0s will be used in the interpolation
+                        srcBand.setNoDataValueUsed(false);
                     }
                 }
             }
@@ -333,6 +336,9 @@ public class CreateStackOp extends Operator {
                     computeTargetSlaveCoordinateOffsets_Orbits();
                 }
             }
+
+            // set non-elevation areas to no data value for the master bands using the slave bands
+            DEMAssistedCoregistrationOp.setMasterValidPixelExpression(targetProduct, true);
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
