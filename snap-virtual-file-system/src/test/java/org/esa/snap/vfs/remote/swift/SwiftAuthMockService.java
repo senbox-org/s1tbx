@@ -20,27 +20,35 @@ class SwiftAuthMockService {
     private static final String USER = "swift_test";
     private static final String CREDENTIAL = "SwIfT0#";
     private HttpServer mockAuthServer;
+    private String mockServiceAddress;
 
     SwiftAuthMockService(URL serviceAddress) throws IOException {
-        mockAuthServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
-        mockAuthServer.createContext(serviceAddress.getPath(), new SwiftAuthMockServiceHandler());
+        this.mockAuthServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
+        int port = this.mockAuthServer.getAddress().getPort();
+        this.mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
+        this.mockAuthServer.createContext(serviceAddress.getPath(), new SwiftAuthMockServiceHandler());
     }
 
     public static void main(String[] args) {
         try {
-            SwiftAuthMockService mockService = new SwiftAuthMockService(new URL("http://localhost:778/mock-api/v3/auth/tokens"));
+            SwiftAuthMockService mockService = new SwiftAuthMockService(new URL("http://localhost:0/mock-api/v3/auth/tokens"));
             mockService.start();
+            Logger.getLogger(SwiftAuthMockService.class.getName()).info("Swift Auth mock service started at: " + mockService.getMockServiceAddress());
         } catch (IOException e) {
             Logger.getLogger(SwiftAuthMockService.class.getName()).severe("Unable to start Swift Auth mock service.\nReason: " + e.getMessage());
         }
     }
 
     void start() {
-        mockAuthServer.start();
+        this.mockAuthServer.start();
     }
 
     void stop() {
-        mockAuthServer.stop(1);
+        this.mockAuthServer.stop(1);
+    }
+
+    String getMockServiceAddress() {
+        return this.mockServiceAddress;
     }
 
     private class SwiftAuthMockServiceHandler implements HttpHandler {
@@ -60,22 +68,20 @@ class SwiftAuthMockService {
                 if (requestJson.isEmpty()) {
                     throw new IllegalArgumentException("Missing request body");
                 }
-                String domain = requestJson.replaceAll("((.|\\n)*\\\"domain\\\".*\\s*\\\"name\\\":\\s*\\\"(.*)\\\"(.|\\n)*)", "$3");
-                String projectId = requestJson.replaceAll("((.|\\n)*\\\"project\\\".*\\s*\\\"id\\\":\\s*\\\"(.*)\\\"(.|\\n)*)", "$3");
-                String user = requestJson.replaceAll("((.|\\n)*\\\"user\\\"(.|\\n)*\\s*\\\"name\\\":\\s*\\\"(.*)\\\"(.|\\n)*)", "$4");
-                String password = requestJson.replaceAll("((.|\\n)*\\\"user\\\"(.|\\n)*\\s*\\\"password\\\":\\s*\\\"(.*)\\\"(.|\\n)*)", "$4");
+                String domain = requestJson.replaceAll("((.|\\n)*\"domain\".*\\s*\"name\":\\s*\"(.*)\"(.|\\n)*)", "$3");
+                String projectId = requestJson.replaceAll("((.|\\n)*\"project\".*\\s*\"id\":\\s*\"(.*)\"(.|\\n)*)", "$3");
+                String user = requestJson.replaceAll("((.|\\n)*\"user\"(.|\\n)*\\s*\"name\":\\s*\"(.*)\"(.|\\n)*)", "$4");
+                String password = requestJson.replaceAll("((.|\\n)*\"user\"(.|\\n)*\\s*\"password\":\\s*\"(.*)\"(.|\\n)*)", "$4");
                 if (!domain.contentEquals(DOMAIN) || !projectId.contentEquals(PROJECT_ID) || !user.contentEquals(USER) || !password.contentEquals(CREDENTIAL)) {
                     httpStatus = HttpURLConnection.HTTP_FORBIDDEN;
                 } else {
                     httpExchange.getResponseHeaders().add("X-Subject-Token", TOKEN);
                     httpStatus = HttpURLConnection.HTTP_CREATED;
                 }
+            } catch (IllegalArgumentException ex) {
+                httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
             } catch (Exception ex) {
-                if (ex instanceof IllegalArgumentException) {
-                    httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
-                } else {
-                    httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
-                }
+                httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockSwiftS3");
@@ -86,7 +92,7 @@ class SwiftAuthMockService {
         private String getRequestJson(InputStream request) {
             String responseJson = "";
             try {
-                byte data[] = new byte[request.available()];
+                byte[] data = new byte[request.available()];
                 if (request.read(data) > -1) {
                     responseJson = new String(data);
                 }

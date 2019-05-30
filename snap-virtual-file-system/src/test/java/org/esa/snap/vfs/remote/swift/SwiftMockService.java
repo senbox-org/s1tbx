@@ -25,10 +25,10 @@ class SwiftMockService {
     private String mockServiceAddress;
 
     SwiftMockService(URL serviceAddress, Path serviceRootPath) throws IOException {
-        mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
+        this.mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
         int port = this.mockServer.getAddress().getPort();
-        mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
-        mockServer.createContext(serviceAddress.getPath(), new SwiftMockServiceHandler(serviceRootPath));
+        this.mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
+        this.mockServer.createContext(serviceAddress.getPath(), new SwiftMockServiceHandler(serviceRootPath));
     }
 
     public static void main(String[] args) {
@@ -42,15 +42,15 @@ class SwiftMockService {
     }
 
     void start() {
-        mockServer.start();
+        this.mockServer.start();
     }
 
     void stop() {
-        mockServer.stop(1);
+        this.mockServer.stop(1);
     }
 
     String getMockServiceAddress() {
-        return mockServiceAddress;
+        return this.mockServiceAddress;
     }
 
     private class SwiftMockServiceHandler implements HttpHandler {
@@ -84,9 +84,9 @@ class SwiftMockService {
                     String uriPath = httpExchange.getRequestURI().getPath();
                     uriPath = uriPath.replace(httpExchange.getHttpContext().getPath(), "");
                     uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
-                    Path responsePath = serviceRootPath.resolve(uriPath);
+                    Path responsePath = this.serviceRootPath.resolve(uriPath);
                     if (Files.isDirectory(responsePath)) {
-                        if (responsePath.getParent().equals(serviceRootPath)) {
+                        if (responsePath.getParent().equals(this.serviceRootPath)) {
                             response = getXMLResponse(uriPath, httpExchange.getRequestURI().getQuery());
                             contentType = "application/xml";
                         } else {
@@ -140,7 +140,7 @@ class SwiftMockService {
         private byte[] getXMLResponse(String uriPath, String uriQuery) throws IOException {
             int limit = 10000;
             String container = uriPath.replaceAll("/.*", "");
-            Path containerPath = serviceRootPath.resolve(container);
+            Path containerPath = this.serviceRootPath.resolve(container);
             StringBuilder xml = new StringBuilder();
             String limitParameterValue = getRequestParameter(uriQuery, "limit");
             if (!limitParameterValue.isEmpty()) {
@@ -163,7 +163,7 @@ class SwiftMockService {
                 throw new IllegalArgumentException("Invalid marker parameter.");
             }
             uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
-            Path path = serviceRootPath.resolve(uriPath);
+            Path path = this.serviceRootPath.resolve(uriPath);
             if (Files.isRegularFile(path) && uriPath.endsWith("/")) {
                 throw new IllegalArgumentException("dir requested, but was file");
             }
@@ -184,7 +184,7 @@ class SwiftMockService {
                             xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
                         } else {
                             long fileSize = Files.size(pathItem);
-                            String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
+                            String fileDate = this.isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
                             String filePath = pathItem.toString().replace(containerPath.toString(), "").replace(containerPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                             xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
                         }

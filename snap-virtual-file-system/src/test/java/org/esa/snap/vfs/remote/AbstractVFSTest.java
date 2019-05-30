@@ -41,17 +41,17 @@ public abstract class AbstractVFSTest {
         }
 
         this.vfsTestsFolderPath = testFolderPath.resolve("_virtual_file_system");
-        if (!Files.exists(vfsTestsFolderPath)) {
-            Logger.getLogger(AbstractVFSTest.class.getName()).log(Level.WARNING, "The VFS test directory path {0} is not valid.", vfsTestsFolderPath);
+        if (!Files.exists(this.vfsTestsFolderPath)) {
+            Logger.getLogger(AbstractVFSTest.class.getName()).log(Level.WARNING, "The VFS test directory path {0} is not valid.", this.vfsTestsFolderPath);
             assumeTrue(false);
         }
     }
 
     private void initVFS() {
         try {
-            Path configFile = vfsTestsFolderPath.resolve("vfs.properties");
-            vfsRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(configFile);
-            VFS.getInstance().initRemoteInstalledProviders(vfsRepositories);
+            Path configFile = this.vfsTestsFolderPath.resolve("vfs.properties");
+            this.vfsRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(configFile);
+            VFS.getInstance().initRemoteInstalledProviders(this.vfsRepositories);
         } catch (Exception exception) {
             Logger.getLogger(AbstractVFSTest.class.getName()).log(Level.WARNING, "Failed to initialize VFS.");
             assumeTrue(false);
@@ -59,15 +59,15 @@ public abstract class AbstractVFSTest {
     }
 
     protected VFSRemoteFileRepository getHTTPRepo() {
-        return vfsRepositories.get(0);
+        return this.vfsRepositories.get(0);
     }
 
     protected VFSRemoteFileRepository getS3Repo() {
-        return vfsRepositories.get(1);
+        return this.vfsRepositories.get(1);
     }
 
     protected VFSRemoteFileRepository getSwiftRepo() {
-        return vfsRepositories.get(2);
+        return this.vfsRepositories.get(2);
     }
 
 

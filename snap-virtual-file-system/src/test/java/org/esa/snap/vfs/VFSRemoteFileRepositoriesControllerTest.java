@@ -47,7 +47,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
     private static final String REPO_3_PROP_1_NAME = "container";
     private static final String REPO_3_PROP_1_VALUE = "vfs";
     private static final String REPO_3_PROP_2_NAME = "authAddress";
-    private static final String REPO_3_PROP_2_VALUE = "http://localhost:778/mock-api/v3/auth/tokens";
+    private static final String REPO_3_PROP_2_VALUE = "http://localhost:0/mock-api/v3/auth/tokens";
     private static final String REPO_3_PROP_3_NAME = "domain";
     private static final String REPO_3_PROP_3_VALUE = "cloud_14547";
     private static final String REPO_3_PROP_4_NAME = "projectId";
@@ -62,23 +62,23 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Before
     public void setUpVFSRemoteFileRepositoriesControllerTest() {
-        configFile = vfsTestsFolderPath.resolve("vfs.properties");
+        this.configFile = this.vfsTestsFolderPath.resolve("vfs.properties");
         Path tempFolderPath = Paths.get(System.getProperty("user.home"));
-        newConfigFile = tempFolderPath.resolve("vfs_new.properties");
-        assumeTrue(Files.exists(configFile));
-        assumeFalse(Files.exists(newConfigFile));
+        this.newConfigFile = tempFolderPath.resolve("vfs_new.properties");
+        assumeTrue(Files.exists(this.configFile));
+        assumeFalse(Files.exists(this.newConfigFile));
     }
 
     @After
     public void clean() throws IOException {
-        if (newConfigFile != null && Files.exists(newConfigFile)) {
-            Files.delete(newConfigFile);
+        if (this.newConfigFile != null && Files.exists(this.newConfigFile)) {
+            Files.delete(this.newConfigFile);
         }
     }
 
     @Test
     public void testLoad() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -87,7 +87,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testCreate() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(newConfigFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.newConfigFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -97,7 +97,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testIsChanged() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -112,7 +112,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetRemoteRepositoriesIds() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -122,7 +122,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetRemoteRepositoryPropertiesIds() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -149,7 +149,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testRegisterNewRemoteRepository() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(newConfigFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.newConfigFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -175,7 +175,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testRegisterNewRemoteRepositoryProperty() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(newConfigFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.newConfigFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -205,7 +205,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetRemoteRepositoryName() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -232,7 +232,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testSetRemoteRepositoryName() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -257,7 +257,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetRemoteRepositorySchema() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -284,7 +284,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testSetRemoteRepositorySchema() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -309,7 +309,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetRemoteRepositoryAddress() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -336,7 +336,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testSetRemoteRepositoryAddress() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -361,7 +361,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetRemoteRepositoryPropertyName() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -432,7 +432,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testSetRemoteRepositoryPropertyName() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -469,7 +469,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetRemoteRepositoryPropertyValue() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -540,7 +540,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testSetRemoteRepositoryPropertyValue() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -582,7 +582,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testRemoveRemoteRepositoryProperty() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -622,7 +622,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testRemoveRemoteRepository() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(configFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.configFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -660,7 +660,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testGetVFSRemoteFileRepositories() throws IOException {
-        List<VFSRemoteFileRepository> reposList = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(configFile);
+        List<VFSRemoteFileRepository> reposList = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(this.configFile);
         assertNotNull(reposList);
         assertFalse(reposList.isEmpty());
         assertEquals(3, reposList.size());
@@ -757,7 +757,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
 
     @Test
     public void testSaveProperties() throws IOException {
-        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(newConfigFile);
+        VFSRemoteFileRepositoriesController vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.newConfigFile);
 
         Property reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);
@@ -768,7 +768,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
         assertTrue(newRepoId.matches("^([\\d]{13})$"));
 
         vfsRemoteFileRepositoriesController.saveProperties();
-        vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(newConfigFile);
+        vfsRemoteFileRepositoriesController = new VFSRemoteFileRepositoriesController(this.newConfigFile);
 
         reposIds = vfsRemoteFileRepositoriesController.getRemoteRepositoriesIds();
         assertNotNull(reposIds);

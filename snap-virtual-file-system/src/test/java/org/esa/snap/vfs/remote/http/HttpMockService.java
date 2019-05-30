@@ -25,10 +25,10 @@ public class HttpMockService {
     private String mockServiceAddress;
 
     public HttpMockService(URL serviceAddress, Path serviceRootPath) throws IOException {
-        mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
+        this.mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
         int port = this.mockServer.getAddress().getPort();
-        mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
-        mockServer.createContext(serviceAddress.getPath(), new HTTPMockServiceHandler(serviceRootPath));
+        this.mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
+        this.mockServer.createContext(serviceAddress.getPath(), new HTTPMockServiceHandler(serviceRootPath));
     }
 
     public static void main(String[] args) {
@@ -42,15 +42,15 @@ public class HttpMockService {
     }
 
     public void start() {
-        mockServer.start();
+        this.mockServer.start();
     }
 
     public void stop() {
-        mockServer.stop(1);
+        this.mockServer.stop(1);
     }
 
     public String getMockServiceAddress() {
-        return mockServiceAddress;
+        return this.mockServiceAddress;
     }
 
     private class HTTPMockServiceHandler implements HttpHandler {
@@ -83,7 +83,7 @@ public class HttpMockService {
                 String uriPath = httpExchange.getRequestURI().getPath();
                 uriPath = uriPath.replace(httpExchange.getHttpContext().getPath(), "");
                 uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
-                Path responsePath = serviceRootPath.resolve(uriPath);
+                Path responsePath = this.serviceRootPath.resolve(uriPath);
                 if (Files.isDirectory(responsePath)) {
                     response = getHTMLResponse(uriPath);
                     contentType = "text/html";
@@ -124,7 +124,7 @@ public class HttpMockService {
                 uriPath = uriPath.concat("/");
             }
             String prefix = uriPath;
-            Path path = serviceRootPath.resolve(uriPath);
+            Path path = this.serviceRootPath.resolve(uriPath);
             try (Stream<Path> pathsStream = Files.walk(path, 1)) {
                 Iterator<Path> paths = pathsStream.iterator();
                 paths.next();
@@ -135,7 +135,7 @@ public class HttpMockService {
                         html.append(DIRECTORY_HTML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
                     } else {
                         long fileSize = Files.size(pathItem);
-                        String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
+                        String fileDate = this.isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
                         String filePath = pathItem.toString().replace(path.toString(), "").replace(path.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                         html.append(FILE_HTML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
                     }

@@ -24,10 +24,10 @@ class S3MockService {
     private String mockServiceAddress;
 
     S3MockService(URL serviceAddress, Path serviceRootPath) throws IOException {
-        mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
+        this.mockServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
         int port = this.mockServer.getAddress().getPort();
-        mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
-        mockServer.createContext(serviceAddress.getPath(), new S3MockServiceHandler(serviceRootPath));
+        this.mockServiceAddress = serviceAddress.toString().replaceAll(":([\\d]+)", ":" + port);
+        this.mockServer.createContext(serviceAddress.getPath(), new S3MockServiceHandler(serviceRootPath));
     }
 
     public static void main(String[] args) {
@@ -41,15 +41,15 @@ class S3MockService {
     }
 
     void start() {
-        mockServer.start();
+        this.mockServer.start();
     }
 
     void stop() {
-        mockServer.stop(1);
+        this.mockServer.stop(1);
     }
 
     String getMockServiceAddress() {
-        return mockServiceAddress;
+        return this.mockServiceAddress;
     }
 
     private class S3MockServiceHandler implements HttpHandler {
@@ -84,9 +84,9 @@ class S3MockService {
                 String uriPath = httpExchange.getRequestURI().getPath();
                 uriPath = uriPath.replace(httpExchange.getHttpContext().getPath(), "");
                 uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
-                Path responsePath = serviceRootPath.resolve(uriPath);
+                Path responsePath = this.serviceRootPath.resolve(uriPath);
                 if (Files.isDirectory(responsePath)) {
-                    if (responsePath.equals(serviceRootPath)) {
+                    if (responsePath.equals(this.serviceRootPath)) {
                         response = getXMLResponse(uriPath, httpExchange.getRequestURI().getQuery());
                         contentType = "application/xml";
                     } else {
@@ -135,7 +135,7 @@ class S3MockService {
 
         private byte[] getXMLResponse(String uriPath, String uriQuery) throws IOException {
             int limit = 1000;
-            Path bucketPath = serviceRootPath.resolve(uriPath);
+            Path bucketPath = this.serviceRootPath.resolve(uriPath);
             StringBuilder xml = new StringBuilder();
             String prefixParameterValue = getRequestParameter(uriQuery, "prefix");
             if (!prefixParameterValue.isEmpty() && !prefixParameterValue.endsWith("/")) {
@@ -151,7 +151,7 @@ class S3MockService {
                 throw new IllegalArgumentException("Invalid continuation-token parameter.");
             }
             uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");
-            Path path = serviceRootPath.resolve(uriPath);
+            Path path = this.serviceRootPath.resolve(uriPath);
             if (Files.isRegularFile(path) && uriPath.endsWith("/")) {
                 throw new IllegalArgumentException("dir requested, but was file");
             }
@@ -173,7 +173,7 @@ class S3MockService {
                             xml.append(DIRECTORY_XML.replaceAll(DIRECTORY_PATH, directoryPath + "/"));
                         } else {
                             long fileSize = Files.size(pathItem);
-                            String fileDate = isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
+                            String fileDate = this.isoDateFormat.format(Files.getLastModifiedTime(pathItem).toMillis());
                             String filePath = pathItem.toString().replace(bucketPath.toString(), "").replace(bucketPath.getFileSystem().getSeparator(), "/").replaceAll("^/", "");
                             xml.append(FILE_XML.replaceAll(FILE_PATH, filePath).replaceAll(FILE_SIZE, "" + fileSize).replaceAll(FILE_DATE, fileDate));
                         }
