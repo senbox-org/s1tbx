@@ -148,7 +148,7 @@ public class GammaMap implements SpeckleFilter {
 
                 final int numSamples = getNeighborValues(
                         x, y, sourceData1, sourceData2, srcIndex, noDataValue, isComplex,
-                        halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight, neighborValues);
+                        windowSizeX, windowSizeY, sourceImageWidth, sourceImageHeight, neighborValues);
 
                 if (numSamples > 0) {
                     filteredTile[yy][xx] = getGammaMapValue(neighborValues, numSamples, noDataValue, cu, cu2, n);

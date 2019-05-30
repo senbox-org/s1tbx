@@ -139,7 +139,7 @@ public class Frost implements SpeckleFilter {
 
                 final int numSamples = getNeighborValues(
                         x, y, sourceData1, sourceData2, srcIndex, noDataValue, isComplex,
-                        halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight, neighborValues);
+                        windowSizeX, windowSizeY, sourceImageWidth, sourceImageHeight, neighborValues);
 
                 if (numSamples > 0) {
                     filteredTile[yy][xx] = getFrostValue(neighborValues, numSamples, noDataValue, mask);

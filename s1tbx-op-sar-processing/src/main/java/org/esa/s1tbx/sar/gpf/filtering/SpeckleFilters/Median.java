@@ -133,7 +133,7 @@ public class Median implements SpeckleFilter {
 
                 final int numSamples = getNeighborValues(
                         x, y, sourceData1, sourceData2, srcIndex, noDataValue, isComplex,
-                        halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight, neighborValues);
+                        windowSizeX, windowSizeY, sourceImageWidth, sourceImageHeight, neighborValues);
 
                 if (numSamples > 0) {
                     filteredTile[yy][xx] = getMedianValue(neighborValues, numSamples, noDataValue);

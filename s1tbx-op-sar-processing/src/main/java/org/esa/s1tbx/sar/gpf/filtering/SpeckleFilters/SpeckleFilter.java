@@ -67,8 +67,8 @@ public interface SpeckleFilter {
      * @param srcIndex          The source tile index.
      * @param noDataValue       Place holder for no data value.
      * @param isComplex         True if it has i and q, otherwise false.
-     * @param halfSizeX         Half of the sliding window width.
-     * @param halfSizeY         Half of the sliding window height.
+     * @param windowSizeX       The sliding window width.
+     * @param windowSizeY       The sliding window height.
      * @param sourceImageWidth  Source image width.
      * @param sourceImageHeight Source image height.
      * @param neighborValues    Array holding the pixel values.
@@ -77,13 +77,15 @@ public interface SpeckleFilter {
      */
     default int getNeighborValues(final int tx, final int ty, final ProductData srcData1, final ProductData srcData2,
                                   final TileIndex srcIndex, final double noDataValue, final boolean isComplex,
-                                  final int halfSizeX, final int halfSizeY, final int sourceImageWidth,
+                                  final int windowSizeX, final int windowSizeY, final int sourceImageWidth,
                                   final int sourceImageHeight, final double[] neighborValues) {
 
+        final int halfSizeX = windowSizeX / 2;
+        final int halfSizeY = windowSizeY / 2;
         final int minX = tx - halfSizeX;
-        final int maxX = tx + halfSizeX;
+        final int maxX = minX + windowSizeX - 1;
         final int minY = ty - halfSizeY;
-        final int maxY = ty + halfSizeY;
+        final int maxY = minY + windowSizeY - 1;
         final int height = sourceImageHeight - 1;
         final int width = sourceImageWidth - 1;
 
