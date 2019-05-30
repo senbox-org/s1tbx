@@ -1,18 +1,4 @@
-/*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
+
 package org.esa.s1tbx.calibration.gpf.calibrators;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -40,10 +26,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Calibration for TerraSAR-X data products.
+ * Calibration for PAZ data products.
  */
 
-public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
+public class PazCalibrator extends BaseCalibrator implements Calibrator {
 
     private String productType = null;
     private String acquisitionMode = null;
@@ -66,7 +52,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public TerraSARXCalibrator() {
+    public PazCalibrator() {
     }
 
     /**
@@ -74,7 +60,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      */
     public void setExternalAuxFile(File file) throws OperatorException {
         if (file != null) {
-            throw new OperatorException("TerraSARXCalibrator: No external auxiliary file should be selected for TerraSAR-X product");
+            throw new OperatorException("PazCalibrator: No external auxiliary file should be selected for PAZ product");
         }
     }
 
@@ -132,7 +118,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             }
 
         } catch (Exception e) {
-            throw new OperatorException("TerraSARXCalibrator: " + e);
+            throw new OperatorException("PazCalibrator: " + e);
         }
     }
 
@@ -141,9 +127,8 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!(mission.contains("TSX") || mission.contains("TDX")))
-            throw new OperatorException("TerraSARXCalibrator: " + mission +
-                    " is not a valid mission for TerraSAR-X Calibration");
+        if (!mission.contains("PAZ"))
+            throw new OperatorException("PazCalibrator: " + mission + " is not a valid mission for Paz Calibration");
     }
 
     /**
@@ -220,7 +205,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             final MetadataElement[] imageNoiseElem = ele.getElements();
             if (numOfNoiseRecords != imageNoiseElem.length) {
                 throw new OperatorException(
-                        "TerraSARXCalibrator: The number of noise records does not match the record number.");
+                        "PazCalibrator: The number of noise records does not match the record number.");
             }
 
             NoiseRecord[] record = new NoiseRecord[numOfNoiseRecords];
@@ -238,7 +223,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 final MetadataElement[] coefficientElem = noiseEstimate.getElements();
                 if (record[i].polynomialDegree + 1 != coefficientElem.length) {
                     throw new OperatorException(
-                            "TerraSARXCalibrator: The number of coefficients does not match the polynomial degree.");
+                            "PazCalibrator: The number of coefficients does not match the polynomial degree.");
                 }
 
                 record[i].coefficient = new double[record[i].polynomialDegree + 1];
@@ -309,7 +294,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             }
 
         } catch (Exception e) {
-            throw new OperatorException("TerraSARXCalibrator: " + e);
+            throw new OperatorException("PazCalibrator: " + e);
         }
     }
 
@@ -434,7 +419,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                     dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
-                    throw new OperatorException("TerraSAR-X Calibration: unhandled unit");
+                    throw new OperatorException("Paz Calibration: unhandled unit");
                 }
 
                 double inciAng;
@@ -503,7 +488,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 y2 = y1;
                 i2 = i1;
             } else if (y1 > y2) {
-                throw new OperatorException("TerraSARXCalibrator: No noise is defined for pixel with y = " + y);
+                throw new OperatorException("PazCalibrator: No noise is defined for pixel with y = " + y);
             }
 
             for (int x = x0; x < x0 + w; ++x) {
@@ -531,7 +516,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
             sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
-            throw new OperatorException("TerraSARXCalibrator: Unknown band unit");
+            throw new OperatorException("PazCalibrator: Unknown band unit");
         }
 
         final double Ks = calibrationFactor.get(bandPolar.toUpperCase());

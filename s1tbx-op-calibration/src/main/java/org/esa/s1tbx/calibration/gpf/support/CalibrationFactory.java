@@ -56,6 +56,8 @@ public class CalibrationFactory {
             return new Kompsat5Calibrator();
         } else if (mission.contains("RISAT1")) {
             return new Risat1Calibrator();
+        } else if (mission.contains("PAZ")) {
+            return new PazCalibrator();
         } else {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
         }
