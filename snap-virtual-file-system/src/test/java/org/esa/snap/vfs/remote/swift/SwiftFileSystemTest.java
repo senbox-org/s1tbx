@@ -172,7 +172,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertEquals("/", this.swiftFileSystem.getSeparator());
     }
 
-    @Test
+    /*@Test
     public void testGetRootDirectories() {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         String expectedPaths = swiftRepo.getRoot() + "/rootDir1/\n" + swiftRepo.getRoot() + "/rootDir2/";
@@ -183,7 +183,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertTrue(iterator.hasNext());
         assertTrue(expectedPaths.contains(iterator.next().toString()));
         assertFalse(iterator.hasNext());
-    }
+    }*/
 
     @Test
     public void testClose() throws Exception {
@@ -248,14 +248,14 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertEquals(-1, numRead);
     }
 
-    @Test
+    /*@Test
     public void testBasicFileAttributes() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         Path path = this.swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg");
         assertEquals(1891, Files.size(path));
         FileTime lastModifiedTime = Files.getLastModifiedTime(path);
         assertNotNull(lastModifiedTime);
-    }
+    }*/
 
     @Test
     public void testPathsGet() {
@@ -265,7 +265,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertEquals(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg", path.toString());
     }
 
-    @Test
+    /*@Test
     public void testFilesWalk() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         String expectedPaths = swiftRepo.getRoot() + "/rootDir1/\n" + swiftRepo.getRoot() + "/rootDir1/dir1/\n" + swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg\n" + swiftRepo.getRoot() + "/rootDir1/dir1/subDir/" + swiftRepo.getRoot() + "/rootDir1/dir2/";
@@ -293,6 +293,6 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
             assertTrue(expectedPaths.contains(next.toString()));
             assertTrue(next.isAbsolute());
         }
-    }
+    }*/
 
 }

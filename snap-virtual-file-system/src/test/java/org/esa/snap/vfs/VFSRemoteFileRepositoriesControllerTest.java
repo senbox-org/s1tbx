@@ -34,7 +34,7 @@ public class VFSRemoteFileRepositoriesControllerTest extends AbstractVFSTest {
     private static final String REPO_2_NAME = "s3_vfs_test";
     private static final String REPO_2_SCHEMA = "s3";
     private static final String REPO_2_ADDRESS = "http://localhost:0/mock-api/";
-    private static final String REPO_2_PROPS_IDs = "1553076251344;1553076252344;1553076253344";
+    private static final String REPO_2_PROPS_IDS = "1553076251344;1553076252344;1553076253344";
     private static final String REPO_2_PROP_1_NAME = "bucket";
     private static final String REPO_2_PROP_1_VALUE = "vfs";
     private static final String REPO_2_PROP_2_NAME = "accessKeyId";

@@ -113,22 +113,22 @@ public class S3FileSystemTest extends AbstractVFSTest {
 
         List<BasicFileAttributes> items;
 
-        S3Walker walker = new S3Walker(getBucketAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
+        S3Walker walker = new S3Walker(getAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + ""));
         assertEquals(2, items.size());
 
-        walker = new S3Walker(getBucketAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
+        walker = new S3Walker(getAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/"));
         assertEquals(2, items.size());
 
-        walker = new S3Walker(getBucketAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
+        walker = new S3Walker(getAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
     }
 
     @Test
     public void testGET() throws Exception {
-        String address = getBucketAddress();
+        String address = getAddress();
         if (!address.endsWith("/")) {
             address = address.concat("/");
         }
