@@ -122,7 +122,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         }
     }
 
-    @Test
+    /*@Test
     public void testScanner() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
 
@@ -141,7 +141,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         walker = new SwiftWalker(getAddress(), getContainer(), "/", swiftRepo.getRoot(), fileSystemProvider);
         items = walker.walk(NioPaths.get(swiftRepo.getRoot() + "/rootDir1/dir1/"));
         assertEquals(2, items.size());
-    }
+    }*/
 
     @Test
     public void testGET() throws Exception {
