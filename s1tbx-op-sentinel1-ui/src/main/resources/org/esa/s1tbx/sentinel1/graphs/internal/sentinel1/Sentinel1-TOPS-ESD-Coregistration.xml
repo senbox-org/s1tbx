@@ -77,9 +77,17 @@
       <sourceProduct refid="Back-Geocoding"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <registrationWindowSize>512</registrationWindowSize>
-      <interpFactor>4</interpFactor>
-      <maxIteration>10</maxIteration>
+      <fineWinWidthStr>512</fineWinWidthStr>
+      <fineWinHeightStr>512</fineWinHeightStr>
+      <fineWinAccAzimuth>16</fineWinAccAzimuth>
+      <fineWinAccRange>16</fineWinAccRange>
+      <fineWinOversampling>128</fineWinOversampling>
+      <xCorrThreshold>0.1</xCorrThreshold>
+      <cohThreshold>0.15</cohThreshold>
+      <numBlocksPerOverlap>10</numBlocksPerOverlap>
+      <useSuppliedShifts>false</useSuppliedShifts>
+      <overallAzimuthShift>0.0</overallAzimuthShift>
+      <overallRangeShift>0.0</overallRangeShift>
     </parameters>
   </node>
   <node id="Write">
