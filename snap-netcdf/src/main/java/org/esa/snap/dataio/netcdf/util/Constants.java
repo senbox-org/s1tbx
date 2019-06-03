@@ -67,4 +67,7 @@ public interface Constants {
     String CONVERT_LOGSCALED_BANDS_PROPERTY = "convertLogScaledBands";
     String PRODUCT_FILENAME_PROPERTY = "productName";
 
+
+    String RADIATION_WAVELENGTH = "radiation_wavelength"; // CF standard name
+    String RADIATION_WAVELENGTH_UNIT = "radiation_wavelength_unit";
 }
