@@ -6,16 +6,18 @@
 <map version="2.0">
 
     <!-- Product Readers -->
-	<mapID target="importSentinel1Product" url="readers/ImportSentinel1.html"/>
+	<mapID target="ImportAlosPalsar" url="readers/ImportAlosPalsar.html"/>
+	<mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
     <mapID target="importEnvisatProduct" url="readers/ImportEnvisat.html"/>
     <mapID target="importErsProduct" url="readers/ImportErs.html"/>
     <mapID target="ImportERSCeos" url="readers/ImportERSCeos.html"/>
     <mapID target="ImportJERSCeos" url="readers/ImportJERSCeos.html"/>
-    <mapID target="ImportAlosPalsar" url="readers/ImportAlosPalsar.html"/>
-    <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
-    <mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
-    <mapID target="ImportSeaSat" url="readers/ImportSeaSat.html"/>
     <mapID target="ImportKompsat5" url="readers/ImportKompsat-5.html"/>
+	<mapID target="ImportPaz" url="readers/ImportPaz.html"/>
+	<mapID target="ImportRisat" url="readers/ImportRisat.html"/>
+	<mapID target="ImportSeaSat" url="readers/ImportSeaSat.html"/>
+	<mapID target="importSentinel1Product" url="readers/ImportSentinel1.html"/>
+    <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
 
     <!-- Common File Formats -->
     <mapID target="importPCIDSK" url="readers/ImportPCIDSK.html"/>
