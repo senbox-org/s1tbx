@@ -209,7 +209,11 @@ public abstract class AbstractProductDirectory {
 
             final List<String> files = new ArrayList<>(listing.length);
             for (String listEntry : sortedList) {
-                if (!isDirectory(path + '/' + listEntry)) {
+                String entryPath = listEntry;
+                if(!path.isEmpty()) {
+                    entryPath = path +"/"+ listEntry;
+                }
+                if (!isDirectory(entryPath)) {
                     files.add(listEntry);
                 }
             }

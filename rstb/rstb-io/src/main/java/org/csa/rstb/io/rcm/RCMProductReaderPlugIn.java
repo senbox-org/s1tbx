@@ -61,9 +61,10 @@ public class RCMProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    public static File findMetadataFile(final Path folderPath) {
-        final String folderName = folderPath.getFileName().toString();
-        File folder = folderPath.toFile();
+    public static File findMetadataFile(final Path inputPath) {
+        final String folderName = inputPath.getFileName().toString();
+        File folder = inputPath.toFile();
+        String parentName = folder.getParentFile().getName();
         if (folder.isDirectory() && folderName.startsWith(PRODUCT_PREFIX)) {
             final File[] fileList = folder.listFiles();
             if (fileList != null) {
@@ -76,7 +77,7 @@ public class RCMProductReaderPlugIn implements ProductReaderPlugIn {
                     }
                 }
             }
-        } else if (isValidProductName(folderName) && folderPath.getParent().getFileName().startsWith(PRODUCT_PREFIX)) {
+        } else if (isValidProductName(folderName) && parentName.startsWith(PRODUCT_PREFIX)) {
             return folder;
         }
         return null;
