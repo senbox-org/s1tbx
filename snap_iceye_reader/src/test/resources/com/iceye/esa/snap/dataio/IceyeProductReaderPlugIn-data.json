@@ -1,0 +1,9 @@
+{
+  "testProducts": [
+    {
+      "id": "Iceye_SLC_SM",
+      "relativePath": "SAR/Iceye/SLC/SM/ICEYE_SLC_SM_5112_20190506T200837.h5",
+      "description": "Iceye SLC Stripmap product"
+    }
+  ]
+}
