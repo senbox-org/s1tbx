@@ -75,12 +75,12 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
     @Override
     protected void findImages(final MetadataElement newRoot) throws IOException {
         final String parentPath = getRelativePathToImageFolder();
-        findImages(parentPath + "\\scene_HH\\", newRoot);
-        findImages(parentPath + "\\scene_HV\\", newRoot);
-        findImages(parentPath + "\\scene_VV\\", newRoot);
-        findImages(parentPath + "\\scene_VH\\", newRoot);
-        findImages(parentPath + "\\scene_RH\\", newRoot);
-        findImages(parentPath + "\\scene_RV\\", newRoot);
+        findImages(parentPath + "scene_HH//", newRoot);
+        findImages(parentPath + "scene_HV//", newRoot);
+        findImages(parentPath + "scene_VV//", newRoot);
+        findImages(parentPath + "scene_VH//", newRoot);
+        findImages(parentPath + "scene_RH//", newRoot);
+        findImages(parentPath + "scene_RV//", newRoot);
     }
 
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
@@ -415,8 +415,8 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 productElem.getAttributeString("processingFacility", defStr) + '-' +
                         productElem.getAttributeString("softwareVersion", defStr));
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                ReaderUtils.getTime(productElem, "processingTime", standardDateFormat));
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
+         //       ReaderUtils.getTime(productElem, "processingTime", standardDateFormat));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
                 getFlag(productElem, "elevationPatternCorrection"));
