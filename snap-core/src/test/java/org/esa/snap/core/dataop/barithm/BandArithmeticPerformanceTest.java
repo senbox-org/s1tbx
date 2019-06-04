@@ -15,26 +15,37 @@
  */
 package org.esa.snap.core.dataop.barithm;
 
-import junit.framework.TestCase;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.jexp.impl.DefaultNamespace;
 import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-public class BandArithmeticPerformanceTest extends TestCase {
+public class BandArithmeticPerformanceTest {
 
     private static final int MAX_NUM_TEST_LOOPS____ = 10000000;
-    private static final int MIN_NUM_OPS_PER_SECOND = 10000000;
+    private static int refNumOps;
 
-    public BandArithmeticPerformanceTest(String s) {
-        super(s);
+    @BeforeClass
+    public static void setup() throws InterruptedException {
+        MyRunnable runnable = new MyRunnable();
+        ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.execute(runnable);
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
+        refNumOps = (int) (runnable.count * 0.8);
     }
 
-    public void testThatPerformanceIsSufficient() throws ParseException, IOException {
+
+    @Test
+    public void testThatPerformanceIsSufficient() throws ParseException {
         final Band flags = new Band("flags", ProductData.TYPE_INT8, 1, 1);
         final Band reflec_4 = new Band("reflec_4", ProductData.TYPE_FLOAT32, 1, 1);
         final Band reflec_5 = new Band("reflec_5", ProductData.TYPE_FLOAT32, 1, 1);
@@ -69,9 +80,24 @@ public class BandArithmeticPerformanceTest extends TestCase {
         long dt = t3 - t2;
         long numOps = Math.round(MAX_NUM_TEST_LOOPS____ * (1.0E9 / dt));
 
-        System.out.println("BandArithmeticPerformanceTest: #ops/s = " + numOps);
-        assertTrue(String.format("Low evaluation performance detected (%d ops/s for term \"%s\"): Term implementation change?", numOps, code),
-                   numOps > MIN_NUM_OPS_PER_SECOND);
+        System.out.printf("BandArithmeticPerformanceTest: %n #ops/s    = %d " +
+                                                         "%n refNumOps = %d%n", numOps, refNumOps);
+        Assert.assertTrue(String.format("Low evaluation performance detected (%d ops/s for term \"%s\"): Term implementation change?", numOps, code),
+                numOps > refNumOps);
     }
 
+    private static class MyRunnable implements Runnable {
+
+        private int count;
+
+        @Override
+        public void run() {
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                //noinspection ResultOfMethodCallIgnored
+                Math.sin(Math.random());
+                count++;
+            }
+        }
+    }
 }
