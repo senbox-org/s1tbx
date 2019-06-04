@@ -18,4 +18,5 @@
     <mapID target="BackGeocodingOp" url="operators/BackGeocodingOp.html"/>
 	<mapID target="EAPPhaseCorrection" url="operators/EAPPhaseCorrection.html"/>
 	<mapID target="TOPSARDerampDemodOp" url="operators/TOPSARDerampDemodOp.html"/>
+    <mapID target="AzimuthShiftEstimationUsingESDOp" url="operators/AzimuthShiftEstimationUsingESDOp.html"/>
 </map>
