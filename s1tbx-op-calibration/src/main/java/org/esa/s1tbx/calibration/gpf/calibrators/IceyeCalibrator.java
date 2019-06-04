@@ -34,22 +34,22 @@ import java.io.File;
 import java.util.HashMap;
 
 /**
- * Calibration for RISAT-1 products.
+ * Calibration for ICEYE products.
  */
 
-public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
+public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
 
-    private final HashMap<String, Double> calibrationFactor = new HashMap<>(2);
+    private double calibrationFactor;
     private TiePointGrid incidenceAngle = null;
-    private double incidenceAngleAtSceneCentre = 0.0;
 
     private static final String USE_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
+    private static final String CALIBRATION_FACTOR = "calibration_factor";
 
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public Risat1Calibrator() {
+    public IceyeCalibrator() {
     }
 
     /**
@@ -57,7 +57,7 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
      */
     public void setExternalAuxFile(File file) throws OperatorException {
         if (file != null) {
-            throw new OperatorException("No external auxiliary file should be selected for RISAT-1 product");
+            throw new OperatorException("No external auxiliary file should be selected for ICEYE product");
         }
     }
 
@@ -88,8 +88,6 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
 
             getSampleType();
 
-            getIncidenceAngle();
-
             getCalibrationFactor();
 
             getTiePointGridData(sourceProduct);
@@ -105,13 +103,8 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
 
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("RISAT1"))
-            throw new OperatorException(mission + " is not a valid mission for RISAT-1 Calibration");
-    }
-
-    private void getIncidenceAngle() {
-        final MetadataElement productMetadata = origMetadataRoot.getElement("ProductMetadata");
-        incidenceAngleAtSceneCentre = Double.parseDouble(productMetadata.getAttributeString("IncidenceAngle"));
+        if (!mission.contains("ICEYE"))
+            throw new OperatorException(mission + " is not a valid mission for ICEYE Calibration");
     }
 
     /**
@@ -119,18 +112,7 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
      */
     private void getCalibrationFactor() {
 
-        final MetadataElement[] elements = origMetadataRoot.getElements();
-        for (MetadataElement elem : elements) {
-            final String elemName = elem.getName();
-            if (elemName.endsWith("_Metadata") && elem.containsElement("Leader")) {
-                final String pol = elemName.substring(0, elemName.indexOf("_Metadata"));
-                final MetadataElement leader = elem.getElement("Leader");
-                final MetadataElement radiometric = leader.getElement("Radiometric");
-                final double factorDB = radiometric.getAttributeDouble("Calibration_constant");
-                final double factor = Math.pow(10.0, factorDB/10.0);
-                calibrationFactor.put(pol, factor);
-            }
-        }
+        calibrationFactor = origMetadataRoot.getAttributeDouble(CALIBRATION_FACTOR);
     }
 
     /**
@@ -191,9 +173,6 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final String pol = srcBandNames[0].substring(srcBandNames[0].lastIndexOf("_") + 1);
-        final double Ks = calibrationFactor.get(pol);
-
         final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
         final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
@@ -239,11 +218,11 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                     dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
-                    throw new OperatorException("RISAT-1 Calibration: unhandled unit");
+                    throw new OperatorException("ICEYE Calibration: unhandled unit");
                 }
 
-                final double theta = incidenceAngle.getPixelDouble(x, y)*Constants.DTOR;
-                sigma = dn*Math.sin(theta) / (Ks*Math.sin(incidenceAngleAtSceneCentre*Constants.DTOR));
+                //K * DN2, calibrated_dB=10*log10(calibrated), DN2=square(S_I)+square(S_Q)
+                sigma = calibrationFactor * dn;
 
                 if (isComplex && outputImageInComplex) {
                     sigma = Math.sqrt(sigma)*phaseTerm;
@@ -267,9 +246,6 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        final String pol = bandName.substring(bandName.lastIndexOf("_"));
-        final double Ks = calibrationFactor.get(pol);
-
         double sigma = 0.0;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
             sigma = v * v;
@@ -278,14 +254,13 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
             sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
-            throw new OperatorException("Unknown band unit");
+            throw new OperatorException("ICEYE Unknown band unit");
         }
 
         if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return sigma * FastMath.sin(localIncidenceAngle * Constants.DTOR) /
-                    (Ks*FastMath.sin(incidenceAngleAtSceneCentre * Constants.DTOR));
+            return sigma * calibrationFactor * FastMath.sin(localIncidenceAngle * Constants.DTOR);
         } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
-            return sigma / Ks;
+            return sigma / calibrationFactor;
         }
     }
 

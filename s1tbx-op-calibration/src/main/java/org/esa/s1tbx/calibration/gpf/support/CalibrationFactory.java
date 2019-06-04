@@ -58,6 +58,8 @@ public class CalibrationFactory {
             return new Risat1Calibrator();
         } else if (mission.contains("PAZ")) {
             return new PazCalibrator();
+        } else if (mission.contains("ICEYE")) {
+            return new IceyeCalibrator();
         } else {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
         }

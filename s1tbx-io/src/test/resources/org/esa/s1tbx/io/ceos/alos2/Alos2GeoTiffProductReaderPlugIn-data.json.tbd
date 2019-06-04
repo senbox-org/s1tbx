@@ -1,9 +1,0 @@
-{
-  "testProducts": [
-    {
-      "id": "ALOS2_1_5_GeoTiff",
-      "relativePath": "SAR/ALOS2/GeoTiff/0000021461_001001_ALOS2004060740-140620/IMG-HH-ALOS2004060740-140620-UBDL1.5GUA.tif",   
-      "description": "ALOS2 1.5 GeoTiff product"
-    }
-  ]
-}
