@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Sentinel-1</title>
+
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Azimuth Shift Estimation using Enhanced Spectral Diversity (EDS)<br>
+</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Sentinel-1 Azimuth Shift Estimation using ESD</h3>
+<p class="MsoNormal" style="margin: 6pt; font-family: Verdana,Arial,Helvetica,sans-serif; color: rgb(0, 0, 0); font-size: 12px; font-style: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;"><span>This operator follows the</span><span style="color: rgb(0, 0, 0); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-style: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; background-color: rgb(255, 255, 255); display: inline ! important; float: none;"> S-1 Back Geocoding operator in the TOPS InSAR processing chain</span><span>.&nbsp;The
+operator&nbsp;estimates a constant azimuth offset for the whole
+sub-swath using a Enhanced Spectral Diversity (ESD) method. The ESD
+approach exploits the data at the overlapped area of the adjacent
+bursts. The estimation is done for a number of windows in every
+overlapped area and the final azimuth offset is obtained by averaging
+all the estimations.<span>&nbsp;</span><br></span></p><p class="MsoNormal"><span>The
+estimated&nbsp;azimuth shifts (overall shift for the whole sub-swath
+and shifts estimated for all windows in the overlapped areas) are saved
+in both the metadata of the output product and&nbsp;in an ASCII file
+with master acquisition date and "_azimuth_shift" in the file name. The
+file can be found at user's \.snap\var\log folder.<span>&nbsp;</span></span></p><p class="MsoNormal"><span><span></span></span>User
+can review the azimuth shifts estimated for all sub-swathes and decide
+which shift value will be used in the azimuth shift correction. To
+perform the azimuth correction, user can run the S-1 Enhanced Spectral
+Diversity operator with the user selected azimuth shift value.&nbsp;</p><p class="MsoNormal">Generally
+users do not need to run this operator if they do not need to review
+the azimuth shift values. They can run the S-1 Enhanced Spectral
+Diversity operator directly where the azimuth shift is estimated using
+EDS and used directly in the azimuth shift correction. However, there
+are some cases where data in one sub-swath is corrupted and cannot be
+used in the azimuth shift estimation. In this case, users can use the
+azimuth shift estimated for other sub-swath in the correction of
+current sub-swath.
+ <span style=""><o:p></o:p></span></p>
+ 
+<h4>Input <br>
+</h4>
+
+
+
+<ul>
+<li><span style="color: rgb(0, 0, 0); font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 12px; font-style: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; background-color: rgb(255, 255, 255); display: inline ! important; float: none;">The
+input to this operator is the resulting product from the S-1 Back
+Geocoding operator. It is the co-registered master and slave images for
+the same sub-swath and same polarization (e.g. IW1 - VV)</span>.
+  </li>
+</ul>
+
+<h4>Output <br>
+</h4>
+
+
+
+
+<ul>
+<li>The output product of the operator is the same as the input product
+except that the metadata has been updated with the estimated azimuth
+shifts. </li>
+</ul>
+
+
+<h4>Parameters Used<br>
+</h4>
+
+
+
+
+<ul>
+<li style="margin-top: 4pt; margin-bottom: 4pt;">Coherence Threshold for Outlier Removal:<span> Pixels with coherence higher than the threshold are used in azimuth shift estimation. </span><br></li><li style="margin-top: 4pt; margin-bottom: 4pt;">Number of Windows Per Overlap for ESD: The number of windows for azimuth shift estimation for each overlap area.</li></ul><img style="width: 434px; height: 440px;" alt="" src="images/AzimuthShiftEstimationUsingESDOp.jpg"><ul>
+</ul>
+<hr>
+</body></html>
