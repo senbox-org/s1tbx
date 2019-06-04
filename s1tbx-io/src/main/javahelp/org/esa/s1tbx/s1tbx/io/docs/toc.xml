@@ -21,16 +21,18 @@
                         <tocitem text="Complex Generic Binary" target="importComplexGenericBinary"/>
                     </tocitem>
                     <tocitem text="SAR Sensors">
-                        <tocitem text="Sentinel-1" target="importSentinel1Product"/>
+					    <tocitem text="ALOS PALSAR 1/2" target="ImportAlosPalsar"/>
+                        <tocitem text="Cosmo-Skymed" target="ImportCosmoSkymed"/>
                         <tocitem text="ENVISAT" target="importEnvisatProduct"/>
                         <tocitem text="ERS (.E1, .E2)" target="importErsProduct"/>
                         <tocitem text="ERS CEOS" target="ImportERSCeos"/>
                         <tocitem text="JERS CEOS" target="ImportJERSCeos"/>
-                        <tocitem text="ALOS PALSAR 1/2" target="ImportAlosPalsar"/>
-                        <tocitem text="TerraSarX/TanDEM-X" target="ImportTerraSarX"/>
-                        <tocitem text="Cosmo-Skymed" target="ImportCosmoSkymed"/>
                         <tocitem text="Kompsat-5" target="ImportKompsat5"/>
+                        <tocitem text="Paz" target="ImportPaz"/>
+                        <tocitem text="RISAT-1" target="ImportRISAT"/>
                         <tocitem text="SeaSat" target="ImportSeaSat"/>
+						<tocitem text="Sentinel-1" target="importSentinel1Product"/>
+						<tocitem text="TerraSarX/TanDEM-X" target="ImportTerraSarX"/>
                     </tocitem>
                 </tocitem>
             </tocitem>

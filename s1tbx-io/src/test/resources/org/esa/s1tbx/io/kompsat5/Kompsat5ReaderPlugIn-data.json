@@ -1,0 +1,9 @@
+{
+  "testProducts": [
+    {
+      "id": "Kompsat-5_SCS_HDF",
+      "relativePath": "SAR/K5/HDF/K5_20170125111222_000000_18823_A_UH28_HH_SCS_B_L1A/K5_20170125111222_000000_18823_A_UH28_HH_SCS_B_L1A_Aux.xml",
+      "description": "Kompsat-5 SCS HDF product"
+    }
+  ]
+}
