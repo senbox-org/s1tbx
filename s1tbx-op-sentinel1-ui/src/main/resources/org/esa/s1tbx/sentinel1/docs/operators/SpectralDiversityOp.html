@@ -20,25 +20,24 @@
 </table>
 <h3>Sentinel-1 Enhanced Spectral Diversity<br>
 </h3>
-<p class="MsoNormal"><span>This operator follows the Backgeocoding
+<p class="MsoNormal"><span>This operator follows the S-1 Back Geocoding
 operator in the TOPS InSAR processing chain. It first estimates a
 constant range offset for the whole sub-swath of the split S-1 SLC
 image using incoherent cross-correlation. The estimation is done for
 each burst using a small block of data in the center of the burst. The
 estimates from all bursts are then averaged to get the final constant
-range offset for the whole image.<br>
+range offset for the whole&nbsp;</span><span>sub-swath</span><span>.<br>
 </span></p>
 <p class="MsoNormal"><span>The operator then estimates a constant
-azimuth offset for the whole sub-swath using a Enhanced Spectral
+azimuth offset for the whole sub-swath using the Enhanced Spectral
 Diversity (ESD) method. The ESD
 approach exploits the data at the overlapped area of the adjacent
 bursts. The estimation is done for a number of windows in every overlapped area and the final
 azimuth offset is obtained by averaging all the estimations. <br>
 </span></p>
 <p class="MsoNormal"><span>The estimated range and azimuth shifts are
-saved in the metadata of the output product. The ESD estimations for
-all windows and all overlaps are saved in and ASCII file with master
-and slave acquisition dates and "_azimuth_shift" in the file name. The
+saved in both the metadata of the output product and in an ASCII file
+with master acquisition date and "_azimuth_shift" in the file name. The
 file can be found at user's \.snap\var\log folder. <br>
 </span>
 </p>
@@ -46,20 +45,18 @@ file can be found at user's \.snap\var\log folder. <br>
 <p class="MsoNormal"><span>Finally, the operator performs range and
 azimuth corrections for every burst using the range and azimuth offsets
 estimated above with a phase
-ramp method in frequency domain</span>.</p><p class="MsoNormal">When
-using ESD estimations read from ASCII files that were saved previously,
-an average is taken of all the estimates from the subswaths selected by
-the user. E.g., if the user selects IW1 and IW3, then one average is
-taken of the estimates from both IW1 and IW3.
-<span style=""><o:p></o:p></span></p>
-<h4>Input <br>
+ramp method in the frequency domain</span>.</p><p class="MsoNormal">Users
+can skip the range and azimuth shift estimations by providing their own
+range and azimuth shifts in the UI. The shifts can be previously
+estimated by running the S-1 Azimuth Shift Estimation operator with
+data of current sub-swath or other sub-swath. </p><h4>Input <br>
 </h4>
 
 
 
 <ul>
 <li>The input to this operator is the resulting product from the
-Backgeocoding operator. It is the co-registered master and slave images
+S-1 Back Geocoding operator. It is the co-registered master and slave images
 for the same
 sub-swath and same polarization (e.g. IW1 -
 VV). <br>
@@ -74,8 +71,7 @@ VV). <br>
 
 <ul>
 <li>The output of the operator are the co-registered master and slave
-bands in I/Q format with the slave bands shifted by a small amount in
-range and azimuth directions. <br>
+bands in I/Q format with the range and azimuth shift corrections being performed to the slave bands. <br>
 
   </li>
 </ul>
@@ -110,17 +106,18 @@ accuracy, and the larger the computation cost.<br>
 for normalized cross-correlation value. If the cross-correlation value
 is greater than the threshold, then the estimated range offset is
 considered valid, otherwise invalid.</li>
-  <li>Coherence Threshold for Outlier Removal: <br>
+  <li>Coherence
+Threshold for Outlier Removal: Pixels with coherence higher than the
+threshold are used for the azimuth shift estimation.<br>
   </li>
   <li>Number of Windows Per Overlap for ESD: The number of windows for azimuth offset estimation using ESD for each overlap area.</li>
-  <li>Use User supplied shifts: If the checkbox is selected, then user
-supplied azimuth and range offsets will be used in shifting the image.
-For azimuth offsets, user can enter the shift value to be used, or check the box(es)&nbsp;to read the&nbsp;<span>ESD estimations saved in ASCII files (assumed to be located in </span><span>user's \.snap\var\log folder)</span><span>.</span> No cross-correlation or ESD will be performed to estimate the offsets.</li>
-  <li>The overall azimuth shift in pixels: The user provided azimuth offset in pixels. <br>
+  <li>Use user supplied shifts: If the checkbox is selected, then user
+supplied azimuth and range shifts will be used in the correction.&nbsp;</li>
+  <li>The overall azimuth shift in pixels: The user provided azimuth shift in pixels. <br>
   </li>
-  <li>The overall range shift in pixels: The user provided range offset in pixels. <br>
+  <li>The overall range shift in pixels: The user provided range shift in pixels. <br>
   </li>
 </ul>
-<img style="width: 450px; height: 450px;" alt="" src="images/ESD.jpg"><br>
+<img style="width: 436px; height: 443px;" alt="" src="images/ESD.jpg"><br>
 
 <hr></body></html>
