@@ -212,7 +212,7 @@ public class Sentinel1OCNReader {
 
             for (Variable variable : variableList) {
 
-                if (variableIsVector(variable) && variable.getRank() > 1) {
+                if (NetCDFUtils.variableIsVector(variable) && variable.getRank() > 1) {
 
                     // If rank is 1 then it has already been taken care of by
                     // MetadataUtils.createMetadataElement()
@@ -268,7 +268,7 @@ public class Sentinel1OCNReader {
             final List<Variable> variableList = netcdfFile.getVariables();
             for (Variable variable : variableList) {
 
-                if (variableIsVector(variable) && variable.getRank() > 1) {
+                if (NetCDFUtils.variableIsVector(variable) && variable.getRank() > 1) {
                     continue;
                 }
 
@@ -731,19 +731,6 @@ public class Sentinel1OCNReader {
 
             SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank4Variable: InvalidRangeException when reading variable " + var.getFullName());
         }
-    }
-
-    private static boolean variableIsVector(Variable variable) {
-
-        final int[] shape = variable.getShape();
-        int cnt = 0;
-        for (int i : shape) {
-            if (i == 1) {
-                cnt++;
-            }
-        }
-
-        return cnt + 1 >= shape.length;
     }
 
     private void dumpVariableValues(final Variable variable, final String bandName) {

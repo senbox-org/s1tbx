@@ -25,15 +25,17 @@ import org.esa.snap.core.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapProjectionRegistry;
+import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.dataio.netcdf.util.DataTypeUtils;
+import org.esa.snap.dataio.netcdf.util.MetadataUtils;
+import org.esa.snap.dataio.netcdf.util.ReaderUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.Group;
-import ucar.nc2.Variable;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -272,6 +274,79 @@ public class NetCDFUtils {
         final List<Attribute> attribList = parentGroup.getAttributes();
         for (Attribute at : attribList) {
             createMetadataAttributes(parentElem, at, at.getName());
+        }
+    }
+
+    public static void addVariableMetadata(final MetadataElement root, final Variable variable, final int maxNumValuesRead) {
+        if (variable.getRank() == 1) {
+            if (variable.getDataType() == DataType.STRUCTURE) {
+                final MetadataElement element = MetadataUtils.readAttributeList(variable.getAttributes(), variable.getFullName());
+                root.addElement(element);
+
+                final Structure structure = (Structure) variable;
+                final List<Variable> structVariables = structure.getVariables();
+                for (Variable structVariable : structVariables) {
+                    final String name = structVariable.getShortName();
+                    final MetadataElement structElem = new MetadataElement(name);
+                    element.addElement(structElem);
+                    MetadataUtils.addAttribute(structVariable, structElem, maxNumValuesRead);
+                }
+            } else {
+                long variableSize = variable.getSize();
+                final int productDataType = getProductDataType(variable);
+                if(variableSize == 1 || productDataType == ProductData.TYPE_ASCII) {
+                    addAttribute(variable, root, maxNumValuesRead);
+                } else {
+                    final MetadataElement element = MetadataUtils.readAttributeList(variable.getAttributes(), variable.getFullName());
+                    root.addElement(element);
+
+                    addAttribute(variable, element, maxNumValuesRead);
+                }
+            }
+        } else {
+            long variableSize = variable.getSize();
+            final int productDataType = getProductDataType(variable);
+            if(variableSize == 1 || productDataType == ProductData.TYPE_ASCII) {
+                addAttribute(variable, root, maxNumValuesRead);
+            } else {
+                final MetadataElement element = MetadataUtils.readAttributeList(variable.getAttributes(), variable.getFullName());
+                root.addElement(element);
+
+                addAttribute(variable, element, maxNumValuesRead);
+            }
+        }
+    }
+
+    private static int getProductDataType(Variable variable) {
+        final DataType ncDataType = variable.getDataType();
+        final boolean unsigned = variable.isUnsigned();
+        final boolean rasterDataOnly = false;
+        return DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
+    }
+
+    public static void addAttribute(Variable variable, MetadataElement valuesElem, int maxNumValuesRead) {
+        final int productDataType = getProductDataType(variable);
+        if (productDataType == -1) {
+            return;
+        }
+        final Array values;
+        try {
+            long variableSize = variable.getSize();
+            if (variableSize >= maxNumValuesRead && maxNumValuesRead >= 0) {
+                values = variable.read(new int[]{0}, new int[]{maxNumValuesRead});
+                valuesElem.setDescription("Showing " + maxNumValuesRead + " of " + variableSize + " values.");
+            } else {
+                values = variable.read();
+            }
+            String name = "data";
+            if(variableSize == 1 || productDataType == ProductData.TYPE_ASCII) {
+                name = variable.getShortName();
+            }
+            final ProductData pd = ReaderUtils.createProductData(productDataType, values);
+            final MetadataAttribute attribute = new MetadataAttribute(name, pd, true);
+            valuesElem.addAttribute(attribute);
+        } catch (IOException | InvalidRangeException e) {
+            Debug.trace(e);
         }
     }
 
@@ -520,6 +595,18 @@ public class NetCDFUtils {
         }
     }
 
+    public static boolean variableIsVector(Variable variable) {
+
+        final int[] shape = variable.getShape();
+        int cnt = 0;
+        for (int i : shape) {
+            if (i == 1) {
+                cnt++;
+            }
+        }
+
+        return cnt + 1 >= shape.length;
+    }
 
     /**
      * Return type of the {@link NetCDFUtils#createMapInfoX}()

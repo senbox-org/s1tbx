@@ -249,8 +249,8 @@ public class IceyeProductReader extends SARReader {
         NetCDFUtils.addAttributes(origMetadataRoot, NetcdfConstants.GLOBAL_ATTRIBUTES_NAME,
                 netcdfFile.getGlobalAttributes());
 
-        for (final Variable variable : netcdfFile.getVariables()) {
-            NetCDFUtils.addAttributes(origMetadataRoot, variable.getShortName(), variable.getAttributes());
+        for (Variable variable : netcdfFile.getVariables()) {
+            NetCDFUtils.addVariableMetadata(origMetadataRoot, variable, 5000);
         }
 
         addAbstractedMetadataHeader(product.getMetadataRoot());
