@@ -40,7 +40,7 @@ public class BandArithmeticPerformanceTest {
         ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.execute(runnable);
         executorService.awaitTermination(1, TimeUnit.SECONDS);
-        refNumOps = (int) (runnable.count * 0.8);
+        refNumOps = (int) (runnable.count * 0.3);
     }
 
 
