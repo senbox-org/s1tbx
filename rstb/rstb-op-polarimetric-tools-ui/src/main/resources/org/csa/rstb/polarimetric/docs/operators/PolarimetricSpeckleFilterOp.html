@@ -1,16 +1,13 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>Help - Polarimetric Speckle Filter</title>
+<html><head><title>Help - Polarimetric Speckle Filter</title>
 
-    <link rel="stylesheet" href="../style.css">
-</head>
+    <link rel="stylesheet" href="../style.css"></head>
 <body>
 <table class="header">
     <tbody>
     <tr class="header">
         <td class="header">&nbsp; Polarimetric Speckle Filter</td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
-                                                                                 border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
     </tr>
     </tbody>
 </table>
@@ -72,7 +69,7 @@
     Filter</h4>
 
 <p>The
-    refine Lee filter is a minimum mean square error (MMSE) filter and was
+    refine Lee filter in [1] is a minimum mean square error (MMSE) filter and was
     developed based on the multiplicative noise model. One major deficiency
     with the MMSE filter is that speckle noise near strong edges is not
     adequately filtered. To compensate this problem, &nbsp;the refined Lee
@@ -87,23 +84,18 @@
     <li><span style="font-style: italic;">Edge-aligned window selection</span>: For each pixel,&nbsp;span image is used
         in selecting the&nbsp;edge-aligned window.
     </li>
-    <li><span style="color: rgb(0, 153, 0);"></span><span
-            style="font-style: italic;">Filtering weight computation</span>: The local statistical filter is applied to
+    <li><span style="color: rgb(0, 153, 0);"></span><span style="font-style: italic;">Filtering weight computation</span>: The local statistical filter is applied to
         the span image to compute the weight <span style="font-style: italic;">b</span>.
     </li>
-    <li><span style="color: rgb(51, 51, 255);"></span><span
-            style="font-style: italic;">Filter the covariance matrix</span>: The same weight <span
-            style="font-style: italic;">b</span> (a scalar) and the same selected window are used to filter each element
+    <li><span style="color: rgb(51, 51, 255);"></span><span style="font-style: italic;">Filter the covariance matrix</span>: The same weight <span style="font-style: italic;">b</span> (a scalar) and the same selected window are used to filter each element
         of&nbsp;matrix, <span style="font-style: italic;">Z</span>, independently and equally. The filtered&nbsp;matrix
         is then given by
     </li>
 </ul>
-<div style="margin-left: 40px;"><img style="width: 145px; height: 32px;" alt=""
-                                     src="images/polarimetricSpeckleFilterOp_eq1.jpeg"></div>
+<div style="margin-left: 40px;"><img style="width: 145px; height: 32px;" alt="" src="images/polarimetricSpeckleFilterOp_eq1.jpeg"></div>
 <p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; where<span style="text-decoration: underline;"></span></p>
 
-<p style="margin-left: 40px;"><img style="width: 22px; height: 29px;" alt=""
-                                   src="images/polarimetricSpeckleFilterOp_eq2.jpeg"></p>
+<p style="margin-left: 40px;"><img style="width: 22px; height: 29px;" alt="" src="images/polarimetricSpeckleFilterOp_eq2.jpeg"></p>
 
 <p style="margin-left: 40px;">is the local mean of&nbsp;matrices computed with pixels in the same edge-directed
     window.<br></p><span style="font-style: italic;"></span>
@@ -114,7 +106,7 @@
     is that the number of pixels selected may not be sufficient to reduce
     the estimation variance.&nbsp; Instead of limiting&nbsp; the pixel
     selection in a fixed size window, the IDAN (Intensity-Driven
-    Adaptive-Neighborhood) filter selects pixels with region growing
+    Adaptive-Neighborhood) filter proposed in [2] selects pixels with region growing
     techniques and criteria of the Lee sigma filter. In this algorithm, an
     adaptive neighborhood is determined for each pixel by a region growing
     technique. The pixel is then filtered with the MMSE filter computed
@@ -165,7 +157,7 @@ operator (see Figure 1):<br>
     <li>Filter Size: the dimension of the sliding window used in averaging covariance/coherency matrix</li>
 </ul>
 <br>
-<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricSpeckleFilterOp_BoxCar.jpeg"><br><br>
+<img style="width: 450px; height: 450px;" alt="" src="images/speckleFilterDialog1.jpg"><br><br>
 
 <div style="text-align: left;">&nbsp;&nbsp;&nbsp;
     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Figure 1. Dialog box for Box Car Speckle Filter<br></div>
@@ -177,7 +169,7 @@ operator (see Figure 1):<br>
     </li>
     <li>Window Size: the dimension of the edge-aligned window, possible values are 7x7, 9x9 and 11x11</li>
 </ul>
-<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricSpeckleFilterOp_RefinedLee.jpeg"><br><br>&nbsp;
+<img style="width: 450px; height: 450px;" alt="" src="images/speckleFilterDialog2.jpg"><br><br>&nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Figure 2. Dialog box for Refined Lee Speckle Filter<br>
 
 <p><br>
@@ -192,7 +184,7 @@ operator (see Figure 1):<br>
     </li>
     <li>Adaptive Neighbourhood Size: the maximum number of pixels in the adaptive neighbourhood</li>
 </ul>
-<p><img style="width: 450px; height: 450px;" alt="" src="images/polarimetricSpeckleFilterOp_IDAN.jpeg"><br>
+<p><img style="width: 450px; height: 450px;" alt="" src="images/speckleFilterDialog3.jpg"><br>
 </p>
 
 <p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; Figure 3. Dialog box for IDAN Speckle Filter<br>
@@ -220,9 +212,9 @@ operator (see Figure 1):<br>
 
 <br>
 
-<p><img style="width: 450px; height: 450px;" alt="" src="images/polarimetricSpeckleFilterOp_LeeSigma.jpg"></p>
+<p><img style="width: 450px; height: 450px;" alt="" src="images/speckleFilterDialog4.jpg"><br></p>
 
-<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; Figure 4. Dialog box for Lee Sigma Speckle Filter<br>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; Figure 4. Dialog box for Improved Lee Sigma Speckle Filter<br>
 
 </p>
 
@@ -249,5 +241,4 @@ operator (see Figure 1):<br>
 </p>
 
 <hr>
-</body>
-</html>
+</body></html>
