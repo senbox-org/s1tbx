@@ -12,10 +12,6 @@
 				"value": "0.0"
 			},
 			{
-				"path": "Original_Product_Metadata/Image Descriptor 1/Image Record/Received polarization",
-				"value": "0"
-			},
-			{
 				"path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list/coefficient.3/dop_coef",
 				"value": "0.0"
 			},
