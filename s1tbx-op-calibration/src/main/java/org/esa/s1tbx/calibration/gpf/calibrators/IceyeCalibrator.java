@@ -222,7 +222,7 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
                 }
 
                 //K * DN2, calibrated_dB=10*log10(calibrated), DN2=square(S_I)+square(S_Q)
-                sigma = calibrationFactor * dn;
+                sigma = calibrationFactor * dn * Math.sin(incidenceAngle.getPixelDouble(x, y) * Constants.DTOR);
 
                 if (isComplex && outputImageInComplex) {
                     sigma = Math.sqrt(sigma)*phaseTerm;
