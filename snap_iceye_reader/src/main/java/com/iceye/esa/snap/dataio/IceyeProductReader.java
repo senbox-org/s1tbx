@@ -39,7 +39,6 @@ public class IceyeProductReader extends SARReader {
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private NetcdfFile netcdfFile = null;
     private Product product = null;
-    private NcVariableMap variableMap = null;
     private boolean yFlipped = false;
     private boolean isComplex = false;
 
@@ -166,7 +165,6 @@ public class IceyeProductReader extends SARReader {
     private void initReader() {
         product = null;
         netcdfFile = null;
-        variableMap = null;
     }
 
     /**
@@ -235,8 +233,6 @@ public class IceyeProductReader extends SARReader {
     public void close() throws IOException {
         if (product != null) {
             product = null;
-            variableMap.clear();
-            variableMap = null;
             netcdfFile.close();
             netcdfFile = null;
         }
