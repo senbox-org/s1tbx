@@ -110,26 +110,24 @@ pipeline {
             }
         }
         stage('Create docker image') {
-            agent {
-                docker {
-                    label 'snap-test'
-                    image 'snap-build-server.tilaa.cloud/scripts:1.0'
-                    // We add the docker group from host (i.e. 999)
-                    args ' --group-add 999 -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/bin/docker -v /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7 -v docker_local-update-center:/local-update-center -v /opt/maven/.docker:/home/snap/.docker -v docker_snap-installer:/snap-installer'
-                }
-            }
+            agent { label 'snap-test' }
             when {
                 expression {
                     return "${params.launchTests}" == "true";
                 }
             }
             steps {
-                echo "Create docker image of ${env.JOB_NAME} from ${env.GIT_BRANCH} using commit ${env.GIT_COMMIT}"
-                script {
-                    dockerName = "${toolName}:${branchVersion}-${toolVersion}-${env.GIT_COMMIT}"
-                }
-                // Launch deploy script
-                sh "/opt/scripts/deploy.sh ${snapMajorVersion} ${deployDirName} ${branchVersion} ${dockerName} ${toolName}"
+                echo "Launch snap-installer"
+                build job: "create-snap-docker-image", parameters: [
+                    [$class: 'StringParameterValue', name: 'toolName', value: "${toolName}"],
+                    [$class: 'StringParameterValue', name: 'snapMajorVersion', value: "${snapMajorVersion}"],
+                    [$class: 'StringParameterValue', name: 'deployDirName', value: "${deployDirName}"],
+                    [$class: 'StringParameterValue', name: 'branchVersion', value: "${branchVersion}"],
+                    [$class: 'BooleanParameterValue', name: 'maintenanceBranch', value: "false"]
+                ],
+                quietPeriod: 0,
+                propagate: true,
+                wait: true
             }
         }
         stage ('Starting Tests') {
