@@ -35,7 +35,17 @@ import static com.bc.ceres.swing.TableLayout.*;
  * is set, it will be used as label, otherwise a label is derived from the {@code name} property.
  * <p>Properties, whose attribute "enabled" is set to {@code false}, will be shown in disabled state.
  * Properties, whose attribute "visible" is set to {@code false}, will not be shown at all.
+ *
+ * @author Brockmann Consult
+ * @author Daniel Knowles
+ * @version $Revision$ $Date$
+ * @
  */
+// JAN2018 - Daniel Knowles - Added method to return property pane as a JScrollPane
+
+
+
+
 public class PropertyPane {
 
     private final BindingContext bindingContext;
@@ -102,6 +112,31 @@ public class PropertyPane {
         panel.add(new JPanel());
         return panel;
     }
+
+
+
+
+
+
+
+    /*
+     * Returns a JScrollPane version of the property pane
+     * Note: This method was added to fix an issue where a layer editor view with too many properties wouldn't fit onto
+     *       some monitor screens.
+     * @author Daniel Knowles
+     * @since Jan 2019
+     */
+
+    public JScrollPane createJScrollPanel() {
+
+        JPanel panel = createPanel();
+        panel.setMinimumSize(panel.getPreferredSize());
+        final JScrollPane scrollPane = new JScrollPane(panel);
+
+        return scrollPane;
+    }
+
+
 
     private boolean isInvisible(PropertyDescriptor descriptor) {
         return Boolean.FALSE.equals(descriptor.getAttribute("visible")) || descriptor.isDeprecated();
