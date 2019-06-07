@@ -91,8 +91,10 @@ public class IceyeProductReader extends SARReader {
             final double nearRangeAngle = incidenceAngles[0];
             final double farRangeAngle = incidenceAngles[incidenceAngles.length - 1];
 
-            final double firstRangeTime = netcdfFile.getRootGroup().findVariable(IceyeXConstants.FIRST_PIXEL_TIME).readScalarDouble();
-            final double lastRangeTime = netcdfFile.getRootGroup().findVariable(IceyeXConstants.FIRST_PIXEL_TIME).readScalarDouble() + (netcdfFile.getRootGroup().findVariable(IceyeXConstants.NUM_SAMPLES_PER_LINE).readScalarDouble() / netcdfFile.getRootGroup().findVariable(IceyeXConstants.RANGE_SAMPLING_RATE).readScalarDouble());
+            final double firstRangeTime = netcdfFile.getRootGroup().findVariable(IceyeXConstants.FIRST_PIXEL_TIME).readScalarDouble()*Constants.sTOns;
+            final double samplesPerLine = netcdfFile.getRootGroup().findVariable(IceyeXConstants.NUM_SAMPLES_PER_LINE).readScalarDouble();
+            final double rangeSamplingRate = netcdfFile.getRootGroup().findVariable(IceyeXConstants.RANGE_SAMPLING_RATE).readScalarDouble();
+            final double lastRangeTime = firstRangeTime + samplesPerLine / rangeSamplingRate * Constants.sTOns;
 
             final float[] incidenceCorners = new float[]{(float) nearRangeAngle, (float) farRangeAngle, (float) nearRangeAngle, (float) farRangeAngle};
             final float[] slantRange = new float[]{(float) firstRangeTime, (float) lastRangeTime, (float) firstRangeTime, (float) lastRangeTime};
