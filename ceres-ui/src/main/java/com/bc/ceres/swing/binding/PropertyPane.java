@@ -26,7 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import static com.bc.ceres.swing.TableLayout.*;
+import static com.bc.ceres.swing.TableLayout.cell;
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
@@ -42,10 +42,6 @@ import static com.bc.ceres.swing.TableLayout.*;
  * @
  */
 // JAN2018 - Daniel Knowles - Added method to return property pane as a JScrollPane
-
-
-
-
 public class PropertyPane {
 
     private final BindingContext bindingContext;
@@ -115,25 +111,19 @@ public class PropertyPane {
 
 
 
-
-
-
-
-    /*
+    /**
      * Returns a JScrollPane version of the property pane
-     * Note: This method was added to fix an issue where a layer editor view with too many properties wouldn't fit onto
-     *       some monitor screens.
+     * @return a JScrollPane
+     *
      * @author Daniel Knowles
      * @since Jan 2019
      */
-
     public JScrollPane createJScrollPanel() {
 
         JPanel panel = createPanel();
         panel.setMinimumSize(panel.getPreferredSize());
-        final JScrollPane scrollPane = new JScrollPane(panel);
 
-        return scrollPane;
+        return new JScrollPane(panel);
     }
 
 
