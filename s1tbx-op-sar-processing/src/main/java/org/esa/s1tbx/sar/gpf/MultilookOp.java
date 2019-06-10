@@ -54,7 +54,7 @@ import java.util.HashMap;
  */
 
 @OperatorMetadata(alias = "Multilook",
-        category = "Radar",
+        category = "Radar/SAR Utilities",
         authors = "Jun Lu, Luis Veci",
         version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",

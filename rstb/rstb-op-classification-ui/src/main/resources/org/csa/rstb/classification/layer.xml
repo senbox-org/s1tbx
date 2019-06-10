@@ -43,22 +43,21 @@
     <folder name="Menu">
         <folder name="Radar">
             <folder name="Polarimetric">
-                <attr name="position" intvalue="500"/>
-                <file name="org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.instance"/>
-                    <attr name="position" intvalue="500"/>
-                </file>
-                <file name="org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.instance"/>
-                    <attr name="position" intvalue="700"/>
-                </file>
-            </folder>
-            <folder name="SAR Wizards">
-                <attr name="position" intvalue="1100"/>
-                <file name="org-csa-rstb-classification-wizards-PolSARWizard-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Wizards/org-csa-rstb-classification-wizards-PolSARWizard-Action.instance"/>
-                    <attr name="position" intvalue="200"/>
-                </file>
+                <folder name="Polarimetric Classification">
+                    <attr name="position" intvalue="90"/>
+                    <file name="org-csa-rstb-classification-wizards-PolSARWizard-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Wizards/org-csa-rstb-classification-wizards-PolSARWizard-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.instance"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.instance"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>

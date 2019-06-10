@@ -106,11 +106,6 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="Help">
-            <!--folder name="Wizards">
-                <attr name="position" intvalue="500"/>
-            </folder-->
-        </folder>
         <folder name="Radar">
             <folder name="Polarimetric">
                 <attr name="position" intvalue="500"/>
@@ -128,7 +123,7 @@
                         <attr name="originalFile" stringvalue="Actions/Operators/org.csa.rstb.polarimetric-gpf-CompactPolDecomposition-Action.instance"/>
                         <attr name="position" intvalue="400"/>
                     </file>
-				</folder>	
+				</folder>
                 <file name="org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>

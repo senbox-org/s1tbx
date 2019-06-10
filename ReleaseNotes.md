@@ -12,6 +12,7 @@
 * TOPS Deramp/Demod operator
 * Improved Terrain Flattening
 * Improved thermal noise filtering
+* Multilook and SLC to PRI moved to SAR utilities menu 
 
 #New in S1TBX 6.0
 

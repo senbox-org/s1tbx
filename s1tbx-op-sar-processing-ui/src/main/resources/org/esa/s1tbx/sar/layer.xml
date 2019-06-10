@@ -261,6 +261,10 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-MosaicOp-Action.instance"/>
                     <attr name="position" intvalue="300"/>
                 </file>
+				<file name="org-esa-s1tbx-sar-wizards-MosaicWizard-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Wizards/org-esa-s1tbx-sar-wizards-MosaicWizard-Action.instance"/>
+                    <attr name="position" intvalue="310"/>
+                </file>
                 <file name="org-esa-s1tbx-sar-gpf-geometric-ALOSDeskewingOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-ALOSDeskewingOp-Action.instance"/>
                     <attr name="position" intvalue="400"/>
@@ -285,21 +289,17 @@
                     <attr name="position" intvalue="200"/>
                 </file>
             </folder>
-            <folder name="SAR Wizards">
-                <attr name="position" intvalue="1100"/>
-                <file name="org-esa-s1tbx-sar-wizards-MosaicWizard-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Wizards/org-esa-s1tbx-sar-wizards-MosaicWizard-Action.instance"/>
-                    <attr name="position" intvalue="100"/>
-                </file>
-            </folder>
-            <file name="org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.shadow">
-                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.instance"/>
-                <attr name="position" intvalue="2000"/>
-            </file>
-            <file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.shadow">
-                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance"/>
-                <attr name="position" intvalue="2100"/>
-            </file>
+			<folder name="SAR Utilities">
+                <attr name="position" intvalue="1000"/>
+				<file name="org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.shadow">
+					<attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.instance"/>
+					<attr name="position" intvalue="2000"/>
+				</file>
+				<file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.shadow">
+					<attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance"/>
+					<attr name="position" intvalue="2100"/>
+				</file>
+			</folder>
         </folder>
     </folder>
 

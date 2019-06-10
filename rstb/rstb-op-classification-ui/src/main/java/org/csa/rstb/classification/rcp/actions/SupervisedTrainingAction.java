@@ -55,10 +55,10 @@ import java.util.List;
         popupText = "#CTL_SupervisedTrainingAction_MenuText",
         lazy = true
 )
-@ActionReference(path = "Menu/Radar/Polarimetric", position = 600)
+@ActionReference(path = "Menu/Radar/Polarimetric/Polarimetric Classification", position = 600)
 @NbBundle.Messages({
-        "CTL_SupervisedTrainingAction_MenuText=Supervised Classification Training",
-        "CTL_SupervisedTrainingAction_ShortDescription=Supervised Classification Training"
+        "CTL_SupervisedTrainingAction_MenuText=Supervised Wishart Classification Training",
+        "CTL_SupervisedTrainingAction_ShortDescription=Supervised Wishart Classification Training"
 })
 /**
  * Supervised Training action.
