@@ -107,17 +107,21 @@ public class SpectralDiversityOp extends Operator {
             label = "Number of Windows Per Overlap for ESD")
     private int numBlocksPerOverlap = 10;
 
-    @Parameter(description = "Use user supplied range and azimuth shifts", defaultValue = "false",
-            label = "Use user supplied shifts (please enter them below)")
-    private boolean useSuppliedShifts = false;
-
-    @Parameter(description = "The overall azimuth shift", defaultValue = "0.0",
-            label = "The overall azimuth shift in pixels")
-    private double overallAzimuthShift = 0.0;
+    @Parameter(description = "Use user supplied range shift", defaultValue = "false",
+            label = "Use user supplied range shift (please enter it below)")
+    private boolean useSuppliedRangeShift = false;
 
     @Parameter(description = "The overall range shift", defaultValue = "0.0",
             label = "The overall range shift in pixels")
     private double overallRangeShift = 0.0;
+
+    @Parameter(description = "Use user supplied azimuth shift", defaultValue = "false",
+            label = "Use user supplied azimuth shift (please enter it below)")
+    private boolean useSuppliedAzimuthShift = false;
+
+    @Parameter(description = "The overall azimuth shift", defaultValue = "0.0",
+            label = "The overall azimuth shift in pixels")
+    private double overallAzimuthShift = 0.0;
 
     private int fineWinWidth = 0;
     private int fineWinHeight = 0;
@@ -188,13 +192,9 @@ public class SpectralDiversityOp extends Operator {
                 swathIndexStr = subSwathNames[0].substring(2);
             }
 
-            if (useSuppliedShifts) {
-
+            if (useSuppliedRangeShift) {
                 isRangeOffsetAvailable = true;
-                isAzimuthOffsetAvailable = true;
-
             } else {
-
                 fineWinWidth = Integer.parseInt(fineWinWidthStr);
                 fineWinHeight = Integer.parseInt(fineWinHeightStr);
                 fineWinAccY = Integer.parseInt(fineWinAccAzimuth);
@@ -210,6 +210,10 @@ public class SpectralDiversityOp extends Operator {
                     throw new OperatorException("Registration window height should not be grater than burst height " +
                             subSwath[subSwathIndex - 1].linesPerBurst);
                 }
+            }
+
+            if (useSuppliedAzimuthShift) {
+                isAzimuthOffsetAvailable = true;
             }
 
             constructSourceMetadata();
@@ -346,7 +350,7 @@ public class SpectralDiversityOp extends Operator {
                 continue;
             } else {
                 targetBand = new Band(srcBandName,
-                        band.getDataType(),
+                        band.getDataType(),// todo: Should it be Float32?
                         band.getRasterWidth(),
                         band.getRasterHeight());
 
@@ -384,11 +388,13 @@ public class SpectralDiversityOp extends Operator {
             OverallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
             mstSlvTagElem.addElement(OverallRgAzShiftElem);
 
-            if (!useSuppliedShifts) {
+            if (!useSuppliedRangeShift) {
                 final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
                 RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
                 mstSlvTagElem.addElement(RgShiftPerBurstElem);
+            }
 
+            if (!useSuppliedAzimuthShift) {
                 final MetadataElement AzShiftPerOverlapElem = new MetadataElement("Azimuth_Shift_Per_Overlap");
                 AzShiftPerOverlapElem.addElement(new MetadataElement(subSwathNames[0]));
                 mstSlvTagElem.addElement(AzShiftPerOverlapElem);
@@ -402,12 +408,20 @@ public class SpectralDiversityOp extends Operator {
         }
         absTgt.addElement(ESDMeasurement);
 
-        if (useSuppliedShifts) {
+        if (useSuppliedRangeShift) {
             for (String key : targetMap.keySet()) {
                 final CplxContainer master = targetMap.get(key).sourceMaster;
                 final CplxContainer slave = targetMap.get(key).sourceSlave;
                 final String mstSlvTag = getMasterSlavePairTag(master, slave);
                 saveOverallRangeShift(mstSlvTag, overallRangeShift);
+            }
+        }
+
+        if (useSuppliedAzimuthShift) {
+            for (String key : targetMap.keySet()) {
+                final CplxContainer master = targetMap.get(key).sourceMaster;
+                final CplxContainer slave = targetMap.get(key).sourceSlave;
+                final String mstSlvTag = getMasterSlavePairTag(master, slave);
                 saveOverallAzimuthShift(mstSlvTag, overallAzimuthShift);
             }
         }
@@ -446,14 +460,20 @@ public class SpectralDiversityOp extends Operator {
             for (String key : targetMap.keySet()) {
                 final CplxContainer slave = targetMap.get(key).sourceSlave;
 
-                double azOffset = 0.0, rgOffset = 0.0;
-                if (useSuppliedShifts) {
-                    azOffset = overallAzimuthShift;
+                double rgOffset = 0.0;
+                if (useSuppliedRangeShift) {
                     rgOffset = overallRangeShift;
                 } else {
                     final AzRgOffsets azRgOffsets = targetOffsetMap.get(key);
-                    azOffset = azRgOffsets.azOffset;
                     rgOffset = azRgOffsets.rgOffset;
+                }
+
+                double azOffset = 0.0;
+                if (useSuppliedAzimuthShift) {
+                    azOffset = overallAzimuthShift;
+                } else {
+                    final AzRgOffsets azRgOffsets = targetOffsetMap.get(key);
+                    azOffset = azRgOffsets.azOffset;
                 }
 
                 performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle, targetTileMap);
