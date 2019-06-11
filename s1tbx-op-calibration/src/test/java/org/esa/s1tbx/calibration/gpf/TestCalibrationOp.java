@@ -91,7 +91,7 @@ public class TestCalibrationOp {
     @Test
     public void testProcessingS1_StripmapSLC() throws Exception {
 
-        final float[] expected = new float[] {0.03302580863237381f,0.12401964515447617f,0.3184557855129242f};
+        final float[] expected = new float[] {0.03781468f,0.14200227f,0.3646295f};
         processFile(TestData.inputS1_StripmapSLC, "sigma0_VV", expected);
     }
 

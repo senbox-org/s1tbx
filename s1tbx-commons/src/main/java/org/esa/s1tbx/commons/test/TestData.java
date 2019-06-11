@@ -23,7 +23,14 @@ import java.io.File;
 public class TestData {
 
     public final static String sep = File.separator;
-    public final static String input = S1TBXTests.rootPathTestProducts + sep + "input" + sep;
+    public static String input = "/data/ssd/testData/s1tbx/";
+    static {
+        File file = new File(input);
+        if(!file.exists()) {
+            input = "E:\\TestData\\s1tbx\\";
+        }
+    }
+
     public final static String inputSAR = input + "SAR" + sep;
 
     //ASAR

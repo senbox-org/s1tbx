@@ -19,8 +19,6 @@ import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.runtime.Config;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -37,19 +35,20 @@ public class S1TBXTests {
 
     private static final Preferences testPreferences = Config.instance(S1TBX_TESTS).load().preferences();
 
-    private static Path workingPath = Paths.get(System.getProperty("user.dir"));
-    public static String rootPathTestProducts;
+    public final static String sep = File.separator;
+    public static String input = "/data/ssd/testData/s1tbx/";
     static {
-        if(workingPath.getParent().getParent().endsWith("s1tbx")) {
-            workingPath = workingPath.getParent();
+        File file = new File(input);
+        if(!file.exists()) {
+            input = "E:\\TestData\\s1tbx\\";
         }
-        rootPathTestProducts = workingPath.getParent().getParent().resolve("testdata-s1tbx").toString();
     }
 
-    public final static File[] rootArchivePaths = loadFilePath("test.rootArchivePaths");
+    public final static String inputSAR = input + "SAR" + sep;
+
     public final static File[] rootPathsTerraSarX = loadFilePath("test.rootPathTerraSarX");
     public final static File[] rootPathsASAR = loadFilePath("test.rootPathASAR");
-    public final static File[] rootPathsRadarsat2 = loadFilePath("test.rootPathRadarsat2");
+    public final static File[] rootPathsRadarsat2 = createPath("SAR/RS2");
     public final static File[] rootPathsRadarsat1 = loadFilePath("test.rootPathRadarsat1");
     public final static File[] rootPathsSentinel1 = loadFilePath("test.rootPathSentinel1");
     public final static File[] rootPathsERS = loadFilePath("test.rootPathERS");
@@ -77,12 +76,16 @@ public class S1TBXTests {
             subsetHeight = Integer.parseInt(testPreferences.get("test.subsetHeight", "100"));
 
             maxIteration = Integer.parseInt(testPreferences.get("test.maxProductsPerRootFolder", "1"));
-            String testReadersOnAllProducts = testPreferences.get("test.ReadersOnAllProducts", "");
-            String testProcessingOnAllProducts = testPreferences.get("test.ProcessingOnAllProducts", "");
+            String testReadersOnAllProducts = testPreferences.get("test.ReadersOnAllProducts", "true");
+            String testProcessingOnAllProducts = testPreferences.get("test.ProcessingOnAllProducts", "true");
 
             canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
             canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
         }
+    }
+
+    private static File[] createPath(final String path) {
+        return new File[] { new File(input, path)};
     }
 
     private static File[] loadFilePath(final String id) {

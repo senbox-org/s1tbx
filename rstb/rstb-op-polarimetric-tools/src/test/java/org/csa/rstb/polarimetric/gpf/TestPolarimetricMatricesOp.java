@@ -40,8 +40,8 @@ public class TestPolarimetricMatricesOp {
     private final static String quadInputPath = TestData.inputSAR + "\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
     private final static String inputQuadFullStack = TestData.inputSAR + "\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
 
-    private final static String expectedPathC3 = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
-    private final static String expectedPathT3 = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
+    private final static String expectedPathC3 = TestData.input + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
+    private final static String expectedPathT3 = TestData.input + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
 
     private Product runMatrix(final PolarimetricMatricesOp op,
                               final String decompositionName, final String path) throws Exception {

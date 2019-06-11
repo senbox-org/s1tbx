@@ -36,15 +36,15 @@ public class TestOrientationAngleOp {
 
     private final static OperatorSpi spi = new OrientationAngleCorrectionOp.Spi();
 
-    private final static String inputPathQuad = TestData.inputSAR + "\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestData.inputSAR + "\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-T3-Stack.dim";
+    private final static String inputPathQuad = TestData.inputSAR + "/QuadPol/QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestData.inputSAR + "/QuadPolStack/RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestData.inputSAR + "/QuadPolStack/RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestData.inputSAR + "/QuadPolStack/RS2-T3-Stack.dim";
 
     private Product runOrientation(final OrientationAngleCorrectionOp op, final String path) throws Exception {
         final File inputFile = new File(path);
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, path + " not found");
+            TestUtils.skipTest(this, inputFile.getAbsolutePath() + " not found");
             return null;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);

@@ -19,6 +19,7 @@ import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -30,8 +31,8 @@ import java.io.File;
  */
 public class TestRadarsat2ProductReader extends ReaderTest {
 
-    private static final File folderSLC = new File("E:\\data\\RS2\\RS2_OK2084_PK24911_DK25857_FQ14_20080802_225909_HH_VV_HV_VH_SLC");
-    private static final File metadataSLC = new File("E:\\data\\RS2\\RS2_OK2084_PK24911_DK25857_FQ14_20080802_225909_HH_VV_HV_VH_SLC\\product.xml");
+    private static final File folderSLC = new File(S1TBXTests.input,"SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC");
+    private static final File metadataSLC = new File(S1TBXTests.input, "SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC\\product.xml");
 
     public TestRadarsat2ProductReader() {
         super(new Radarsat2ProductReaderPlugIn());
@@ -44,6 +45,7 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     }
 
     @Test
+    @Ignore
     public void testOpeningFolder() throws Exception {
         testReader(folderSLC);
     }

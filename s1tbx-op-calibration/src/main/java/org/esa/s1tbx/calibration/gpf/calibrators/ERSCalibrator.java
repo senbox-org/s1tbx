@@ -805,7 +805,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
                 try {
                     final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("ERS").toFile();
-                    final URL remotePath = new URL(Settings.getPath("AuxCal.ERS.remotePath"));
+                    final URL remotePath = new URL(Settings.instance().get("AuxCal.ERS.remotePath","http://step.esa.int/auxdata/auxcal/ERS/"));
 
                     final File xcaFile = new File(localFolder, "ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.zip");
                     if(!xcaFile.exists()) {
@@ -833,7 +833,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
                 try {
                     final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("ERS").toFile();
-                    final URL remotePath = new URL(Settings.getPath("AuxCal.ERS.remotePath"));
+                    final URL remotePath = new URL(Settings.instance().get("AuxCal.ERS.remotePath","http://step.esa.int/auxdata/auxcal/ERS/"));
 
                     final File xcaFile = new File(localFolder, "ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.zip");
                     if(!xcaFile.exists()) {

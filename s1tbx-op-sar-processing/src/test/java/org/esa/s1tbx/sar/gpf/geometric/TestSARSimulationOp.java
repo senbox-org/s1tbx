@@ -39,7 +39,7 @@ public class TestSARSimulationOp {
     private final static TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
 
     private final static String inputPathWSM = TestData.inputSAR + "\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM = S1TBXTests.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_SIM.dim";
+    private final static String expectedPathWSM = TestData.input + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_SIM.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "not be map projected", "outside of SRTM valid area",
@@ -68,10 +68,7 @@ public class TestSARSimulationOp {
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
         final float[] expected = new float[] {
-                0.0077058035f,
-                7.7658595E-4f,
-                0.0070461044f,
-                0.0010754176f };
+                0.006285298f, 0.0017749781f, 0.004433623f, 0.0032956812f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 

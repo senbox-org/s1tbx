@@ -305,7 +305,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         oldXCAFileName = absRoot.getAttributeString(AbstractMetadata.external_calibration_file);
 
         final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("ENVISAT").toFile();
-        final URL remotePath = new URL(Settings.getPath("AuxCal.ENVISAT.remotePath"));
+        final URL remotePath = new URL(Settings.instance().get("AuxCal.ENVISAT.remotePath", "http://step.esa.int/auxdata/auxcal/ENVISAT/"));
 
         File xcaFile = new File(localFolder, oldXCAFileName);
         if(xcaFile.exists()) {  // unzipped

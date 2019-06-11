@@ -309,7 +309,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
     private void getRemoteFiles(final int year) throws Exception {
 
         final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("S1").resolve(String.valueOf(year)).toFile();
-        final URL remotePath = new URL(Settings.getPath("AuxCal.Sentinel1.remotePath"));
+        final URL remotePath = new URL(Settings.instance().get("AuxCal.Sentinel1.remotePath","http://step.esa.int/auxdata/auxcal/S1/"));
 
         final File localFile = new File(localFolder, year + ".zip");
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
