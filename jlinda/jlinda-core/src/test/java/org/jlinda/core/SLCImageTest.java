@@ -2,10 +2,12 @@ package org.jlinda.core;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
+@Ignore
 public class SLCImageTest {
 
     private static File resFile;

@@ -6,6 +6,7 @@ import org.junit.*;
 import java.io.File;
 import java.nio.ByteOrder;
 
+@Ignore
 public class FlatBinaryDoubleTest {
 
     private static FlatBinaryDouble flatBinaryDoubleRead;

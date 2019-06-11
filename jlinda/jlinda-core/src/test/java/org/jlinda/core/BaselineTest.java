@@ -2,10 +2,12 @@ package org.jlinda.core;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
+@Ignore
 public class BaselineTest {
 
     private static final File masterResFile = new File("test/testOrbit/test_cr.res");

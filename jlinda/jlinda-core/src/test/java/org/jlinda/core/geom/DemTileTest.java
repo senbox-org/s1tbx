@@ -5,6 +5,7 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import static org.jlinda.core.io.DataReader.readFloatData;
  * Date: 6/16/11
  * Time: 4:11 PM
  */
+@Ignore
 public class
         DemTileTest {
 

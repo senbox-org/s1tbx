@@ -5,10 +5,7 @@ import org.jblas.DoubleMatrix;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +15,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
+@Ignore
 public class Slant2HeightTest {
 
     private static final Logger logger = SystemUtils.LOG;

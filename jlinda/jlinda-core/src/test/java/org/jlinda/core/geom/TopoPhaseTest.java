@@ -6,6 +6,7 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.util.logging.Logger;
 import static org.jlinda.core.io.DataReader.readDoubleData;
 import static org.jlinda.core.io.DataReader.readFloatData;
 
+@Ignore
 public class TopoPhaseTest {
 
     static Logger logger = SystemUtils.LOG;

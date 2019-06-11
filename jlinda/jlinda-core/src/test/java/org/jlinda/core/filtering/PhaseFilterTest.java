@@ -9,10 +9,7 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.SarUtils;
 import org.jlinda.core.utils.SpectralUtils;
 import org.jlinda.core.utils.WeightWindows;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.jblas.MatrixFunctions.powi;
 import static org.jlinda.core.io.DataReader.readCplxFloatData;
@@ -23,6 +20,7 @@ import static org.jlinda.core.io.DataReader.readFloatData;
  * Date: 6/8/11
  * Time: 12:04 PM
  */
+@Ignore
 public class PhaseFilterTest {
 
     private static final String testDirectoryGoldstein = "/d2/etna/etna_test/phaseFiltTest/goldstein/";

@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+@Ignore
 public class ResFileTest {
 
     static Logger logger = SystemUtils.LOG;

@@ -3,10 +3,12 @@ package org.jlinda.core.utils;
 import org.jlinda.core.Window;
 import org.jlinda.core.delaunay.TriangleInterpolator;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.jlinda.core.io.DataReader.readDoubleData;
 
+@Ignore
 public class TriangleInterpolatorTest {
 
     @Test

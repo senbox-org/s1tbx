@@ -6,12 +6,14 @@ import org.jblas.FloatMatrix;
 import org.jlinda.core.simulation.Simulation;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.ByteOrder;
 
 import static org.jlinda.core.io.DataReader.*;
 
+@Ignore
 public class SarUtilsTest {
 
     static int nRows = 128;

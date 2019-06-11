@@ -6,6 +6,7 @@ import org.jblas.FloatMatrix;
 import org.jlinda.core.SLCImage;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.io.FileNotFoundException;
 import static org.jlinda.core.io.DataReader.readCplxFloatData;
 import static org.jlinda.core.io.DataReader.readFloatData;
 
+@Ignore
 public class RangeFilterTest {
 
     private static final double DELTA_04 = 1e-04;

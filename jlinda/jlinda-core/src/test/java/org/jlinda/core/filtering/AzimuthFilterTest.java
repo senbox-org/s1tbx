@@ -7,6 +7,7 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.io.File;
 import static org.jlinda.core.io.DataReader.readCplxFloatData;
 import static org.jlinda.core.io.DataReader.readFloatData;
 
+@Ignore
 public class AzimuthFilterTest {
 
     // etna processing!

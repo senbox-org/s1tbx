@@ -1,14 +1,12 @@
 package org.jlinda.core;
 
 import org.esa.snap.core.util.SystemUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.util.logging.Logger;
 
+@Ignore
 public class OrbitTest {
 
     private static final Logger logger = SystemUtils.LOG;
