@@ -8,6 +8,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
  * Test ComputeDerampDemodPhaseOp
  */
 
+@Ignore
 public class TestComputeDerampDemodPhaseOp {
 
     private final static String inputPath =

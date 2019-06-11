@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.sentinel1.gpf;
 
+import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -36,8 +37,8 @@ public class TestSliceAssemblyOp {
     }
     private final static OperatorSpi spi = new SliceAssemblyOp.Spi();
 
-    private final File slice1File = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053442_20120101T053517_001772_000001_F181.SAFE\\manifest.safe");
-    private final File slice2File = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053517_20120101T053539_001772_000001_D87D.SAFE\\manifest.safe");
+    private final File slice1File = new File(S1TBXTests.inputSAR, "S1\\GRD\\Hawaii_slices\\S1A_IW_GRDH_1SDV_20180514T043029_20180514T043054_021896_025D31_BBDA.zip");
+    private final File slice2File = new File(S1TBXTests.inputSAR, "S1\\GRD\\Hawaii_slices\\S1A_IW_GRDH_1SDV_20180514T043054_20180514T043119_021896_025D31_27FE.zip");
 
     private final File nonSliceFile = TestData.inputS1_GRD;
 

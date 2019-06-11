@@ -19,6 +19,7 @@ import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -85,6 +86,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     }
 
     @Test
+    @Ignore
     public void testOpeningFolder() throws Exception {
         testReader(inputGRDFolder);
     }

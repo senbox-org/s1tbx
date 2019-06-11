@@ -26,7 +26,7 @@ import java.io.File;
  */
 public class TestTaxiParameterFileReader {
 
-    public final static File inputParameterFile = new File(TestData.inputSAR+"InSAR"+File.separator+"pp_m20140809_s20140821_s1a-slc-vv_SS1_with_comments.xml");
+    public final static File inputParameterFile = new File(TestData.inputSAR+"TAXI"+File.separator+"pp_m20140809_s20140821_s1a-slc-vv_SS1_with_comments.xml");
 
     @Test
     public void testOpen() throws Exception {

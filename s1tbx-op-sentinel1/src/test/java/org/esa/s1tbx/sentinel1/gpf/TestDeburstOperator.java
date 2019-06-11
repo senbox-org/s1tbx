@@ -16,13 +16,13 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -36,10 +36,10 @@ public class TestDeburstOperator {
 
     private OperatorSpi spi;
 
-    final String s1FolderFilePath = "P:\\s1tbx\\s1tbx\\Data\\First Images\\S1A_IW_SLC__1SDV_20140823T052821_20140823T052840_002063_00205B_4658.SAFE\\manifest.safe";
+    private final File inputFile = new File(S1TBXTests.inputSAR, "S1/SLC/Etna-DLR/S1A_IW_SLC__1SDV_20140809T165546_20140809T165613_001866_001C20_088B.zip");
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         TestUtils.initTestEnvironment();
         spi = new TOPSARDeburstOp.Spi();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
@@ -51,9 +51,7 @@ public class TestDeburstOperator {
      * @throws Exception general exception
      */
     @Test
-    @Ignore
     public void testProcessing() throws Exception {
-        final File inputFile = new File(s1FolderFilePath);
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final TOPSARDeburstOp op = (TOPSARDeburstOp) spi.createOperator();

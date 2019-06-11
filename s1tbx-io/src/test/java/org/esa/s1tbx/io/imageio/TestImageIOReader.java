@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import javax.imageio.ImageIO;
 import java.io.File;
-import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -40,7 +39,7 @@ public class TestImageIOReader {
     ImageIOReaderPlugIn readerPlugin;
     ProductReader reader;
 
-    String filePath = TestData.input+"image"+TestData.sep+"PNG"+TestData.sep+"s1_64x.png";
+    String filePath = TestData.inputSAR+"image"+TestData.sep+"PNG"+TestData.sep+"s1_64x.png";
 
     public TestImageIOReader() {
         readerPlugin = new ImageIOReaderPlugIn();
@@ -48,7 +47,7 @@ public class TestImageIOReader {
     }
 
     @Test
-    public void testImageIO() throws IOException {
+    public void testImageIO() {
         final String[] readerFormats = ImageIO.getReaderFormatNames();
         final String[] readerSuffixes = ImageIO.getReaderFileSuffixes();
         final String[] writerFormats = ImageIO.getWriterFormatNames();
