@@ -16,7 +16,7 @@
     <packaging>nbm</packaging>
 
     <name>SNAP Remote Execution</name>
-    <description>SNAP Remote Execution of products on remote machines.</description>
+    <description>The Remote Execution Processor executes on the remote machines a slave graph and then on the host machine it executes a master graph using the products created by the remote machines.</description>
 
     <dependencies>
         <dependency>
