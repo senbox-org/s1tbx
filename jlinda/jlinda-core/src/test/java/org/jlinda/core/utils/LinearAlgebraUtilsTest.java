@@ -6,6 +6,7 @@ import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class LinearAlgebraUtilsTest {
@@ -135,6 +136,7 @@ public class LinearAlgebraUtilsTest {
     }
 
     @Test
+    @Ignore
     public void testSolve33() throws Exception {
         double[] SOL_33_ACTUAL = LinearAlgebraUtils.solve33(A_PASCAL_33.toArray2(), X_33);
         Assert.assertArrayEquals(SOL_33_EXPECTED, SOL_33_ACTUAL, DELTA);

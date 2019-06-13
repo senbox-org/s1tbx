@@ -3,6 +3,7 @@ package org.jlinda.core.utils;
 import org.jblas.DoubleMatrix;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class WeightWindowsTest {
@@ -53,6 +54,7 @@ public class WeightWindowsTest {
     }
 
     @Test
+    @Ignore
     public void testHammingDoubleMatrix() throws Exception {
         DoubleMatrix hamming_ACTUAL_MATRIX = WeightWindows.hamming(new DoubleMatrix(inputAxisHamming), Br, Fs, ALPHA);
         Assert.assertEquals(new DoubleMatrix(hamming_EXPECTED), hamming_ACTUAL_MATRIX);
@@ -72,6 +74,7 @@ public class WeightWindowsTest {
     }
 
     @Test
+    @Ignore
     public void testInvertHammingDoubleMatrix() throws Exception {
         DoubleMatrix inverseHamming_ACTUAL = WeightWindows.inverseHamming(new DoubleMatrix(inputAxisHamming), Br, Fs, ALPHA);
         Assert.assertEquals(new DoubleMatrix(inverseHamming_EXPECTED),inverseHamming_ACTUAL);
