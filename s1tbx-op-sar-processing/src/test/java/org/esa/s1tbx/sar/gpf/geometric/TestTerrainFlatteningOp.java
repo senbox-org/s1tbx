@@ -16,6 +16,7 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 
+import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -30,16 +31,12 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Unit test for Range Doppler.
  */
-@Ignore("fails")
 public class TestTerrainFlatteningOp {
 
     static {
         TestUtils.initTestEnvironment();
     }
     private final static OperatorSpi spi = new TerrainFlatteningOp.Spi();
-
-    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "not be map projected", "outside of SRTM valid area"};
 
     /**
      * Processes a WSM product and compares it to processed product known to be correct
@@ -55,15 +52,20 @@ public class TestTerrainFlatteningOp {
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
+        final CalibrationOp calOp = new CalibrationOp();
+        calOp.setSourceProduct(sourceProduct);
+        calOp.setParameter("outputBetaBand", true);
+        calOp.setParameter("createBetaBand", true);
+
         final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProduct(sourceProduct);
+        op.setSourceProduct(calOp.getTargetProduct());
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 4351.9638671875f,2904.682861328125f,2189.5703125f,2127.906494140625f };
+        final float[] expected = new float[] { 1.0106784f, 1.3002554f, 0.2714007f, 0.11220895f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 200, 200, expected);
     }
 
@@ -81,9 +83,13 @@ public class TestTerrainFlatteningOp {
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
+        final CalibrationOp calOp = new CalibrationOp();
+        calOp.setSourceProduct(sourceProduct);
+        calOp.setParameter("outputBetaBand", true);
+
         final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProduct(sourceProduct);
+        op.setSourceProduct(calOp.getTargetProduct());
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
@@ -104,9 +110,13 @@ public class TestTerrainFlatteningOp {
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
+        final CalibrationOp calOp = new CalibrationOp();
+        calOp.setSourceProduct(sourceProduct);
+        calOp.setParameter("outputBetaBand", true);
+
         final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProduct(sourceProduct);
+        op.setSourceProduct(calOp.getTargetProduct());
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
@@ -127,9 +137,13 @@ public class TestTerrainFlatteningOp {
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
+        final CalibrationOp calOp = new CalibrationOp();
+        calOp.setSourceProduct(sourceProduct);
+        calOp.setParameter("outputBetaBand", true);
+
         final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
-        op.setSourceProduct(sourceProduct);
+        op.setSourceProduct(calOp.getTargetProduct());
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();

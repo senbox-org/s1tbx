@@ -61,7 +61,7 @@ public class TestSliceAssemblyOp {
             TestUtils.verifyProduct(targetProduct, false, false);
         } catch (Exception e) {
             String msg = e.getMessage();
-            assertTrue(msg.equals("SliceAssembly: Slice assembly requires at least two consecutive slice products"));
+            assertTrue(msg.equals("Slice assembly requires at least two consecutive slice products"));
         }
     }
 

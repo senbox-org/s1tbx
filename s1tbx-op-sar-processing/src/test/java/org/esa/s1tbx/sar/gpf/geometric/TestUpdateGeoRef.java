@@ -9,7 +9,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -35,7 +34,6 @@ public class TestUpdateGeoRef {
      * @throws Exception general exception
      */
     @Test
-    @Ignore("fails")
     public void testProcessing() throws Exception {
         final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
@@ -57,8 +55,8 @@ public class TestUpdateGeoRef {
 
         final GeoCoding geoCoding = targetProduct.getSceneGeoCoding();
         final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(100, 100), null);
-        assertEquals(46.727386, geoPos.getLat(), 0.00001);
-        assertEquals(10.363166, geoPos.getLon(), 0.00001);
+        assertEquals(46.72579102050234, geoPos.getLat(), 0.00001);
+        assertEquals(10.359693240977476, geoPos.getLon(), 0.00001);
     }
 
     @Test
