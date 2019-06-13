@@ -22,6 +22,8 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.awt.*;
 import java.util.*;
@@ -72,7 +74,12 @@ public final class Sentinel1Utils {
 
         getSubSwathParameters();
 
-        this.nearRangeOnLeft = (subSwath[0].incidenceAngle[0][0] < subSwath[0].incidenceAngle[0][1]);
+        if(subSwath == null || subSwath.length == 0) {
+            final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+            this.nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceProduct.getSceneRasterWidth());
+        } else {
+            this.nearRangeOnLeft = (subSwath[0].incidenceAngle[0][0] < subSwath[0].incidenceAngle[0][1]);
+        }
     }
 
     private void getMetadataRoot() {
