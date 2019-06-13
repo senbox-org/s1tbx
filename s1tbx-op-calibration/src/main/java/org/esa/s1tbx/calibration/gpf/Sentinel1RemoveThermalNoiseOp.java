@@ -472,7 +472,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         if (version >= 2.9) {
             final TimeMaps timeMaps = new TimeMaps();
 
-            if (isTOPS && isGRD) {
+            if (isGRD) {
                 return buildNoiseLUTForTOPSGRD(x0, y0, w, h, targetBandName, timeMaps);
             } else if (isTOPSARSLC) {
                 return buildNoiseLUTForTOPSSLC(x0, y0, w, h, targetBandName, timeMaps);
@@ -998,7 +998,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             // get the noise azimuth vectors
             MetadataElement noiseAzimuthVectorListElem = noiElem.getElement("noiseAzimuthVectorList");
 
-            final MetadataElement firstVector = noiseAzimuthVectorListElem.getElementAt(0);
+            final MetadataElement firstVector;
+            if(noiseAzimuthVectorListElem.getNumElements() == 0) {
+                firstVector = noiseAzimuthVectorListElem;
+            } else {
+                firstVector = noiseAzimuthVectorListElem.getElementAt(0);
+            }
+
             if (firstVector.getAttributeString("slice", null) != null) {
                 throw new OperatorException("Noise removal should be applied prior to slice assembly");
             }
