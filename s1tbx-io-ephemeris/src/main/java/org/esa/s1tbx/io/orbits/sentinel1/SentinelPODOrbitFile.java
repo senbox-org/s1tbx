@@ -48,6 +48,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -260,9 +261,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     static File getDestFolder(final String missionPrefix, final String orbitType, final int year, final int month) {
         final String prefOrbitPath;
         if (orbitType.startsWith(RESTITUTED)) {
-            prefOrbitPath = Settings.getPath("OrbitFiles.sentinel1RESOrbitPath");
+            String def = SystemUtils.getAuxDataPath().resolve("Orbits").resolve("Sentinel-1").resolve("RESORB").toString();
+            prefOrbitPath = Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath", def);
         } else {
-            prefOrbitPath = Settings.getPath("OrbitFiles.sentinel1POEOrbitPath");
+            String def = SystemUtils.getAuxDataPath().resolve("Orbits").resolve("Sentinel-1").resolve("POEORB").toString();
+            prefOrbitPath = Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath", def);
         }
         final File destFolder = new File(prefOrbitPath +
                 File.separator + missionPrefix +
