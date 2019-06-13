@@ -173,5 +173,152 @@ public class LookupTableTest {
         }
     }
 
+    @Test
+    public void testInterpolation3D_Get2DValuesArray() {
+        final IntervalPartition[] dimensions = IntervalPartition.createArray(
+                new double[]{0, 1, 2, 3, 4}, new double[]{1, 2, 3, 4, 5}, new double[]{2, 3, 4, 5, 6});
+
+        assertEquals(125, LookupTable.getVertexCount(dimensions));
+
+        final double[] values = new double[125];
+        for (int i = 0; i < values.length; ++i) {
+            values[i] = i;
+        }
+
+        final LookupTable lut = new LookupTable(values, dimensions);
+        assertEquals(3, lut.getDimensionCount());
+
+        final double[] r = new double[1];
+        final double[] x = new double[1];
+        final FracIndex[] fi = FracIndex.createArray(1);
+        final Random rng = new Random(27182);
+
+        for (int i = 0; i < 10; ++i) {
+            // Compute random coordinates and fractional indices
+            r[0] = rng.nextDouble() * (lut.getDimension(0).getMax() - lut.getDimension(0).getMin());
+            x[0] = r[0] + lut.getDimension(0).getMin();
+
+            final double floor = Math.floor(r[0]);
+            fi[0].i = (int) floor;
+            fi[0].f = r[0] - Math.floor(r[0]);
+
+            // Check computation of fractional indices
+            final FracIndex fracIndex = new FracIndex();
+
+            LookupTable.computeFracIndex(dimensions[0], x[0], fracIndex);
+            assertEquals(fi[0].i, fracIndex.i);
+            assertEquals(fi[0].f, fracIndex.f, 1.0E-10);
+
+            final double[][] expected = {
+                    {
+                            0 + 5.0 * (0 + 5.0 * r[0]),
+                            1 + 5.0 * (0 + 5.0 * r[0]),
+                            2 + 5.0 * (0 + 5.0 * r[0]),
+                            3 + 5.0 * (0 + 5.0 * r[0]),
+                            4 + 5.0 * (0 + 5.0 * r[0]),
+                    },
+                    {
+                            0 + 5.0 * (1 + 5.0 * r[0]),
+                            1 + 5.0 * (1 + 5.0 * r[0]),
+                            2 + 5.0 * (1 + 5.0 * r[0]),
+                            3 + 5.0 * (1 + 5.0 * r[0]),
+                            4 + 5.0 * (1 + 5.0 * r[0]),
+                    },
+                    {
+                            0 + 5.0 * (2 + 5.0 * r[0]),
+                            1 + 5.0 * (2 + 5.0 * r[0]),
+                            2 + 5.0 * (2 + 5.0 * r[0]),
+                            3 + 5.0 * (2 + 5.0 * r[0]),
+                            4 + 5.0 * (2 + 5.0 * r[0]),
+                    },
+                    {
+                            0 + 5.0 * (3 + 5.0 * r[0]),
+                            1 + 5.0 * (3 + 5.0 * r[0]),
+                            2 + 5.0 * (3 + 5.0 * r[0]),
+                            3 + 5.0 * (3 + 5.0 * r[0]),
+                            4 + 5.0 * (3 + 5.0 * r[0]),
+                    },
+                    {
+                            0 + 5.0 * (4 + 5.0 * r[0]),
+                            1 + 5.0 * (4 + 5.0 * r[0]),
+                            2 + 5.0 * (4 + 5.0 * r[0]),
+                            3 + 5.0 * (4 + 5.0 * r[0]),
+                            4 + 5.0 * (4 + 5.0 * r[0]),
+                    },
+            };
+
+            final double[][] b = lut.get2DValuesArray(fi);
+
+            for (int j = 0; j < expected.length; j++) {
+                assertArrayEquals(expected[j], b[j], 1e-8);
+            }
+        }
+    }
+
+    @Test
+    public void testInterpolation4D_Get2DValuesArray() {
+        final IntervalPartition[] dimensions = IntervalPartition.createArray(
+                new double[]{0, 1, 2, 3, 4}, new double[]{1, 2, 3, 4}, new double[]{2, 3, 4}, new double[]{3, 4});
+
+        assertEquals(120, LookupTable.getVertexCount(dimensions));
+
+        final double[] values = new double[120];
+        for (int i = 0; i < values.length; ++i) {
+            values[i] = i;
+        }
+
+        final LookupTable lut = new LookupTable(values, dimensions);
+        assertEquals(4, lut.getDimensionCount());
+
+        final double[] r = new double[2];
+        final double[] x = new double[2];
+        final FracIndex[] fi = FracIndex.createArray(2);
+        final Random rng = new Random(27182);
+
+        for (int i = 0; i < 10; ++i) {
+
+            for (int j = 0; j < 2; ++j) {
+                // Compute random coordinates and fractional indices
+                r[j] = rng.nextDouble() * (lut.getDimension(j).getMax() - lut.getDimension(j).getMin());
+                x[j] = r[j] + lut.getDimension(j).getMin();
+
+                final double floor = Math.floor(r[j]);
+                fi[j].i = (int) floor;
+                fi[j].f = r[j] - Math.floor(r[j]);
+            }
+
+            // Check computation of fractional indices
+            for (int j = 0; j < 2; ++j) {
+                final FracIndex fracIndex = new FracIndex();
+
+                LookupTable.computeFracIndex(dimensions[j], x[j], fracIndex);
+                assertEquals(fi[j].i, fracIndex.i);
+                assertEquals(fi[j].f, fracIndex.f, 1.0E-10);
+            }
+
+            // Check computation of fractional indices
+
+            final double[][] expected = {
+                    {
+                            0 + 2.0 * (0 + 3.0 * (r[1] + 4.0 * r[0])),
+                            1 + 2.0 * (0 + 3.0 * (r[1] + 4.0 * r[0]))
+                    },
+                    {
+                            0 + 2.0 * (1 + 3.0 * (r[1] + 4.0 * r[0])),
+                            1 + 2.0 * (1 + 3.0 * (r[1] + 4.0 * r[0]))
+                    },
+                    {
+                            0 + 2.0 * (2 + 3.0 * (r[1] + 4.0 * r[0])),
+                            1 + 2.0 * (2 + 3.0 * (r[1] + 4.0 * r[0]))
+                    }
+            };
+
+            final double[][] b = lut.get2DValuesArray(fi);
+
+            for (int j = 0; j < expected.length; j++) {
+                assertArrayEquals(expected[j], b[j], 1e-8);
+            }
+        }
+    }
 
 }
