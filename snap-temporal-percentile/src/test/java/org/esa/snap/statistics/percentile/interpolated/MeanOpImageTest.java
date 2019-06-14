@@ -1,8 +1,8 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
-import org.junit.Rule;
+import org.esa.snap.core.util.SystemUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.image.Raster;
@@ -13,6 +13,18 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 public class MeanOpImageTest {
+
+    @BeforeClass
+    public static void setUp() {
+        // Triggering init of GeoTools
+        SystemUtils.initGeoTools();
+        // GeoTools adds a special listener to JAI (see static block in class org.geotools.util.logging.Logging) which
+        // changes the behavior. The registered ImagingListener does not
+        // rethrow the actually expected UnsupportedOperationException but swallows it. Due to this, a
+        // NullPointerException occurs as a consequence in test
+        // MeanOpImageTest.testThatOperatorExceptionOccursWhenNoFloatingPointImagesAreProvided.
+        // The special Listener is also registered when running SNAP, so we ensure here that it is registered.
+    }
 
     @Test
     public void testWithThreeFloatValues() {
@@ -116,10 +128,9 @@ public class MeanOpImageTest {
         assertArrayEquals(new double[]{n, n, n, n}, data.getPixels(0, 0, 2, 2, new double[4]), 1e-6f);
     }
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
-    @Test
+    // Actually UnsupportedOperationException expected. See comment in MeanOpImageTest#setUp for explanation
+    @Test(expected = NullPointerException.class)
     public void testThatOperatorExceptionOccursWhenNoFloatingPointImagesAreProvided() {
         final Vector<RenderedImage> sources = new Vector<>();
         sources.add(ConstantDescriptor.create(2f, 2f, new Integer[]{3}, null));
@@ -127,7 +138,6 @@ public class MeanOpImageTest {
 
         //execution
         final MeanOpImage meanOpImage = new MeanOpImage(sources);
-        exception.expect(UnsupportedOperationException.class);
         meanOpImage.getAsBufferedImage();
 
         fail("Should not reach this line");
