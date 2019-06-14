@@ -30,6 +30,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.*;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -111,11 +112,15 @@ public class IntegerInterferogramOp extends Operator {
         }
     }
 
-    private void checkSourceProductValidity() {
+    private void checkSourceProductValidity() throws IOException {
 
         final InputProductValidator validator1 = new InputProductValidator(sourceProduct[0]);
         validator1.checkIfSARProduct();
         validator1.checkIfCoregisteredStack();
+
+        if(sourceProduct.length < 2) {
+            throw new IOException("Integer Interferogram requires two coregistered stacks as input");
+        }
 
         final InputProductValidator validator2 = new InputProductValidator(sourceProduct[1]);
         validator2.checkIfSARProduct();
