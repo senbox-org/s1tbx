@@ -1,7 +1,8 @@
 #New in S1TBX 7.0
 
 * Support for S-1 on AWS
-* Support for RCM products
+* Support for RCM 
+* Support for IcEye 
 * Support for PAZ
 * Support for RISAT-1
 * Support for ALOS-2 in GeoTiff
@@ -13,6 +14,10 @@
 * Improved Terrain Flattening
 * Improved thermal noise filtering
 * Multilook and SLC to PRI moved to SAR utilities menu 
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/browse/SITBX-637?filter=-4&jql=project%20%3D%20SITBX%20AND%20fixVersion%20%3D%207.0
 
 #New in S1TBX 6.0
 
