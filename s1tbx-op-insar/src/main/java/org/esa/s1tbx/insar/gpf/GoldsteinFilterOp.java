@@ -293,21 +293,25 @@ public class GoldsteinFilterOp extends Operator {
 
                 // mask out pixels with low coherence
                 if (cohBand != null) {
-                    Tile cohBandRaster = getSourceTile(cohBand, targetRectangle);
-                    final ProductData cohBandData = cohBandRaster.getDataBuffer();
-                    final TileIndex cohIndex = new TileIndex(cohBandRaster);
-                    final int yMax = y0 + h;
-                    final int xMax = x0 + w;
-                    for (int y = y0; y < yMax; y++) {
-                        cohIndex.calculateStride(y);
-                        for (int x = x0; x < xMax; x++) {
-                            final int k = (y - y0) * w + x - x0;
-                            if (cohBandData.getElemFloatAt(cohIndex.getIndex(x)) < coherenceThreshold) {
-                                final int idx = iBandRaster.getDataBufferIndex(x, y);
-                                iBandFiltered[k] = iBandData.getElemFloatAt(idx);
-                                qBandFiltered[k] = qBandData.getElemFloatAt(idx);
+                    try {
+                        Tile cohBandRaster = getSourceTile(cohBand, targetRectangle);
+                        final ProductData cohBandData = cohBandRaster.getDataBuffer();
+                        final TileIndex cohIndex = new TileIndex(cohBandRaster);
+                        final int yMax = y0 + h;
+                        final int xMax = x0 + w;
+                        for (int y = y0; y < yMax; y++) {
+                            cohIndex.calculateStride(y);
+                            for (int x = x0; x < xMax; x++) {
+                                final int k = (y - y0) * w + x - x0;
+                                if (cohBandData.getElemFloatAt(cohIndex.getIndex(x)) < coherenceThreshold) {
+                                    final int idx = iBandRaster.getDataBufferIndex(x, y);
+                                    iBandFiltered[k] = iBandData.getElemFloatAt(idx);
+                                    qBandFiltered[k] = qBandData.getElemFloatAt(idx);
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        throw new OperatorException(e);
                     }
                 }
 

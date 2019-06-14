@@ -224,7 +224,7 @@ public class InterferogramOp extends Operator {
             validator.checkIfCoregisteredStack();
             validator.checkIfSLC();
             isTOPSARBurstProduct = validator.isTOPSARProduct() && !validator.isDebursted();
-            System.out.println("IFG: isTOPSARBurstProduct = " + isTOPSARBurstProduct);
+
             if (isTOPSARBurstProduct) {
                 final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
                 final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(' ')));
@@ -274,7 +274,7 @@ public class InterferogramOp extends Operator {
         }
 
         if (polarisations.size() > 0) {
-            return polarisations.toArray(new String[polarisations.size()]);
+            return polarisations.toArray(new String[0]);
         } else {
             return new String[]{""};
         }
@@ -291,7 +291,7 @@ public class InterferogramOp extends Operator {
         return false;
     }
 
-    private void getMstApproxSceneCentreXYZ() throws Exception {
+    private void getMstApproxSceneCentreXYZ() {
 
         final int numOfBursts = subSwath[subSwathIndex - 1].numOfBursts;
         mstSceneCentreXYZ = new Point[numOfBursts];
@@ -557,7 +557,7 @@ public class InterferogramOp extends Operator {
 
             String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
             StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
-                                                 targetBandNames.toArray(new String[targetBandNames.size()]));
+                                                 targetBandNames.toArray(new String[0]));
         }
 
         for(String bandName : sourceProduct.getBandNames()) {
@@ -567,7 +567,7 @@ public class InterferogramOp extends Operator {
         }
     }
 
-    public static String getPolarisationTag(final CplxContainer master) {
+    static String getPolarisationTag(final CplxContainer master) {
         return (master.polarisation == null || master.polarisation.isEmpty()) ? "" : '_' + master.polarisation.toUpperCase();
     }
 
@@ -1267,7 +1267,7 @@ public class InterferogramOp extends Operator {
 
     private void computePartialTile(final int subSwathIndex, final int burstIndex,
                                     final int firstLineIdx, final Rectangle targetRectangle,
-                                    final Map<Band, Tile> targetTileMap) throws Exception {
+                                    final Map<Band, Tile> targetTileMap) {
 
         try {
             final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
