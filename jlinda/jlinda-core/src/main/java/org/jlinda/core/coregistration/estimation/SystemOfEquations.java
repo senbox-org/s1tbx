@@ -127,7 +127,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final TIntObjectHashMap<float[]> list = new TIntObjectHashMap<>();
 
-        logger.info("Setting up design matrix for LS adjustment");
+        //logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             final float[] mul = new float[nUnkn];
@@ -156,7 +156,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final TIntObjectHashMap<float[]> list = new TIntObjectHashMap<>();
 
-        logger.info("Setting up design matrix for LS adjustment");
+        //logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             final float[] mul = new float[nUnkn];
@@ -187,7 +187,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final TIntObjectHashMap<double[]> list = new TIntObjectHashMap<>();
 
-        logger.info("Setting up design matrix for LS adjustment");
+        //logger.info("Setting up design matrix for LS adjustment");
 
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
@@ -218,7 +218,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final double[][] A = new double[nObs][nUnkn];
 
-        logger.info("Setting up design matrix for LS adjustment");
+        //logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             int index = 0;
@@ -247,7 +247,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final float[][] A = new float[nObs][nUnkn];
 
-        logger.info("Setting up design matrix for LS adjustment");
+        //logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             int index = 0;
@@ -294,7 +294,7 @@ public class SystemOfEquations {
     public void constructWeightMatrix() {
 
         // ______Weight matrix data______
-        logger.info("Setting up (inverse of) covariance matrix for LS adjustment");
+        //logger.info("Setting up (inverse of) covariance matrix for LS adjustment");
         switch (weightflag) {
             case 0:
 //                    for (i = 0; i < Nobs; i++)
