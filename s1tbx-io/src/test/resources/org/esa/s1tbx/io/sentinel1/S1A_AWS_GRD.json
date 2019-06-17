@@ -169,28 +169,6 @@
 				"bandHeight": 16757,
 				"expectedPixels": [
 					{
-						"x": 8762,
-						"y": 15071,
-						"value": 105.0
-					},
-					{
-						"x": 256,
-						"y": 7888,
-						"value": "NaN"
-					}
-				],
-				"spectralWavelength": "0.0",
-				"spectralBandwidth": "0.0",
-				"name": "Amplitude_VH",
-				"noDataValue": "0.0",
-				"geophysicalUnit": "amplitude"
-			},
-			{
-				"bandWidth": 25739,
-				"noDataValueUsed": "true",
-				"bandHeight": 16757,
-				"expectedPixels": [
-					{
 						"x": 8427,
 						"y": 3303,
 						"value": 5625.0

@@ -169,28 +169,6 @@
 				"bandHeight": 52999,
 				"expectedPixels": [
 					{
-						"x": 7398,
-						"y": 47668,
-						"value": -110.0
-					},
-					{
-						"x": 216,
-						"y": 24949,
-						"value": 0.0
-					}
-				],
-				"spectralWavelength": "0.0",
-				"spectralBandwidth": "0.0",
-				"name": "i_VV",
-				"noDataValue": "0.0",
-				"geophysicalUnit": "real"
-			},
-			{
-				"bandWidth": 21733,
-				"noDataValueUsed": "false",
-				"bandHeight": 52999,
-				"expectedPixels": [
-					{
 						"x": 7116,
 						"y": 10446,
 						"value": 107.0
