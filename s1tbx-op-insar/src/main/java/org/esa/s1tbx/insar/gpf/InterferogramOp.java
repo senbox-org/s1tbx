@@ -785,18 +785,22 @@ public class InterferogramOp extends Operator {
         return firstLineTime + line * subSwath[subSwathIndex - 1].azimuthTimeInterval;
     }
 
-    private synchronized void estimateFlatEarth() throws Exception {
+    private synchronized void estimateFlatEarth() throws OperatorException {
         if(flatEarthEstimated)
             return;
         if (subtractFlatEarthPhase) {
-            if (isTOPSARBurstProduct) {
+            try {
+                if (isTOPSARBurstProduct) {
 
-                getMstApproxSceneCentreXYZ();
-                constructFlatEarthPolynomialsForTOPSARProduct();
-            } else {
-                constructFlatEarthPolynomials();
+                    getMstApproxSceneCentreXYZ();
+                    constructFlatEarthPolynomialsForTOPSARProduct();
+                } else {
+                    constructFlatEarthPolynomials();
+                }
+                flatEarthEstimated = true;
+            } catch (Exception e) {
+                OperatorUtils.catchOperatorException(getId(), e);
             }
-            flatEarthEstimated = true;
         }
     }
 
@@ -844,7 +848,6 @@ public class InterferogramOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
-        try {
             if (subtractFlatEarthPhase && !flatEarthEstimated) {
                 estimateFlatEarth();
             }
@@ -854,9 +857,6 @@ public class InterferogramOp extends Operator {
             } else {
                 computeTileStackForNormalProduct(targetTileMap, targetRectangle, pm);
             }
-        } catch (Exception e) {
-            OperatorUtils.catchOperatorException(this.getId(), e);
-        }
     }
 
     private void computeTileStackForNormalProduct(
@@ -1133,10 +1133,11 @@ public class InterferogramOp extends Operator {
 
         final Tile mstRealTile = getSourceTile(product.sourceMaster.realBand, targetRectangle);
         final ProductData mstRealData = mstRealTile.getDataBuffer();
-        final TileIndex srcIndex = new TileIndex(mstRealTile);
+        final TileIndex srcIndexMst = new TileIndex(mstRealTile);
 
         final Tile slvRealTile = getSourceTile(product.sourceSlave.realBand, targetRectangle);
         final ProductData slvRealData = slvRealTile.getDataBuffer();
+        final TileIndex srcIndexSlv = new TileIndex(slvRealTile);
 
         final boolean mstNoDataValueUsed = product.sourceMaster.realBand.isNoDataValueUsed();
         final boolean slvNoDataValueUsed = product.sourceSlave.realBand.isNoDataValueUsed();
@@ -1153,14 +1154,17 @@ public class InterferogramOp extends Operator {
 
             for (int y = y0; y < maxY; y++) {
                 tgtIndex.calculateStride(y);
-                srcIndex.calculateStride(y);
+                srcIndexMst.calculateStride(y);
+                srcIndexSlv.calculateStride(y);
                 final int yy = y - y0;
                 for (int x = x0; x < maxX; x++) {
                     final int tgtIdx = tgtIndex.getIndex(x);
                     final int xx = x - x0;
-                    final int srcIdx = srcIndex.getIndex(x);
-                    if (mstNoDataValueUsed && mstRealData.getElemDoubleAt(srcIdx) == mstNoDataValue ||
-                            slvNoDataValueUsed && slvRealData.getElemDoubleAt(srcIdx) == slvNoDataValue) {
+                    final int srcIdxMst = srcIndexMst.getIndex(x);
+                    final int srcIdxSlv = srcIndexSlv.getIndex(x);
+
+                    if (mstNoDataValueUsed && mstRealData.getElemDoubleAt(srcIdxMst) == mstNoDataValue ||
+                            slvNoDataValueUsed && slvRealData.getElemDoubleAt(srcIdxSlv) == slvNoDataValue) {
                         samplesReal.setElemFloatAt(tgtIdx, (float) mstNoDataValue);
                         samplesImag.setElemFloatAt(tgtIdx, (float) mstNoDataValue);
                     } else {
@@ -1174,7 +1178,6 @@ public class InterferogramOp extends Operator {
 
             for (int y = y0; y < maxY; y++) {
                 tgtIndex.calculateStride(y);
-                srcIndex.calculateStride(y);
                 final int yy = y - y0;
                 for (int x = x0; x < maxX; x++) {
                     final int tgtIdx = tgtIndex.getIndex(x);
