@@ -1,0 +1,34 @@
+{
+  "testProducts": [
+    {
+      "id": "RCM-QuadPol-SLC-Product",
+      "relativePath": "SAR/RCM/QP/RCM1_OK21594_PK225278_2_QP15_20110624_225945_HH_VV_HV_VH_SLC/manifest.safe",
+      "description": "RCM Quad Pol SLC product"
+    },
+	{
+      "id": "RCM-QuadPol-GRD-Product",
+      "relativePath": "SAR/RCM/QP/RCM1_OK21594_PK225278_4_QP15_20110624_225945_HH_VV_HV_VH_GRD/manifest.safe",
+      "description": "RCM Quad Pol GRD product"
+    },
+	{
+      "id": "RCM-QuadPol-GRC-Product",
+      "relativePath": "SAR/RCM/QP/RCM1_OK21594_PK225278_6_QP15_20110624_225945_HH_VV_HV_VH_GRC/manifest.safe",
+      "description": "RCM Quad Pol GRC product"
+    },
+	{
+      "id": "RCM-CompactPol-SLC-Product",
+      "relativePath": "SAR/RCM/CP/RCM1_OK21594_PK225278_2_16MCP9_20110624_225945_CH_CV_SLC/manifest.safe",
+      "description": "RCM Compact Pol SLC product"
+    },
+	{
+      "id": "RCM-CompactPol-GRD-Product",
+      "relativePath": "SAR/RCM/CP/RCM1_OK21594_PK225278_4_16MCP9_20110624_225945_CH_CV_GRD/manifest.safe",
+      "description": "RCM Compact Pol GRD product"
+    },
+	{
+      "id": "RCM-CompactPol-GRC-Product",
+      "relativePath": "SAR/RCM/CP/RCM1_OK21594_PK225278_6_16MCP9_20110624_225945_CH_CV_GRC/manifest.safe",
+      "description": "RCM Compact Pol GRC product"
+    }
+  ]
+}
