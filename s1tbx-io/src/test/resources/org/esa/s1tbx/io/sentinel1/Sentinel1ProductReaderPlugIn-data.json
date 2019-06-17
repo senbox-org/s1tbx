@@ -15,6 +15,11 @@
       "relativePath": "SAR/S1/Stripmap/S1A_S1_SLC__1SSV_20140807T142342_20140807T142411_001835_001BC1_05AA.SAFE.zip",
       "description": "Sentinel-1 SM SLC product"
     },
+	{
+      "id": "S1A_SM_SLC_Folder",
+      "relativePath": "SAR/S1/Stripmap/S1A_S1_SLC__1SSV_20140807T142342_20140807T142411_001835_001BC1_05AA.SAFE/manifest.safe",
+      "description": "Sentinel-1 SM SLC folder product"
+    },
     {
       "id": "S1A_IW_SLC",
       "relativePath": "SAR/S1/SLC/Etna-DLR/S1A_IW_SLC__1SDV_20140809T165546_20140809T165613_001866_001C20_088B.zip",
