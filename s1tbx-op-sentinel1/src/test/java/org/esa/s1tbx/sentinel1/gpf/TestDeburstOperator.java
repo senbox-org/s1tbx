@@ -34,15 +34,11 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestDeburstOperator {
 
-    private OperatorSpi spi;
-
     private final File inputFile = new File(S1TBXTests.inputSAR, "S1/SLC/Etna-DLR/S1A_IW_SLC__1SDV_20140809T165546_20140809T165613_001866_001C20_088B.zip");
 
     @Before
     public void setUp() {
         TestUtils.initTestEnvironment();
-        spi = new TOPSARDeburstOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
 
     /**
@@ -54,7 +50,7 @@ public class TestDeburstOperator {
     public void testProcessing() throws Exception {
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
-        final TOPSARDeburstOp op = (TOPSARDeburstOp) spi.createOperator();
+        final TOPSARDeburstOp op = new TOPSARDeburstOp();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
