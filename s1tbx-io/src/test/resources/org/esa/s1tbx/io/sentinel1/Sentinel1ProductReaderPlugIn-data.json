@@ -16,7 +16,7 @@
       "description": "Sentinel-1 SM SLC product"
     },
 	{
-      "id": "S1A_SM_SLC_Folder",
+      "id": "S1A_SM_SLC_folder",
       "relativePath": "SAR/S1/Stripmap/S1A_S1_SLC__1SSV_20140807T142342_20140807T142411_001835_001BC1_05AA.SAFE/manifest.safe",
       "description": "Sentinel-1 SM SLC folder product"
     },
