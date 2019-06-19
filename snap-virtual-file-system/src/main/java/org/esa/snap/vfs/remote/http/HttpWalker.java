@@ -1,21 +1,27 @@
 package org.esa.snap.vfs.remote.http;
 
+import org.esa.snap.vfs.NioPaths;
 import org.esa.snap.vfs.remote.AbstractRemoteWalker;
 import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
 import org.esa.snap.vfs.remote.VFSFileAttributes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,13 +35,14 @@ class HttpWalker extends AbstractRemoteWalker {
     private final String address;
     private final String delimiter;
     private final String root;
+    private final String servicePath;
 
     /**
      * Creates the new walker for HTTP  VFS
      *
      * @param address   The address of HTTP service. (mandatory)
      * @param delimiter The VFS path delimiter
-     * @param root      The root of S3 provider
+     * @param root      The root of HTTP provider
      */
     HttpWalker(String address, String delimiter, String root, IRemoteConnectionBuilder remoteConnectionBuilder) {
         super(remoteConnectionBuilder);
@@ -43,6 +50,7 @@ class HttpWalker extends AbstractRemoteWalker {
         this.address = address;
         this.delimiter = delimiter;
         this.root = root;
+        this.servicePath = address.replaceAll(".*//.*?(" + delimiter + ".*)", "$1");
     }
 
     /**
@@ -95,13 +103,30 @@ class HttpWalker extends AbstractRemoteWalker {
         return parseElements(document, dirPathAsString);
     }
 
-    private List<BasicFileAttributes> parseElements(Document document, String prefix) throws IOException {
-        List<BasicFileAttributes> items = new ArrayList<>();
+    private List<BasicFileAttributes> parseElements(Document document, String prefix) {
+        Set<BasicFileAttributes> items = new LinkedHashSet<>();
         Pattern p = Pattern.compile("<a href=\"(.*?)\">.*?</a>");
-        Matcher m = p.matcher(document.html());
+        Elements htmlTables = document.select("table");
+        if (htmlTables.isEmpty() || htmlTables.size() > 1) {
+            throw new IllegalArgumentException("Unsupported HTTP VFS service.\nReason: invalid/unknown VFS structure.");
+        }
+        Element htmlTable = htmlTables.first();
+        Matcher m = p.matcher(htmlTable.html());
         while (m.find()) {
             String name = m.group(1);
-            if (!name.isEmpty() && !name.startsWith("/") && !name.startsWith("?") && !name.equals("/")) {
+            name = name.replaceAll("^" + this.servicePath, "");
+            if (!name.startsWith(this.delimiter)) {
+                name = this.delimiter.concat(name);
+            }
+            String parent = prefix.replaceAll("^" + this.root, "");
+            if (!name.isEmpty() && !name.contains("?") && !name.contains("#") && !name.equals("/") && isValidPath(name, prefix)) {
+                if (!parent.contentEquals(name)) {
+                    name = name.replaceAll("^" + parent, "");
+                }
+                name = name.replaceAll("^/", "");
+                if (name.startsWith("http://") || name.startsWith("https://")) {
+                    throw new IllegalArgumentException("Unsupported HTTP VFS service.\nReason: External resource unsupported: " + name);
+                }
                 if (name.endsWith("/")) {
                     items.add(VFSFileAttributes.newDir(prefix + name));
                 } else {
@@ -118,6 +143,25 @@ class HttpWalker extends AbstractRemoteWalker {
                 }
             }
         }
-        return items;
+        return new ArrayList<>(items);
+    }
+
+    private boolean isValidPath(String target, String current) {
+        if (target != null && !target.isEmpty() && current != null && !current.isEmpty()) {
+            Path currentPath = NioPaths.get(current);
+            Path parentPath = currentPath.getParent();
+            if (parentPath != null) {
+                String parent = parentPath.toString();
+                if (target.endsWith(this.delimiter)) {
+                    parent += this.delimiter;
+                }
+                if (parent.endsWith(target)) {
+                    Path newPath = currentPath.resolve(target);
+                    return Files.exists(newPath);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
