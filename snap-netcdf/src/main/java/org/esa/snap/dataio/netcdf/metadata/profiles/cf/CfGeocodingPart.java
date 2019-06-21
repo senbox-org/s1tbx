@@ -234,10 +234,17 @@ public class CfGeocodingPart extends ProfilePartIO {
                 Constants.LONGITUDE_VAR_NAME,
                 Constants.LATITUDE_VAR_NAME
         };
+        final String[] cfConvention_lonLatInternNames = new String[]{
+                Constants.LON_INTERN_VAR_NAME,
+                Constants.LAT_INTERN_VAR_NAME
+        };
 
         Variable[] lonLat;
         List<Variable> variableList = ctx.getNetcdfFile().getVariables();
-        lonLat = ReaderUtils.getVariables(variableList, cfConvention_lonLatNames);
+        lonLat = ReaderUtils.getVariables(variableList, cfConvention_lonLatInternNames);
+        if (lonLat == null) {
+            lonLat = ReaderUtils.getVariables(variableList, cfConvention_lonLatNames);
+        }
         if (lonLat == null) {
             lonLat = ReaderUtils.getVariables(variableList, coardsConvention_lonLatNames);
         }
@@ -346,11 +353,17 @@ public class CfGeocodingPart extends ProfilePartIO {
     }
 
     private static GeoCoding readPixelGeoCoding(Product product) throws IOException {
-        Band lonBand = product.getBand(Constants.LON_VAR_NAME);
+        Band lonBand = product.getBand(Constants.LON_INTERN_VAR_NAME);
+        if (lonBand == null) {
+            lonBand = product.getBand(Constants.LON_VAR_NAME);
+        }
         if (lonBand == null) {
             lonBand = product.getBand(Constants.LONGITUDE_VAR_NAME);
         }
-        Band latBand = product.getBand(Constants.LAT_VAR_NAME);
+        Band latBand = product.getBand(Constants.LAT_INTERN_VAR_NAME);
+        if (latBand == null) {
+            latBand = product.getBand(Constants.LAT_VAR_NAME);
+        }
         if (latBand == null) {
             latBand = product.getBand(Constants.LATITUDE_VAR_NAME);
         }

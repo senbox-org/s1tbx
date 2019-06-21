@@ -61,6 +61,8 @@ public interface Constants {
     String LAT_VAR_NAME = "lat";
     String LONGITUDE_VAR_NAME = "longitude";
     String LATITUDE_VAR_NAME = "latitude";
+    String LON_INTERN_VAR_NAME = "lon_intern";
+    String LAT_INTERN_VAR_NAME = "lat_intern";
 
     // context properties
     String Y_FLIPPED_PROPERTY_NAME = "yFlipped";
