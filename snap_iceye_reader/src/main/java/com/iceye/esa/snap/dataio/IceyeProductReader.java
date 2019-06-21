@@ -3,7 +3,6 @@ package com.iceye.esa.snap.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import com.iceye.esa.snap.dataio.util.IceyeXConstants;
 import org.esa.s1tbx.commons.io.SARReader;
-import org.esa.s1tbx.io.netcdf.NcVariableMap;
 import org.esa.s1tbx.io.netcdf.NetCDFReader;
 import org.esa.s1tbx.io.netcdf.NetCDFUtils;
 import org.esa.s1tbx.io.netcdf.NetcdfConstants;
@@ -18,7 +17,6 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -39,7 +37,6 @@ public class IceyeProductReader extends SARReader {
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private NetcdfFile netcdfFile = null;
     private Product product = null;
-    private boolean yFlipped = false;
     private boolean isComplex = false;
 
     /**
@@ -560,35 +557,28 @@ public class IceyeProductReader extends SARReader {
         Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final int sceneHeight = product.getSceneRasterHeight();
-        final int y0 = yFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
+        final int sceneWidth = product.getSceneRasterWidth();
 
         final Variable variable = bandMap.get(destBand);
-        final int rank = variable.getRank();
-        final int[] origin = new int[rank];
-        final int[] shape = new int[rank];
-        for (int i = 0; i < rank; i++) {
-            shape[i] = 1;
-            origin[i] = 0;
-        }
-        shape[0] = 1;
-        shape[1] = destWidth;
-        origin[1] = sourceOffsetX;
+
+        sourceHeight = Math.min(sourceHeight, sceneHeight-sourceOffsetY);
+        destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
+        sourceWidth = Math.min(sourceWidth, sceneWidth-sourceOffsetX);
+        destWidth = Math.min(destWidth, sceneWidth-destOffsetX);
+        final int[] origin = {sourceOffsetY, sourceOffsetX};
+        final int[] shape = {sourceHeight, sourceWidth};
 
         pm.beginTask("Reading util from band " + destBand.getName(), destHeight);
         try {
-            for (int y = 0; y < destHeight; y++) {
-                origin[0] = yFlipped ? y0 - y : y0 + y;
-                final Array array;
-                synchronized (netcdfFile) {
-                    array = variable.read(origin, shape);
-                }
-                System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
-                pm.worked(1);
-                if (pm.isCanceled()) {
-                    throw new IOException("Process terminated by user."); /*I18N*/
-                }
+            Array srcArray = null;
+            synchronized (netcdfFile) {
+                srcArray = variable.read(origin, shape);
             }
-        } catch (InvalidRangeException e) {
+
+            for (int y = 0; y < destHeight; y++) {
+                System.arraycopy(srcArray.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
+            }
+        } catch (Exception e) {
             final IOException ioException = new IOException(e);
             ioException.initCause(e);
             throw ioException;
