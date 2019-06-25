@@ -42,7 +42,7 @@ public class TestRemoveThermalNoiseOp {
     private final static OperatorSpi spi = new Sentinel1RemoveThermalNoiseOp.Spi();
 
     private String[] productTypeExemptions = {"OCN"};
-    private String[] exceptionExemptions = {"not supported",
+    private String[] exceptionExemptions = {"not supported", "numbands is zero",
             "not a valid mission for Sentinel1 product",
             "WV is not a valid acquisition mode from: IW,EW,SM"};
 

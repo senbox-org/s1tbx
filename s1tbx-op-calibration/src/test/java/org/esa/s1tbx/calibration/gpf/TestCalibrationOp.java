@@ -41,7 +41,7 @@ public class TestCalibrationOp {
     private TestProcessor testProcessor;
 
     private String[] productTypeExemptions = {"_BP", "XCA", "RAW", "WVW", "WVI", "WVS", "WSS", "OCN", "DOR", "GeoTIFF", "SCS_U"};
-    private String[] exceptionExemptions = {"not supported",
+    private String[] exceptionExemptions = {"not supported", "numbands is zero",
             "calibration has already been applied",
             "The product has already been calibrated",
             "Cannot apply calibration to coregistered product",
