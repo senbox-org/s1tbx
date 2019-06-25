@@ -30,6 +30,8 @@ public class TestJERSProductReader {
     private JERSProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
+    private static final String[] exemptions = new String[] {"startTime is null"};
+
     public TestJERSProductReader() {
         readerPlugin = new JERSProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
@@ -43,6 +45,6 @@ public class TestJERSProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsJERS, readerPlugin, reader, null, null);
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsJERS, readerPlugin, reader, null, exemptions);
     }
 }

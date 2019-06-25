@@ -254,13 +254,15 @@ public abstract class CEOSProductDirectory {
     protected ProductData.UTC getUTCScanStartTime(final BinaryRecord sceneRec, final BinaryRecord detailProcRec) {
         if (sceneRec != null) {
             final String startTime = sceneRec.getAttributeString("Zero-doppler azimuth time of first azimuth pixel");
-            if (startTime != null)
+            if (startTime != null && !startTime.trim().isEmpty()) {
                 return AbstractMetadata.parseUTC(startTime);
+            }
         }
         if (detailProcRec != null) {
             final String startTime = detailProcRec.getAttributeString("Processing start time");
-            if (startTime != null)
+            if (startTime != null && !startTime.trim().isEmpty()) {
                 return AbstractMetadata.parseUTC(startTime, dateFormat);
+            }
         }
         return AbstractMetadata.NO_METADATA_UTC;
     }

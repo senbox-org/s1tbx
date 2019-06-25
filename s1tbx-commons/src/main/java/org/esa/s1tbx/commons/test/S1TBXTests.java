@@ -46,16 +46,16 @@ public class S1TBXTests {
 
     public final static String inputSAR = input + "SAR" + sep;
 
-    public final static File[] rootPathsTerraSarX = loadFilePath("test.rootPathTerraSarX");
-    public final static File[] rootPathsASAR = loadFilePath("test.rootPathASAR");
-    public final static File[] rootPathsRadarsat2 = createPath("SAR/RS2");
-    public final static File[] rootPathsRadarsat1 = loadFilePath("test.rootPathRadarsat1");
-    public final static File[] rootPathsSentinel1 = loadFilePath("test.rootPathSentinel1");
-    public final static File[] rootPathsERS = loadFilePath("test.rootPathERS");
-    public final static File[] rootPathsJERS = loadFilePath("test.rootPathJERS");
-    public final static File[] rootPathsALOS = loadFilePath("test.rootPathALOS");
-    public final static File[] rootPathsALOS2 = loadFilePath("test.rootPathALOS2");
-    public final static File[] rootPathsCosmoSkymed = loadFilePath("test.rootPathCosmoSkymed");
+    public final static File[] rootPathsTerraSarX = loadFilePath("test.rootPathTerraSarX", inputSAR + "TerraSAR-X");
+    public final static File[] rootPathsASAR = loadFilePath("test.rootPathASAR", inputSAR + "ASAR");
+    public final static File[] rootPathsRadarsat2 = loadFilePath("test.rootPathASAR", inputSAR + "RS2");
+    public final static File[] rootPathsRadarsat1 = loadFilePath("test.rootPathRadarsat1", inputSAR + "RS1");
+    public final static File[] rootPathsSentinel1 = loadFilePath("test.rootPathSentinel1", inputSAR + "S1");
+    public final static File[] rootPathsERS = loadFilePath("test.rootPathERS", inputSAR + "ERS");
+    public final static File[] rootPathsJERS = loadFilePath("test.rootPathJERS", inputSAR + "JERS");
+    public final static File[] rootPathsALOS = loadFilePath("test.rootPathALOS", inputSAR + "ALOS");
+    public final static File[] rootPathsALOS2 = loadFilePath("test.rootPathALOS2", inputSAR + "ALOS2");
+    public final static File[] rootPathsCosmoSkymed = loadFilePath("test.rootPathCosmoSkymed", inputSAR + "Cosmo");
 
     public static int subsetX = 0;
     public static int subsetY = 0;
@@ -84,11 +84,7 @@ public class S1TBXTests {
         }
     }
 
-    private static File[] createPath(final String path) {
-        return new File[] { new File(input, path)};
-    }
-
-    private static File[] loadFilePath(final String id) {
+    private static File[] loadFilePath(final String id, final String defaultPath) {
         if (testPreferences == null)
             return new File[]{};
 
@@ -97,6 +93,9 @@ public class S1TBXTests {
         final StringTokenizer st = new StringTokenizer(pathsStr, ",");
         while (st.hasMoreTokens()) {
             fileList.add(new File(st.nextToken()));
+        }
+        if(fileList.isEmpty()) {
+            fileList.add(new File(defaultPath));
         }
         return fileList.toArray(new File[fileList.size()]);
     }
