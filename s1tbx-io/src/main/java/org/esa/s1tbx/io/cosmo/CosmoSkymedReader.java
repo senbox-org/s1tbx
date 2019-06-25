@@ -786,6 +786,10 @@ public class CosmoSkymedReader extends SARReader {
         Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final int sceneHeight = product.getSceneRasterHeight();
+        final int sceneWidth = product.getSceneRasterWidth();
+        destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
+        destWidth = Math.min(destWidth, sceneWidth-destOffsetX);
+
         final int y0 = yFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
         final Variable variable = bandMap.get(destBand);
@@ -813,9 +817,6 @@ public class CosmoSkymedReader extends SARReader {
                 }
                 System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
                 pm.worked(1);
-                if (pm.isCanceled()) {
-                    throw new IOException("Process terminated by user."); /*I18N*/
-                }
             }
         } catch (InvalidRangeException e) {
             final IOException ioException = new IOException(e.getMessage());

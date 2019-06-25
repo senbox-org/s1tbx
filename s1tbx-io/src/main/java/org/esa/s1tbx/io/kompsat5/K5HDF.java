@@ -186,7 +186,7 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private void addMetadataToProduct() throws IOException {
+    private void addMetadataToProduct() {
 
         try {
             final MetadataElement origMetadataRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
@@ -208,7 +208,7 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private void addAbstractedMetadataHeader(Product product, MetadataElement root) throws IOException {
+    private void addAbstractedMetadataHeader(Product product, MetadataElement root) {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
@@ -617,7 +617,7 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private void addTiePointGridsToProduct(final Variable[] variables) throws IOException {
+    private void addTiePointGridsToProduct(final Variable[] variables) {
 //        for (Variable variable : variables) {
 //            final int rank = variable.getRank();
 //            final int gridWidth = variable.getDimension(rank - 1).getLength();
@@ -736,6 +736,10 @@ public class K5HDF implements K5Format {
         Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final int sceneHeight = product.getSceneRasterHeight();
+        final int sceneWidth = product.getSceneRasterWidth();
+        destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
+        destWidth = Math.min(destWidth, sceneWidth-destOffsetX);
+
         final int y0 = yFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
         final Variable variable = bandMap.get(destBand);
@@ -769,11 +773,7 @@ public class K5HDF implements K5Format {
                 } else {
                     System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
                 }
-
                 pm.worked(1);
-                if (pm.isCanceled()) {
-                    throw new IOException("Process terminated by user."); /*I18N*/
-                }
             }
         } catch (InvalidRangeException e) {
             final IOException ioException = new IOException(e.getMessage());
