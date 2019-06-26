@@ -82,7 +82,7 @@ public class S1CalibrationTPGAction extends AbstractSnapAction implements Contex
     public void setEnableState() {
         final Product product = lkp.lookup(Product.class);
         boolean enable = false;
-        if (product != null) {
+        if (product != null && AbstractMetadata.hasAbstractedMetadata(product)) {
             final InputProductValidator validator = new InputProductValidator(product);
             enable = validator.isSentinel1Product();
         }

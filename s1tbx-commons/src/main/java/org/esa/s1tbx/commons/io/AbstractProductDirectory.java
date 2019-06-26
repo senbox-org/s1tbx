@@ -292,8 +292,7 @@ public abstract class AbstractProductDirectory {
 
         addBands(product);
 
-        InputProductValidator validator = new InputProductValidator(product);
-        isMapProjected = validator.isMapProjected();
+        isMapProjected = InputProductValidator.isMapProjected(product);
 
         addGeoCoding(product);
         addTiePointGrids(product);
