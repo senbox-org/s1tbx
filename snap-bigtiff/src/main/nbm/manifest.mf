@@ -8,7 +8,7 @@ OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP
 OpenIDE-Module-Long-Description: <p>A module for reading and writing G
  eoTIFF Data Products</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><
- p><b>Contact address:</b> Max-Planck-Str. 2, 21502 Geesthacht (German
+ p><b>Contact address:</b> Chrysanderstr. 1, 21029 Hamburg (German
  y)</p><p><b>Copyright:</b> (C) 2015 by Brockmann Consult GmbH</p><p><
  b>Vendor:</b> Brockmann Consult GmbH</p><p><b>License:</b> http://www
  .gnu.org/licenses/gpl.html</p>
