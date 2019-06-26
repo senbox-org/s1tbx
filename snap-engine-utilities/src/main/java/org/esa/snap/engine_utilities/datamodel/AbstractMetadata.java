@@ -641,8 +641,10 @@ public final class AbstractMetadata {
         if (abstractedMetadata == null) {
             abstractedMetadata = root.getElement("Abstracted Metadata"); // legacy
             if (abstractedMetadata == null) {
+                boolean isModified = sourceProduct.isModified();
                 abstractedMetadata = addAbstractedMetadataHeader(root);
                 defaultToProduct(abstractedMetadata, sourceProduct);
+                sourceProduct.setModified(isModified);
             }
         }
         migrateToCurrentVersion(abstractedMetadata);
