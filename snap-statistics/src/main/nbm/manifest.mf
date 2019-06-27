@@ -9,7 +9,7 @@ OpenIDE-Module-Layer: org/esa/snap/statistics/layer.xml
 OpenIDE-Module-Long-Description: <p>The snap-statistics module contain
  s an operator for computing statistics for a set of input products an
  d regions.</p><p><b>Funding:</b> EU</p><p><b>Vendor:</b> Brockmann Co
- nsult GmbH</p><p><b>Contact address:</b> Max-Planck-Str. 2, 21502 Gee
+ nsult GmbH</p><p><b>Contact address:</b> Chrysanderstr. 1, 21502 Gee
  sthacht (Germany)</p><p><b>Copyright:</b> (C) 2014 by Brockmann Consu
  lt GmbH</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>License:
  </b> http://www.gnu.org/licenses/gpl.html</p>
