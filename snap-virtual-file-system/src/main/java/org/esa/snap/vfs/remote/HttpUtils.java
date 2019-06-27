@@ -2,7 +2,9 @@ package org.esa.snap.vfs.remote;
 
 import org.esa.snap.core.util.StringUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -33,6 +35,29 @@ public class HttpUtils {
                 }
                 long size = Long.parseLong(sizeString);
                 return new RegularFileMetadata(lastModified, size);
+            } else {
+                throw new IOException(urlAddress + ": response code " + responseCode + ": " + connection.getResponseMessage());
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    public static String readResponse(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder) throws IOException {
+        URL pageURL = new URL(urlAddress);
+        HttpURLConnection connection = remoteConnectionBuilder.buildConnection(pageURL, "GET", null);
+        try {
+            int responseCode = connection.getResponseCode();
+            if (HttpUtils.isValidResponseCode(responseCode)) {
+                try (InputStream inputStream = connection.getInputStream();
+                     ByteArrayOutputStream result = new ByteArrayOutputStream()) {
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = inputStream.read(buffer)) != -1) {
+                        result.write(buffer, 0, length);
+                    }
+                    return result.toString("UTF-8");
+                }
             } else {
                 throw new IOException(urlAddress + ": response code " + responseCode + ": " + connection.getResponseMessage());
             }

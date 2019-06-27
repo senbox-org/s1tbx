@@ -10,11 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -79,24 +75,9 @@ class HttpWalker extends AbstractRemoteWalker {
         }
         urlAsString.append(urlPathAsString);
 
-        URL url = new URL(urlAsString.toString());
-        Document document;
-        HttpURLConnection connection = this.remoteConnectionBuilder.buildConnection(url, "GET", null);
-        try {
-            int responseCode = connection.getResponseCode();
-            if (HttpUtils.isValidResponseCode(responseCode)) {
-                try (InputStream inputStream = connection.getInputStream();
-                     BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 10 * 1024)) {
-
-                    document = Jsoup.parse(bufferedInputStream, "UTF-8", url.toString());
-                }
-            } else {
-                throw new IOException(url.toString() + ": response code " + responseCode + ": " + connection.getResponseMessage());
-            }
-        } finally {
-            connection.disconnect();
-        }
-
+        String urlAddress = urlAsString.toString();
+        String htmlResponse = HttpUtils.readResponse(urlAddress, this.remoteConnectionBuilder);
+        Document document = Jsoup.parse(htmlResponse, urlAddress);
         if (!dirPathAsString.endsWith(this.delimiter)) {
             dirPathAsString += this.delimiter;
         }
