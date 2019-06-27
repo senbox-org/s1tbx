@@ -192,31 +192,31 @@ public class VFSPathTest extends AbstractVFSTest {
 
         path = VFSPath.parsePath(this.vfs, "");
         assertEquals("", path.resolve("").toString());
-        assertEquals("/", path.resolve("/").toString());
+        assertEquals("", path.resolve("/").toString());
         assertEquals("/gus", path.resolve("gus").toString());
-        assertEquals("/gus/", path.resolve("gus/").toString());
-        assertEquals("/gus/", path.resolve("/gus/").toString());
+        assertEquals("/gus", path.resolve("gus/").toString());
+        assertEquals("/gus", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(this.vfs, "/");
-        assertEquals("/", path.resolve("").toString());
-        assertEquals("/", path.resolve("/").toString());
+        assertEquals("", path.resolve("").toString());
+        assertEquals("", path.resolve("/").toString());
         assertEquals("/gus", path.resolve("gus").toString());
-        assertEquals("/gus/", path.resolve("gus/").toString());
-        assertEquals("/gus/", path.resolve("/gus/").toString());
+        assertEquals("/gus", path.resolve("gus/").toString());
+        assertEquals("/gus", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(this.vfs, "foo/bar/");
-        assertEquals("foo/bar/", path.resolve("").toString());
-        assertEquals("foo/bar/", path.resolve("/").toString());
+        assertEquals("foo/bar", path.resolve("").toString());
+        assertEquals("foo/bar", path.resolve("/").toString());
         assertEquals("foo/bar/gus", path.resolve("gus").toString());
-        assertEquals("foo/bar/gus/", path.resolve("gus/").toString());
-        assertEquals("foo/bar/gus/", path.resolve("/gus/").toString());
+        assertEquals("foo/bar/gus", path.resolve("gus/").toString());
+        assertEquals("foo/bar/gus", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(this.vfs, "/foo/bar/");
-        assertEquals("/foo/bar/", path.resolve("").toString());
-        assertEquals("/foo/bar/", path.resolve("/").toString());
+        assertEquals("/foo/bar", path.resolve("").toString());
+        assertEquals("/foo/bar", path.resolve("/").toString());
         assertEquals("/foo/bar/gus", path.resolve("gus").toString());
-        assertEquals("/foo/bar/gus/", path.resolve("gus/").toString());
-        assertEquals("/foo/bar/gus/", path.resolve("/gus/").toString());
+        assertEquals("/foo/bar/gus", path.resolve("gus/").toString());
+        assertEquals("/foo/bar/gus", path.resolve("/gus/").toString());
 
         path = VFSPath.parsePath(this.vfs, "foo/bar");
         try {
@@ -233,31 +233,29 @@ public class VFSPathTest extends AbstractVFSTest {
 
         path = VFSPath.parsePath(this.vfs, "");
         assertEquals("", path.resolveSibling("").toString());
-        assertEquals("/", path.resolveSibling("/").toString());
+        assertEquals("", path.resolveSibling("/").toString());
         assertEquals("gus", path.resolveSibling("gus").toString());
-        assertEquals("gus/", path.resolveSibling("gus/").toString());
-        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("gus", path.resolveSibling("gus/").toString());
+        assertEquals("/gus", path.resolveSibling("/gus/").toString());
 
         path = VFSPath.parsePath(this.vfs, "/");
-        assertEquals("/", path.resolveSibling("").toString());
-        assertEquals("/Test:/", path.resolveSibling("/Test:/").toString());
+        assertEquals("", path.resolveSibling("").toString());
+        assertEquals("/Test:", path.resolveSibling("/Test:/").toString());
         assertEquals("gus", path.resolveSibling("gus").toString());
-        assertEquals("gus/", path.resolveSibling("gus/").toString());
-        assertEquals("/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("gus", path.resolveSibling("gus/").toString());
+        assertEquals("/gus", path.resolveSibling("/gus/").toString());
 
         path = VFSPath.parsePath(this.vfs, "foo/bar/");
-        assertEquals("foo/bar/", path.resolveSibling("").toString());
-        assertEquals("foo/", path.resolveSibling("/").toString());
+        assertEquals("foo/bar", path.resolveSibling("").toString());
         assertEquals("foo/gus", path.resolveSibling("gus").toString());
-        assertEquals("foo/gus/", path.resolveSibling("gus/").toString());
-        assertEquals("foo/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("foo/gus", path.resolveSibling("gus/").toString());
+        assertEquals("foo/gus", path.resolveSibling("/gus/").toString());
 
         path = VFSPath.parsePath(this.vfs, "/foo/bar/");
-        assertEquals("/foo/bar/", path.resolveSibling("").toString());
-        assertEquals("/foo/", path.resolveSibling("/").toString());
+        assertEquals("/foo/bar", path.resolveSibling("").toString());
         assertEquals("/foo/gus", path.resolveSibling("gus").toString());
-        assertEquals("/foo/gus/", path.resolveSibling("gus/").toString());
-        assertEquals("/foo/gus/", path.resolveSibling("/gus/").toString());
+        assertEquals("/foo/gus", path.resolveSibling("gus/").toString());
+        assertEquals("/foo/gus", path.resolveSibling("/gus/").toString());
     }
 
     @Test
@@ -292,24 +290,83 @@ public class VFSPathTest extends AbstractVFSTest {
         assertEquals("", path.toString());
 
         path = VFSPath.parsePath(this.vfs, "/");
-        assertEquals("/", path.toString());
+        assertEquals("", path.toString());
 
         path = VFSPath.parsePath(this.vfs, "hello");
         assertEquals("hello", path.toString());
 
         path = VFSPath.parsePath(this.vfs, "hello/");
-        assertEquals("hello/", path.toString());
+        assertEquals("hello", path.toString());
 
         path = VFSPath.parsePath(this.vfs, "/hello");
         assertEquals("/hello", path.toString());
 
         path = VFSPath.parsePath(this.vfs, "/hello/");
-        assertEquals("/hello/", path.toString());
+        assertEquals("/hello", path.toString());
 
         path = VFSPath.parsePath(this.vfs, "/hello/there");
         assertEquals("/hello/there", path.toString());
 
         path = VFSPath.parsePath(this.vfs, "/hello/there/");
-        assertEquals("/hello/there/", path.toString());
+        assertEquals("/hello/there", path.toString());
+    }
+
+    @Test
+    public void testNormalize() {
+        VFSPath path;
+        Path normalizedPath;
+
+        path = VFSPath.parsePath(this.vfs, "");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, ".");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello");
+        normalizedPath = path.normalize();
+        assertEquals("hello", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello/");
+        normalizedPath = path.normalize();
+        assertEquals("hello", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello/.");
+        normalizedPath = path.normalize();
+        assertEquals("hello", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello/./");
+        normalizedPath = path.normalize();
+        assertEquals("hello", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello/..");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello/../");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello/there/../");
+        normalizedPath = path.normalize();
+        assertEquals("hello", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "./hello/there/../..");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "hello/there/../..");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
+        path = VFSPath.parsePath(this.vfs, "hello/there/../../");
+        normalizedPath = path.normalize();
+        assertEquals("", normalizedPath.toString());
+
     }
 }
