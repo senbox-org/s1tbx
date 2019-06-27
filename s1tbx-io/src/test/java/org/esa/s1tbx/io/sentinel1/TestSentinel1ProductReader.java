@@ -38,7 +38,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
 
     private final static File inputGRDFolder = new File("E:\\data\\S1\\aws\\S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
 
-    private String[] productTypeExemptions = {"RAW","WV"};
+    private String[] productTypeExemptions = {"RAW","OCN"};
 
     public TestSentinel1ProductReader() {
         super(new Sentinel1ProductReaderPlugIn());
