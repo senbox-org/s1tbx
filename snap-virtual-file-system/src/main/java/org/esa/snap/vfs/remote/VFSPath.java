@@ -187,15 +187,22 @@ public class VFSPath implements Path {
      * @return The VFS file URL
      */
     public URL buildURL() throws MalformedURLException {
-        String fileSystemRootAsString = this.fileSystem.getRoot().getPath();
-        String providerAddress = this.fileSystem.provider().getProviderAddress();
-        String fileSystemSeparator = this.fileSystem.getSeparator();
-        String pathAsString = this.path;
-        if (pathAsString.startsWith(fileSystemRootAsString)) {
-            // remote the file system root from the path
-            pathAsString = pathAsString.substring(fileSystemRootAsString.length());
+        String urlAsString = null;
+        if (this.fileAttributes instanceof VFSFileAttributes) {
+            VFSFileAttributes vfsFileAttributes = (VFSFileAttributes) this.fileAttributes;
+            urlAsString = vfsFileAttributes.fileURL();
         }
-        String urlAsString = buildPath(providerAddress, pathAsString, fileSystemSeparator);
+        if (urlAsString == null) {// the file don't have custom URL
+            String fileSystemRootAsString = this.fileSystem.getRoot().getPath();
+            String providerAddress = this.fileSystem.provider().getProviderAddress();
+            String fileSystemSeparator = this.fileSystem.getSeparator();
+            String pathAsString = this.path;
+            if (pathAsString.startsWith(fileSystemRootAsString)) {
+                // remote the file system root from the path
+                pathAsString = pathAsString.substring(fileSystemRootAsString.length());
+            }
+            urlAsString = buildPath(providerAddress, pathAsString, fileSystemSeparator);
+        }
         return new URL(urlAsString.replaceAll(" ", "%20"));
     }
 

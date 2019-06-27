@@ -30,11 +30,14 @@ public class HttpUtils {
             if (HttpUtils.isValidResponseCode(responseCode)) {
                 String sizeString = connection.getHeaderField("content-length");
                 String lastModified = connection.getHeaderField("last-modified");
-                if (!StringUtils.isNotNullAndNotEmpty(sizeString) && StringUtils.isNotNullAndNotEmpty(lastModified)) {
+                if (!StringUtils.isNotNullAndNotEmpty(sizeString) || !StringUtils.isNotNullAndNotEmpty(lastModified)) {
+                    if(!connection.getURL().toString().contentEquals(urlAddress)){
+                        throw new IOException("Invalid VFS service.\nReason: Redirect from: "+urlAddress+" to: "+connection.getURL().toString());
+                    }
                     throw new IOException("filePath is not a file '" + urlAddress + "'.");
                 }
                 long size = Long.parseLong(sizeString);
-                return new RegularFileMetadata(lastModified, size);
+                return new RegularFileMetadata(urlAddress, lastModified, size);
             } else {
                 throw new IOException(urlAddress + ": response code " + responseCode + ": " + connection.getResponseMessage());
             }

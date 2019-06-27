@@ -136,6 +136,10 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
         return false;
     }
 
+    public String fileURL() {
+        return null;
+    }
+
     /**
      * Regular File Attributes for VFS.
      * Basic attributes associated with a file in a file system.
@@ -236,6 +240,14 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
             }
         }
 
+        @Override
+        public String fileURL() {
+            readMetadataIfNeeded();
+            if (this.regularFileMetadata != null) {
+                return this.regularFileMetadata.getFileURL();
+            }
+            return super.fileURL();
+        }
 
         @Override
         public boolean equals(Object obj) {

@@ -5,19 +5,31 @@ package org.esa.snap.vfs.remote;
  */
 public class RegularFileMetadata {
 
+    private final String fileURL;
     private final long size;
     private final String lastModified;
 
-    public RegularFileMetadata(String lastModified, long size) {
+    RegularFileMetadata(String lastModified, long size) {
+        this.fileURL = null;
         this.size = size;
         this.lastModified = lastModified;
     }
 
+    RegularFileMetadata(String fileURL, String lastModified, long size) {
+        this.fileURL = fileURL;
+        this.size = size;
+        this.lastModified = lastModified;
+    }
+
+    public String getFileURL() {
+        return this.fileURL;
+    }
+
     public long getSize() {
-        return size;
+        return this.size;
     }
 
     public String getLastModified() {
-        return lastModified;
+        return this.lastModified;
     }
 }

@@ -93,6 +93,7 @@ class HttpWalker extends AbstractRemoteWalker {
         }
         Element htmlTable = htmlTables.first();
         Matcher m = p.matcher(htmlTable.html());
+        boolean externalDirs = false;
         while (m.find()) {
             String name = m.group(1);
             name = name.replaceAll("^" + this.servicePath, "");
@@ -105,24 +106,36 @@ class HttpWalker extends AbstractRemoteWalker {
                     name = name.replaceAll("^" + parent, "");
                 }
                 name = name.replaceAll("^/", "");
-                if (name.startsWith("http://") || name.startsWith("https://")) {
-                    throw new IllegalArgumentException("Unsupported HTTP VFS service.\nReason: External resource unsupported: " + name);
-                }
                 if (name.endsWith("/")) {
-                    items.add(VFSFileAttributes.newDir(prefix + name));
-                } else {
-                    String filePath = prefix.concat(name);
-                    String filePathUrl = filePath.replaceAll(this.root + "/?", "");
-                    String fileUrl = this.address;
-                    if (!fileUrl.endsWith("/")) {
-                        fileUrl = fileUrl.concat("/");
+                    if (name.startsWith("http://") || name.startsWith("https://")) {
+                        externalDirs = true;
+                    } else {
+                        items.add(VFSFileAttributes.newDir(prefix + name));
                     }
-                    fileUrl = fileUrl.concat(filePathUrl);
+                } else {
+                    String fileUrl;
+                    String filePath;
+                    if (name.startsWith("http://") || name.startsWith("https://")) {
+                        fileUrl = name;
+                        name = name.replaceAll(".*/(.*)", "$1");
+                        filePath = prefix.concat(name);
+                    } else {
+                        fileUrl = this.address;
+                        filePath = prefix.concat(name);
+                        String filePathUrl = filePath.replaceAll(this.root + "/?", "");
+                        if (!fileUrl.endsWith("/")) {
+                            fileUrl = fileUrl.concat("/");
+                        }
+                        fileUrl = fileUrl.concat(filePathUrl);
+                    }
                     RegularFileMetadataCallback fileSizeQueryCallback = new RegularFileMetadataCallback(fileUrl, this.remoteConnectionBuilder);
                     BasicFileAttributes regularFileAttributes = VFSFileAttributes.newFile(filePath, fileSizeQueryCallback);
                     items.add(regularFileAttributes);
                 }
             }
+        }
+        if (externalDirs && items.isEmpty()) {
+            throw new IllegalArgumentException("Unsupported HTTP VFS service.\nReason: External directories unsupported. ");
         }
         return new ArrayList<>(items);
     }

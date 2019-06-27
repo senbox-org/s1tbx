@@ -14,7 +14,7 @@ public class RegularFileMetadataCallback {
     private final String urlAddress;
     private final IRemoteConnectionBuilder remoteConnectionBuilder;
 
-    public RegularFileMetadataCallback(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder) {
+    RegularFileMetadataCallback(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder) {
         this.urlAddress = urlAddress;
         this.remoteConnectionBuilder = remoteConnectionBuilder;
     }

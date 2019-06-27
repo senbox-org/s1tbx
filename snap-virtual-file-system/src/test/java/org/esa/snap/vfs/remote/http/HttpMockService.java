@@ -90,6 +90,10 @@ public class HttpMockService {
                 } else if (Files.isRegularFile(responsePath) && !uriPath.endsWith("/")) {
                     response = readFile(responsePath);
                     contentType = "application/octet-stream";
+                    long fileSize = Files.size(responsePath);
+                    String fileDate = this.isoDateFormat.format(Files.getLastModifiedTime(responsePath).toMillis());
+                    httpExchange.getResponseHeaders().add("Last-Modified", fileDate);
+                    httpExchange.getResponseHeaders().add("Content-Length", "" + fileSize);
                 } else {
                     response = "Not Found".getBytes();
                     httpStatus = HttpURLConnection.HTTP_NOT_FOUND;
