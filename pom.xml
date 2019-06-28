@@ -101,7 +101,7 @@
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
         <module>snap-sta</module>
-        <module>snap-cloud-exploitation-platform</module>
+        <module>snap-remote-execution</module>
 
         <module>lib-hdf</module>
     </modules>

@@ -59,11 +59,8 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                      return DecodeQualification.UNABLE;
                  }
 			}
-            final ImageInputStream stream = ImageIO.createImageInputStream(imageIOInput);
-            try {
+            try (ImageInputStream stream = ImageIO.createImageInputStream(imageIOInput)) {
                 return getDecodeQualificationImpl(stream);
-            } finally {
-                stream.close();
             }
         } catch (Exception ignore) {
             // nothing to do, return value is already UNABLE
@@ -76,6 +73,12 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
         final Enumeration<? extends ZipEntry> entries = productZip.entries();
         boolean foundTiff = false;
+
+        // RapidEye reader returns UNABLE as DecodeQualification on Mac. This
+        // Incomplete and useless data from a zip file is opened as GeoTiff instead. This can be disturbing for users.
+        // Even though it is not good that the GeoTiff reader has knowledge about RapidEye, no better solution was found so far.
+        boolean foundNtif = productZip.stream().anyMatch((ze -> ze.getName().endsWith("ntf")));
+
         int entryCnt = 0;
         while(entries.hasMoreElements()) {
             final ZipEntry zipEntry = entries.nextElement();
@@ -85,7 +88,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 if(!name.contains("/") && (name.endsWith(".tif") || name.endsWith(".tiff") || name.endsWith(".btf"))) {
                     foundTiff = true;
                 }
-                if(foundTiff && entryCnt > 1) {
+                if(!foundNtif && foundTiff && entryCnt > 1) {
                     return DecodeQualification.SUITABLE;        // not exclusively a zipped tiff
                 }
             }

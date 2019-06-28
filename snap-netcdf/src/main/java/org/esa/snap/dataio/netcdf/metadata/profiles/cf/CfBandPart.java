@@ -40,14 +40,111 @@ import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
+import ucar.units.ConversionException;
+import ucar.units.PrefixDBException;
+import ucar.units.SpecificationException;
+import ucar.units.Unit;
+import ucar.units.UnitDBException;
+import ucar.units.UnitFormat;
+import ucar.units.UnitFormatManager;
+import ucar.units.UnitSystemException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CfBandPart extends ProfilePartIO {
 
     private static final DataTypeWorkarounds dataTypeWorkarounds = new DataTypeWorkarounds();
+    private static final String NANO_METER = "nm";
+    private static UnitFormat unitFormatManager  = UnitFormatManager.instance();;
+
+    public static void readCfBandAttributes(Variable variable, RasterDataNode rasterDataNode) {
+        rasterDataNode.setDescription(variable.getDescription());
+        rasterDataNode.setUnit(variable.getUnitsString());
+
+        rasterDataNode.setScalingFactor(getScalingFactor(variable));
+        rasterDataNode.setScalingOffset(getAddOffset(variable));
+
+        final Number noDataValue = getNoDataValue(variable);
+        if (noDataValue != null) {
+            rasterDataNode.setNoDataValue(noDataValue.doubleValue());
+            rasterDataNode.setNoDataValueUsed(true);
+        }
+        if (rasterDataNode instanceof Band) {
+            final Band band = (Band) rasterDataNode;
+            band.setSpectralWavelength(getSpectralWavelength(variable));
+        }
+    }
+
+    public static void writeCfBandAttributes(RasterDataNode rasterDataNode, NVariable variable) throws IOException {
+        final String description = rasterDataNode.getDescription();
+        if (description != null) {
+            variable.addAttribute("long_name", description);
+        }
+        String unit = rasterDataNode.getUnit();
+        if (unit != null) {
+            unit = CfCompliantUnitMapper.tryFindUnitString(unit);
+            variable.addAttribute("units", unit);
+        }
+        final boolean unsigned = isUnsigned(rasterDataNode);
+        if (unsigned) {
+            variable.addAttribute("_Unsigned", String.valueOf(true));
+        }
+
+        double noDataValue;
+        if (!rasterDataNode.isLog10Scaled()) {
+            final double scalingFactor = rasterDataNode.getScalingFactor();
+            if (scalingFactor != 1.0) {
+                variable.addAttribute(Constants.SCALE_FACTOR_ATT_NAME, scalingFactor);
+            }
+            final double scalingOffset = rasterDataNode.getScalingOffset();
+            if (scalingOffset != 0.0) {
+                variable.addAttribute(Constants.ADD_OFFSET_ATT_NAME, scalingOffset);
+            }
+            noDataValue = rasterDataNode.getNoDataValue();
+        } else {
+            // scaling information is not written anymore for log10 scaled bands
+            // instead we always write geophysical values
+            // we do this because log scaling is not supported by NetCDF-CF conventions
+            noDataValue = rasterDataNode.getGeophysicalNoDataValue();
+        }
+        if (rasterDataNode.isNoDataValueUsed()) {
+            Number fillValue = DataTypeUtils.convertTo(noDataValue, variable.getDataType());
+            variable.addAttribute(Constants.FILL_VALUE_ATT_NAME, fillValue);
+        }
+        variable.addAttribute("coordinates", "lat lon");
+        if (rasterDataNode instanceof Band) {
+            final Band band = (Band) rasterDataNode;
+            final float spectralWavelength = band.getSpectralWavelength();
+            if (spectralWavelength > 0) {
+                variable.addAttribute(Constants.RADIATION_WAVELENGTH, spectralWavelength);
+                variable.addAttribute(Constants.RADIATION_WAVELENGTH_UNIT, NANO_METER);
+            }
+        }
+    }
+
+    public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) throws
+                                                                                                        IOException {
+        final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
+        final String dimensions = ncFile.getDimensions();
+        for (RasterDataNode rasterDataNode : rasterDataNodes) {
+            String variableName = ReaderUtils.getVariableName(rasterDataNode);
+
+            int dataType;
+            if (rasterDataNode.isLog10Scaled()) {
+                dataType = rasterDataNode.getGeophysicalDataType();
+            } else {
+                dataType = rasterDataNode.getDataType();
+            }
+            DataType netcdfDataType = DataTypeUtils.getNetcdfDataType(dataType);
+            java.awt.Dimension tileSize = ImageManager.getPreferredTileSize(rasterDataNode.getProduct());
+            final NVariable variable = ncFile.addVariable(variableName, netcdfDataType, tileSize, dimensions);
+            writeCfBandAttributes(rasterDataNode, variable);
+        }
+    }
 
     @Override
     public void decode(final ProfileReadContext ctx, final Product p) throws IOException {
@@ -92,6 +189,14 @@ public class CfBandPart extends ProfilePartIO {
         p.setAutoGrouping(getAutoGrouping(ctx));
     }
 
+    @Override
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
+        // In order to inform the writer that it shall write the geophysical values of log scaled bands
+        // we set this property here.
+        ctx.setProperty(Constants.CONVERT_LOGSCALED_BANDS_PROPERTY, true);
+        defineRasterDataNodes(ctx, p.getBands());
+    }
+
     private static void addBand(ProfileReadContext ctx, Product p, Variable variable, int[] origin,
                                 String bandBasename) {
         final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
@@ -119,103 +224,6 @@ public class CfBandPart extends ProfilePartIO {
         }
     }
 
-    private String getAutoGrouping(ProfileReadContext ctx) {
-        ArrayList<String> bandNames = new ArrayList<String>();
-        for (final Variable variable : ctx.getRasterDigest().getRasterVariables()) {
-            final List<Dimension> dimensions = variable.getDimensions();
-            int rank = dimensions.size();
-            for (int i = 0; i < rank - 2; i++) {
-                Dimension dim = dimensions.get(i);
-                if (dim.getLength() > 1) {
-                    bandNames.add(variable.getFullName());
-                    break;
-                }
-            }
-        }
-        return StringUtils.join(bandNames, ":");
-    }
-
-    @Override
-    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        // In order to inform the writer that it shall write the geophysical values of log scaled bands
-        // we set this property here.
-        ctx.setProperty(Constants.CONVERT_LOGSCALED_BANDS_PROPERTY, true);
-        defineRasterDataNodes(ctx, p.getBands());
-    }
-
-    public static void readCfBandAttributes(Variable variable, RasterDataNode rasterDataNode) {
-        rasterDataNode.setDescription(variable.getDescription());
-        rasterDataNode.setUnit(variable.getUnitsString());
-
-        rasterDataNode.setScalingFactor(getScalingFactor(variable));
-        rasterDataNode.setScalingOffset(getAddOffset(variable));
-
-        final Number noDataValue = getNoDataValue(variable);
-        if (noDataValue != null) {
-            rasterDataNode.setNoDataValue(noDataValue.doubleValue());
-            rasterDataNode.setNoDataValueUsed(true);
-        }
-    }
-
-    public static void writeCfBandAttributes(RasterDataNode rasterDataNode, NVariable variable) throws IOException {
-        final String description = rasterDataNode.getDescription();
-        if (description != null) {
-            variable.addAttribute("long_name", description);
-        }
-        String unit = rasterDataNode.getUnit();
-        if (unit != null) {
-            unit = CfCompliantUnitMapper.tryFindUnitString(unit);
-            variable.addAttribute("units", unit);
-        }
-        final boolean unsigned = isUnsigned(rasterDataNode);
-        if (unsigned) {
-            variable.addAttribute("_Unsigned", String.valueOf(true));
-        }
-
-        double noDataValue;
-        if (!rasterDataNode.isLog10Scaled()) {
-            final double scalingFactor = rasterDataNode.getScalingFactor();
-            if (scalingFactor != 1.0) {
-                variable.addAttribute(Constants.SCALE_FACTOR_ATT_NAME, scalingFactor);
-            }
-            final double scalingOffset = rasterDataNode.getScalingOffset();
-            if (scalingOffset != 0.0) {
-                variable.addAttribute(Constants.ADD_OFFSET_ATT_NAME, scalingOffset);
-            }
-            noDataValue = rasterDataNode.getNoDataValue();
-        } else {
-            // scaling information is not written anymore for log10 scaled bands
-            // instead we always write geophysical values
-            // we do this because log scaling is not supported by NetCDF-CF conventions
-            noDataValue = rasterDataNode.getGeophysicalNoDataValue();
-        }
-        if (rasterDataNode.isNoDataValueUsed()) {
-            Number fillValue = DataTypeUtils.convertTo(noDataValue, variable.getDataType());
-            variable.addAttribute(Constants.FILL_VALUE_ATT_NAME, fillValue);
-        }
-        variable.addAttribute("coordinates", "lat lon");
-    }
-
-    public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) throws
-                                                                                                        IOException {
-        final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        final String dimensions = ncFile.getDimensions();
-        for (RasterDataNode rasterDataNode : rasterDataNodes) {
-            String variableName = ReaderUtils.getVariableName(rasterDataNode);
-
-            int dataType;
-            if (rasterDataNode.isLog10Scaled()) {
-                dataType = rasterDataNode.getGeophysicalDataType();
-            } else {
-                dataType = rasterDataNode.getDataType();
-            }
-            DataType netcdfDataType = DataTypeUtils.getNetcdfDataType(dataType);
-            java.awt.Dimension tileSize = ImageManager.getPreferredTileSize(rasterDataNode.getProduct());
-            final NVariable variable = ncFile.addVariable(variableName, netcdfDataType, tileSize, dimensions);
-            writeCfBandAttributes(rasterDataNode, variable);
-        }
-    }
-
     private static double getScalingFactor(Variable variable) {
         Attribute attribute = variable.findAttribute(Constants.SCALE_FACTOR_ATT_NAME);
         if (attribute == null) {
@@ -239,6 +247,34 @@ public class CfBandPart extends ProfilePartIO {
             return getAttributeValue(attribute).doubleValue();
         }
         return 0.0;
+    }
+
+    static float getSpectralWavelength(Variable variable) {
+        Attribute attribute = variable.findAttribute(Constants.RADIATION_WAVELENGTH);
+        if (attribute == null) {
+            return 0;
+        }
+        final float value = getAttributeValue(attribute).floatValue();
+
+        final Attribute attUnit = variable.findAttribute(Constants.RADIATION_WAVELENGTH_UNIT);
+        if (attUnit == null) {
+            return value;
+        }
+        final String unitStr = attUnit.getStringValue().trim();
+        if (unitStr.equals(NANO_METER)) {
+            return value;
+        }
+        try {
+            final Unit sourceUnit = unitFormatManager.parse(unitStr);
+            final Unit nanoMeter = unitFormatManager.parse(NANO_METER);
+            if (sourceUnit.isCompatible(nanoMeter)) {
+                return sourceUnit.convertTo(value, nanoMeter);
+            }
+        } catch (SpecificationException | UnitDBException | PrefixDBException | UnitSystemException | ConversionException e) {
+            final Logger global = Logger.getGlobal();
+            global.log(Level.WARNING, e.getMessage(), e);
+        }
+        return 0;
     }
 
     private static Number getNoDataValue(Variable variable) {
@@ -431,5 +467,21 @@ public class CfBandPart extends ProfilePartIO {
             return strings;
         }
         return sampleMeanings.getStringValue().split(" ");
+    }
+
+    private String getAutoGrouping(ProfileReadContext ctx) {
+        ArrayList<String> bandNames = new ArrayList<String>();
+        for (final Variable variable : ctx.getRasterDigest().getRasterVariables()) {
+            final List<Dimension> dimensions = variable.getDimensions();
+            int rank = dimensions.size();
+            for (int i = 0; i < rank - 2; i++) {
+                Dimension dim = dimensions.get(i);
+                if (dim.getLength() > 1) {
+                    bandNames.add(variable.getFullName());
+                    break;
+                }
+            }
+        }
+        return StringUtils.join(bandNames, ":");
     }
 }

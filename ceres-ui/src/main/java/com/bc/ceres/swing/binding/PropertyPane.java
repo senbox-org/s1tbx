@@ -26,7 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import static com.bc.ceres.swing.TableLayout.*;
+import static com.bc.ceres.swing.TableLayout.cell;
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
@@ -35,7 +35,13 @@ import static com.bc.ceres.swing.TableLayout.*;
  * is set, it will be used as label, otherwise a label is derived from the {@code name} property.
  * <p>Properties, whose attribute "enabled" is set to {@code false}, will be shown in disabled state.
  * Properties, whose attribute "visible" is set to {@code false}, will not be shown at all.
+ *
+ * @author Brockmann Consult
+ * @author Daniel Knowles
+ * @version $Revision$ $Date$
+ * @
  */
+// JAN2018 - Daniel Knowles - Added method to return property pane as a JScrollPane
 public class PropertyPane {
 
     private final BindingContext bindingContext;
@@ -102,6 +108,25 @@ public class PropertyPane {
         panel.add(new JPanel());
         return panel;
     }
+
+
+
+    /**
+     * Returns a JScrollPane version of the property pane
+     * @return a JScrollPane
+     *
+     * @author Daniel Knowles
+     * @since Jan 2019
+     */
+    public JScrollPane createJScrollPanel() {
+
+        JPanel panel = createPanel();
+        panel.setMinimumSize(panel.getPreferredSize());
+
+        return new JScrollPane(panel);
+    }
+
+
 
     private boolean isInvisible(PropertyDescriptor descriptor) {
         return Boolean.FALSE.equals(descriptor.getAttribute("visible")) || descriptor.isDeprecated();

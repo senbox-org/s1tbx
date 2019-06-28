@@ -8,7 +8,7 @@ OpenIDE-Module-Display-Category: SNAP
 OpenIDE-Module-Long-Description: <p>The Ceres GLayer Library provides 
  a framework for rendering of multiple graphical layers to some graphi
  cs context.</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>Cont
- act address:</b> Max Planck Str.2, 21502 Geesthacht (Germany)</p><p><
+ act address:</b> Max Planck Str.2, 21029 Hamburg (Germany)</p><p><
  b>Copyright:</b> (C) 2014 by Brockmann Consult GmbH</p><p><b>Vendor:<
  /b> Brockmann Consult GmbH</p><p><b>License:</b> http://www.gnu.org/l
  icenses/gpl.html</p><p><b>Changelog:</b> </p>

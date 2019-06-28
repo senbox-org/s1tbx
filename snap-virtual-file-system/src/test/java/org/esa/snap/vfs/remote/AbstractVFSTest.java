@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -39,31 +41,33 @@ public abstract class AbstractVFSTest {
         }
 
         this.vfsTestsFolderPath = testFolderPath.resolve("_virtual_file_system");
-        if (!Files.exists(vfsTestsFolderPath)) {
-            fail("The VFS test directory path " + vfsTestsFolderPath.toString() + " is not valid.");
+        if (!Files.exists(this.vfsTestsFolderPath)) {
+            Logger.getLogger(AbstractVFSTest.class.getName()).log(Level.WARNING, "The VFS test directory path {0} is not valid.", this.vfsTestsFolderPath);
+            assumeTrue(false);
         }
     }
 
     private void initVFS() {
         try {
-            Path configFile = vfsTestsFolderPath.resolve("vfs.properties");
-            vfsRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(configFile);
-            VFS.getInstance().initRemoteInstalledProviders(vfsRepositories);
+            Path configFile = this.vfsTestsFolderPath.resolve("vfs.properties");
+            this.vfsRepositories = VFSRemoteFileRepositoriesController.getVFSRemoteFileRepositories(configFile);
+            VFS.getInstance().initRemoteInstalledProviders(this.vfsRepositories);
         } catch (Exception exception) {
-            fail("Failed to initialize VFS.");
+            Logger.getLogger(AbstractVFSTest.class.getName()).log(Level.WARNING, "Failed to initialize VFS.");
+            assumeTrue(false);
         }
     }
 
     protected VFSRemoteFileRepository getHTTPRepo() {
-        return vfsRepositories.get(0);
+        return this.vfsRepositories.get(0);
     }
 
     protected VFSRemoteFileRepository getS3Repo() {
-        return vfsRepositories.get(1);
+        return this.vfsRepositories.get(1);
     }
 
     protected VFSRemoteFileRepository getSwiftRepo() {
-        return vfsRepositories.get(2);
+        return this.vfsRepositories.get(2);
     }
 
 

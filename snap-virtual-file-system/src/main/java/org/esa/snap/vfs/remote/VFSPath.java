@@ -8,11 +8,23 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.ProviderMismatchException;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.nio.file.Watchable;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Path for VFS.
@@ -81,7 +93,12 @@ public class VFSPath implements Path {
         }
         this.fileSystem = fileSystem;
         this.absolute = absolute;
-        this.path = replaceFileSeparator(path, this.fileSystem.getSeparator());
+        String tempPath = replaceFileSeparator(path, this.fileSystem.getSeparator());
+        if (tempPath.endsWith(this.fileSystem.getSeparator())) {
+            int lastIndex = tempPath.length() - this.fileSystem.getSeparator().length();
+            tempPath = tempPath.substring(0, lastIndex);
+        }
+        this.path = tempPath;
         this.fileAttributes = fileAttributes;
 
         if (this.path.isEmpty()) {
@@ -116,7 +133,7 @@ public class VFSPath implements Path {
             if (fileAttributes.getClass().equals(rootFileAttributesType)) {
                 return fileSystem.getRoot();
             } else {
-                throw new IllegalArgumentException("The file attributes type '"+fileAttributes.getClass().getName()+"' does not match with the file system root type '"+rootFileAttributesType+"'.");
+                throw new IllegalArgumentException("The file attributes type '" + fileAttributes.getClass().getName() + "' does not match with the file system root type '" + rootFileAttributesType + "'.");
             }
         }
         boolean absolute = pathName.startsWith(rootPathAsString);
@@ -156,6 +173,10 @@ public class VFSPath implements Path {
         return pathAsString.toString();
     }
 
+    private static String replaceFileSeparator(String path, String fileSystemSeparator) {
+        return path.replace("\\", fileSystemSeparator).replace("/", fileSystemSeparator);
+    }
+
     public String getPath() {
         return this.path;
     }
@@ -166,15 +187,22 @@ public class VFSPath implements Path {
      * @return The VFS file URL
      */
     public URL buildURL() throws MalformedURLException {
-        String fileSystemRootAsString = this.fileSystem.getRoot().getPath();
-        String providerAddress = this.fileSystem.provider().getProviderAddress();
-        String fileSystemSeparator = this.fileSystem.getSeparator();
-        String pathAsString = this.path;
-        if (pathAsString.startsWith(fileSystemRootAsString)) {
-            // remote the file system root from the path
-            pathAsString = pathAsString.substring(fileSystemRootAsString.length());
+        String urlAsString = null;
+        if (this.fileAttributes instanceof VFSFileAttributes) {
+            VFSFileAttributes vfsFileAttributes = (VFSFileAttributes) this.fileAttributes;
+            urlAsString = vfsFileAttributes.fileURL();
         }
-        String urlAsString = buildPath(providerAddress, pathAsString, fileSystemSeparator);
+        if (urlAsString == null) {// the file don't have custom URL
+            String fileSystemRootAsString = this.fileSystem.getRoot().getPath();
+            String providerAddress = this.fileSystem.provider().getProviderAddress();
+            String fileSystemSeparator = this.fileSystem.getSeparator();
+            String pathAsString = this.path;
+            if (pathAsString.startsWith(fileSystemRootAsString)) {
+                // remote the file system root from the path
+                pathAsString = pathAsString.substring(fileSystemRootAsString.length());
+            }
+            urlAsString = buildPath(providerAddress, pathAsString, fileSystemSeparator);
+        }
         return new URL(urlAsString.replaceAll(" ", "%20"));
     }
 
@@ -184,7 +212,7 @@ public class VFSPath implements Path {
      * @return The VFS file path names
      */
     private String[] getNames() {
-        return names;
+        return this.names;
     }
 
     /**
@@ -216,7 +244,7 @@ public class VFSPath implements Path {
      */
     @Override
     public boolean isAbsolute() {
-        return absolute;
+        return this.absolute;
     }
 
     /**
@@ -225,7 +253,7 @@ public class VFSPath implements Path {
      * @return The file attributes
      */
     BasicFileAttributes getFileAttributes() {
-        return fileAttributes;
+        return this.fileAttributes;
     }
 
     /**
@@ -423,8 +451,35 @@ public class VFSPath implements Path {
      */
     @Override
     public Path normalize() {
-        // We don't support links and special directories "." and ".."
-        return this;
+        String separator = this.fileSystem.getSeparator();
+        String currentDirectory = ".";
+        String parentDirectory = "..";
+        List<String> pathFrames = new ArrayList<>(Arrays.asList(this.names));
+        int pathFrameIndex = 0;
+        while (pathFrameIndex < pathFrames.size()) {
+            String currentPathFrame = pathFrames.get(pathFrameIndex);
+            if (currentPathFrame.equals(currentDirectory)) {
+                pathFrames.remove(pathFrameIndex);
+                pathFrameIndex--;
+            } else if (currentPathFrame.equals(parentDirectory)) {
+                if (pathFrameIndex > 0) {
+                    pathFrames.remove(pathFrameIndex);
+                    pathFrames.remove(pathFrameIndex - 1);
+                    pathFrameIndex -= 2;
+                } else {
+                    throw new IllegalStateException("The path: " + this.path + " invalid. It cannot contains '" + parentDirectory + "' on the first position.");
+                }
+            }
+            pathFrameIndex++;
+        }
+        StringBuilder normalizedPath = new StringBuilder();
+        for (int i = 0; i < pathFrames.size(); i++) {
+            if (i > 0) {
+                normalizedPath.append(separator);
+            }
+            normalizedPath.append(pathFrames.get(i));
+        }
+        return parsePath(normalizedPath.toString());
     }
 
     private boolean isEmpty() {
@@ -774,9 +829,5 @@ public class VFSPath implements Path {
         result = 31 * result + (this.absolute ? 1 : 0);
         result = 31 * result + this.path.hashCode();
         return result;
-    }
-
-    private static String replaceFileSeparator(String path, String fileSystemSeparator) {
-        return path.replace("\\", fileSystemSeparator).replace("/", fileSystemSeparator);
     }
 }

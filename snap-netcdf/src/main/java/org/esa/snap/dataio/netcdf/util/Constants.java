@@ -61,10 +61,15 @@ public interface Constants {
     String LAT_VAR_NAME = "lat";
     String LONGITUDE_VAR_NAME = "longitude";
     String LATITUDE_VAR_NAME = "latitude";
+    String LON_INTERN_VAR_NAME = "lon_intern";
+    String LAT_INTERN_VAR_NAME = "lat_intern";
 
     // context properties
     String Y_FLIPPED_PROPERTY_NAME = "yFlipped";
     String CONVERT_LOGSCALED_BANDS_PROPERTY = "convertLogScaledBands";
     String PRODUCT_FILENAME_PROPERTY = "productName";
 
+
+    String RADIATION_WAVELENGTH = "radiation_wavelength"; // CF standard name
+    String RADIATION_WAVELENGTH_UNIT = "radiation_wavelength_unit";
 }

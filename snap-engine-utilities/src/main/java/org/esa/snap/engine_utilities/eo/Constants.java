@@ -48,6 +48,9 @@ public final class Constants {
 
     public static final double NO_DATA_VALUE = -99999.0;
 
+    public static final double sTOns = oneBillion; // s to ns
+    public static final double nsTOs = oneBillionth; // ns to s
+
     private Constants() {
     }
 }

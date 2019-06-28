@@ -1,10 +1,7 @@
 package org.esa.snap.dataio;
 
 import javax.imageio.stream.ImageInputStreamImpl;
-import java.io.EOFException;
 import java.io.IOException;
-import java.nio.IntBuffer;
-import java.nio.MappedByteBuffer;
 
 class FileChannelImageInputStream extends ImageInputStreamImpl {
 

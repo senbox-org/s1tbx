@@ -15,7 +15,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -40,7 +43,7 @@ public class CommandLineToolTemplateTest {
     }
 
     @Before
-    public void init() throws Exception {
+    public void init() {
         TestProductIOPlugIn.INSTANCE.clear();
         context = new TestCommandLineContext();
         tool = new CommandLineTool(context);
@@ -52,7 +55,7 @@ public class CommandLineToolTemplateTest {
         String parameterPath = "params.xml";
         File templateDir = getTemplateDir();
 
-        TestProductIOPlugIn.INSTANCE.getSourceProducts().put(sourceFile.getAbsoluteFile(), createSourceProduct());
+        TestProductIOPlugIn.INSTANCE.getSourceProducts().put(sourceFile.getCanonicalFile(), createSourceProduct());
 
         context.textFiles.put(metadataPath, "" +
                 "processingCenter=BC\n" +
@@ -70,8 +73,8 @@ public class CommandLineToolTemplateTest {
                 "-p", parameterPath,
                 "-t", targetFile.getPath(),
                 "-m", metadataPath,
-                "-v", templateDir.getPath(),
-                sourceFile.getPath());
+                "-v", templateDir.getCanonicalPath(),
+                sourceFile.getCanonicalPath());
 
         assertNotNull(context.writers.get("20120607-CHL-1D-op-metadata.xml"));
         assertNotNull(context.writers.get("20120607-CHL-1D-op-metadata.html"));
@@ -184,7 +187,7 @@ public class CommandLineToolTemplateTest {
                 "-t", targetFile.getPath(),
                 "-p", parameterPath,
                 "-m", metadataPath,
-                "-v", templateDir.getPath(),
+                "-v", templateDir.getCanonicalPath(),
                 "-Ssrc=" + sourceFile);
 
         final Map<Object, Product> targetProducts = TestProductIOPlugIn.INSTANCE.getTargetProducts();
@@ -318,10 +321,10 @@ public class CommandLineToolTemplateTest {
 
         try {
             tool.run("graph.xml",
-                    "-t", targetFile.getPath(),
+                    "-t", targetFile.getCanonicalPath(),
                     "-p", parameterPath,
                     "-m", metadataPath,
-                    "-v", templateDir.getPath(),
+                    "-v", templateDir.getCanonicalPath(),
                     "-Ssrc=" + sourceFilePath);
 
             fail("'file' parameter must exist");

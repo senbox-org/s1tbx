@@ -17,31 +17,12 @@ package org.esa.snap.core.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.snap.core.datamodel.AbstractGeoCoding;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.FlagCoding;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.ImageInfo;
-import org.esa.snap.core.datamodel.IndexCoding;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.Scene;
-import org.esa.snap.core.datamodel.SceneFactory;
-import org.esa.snap.core.datamodel.Stx;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ProductUtils;
 
 import javax.media.jai.Histogram;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
 
@@ -89,20 +70,32 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 ProductUtils.copyMetadata(srcAbsRoot, trgAbsRoot);
             }
 
+            boolean isSARProduct = trgAbsRoot.getAttributeDouble("radar_frequency", 99999) != 99999;
+            if(!isSARProduct)
+                return;
+
+            // update subset metadata for SAR products
+
             boolean nearRangeOnLeft = isNearRangeOnLeft(targetProduct);
 
+            final int sourceImageHeight = sourceProduct.getSceneRasterHeight();
+            final double srcFirstLineTime = ProductData.UTC.parse(srcAbsRoot.getAttributeString("first_line_time")).getMJD(); // in days
+            final double srcLastLineTime = ProductData.UTC.parse(srcAbsRoot.getAttributeString("last_line_time")).getMJD(); // in days
+            final double lineTimeInterval = (srcLastLineTime - srcFirstLineTime) / (sourceImageHeight - 1); // in days
+            final Rectangle region = subsetDef.getRegion();
+            final int regionY = region.y;
+            final double regionHeight = region.getHeight();
+            final double newFirstLineTime = srcFirstLineTime + lineTimeInterval * regionY;
+            final double newLastLineTime = newFirstLineTime + lineTimeInterval * (regionHeight - 1);
             final MetadataAttribute firstLineTime = trgAbsRoot.getAttribute("first_line_time");
-            if(firstLineTime != null) {
-                final ProductData.UTC startTime = targetProduct.getStartTime();
-                if(startTime != null)
-                    firstLineTime.getData().setElems(startTime.getArray());
+            if (firstLineTime != null) {
+                firstLineTime.getData().setElems((new ProductData.UTC(newFirstLineTime)).getArray());
             }
             final MetadataAttribute lastLineTime = trgAbsRoot.getAttribute("last_line_time");
-            if(lastLineTime != null) {
-                final ProductData.UTC endTime = targetProduct.getEndTime();
-                if(endTime != null)
-                    lastLineTime.getData().setElems(endTime.getArray());
+            if (lastLineTime != null) {
+                lastLineTime.getData().setElems((new ProductData.UTC(newLastLineTime)).getArray());
             }
+
             final MetadataAttribute totalSize = trgAbsRoot.getAttribute("total_size");
             if(totalSize != null)
                 totalSize.getData().setElemUInt(targetProduct.getRawStorageSize());
@@ -147,15 +140,32 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             if(slantRange != null) {
                 final TiePointGrid srTPG = targetProduct.getTiePointGrid("slant_range_time");
                 if(srTPG != null) {
-                    final double slantRangeTime;
-                    if (nearRangeOnLeft) {
-                        slantRangeTime = srTPG.getPixelDouble(0,0) / 1000000000.0; // ns to s
+                    final boolean srgrFlag = srcAbsRoot.getAttributeInt("srgr_flag") != 0;
+                    double slantRangeDist;
+                    if (srgrFlag) {
+                        final double slantRangeTime;
+                        if (nearRangeOnLeft) {
+                            slantRangeTime = srTPG.getPixelDouble(
+                                    subsetDef.getRegion().x, subsetDef.getRegion().y) / 1000000000.0; // ns to s
+                        } else {
+                            slantRangeTime = srTPG.getPixelDouble(
+                                    targetProduct.getSceneRasterWidth() - subsetDef.getRegion().x - 1,
+                                    subsetDef.getRegion().y) / 1000000000.0; // ns to s
+                        }
+                        final double halfLightSpeed = 299792458.0 / 2.0;
+                        slantRangeDist = slantRangeTime * halfLightSpeed;
+                        slantRange.getData().setElemDouble(slantRangeDist);
                     } else {
-                        slantRangeTime = srTPG.getPixelDouble(targetProduct.getSceneRasterWidth()-1,0) / 1000000000.0; // ns to s
+                        final double slantRangeToFirstPixel = srcAbsRoot.getAttributeDouble("slant_range_to_first_pixel");
+                        final double rangeSpacing = srcAbsRoot.getAttributeDouble("RANGE_SPACING", 0);
+                        if (nearRangeOnLeft) {
+                            slantRangeDist = slantRangeToFirstPixel + subsetDef.getRegion().x*rangeSpacing;
+                        } else {
+                            slantRangeDist = slantRangeToFirstPixel +
+                                    (targetProduct.getSceneRasterWidth() - subsetDef.getRegion().x - 1)*rangeSpacing;
+                        }
+                        slantRange.getData().setElemDouble(slantRangeDist);
                     }
-                    final double halfLightSpeed = 299792458.0 / 2.0;
-                    final double slantRangeDist = slantRangeTime * halfLightSpeed;
-                    slantRange.getData().setElemDouble(slantRangeDist);
                 }
             }
 

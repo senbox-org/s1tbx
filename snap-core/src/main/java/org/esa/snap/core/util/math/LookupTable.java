@@ -250,7 +250,9 @@ public class LookupTable {
         for (int i = dimensions.length; i-- > 0;) {
             final int m = 1 << i;
             final double f = fracIndexes[i].f;
-
+            if (fractionHasNoEffect(f)) {
+                continue;
+            }
             for (int j = 0; j < m; ++j) {
                 v[j] += f * (v[m + j] - v[j]);
             }
@@ -295,10 +297,65 @@ public class LookupTable {
         for (int i = fracIndexes.length; i-- > 0;) {
             final int m = 1 << i;
             final double f = fracIndexes[i].f;
-
+            if (fractionHasNoEffect(f)) {
+                continue;
+            }
             for (int j = 0; j < m; ++j) {
                 for (int k = 0; k < resultLength; k++) {
                     v[j][k] += f * (v[m + j][k] - v[j][k]);
+                }
+            }
+        }
+        return v[0];
+    }
+
+    /**
+     * Returns a matrix of interpolated values for the given fractional indices.
+     *
+     * @param fracIndexes workspace array of length {@code coordinates - 2}.
+     *
+     * @return the interpolated values.
+     *
+     * @throws ArrayIndexOutOfBoundsException if the {@code fracIndexes} and {@code v} arrays
+     *                                        do not have proper length.
+     * @throws IllegalArgumentException       if the length of the {@code coordinates} array is
+     *                                        not exactly two less than the number of dimensions associated
+     *                                        with the lookup table.
+     * @throws NullPointerException           if {@code fracIndexes} is {@code null} or exhibits any
+     *                                        element, which is {@code null}.
+     */
+    public final double[][] get2DValuesArray(final FracIndex[] fracIndexes) {
+
+        if (fracIndexes.length != strides.length - 2) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "fracIndexes.length = {0} does not correspond to the expected length {1}",
+                    fracIndexes.length, strides.length - 2));
+        }
+
+        final int resultDim1 = strides[fracIndexes.length - 1] / strides[fracIndexes.length];
+        final int resultDim2 = strides[fracIndexes.length];
+        double[][][] v = new double[1 << fracIndexes.length][resultDim1][resultDim2];
+
+        int origin = 0;
+        for (int i = 0; i < fracIndexes.length; ++i) {
+            origin += fracIndexes[i].i * strides[i];
+        }
+        for (int i = 0; i < v.length; ++i) {
+            for (int j = 0; j < v[i].length; ++j) {
+                values.copyTo(origin + o[i] + j * resultDim2, v[i][j], 0, resultDim2);
+            }
+        }
+        for (int i = fracIndexes.length; i-- > 0;) {
+            final int m = 1 << i;
+            final double f = fracIndexes[i].f;
+            if (fractionHasNoEffect(f)) {
+                continue;
+            }
+            for (int j = 0; j < m; ++j) {
+                for (int k = 0; k < resultDim1; k++) {
+                    for (int l = 0; l < resultDim2; l++) {
+                        v[j][k][l] += f * (v[m + j][k][l] - v[j][k][l]);
+                    }
                 }
             }
         }
@@ -426,6 +483,10 @@ public class LookupTable {
             throw new IllegalArgumentException(MessageFormat.format(
                     "array.length = {0} does not correspond to the expected length {1}", array.getLength(), length));
         }
+    }
+
+    private static boolean fractionHasNoEffect(double f) {
+        return f < 1e-8;
     }
 }
 

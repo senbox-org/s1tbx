@@ -22,17 +22,15 @@ import java.util.logging.Logger;
  */
 public abstract class VFSFileAttributes implements BasicFileAttributes {
 
-    private static final Logger logger = Logger.getLogger(VFSFileAttributes.class.getName());
-
     /**
      * The default file time for a file is EPOCH.
      */
     static final FileTime UNKNOWN_FILE_TIME = FileTime.from(Instant.EPOCH);
-
     /**
      * The date-time format used.
      */
     static final DateTimeFormatter ISO_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'");
+    private static final Logger logger = Logger.getLogger(VFSFileAttributes.class.getName());
 
     /**
      * Creates new basic file attributes for a VFS file.
@@ -138,6 +136,10 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
         return false;
     }
 
+    public String fileURL() {
+        return null;
+    }
+
     /**
      * Regular File Attributes for VFS.
      * Basic attributes associated with a file in a file system.
@@ -156,7 +158,7 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
         /**
          * Creates new basic file attributes for a VFS file.
          *
-         * @param fileKey      The unique identifier of file
+         * @param fileKey The unique identifier of file
          */
         RegularFileAttributes(String fileKey, RegularFileMetadata regularFileMetadata, RegularFileMetadataCallback fileSizeQueryCallback) {
             this.fileKey = fileKey;
@@ -181,7 +183,7 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
          */
         @Override
         public String fileKey() {
-            return fileKey;
+            return this.fileKey;
         }
 
         /**
@@ -233,9 +235,31 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
                 try {
                     this.regularFileMetadata = this.fileSizeQueryCallback.readFileMetadata();
                 } catch (IOException e) {
-                    throw new IllegalStateException("Failed to read the metadata for file '"+this.fileKey+"'.", e);
+                    throw new IllegalStateException("Failed to read the metadata for file '" + this.fileKey + "'.", e);
                 }
             }
+        }
+
+        @Override
+        public String fileURL() {
+            readMetadataIfNeeded();
+            if (this.regularFileMetadata != null) {
+                return this.regularFileMetadata.getFileURL();
+            }
+            return super.fileURL();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof RegularFileAttributes) {
+                return this.fileKey.contentEquals(((RegularFileAttributes) obj).fileKey);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.fileKey.hashCode();
         }
     }
 
@@ -276,7 +300,7 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
          */
         @Override
         public String fileKey() {
-            return fileKey;
+            return this.fileKey;
         }
 
         /**
@@ -297,6 +321,19 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
         @Override
         public long size() {
             return 0;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof DirAttributes) {
+                return this.fileKey.contentEquals(((DirAttributes) obj).fileKey);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.fileKey.hashCode();
         }
     }
 }

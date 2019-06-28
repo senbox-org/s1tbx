@@ -8,7 +8,7 @@ OpenIDE-Module-Display-Category: SNAP
 OpenIDE-Module-Layer: org/esa/snap/csv/dataio/layer.xml
 OpenIDE-Module-Long-Description: <p>Enables SNAP to read data products
   from CSV files.</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b
- >Contact address:</b> Max-Planck-Str. 2, 21502 Geesthacht (Germany)</
+ >Contact address:</b> Chrysanderstr. 1, 21029 Hamburg (Germany)</
  p><p><b>Copyright:</b> (C) 2014 by Brockmann Consult GmbH</p><p><b>Ve
  ndor:</b> Brockmann Consult GmbH</p><p><b>License:</b> http://www.gnu
  .org/licenses/gpl.html</p>

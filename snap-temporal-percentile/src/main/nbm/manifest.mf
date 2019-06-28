@@ -9,7 +9,7 @@ OpenIDE-Module-Long-Description: <p>The snap-temporal-percentile-op mo
  dule contains an operator for computing a percentile over a set of in
  put products over a given time period.</p><p><b>Funding:</b> EU</p><p
  ><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>Contact address:</b> 
- Max-Planck-Str. 2, 21502 Geesthacht (Germany)</p><p><b>Copyright:</b>
+ Chrysanderstr. 1, 21029 Hamburg (Germany)</p><p><b>Copyright:</b>
   (C) 2014 by Brockmann Consult GmbH</p><p><b>Vendor:</b> Brockmann Co
  nsult GmbH</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html
  </p>
