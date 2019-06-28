@@ -89,6 +89,9 @@ public final class TerrainFlatteningOp extends Operator {
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
+    @Parameter(label = "External DEM Apply EGM", defaultValue = "false")
+    private Boolean externalDEMApplyEGM = false;
+
     @Parameter(defaultValue = "false", label = "Output Simulated Image")
     private Boolean outputSimulatedImage = false;
 
@@ -175,6 +178,14 @@ public final class TerrainFlatteningOp extends Operator {
                 throw new OperatorException("Source product must be calibrated to beta0 or be in T3, C3, C2 matrix format");
             }
 
+            if (demName.equals("External DEM") && externalDEMFile == null) {
+                throw new OperatorException("External DEM file is not found");
+            }
+
+            if (externalDEMApplyEGM == null) {
+                externalDEMApplyEGM = false;
+            }
+
             selectedResampling = ResamplingFactory.createResampling(demResamplingMethod);
             if(selectedResampling == null) {
                 throw new OperatorException("Resampling method "+ demResamplingMethod + " is invalid");
@@ -234,22 +245,24 @@ public final class TerrainFlatteningOp extends Operator {
         azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
         final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
 
-        if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
-            overSamplingFactor = Math.round(90.0 / minSpacing);
-        } else if (demName.contains("SRTM 1Sec HGT") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-            overSamplingFactor = Math.round(30.0 / minSpacing);
-        } else if (demName.contains("SRTM 1Sec Grid") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-            overSamplingFactor = Math.round(30.0 / minSpacing);
-        } else if (demName.contains("ASTER 1sec GDEM") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-            overSamplingFactor = Math.round(30.0 / minSpacing);
-        } else if (demName.contains("ACE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
-            overSamplingFactor = Math.round(1000.0 / minSpacing);
-        } else if (demName.contains("ACE2_5Min") && (rangeSpacing < 10000.0 || azimuthSpacing < 10000.0)) {
-            overSamplingFactor = Math.round(1000.0 / minSpacing);
-        } else if (demName.contains("GETASSE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
-            overSamplingFactor = Math.round(1000.0 / minSpacing);
+        if (externalDEMFile == null) {
+            if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
+                overSamplingFactor = Math.round(90.0 / minSpacing);
+            } else if (demName.contains("SRTM 1Sec HGT") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
+                overSamplingFactor = Math.round(30.0 / minSpacing);
+            } else if (demName.contains("SRTM 1Sec Grid") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
+                overSamplingFactor = Math.round(30.0 / minSpacing);
+            } else if (demName.contains("ASTER 1sec GDEM") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
+                overSamplingFactor = Math.round(30.0 / minSpacing);
+            } else if (demName.contains("ACE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
+                overSamplingFactor = Math.round(1000.0 / minSpacing);
+            } else if (demName.contains("ACE2_5Min") && (rangeSpacing < 10000.0 || azimuthSpacing < 10000.0)) {
+                overSamplingFactor = Math.round(1000.0 / minSpacing);
+            } else if (demName.contains("GETASSE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
+                overSamplingFactor = Math.round(1000.0 / minSpacing);
+            }
+            overSamplingFactor *= oversamplingMultiple;
         }
-        overSamplingFactor *= oversamplingMultiple;
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
         wavelength = SARUtils.getRadarFrequency(absRoot);
@@ -525,33 +538,28 @@ public final class TerrainFlatteningOp extends Operator {
             final double[] latLonMinMax = new double[4];
             computeImageGeoBoundary(xmin, xmax, ymin, ymax, latLonMinMax);
 
-            final double demResolution = (double) dem.getDescriptor().getTileWidthInDegrees() /
-                    (double) dem.getDescriptor().getTileWidth();
+            double demResolution;
+            if (externalDEMFile == null) {
+                demResolution = (double) dem.getDescriptor().getTileWidthInDegrees() /
+                        (double) dem.getDescriptor().getTileWidth();
+
+            } else {
+                FileElevationModel filedem = (FileElevationModel)dem;
+                demResolution = filedem.getPixelWidthInDegrees();
+                final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
+                overSamplingFactor = Math.round(filedem.getPixelWidthInMeters() / minSpacing) * oversamplingMultiple;
+            }
 
             final double extralat = 20 * demResolution;
             final double extralon = 20 * demResolution;
-
-            double latMin = latLonMinMax[0] - extralat;
-            double latMax = latLonMinMax[1] + extralat;
-            double lonMin = latLonMinMax[2] - extralon;
-            double lonMax = latLonMinMax[3] + extralon;
-
-            final PixelPos upperLeft = dem.getIndex(new GeoPos(latMax, lonMin));
-            final PixelPos lowerRight = dem.getIndex(new GeoPos(latMin, lonMax));
-            final int latMaxIdx = (int) Math.floor(upperLeft.getY());
-            final int latMinIdx = (int) Math.ceil(lowerRight.getY());
-            final int lonMinIdx = (int) Math.floor(upperLeft.getX());
-            final int lonMaxIdx = (int) Math.ceil(lowerRight.getX());
-
-            final GeoPos gpUL = dem.getGeoPos(new PixelPos(lonMinIdx, latMaxIdx));
-            final GeoPos gpLR = dem.getGeoPos(new PixelPos(lonMaxIdx, latMinIdx));
-            latMin = gpLR.getLat();
-            latMax = gpUL.getLat();
-            lonMin = gpUL.getLon();
-            lonMax = gpLR.getLon();
+            final double latMin = latLonMinMax[0] - extralat;
+            final double latMax = latLonMinMax[1] + extralat;
+            final double lonMin = latLonMinMax[2] - extralon;
+            final double lonMax = latLonMinMax[3] + extralon;
 
             final int rows = (int) Math.round((latMax - latMin) / demResolution);
             final int cols = (int) Math.round((lonMax - lonMin) / demResolution);
+
             final double[][] height = new double[rows][cols];
             for (int i = 0; i < rows; ++i) {
                 final double lat = latMax - i * demResolution;
@@ -976,6 +984,7 @@ public final class TerrainFlatteningOp extends Operator {
             if (externalDEMFile != null) { // if external DEM file is specified by user
 
                 dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                ((FileElevationModel) dem).applyEarthGravitionalModel(externalDEMApplyEGM);
                 demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
 
