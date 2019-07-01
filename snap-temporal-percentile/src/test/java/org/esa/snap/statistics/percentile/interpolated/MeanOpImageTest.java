@@ -16,14 +16,9 @@ public class MeanOpImageTest {
 
     @BeforeClass
     public static void setUp() {
-        // Triggering init of GeoTools
-        SystemUtils.initGeoTools();
-        // GeoTools adds a special listener to JAI (see static block in class org.geotools.util.logging.Logging) which
-        // changes the behavior. The registered ImagingListener does not
-        // rethrow the actually expected UnsupportedOperationException but swallows it. Due to this, a
-        // NullPointerException occurs as a consequence in test
-        // MeanOpImageTest.testThatOperatorExceptionOccursWhenNoFloatingPointImagesAreProvided.
-        // The special Listener is also registered when running SNAP, so we ensure here that it is registered.
+        // Triggering init of JAI/GeoTools
+        // See GeoTools mailing list - https://sourceforge.net/p/geotools/mailman/message/36694323/
+        SystemUtils.init3rdPartyLibs(MeanOpImageTest.class);
     }
 
     @Test
@@ -130,7 +125,7 @@ public class MeanOpImageTest {
 
 
     // Actually UnsupportedOperationException expected. See comment in MeanOpImageTest#setUp for explanation
-    @Test(expected = NullPointerException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testThatOperatorExceptionOccursWhenNoFloatingPointImagesAreProvided() {
         final Vector<RenderedImage> sources = new Vector<>();
         sources.add(ConstantDescriptor.create(2f, 2f, new Integer[]{3}, null));
