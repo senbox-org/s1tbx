@@ -80,7 +80,6 @@ public class CollocateOp extends Operator {
     private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION";
 
 
-
     @SourceProducts(alias = "sourceProducts", description = "The source product which serves as slave.")
     private Product[] sourceProducts;
 
@@ -208,14 +207,14 @@ public class CollocateOp extends Operator {
 
         //for compatibility, allow have slave and master instead of sourceProducts
         //The first step is to copy them to sourceProducts
-        if(master != null) {
-            if((masterProductName != null && masterProductName.length() > 0) && !masterProductName.equals(master.getName())) {
+        if (master != null) {
+            if ((masterProductName != null && masterProductName.length() > 0) && !masterProductName.equals(master.getName())) {
                 throw new OperatorException("Incompatible master definition");
             }
             masterProductName = master.getName();
             addToSourceProducts(master);
         }
-        if(slaveProduct != null) {
+        if (slaveProduct != null) {
             addToSourceProducts(slaveProduct);
         }
 
@@ -225,15 +224,15 @@ public class CollocateOp extends Operator {
         }
 
         //sourceProducts and sourcePAths must be at least two
-        if(sourceProducts.length + sourcePathCount < 2) {
+        if (sourceProducts.length + sourcePathCount < 2) {
             throw new OperatorException("At least two source products have to be defined");
         }
 
         //Define master and slave products from sourceProducts and sourceProductPaths
         ArrayList<Product> slaveProductList = new ArrayList<>();
         boolean found = false;
-        for(Product product : sourceProducts) {
-            if(product.getName().equals(masterProductName) && !found) {
+        for (Product product : sourceProducts) {
+            if (product.getName().equals(masterProductName) && !found) {
                 masterProduct = product;
                 found = true;
             } else {
@@ -241,7 +240,7 @@ public class CollocateOp extends Operator {
             }
         }
 
-        if(sourceProductPaths != null) {
+        if (sourceProductPaths != null) {
             for (String sourceProductPath : sourceProductPaths) {
                 File file = new File(sourceProductPath);
                 try {
@@ -260,9 +259,9 @@ public class CollocateOp extends Operator {
         }
 
         //Set the master product from the source product if masterProductName has not been defined: The first single sized product.
-        if(masterProduct == null && (masterProductName == null || masterProductName.length() == 0)) {
+        if (masterProduct == null && (masterProductName == null || masterProductName.length() == 0)) {
             //no master product, so the first one single size will be selected
-            for(Product product : slaveProductList) {
+            for (Product product : slaveProductList) {
                 if (!product.isMultiSize()) {
                     getLogger().warning(String.format("Master product selected automatically: %s", product.getName()));
                     masterProduct = product;
@@ -273,7 +272,7 @@ public class CollocateOp extends Operator {
         }
 
         //If no master product Operator Exception
-        if(masterProduct == null) {
+        if (masterProduct == null) {
             throw new OperatorException("Master product not found in sourceProducts");
         }
 
@@ -281,7 +280,7 @@ public class CollocateOp extends Operator {
         validateProduct(masterProduct);
 
         //for slave, we only need geoCoding. It is not needed singleSize anymore.
-        for(Product slaveProduct : slaveProducts) {
+        for (Product slaveProduct : slaveProducts) {
             ensureSceneGeoCoding(slaveProduct);
         }
 
@@ -299,8 +298,8 @@ public class CollocateOp extends Operator {
         sourceRasterMap = new HashMap<>(31);
 
         String autoTargetProductName = masterProduct.getName();
-        if(targetProductName == null) {
-            if(slaveProducts.length == 1) {
+        if (targetProductName == null) {
+            if (slaveProducts.length == 1) {
                 autoTargetProductName = autoTargetProductName + "_" + slaveProducts[0].getName();
             } else {
                 autoTargetProductName = autoTargetProductName + "_collocated";
@@ -342,35 +341,27 @@ public class CollocateOp extends Operator {
 
         String[] collocationFlagsBandNames = new String[slaveProducts.length];
         collocationFlagBands = new Band[slaveProducts.length];
-        if(slaveProducts.length == 1) {
+        if (slaveProducts.length == 1) {
             int collocationCount = 0;
             collocationFlagsBandNames[0] = "collocationFlags";
             while (targetProduct.containsBand(collocationFlagsBandNames[0])) {
                 collocationFlagsBandNames[0] = "collocationFlags" + ++collocationCount;
             }
         } else {
-            for(int i = 0 ; i < slaveProducts.length ; i++) {
+            for (int i = 0; i < slaveProducts.length; i++) {
                 int collocationCount = 0;
-                collocationFlagsBandNames[i] = String.format("collocationFlags_%s",slaveProducts[i].getName());
+                collocationFlagsBandNames[i] = String.format("collocationFlags_%s", slaveProducts[i].getName());
                 while (targetProduct.containsBand(collocationFlagsBandNames[i])) {
-                    collocationFlagsBandNames[i] = String.format("collocationFlags_%s",slaveProducts[i].getName()) + ++collocationCount;
+                    collocationFlagsBandNames[i] = String.format("collocationFlags_%s", slaveProducts[i].getName()) + ++collocationCount;
                 }
             }
         }
 
-        for(int i = 0 ; i < slaveProducts.length ; i++) {
+        for (int i = 0; i < slaveProducts.length; i++) {
             Product slaveProduct = slaveProducts[i];
             // Add slave bands
             for (Band sourceBand : slaveProduct.getBands()) {
-                String targetBandName = sourceBand.getName();
-                if (renameSlaveComponents || targetProduct.containsBand(targetBandName) || targetProduct.containsTiePointGrid(targetBandName)) {
-                    targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
-                    if(slaveProducts.length > 1) {
-                        targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(i));
-                    } else {
-                        targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, "");
-                    }
-                }
+                String targetBandName = getTargetBandName(sourceBand, i);
                 Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
                 handleSampleCodings(sourceBand, targetBand, renameSlaveComponents, slaveComponentPattern);
@@ -381,15 +372,7 @@ public class CollocateOp extends Operator {
 
             // Add slave tie-point grids as bands
             for (TiePointGrid sourceGrid : slaveProduct.getTiePointGrids()) {
-                String targetBandName = sourceGrid.getName();
-                if (renameSlaveComponents || targetProduct.containsBand(targetBandName) || targetProduct.containsTiePointGrid(targetBandName)) {
-                    targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
-                    if(slaveProducts.length > 1) {
-                        targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(i));
-                    } else {
-                        targetBandName = targetBandName.replace(SLAVE_NUMBER_ID_REFERENCE, "");
-                    }
-                }
+                String targetBandName = getTargetBandName(sourceGrid, i);
                 originalSlaveNames.put(sourceGrid.getName(), targetBandName);
                 Band targetBand = targetProduct.addBand(targetBandName, sourceGrid.getDataType());
                 ProductUtils.copyRasterDataNodeProperties(sourceGrid, targetBand);
@@ -399,7 +382,7 @@ public class CollocateOp extends Operator {
             }
 
             //add PRESENT flag
-            if(slaveProducts.length == 1) {
+            if (slaveProducts.length == 1) {
                 collocationFlagBands[i] = targetProduct.addBand(collocationFlagsBandNames[i], ProductData.TYPE_INT8);
                 FlagCoding collocationFlagCoding = new FlagCoding(collocationFlagsBandNames[i]);
                 collocationFlagCoding.addFlag(String.format("SLAVE_PRESENT"), 1, "Data for the slave is present.");
@@ -431,6 +414,31 @@ public class CollocateOp extends Operator {
         }
 
         setAutoGrouping();
+    }
+
+    private String getTargetBandName(RasterDataNode rasterDataNode, int productIndex) {
+        String rasterDataNodeName = rasterDataNode.getName();
+        if (renameSlaveComponents) {
+            return rename(rasterDataNodeName, productIndex);
+        } else if (targetProduct.containsRasterDataNode(rasterDataNodeName)) {
+            if (StringUtils.isNullOrEmpty(slaveComponentPattern)) {
+                throw new OperatorException(format(
+                        "Target product already contains a raster data node with name ''{0}''. " +
+                                "Parameter 'slaveComponentPattern' must be set.",
+                        rasterDataNodeName));
+            }
+            return rename(rasterDataNodeName, productIndex);
+        }
+        return rasterDataNodeName;
+    }
+
+    private String rename(String rasterDataNodeName, int productIndex) {
+        rasterDataNodeName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, rasterDataNodeName);
+        if (slaveProducts.length > 1) {
+            return rasterDataNodeName.replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(productIndex));
+        } else {
+            return rasterDataNodeName.replace(SLAVE_NUMBER_ID_REFERENCE, "");
+        }
     }
 
 
@@ -475,7 +483,7 @@ public class CollocateOp extends Operator {
                 ProgressMonitor subPM = SubProgressMonitor.create(pm, 1);
 
                 int collocationFlagId = -1;
-                for(int i = 0 ; i < collocationFlagBands.length ;i ++) {
+                for (int i = 0; i < collocationFlagBands.length; i++) {
                     if (collocationFlagBands[i].getName().equals(targetBand.getName())) {
                         collocationFlagId = i;
                         break;
@@ -508,7 +516,7 @@ public class CollocateOp extends Operator {
         final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
 
         int collocationFlagId = -1;
-        for(int i = 0 ; i < collocationFlagBands.length ;i ++) {
+        for (int i = 0; i < collocationFlagBands.length; i++) {
             if (collocationFlagBands[i].getName().equals(targetBand.getName())) {
                 collocationFlagId = i;
                 break;
@@ -548,7 +556,7 @@ public class CollocateOp extends Operator {
     @Override
     public void dispose() {
         sourceRasterMap = null;
-        for(Product product : disposableProducts) {
+        for (Product product : disposableProducts) {
             product.dispose();
         }
         super.dispose();
@@ -584,7 +592,7 @@ public class CollocateOp extends Operator {
 
                         if (sourcePixelPos != null) {
                             resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
-                                                    sourceRasterWidth, sourceRasterHeight, resamplingIndex);
+                                    sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                             double sample;
                             if (resampling == Resampling.NEAREST_NEIGHBOUR) {
                                 sample = sourceTile.getSampleDouble((int) resamplingIndex.i0, (int) resamplingIndex.j0);
@@ -644,28 +652,28 @@ public class CollocateOp extends Operator {
         ProductNodeGroup<Mask> maskGroup = sourceProduct.getMaskGroup();
         Mask[] sourceMasks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
         for (Mask sourceMask : sourceMasks) {
-            if (! targetProduct.getMaskGroup().contains(sourceMask.getName())) {
+            if (!targetProduct.getMaskGroup().contains(sourceMask.getName())) {
                 Mask.ImageType imageType = sourceMask.getImageType();
                 Mask targetMask = new Mask(sourceMask.getName(),
-                                           targetProduct.getSceneRasterWidth(),
-                                           targetProduct.getSceneRasterHeight(),
-                                           imageType);
+                        targetProduct.getSceneRasterWidth(),
+                        targetProduct.getSceneRasterHeight(),
+                        imageType);
                 targetMask.setDescription(sourceMask.getDescription());
                 for (Property property : sourceMask.getImageConfig().getProperties()) {
                     targetMask.getImageConfig().setValue(property.getDescriptor().getName(), property.getValue());
                 }
                 if (rename) {
-                    if(slaveProducts.length == 1) {
+                    if (slaveProducts.length == 1) {
                         targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()).replace(SLAVE_NUMBER_ID_REFERENCE, ""));
                     } else {
-                        int id=-1;
-                        for(int i = 0 ; i < slaveProducts.length ; i++) {
-                            if(sourceProduct.getName().equals(slaveProducts[i].getName())) {
+                        int id = -1;
+                        for (int i = 0; i < slaveProducts.length; i++) {
+                            if (sourceProduct.getName().equals(slaveProducts[i].getName())) {
                                 id = i;
                                 break;
                             }
                         }
-                        targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()).replace(SLAVE_NUMBER_ID_REFERENCE,String.valueOf(id)));
+                        targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()).replace(SLAVE_NUMBER_ID_REFERENCE, String.valueOf(id)));
                     }
                 }
                 targetProduct.getMaskGroup().add(targetMask);
@@ -700,12 +708,12 @@ public class CollocateOp extends Operator {
         if (flagCoding != null) {
             String flagCodingName = flagCoding.getName();
             if (rename) {
-                if(slaveProducts.length == 1) {
+                if (slaveProducts.length == 1) {
                     flagCodingName = pattern.replace(SOURCE_NAME_REFERENCE, flagCodingName).replace(SLAVE_NUMBER_ID_REFERENCE, "");
                 } else {
-                    int id=-1;
-                    for(int i = 0 ; i < slaveProducts.length ; i++) {
-                        if(band.getProduct().getName().equals(slaveProducts[i].getName())) {
+                    int id = -1;
+                    for (int i = 0; i < slaveProducts.length; i++) {
+                        if (band.getProduct().getName().equals(slaveProducts[i].getName())) {
                             id = i;
                             break;
                         }
@@ -725,12 +733,12 @@ public class CollocateOp extends Operator {
         if (indexCoding != null) {
             String indexCodingName = indexCoding.getName();
             if (rename) {
-                if(slaveProducts.length == 1) {
+                if (slaveProducts.length == 1) {
                     indexCodingName = pattern.replace(SOURCE_NAME_REFERENCE, indexCodingName).replace(SLAVE_NUMBER_ID_REFERENCE, "");
                 } else {
-                    int id=-1;
-                    for(int i = 0 ; i < slaveProducts.length ; i++) {
-                        if(band.getProduct().getName().equals(slaveProducts[i].getName())) {
+                    int id = -1;
+                    for (int i = 0; i < slaveProducts.length; i++) {
+                        if (band.getProduct().getName().equals(slaveProducts[i].getName())) {
                             id = i;
                             break;
                         }
@@ -811,7 +819,7 @@ public class CollocateOp extends Operator {
     private void setAutoGrouping() {
         List<String> paths = new ArrayList<>();
         collectAutoGrouping(paths, this.masterProduct, renameMasterComponents ? masterComponentPattern : null);
-        for(Product slaveProduct : slaveProducts) {
+        for (Product slaveProduct : slaveProducts) {
             collectAutoGrouping(paths, slaveProduct, renameSlaveComponents ? slaveComponentPattern : null);
         }
         targetProduct.setAutoGrouping(String.join(":", paths));
@@ -823,17 +831,17 @@ public class CollocateOp extends Operator {
             return;
         }
         String replacementSlaveNumberId = "";
-        if(slaveProducts.length == 1) {
+        if (slaveProducts.length == 1) {
             replacementSlaveNumberId = "";
         } else {
-            int id=-1;
-            for(int i = 0 ; i < slaveProducts.length ; i++) {
-                if(product.getName().equals(slaveProducts[i].getName())) {
+            int id = -1;
+            for (int i = 0; i < slaveProducts.length; i++) {
+                if (product.getName().equals(slaveProducts[i].getName())) {
                     id = i;
                     break;
                 }
             }
-            replacementSlaveNumberId =  String.valueOf(id);
+            replacementSlaveNumberId = String.valueOf(id);
         }
 
         for (String[] pattern : autoGrouping) {
@@ -901,12 +909,12 @@ public class CollocateOp extends Operator {
     }
 
     private void addToSourceProducts(Product product) {
-        if(sourceProducts == null) {
+        if (sourceProducts == null) {
             sourceProducts = new Product[1];
             sourceProducts[0] = product;
         } else {
             ArrayList<Product> productList = new ArrayList<>();
-            for(Product prod : sourceProducts) {
+            for (Product prod : sourceProducts) {
                 productList.add(prod);
             }
             productList.add(product);
