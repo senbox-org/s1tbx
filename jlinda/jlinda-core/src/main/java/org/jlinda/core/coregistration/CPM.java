@@ -693,19 +693,21 @@ public class CPM implements PolynomialModel {
         double yError2Mean = 0.0;
         double xError2Mean = 0.0;
 
-        for (int i = 0; i < numObservations; i++) {
+        if(yError != null) {
+            for (int i = 0; i < numObservations; i++) {
 
-            double dY = yError[i];
-            double dX = xError[i];
-            rms.add(Math.sqrt(dY * dY + dX * dX));
+                double dY = yError[i];
+                double dX = xError[i];
+                rms.add(Math.sqrt(dY * dY + dX * dX));
 
-            rmsMean += rms.get(i);
-            rowResidualMean += yError[i];
-            colResidualMean += xError[i];
+                rmsMean += rms.get(i);
+                rowResidualMean += yError[i];
+                colResidualMean += xError[i];
 
-            rms2Mean += rms.getQuick(i) * rms.getQuick(i);
-            yError2Mean += yError[i] * yError[i];
-            xError2Mean += xError[i] * xError[i];
+                rms2Mean += rms.getQuick(i) * rms.getQuick(i);
+                yError2Mean += yError[i] * yError[i];
+                xError2Mean += xError[i] * xError[i];
+            }
         }
 
         // means
