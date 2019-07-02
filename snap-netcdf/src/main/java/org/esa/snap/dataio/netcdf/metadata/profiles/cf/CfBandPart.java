@@ -59,7 +59,7 @@ public class CfBandPart extends ProfilePartIO {
 
     private static final DataTypeWorkarounds dataTypeWorkarounds = new DataTypeWorkarounds();
     private static final String NANO_METER = "nm";
-    private static UnitFormat unitFormatManager  = UnitFormatManager.instance();;
+    private static UnitFormat unitFormatManager = UnitFormatManager.instance();
 
     public static void readCfBandAttributes(Variable variable, RasterDataNode rasterDataNode) {
         rasterDataNode.setDescription(variable.getDescription());
@@ -126,8 +126,7 @@ public class CfBandPart extends ProfilePartIO {
         }
     }
 
-    public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) throws
-                                                                                                        IOException {
+    static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) throws IOException {
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final String dimensions = ncFile.getDimensions();
         for (RasterDataNode rasterDataNode : rasterDataNodes) {
@@ -159,30 +158,27 @@ public class CfBandPart extends ProfilePartIO {
                 final int[] sizeArray = new int[rank - 2];
                 final int startIndexToCopy = DimKey.findStartIndexOfBandVariables(dimensions);
                 System.arraycopy(variable.getShape(), startIndexToCopy, sizeArray, 0, sizeArray.length);
-                ForLoop.execute(sizeArray, new ForLoop.Body() {
-                    @Override
-                    public void execute(int[] indexes, int[] sizes) {
-                        final StringBuilder bandNameBuilder = new StringBuilder(bandBasename);
-                        for (int i = 0; i < sizes.length; i++) {
-                            final Dimension zDim = dimensions.get(i + startIndexToCopy);
-                            String zName = zDim.getShortName();
-                            final String skipPrefix = "n_";
-                            if (zName != null
+                ForLoop.execute(sizeArray, (indexes, sizes) -> {
+                    final StringBuilder bandNameBuilder = new StringBuilder(bandBasename);
+                    for (int i = 0; i < sizes.length; i++) {
+                        final Dimension zDim = dimensions.get(i + startIndexToCopy);
+                        String zName = zDim.getShortName();
+                        final String skipPrefix = "n_";
+                        if (zName != null
                                 && zName.toLowerCase().startsWith(skipPrefix)
                                 && zName.length() > skipPrefix.length()) {
-                                zName = zName.substring(skipPrefix.length());
-                            }
-                            if (zDim.getLength() > 1) {
-                                if (zName != null) {
-                                    bandNameBuilder.append(String.format("_%s%d", zName, (indexes[i] + 1)));
-                                } else {
-                                    bandNameBuilder.append(String.format("_%d", (indexes[i] + 1)));
-                                }
-                            }
-
+                            zName = zName.substring(skipPrefix.length());
                         }
-                        addBand(ctx, p, variable, indexes, bandNameBuilder.toString());
+                        if (zDim.getLength() > 1) {
+                            if (zName != null) {
+                                bandNameBuilder.append(String.format("_%s%d", zName, (indexes[i] + 1)));
+                            } else {
+                                bandNameBuilder.append(String.format("_%d", (indexes[i] + 1)));
+                            }
+                        }
+
                     }
+                    addBand(ctx, p, variable, indexes, bandNameBuilder.toString());
                 });
             }
         }
@@ -470,7 +466,7 @@ public class CfBandPart extends ProfilePartIO {
     }
 
     private String getAutoGrouping(ProfileReadContext ctx) {
-        ArrayList<String> bandNames = new ArrayList<String>();
+        ArrayList<String> bandNames = new ArrayList<>();
         for (final Variable variable : ctx.getRasterDigest().getRasterVariables()) {
             final List<Dimension> dimensions = variable.getDimensions();
             int rank = dimensions.size();
