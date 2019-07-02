@@ -91,22 +91,21 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         try{
-            final Object imageIOInput;
+            final File inputFile;
             if (input instanceof String){
-                imageIOInput = new File((String) input);
-            } else if (input instanceof File || input instanceof InputStream){
-                imageIOInput = input;
+                inputFile = new File((String) input);
+            } else if (input instanceof File){
+                inputFile = (File)input;
             } else{
                 return DecodeQualification.UNABLE;
             }
             if(input instanceof String || input instanceof File){
-                final String extension = FileUtils.getExtension((File)imageIOInput);
+                final String extension = FileUtils.getExtension(inputFile);
 
                 if (extension != null && extension.toUpperCase().equals(".ZIP")){
-                    return checkZIPFile(imageIOInput);
+                    return checkZIPFile(inputFile);
                 }
-                final String name = ((File) imageIOInput).getAbsolutePath();
-                return checkFileName(name);
+                return checkFileName(inputFile);
             }
 
             return DecodeQualification.UNABLE;
@@ -118,33 +117,29 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     // Additional helper functions for getDecodeQualification
-    private DecodeQualification checkFileName(String name){
-        if (!(name.toUpperCase().contains("ALOS2"))){
-            return DecodeQualification.UNABLE;
-        }
-        if ((name.toUpperCase().endsWith("TIF") || name.toUpperCase().endsWith("TIFF")) &&
-                (name.toUpperCase().contains("IMG-") &&
-                        (name.toUpperCase().contains("-HH-") ||
-                                name.toUpperCase().contains("-HV-") ||
-                                name.toUpperCase().contains("-VH-") ||
-                                name.toUpperCase().contains("-VV-")))){
+    private DecodeQualification checkFileName(File inputFile){
+        boolean hasValidImage = false;
+        boolean hasMetadata = false;
 
-            final File file = new File(name);
-            File[] files = file.getParentFile().listFiles();
-            if(files != null) {
-                for (File f : files) {
-                    String fname = f.getName().toLowerCase();
-                    if (fname.equals("summary.txt")) {
-                        // File name contains the right keywords, and the folder contains the metadata file.
-                        return DecodeQualification.INTENDED;
-                    }
+        final File[] files = inputFile.getParentFile().listFiles();
+        if(files != null) {
+            for (File f : files) {
+                String name = f.getName().toUpperCase();
+                if (name.equals("SUMMARY.TXT")) {
+                    // File name contains the right keywords, and the folder contains the metadata file.
+                    hasMetadata = true;
+                }
+                if (name.contains("ALOS2") && (name.endsWith("TIF") || name.endsWith("TIFF")) &&
+                        (name.contains("IMG-") &&
+                                (name.contains("-HH-") || name.contains("-HV-") || name.contains("-VH-") || name.contains("-VV-")))){
+                    hasValidImage = true;
                 }
             }
-            // No metadata file
-            return DecodeQualification.UNABLE;
-        } else{
-            return DecodeQualification.UNABLE;
         }
+        if(hasMetadata && hasValidImage)
+            return DecodeQualification.INTENDED;
+
+        return DecodeQualification.UNABLE;
     }
 
     private List<String> listFilesFromZipArchive(Path baseFile) throws IOException {

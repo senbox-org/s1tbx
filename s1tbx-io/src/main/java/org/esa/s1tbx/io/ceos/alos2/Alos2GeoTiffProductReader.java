@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos.alos2;
 
+import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
@@ -48,12 +49,14 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         geoTiffReader = ProductIO.getProductReader("GeoTiff");
 
     }
+
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
         File inputFile = ReaderUtils.getFileFromInput(getInput());
+        inputFile = findImageFile(inputFile);
         this.imageFileName = inputFile.getName();
-        if (inputFile.getPath().toUpperCase().endsWith("ZIP")){
+        if (inputFile.getPath().toUpperCase().endsWith("ZIP")) {
             ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
             final Enumeration<? extends ZipEntry> entries = productZip.entries();
             ArrayList<InputStream> bands = new ArrayList<>();
@@ -63,10 +66,10 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
                 final String name = zipEntry.getName().toLowerCase();
 
                 if (name.toUpperCase().contains("SUMMARY.TXT")) {
-                    this.metadataSummary =  metaDataFileToHashMap(productZip.getInputStream(zipEntry));
+                    this.metadataSummary = metaDataFileToHashMap(productZip.getInputStream(zipEntry));
 
                 }
-                if (name.toUpperCase().endsWith("TIF") || name.toUpperCase().endsWith("TIFF")){
+                if (name.toUpperCase().endsWith("TIF") || name.toUpperCase().endsWith("TIFF")) {
                     bands.add(productZip.getInputStream(zipEntry));
                     bandNames.add(name);
                 }
@@ -81,9 +84,9 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
                     ProductData.TYPE_FLOAT32,
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(),
-                    "Amplitude_" + polarization + " * Amplitude_" + polarization );
+                    "Amplitude_" + polarization + " * Amplitude_" + polarization);
             curBand_Intensity.setNoDataValue(0);
-            for (int x = 1; x < bands.size(); x++){
+            for (int x = 1; x < bands.size(); x++) {
                 Product nextBandProduct = geoTiffReader.readProductNodes(bands.get(x), null);
                 polarization = bandNames.get(x).substring(4, 6);
                 Band nextBand = nextBandProduct.getBands()[0];
@@ -94,13 +97,13 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
                         ProductData.TYPE_FLOAT32,
                         product.getSceneRasterWidth(),
                         product.getSceneRasterHeight(),
-                        "Amplitude_" + polarization + " * Amplitude_" + polarization );
+                        "Amplitude_" + polarization + " * Amplitude_" + polarization);
                 nextBand_Intensity.setNoDataValue(0);
                 product.addBand(nextBand_Intensity);
             }
 
 
-        } else{
+        } else {
             this.metadataSummary = metaDataFileToHashMap(inputFile.getParent() + "/summary.txt");
             product = geoTiffReader.readProductNodes(inputFile, null);
             Band curBand = product.getBands()[0];
@@ -113,15 +116,15 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
                     ProductData.TYPE_FLOAT32,
                     product.getSceneRasterWidth(),
                     product.getSceneRasterHeight(),
-                    "Amplitude_" + polarization + " * Amplitude_" + polarization );
+                    "Amplitude_" + polarization + " * Amplitude_" + polarization);
             curBand_Intensity.setNoDataValue(0);
             curBand_Intensity.setNoDataValueUsed(true);
             product.addBand(curBand_Intensity);
 
             // Read in all other bands
-            for (File f : inputFile.getParentFile().listFiles()){
-                if (f.getName().toUpperCase().endsWith("TIF") || f.getName().toUpperCase().endsWith("TIFF")){
-                    if (!(f.getName().equals(inputFile.getName()))){
+            for (File f : inputFile.getParentFile().listFiles()) {
+                if (f.getName().toUpperCase().endsWith("TIF") || f.getName().toUpperCase().endsWith("TIFF")) {
+                    if (!(f.getName().equals(inputFile.getName()))) {
                         Product nextBandProduct = geoTiffReader.readProductNodes(inputFile, null);
                         polarization = f.getName().substring(4, 6);
                         Band nextBand = nextBandProduct.getBands()[0];
@@ -150,6 +153,25 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         addOriginalMetaData(product);
 
         return product;
+    }
+
+    private File findImageFile(File inputFile) {
+        if(inputFile.getName().toLowerCase().endsWith(".zip")) {
+            return inputFile;
+        }
+
+        final File[] files = inputFile.getParentFile().listFiles();
+        if (files != null) {
+            for (File f : files) {
+                String name = f.getName().toUpperCase();
+                if (name.contains("ALOS2") && (name.endsWith("TIF") || name.endsWith("TIFF")) &&
+                        (name.contains("IMG-") &&
+                                (name.contains("-HH-") || name.contains("-HV-") || name.contains("-VH-") || name.contains("-VV-")))) {
+                    return f;
+                }
+            }
+        }
+        return null;
     }
 
     // Metadata reading with path to metadata file
@@ -190,7 +212,6 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     }
 
 
-
     private float getRangeSpacing() {
         return Float.parseFloat(metadataSummary.get("Pds_PixelSpacing"));
     }
@@ -198,8 +219,6 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     private float getAzimuthSpacing() {
         return Float.parseFloat(metadataSummary.get("Pds_PixelSpacing"));
     }
-
-
 
 
     // Confirmed methods
@@ -296,7 +315,6 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(product.getMetadataRoot());
 
 
-
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProduct());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, getProductType());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
@@ -329,7 +347,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, getNumOutputLines());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, getNumSamplesPerLine());
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime );
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, endTime);
 
 
@@ -340,7 +358,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
 
     }
 
-    public void addOriginalMetaData(Product product){
+    public void addOriginalMetaData(Product product) {
 
         final MetadataElement origRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
         for (Object o : this.metadataSummary.entrySet()) {
