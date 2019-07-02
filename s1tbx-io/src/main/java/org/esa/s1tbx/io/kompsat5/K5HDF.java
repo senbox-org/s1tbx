@@ -92,6 +92,7 @@ public class K5HDF implements K5Format {
 
         final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
         final Variable[] rasterVariables = getRasterVariables(variableListMap, rasterDim);
+        final Variable gimVariable = getGIMVariable(variableListMap, rasterDim);
         final Variable[] tiePointGridVariables = NetCDFUtils.getTiePointGridVariables(variableListMap, rasterVariables);
 
         this.netcdfFile = netcdfFile;
@@ -116,7 +117,7 @@ public class K5HDF implements K5Format {
 
         addMetadataToProduct();
         addBandsToProduct(rasterVariables);
-        addTiePointGridsToProduct(tiePointGridVariables);
+        addTiePointGridsToProduct(tiePointGridVariables, gimVariable);
         addGeoCodingToProduct(product, rasterDim);
         addSlantRangeToFirstPixel();
         addFirstLastLineTimes(product, rasterHeight);
@@ -141,11 +142,22 @@ public class K5HDF implements K5Format {
         final List<Variable> varList = variableLists.get(rasterDim);
         final List<Variable> list = new ArrayList<>(5);
         for (Variable var : varList) {
-            if (!var.getShortName().equals("GIM")) {
+            //if (!var.getShortName().equals("GIM")) {
                 list.add(var);
-            }
+            //}
         }
         return list.toArray(new Variable[list.size()]);
+    }
+
+    private static Variable getGIMVariable(Map<NcRasterDim, List<Variable>> variableLists,
+                                                 NcRasterDim rasterDim) {
+        final List<Variable> varList = variableLists.get(rasterDim);
+        for (Variable var : varList) {
+            if (var.getShortName().equals("GIM")) {
+                return var;
+            }
+        }
+        return null;
     }
 
     private static void removeQuickLooks(Map<NcRasterDim, List<Variable>> variableListMap) {
@@ -542,6 +554,18 @@ public class K5HDF implements K5Format {
         for (Variable variable : variables) {
             final int height = variable.getDimension(0).getLength();
             final int width = variable.getDimension(1).getLength();
+            if(variable.getShortName().contains("GIM")) {
+                final Band band = useFloatBands ?
+                        NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_UINT16) :
+                        NetCDFUtils.createBand(variable, width, height);
+                createUniqueBandName(product, band, "GIM");
+                band.setNoDataValue(255);
+                band.setNoDataValueUsed(true);
+                product.addBand(band);
+                bandMap.put(band, variable);
+                continue;
+            }
+
             String cntStr = "";
             final String polStr = getPolarization(product, cnt);
             if (polStr != null) {
@@ -617,7 +641,7 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private void addTiePointGridsToProduct(final Variable[] variables) {
+    private void addTiePointGridsToProduct(final Variable[] variables, final Variable gimVariable) {
 //        for (Variable variable : variables) {
 //            final int rank = variable.getRank();
 //            final int gridWidth = variable.getDimension(rank - 1).getLength();
