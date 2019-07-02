@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.io.ceos.alos2;
 
-import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
@@ -152,11 +151,13 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         addAbstractedMetadata(product);
         addOriginalMetaData(product);
 
+        addGeoCoding(product, metadataSummary);
+
         return product;
     }
 
     private File findImageFile(File inputFile) {
-        if(inputFile.getName().toLowerCase().endsWith(".zip")) {
+        if (inputFile.getName().toLowerCase().endsWith(".zip")) {
             return inputFile;
         }
 
@@ -358,12 +359,42 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
 
     }
 
-    public void addOriginalMetaData(Product product) {
+    private void addOriginalMetaData(Product product) {
 
         final MetadataElement origRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
         for (Object o : this.metadataSummary.entrySet()) {
             Map.Entry pair = (Map.Entry) o;
             AbstractMetadata.setAttribute(origRoot, (String) pair.getKey(), (String) pair.getValue());
         }
+    }
+
+    private void addGeoCoding(final Product product, final Map<String, String> metadataSummary) {
+        if (product.getSceneGeoCoding() != null) {
+            return;
+        }
+
+        final float latUL = Float.parseFloat(metadataSummary.get("Img_ImageSceneLeftTopLatitude"));
+        final float lonUL = Float.parseFloat(metadataSummary.get("Img_ImageSceneLeftTopLongitude"));
+        final float latUR = Float.parseFloat(metadataSummary.get("Img_ImageSceneRightTopLatitude"));
+        final float lonUR = Float.parseFloat(metadataSummary.get("Img_ImageSceneRightTopLongitude"));
+        final float latLL = Float.parseFloat(metadataSummary.get("Img_ImageSceneLeftBottomLatitude"));
+        final float lonLL = Float.parseFloat(metadataSummary.get("Img_ImageSceneLeftBottomLongitude"));
+        final float latLR = Float.parseFloat(metadataSummary.get("Img_ImageSceneRightBottomLatitude"));
+        final float lonLR = Float.parseFloat(metadataSummary.get("Img_ImageSceneRightBottomLongitude"));
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        absRoot.setAttributeDouble(AbstractMetadata.first_near_lat, latUL);
+        absRoot.setAttributeDouble(AbstractMetadata.first_near_long, lonUL);
+        absRoot.setAttributeDouble(AbstractMetadata.first_far_lat, latUR);
+        absRoot.setAttributeDouble(AbstractMetadata.first_far_long, lonUR);
+        absRoot.setAttributeDouble(AbstractMetadata.last_near_lat, latLL);
+        absRoot.setAttributeDouble(AbstractMetadata.last_near_long, lonLL);
+        absRoot.setAttributeDouble(AbstractMetadata.last_far_lat, latLR);
+        absRoot.setAttributeDouble(AbstractMetadata.last_far_long, lonLR);
+
+        final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
+        final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
+
+        ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
     }
 }
