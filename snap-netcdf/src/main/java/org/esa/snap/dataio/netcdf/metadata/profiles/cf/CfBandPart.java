@@ -59,7 +59,7 @@ public class CfBandPart extends ProfilePartIO {
 
     private static final DataTypeWorkarounds dataTypeWorkarounds = new DataTypeWorkarounds();
     private static final String NANO_METER = "nm";
-    private static UnitFormat unitFormatManager  = UnitFormatManager.instance();
+    private static UnitFormat unitFormatManager = UnitFormatManager.instance();
 
     public static void readCfBandAttributes(Variable variable, RasterDataNode rasterDataNode) {
         rasterDataNode.setDescription(variable.getDescription());
@@ -216,9 +216,8 @@ public class CfBandPart extends ProfilePartIO {
             final Band band;
             if (variable.getGroup().isRoot()) {
                 band = p.addBand(bandBasename, rasterDataType);
-            }
-            else {
-                band = p.addBand(bandBasename+"_"+variable.getGroup().getName(), rasterDataType);
+            } else {
+                band = p.addBand(bandBasename + "_" + variable.getGroup().getName(), rasterDataType);
             }
             readCfBandAttributes(variable, band);
             band.setSourceImage(new NetcdfMultiLevelImage(band, variable, origin, ctx));
