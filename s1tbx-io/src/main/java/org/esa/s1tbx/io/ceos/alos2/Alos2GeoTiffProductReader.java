@@ -59,10 +59,9 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
             ArrayList<InputStream> bands = new ArrayList<>();
             ArrayList<String> bandNames = new ArrayList<>();
             while (entries.hasMoreElements()) {
-                System.out.println("enumerater");
                 final ZipEntry zipEntry = entries.nextElement();
                 final String name = zipEntry.getName().toLowerCase();
-                System.out.println(name);
+
                 if (name.toUpperCase().contains("SUMMARY.TXT")) {
                     this.metadataSummary =  metaDataFileToHashMap(productZip.getInputStream(zipEntry));
 

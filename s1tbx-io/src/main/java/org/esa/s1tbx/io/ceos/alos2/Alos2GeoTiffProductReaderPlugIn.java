@@ -15,6 +15,8 @@
  */
 package org.esa.s1tbx.io.ceos.alos2;
 
+import com.sun.nio.zipfs.ZipFileSystem;
+import com.sun.nio.zipfs.ZipFileSystemProvider;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
@@ -24,13 +26,67 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.Map;
 
 public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     private static final String[] FORMAT_NAMES = new String[]{"ALOS-2 GeoTIFF"};
+
+    private static final ZipFileSystemProvider ZIP_FILE_SYSTEM_PROVIDER = getZipFileSystemProvider();
+    private static final Constructor<ZipFileSystem> ZIP_FILE_SYSTEM_CONSTRUCTOR;
+
+    static {
+        try {
+            Constructor<ZipFileSystem> constructor = ZipFileSystem.class.getDeclaredConstructor(ZipFileSystemProvider.class, Path.class, Map.class);
+            constructor.setAccessible(true);
+            ZIP_FILE_SYSTEM_CONSTRUCTOR = constructor;
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static ZipFileSystemProvider getZipFileSystemProvider() {
+        for (FileSystemProvider fsr : FileSystemProvider.installedProviders()) {
+            if (fsr instanceof ZipFileSystemProvider)
+                return (ZipFileSystemProvider) fsr;
+        }
+        throw new FileSystemNotFoundException("The zip file system provider is not installed!");
+    }
+
+    private static FileSystem newZipFileSystem(Path zipPath) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        if (zipPath.getFileSystem() instanceof ZipFileSystem) {
+            throw new IllegalArgumentException("Can't create a ZIP file system nested in a ZIP file system. (" + zipPath + " is nested in " + zipPath.getFileSystem() + ")");
+        }
+        return ZIP_FILE_SYSTEM_CONSTRUCTOR.newInstance(ZIP_FILE_SYSTEM_PROVIDER, zipPath, Collections.emptyMap());
+    }
+
+    public static Path convertInputToPath(Object input) {
+        if (input == null) {
+            throw new NullPointerException();
+        } else if (input instanceof File) {
+            return ((File) input).toPath();
+        } else if (input instanceof Path) {
+            return (Path) input;
+        } else if (input instanceof String) {
+            return Paths.get((String) input);
+        } else {
+            throw new IllegalArgumentException("Unknown input '" + input + "'.");
+        }
+    }
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
@@ -91,26 +147,52 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         }
     }
 
+    private List<String> listFilesFromZipArchive(Path baseFile) throws IOException {
+        List<String> filesAndFolders = new ArrayList<>();
+        try (FileSystem fileSystem = newZipFileSystem(baseFile)) {
+            for (Path root : fileSystem.getRootDirectories()) {
+                FileVisitor<Path> visitor = new ListFilesAndFolderVisitor() {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                        if (root.equals(dir)) {
+                            return FileVisitResult.CONTINUE;
+                        } else {
+                            String zipEntryPath = remoteFirstSeparatorIfExists(root.relativize(dir).toString());
+                            filesAndFolders.add(zipEntryPath);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    }
+
+                    private String remoteFirstSeparatorIfExists(String zipEntryPath) {
+                        if (zipEntryPath.startsWith("/")) {
+                            return zipEntryPath.substring(1);
+                        }
+                        return zipEntryPath;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        String zipEntryPath = remoteFirstSeparatorIfExists(file.toString());
+                        filesAndFolders.add(zipEntryPath);
+                        return FileVisitResult.CONTINUE;
+                    }
+                };
+                Files.walkFileTree(root, visitor);
+            }
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            throw new IllegalStateException(e);
+        }
+        return filesAndFolders;
+    }
+
     private DecodeQualification checkZIPFile(Object input) throws IOException {
-        final Object imageIOInput;
-        if (input instanceof String){
-            imageIOInput = new ZipFile((String) input);
-        }else if (input instanceof File){
-            imageIOInput = new ZipFile((File) input);
-        } else if (input instanceof ZipFile) {
-            imageIOInput = input;
-        }
-        else{
-            return DecodeQualification.UNABLE;
-        }
-        ZipFile zipFile = (ZipFile) imageIOInput;
-        Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+        Path imageIOInputPath = convertInputToPath(input);
+        List<String> zipContents = listFilesFromZipArchive(imageIOInputPath);
         boolean hasValidImage = false;
         boolean hasMetadata = false;
 
-        while (zipEntries.hasMoreElements()) {
-            ZipEntry e = zipEntries.nextElement();
-            String name = e.getName().toUpperCase();
+        for (String zipContent : zipContents) {
+            String name = zipContent.toUpperCase();
             if ((name.endsWith("TIF") || name.endsWith("TIFF")) &&
                     (name.startsWith("IMG-") &&
                             (name.contains("-HH-") ||
@@ -168,5 +250,21 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     public SnapFileFilter getProductFileFilter() {
         return new SnapFileFilter(FORMAT_NAMES[0], getDefaultFileExtensions(), getDescription(null));
 
+    }
+
+    private abstract class ListFilesAndFolderVisitor implements FileVisitor<Path> {
+
+        ListFilesAndFolderVisitor() {
+        }
+
+        @Override
+        public final FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public final FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            return FileVisitResult.CONTINUE;
+        }
     }
 }
