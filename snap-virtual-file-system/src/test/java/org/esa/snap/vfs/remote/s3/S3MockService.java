@@ -90,8 +90,7 @@ class S3MockService {
                         response = getXMLResponse(uriPath, httpExchange.getRequestURI().getQuery());
                         contentType = "application/xml";
                     } else {
-                        response = "Not Found".getBytes();
-                        httpStatus = HttpURLConnection.HTTP_NOT_FOUND;
+                        response = "".getBytes();
                     }
                 } else if (Files.isRegularFile(responsePath) && !uriPath.endsWith("/")) {
                     response = readFile(responsePath);
