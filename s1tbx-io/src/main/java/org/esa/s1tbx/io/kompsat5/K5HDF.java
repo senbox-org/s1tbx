@@ -377,9 +377,18 @@ public class K5HDF implements K5Format {
         addOrbitStateVectors(absRoot, globalElem);
     }
 
+    private Band getNonGIMBand() {
+        for(Band band : product.getBands()) {
+            if(!band.getName().equals("GIM")) {
+                return band;
+            }
+        }
+        return product.getBandAt(0);
+    }
+
     private void addSlantRangeToFirstPixel() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement bandElem = getBandElement(product.getBandAt(0));
+        final MetadataElement bandElem = getBandElement(getNonGIMBand());
         if (bandElem != null) {
             final double slantRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0); //s
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
@@ -456,7 +465,7 @@ public class K5HDF implements K5Format {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
-        final MetadataElement bandElem = getBandElement(product.getBandAt(0));
+        final MetadataElement bandElem = getBandElement(getNonGIMBand());
 
         if (bandElem != null) {
             final double referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat).getMJD(); // in days
@@ -508,7 +517,7 @@ public class K5HDF implements K5Format {
 
         final double referenceRange = attribute.getData().getElemDouble();
 
-        final MetadataElement bandElem = getBandElement(product.getBandAt(0));
+        final MetadataElement bandElem = getBandElement(getNonGIMBand());
         final double rangeSpacing = bandElem.getAttributeDouble("Column_Spacing", AbstractMetadata.NO_METADATA);
 
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
@@ -655,7 +664,7 @@ public class K5HDF implements K5Format {
 //            product.addTiePointGrid(tpg);
 //        }
 
-        final MetadataElement bandElem = getBandElement(product.getBandAt(0));
+        final MetadataElement bandElem = getBandElement(getNonGIMBand());
         addIncidenceAnglesSlantRangeTime(product, bandElem);
         addGeocodingFromMetadata(product, bandElem);
     }
