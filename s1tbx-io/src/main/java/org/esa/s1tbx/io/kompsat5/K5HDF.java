@@ -561,6 +561,7 @@ public class K5HDF implements K5Format {
                 createUniqueBandName(product, band, "GIM");
                 band.setNoDataValue(255);
                 band.setNoDataValueUsed(true);
+                band.setUnit(Unit.DEGREES);
                 product.addBand(band);
                 bandMap.put(band, variable);
                 continue;
