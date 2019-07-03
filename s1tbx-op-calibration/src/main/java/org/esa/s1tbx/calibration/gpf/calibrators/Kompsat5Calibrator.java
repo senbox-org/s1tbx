@@ -18,10 +18,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
@@ -29,10 +26,13 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.datamodel.Unit.UnitType;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Calibration for Kompsat-5 data products.
@@ -51,6 +51,12 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private boolean highResolutionMode = false;
+    private double gimRescalingFactor = 0.0;
+    private double gimOffset = 0.0;
+    private Band gimBand = null;
+    private TiePointGrid incidenceAngleTPG = null;
+
+    private static final String GIM_BAND_NAME = "GIM";
 
     /**
      * Default constructor. The graph processing framework
@@ -119,9 +125,15 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("Only High Resolution and Standard modes are currently supported");
             }
 
-            // todo: the incidence angle should be computed using information from the GIM layer
             referenceIncidenceAngle = absRoot.getAttributeDouble(
                     AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
+
+            gimBand = sourceProduct.getBand(GIM_BAND_NAME);
+            if (gimBand == null) {
+                incidenceAngleTPG = OperatorUtils.getIncidenceAngle(sourceProduct);
+            } else {
+                getGIMParameters();
+            }
 
             rescalingFactor = absRoot.getAttributeDouble(AbstractMetadata.rescaling_factor);
             if (rescalingFactor == 0.0) {
@@ -130,8 +142,10 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
             getCalibrationConstant();
 
-            calibrationFactor = rescalingFactor * rescalingFactor * calibrationConstant * referenceIncidenceAngle /
-                    FastMath.cos(referenceIncidenceAngle);
+            calibrationFactor = rescalingFactor * rescalingFactor * calibrationConstant;
+            if (highResolutionMode) {
+                calibrationFactor /= cellSize;
+            }
 
             windowSize = 9; // hardcoded for now
             halfWindowSize = windowSize / 2;
@@ -147,6 +161,37 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
+    }
+
+    @Override
+    protected Band[] getSourceBands(
+            final Product sourceProduct, String[] sourceBandNames, final boolean includeVirtualBands)
+            throws OperatorException {
+
+        if (sourceBandNames == null || sourceBandNames.length == 0) {
+            final Band[] bands = sourceProduct.getBands();
+            final java.util.List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
+            for (Band band : bands) {
+                if ((!(band instanceof VirtualBand) || includeVirtualBands) && !band.getName().equals(GIM_BAND_NAME))
+                    bandNameList.add(band.getName());
+            }
+            sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
+        }
+
+        final List<Band> sourceBandList = new ArrayList<>(sourceBandNames.length);
+        for (final String sourceBandName : sourceBandNames) {
+            final Band sourceBand = sourceProduct.getBand(sourceBandName);
+            if (sourceBand != null) {
+                sourceBandList.add(sourceBand);
+            }
+        }
+        return sourceBandList.toArray(new Band[sourceBandList.size()]);
+    }
+
+    private void getGIMParameters() {
+        final MetadataElement gimElem = origMetadataRoot.getElement("GIM");
+        gimOffset = gimElem.getAttributeDouble("Offset");
+        gimRescalingFactor = gimElem.getAttributeDouble("Rescaling_Factor");
     }
 
     private double computeCellSize() {
@@ -216,11 +261,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        sigma *= calibrationFactor;
-
-        if (highResolutionMode) {
-            sigma /= cellSize;
-        }
+        sigma *= calibrationFactor * Math.sin(localIncidenceAngle*Constants.DTOR);
 
         if (outputImageScaleInDb) { // convert calibration result to dB
             if (sigma < underFlowFloat) {
@@ -268,6 +309,13 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
+        Tile gimBandTile = null;
+        ProductData gimBandData = null;
+        if (gimBand != null) {
+            gimBandTile = calibrationOp.getSourceTile(gimBand, sourceRectangle);
+            gimBandData = gimBandTile.getDataBuffer();
+        }
+
         final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
         final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
@@ -290,17 +338,13 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 final int srcIdx = srcIndex.getIndex(x);
                 final int tgtIdx = tgtIndex.getIndex(x);
 
-                final double dn2Mean = getMeanDN2(x, y, srcData1, srcData2, srcIndex, srcBandUnit, noDataValue);
+                final double dn2Mean = getMeanDN2(x, y, srcData1, srcData2, gimBandData, srcIndex, srcBandUnit, noDataValue);
                 if(noDataValue.equals(dn2Mean)) {
                     tgtData.setElemDoubleAt(tgtIdx, noDataValue);
                     continue;
                 }
 
                 double sigma = dn2Mean * calibrationFactor;
-
-                if (highResolutionMode) {
-                    sigma /= cellSize;
-                }
 
                 if (isComplex && outputImageInComplex) {
                     if (srcBandUnit == Unit.UnitType.REAL) {
@@ -343,7 +387,8 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     }
 
     private double getMeanDN2(final int x, final int y, final ProductData srcData1, ProductData srcData2,
-                              final TileIndex srcIndex, final Unit.UnitType srcBandUnit, final double noDataValue) {
+                              final ProductData gimBandData, final TileIndex srcIndex, final Unit.UnitType srcBandUnit,
+                              final double noDataValue) {
 
         final int xMin = Math.max(0, x - halfWindowSize);
         final int yMin = Math.max(0, y - halfWindowSize);
@@ -369,7 +414,8 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                     dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0);
                 }
 
-                dn2Sum += dn2;
+                final double incidenceAngle = getIncidenceAngle(xx, yy, gimBandData, srcIdx)*Constants.DTOR;
+                dn2Sum += dn2 * Math.sin(incidenceAngle);
                 count++;
             }
         }
@@ -378,6 +424,16 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             return dn2Sum / count;
         }
         return noDataValue;
+    }
+
+    private double getIncidenceAngle(final int x, final int y, final ProductData gimBandData, final int srcIdx) {
+
+        if (gimBand != null) {
+            final double gim = gimBandData.getElemDoubleAt(srcIdx);
+            return gim*gimRescalingFactor - gimOffset;
+        } else {
+            return incidenceAngleTPG.getPixelDouble(x, y);
+        }
     }
 
     public void removeFactorsForCurrentTile(Band targetBand, Tile targetTile,
