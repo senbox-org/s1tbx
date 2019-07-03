@@ -25,6 +25,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.gpf.OperatorException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
@@ -233,6 +234,29 @@ public class CollocateOpTest {
         assertArrayEquals(new String[]{"*nadir*_M"}, autoGrouping.get(0));
         assertArrayEquals(new String[]{"*fward*_M"}, autoGrouping.get(1));
         assertArrayEquals(new String[]{"*radiance*_S"}, autoGrouping.get(2));
+    }
+
+    @Test
+    public void testCollocate_failsWhenSlaveRenamingPatternIsMissing() {
+        final Product masterProduct = createTestProduct1();
+        final Product slaveProduct = createTestProduct1();
+
+        CollocateOp op = new CollocateOp();
+        op.setParameterDefaultValues();
+        op.setRenameSlaveComponents(false);
+        op.setSlaveComponentPattern("");
+
+        op.setMasterProduct(masterProduct);
+        op.setSlaveProduct(slaveProduct);
+
+        try {
+            op.getTargetProduct();
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("Target product already contains a raster data node with name 'latitude'. " +
+                    "Parameter slaveComponentPattern must be set.",
+                    oe.getMessage());
+        }
     }
 
     private static float[] wl = new float[]{

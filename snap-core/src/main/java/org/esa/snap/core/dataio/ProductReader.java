@@ -27,6 +27,9 @@ import java.io.IOException;
  * Classes implementing the {@code ProductReader} interface know how to create an in-memory representation of a
  * given data product as input source.
  *
+ * Consider reading the developer guide when implementing a new product reader in the wiki:<br>
+ * <a href="https://senbox.atlassian.net/wiki/spaces/SNAP/pages/10584125/How+to+create+a+new+product+reader">How to create a new product reader</a>
+ *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @see ProductWriter

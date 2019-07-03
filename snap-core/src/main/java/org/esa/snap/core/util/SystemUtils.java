@@ -24,6 +24,8 @@ import org.geotools.util.logging.LoggerFactory;
 import org.geotools.util.logging.Logging;
 
 import javax.media.jai.JAI;
+import javax.media.jai.OperationRegistry;
+import javax.media.jai.util.ImagingListener;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -107,7 +109,6 @@ public class SystemUtils {
      * "http://sentinel.esa.int".
      *
      * @return the application homepage url
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
@@ -118,7 +119,6 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -129,7 +129,6 @@ public class SystemUtils {
      * Gets the auxdata directory which stores dems, orbits, rgb profiles, etc.
      *
      * @return the auxiliary data directory
-     *
      * @since SNAP 2.0
      */
     public static Path getAuxDataPath() {
@@ -144,7 +143,6 @@ public class SystemUtils {
      * (or Java system property).
      *
      * @return the cache directory
-     *
      * @since SNAP 2
      */
     public static File getCacheDir() {
@@ -159,7 +157,6 @@ public class SystemUtils {
      * Gets the default SNAP cache directory.
      *
      * @return the default cache directory
-     *
      * @see #getCacheDir()
      */
     public static File getDefaultCacheDir() {
@@ -171,7 +168,6 @@ public class SystemUtils {
      *
      * @param force if true, the directory will be created if it didn't exist before
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
@@ -188,7 +184,6 @@ public class SystemUtils {
      * the string "snap" is used.
      *
      * @return The application context ID.
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
@@ -202,7 +197,6 @@ public class SystemUtils {
      * the string "SNAP" is used.
      *
      * @return The application name.
-     *
      * @see #getApplicationContextId()
      * @since BEAM 4.10
      */
@@ -261,7 +255,6 @@ public class SystemUtils {
      *
      * @param aClass The class.
      * @return the file name of the given class
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -282,13 +275,12 @@ public class SystemUtils {
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
      * @return a path string with all occurrences of '/'
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
@@ -406,6 +398,8 @@ public class SystemUtils {
 
         // disable unwanted logging messages from hsqldb
         System.setProperty("hsqldb.db.level", Level.WARNING.getName());
+
+        SnapImagingListener.registerAt(JAI.getDefaultInstance());
     }
 
     public static void initJAI(Class<?> cls) {
@@ -434,7 +428,7 @@ public class SystemUtils {
         long OneMiB = 1024L * 1024L;
 
         JAI.enableDefaultTileCache();
-        Long size = Config.instance().preferences().getLong("snap.jai.tileCacheSize", 1024L) * OneMiB;
+        long size = Config.instance().preferences().getLong("snap.jai.tileCacheSize", 1024L) * OneMiB;
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(size);
 
         final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / OneMiB;
@@ -447,11 +441,7 @@ public class SystemUtils {
         JAI.getDefaultInstance().setRenderingHint(JAI.KEY_CACHED_TILE_RECYCLING_ENABLED, Boolean.TRUE);
         LOG.fine("JAI tile recycling enabled");
 
-        JAI.getDefaultInstance().setImagingListener((message, thrown, where, isRetryable) -> {
-            String logMsg = String.format("JAI error occurred: '%s' at %s", message, where);
-            LOG.log(Level.SEVERE, logMsg, thrown);
-            return false;
-        });
+        SnapImagingListener.registerAt(JAI.getDefaultInstance());
 
     }
 
@@ -552,7 +542,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                                                                IOException {
+                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
@@ -627,4 +617,35 @@ public class SystemUtils {
             return logger;
         }
     }
+
+    // See GeoTools mailing list - https://sourceforge.net/p/geotools/mailman/message/36694323/
+    private static class SnapImagingListener implements ImagingListener {
+
+        private static SnapImagingListener internal = new SnapImagingListener();
+
+        private static void registerAt(JAI instance) {
+            if (!(JAI.getDefaultInstance().getImagingListener() instanceof SnapImagingListener)) {
+                instance.setImagingListener(internal);
+            }
+        }
+
+        @Override
+        public boolean errorOccurred(String message, Throwable thrown, Object where,
+                                     boolean isRetryable) throws RuntimeException {
+            // This is the same code as in the PR https://github.com/geotools/geotools/pull/2462
+            String logMsg = String.format("JAI error occurred: '%s' at %s", message, where);
+            if (message.contains("Continuing in pure Java mode")) {
+                LOG.log(Level.FINER, logMsg, thrown);
+                return false;
+            } else {
+                LOG.log(Level.SEVERE, logMsg, thrown);
+                if (thrown instanceof RuntimeException && !(where instanceof OperationRegistry)) {
+                    throw (RuntimeException) thrown;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
 }
