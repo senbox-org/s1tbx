@@ -65,7 +65,7 @@ public class TestTerrainFlatteningOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 1.0106784f, 1.3002554f, 0.2714007f, 0.11220895f };
+        final float[] expected = new float[] { 1.0176053f, 1.2958086f, 0.2745571f, 0.111505456f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 200, 200, expected);
     }
 
