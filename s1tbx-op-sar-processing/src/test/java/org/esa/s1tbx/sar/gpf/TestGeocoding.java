@@ -21,6 +21,8 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -34,8 +36,10 @@ public class TestGeocoding {
         TestUtils.initTestEnvironment();
     }
 
-    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported"};
+    @Before
+    public void setup() {
+        Assume.assumeTrue("Input file does not exist - Skipping test", TestData.inputASAR_WSM.exists());
+    }
 
     /**
      * Processes a product and compares it to processed product known to be correct
@@ -73,6 +77,4 @@ public class TestGeocoding {
         System.out.println("\nerrorX=" + errorX);
         System.out.println("errorY=" + errorY);
     }
-
-
 }

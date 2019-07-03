@@ -25,6 +25,8 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -99,6 +101,7 @@ public class TestMultilookOperator {
      */
     @Test
     public void testProcessing() throws Exception {
+        Assume.assumeTrue("Input file does not exist - Skipping test", TestData.inputASAR_WSM.exists());
         final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
             TestUtils.skipTest(this, inputFile + " not found");

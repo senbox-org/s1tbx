@@ -17,11 +17,13 @@ package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,6 +50,7 @@ public class TestDeburstOperator {
      */
     @Test
     public void testProcessing() throws Exception {
+        Assume.assumeTrue("Input file does not exist - Skipping test", inputFile.exists());
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final TOPSARDeburstOp op = new TOPSARDeburstOp();
