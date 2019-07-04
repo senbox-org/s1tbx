@@ -118,7 +118,7 @@ class TiffToProductMetadataConverter {
         ProductData value;
         String epsgCodeName = EPSGCodes.getInstance().getName(geoKeyEntry.getIntValue());
         if (epsgCodeName == null) {
-            value = ProductData.createInstance(geoKeyEntry.getIntValue());
+            value = ProductData.createInstance(new int[]{geoKeyEntry.getIntValue()});
         } else {
             value = ProductData.createInstance(epsgCodeName);
         }

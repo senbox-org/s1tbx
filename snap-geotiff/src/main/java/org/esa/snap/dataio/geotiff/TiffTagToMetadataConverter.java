@@ -93,8 +93,6 @@ class TiffTagToMetadataConverter {
                     final MetadataAttribute attribute = new MetadataAttribute(name, data, true);
                     geoKeyDirMetadata.addAttribute(attribute);
                 }
-            } else {
-                // Log a warning?
             }
         }
 
@@ -149,7 +147,7 @@ class TiffTagToMetadataConverter {
         ProductData value;
         String epsgCodeName = EPSGCodes.getInstance().getName(geoKeyEntry.getIntValue());
         if (epsgCodeName == null) {
-            value = ProductData.createInstance(geoKeyEntry.getIntValue());
+            value = ProductData.createInstance(new int[]{geoKeyEntry.getIntValue()});
         } else {
             value = ProductData.createInstance(epsgCodeName);
         }
