@@ -68,8 +68,8 @@ public class TestSARSimulationOp {
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
         final float[] expected = new float[] {
-                0.006285298f, 0.0017749781f, 0.004433623f, 0.0032956812f };
-        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
+                19.126774f, 43.85802f, 11.593393f, 8.003627f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 385,200, expected);
     }
 
     @Test
