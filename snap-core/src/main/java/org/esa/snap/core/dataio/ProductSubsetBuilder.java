@@ -83,17 +83,19 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             final double srcLastLineTime = ProductData.UTC.parse(srcAbsRoot.getAttributeString("last_line_time")).getMJD(); // in days
             final double lineTimeInterval = (srcLastLineTime - srcFirstLineTime) / (sourceImageHeight - 1); // in days
             final Rectangle region = subsetDef.getRegion();
-            final int regionY = region.y;
-            final double regionHeight = region.getHeight();
-            final double newFirstLineTime = srcFirstLineTime + lineTimeInterval * regionY;
-            final double newLastLineTime = newFirstLineTime + lineTimeInterval * (regionHeight - 1);
-            final MetadataAttribute firstLineTime = trgAbsRoot.getAttribute("first_line_time");
-            if (firstLineTime != null) {
-                firstLineTime.getData().setElems((new ProductData.UTC(newFirstLineTime)).getArray());
-            }
-            final MetadataAttribute lastLineTime = trgAbsRoot.getAttribute("last_line_time");
-            if (lastLineTime != null) {
-                lastLineTime.getData().setElems((new ProductData.UTC(newLastLineTime)).getArray());
+            if(region != null) {
+                final int regionY = region.y;
+                final double regionHeight = region.getHeight();
+                final double newFirstLineTime = srcFirstLineTime + lineTimeInterval * regionY;
+                final double newLastLineTime = newFirstLineTime + lineTimeInterval * (regionHeight - 1);
+                final MetadataAttribute firstLineTime = trgAbsRoot.getAttribute("first_line_time");
+                if (firstLineTime != null) {
+                    firstLineTime.getData().setElems((new ProductData.UTC(newFirstLineTime)).getArray());
+                }
+                final MetadataAttribute lastLineTime = trgAbsRoot.getAttribute("last_line_time");
+                if (lastLineTime != null) {
+                    lastLineTime.getData().setElems((new ProductData.UTC(newLastLineTime)).getArray());
+                }
             }
 
             final MetadataAttribute totalSize = trgAbsRoot.getAttribute("total_size");
@@ -129,28 +131,28 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 width.getData().setElemUInt(targetProduct.getSceneRasterWidth());
 
             final MetadataAttribute offsetX = trgAbsRoot.getAttribute("subset_offset_x");
-            if(offsetX != null && subsetDef.getRegion() != null)
-                offsetX.getData().setElemUInt(subsetDef.getRegion().x);
+            if(offsetX != null && region != null)
+                offsetX.getData().setElemUInt(region.x);
 
             final MetadataAttribute offsetY = trgAbsRoot.getAttribute("subset_offset_y");
-            if(offsetY != null && subsetDef.getRegion() != null)
-                offsetY.getData().setElemUInt(subsetDef.getRegion().y);
+            if(offsetY != null && region != null)
+                offsetY.getData().setElemUInt(region.y);
 
             final MetadataAttribute slantRange = trgAbsRoot.getAttribute("slant_range_to_first_pixel");
             if(slantRange != null) {
                 final TiePointGrid srTPG = targetProduct.getTiePointGrid("slant_range_time");
-                if(srTPG != null) {
+                if(srTPG != null && region != null) {
                     final boolean srgrFlag = srcAbsRoot.getAttributeInt("srgr_flag") != 0;
                     double slantRangeDist;
                     if (srgrFlag) {
                         final double slantRangeTime;
                         if (nearRangeOnLeft) {
                             slantRangeTime = srTPG.getPixelDouble(
-                                    subsetDef.getRegion().x, subsetDef.getRegion().y) / 1000000000.0; // ns to s
+                                    region.x, region.y) / 1000000000.0; // ns to s
                         } else {
                             slantRangeTime = srTPG.getPixelDouble(
-                                    targetProduct.getSceneRasterWidth() - subsetDef.getRegion().x - 1,
-                                    subsetDef.getRegion().y) / 1000000000.0; // ns to s
+                                    targetProduct.getSceneRasterWidth() - region.x - 1,
+                                    region.y) / 1000000000.0; // ns to s
                         }
                         final double halfLightSpeed = 299792458.0 / 2.0;
                         slantRangeDist = slantRangeTime * halfLightSpeed;
@@ -159,10 +161,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                         final double slantRangeToFirstPixel = srcAbsRoot.getAttributeDouble("slant_range_to_first_pixel");
                         final double rangeSpacing = srcAbsRoot.getAttributeDouble("RANGE_SPACING", 0);
                         if (nearRangeOnLeft) {
-                            slantRangeDist = slantRangeToFirstPixel + subsetDef.getRegion().x*rangeSpacing;
+                            slantRangeDist = slantRangeToFirstPixel + region.x*rangeSpacing;
                         } else {
                             slantRangeDist = slantRangeToFirstPixel +
-                                    (targetProduct.getSceneRasterWidth() - subsetDef.getRegion().x - 1)*rangeSpacing;
+                                    (targetProduct.getSceneRasterWidth() - region.x - 1)*rangeSpacing;
                         }
                         slantRange.getData().setElemDouble(slantRangeDist);
                     }

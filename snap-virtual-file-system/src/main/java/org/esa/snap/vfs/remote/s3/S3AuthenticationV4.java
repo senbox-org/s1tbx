@@ -36,7 +36,7 @@ class S3AuthenticationV4 {
      */
     private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    private static final long SIGNING_KEY_VALIDITY = 15L;
+    private static final long SIGNING_KEY_VALIDITY = 14L;
 
     private static final String HTTP_VERB_NAME = "<HTTPMethod>";
     private static final String CANONICAL_URI_NAME = "<CanonicalURI>";
@@ -270,8 +270,6 @@ class S3AuthenticationV4 {
     }
 
     private byte[] buildSigningKey() {
-        this.creationDate = LocalDateTime.now(ZoneOffset.UTC);
-        this.expirationDate = this.creationDate.plusMinutes(SIGNING_KEY_VALIDITY);
         String secretKey = "AWS4" + this.secretAccessKey;
         byte[] dateKey = hmacSHA256Hash(getISODate().getBytes(), secretKey.getBytes());
         byte[] regionKey = hmacSHA256Hash(this.region.getBytes(), dateKey);
@@ -282,9 +280,6 @@ class S3AuthenticationV4 {
     private String buildSignature(URL url) {
         String canonicalRequest = buildCanonicalRequest(url);
         String stringToSign = buildStringToSign(canonicalRequest);
-        if (!isValid()) {
-            this.signingKey = buildSigningKey();
-        }
         byte[] signature = hmacSHA256Hash(stringToSign.getBytes(), this.signingKey);
         return hex(signature);
     }
@@ -306,6 +301,14 @@ class S3AuthenticationV4 {
         return this.expirationDate != null && this.expirationDate.isAfter(LocalDateTime.now(ZoneOffset.UTC));
     }
 
+    private void ensureValid() {
+        if (!isValid()) {
+            this.creationDate = LocalDateTime.now(ZoneOffset.UTC);
+            this.expirationDate = this.creationDate.plusMinutes(SIGNING_KEY_VALIDITY);
+            this.signingKey = buildSigningKey();
+        }
+    }
+
     /**
      * Creates the authorization token used for S3 authentication.
      * @see  <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html">AWS Signature Version 4</a>
@@ -316,6 +319,7 @@ class S3AuthenticationV4 {
         if (url == null) {
             throw new NullPointerException("url");
         }
+        ensureValid();
         this.awsHeaders = buildAwsHeaders(url);
         if (this.accessKeyId == null || this.accessKeyId.isEmpty() || this.secretAccessKey == null || this.secretAccessKey.isEmpty()) {
             return null;// is public

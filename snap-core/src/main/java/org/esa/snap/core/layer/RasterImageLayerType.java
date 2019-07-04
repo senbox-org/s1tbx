@@ -34,10 +34,9 @@ public class RasterImageLayerType extends ImageLayer.Type {
 
     @Override
     public ImageLayer createLayer(LayerContext ctx, PropertySet configuration) {
-        MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
-                ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+        MultiLevelSource multiLevelSource = configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
-            final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
+            final RasterDataNode raster = configuration.getValue(PROPERTY_NAME_RASTER);
             multiLevelSource = ColoredBandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }

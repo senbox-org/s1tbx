@@ -23,6 +23,7 @@ import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.CommonReaders;
 
 import java.io.File;
@@ -146,5 +147,33 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     public void applyEarthGravitionalModel(boolean flag) {
         fileElevationTile.applyEarthGravitionalModel(flag);
+    }
+
+    public double getTileWidthInDegrees() {
+        final GeoPos gpUL = getGeoPos(new PixelPos(0, 0));
+        final GeoPos gpUR = getGeoPos(new PixelPos(RASTER_WIDTH - 1, 0));
+        return Math.abs(gpUL.lon - gpUR.lon);
+    }
+
+    public double getTileHeightInDegrees() {
+        final GeoPos gpUL = getGeoPos(new PixelPos(0, 0));
+        final GeoPos gpLL = getGeoPos(new PixelPos(0, RASTER_HEIGHT - 1));
+        return Math.abs(gpUL.lat - gpLL.lat);
+    }
+
+    public double getPixelHeightInDegrees() {
+        return getTileHeightInDegrees() / RASTER_HEIGHT;
+    }
+
+    public double getPixelWidthInDegrees() {
+        return getTileWidthInDegrees() / RASTER_WIDTH;
+    }
+
+    public double getPixelHeightInMeters() {
+        return getPixelHeightInDegrees() * Constants.DTOR * Constants.semiMinorAxis;
+    }
+
+    public double getPixelWidthInMeters() {
+        return getPixelWidthInDegrees() * Constants.DTOR * Constants.semiMinorAxis;
     }
 }

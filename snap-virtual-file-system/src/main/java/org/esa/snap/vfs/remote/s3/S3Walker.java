@@ -3,8 +3,6 @@ package org.esa.snap.vfs.remote.s3;
 import org.esa.snap.vfs.remote.AbstractRemoteWalker;
 import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
-import org.esa.snap.vfs.remote.VFSFileAttributes;
-import org.esa.snap.vfs.remote.VFSPath;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -70,34 +68,6 @@ class S3Walker extends AbstractRemoteWalker {
             params.append("&");
         }
         params.append(name).append("=").append(URLEncoder.encode(value, "UTF8"));
-    }
-
-    /**
-     * Gets the VFS file basic attributes.
-     *
-     * @return The S3 file basic attributes
-     * @throws IOException If an I/O error occurs
-     */
-    @Override
-    public BasicFileAttributes readBasicFileAttributes(VFSPath path) throws IOException {
-        String s3Path = path.toString();
-        String s3Prefix = buildPrefix(s3Path + (s3Path.endsWith("/") ? "" : "/"));
-        String s3URL = buildS3URL(s3Prefix, "");
-        String fileSystemSeparator = path.getFileSystem().getSeparator();
-        URL directoryURL = new URL(s3URL + (s3URL.endsWith(fileSystemSeparator) ? "" : fileSystemSeparator));
-        HttpURLConnection connection = this.remoteConnectionBuilder.buildConnection(directoryURL, "GET", null);
-        try {
-            int responseCode = connection.getResponseCode();
-            if (HttpUtils.isValidResponseCode(responseCode)) {
-                // the address represents a directory
-                return VFSFileAttributes.newDir(path.toString());
-            }
-        } finally {
-            connection.disconnect();
-        }
-        // the address does not represent a directory
-        s3URL = path.buildURL().toString();
-        return readFileAttributes(s3URL, path.toString());
     }
 
     /**

@@ -207,7 +207,7 @@ public abstract class ProductData implements Cloneable {
      * @param type     the value's type
      * @param numElems the number of elements, must be greater than zero if type is not {@link ProductData#TYPE_UTC}
      *
-     * @return a new value instance, {@code null} if the given type is not known
+     * @return a new value instance
      *
      * @throws IllegalArgumentException if one of the arguments is invalid
      */
@@ -239,7 +239,7 @@ public abstract class ProductData implements Cloneable {
             case TYPE_UTC:
                 return new ProductData.UTC();
             default:
-                return null;
+                throw new IllegalArgumentException("Unknown type. Cannot create product data instance.");
         }
     }
 
@@ -278,7 +278,7 @@ public abstract class ProductData implements Cloneable {
             case TYPE_UTC:
                 return new ProductData.UTC((int[]) data);
             default:
-                return null;
+                throw new IllegalArgumentException("Unknown type. Cannot create product data instance.");
         }
     }
 
