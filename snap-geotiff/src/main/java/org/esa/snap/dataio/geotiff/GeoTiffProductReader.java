@@ -155,7 +155,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         if (isGlobalShifted180) {
             // SPECIAL CASE of a global geographic lat/lon with lon from 0..360 instead of -180..180
-            readBandRasterDataImplGlobalShifted180(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+            readBandRasterDataImplGlobalShifted180(sourceOffsetX, sourceOffsetY, 
                                                    sourceStepX, sourceStepY, destBand, destOffsetX, destOffsetY,
                                                    destWidth, destHeight, destBuffer, pm);
         } else {
@@ -205,7 +205,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private void readBandRasterDataImplGlobalShifted180(int sourceOffsetX, int sourceOffsetY,
-                                                        int sourceWidth, int sourceHeight,
                                                         int sourceStepX, int sourceStepY,
                                                         Band destBand,
                                                         int destOffsetX, int destOffsetY,
