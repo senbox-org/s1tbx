@@ -121,8 +121,16 @@ class HttpWalker extends AbstractRemoteWalker {
                         filePath = prefix.concat(name);
                     } else {
                         fileUrl = this.address;
-                        filePath = prefix.concat(name);
-                        String filePathUrl = filePath.replaceAll(this.root + "/?", "");
+                        String filePathUrl;
+                        if (name.contains("/")) {
+                            name = name.startsWith("/") ? name.substring(1) : name;
+                            filePathUrl = name;
+                            name = name.replaceAll(".*/(.*)", "$1");
+                            filePath = prefix.concat(name);
+                        } else {
+                            filePath = prefix.concat(name);
+                            filePathUrl = filePath.replaceAll(this.root + "/?", "");
+                        }
                         if (!fileUrl.endsWith("/")) {
                             fileUrl = fileUrl.concat("/");
                         }

@@ -301,7 +301,8 @@ public class TestUtils {
                     msg += anExpected + ", ";
                 }
                 TestUtils.log.info(msg);
-                throw new IOException("Mismatch [" + i + "] " + actual[i] + " is not " + expected[i]);
+                throw new IOException("Mismatch [" + i + "] " + actual[i] + " is not " + expected[i] + " for " +
+                        targetProduct.getName() +" band:"+ bandName);
             }
         }
     }
