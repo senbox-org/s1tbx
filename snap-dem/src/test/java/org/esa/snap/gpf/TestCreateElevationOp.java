@@ -24,12 +24,14 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.dem.gpf.AddElevationOp;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for CreateElevationOp.
@@ -54,6 +56,14 @@ public class TestCreateElevationOp {
             1555.3663330078125
     };
 
+    private File inputFile;
+
+    @Before
+    public void setup() {
+        inputFile =  inputASAR_WSM;
+        assumeTrue(inputFile.exists());
+    }
+
     /**
      * Processes a product and compares it to processed product known to be correct
      *
@@ -61,11 +71,6 @@ public class TestCreateElevationOp {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile =  inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final AddElevationOp op = (AddElevationOp) spi.createOperator();

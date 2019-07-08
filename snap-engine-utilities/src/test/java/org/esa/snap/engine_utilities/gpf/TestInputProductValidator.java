@@ -20,12 +20,14 @@ import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Validates input products using commonly used verifications
@@ -37,13 +39,15 @@ public class TestInputProductValidator {
     public final static String inputSAR = rootPathTestProducts + sep + "input" + sep + "SAR" + sep;
     public final static File inputASAR_WSM = new File(inputSAR + "ASAR" + sep + "subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
+    File inputFile;
+    @Before
+    public void setup() {
+        inputFile =  inputASAR_WSM;
+        assumeTrue(inputFile.exists());
+    }
+
     @Test
     public void TestNotSentinel1Product() throws Exception {
-        final File inputFile = inputASAR_WSM;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
