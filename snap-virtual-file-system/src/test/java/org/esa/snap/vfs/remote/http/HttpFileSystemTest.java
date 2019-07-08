@@ -7,6 +7,7 @@ import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class HttpFileSystemTest extends AbstractVFSTest {
             FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(httpRepo.getScheme());
             assumeNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
-            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(this.mockService.getMockServiceAddress(), new LinkedHashMap<>());
+            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(httpRepo.getRoot(), this.mockService.getMockServiceAddress(), new LinkedHashMap<>());
             URI uri = new URI(httpRepo.getScheme(), httpRepo.getRoot(), null);
             FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assumeNotNull(fs);
@@ -104,15 +105,15 @@ public class HttpFileSystemTest extends AbstractVFSTest {
         List<BasicFileAttributes> items;
 
         HttpWalker walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/"));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(httpRepo.getRoot() + "/")));
         assertEquals(2, items.size());
 
         walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/"));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(httpRepo.getRoot() + "/rootDir1/")));
         assertEquals(2, items.size());
 
         walker = new HttpWalker(getAddress(), "/", httpRepo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(httpRepo.getRoot() + "/rootDir1/dir1/"));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(httpRepo.getRoot() + "/rootDir1/dir1/")));
         assertEquals(2, items.size());
     }
 

@@ -89,7 +89,7 @@ public class SwiftResponseHandler extends DefaultHandler {
      * @return The marker
      */
     String getMarker() {
-        return marker;
+        return this.marker;
     }
 
     /**
@@ -98,7 +98,7 @@ public class SwiftResponseHandler extends DefaultHandler {
      * @return {@code true} if request response is truncated
      */
     boolean getIsTruncated() {
-        return isTruncated;
+        return this.isTruncated;
     }
 
     /**
@@ -116,7 +116,7 @@ public class SwiftResponseHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         try {
             String currentElement = localName.intern();
-            elementStack.addLast(currentElement);
+            this.elementStack.addLast(currentElement);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Unable to mark starting of the new XML element by adding it to the stack of XML elements, for OpenStack Swift VFS. Details: " + ex.getMessage());
             throw new SAXException(ex);
@@ -137,14 +137,14 @@ public class SwiftResponseHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         try {
-            String currentElement = elementStack.removeLast();
+            String currentElement = this.elementStack.removeLast();
             if (currentElement != null && currentElement.equals(localName)) {
-                if (currentElement.equals(NAME_ELEMENT) && elementStack.size() == 2 && (elementStack.get(1).equals(SUBDIRECTORY_ELEMENT) || elementStack.get(1).equals(CONTAINER_ELEMENT)) && !prefix.endsWith(name)) {
-                    items.add(VFSFileAttributes.newDir(prefix + name));
-                    isTruncated = true;
-                } else if (currentElement.equals(NAME_ELEMENT) && elementStack.size() == 2 && elementStack.get(1).equals(OBJECT_ELEMENT) && !prefix.endsWith(name)) {
-                    items.add(VFSFileAttributes.newFile(prefix + name, size, lastModified));
-                    isTruncated = true;
+                if (currentElement.equals(NAME_ELEMENT) && this.elementStack.size() == 2 && (this.elementStack.get(1).equals(SUBDIRECTORY_ELEMENT) || this.elementStack.get(1).equals(CONTAINER_ELEMENT)) && !this.prefix.endsWith(this.name)) {
+                    this.items.add(VFSFileAttributes.newDir(this.prefix + this.name));
+                    this.isTruncated = true;
+                } else if (currentElement.equals(NAME_ELEMENT) && this.elementStack.size() == 2 && this.elementStack.get(1).equals(OBJECT_ELEMENT) && !this.prefix.endsWith(this.name)) {
+                    this.items.add(VFSFileAttributes.newFile(this.prefix + this.name, this.size, this.lastModified));
+                    this.isTruncated = true;
                 }
             }
         } catch (Exception ex) {
@@ -166,18 +166,18 @@ public class SwiftResponseHandler extends DefaultHandler {
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         try {
-            String currentElement = elementStack.getLast();
+            String currentElement = this.elementStack.getLast();
             switch (currentElement) {
                 case NAME_ELEMENT:
-                    marker = getTextValue(ch, start, length);
-                    String[] nameParts = marker.split(delimiter);
-                    name = marker.endsWith(delimiter) ? nameParts[nameParts.length - 1] + delimiter : nameParts[nameParts.length - 1];
+                    this.marker = getTextValue(ch, start, length);
+                    String[] nameParts = this.marker.split(this.delimiter);
+                    this.name = this.marker.endsWith(this.delimiter) ? nameParts[nameParts.length - 1] + this.delimiter : nameParts[nameParts.length - 1];
                     break;
                 case BYTES_ELEMENT:
-                    size = getLongValue(ch, start, length);
+                    this.size = getLongValue(ch, start, length);
                     break;
                 case LAST_MODIFIED_ELEMENT:
-                    lastModified = getTextValue(ch, start, length);
+                    this.lastModified = getTextValue(ch, start, length);
                     break;
                 default:
                     break;

@@ -108,7 +108,7 @@ public class VFSPath implements Path {
         }
     }
 
-    static VFSPath toRemotePath(Path path) {
+    public static VFSPath toRemotePath(Object path) {
         if (path == null) {
             throw new NullPointerException("The path is null.");
         } else if (path instanceof VFSPath) {
@@ -186,7 +186,7 @@ public class VFSPath implements Path {
      *
      * @return The VFS file URL
      */
-    public URL buildURL() throws MalformedURLException {
+    URL buildURL() throws MalformedURLException {
         String urlAsString = null;
         if (this.fileAttributes instanceof VFSFileAttributes) {
             VFSFileAttributes vfsFileAttributes = (VFSFileAttributes) this.fileAttributes;
@@ -194,7 +194,7 @@ public class VFSPath implements Path {
         }
         if (urlAsString == null) {// the file don't have custom URL
             String fileSystemRootAsString = this.fileSystem.getRoot().getPath();
-            String providerAddress = this.fileSystem.provider().getProviderAddress();
+            String providerAddress = this.fileSystem.provider().getProviderAddress(fileSystemRootAsString);
             String fileSystemSeparator = this.fileSystem.getSeparator();
             String pathAsString = this.path;
             if (pathAsString.startsWith(fileSystemRootAsString)) {
@@ -810,7 +810,7 @@ public class VFSPath implements Path {
         if (!(o instanceof VFSPath)) {
             return false;
         }
-        VFSPath other = (VFSPath) o;
+        VFSPath other = VFSPath.toRemotePath(o);
         return this.absolute == other.absolute
                 && this.fileSystem == other.fileSystem
                 && this.path.equals(other.path);

@@ -6,8 +6,8 @@ import org.esa.snap.vfs.remote.VFSWalker;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * File System Service Provider for S3 VFS.
@@ -15,68 +15,24 @@ import java.util.Set;
  * @author Norman Fomferra
  * @author Adrian Drăghici
  */
-public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
-
-    /**
-     * The name of bucket property, used on S3 VFS instance creation parameters and defining remote file repository properties.
-     */
-    private static final String BUCKET_PROPERTY_NAME = "bucket";
-
-    /**
-     * The name of AWS Region property, used on S3 VFS instance creation parameters and defining remote file repository properties.
-     */
-    private static final String AWS_REGION_PROPERTY_NAME = "region";
-
-    /**
-     * The name of access key ID property, used on S3 VFS instance creation parameters and defining remote file repository properties.
-     */
-    private static final String ACCESS_KEY_ID_PROPERTY_NAME = "accessKeyId";
-
-    /**
-     * The name of secret access key property, used on S3 VFS instance creation parameters and defining remote file repository properties.
-     */
-    private static final String SECRET_ACCESS_KEY_PROPERTY_NAME = "secretAccessKey";
+public final class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
 
     /**
      * The value of S3 provider scheme.
      */
     private static final String SCHEME = "s3";
 
-    private String address = "";
-    private String bucket = "";
-    private String region = "";
-    private String accessKeyId = "";
-    private String secretAccessKey = "";
-    private String delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
-    private S3AuthenticationV4 s3AuthenticationV4 = null;
+    private final Map<String, S3FileSystemProviderHelper> s3FileSystemProviderList;
 
     public S3FileSystemProvider() {
         super();
+        this.s3FileSystemProviderList = new HashMap<>();
     }
 
-    /**
-     * Save connection data on this provider.
-     *
-     * @param address         The address of AWS S3 service
-     * @param bucket          The bucket name
-     * @param region          The region of AWS S3 service
-     * @param accessKeyId     The access key id S3 credential (username)
-     * @param secretAccessKey The secret access key S3 credential (password)
-     */
-    private void setupConnectionData(String address, String bucket, String region, String accessKeyId, String secretAccessKey) {
-        this.address = address != null ? address : this.address;
-        this.bucket = bucket != null ? bucket : this.bucket;
-        this.region = region != null ? region : this.region;
-        this.accessKeyId = accessKeyId != null ? accessKeyId : this.accessKeyId;
-        this.secretAccessKey = secretAccessKey != null ? secretAccessKey : this.secretAccessKey;
-    }
-
-    public void setConnectionData(String serviceAddress, Map<String, ?> connectionData) {
-        String newRegion = (String) connectionData.get(AWS_REGION_PROPERTY_NAME);
-        String newBucket = (String) connectionData.get(BUCKET_PROPERTY_NAME);
-        String newAccessKeyId = (String) connectionData.get(ACCESS_KEY_ID_PROPERTY_NAME);
-        String newSecretAccessKey = (String) connectionData.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
-        setupConnectionData(serviceAddress, newBucket, newRegion, newAccessKeyId, newSecretAccessKey);
+    @Override
+    public void setConnectionData(String fileSystemRoot, String serviceAddress, Map<String, ?> connectionData) {
+        S3FileSystemProviderHelper s3ProviderHelper = getProviderHelperOrCreate(fileSystemRoot);
+        s3ProviderHelper.setConnectionData(serviceAddress, connectionData);
     }
 
     @Override
@@ -91,10 +47,8 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      */
     @Override
     protected VFSWalker newObjectStorageWalker(String fileSystemRoot) {
-        if (this.bucket.isEmpty()) {
-            throw new IllegalArgumentException("Missing 'bucket' property.\nPlease provide a bucket name.");
-        }
-        return new S3Walker(this.address, this.bucket, this.delimiter, fileSystemRoot, this);
+        S3FileSystemProviderHelper s3ProviderHelper = getProviderHelperOrCreate(fileSystemRoot);
+        return s3ProviderHelper.newObjectStorageWalker(this);
     }
 
     /**
@@ -103,45 +57,15 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
      * @return The VFS service address
      */
     @Override
-    public String getProviderAddress() {
-        return this.address + this.bucket;
+    public String getProviderAddress(String fileSystemRoot) {
+        S3FileSystemProviderHelper s3ProviderHelper = getProviderHelperOrCreate(fileSystemRoot);
+        return s3ProviderHelper.getProviderAddress();
     }
 
     @Override
-    public String getProviderFileSeparator() {
-        return this.delimiter;
-    }
-
-    @Override
-    public HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException {
-        method = method.toUpperCase();
-        if (this.s3AuthenticationV4 == null) {
-            this.s3AuthenticationV4 = new S3AuthenticationV4(method, this.region, this.accessKeyId, this.secretAccessKey);
-        }
-        String authorizationToken = this.s3AuthenticationV4.getAuthorizationToken(url);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod(method);
-        connection.setDoInput(true);
-        if (method.equals("POST") || method.equals("PUT") || method.equals("DELETE")) {
-            connection.setDoOutput(true);
-        }
-        if (authorizationToken != null && !authorizationToken.isEmpty())
-            connection.setRequestProperty("Authorization", authorizationToken);
-        if (requestProperties != null && requestProperties.size() > 0) {
-            Set<Map.Entry<String, String>> requestPropertiesSet = requestProperties.entrySet();
-            for (Map.Entry<String, String> requestProperty : requestPropertiesSet) {
-                connection.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-            }
-        }
-        Map<String, String> awsRequestProperties = this.s3AuthenticationV4.getAwsHeaders();
-        if (awsRequestProperties != null && awsRequestProperties.size() > 0) {
-            Set<Map.Entry<String, String>> awsRequestPropertiesSet = awsRequestProperties.entrySet();
-            for (Map.Entry<String, String> awsRequestProperty : awsRequestPropertiesSet) {
-                connection.setRequestProperty(awsRequestProperty.getKey(), awsRequestProperty.getValue());
-            }
-        }
-        connection.setRequestProperty("user-agent", "SNAP Virtual File System");
-        return connection;
+    public String getProviderFileSeparator(String fileSystemRoot) {
+        S3FileSystemProviderHelper s3ProviderHelper = getProviderHelperOrCreate(fileSystemRoot);
+        return s3ProviderHelper.getProviderFileSeparator();
     }
 
     /**
@@ -152,5 +76,15 @@ public class S3FileSystemProvider extends AbstractRemoteFileSystemProvider {
     @Override
     public String getScheme() {
         return SCHEME;
+    }
+
+    private S3FileSystemProviderHelper getProviderHelperOrCreate(String fileSystemRoot) {
+        return this.s3FileSystemProviderList.computeIfAbsent(fileSystemRoot, provider -> new S3FileSystemProviderHelper(fileSystemRoot));
+    }
+
+    @Override
+    public HttpURLConnection buildConnection(String fileSystemRoot, URL url, String method, Map<String, String> requestProperties) throws IOException {
+        S3FileSystemProviderHelper s3ProviderHelper = getProviderHelperOrCreate(fileSystemRoot);
+        return s3ProviderHelper.buildConnection(url, method, requestProperties);
     }
 }

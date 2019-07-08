@@ -27,7 +27,7 @@ public final class Property {
      * @return The name of Property
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -36,7 +36,7 @@ public final class Property {
      * @return The value of Property
      */
     public String getValue() {
-        return value;
+        return this.value;
     }
 
     /**

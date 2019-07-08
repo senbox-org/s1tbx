@@ -52,7 +52,7 @@ public class VFSPathTest extends AbstractVFSTest {
             FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(httpRepo.getScheme());
             assumeNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
-            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(this.mockService.getMockServiceAddress(), new LinkedHashMap<>());
+            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(httpRepo.getRoot(), this.mockService.getMockServiceAddress(), new LinkedHashMap<>());
             URI uri = new URI(httpRepo.getScheme(), httpRepo.getRoot(), null);
             FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assumeNotNull(fs);

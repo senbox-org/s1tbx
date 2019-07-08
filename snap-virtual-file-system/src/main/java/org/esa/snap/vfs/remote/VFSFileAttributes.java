@@ -81,8 +81,8 @@ public abstract class VFSFileAttributes implements BasicFileAttributes {
      *
      * @return The new dir attributes
      */
-    static BasicFileAttributes getRoot() {
-        return new DirAttributes("/");
+    static BasicFileAttributes getRoot(String rootPath) {
+        return new DirAttributes(rootPath);
     }
 
     /**

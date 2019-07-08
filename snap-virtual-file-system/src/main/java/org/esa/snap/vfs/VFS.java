@@ -53,7 +53,7 @@ public class VFS {
      * @return the list with FS Providers
      */
     private List<FileSystemProvider> getInstalledProviders() {
-        return installedProviders;
+        return this.installedProviders;
     }
 
     /**
@@ -78,28 +78,25 @@ public class VFS {
      */
     public void initRemoteInstalledProviders(List<VFSRemoteFileRepository> vfsRepositories) {
         for (FileSystemProvider fileSystemProvider : this.installedProviders) {
-            if (fileSystemProvider instanceof AbstractRemoteFileSystemProvider) {
-                AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider) fileSystemProvider;
+            if (!(fileSystemProvider instanceof AbstractRemoteFileSystemProvider)) {
+                continue;
+            }
+            AbstractRemoteFileSystemProvider remoteFileSystemProvider = (AbstractRemoteFileSystemProvider) fileSystemProvider;
 
-                VFSRemoteFileRepository foundRepository = null;
-                for (int k = 0; k < vfsRepositories.size() && foundRepository == null; k++) {
-                    VFSRemoteFileRepository repository = vfsRepositories.get(k);
-                    if (repository.getScheme().equalsIgnoreCase(remoteFileSystemProvider.getScheme())) {
-                        foundRepository = repository;
-                    }
+            for (VFSRemoteFileRepository repository : vfsRepositories) {
+                if (!repository.getScheme().equalsIgnoreCase(remoteFileSystemProvider.getScheme())) {
+                    continue;
                 }
-
-                if (foundRepository != null) {
-                    Map<String, String> connectionData = new HashMap<>();
-                    for (Property vfsRemoteFileRepositoryProperty : foundRepository.getProperties()) {
-                        connectionData.put(vfsRemoteFileRepositoryProperty.getName(), vfsRemoteFileRepositoryProperty.getValue());
-                    }
-                    remoteFileSystemProvider.setConnectionData(foundRepository.getAddress(), connectionData);
-                    try {
-                        remoteFileSystemProvider.getFileSystemOrCreate(new URI(foundRepository.getScheme(), foundRepository.getRoot() + "/", null), null);
-                    } catch (URISyntaxException e) {
-                        throw new ExceptionInInitializerError("Unable to initialize VFS with scheme: " + remoteFileSystemProvider.getScheme());
-                    }
+                Map<String, String> connectionData = new HashMap<>();
+                for (Property vfsRemoteFileRepositoryProperty : repository.getProperties()) {
+                    connectionData.put(vfsRemoteFileRepositoryProperty.getName(), vfsRemoteFileRepositoryProperty.getValue());
+                }
+                String fileSystemRoot = repository.getRoot();
+                remoteFileSystemProvider.setConnectionData(fileSystemRoot, repository.getAddress(), connectionData);
+                try {
+                    remoteFileSystemProvider.getFileSystemOrCreate(new URI(repository.getScheme(), fileSystemRoot, null), null);
+                } catch (URISyntaxException e) {
+                    throw new ExceptionInInitializerError("Unable to initialize VFS with scheme: " + remoteFileSystemProvider.getScheme());
                 }
             }
         }

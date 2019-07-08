@@ -21,9 +21,9 @@ import java.util.Set;
 /**
  * S3AuthenticationV4 class for S3 VFS.
  * Provides implementation of AWS Signature Version 4.
- * @see  <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html">AWS Signature Version 4</a>
  *
  * @author Adrian Drăghici
+ * @see <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html">AWS Signature Version 4</a>
  */
 class S3AuthenticationV4 {
 
@@ -74,6 +74,9 @@ class S3AuthenticationV4 {
     private Map<String, String> awsHeaders;
     private byte[] signingKey;
 
+    private URL lastAuthorizedURL;
+    private String lastAuthorizationToken;
+
     /**
      * Initializes the S3AuthenticationV4 class.
      *
@@ -88,6 +91,8 @@ class S3AuthenticationV4 {
         this.accessKeyId = accessKeyId;
         this.secretAccessKey = secretAccessKey;
         this.creationDate = LocalDateTime.now(ZoneOffset.UTC);
+        this.lastAuthorizedURL = null;
+        this.lastAuthorizationToken = null;
     }
 
     private static String lowercase(String value) {
@@ -248,7 +253,7 @@ class S3AuthenticationV4 {
         String signedHeaders = buildSignedHeaders();
         String hashedPayload = buildHashedPayload();
         String canonicalRequest = CANONICAL_REQUEST_VALUE;
-        canonicalRequest = canonicalRequest.replace(HTTP_VERB_NAME, httpVerb);
+        canonicalRequest = canonicalRequest.replace(HTTP_VERB_NAME, this.httpVerb);
         canonicalRequest = canonicalRequest.replace(CANONICAL_URI_NAME, canonicalURI);
         canonicalRequest = canonicalRequest.replace(CANONICAL_QUERY_STRING_NAME, canonicalQueryString);
         canonicalRequest = canonicalRequest.replace(CANONICAL_HEADERS_NAME, canonicalHeaders);
@@ -293,16 +298,16 @@ class S3AuthenticationV4 {
     }
 
     /**
-     * Check whether the signing key is valid (not expired)
+     * Check whether the signing key is expired (not valid)
      *
-     * @return {@code true} if the signing key is valid (expiration date is after now)
+     * @return {@code true} if the signing key is expired (expiration date is before now)
      */
-    boolean isValid() {
-        return this.expirationDate != null && this.expirationDate.isAfter(LocalDateTime.now(ZoneOffset.UTC));
+    private boolean isExpired() {
+        return this.expirationDate == null || this.expirationDate.isBefore(LocalDateTime.now(ZoneOffset.UTC));
     }
 
     private void ensureValid() {
-        if (!isValid()) {
+        if (isExpired()) {
             this.creationDate = LocalDateTime.now(ZoneOffset.UTC);
             this.expirationDate = this.creationDate.plusMinutes(SIGNING_KEY_VALIDITY);
             this.signingKey = buildSigningKey();
@@ -311,29 +316,33 @@ class S3AuthenticationV4 {
 
     /**
      * Creates the authorization token used for S3 authentication.
-     * @see  <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html">AWS Signature Version 4</a>
      *
      * @return The S3 authorization token
+     * @see <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html">AWS Signature Version 4</a>
      */
     String getAuthorizationToken(URL url) {
         if (url == null) {
             throw new NullPointerException("url");
         }
-        ensureValid();
-        this.awsHeaders = buildAwsHeaders(url);
         if (this.accessKeyId == null || this.accessKeyId.isEmpty() || this.secretAccessKey == null || this.secretAccessKey.isEmpty()) {
             return null;// is public
         }
-        String scope = buildScope();
-        String signedHeaders = buildSignedHeaders();
-        String signature = buildSignature(url);
-        String authorizationToken = AWS_AUTHORIZATION_TOKEN_VALUE;
-        authorizationToken = authorizationToken.replace(AWS_SIGNATURE_ALGORITHM_NAME, AWS_SIGNATURE_ALGORITHM_VALUE);
-        authorizationToken = authorizationToken.replace(AWS_ACCESS_KEY_ID_NAME, this.accessKeyId);
-        authorizationToken = authorizationToken.replace(SCOPE_NAME, scope);
-        authorizationToken = authorizationToken.replace(SIGNED_HEADERS_NAME, signedHeaders);
-        authorizationToken = authorizationToken.replace(AWS_SIGNATURE_NAME, signature);
-        return authorizationToken;
+        if (this.lastAuthorizationToken == null || isExpired() || !url.toString().contentEquals(this.lastAuthorizedURL.toString())) {
+            ensureValid();
+            this.awsHeaders = getAwsHeaders(url);
+            String scope = buildScope();
+            String signedHeaders = buildSignedHeaders();
+            String signature = buildSignature(url);
+            String authorizationToken = AWS_AUTHORIZATION_TOKEN_VALUE;
+            authorizationToken = authorizationToken.replace(AWS_SIGNATURE_ALGORITHM_NAME, AWS_SIGNATURE_ALGORITHM_VALUE);
+            authorizationToken = authorizationToken.replace(AWS_ACCESS_KEY_ID_NAME, this.accessKeyId);
+            authorizationToken = authorizationToken.replace(SCOPE_NAME, scope);
+            authorizationToken = authorizationToken.replace(SIGNED_HEADERS_NAME, signedHeaders);
+            authorizationToken = authorizationToken.replace(AWS_SIGNATURE_NAME, signature);
+            this.lastAuthorizationToken = authorizationToken;
+            this.lastAuthorizedURL = url;
+        }
+        return this.lastAuthorizationToken;
     }
 
     /**
@@ -341,8 +350,11 @@ class S3AuthenticationV4 {
      *
      * @return the special headers of S3 service
      */
-    Map<String, String> getAwsHeaders() {
-        return awsHeaders;
+    Map<String, String> getAwsHeaders(URL url) {
+        if (this.awsHeaders == null || this.lastAuthorizedURL == null || !url.toString().contentEquals(this.lastAuthorizedURL.toString())) {
+            this.awsHeaders = buildAwsHeaders(url);
+        }
+        return this.awsHeaders;
     }
 
     private static final class PropertyCodePointSorter implements Comparator<Property> {

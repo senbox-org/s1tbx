@@ -21,7 +21,7 @@ public class RegularFileMetadata {
         this.lastModified = lastModified;
     }
 
-    public String getFileURL() {
+    String getFileURL() {
         return this.fileURL;
     }
 

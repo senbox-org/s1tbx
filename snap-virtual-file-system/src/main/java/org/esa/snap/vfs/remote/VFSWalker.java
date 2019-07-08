@@ -1,7 +1,6 @@
 package org.esa.snap.vfs.remote;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
@@ -28,6 +27,6 @@ public interface VFSWalker {
      * @return The list of VFS files and directories
      * @throws IOException If an I/O error occurs
      */
-    List<BasicFileAttributes> walk(Path dir) throws IOException;
+    List<BasicFileAttributes> walk(VFSPath dir) throws IOException;
 
 }

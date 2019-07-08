@@ -7,6 +7,7 @@ import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,6 +83,42 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         return authAddress;
     }
 
+    private String getDomain() {
+        VFSRemoteFileRepository swiftRepo = getSwiftRepo();
+        String domain = "";
+        if (!swiftRepo.getProperties().isEmpty()) {
+            domain = swiftRepo.getProperties().get(2).getValue();
+        }
+        return domain;
+    }
+
+    private String getProjectId() {
+        VFSRemoteFileRepository swiftRepo = getSwiftRepo();
+        String projectId = "";
+        if (!swiftRepo.getProperties().isEmpty()) {
+            projectId = swiftRepo.getProperties().get(3).getValue();
+        }
+        return projectId;
+    }
+
+    private String getUser() {
+        VFSRemoteFileRepository swiftRepo = getSwiftRepo();
+        String user = "";
+        if (!swiftRepo.getProperties().isEmpty()) {
+            user = swiftRepo.getProperties().get(4).getValue();
+        }
+        return user;
+    }
+
+    private String getPassword() {
+        VFSRemoteFileRepository swiftRepo = getSwiftRepo();
+        String password = "";
+        if (!swiftRepo.getProperties().isEmpty()) {
+            password = swiftRepo.getProperties().get(5).getValue();
+        }
+        return password;
+    }
+
     @Before
     public void setUpSwiftFileSystemTest() {
         try {
@@ -95,7 +132,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
             Map<String, String> connectionData = new LinkedHashMap<>();
             connectionData.put("authAddress", this.authMockService.getMockServiceAddress());//override 'authAddress' Swift property with Swift Auth Mock Service address
-            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(this.mockService.getMockServiceAddress(), connectionData);
+            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(swiftRepo.getRoot(), this.mockService.getMockServiceAddress(), connectionData);
             URI uri = new URI(swiftRepo.getScheme(), swiftRepo.getRoot(), null);
             FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assertNotNull(fs);
@@ -122,7 +159,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         }
     }
 
-    /*@Test
+    @Test
     public void testScanner() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
 
@@ -131,17 +168,17 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         List<BasicFileAttributes> items;
 
         SwiftWalker walker = new SwiftWalker(getAddress(), getContainer(), "/", swiftRepo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(swiftRepo.getRoot() + ""));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(swiftRepo.getRoot() + "")));
         assertEquals(2, items.size());
 
         walker = new SwiftWalker(getAddress(), getContainer(), "/", swiftRepo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(swiftRepo.getRoot() + "/rootDir1/"));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(swiftRepo.getRoot() + "/rootDir1/")));
         assertEquals(2, items.size());
 
         walker = new SwiftWalker(getAddress(), getContainer(), "/", swiftRepo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(swiftRepo.getRoot() + "/rootDir1/dir1/"));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(swiftRepo.getRoot() + "/rootDir1/dir1/")));
         assertEquals(2, items.size());
-    }*/
+    }
 
     @Test
     public void testGET() throws Exception {
@@ -153,7 +190,8 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setDoInput(true);
-        connection.setRequestProperty("X-Auth-Token", SwiftAuthMockService.TOKEN);
+        SwiftAuthenticationV3 swiftAuthenticationV3 = new SwiftAuthenticationV3(this.authMockService.getMockServiceAddress(), getDomain(), getProjectId(), getUser(), getPassword());
+        connection.setRequestProperty("X-Auth-Token", swiftAuthenticationV3.getAuthorizationToken());
 
         int responseCode = connection.getResponseCode();
         assertEquals(HttpURLConnection.HTTP_OK, responseCode);
@@ -172,7 +210,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertEquals("/", this.swiftFileSystem.getSeparator());
     }
 
-    /*@Test
+    @Test
     public void testGetRootDirectories() {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         String expectedPaths = swiftRepo.getRoot() + "/rootDir1/\n" + swiftRepo.getRoot() + "/rootDir2/";
@@ -183,7 +221,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertTrue(iterator.hasNext());
         assertTrue(expectedPaths.contains(iterator.next().toString()));
         assertFalse(iterator.hasNext());
-    }*/
+    }
 
     @Test
     public void testClose() throws Exception {
@@ -248,14 +286,14 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertEquals(-1, numRead);
     }
 
-    /*@Test
+    @Test
     public void testBasicFileAttributes() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         Path path = this.swiftFileSystem.getPath(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg");
         assertEquals(1891, Files.size(path));
         FileTime lastModifiedTime = Files.getLastModifiedTime(path);
         assertNotNull(lastModifiedTime);
-    }*/
+    }
 
     @Test
     public void testPathsGet() {
@@ -265,7 +303,7 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
         assertEquals(swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg", path.toString());
     }
 
-    /*@Test
+    @Test
     public void testFilesWalk() throws Exception {
         VFSRemoteFileRepository swiftRepo = getSwiftRepo();
         String expectedPaths = swiftRepo.getRoot() + "/rootDir1/\n" + swiftRepo.getRoot() + "/rootDir1/dir1/\n" + swiftRepo.getRoot() + "/rootDir1/dir1/file.jpg\n" + swiftRepo.getRoot() + "/rootDir1/dir1/subDir/" + swiftRepo.getRoot() + "/rootDir1/dir2/";
@@ -293,6 +331,6 @@ public class SwiftFileSystemTest extends AbstractVFSTest {
             assertTrue(expectedPaths.contains(next.toString()));
             assertTrue(next.isAbsolute());
         }
-    }*/
+    }
 
 }

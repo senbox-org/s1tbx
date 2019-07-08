@@ -21,8 +21,6 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
@@ -35,12 +33,9 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractRemoteFileSystem extends FileSystem {
 
-    private static Logger logger = Logger.getLogger(AbstractRemoteFileSystem.class.getName());
-
     private final AbstractRemoteFileSystemProvider provider;
-    private final VFSPath rootPath;
     private final List<VFSByteChannel> openChannels;
-
+    private VFSPath rootPath;
     private boolean closed;
     private VFSWalker walker;
 
@@ -49,18 +44,19 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      *
      * @param provider The VFS provider
      */
-    protected AbstractRemoteFileSystem(AbstractRemoteFileSystemProvider provider, String root) {
+    protected AbstractRemoteFileSystem(AbstractRemoteFileSystemProvider provider) {
         if (provider == null) {
             throw new NullPointerException("provider");
         }
         this.provider = provider;
         this.closed = false;
         this.openChannels = new ArrayList<>();
-        this.rootPath = new VFSPath(this, true, root, VFSFileAttributes.getRoot());
     }
 
+    protected abstract String getFileSystemRoot();
+
     final VFSWalker newObjectStorageWalker() {
-        return this.provider.newObjectStorageWalker(this.rootPath.getPath());
+        return this.provider.newObjectStorageWalker(getRoot().getPath());
     }
 
     /**
@@ -79,7 +75,15 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      * @return The VFS root path
      */
     public VFSPath getRoot() {
-        return rootPath;
+        return getRootOrCreate();
+    }
+
+    private VFSPath getRootOrCreate() {
+        if (this.rootPath == null) {
+            BasicFileAttributes rootVFSFileAttributes = VFSFileAttributes.getRoot(getFileSystemRoot());
+            this.rootPath = new VFSPath(this, true, (String) rootVFSFileAttributes.fileKey(), rootVFSFileAttributes);
+        }
+        return this.rootPath;
     }
 
     /**
@@ -128,7 +132,7 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      */
     @Override
     public String getSeparator() {
-        return this.provider.getProviderFileSeparator();
+        return this.provider.getProviderFileSeparator(getFileSystemRoot());
     }
 
     /**
@@ -139,11 +143,11 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
     @Override
     public Iterable<Path> getRootDirectories() {
         DirectoryStream.Filter<? super Path> filter = (DirectoryStream.Filter<Path>) entry -> {
-            VFSPath remotePath = (VFSPath)entry;
+            VFSPath remotePath = VFSPath.toRemotePath(entry);
             return remotePath.getFileAttributes().isDirectory();
         };
         try {
-            return walkDir(this.rootPath, filter);
+            return walkDir(getRoot(), filter);
         } catch (IOException ex) {
             throw new IllegalStateException("Failed to get the root directories.", ex);
         }
@@ -289,9 +293,9 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
      * @param filter The filter for results
      * @return The browsing results
      */
-    Iterable<Path> walkDir(Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
+    Iterable<Path> walkDir(VFSPath dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
         assertOpen();
-        Path path = dir.toAbsolutePath();
+        VFSPath path = VFSPath.toRemotePath(dir.toAbsolutePath());
         if (this.walker == null) {
             this.walker = newObjectStorageWalker();
         }
@@ -314,7 +318,6 @@ public abstract class AbstractRemoteFileSystem extends FileSystem {
         try {
             return filter.accept(path);
         } catch (IOException ex) {
-            logger.log(Level.FINE, "Unable to filter the path: " + path.toString() + ". Details: " + ex.getMessage(), ex);
             return false;
         }
     }

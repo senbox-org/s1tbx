@@ -132,11 +132,11 @@ public final class VFSRemoteFileRepositoriesController {
     public void loadProperties() throws IOException {
         InputStream inputStream = null;
         try {
-            if (Files.exists(vfsConfigFile)) {
-                inputStream = Files.newInputStream(vfsConfigFile);
-                properties.load(inputStream);
+            if (Files.exists(this.vfsConfigFile)) {
+                inputStream = Files.newInputStream(this.vfsConfigFile);
+                this.properties.load(inputStream);
             }
-            isChanged = false;
+            this.isChanged = false;
         } finally {
             if (inputStream != null) {
                 try {
@@ -154,13 +154,13 @@ public final class VFSRemoteFileRepositoriesController {
     public void saveProperties() throws IOException {
         OutputStream outputStream = null;
         try {
-            if (!Files.exists(vfsConfigFile)) {
-                Files.createDirectories(vfsConfigFile.getParent());
-                Files.createFile(vfsConfigFile);
+            if (!Files.exists(this.vfsConfigFile)) {
+                Files.createDirectories(this.vfsConfigFile.getParent());
+                Files.createFile(this.vfsConfigFile);
             }
-            outputStream = Files.newOutputStream(vfsConfigFile);
-            properties.store(outputStream, "");
-            isChanged = false;
+            outputStream = Files.newOutputStream(this.vfsConfigFile);
+            this.properties.store(outputStream, "");
+            this.isChanged = false;
         } finally {
             if (outputStream != null) {
                 try {
@@ -178,7 +178,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @return {@code true} if VFS Remote File Repositories Properties is changed
      */
     public boolean isChanged() {
-        return isChanged;
+        return this.isChanged;
     }
 
     /**
@@ -189,8 +189,8 @@ public final class VFSRemoteFileRepositoriesController {
     private void writeProperty(Property property) {
         if (property != null) {
             try {
-                properties.setProperty(property.getName(), property.getValue());
-                isChanged = true;
+                this.properties.setProperty(property.getName(), property.getValue());
+                this.isChanged = true;
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Unable to write the property on properties. Details: " + ex.getMessage());
             }
@@ -205,7 +205,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @see Property
      */
     private Property getProperty(String propertyKey) {
-        return new Property(propertyKey, properties.getProperty(propertyKey, ""));
+        return new Property(propertyKey, this.properties.getProperty(propertyKey, ""));
     }
 
     /**
@@ -216,8 +216,8 @@ public final class VFSRemoteFileRepositoriesController {
     private void removeProperty(Property property) {
         if (property != null) {
             try {
-                properties.remove(property.getName());
-                isChanged = true;
+                this.properties.remove(property.getName());
+                this.isChanged = true;
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Unable to remove the property from SNAP configuration file. Details: " + ex.getMessage());
             }
@@ -241,19 +241,19 @@ public final class VFSRemoteFileRepositoriesController {
      */
     private void updateRemoteRepositoriesIds(String remoteRepositoryId, int mode) {
         Property remoteRepositoryIdsProperty = getRemoteRepositoriesIds();
-        remoteRepositoriesIds = remoteRepositoryIdsProperty.getValue();
-        remoteRepositoriesIds = remoteRepositoriesIds != null ? remoteRepositoriesIds : "";
+        this.remoteRepositoriesIds = remoteRepositoryIdsProperty.getValue();
+        this.remoteRepositoriesIds = this.remoteRepositoriesIds != null ? this.remoteRepositoriesIds : "";
         switch (mode) {
             case MODE_ADD:
-                remoteRepositoriesIds = !remoteRepositoriesIds.isEmpty() ? remoteRepositoriesIds + LIST_ITEM_SEPARATOR + remoteRepositoryId : remoteRepositoryId;
+                this.remoteRepositoriesIds = !this.remoteRepositoriesIds.isEmpty() ? this.remoteRepositoriesIds + LIST_ITEM_SEPARATOR + remoteRepositoryId : remoteRepositoryId;
                 break;
             case MODE_REMOVE:
-                remoteRepositoriesIds = remoteRepositoriesIds.replaceAll("((" + remoteRepositoryId + "(" + LIST_ITEM_SEPARATOR + ")?)|(" + LIST_ITEM_SEPARATOR + ")?" + remoteRepositoryId + ")", "");
+                this.remoteRepositoriesIds = this.remoteRepositoriesIds.replaceAll("((" + remoteRepositoryId + "(" + LIST_ITEM_SEPARATOR + ")?)|(" + LIST_ITEM_SEPARATOR + ")?" + remoteRepositoryId + ")", "");
                 break;
             default:
                 break;
         }
-        remoteRepositoryIdsProperty.setValue(remoteRepositoriesIds);
+        remoteRepositoryIdsProperty.setValue(this.remoteRepositoriesIds);
         writeProperty(remoteRepositoryIdsProperty);
     }
 
@@ -360,7 +360,7 @@ public final class VFSRemoteFileRepositoriesController {
      * @param remoteRepositorySchema The remote file repository schema
      */
     public void setRemoteRepositorySchema(String remoteRepositoryId, String remoteRepositorySchema) {
-        if (new RepositorySchemaValidator().isValid(remoteRepositorySchema) && isUniqueRemoteRepositorySchema(remoteRepositorySchema)) {
+        if (new RepositorySchemaValidator().isValid(remoteRepositorySchema)) {
             Property remoteRepositorySchemaProperty = new Property(PREFERENCE_KEY_VFS_REPOSITORY_SCHEMA.replace(REPO_ID_KEY, remoteRepositoryId), remoteRepositorySchema);
             writeProperty(remoteRepositorySchemaProperty);
         } else {
@@ -508,32 +508,12 @@ public final class VFSRemoteFileRepositoriesController {
      * @return {@code true} if the new remote file repository name is unique
      */
     private boolean isUniqueRemoteRepositoryName(String newRemoteRepositoryName) {
-        remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
-        if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
-            String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
+        this.remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
+        if (this.remoteRepositoriesIds != null && !this.remoteRepositoriesIds.isEmpty()) {
+            String[] remoteRepositoriesIdsList = this.remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
             for (String remoteRepositoryId : remoteRepositoriesIdsList) {
                 String remoteRepositoryName = getRemoteRepositoryName(remoteRepositoryId).getValue();
                 if (remoteRepositoryName != null && remoteRepositoryName.contentEquals(newRemoteRepositoryName)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Tells whether the new remote file repository schema is unique.
-     *
-     * @param newRemoteRepositorySchema The remote file repository schema
-     * @return {@code true} if the new remote file repository schema is unique
-     */
-    private boolean isUniqueRemoteRepositorySchema(String newRemoteRepositorySchema) {
-        remoteRepositoriesIds = getRemoteRepositoriesIds().getValue();
-        if (remoteRepositoriesIds != null && !remoteRepositoriesIds.isEmpty()) {
-            String[] remoteRepositoriesIdsList = remoteRepositoriesIds.split(LIST_ITEM_SEPARATOR);
-            for (String remoteRepositoryId : remoteRepositoriesIdsList) {
-                String remoteRepositorySchema = getRemoteRepositorySchema(remoteRepositoryId).getValue();
-                if (remoteRepositorySchema != null && remoteRepositorySchema.contentEquals(newRemoteRepositorySchema)) {
                     return false;
                 }
             }

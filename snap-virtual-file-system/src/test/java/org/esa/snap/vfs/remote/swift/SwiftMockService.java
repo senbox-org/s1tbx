@@ -80,7 +80,7 @@ class SwiftMockService {
             String contentType = "text/plain";
             try {
                 List<String> authHeader = httpExchange.getRequestHeaders().get("X-Auth-Token");
-                if (authHeader != null && authHeader.get(0).contentEquals(SwiftAuthMockService.TOKEN)) {
+                if (authHeader != null && SwiftAuthMockService.isValidToken(authHeader.get(0))) {
                     String uriPath = httpExchange.getRequestURI().getPath();
                     uriPath = uriPath.replace(httpExchange.getHttpContext().getPath(), "");
                     uriPath = uriPath.replaceAll("^/", "").replaceAll("/{2,}", "/");

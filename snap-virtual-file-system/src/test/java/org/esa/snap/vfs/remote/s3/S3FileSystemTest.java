@@ -7,6 +7,7 @@ import org.esa.snap.vfs.preferences.model.VFSRemoteFileRepository;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystem;
 import org.esa.snap.vfs.remote.AbstractRemoteFileSystemProvider;
 import org.esa.snap.vfs.remote.AbstractVFSTest;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -82,7 +82,7 @@ public class S3FileSystemTest extends AbstractVFSTest {
             FileSystemProvider fileSystemProvider = VFS.getInstance().getFileSystemProviderByScheme(s3Repo.getScheme());
             assertNotNull(fileSystemProvider);
             assumeTrue(fileSystemProvider instanceof AbstractRemoteFileSystemProvider);
-            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(this.mockService.getMockServiceAddress(), new LinkedHashMap<>());
+            ((AbstractRemoteFileSystemProvider) fileSystemProvider).setConnectionData(s3Repo.getRoot(), this.mockService.getMockServiceAddress(), new LinkedHashMap<>());
             URI uri = new URI(s3Repo.getScheme(), s3Repo.getRoot(), null);
             FileSystem fs = fileSystemProvider.getFileSystem(uri);
             assertNotNull(fs);
@@ -114,15 +114,15 @@ public class S3FileSystemTest extends AbstractVFSTest {
         List<BasicFileAttributes> items;
 
         S3Walker walker = new S3Walker(getAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(s3Repo.getRoot() + ""));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(s3Repo.getRoot() + "")));
         assertEquals(2, items.size());
 
         walker = new S3Walker(getAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/"));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(s3Repo.getRoot() + "/rootDir1/")));
         assertEquals(2, items.size());
 
         walker = new S3Walker(getAddress(), getBucket(), "/", s3Repo.getRoot(), fileSystemProvider);
-        items = walker.walk(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/"));
+        items = walker.walk(VFSPath.toRemotePath(NioPaths.get(s3Repo.getRoot() + "/rootDir1/dir1/")));
         assertEquals(2, items.size());
     }
 

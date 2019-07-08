@@ -13,13 +13,15 @@ public class RegularFileMetadataCallback {
 
     private final String urlAddress;
     private final IRemoteConnectionBuilder remoteConnectionBuilder;
+    private final String fileSystemRoot;
 
-    RegularFileMetadataCallback(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder) {
+    RegularFileMetadataCallback(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder, String fileSystemRoot) {
         this.urlAddress = urlAddress;
         this.remoteConnectionBuilder = remoteConnectionBuilder;
+        this.fileSystemRoot = fileSystemRoot;
     }
 
     public RegularFileMetadata readFileMetadata() throws IOException {
-        return HttpUtils.readRegularFileMetadata(this.urlAddress, this.remoteConnectionBuilder);
+        return HttpUtils.readRegularFileMetadata(this.urlAddress, this.remoteConnectionBuilder, this.fileSystemRoot);
     }
 }

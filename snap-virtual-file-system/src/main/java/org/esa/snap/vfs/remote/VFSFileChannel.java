@@ -70,8 +70,9 @@ public class VFSFileChannel extends FileChannel {
         String rangeSpec = "bytes=" + position + "-";
         requestProperties.put("Range", rangeSpec);
         AbstractRemoteFileSystemProvider fileSystemProvider = path.getFileSystem().provider();
+        String fileSystemRoot = path.getFileSystem().getRoot().getPath();
         boolean success = true;
-        HttpURLConnection connection = fileSystemProvider.buildConnection(url, httpMethod, requestProperties);
+        HttpURLConnection connection = fileSystemProvider.buildConnection(fileSystemRoot, url, httpMethod, requestProperties);
         try {
             int responseCode = connection.getResponseCode();
             if (HttpUtils.isValidResponseCode(responseCode)) {
@@ -356,7 +357,7 @@ public class VFSFileChannel extends FileChannel {
             throw new IllegalArgumentException("count must be non-negative.");
         }
         long bytesTransferred;
-        try (SeekableByteChannel dstByteChannel = this.path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
+        try (SeekableByteChannel dstByteChannel = this.path.getFileSystem().provider().newByteChannel(this.path, this.options, this.attrs)) {
             if (position > dstByteChannel.size()) {
                 return 0;
             }
@@ -395,7 +396,7 @@ public class VFSFileChannel extends FileChannel {
         if (position < 0) {
             throw new IllegalArgumentException(NEGATIVE_POSITION_ERROR_MESSAGE);
         }
-        try (SeekableByteChannel srcByteChannel = this.path.getFileSystem().provider().newByteChannel(path, options, attrs)) {
+        try (SeekableByteChannel srcByteChannel = this.path.getFileSystem().provider().newByteChannel(this.path, this.options, this.attrs)) {
             if (position > srcByteChannel.size()) {
                 return 0;
             }
@@ -479,9 +480,9 @@ public class VFSFileChannel extends FileChannel {
      * @param size     The size of the locked region; must be non-negative, and the sum <tt>position</tt>&nbsp;+&nbsp;<tt>size</tt> must be non-negative
      * @param shared   <tt>true</tt> to request a shared lock, in which case this channel must be open for reading (and possibly writing); <tt>false</tt> to request an exclusive lock, in which case this channel must be open for writing (and possibly reading)
      * @return A lock object representing the newly-acquired lock
-     * @throws OverlappingFileLockException  If a lock that overlaps the requested region is already held by this Java virtual machine, or if another thread is already blocked in this method and is attempting to lock an overlapping region
-     * @throws NonReadableChannelException   If <tt>shared</tt> is <tt>true</tt> this channel was not opened for reading
-     * @throws NonWritableChannelException   If <tt>shared</tt> is <tt>false</tt> but this channel was not opened for writing
+     * @throws OverlappingFileLockException If a lock that overlaps the requested region is already held by this Java virtual machine, or if another thread is already blocked in this method and is attempting to lock an overlapping region
+     * @throws NonReadableChannelException  If <tt>shared</tt> is <tt>true</tt> this channel was not opened for reading
+     * @throws NonWritableChannelException  If <tt>shared</tt> is <tt>false</tt> but this channel was not opened for writing
      * @see #lock()
      * @see #tryLock()
      * @see #tryLock(long, long, boolean)

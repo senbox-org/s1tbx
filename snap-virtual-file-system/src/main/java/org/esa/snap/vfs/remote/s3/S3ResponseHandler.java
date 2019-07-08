@@ -103,7 +103,7 @@ public class S3ResponseHandler extends DefaultHandler {
      * @return The continuation token
      */
     String getNextContinuationToken() {
-        return nextContinuationToken;
+        return this.nextContinuationToken;
     }
 
     /**
@@ -112,7 +112,7 @@ public class S3ResponseHandler extends DefaultHandler {
      * @return {@code true} if request response is truncated
      */
     boolean getIsTruncated() {
-        return isTruncated;
+        return this.isTruncated;
     }
 
     /**
@@ -130,7 +130,7 @@ public class S3ResponseHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         try {
             String currentElement = localName.intern();
-            elementStack.addLast(currentElement);
+            this.elementStack.addLast(currentElement);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Unable to mark starting of the new XML element by adding it to the stack of XML elements, for S3 VFS. Details: " + ex.getMessage());
             throw new SAXException(ex);
@@ -151,12 +151,12 @@ public class S3ResponseHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         try {
-            String currentElement = elementStack.removeLast();
+            String currentElement = this.elementStack.removeLast();
             if (currentElement != null && currentElement.equals(localName)) {
-                if (currentElement.equals(PREFIX_ELEMENT) && elementStack.size() == 2 && elementStack.get(1).equals(COMMON_PREFIXES_ELEMENT)) {
-                    items.add(VFSFileAttributes.newDir(prefix + key));
-                } else if (currentElement.equals(CONTENTS_ELEMENT) && elementStack.size() == 1) {
-                    items.add(VFSFileAttributes.newFile(prefix + key, size, lastModified));
+                if (currentElement.equals(PREFIX_ELEMENT) && this.elementStack.size() == 2 && this.elementStack.get(1).equals(COMMON_PREFIXES_ELEMENT)) {
+                    this.items.add(VFSFileAttributes.newDir(this.prefix + this.key));
+                } else if (currentElement.equals(CONTENTS_ELEMENT) && this.elementStack.size() == 1) {
+                    this.items.add(VFSFileAttributes.newFile(this.prefix + this.key, this.size, this.lastModified));
                 }
             }
         } catch (Exception ex) {
@@ -178,29 +178,29 @@ public class S3ResponseHandler extends DefaultHandler {
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         try {
-            String currentElement = elementStack.getLast();
+            String currentElement = this.elementStack.getLast();
             switch (currentElement) {
                 case KEY_ELEMENT:
-                    key = getTextValue(ch, start, length);
-                    String[] keyParts = key.split(delimiter);
-                    key = key.endsWith(delimiter) ? keyParts[keyParts.length - 1] + delimiter : keyParts[keyParts.length - 1];
+                    this.key = getTextValue(ch, start, length);
+                    String[] keyParts = this.key.split(this.delimiter);
+                    this.key = this.key.endsWith(this.delimiter) ? keyParts[keyParts.length - 1] + this.delimiter : keyParts[keyParts.length - 1];
                     break;
                 case SIZE_ELEMENT:
-                    size = getLongValue(ch, start, length);
+                    this.size = getLongValue(ch, start, length);
                     break;
                 case LAST_MODIFIED_ELEMENT:
-                    lastModified = getTextValue(ch, start, length);
+                    this.lastModified = getTextValue(ch, start, length);
                     break;
                 case IS_TRUNCATED_ELEMENT:
-                    isTruncated = getBooleanValue(ch, start, length);
+                    this.isTruncated = getBooleanValue(ch, start, length);
                     break;
                 case NEXT_CONTINUATION_TOKEN_ELEMENT:
-                    nextContinuationToken = getTextValue(ch, start, length);
+                    this.nextContinuationToken = getTextValue(ch, start, length);
                     break;
                 case PREFIX_ELEMENT:
-                    key = getTextValue(ch, start, length);
-                    keyParts = key.split(delimiter);
-                    key = key.endsWith(delimiter) ? keyParts[keyParts.length - 1] + delimiter : keyParts[keyParts.length - 1];
+                    this.key = getTextValue(ch, start, length);
+                    keyParts = this.key.split(this.delimiter);
+                    this.key = this.key.endsWith(this.delimiter) ? keyParts[keyParts.length - 1] + this.delimiter : keyParts[keyParts.length - 1];
                     break;
                 default:
                     break;

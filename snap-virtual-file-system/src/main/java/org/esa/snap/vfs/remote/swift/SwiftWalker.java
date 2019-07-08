@@ -3,6 +3,7 @@ package org.esa.snap.vfs.remote.swift;
 import org.esa.snap.vfs.remote.AbstractRemoteWalker;
 import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -16,7 +17,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,18 +76,19 @@ class SwiftWalker extends AbstractRemoteWalker {
      * @return The list of VFS files and directories
      * @throws IOException If an I/O error occurs
      */
-    public synchronized List<BasicFileAttributes> walk(Path dir) throws IOException {
+    public synchronized List<BasicFileAttributes> walk(VFSPath dir) throws IOException {
         String dirPath = dir.toString();
         String swiftPrefix = buildPrefix(dirPath + (dirPath.endsWith("/") ? "" : "/"));
+        String fileSystemRoot = dir.getFileSystem().getRoot().getPath();
         List<BasicFileAttributes> items = new ArrayList<>();
         String marker = "";
 
         SwiftResponseHandler handler;
         do {
-            handler = new SwiftResponseHandler(root + delimiter + swiftPrefix, items, delimiter);
+            handler = new SwiftResponseHandler(this.root + this.delimiter + swiftPrefix, items, this.delimiter);
             String swiftURL = buildSwiftURL(swiftPrefix, marker);
             URL url = new URL(swiftURL);
-            HttpURLConnection connection = this.remoteConnectionBuilder.buildConnection(url, "GET", null);
+            HttpURLConnection connection = this.remoteConnectionBuilder.buildConnection(fileSystemRoot, url, "GET", null);
             try {
                 int responseCode = connection.getResponseCode();
                 if (HttpUtils.isValidResponseCode(responseCode)) {
@@ -117,22 +118,22 @@ class SwiftWalker extends AbstractRemoteWalker {
     }
 
     private String buildPrefix(String prefix) {
-        prefix = prefix.replace(root, "");
+        prefix = prefix.replace(this.root, "");
         prefix = prefix.replaceAll("^/", "");
         return prefix;
     }
 
     private String buildSwiftURL(String prefix, String marker) throws IOException {
-        String currentContainer = container;
-        currentContainer = (currentContainer != null && !currentContainer.isEmpty()) ? currentContainer + delimiter : "";
+        String currentContainer = this.container;
+        currentContainer = (currentContainer != null && !currentContainer.isEmpty()) ? currentContainer + this.delimiter : "";
         StringBuilder paramBase = new StringBuilder();
         addParam(paramBase, "format", "xml");
         addParam(paramBase, "limit", "1000");
         addParam(paramBase, "prefix", prefix);
-        addParam(paramBase, "delimiter", delimiter);
+        addParam(paramBase, "delimiter", this.delimiter);
         StringBuilder params = new StringBuilder(paramBase);
         addParam(params, "marker", marker);
-        String swiftURL = address + (address.endsWith(delimiter) ? "" : delimiter) + currentContainer;
+        String swiftURL = this.address + (this.address.endsWith(this.delimiter) ? "" : this.delimiter) + currentContainer;
         if (params.length() > 0) {
             swiftURL += "?" + params;
         }

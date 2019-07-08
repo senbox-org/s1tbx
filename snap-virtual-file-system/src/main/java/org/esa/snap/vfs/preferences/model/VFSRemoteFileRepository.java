@@ -35,7 +35,7 @@ public final class VFSRemoteFileRepository {
      * @return The name of VFS Remote File Repository
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -44,7 +44,7 @@ public final class VFSRemoteFileRepository {
      * @return The root of VFS Remote File Repository
      */
     public String getRoot() {
-        return name + ":";
+        return this.name + ":";
     }
 
     /**
@@ -53,7 +53,7 @@ public final class VFSRemoteFileRepository {
      * @return The scheme of VFS Remote File Repository
      */
     public String getScheme() {
-        return scheme;
+        return this.scheme;
     }
 
     /**
@@ -62,7 +62,7 @@ public final class VFSRemoteFileRepository {
      * @return The address of VFS Remote File Repository
      */
     public String getAddress() {
-        return address;
+        return this.address;
     }
 
     /**
@@ -71,6 +71,6 @@ public final class VFSRemoteFileRepository {
      * @return The properties of VFS Remote File Repository
      */
     public List<Property> getProperties() {
-        return properties;
+        return this.properties;
     }
 }

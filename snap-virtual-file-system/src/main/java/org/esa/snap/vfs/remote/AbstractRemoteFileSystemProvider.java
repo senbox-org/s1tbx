@@ -47,11 +47,6 @@ import java.util.Set;
  */
 public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvider implements IRemoteConnectionBuilder {
 
-    /**
-     * The default value of delimiter property, used on VFS instance creation parameters.
-     */
-    protected static final String DELIMITER_PROPERTY_DEFAULT_VALUE = "/";
-
     private final Map<String, AbstractRemoteFileSystem> fileSystems;
 
     /**
@@ -79,7 +74,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         return resourcePathAsString;
     }
 
-    public abstract void setConnectionData(String serviceAddress, Map<String, ?> connectionData);
+    public abstract void setConnectionData(String fileSystemRoot, String serviceAddress, Map<String, ?> connectionData);
 
     /**
      * Creates the walker instance used by VFS provider to traverse VFS tree.
@@ -93,9 +88,9 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
      *
      * @return The VFS service address
      */
-    public abstract String getProviderAddress();
+    public abstract String getProviderAddress(String fileSystemRoot);
 
-    public abstract String getProviderFileSeparator();
+    public abstract String getProviderFileSeparator(String fileSystemRoot);
 
     protected abstract AbstractRemoteFileSystem newFileSystem(String fileSystemRoot, Map<String, ?> env);
 
@@ -116,9 +111,8 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     @Override
     public final AbstractRemoteFileSystem newFileSystem(URI uri, Map<String, ?> env) {
         validateScheme(uri);
-        validateProviderAddress();
-
         String fileSystemRoot = extractFileSystemRoot(uri);
+        validateProviderAddress(fileSystemRoot);
         AbstractRemoteFileSystem fileSystem = this.fileSystems.get(fileSystemRoot);
         if (fileSystem == null) {
             fileSystem = newFileSystem(fileSystemRoot, env);
@@ -147,9 +141,8 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     @Override
     public final AbstractRemoteFileSystem getFileSystem(URI uri) {
         validateScheme(uri);
-        validateProviderAddress();
-
         String fileSystemRoot = extractFileSystemRoot(uri);
+        validateProviderAddress(fileSystemRoot);
         AbstractRemoteFileSystem fileSystem = this.fileSystems.get(fileSystemRoot);
         if (fileSystem == null) {
             throw new FileSystemNotFoundException(uri.toString());
@@ -172,9 +165,8 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     @Override
     public final Path getPath(URI uri) {
         validateScheme(uri);
-        validateProviderAddress();
-
         String fileSystemRoot = extractFileSystemRoot(uri);
+        validateProviderAddress(fileSystemRoot);
         AbstractRemoteFileSystem fileSystem = this.fileSystems.computeIfAbsent(fileSystemRoot, fsr -> newFileSystem(fsr, Collections.emptyMap()));
         String resourcePathAsString = extractSchemeSpecificPart(uri);
         return VFSPath.parsePath(fileSystem, resourcePathAsString);
@@ -224,7 +216,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     public VFSByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>[] attrs) throws IOException {
         VFSPath remotePath = VFSPath.toRemotePath(path);
         AbstractRemoteFileSystem fileSystem = remotePath.getFileSystem();
-        return fileSystem.openByteChannel((VFSPath) path, options, attrs);
+        return fileSystem.openByteChannel(remotePath, options, attrs);
     }
 
     /**
@@ -241,7 +233,7 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
     public DirectoryStream<Path> newDirectoryStream(Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
         VFSPath remoteDir = VFSPath.toRemotePath(dir);
         AbstractRemoteFileSystem fileSystem = remoteDir.getFileSystem();
-        Iterable<Path> directories = fileSystem.walkDir(dir, filter);
+        Iterable<Path> directories = fileSystem.walkDir(remoteDir, filter);
         return new DirectoryStream<Path>() {
             @Override
             public Iterator<Path> iterator() {
@@ -459,9 +451,8 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
 
     public final AbstractRemoteFileSystem getFileSystemOrCreate(URI uri, Map<String, ?> env) {
         validateScheme(uri);
-        validateProviderAddress();
-
         String fileSystemRoot = extractFileSystemRoot(uri);
+        validateProviderAddress(fileSystemRoot);
         return this.fileSystems.computeIfAbsent(fileSystemRoot, fsr -> newFileSystem(fsr, env));
     }
 
@@ -485,8 +476,8 @@ public abstract class AbstractRemoteFileSystemProvider extends FileSystemProvide
         }
     }
 
-    private void validateProviderAddress() {
-        if (getProviderAddress().isEmpty()) {
+    private void validateProviderAddress(String fileSystemRoot) {
+        if (getProviderAddress(fileSystemRoot).isEmpty()) {
             throw new IllegalStateException("The VFS with scheme: " + getScheme() + " is not initialized.");
         }
     }

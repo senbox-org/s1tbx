@@ -22,17 +22,17 @@ public class HttpUtils {
         return (responseCode >= HttpURLConnection.HTTP_OK && responseCode < HttpURLConnection.HTTP_MULT_CHOICE);
     }
 
-    public static RegularFileMetadata readRegularFileMetadata(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder) throws IOException {
+    public static RegularFileMetadata readRegularFileMetadata(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder, String fileSystemRoot) throws IOException {
         URL fileURL = new URL(urlAddress);
-        HttpURLConnection connection = remoteConnectionBuilder.buildConnection(fileURL, "GET", null);
+        HttpURLConnection connection = remoteConnectionBuilder.buildConnection(fileSystemRoot, fileURL, "GET", null);
         try {
             int responseCode = connection.getResponseCode();
             if (HttpUtils.isValidResponseCode(responseCode)) {
                 String sizeString = connection.getHeaderField("content-length");
                 String lastModified = connection.getHeaderField("last-modified");
                 if (!StringUtils.isNotNullAndNotEmpty(sizeString) || !StringUtils.isNotNullAndNotEmpty(lastModified)) {
-                    if(!connection.getURL().toString().contentEquals(urlAddress)){
-                        throw new IOException("Invalid VFS service.\nReason: Redirect from: "+urlAddress+" to: "+connection.getURL().toString());
+                    if (!connection.getURL().toString().contentEquals(urlAddress)) {
+                        throw new IOException("Invalid VFS service.\nReason: Redirect from: " + urlAddress + " to: " + connection.getURL().toString());
                     }
                     throw new IOException("filePath is not a file '" + urlAddress + "'.");
                 }
@@ -46,9 +46,9 @@ public class HttpUtils {
         }
     }
 
-    public static String readResponse(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder) throws IOException {
+    public static String readResponse(String urlAddress, IRemoteConnectionBuilder remoteConnectionBuilder, String fileSystemRoot) throws IOException {
         URL pageURL = new URL(urlAddress);
-        HttpURLConnection connection = remoteConnectionBuilder.buildConnection(pageURL, "GET", null);
+        HttpURLConnection connection = remoteConnectionBuilder.buildConnection(fileSystemRoot, pageURL, "GET", null);
         try {
             int responseCode = connection.getResponseCode();
             if (HttpUtils.isValidResponseCode(responseCode)) {

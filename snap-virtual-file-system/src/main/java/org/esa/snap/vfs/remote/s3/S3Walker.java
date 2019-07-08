@@ -3,6 +3,7 @@ package org.esa.snap.vfs.remote.s3;
 import org.esa.snap.vfs.remote.AbstractRemoteWalker;
 import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -16,7 +17,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,18 +78,19 @@ class S3Walker extends AbstractRemoteWalker {
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public synchronized List<BasicFileAttributes> walk(Path dir) throws IOException {
+    public synchronized List<BasicFileAttributes> walk(VFSPath dir) throws IOException {
         String dirPath = dir.toString();
         String s3Prefix = buildPrefix(dirPath + (dirPath.endsWith("/") ? "" : "/"));
+        String fileSystemRoot = dir.getFileSystem().getRoot().getPath();
         List<BasicFileAttributes> items = new ArrayList<>();
         String nextContinuationToken = "";
 
         S3ResponseHandler handler;
         do {
-            handler = new S3ResponseHandler(root + delimiter + s3Prefix, items, delimiter);
+            handler = new S3ResponseHandler(this.root + this.delimiter + s3Prefix, items, this.delimiter);
             String s3URL = buildS3URL(s3Prefix, nextContinuationToken);
             URL url = new URL(s3URL);
-            HttpURLConnection connection = this.remoteConnectionBuilder.buildConnection(url, "GET", null);
+            HttpURLConnection connection = this.remoteConnectionBuilder.buildConnection(fileSystemRoot, url, "GET", null);
             try {
                 int responseCode = connection.getResponseCode();
                 if (HttpUtils.isValidResponseCode(responseCode)) {
@@ -120,20 +121,20 @@ class S3Walker extends AbstractRemoteWalker {
     }
 
     private String buildPrefix(String prefix) {
-        prefix = prefix.replace(root, "");
+        prefix = prefix.replace(this.root, "");
         prefix = prefix.replaceAll("^/", "");
         return prefix;
     }
 
     private String buildS3URL(String prefix, String nextContinuationToken) throws IOException {
         String currentBucket = this.bucket;
-        currentBucket = (currentBucket != null && !currentBucket.isEmpty()) ? currentBucket + delimiter : "";
+        currentBucket = (currentBucket != null && !currentBucket.isEmpty()) ? currentBucket + this.delimiter : "";
         StringBuilder paramBase = new StringBuilder();
         addParam(paramBase, "prefix", prefix);
-        addParam(paramBase, "delimiter", delimiter);
+        addParam(paramBase, "delimiter", this.delimiter);
         StringBuilder params = new StringBuilder(paramBase);
         addParam(params, "continuation-token", nextContinuationToken);
-        String s3URL = address + (address.endsWith(delimiter) ? "" : delimiter) + currentBucket;
+        String s3URL = this.address + (this.address.endsWith(this.delimiter) ? "" : this.delimiter) + currentBucket;
         if (params.length() > 0) {
             s3URL += "?" + params;
         }

@@ -12,5 +12,5 @@ import java.util.Map;
  */
 public interface IRemoteConnectionBuilder {
 
-    HttpURLConnection buildConnection(URL url, String method, Map<String, String> requestProperties) throws IOException;
+    HttpURLConnection buildConnection(String fileSystemRoot, URL url, String method, Map<String, String> requestProperties) throws IOException;
 }

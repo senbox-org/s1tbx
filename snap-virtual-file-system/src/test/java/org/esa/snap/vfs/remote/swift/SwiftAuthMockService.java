@@ -9,18 +9,20 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 
 class SwiftAuthMockService {
 
-    static final String TOKEN = "c4760e89c8d945cd9a6fbfc7b71d6cbc";
-    private static final String DOMAIN = "cloud_14547";
-    private static final String PROJECT_ID = "c4761f89c8d940cd9a6dbfa7b72d6cba";
-    private static final String USER = "swift_test";
-    private static final String CREDENTIAL = "SwIfT0#";
+    private static final String TOKEN = "c4760e89c8d945cd9a6fbfc7b71d6cbc";
+    private static LocalDateTime expirationDate;
+
     private HttpServer mockAuthServer;
     private String mockServiceAddress;
+
 
     SwiftAuthMockService(URL serviceAddress) throws IOException {
         this.mockAuthServer = HttpServer.create(new InetSocketAddress(serviceAddress.getPort()), 0);
@@ -39,6 +41,10 @@ class SwiftAuthMockService {
         }
     }
 
+    static boolean isValidToken(String token) {
+        return token.contentEquals(TOKEN) && expirationDate != null && expirationDate.isAfter(LocalDateTime.now(ZoneOffset.UTC));
+    }
+
     void start() {
         this.mockAuthServer.start();
     }
@@ -53,11 +59,31 @@ class SwiftAuthMockService {
 
     private class SwiftAuthMockServiceHandler implements HttpHandler {
 
+        private static final String DOMAIN = "cloud_14547";
+        private static final String PROJECT_ID = "c4761f89c8d940cd9a6dbfa7b72d6cba";
+        private static final String USER = "swift_test";
+        private static final String CREDENTIAL = "SwIfT0#";
+        private static final long TOKEN_VALIDITY = 15L;
+        private static final String EXPIRATION_DATE_NAME = "%expirationDate%";
+        private static final String ISSUANCE_DATE_NAME = "%issuanceDate%";
+        private static final String API_RESPONSE = "{\n" +
+                "    \"token\": {\n" +
+                "        \"expires_at\": \"" + EXPIRATION_DATE_NAME + "\",\n" +
+                "        \"issued_at\": \"" + ISSUANCE_DATE_NAME + "\",\n" +
+                "        \"methods\": [\n" +
+                "            \"password\"\n" +
+                "        ],\n" +
+                "    }\n" +
+                "}";
+
+        private final DateTimeFormatter isoDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
+
         SwiftAuthMockServiceHandler() {
         }
 
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
+            byte[] response;
             int httpStatus;
             String contentType = "text/plain";
             try {
@@ -73,19 +99,30 @@ class SwiftAuthMockService {
                 String user = requestJson.replaceAll("((.|\\n)*\"user\"(.|\\n)*\\s*\"name\":\\s*\"(.*)\"(.|\\n)*)", "$4");
                 String password = requestJson.replaceAll("((.|\\n)*\"user\"(.|\\n)*\\s*\"password\":\\s*\"(.*)\"(.|\\n)*)", "$4");
                 if (!domain.contentEquals(DOMAIN) || !projectId.contentEquals(PROJECT_ID) || !user.contentEquals(USER) || !password.contentEquals(CREDENTIAL)) {
+                    response = "AccessDenied".getBytes();
                     httpStatus = HttpURLConnection.HTTP_FORBIDDEN;
                 } else {
                     httpExchange.getResponseHeaders().add("X-Subject-Token", TOKEN);
+                    LocalDateTime issuanceDate = LocalDateTime.now(ZoneOffset.UTC);
+                    expirationDate = issuanceDate.plusMinutes(TOKEN_VALIDITY);
+                    httpExchange.getResponseHeaders().add("expires_at", expirationDate.format(this.isoDateFormat));
+                    String apiResponse = API_RESPONSE;
+                    apiResponse = apiResponse.replace(EXPIRATION_DATE_NAME, expirationDate.format(this.isoDateFormat));
+                    apiResponse = apiResponse.replace(ISSUANCE_DATE_NAME, issuanceDate.format(this.isoDateFormat));
+                    response = apiResponse.getBytes();
                     httpStatus = HttpURLConnection.HTTP_CREATED;
                 }
             } catch (IllegalArgumentException ex) {
+                response = "Bad request".getBytes();
                 httpStatus = HttpURLConnection.HTTP_BAD_REQUEST;
             } catch (Exception ex) {
+                response = "Internal error".getBytes();
                 httpStatus = HttpURLConnection.HTTP_INTERNAL_ERROR;
             }
             httpExchange.getResponseHeaders().add("Content-Type", contentType);
             httpExchange.getResponseHeaders().add("Server", "MockSwiftS3");
             httpExchange.sendResponseHeaders(httpStatus, 0);
+            httpExchange.getResponseBody().write(response);
             httpExchange.close();
         }
 

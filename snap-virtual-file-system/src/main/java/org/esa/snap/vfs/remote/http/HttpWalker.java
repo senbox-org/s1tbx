@@ -5,6 +5,7 @@ import org.esa.snap.vfs.remote.AbstractRemoteWalker;
 import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
 import org.esa.snap.vfs.remote.VFSFileAttributes;
+import org.esa.snap.vfs.remote.VFSPath;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -57,7 +58,7 @@ class HttpWalker extends AbstractRemoteWalker {
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public synchronized List<BasicFileAttributes> walk(Path dir) throws IOException {
+    public synchronized List<BasicFileAttributes> walk(VFSPath dir) throws IOException {
         StringBuilder urlAsString = new StringBuilder();
         if (this.address.endsWith(this.delimiter)) {
             int endIndex = this.address.length() - this.delimiter.length();
@@ -76,7 +77,7 @@ class HttpWalker extends AbstractRemoteWalker {
         urlAsString.append(urlPathAsString);
 
         String urlAddress = urlAsString.toString();
-        String htmlResponse = HttpUtils.readResponse(urlAddress, this.remoteConnectionBuilder);
+        String htmlResponse = HttpUtils.readResponse(urlAddress, this.remoteConnectionBuilder, this.root);
         Document document = Jsoup.parse(htmlResponse, urlAddress);
         if (!dirPathAsString.endsWith(this.delimiter)) {
             dirPathAsString += this.delimiter;
@@ -136,7 +137,7 @@ class HttpWalker extends AbstractRemoteWalker {
                         }
                         fileUrl = fileUrl.concat(filePathUrl);
                     }
-                    RegularFileMetadataCallback fileSizeQueryCallback = new RegularFileMetadataCallback(fileUrl, this.remoteConnectionBuilder);
+                    RegularFileMetadataCallback fileSizeQueryCallback = new RegularFileMetadataCallback(fileUrl, this.remoteConnectionBuilder, this.root);
                     BasicFileAttributes regularFileAttributes = VFSFileAttributes.newFile(filePath, fileSizeQueryCallback);
                     items.add(regularFileAttributes);
                 }
