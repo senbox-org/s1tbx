@@ -561,22 +561,22 @@ public class IceyeProductReader extends SARReader {
 
         final Variable variable = bandMap.get(destBand);
 
-        sourceHeight = Math.min(sourceHeight, sceneHeight-sourceOffsetY);
         destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
         sourceWidth = Math.min(sourceWidth, sceneWidth-sourceOffsetX);
         destWidth = Math.min(destWidth, sceneWidth-destOffsetX);
         final int[] origin = {sourceOffsetY, sourceOffsetX};
-        final int[] shape = {sourceHeight, sourceWidth};
+        final int[] shape = {1, sourceWidth};
 
         pm.beginTask("Reading util from band " + destBand.getName(), destHeight);
         try {
-            Array srcArray = null;
-            synchronized (netcdfFile) {
-                srcArray = variable.read(origin, shape);
-            }
-
             for (int y = 0; y < destHeight; y++) {
-                System.arraycopy(srcArray.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
+                origin[0] = sourceOffsetY + y;
+                final Array array;
+                synchronized (netcdfFile) {
+                    array = variable.read(origin, shape);
+                }
+                System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
+                pm.worked(1);
             }
         } catch (Exception e) {
             final IOException ioException = new IOException(e);
