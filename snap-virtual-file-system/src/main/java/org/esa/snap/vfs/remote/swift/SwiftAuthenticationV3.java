@@ -118,6 +118,7 @@ final class SwiftAuthenticationV3 {
                     String result = bufferedReader.lines().collect(Collectors.joining("\n"));
                     String newExpirationDate = result.replaceAll("[\\s\\S]*\"expires_at\": \"(.*?)\",[\\s\\S]*", "$1");
                     this.expirationDate = LocalDateTime.parse(newExpirationDate, ISO_DATE_TIME);
+                    this.expirationDate = this.expirationDate.minusMinutes(1L); //prevent arriving expired token at Swift VFS Service
                     return newAuthorizationToken;
                 }
             }

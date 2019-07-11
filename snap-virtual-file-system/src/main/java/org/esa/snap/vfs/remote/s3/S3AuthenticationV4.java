@@ -329,7 +329,7 @@ class S3AuthenticationV4 {
         }
         if (this.lastAuthorizationToken == null || isExpired() || !url.toString().contentEquals(this.lastAuthorizedURL.toString())) {
             ensureValid();
-            this.awsHeaders = getAwsHeaders(url);
+            this.awsHeaders = buildAwsHeaders(url);
             String scope = buildScope();
             String signedHeaders = buildSignedHeaders();
             String signature = buildSignature(url);
@@ -352,7 +352,7 @@ class S3AuthenticationV4 {
      */
     Map<String, String> getAwsHeaders(URL url) {
         if (this.awsHeaders == null || this.lastAuthorizedURL == null || !url.toString().contentEquals(this.lastAuthorizedURL.toString())) {
-            this.awsHeaders = buildAwsHeaders(url);
+            throw new IllegalStateException("Unsigned AWS Headers. Request token before AWS Headers."); //prevent requesting AWS headers before signing it.
         }
         return this.awsHeaders;
     }
