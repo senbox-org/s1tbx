@@ -16,14 +16,32 @@
 package org.esa.snap.core.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.snap.core.datamodel.*;
+import com.bc.ceres.glevel.MultiLevelImage;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Stx;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ProductUtils;
 
 import javax.media.jai.Histogram;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -316,16 +334,48 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                          pm);
                 // else if the desired destination region is smaller than the source raster
             } else {
-                readBandRasterDataSubSampling(sourceBand,
-                                              sourceOffsetX, sourceOffsetY,
-                                              sourceWidth, sourceHeight,
-                                              sourceStepX, sourceStepY,
-                                              destBuffer,
-                                              destWidth,
-                                              pm);
+                Rectangle destRect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
+                readBandRasterDataSubsampled(sourceBand, destBuffer, destRect, sourceOffsetX, sourceOffsetY,
+                                             sourceWidth, sourceHeight, sourceStepX, sourceStepY);
             }
         }
     }
+
+    private static void readBandRasterDataSubsampled(Band band, ProductData destData, Rectangle destRect, int sourceOffsetX, int sourceOffsetY,
+                                                     int sourceWidth, int sourceHeight, int sourceStepX, int sourceStepY) throws IOException {
+
+        Point[] tileIndices = band.getSourceImage().getTileIndices(new Rectangle(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight));
+        HashMap<Rectangle, ProductData> tileMap = new HashMap<>();
+        for (Point tileIndex : tileIndices) {
+            Rectangle tileRect = band.getSourceImage().getTileRect(tileIndex.x, tileIndex.y);
+            if (tileRect.isEmpty()) {
+                continue;
+            }
+            final ProductData tileData = ProductData.createInstance(band.getDataType(), tileRect.width * tileRect.height);
+            band.readRasterData(tileRect.x, tileRect.y, tileRect.width, tileRect.height, tileData, ProgressMonitor.NULL);
+            tileMap.put(tileRect, tileData);
+        }
+
+        for (int y = 0; y < destRect.height; y++) {
+            final int currentSrcYOffset = sourceOffsetY + y * sourceStepY;
+            int currentDestYOffset = y * destRect.width;
+            for (int x = 0; x < destRect.width; x++) {
+                double value = getSourceValue(band, tileMap, sourceOffsetX + x * sourceStepX, currentSrcYOffset);
+                destData.setElemDoubleAt(currentDestYOffset + x, value);
+            }
+
+        }
+    }
+
+    private static double getSourceValue(Band band, HashMap<Rectangle, ProductData> tileMap, int sourceX, int sourceY) {
+        MultiLevelImage img = band.getSourceImage();
+        Rectangle tileRect = img.getTileRect(img.XToTileX(sourceX), img.YToTileY(sourceY));
+        ProductData productData = tileMap.get(tileRect);
+        int currentX = sourceX - tileRect.x;
+        int currentY = sourceY - tileRect.y;
+        return productData.getElemDoubleAt(currentY * tileRect.width + currentX);
+    }
+
 
     private void copyBandRasterDataFully(Band sourceBand, ProductData destBuffer, int destWidth, int destHeight) {
         copyData(sourceBand.getRasterData(),
@@ -347,33 +397,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                   destBuffer, pm);
     }
 
-    private void readBandRasterDataSubSampling(Band sourceBand,
-                                               int sourceOffsetX, int sourceOffsetY,
-                                               int sourceWidth, int sourceHeight,
-                                               int sourceStepX, int sourceStepY,
-                                               ProductData destBuffer,
-                                               int destWidth, ProgressMonitor pm) throws IOException {
-        final int sourceMinY = sourceOffsetY;
-        final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
-        ProductData lineBuffer = ProductData.createInstance(destBuffer.getType(), sourceWidth);
-        int destPos = 0;
-        try {
-            pm.beginTask("Reading sub sampled raster data...", 2 * (sourceMaxY - sourceMinY));
-            for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
-                sourceBand.readRasterData(sourceOffsetX, sourceY, sourceWidth, 1, lineBuffer,
-                                          SubProgressMonitor.create(pm, 1));
-                if (sourceStepX == 1) {
-                    copyData(lineBuffer, 0, destBuffer, destPos, destWidth);
-                } else {
-                    copyLine(lineBuffer, 0, sourceWidth, sourceStepX, destBuffer, destPos);
-                }
-                pm.worked(1);
-                destPos += destWidth;
-            }
-        } finally {
-            pm.done();
-        }
-    }
 
     private void copyBandRasterDataSubSampling(Band sourceBand,
                                                int sourceOffsetX, int sourceOffsetY,
@@ -718,17 +741,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             imageInfo = sourceRaster.getImageInfo().createDeepCopy();
             targetRaster.setImageInfo(imageInfo);
         }
-    }
-
-    private boolean isFullScene(ProductSubsetDef subsetDef) {
-        if (subsetDef == null) {
-            return true;
-        }
-        final Rectangle sourceRegion = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(), getSceneRasterHeight());
-        return subsetDef.getRegion() == null
-                || subsetDef.getRegion().equals(sourceRegion)
-                && subsetDef.getSubSamplingX() == 1
-                && subsetDef.getSubSamplingY() == 1;
     }
 
     private boolean isFullScene(ProductSubsetDef subsetDef, RasterDataNode rasterDataNode) {
