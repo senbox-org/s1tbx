@@ -43,7 +43,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class GeoTiffProductReaderPlugInTest {
 
@@ -87,6 +89,7 @@ public class GeoTiffProductReaderPlugInTest {
         assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.tif"));
         assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.tiff"));
         assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.btf"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.gtif"));
 
         final File zippedgeoTiff = new File(getClass().getResource("nearGreenwichMeridian.zip").toURI());
         if(zippedgeoTiff.exists()) {
@@ -106,8 +109,9 @@ public class GeoTiffProductReaderPlugInTest {
 
         assertNotNull(fileExtensions);
         final List<String> extensionList = Arrays.asList(fileExtensions);
-        assertEquals(4, extensionList.size());
+        assertEquals(5, extensionList.size());
         assertEquals(true, extensionList.contains(".tif"));
+        assertEquals(true, extensionList.contains(".gtif"));
         assertEquals(true, extensionList.contains(".tiff"));
         assertEquals(true, extensionList.contains(".zip"));
     }

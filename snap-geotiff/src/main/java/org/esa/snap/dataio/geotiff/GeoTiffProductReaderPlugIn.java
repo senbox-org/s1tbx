@@ -19,6 +19,7 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 
@@ -28,6 +29,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Locale;
@@ -37,6 +39,9 @@ import java.util.zip.ZipFile;
 public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     private static final String[] FORMAT_NAMES = new String[]{"GeoTIFF"};
+    private final String[] TIFF_FILE_EXTENSION = {".tif", ".tiff", ".gtif", ".btf"};
+    private final String ZIP_FILE_EXTENSION = ".zip";
+    private final String[] ALL_FILE_EXTENSIONS = StringUtils.addToArray(TIFF_FILE_EXTENSION, ZIP_FILE_EXTENSION);
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
@@ -47,18 +52,20 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
             } else if (input instanceof File || input instanceof InputStream) {
                 imageIOInput = input;
             } else {
-                return DecodeQualification.UNABLE;        
+                return DecodeQualification.UNABLE;
             }
-			if(input instanceof String || input instanceof File) {
-				 final String ext = FileUtils.getExtension((File) imageIOInput);
-                 if(ext != null && ext.equalsIgnoreCase(".tif") || ext.equalsIgnoreCase(".tiff") || ext.equalsIgnoreCase(".btf")) {
-                     return DecodeQualification.INTENDED;
-                 } else if(ext != null && ext.equalsIgnoreCase(".zip")) {
-                     return checkZip((File) imageIOInput);
-                 } else {
-                     return DecodeQualification.UNABLE;
-                 }
-			}
+            if (input instanceof String || input instanceof File) {
+                final String ext = FileUtils.getExtension((File) imageIOInput);
+                if (ext != null) {
+                    boolean extensionMatch = Arrays.stream(TIFF_FILE_EXTENSION).anyMatch(ext::equalsIgnoreCase);
+                    if (extensionMatch) {
+                        return DecodeQualification.INTENDED;
+                    } else if (ext.equalsIgnoreCase(ZIP_FILE_EXTENSION)) {
+                        return checkZip((File) imageIOInput);
+                    }
+                }
+                return DecodeQualification.UNABLE;
+            }
             try (ImageInputStream stream = ImageIO.createImageInputStream(imageIOInput)) {
                 return getDecodeQualificationImpl(stream);
             }
@@ -69,7 +76,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    private static DecodeQualification checkZip(final File file) throws IOException {
+    private DecodeQualification checkZip(final File file) throws IOException {
         final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
         final Enumeration<? extends ZipEntry> entries = productZip.entries();
         boolean foundTiff = false;
@@ -80,20 +87,21 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         boolean foundNtif = productZip.stream().anyMatch((ze -> ze.getName().endsWith("ntf")));
 
         int entryCnt = 0;
-        while(entries.hasMoreElements()) {
+        while (entries.hasMoreElements()) {
             final ZipEntry zipEntry = entries.nextElement();
             if (zipEntry != null && !zipEntry.isDirectory()) {
                 entryCnt++;
                 final String name = zipEntry.getName().toLowerCase();
-                if(!name.contains("/") && (name.endsWith(".tif") || name.endsWith(".tiff") || name.endsWith(".btf"))) {
+                boolean extensionMatch = Arrays.stream(TIFF_FILE_EXTENSION).anyMatch(name::endsWith);
+                if (!name.contains("/") && extensionMatch) {
                     foundTiff = true;
                 }
-                if(!foundNtif && foundTiff && entryCnt > 1) {
+                if (!foundNtif && foundTiff && entryCnt > 1) {
                     return DecodeQualification.SUITABLE;        // not exclusively a zipped tiff
                 }
             }
         }
-        if(foundTiff && entryCnt == 1) {
+        if (foundTiff && entryCnt == 1) {
             return DecodeQualification.INTENDED;    // only zipped tiff
         }
         return DecodeQualification.UNABLE;
@@ -136,7 +144,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{".tif", ".tiff", ".btf", ".zip"};
+        return ALL_FILE_EXTENSIONS;
     }
 
     @Override
