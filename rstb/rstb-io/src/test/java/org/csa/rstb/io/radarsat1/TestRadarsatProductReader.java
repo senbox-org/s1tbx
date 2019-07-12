@@ -33,7 +33,8 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestRadarsatProductReader extends ReaderTest  {
 
-    private static final File zipFile = new File("E:\\data\\RS1\\Toronto\\RS1_m0700843_S7_20070802_232037_HH_SGF.zip");
+    //private static final File zipFile = new File("E:\\data\\RS1\\Toronto\\RS1_m0700843_S7_20070802_232037_HH_SGF.zip");
+    private static final File zipFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR" + S1TBXTests.sep + "RS1" + S1TBXTests.sep + "RS1_m0700843_S7_20070802_232037_HH_SGF.zip");
 
     private final static String inputRS1 = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "RS1" + S1TBXTests.sep ;
     private final static File[] rootPathsRadarsat1 = S1TBXTests.loadFilePath(inputRS1);
@@ -41,6 +42,8 @@ public class TestRadarsatProductReader extends ReaderTest  {
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
+        assumeTrue(zipFile + " not found", zipFile.exists());
+
         for (File file : rootPathsRadarsat1) {
             assumeTrue(file + " not found", file.exists());
         }
@@ -51,7 +54,6 @@ public class TestRadarsatProductReader extends ReaderTest  {
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningZip() throws Exception {
         testReader(zipFile);
     }

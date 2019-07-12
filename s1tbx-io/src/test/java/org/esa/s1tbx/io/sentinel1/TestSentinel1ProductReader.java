@@ -39,7 +39,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     private final static File inputS1_meta1GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless1"+File.separator+"manifest.safe");
     private final static File inputS1_meta2GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless2"+File.separator+"manifest.safe");
 
-    private final static File inputGRDFolder = new File(TestData.inputSAR, "S1\\AWS\\S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
+    private final static File inputGRDFolder = new File(TestData.inputSAR + File.separator + "S1" + File.separator + "AWS" + File.separator + "S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
 
     private String[] productTypeExemptions = {"RAW","OCN"};
 

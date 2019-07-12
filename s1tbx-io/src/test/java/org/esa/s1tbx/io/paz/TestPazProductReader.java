@@ -18,8 +18,10 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestPazProductReader extends ReaderTest {
 
+    private final static String sep = S1TBXTests.sep;
+
     //private final static File inputMetaXML = new File("D:\\EO\\PAZ\\PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315\\PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315.xml");
-    private final static File inputMetaXML = new File(S1TBXTests.inputPathProperty, "SAR\\PAZ\\PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315\\PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315.xml");
+    private final static File inputMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315" + sep + "PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315.xml");
 
     public TestPazProductReader() {
         super(new PazProductReaderPlugIn());

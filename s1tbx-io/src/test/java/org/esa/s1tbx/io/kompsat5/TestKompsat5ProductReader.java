@@ -17,10 +17,11 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestKompsat5ProductReader extends ReaderTest {
 
+    private final static String sep = S1TBXTests.sep;
     private final static File inputZip = null;
-    private static final File inputFolder = new File(S1TBXTests.inputPathProperty, "SAR\\K5\\HDF\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D");
+    private static final File inputFolder = new File(S1TBXTests.inputPathProperty + sep + "SAR" + sep + "K5" + sep + "HDF" + sep + "K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D");
     //private final static File inputFolder = new File("E:\\data\\K5\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D");
-    private final static File inputMetaXML = new File(S1TBXTests.inputPathProperty, "SAR\\K5\\HDF\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
+    private final static File inputMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "K5" + sep + "HDF" + sep + "K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D" + sep + "K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
     //private final static File inputMetaXML = new File("E:\\data\\K5\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
 
     public TestKompsat5ProductReader() {
