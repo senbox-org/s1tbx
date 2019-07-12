@@ -16,6 +16,8 @@
 package org.csa.rstb.io.rcm;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
+import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -44,46 +46,55 @@ public class TestRCMProductReader extends ReaderTest {
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningGRDManifest() throws Exception {
         testReader(inputGRDManifest);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningGRDZip() throws Exception {
         testReader(inputGRDZip);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningGRDFolder() throws Exception {
         testReader(inputGRDFolder);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningSLCManifest() throws Exception {
         testReader(inputSLCManifest);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningSLCZip() throws Exception {
         testReader(inputSLCZip);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningSLCFolder() throws Exception {
         testReader(inputSLCFolder);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningCPSLCZip() throws Exception {
         testReader(inputCPSLC);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningCPGRCZip() throws Exception {
         testReader(inputCPGRC);
     }
 
     @Test
+    @Ignore("No data")
     public void testOpeningGRCZip() throws Exception {
         testReader(inputGRCZip);
     }

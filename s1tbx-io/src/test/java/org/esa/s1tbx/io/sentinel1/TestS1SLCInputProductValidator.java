@@ -20,7 +20,10 @@ import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.dataio.dimap.DimapProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Validates input products using commonly used verifications
@@ -29,6 +32,13 @@ public class TestS1SLCInputProductValidator extends ReaderTest {
 
     public TestS1SLCInputProductValidator() {
         super(new DimapProductReaderPlugIn());
+    }
+
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(TestData.inputS1_StripmapSLC + " not found", TestData.inputS1_StripmapSLC.exists());
     }
 
     @Test

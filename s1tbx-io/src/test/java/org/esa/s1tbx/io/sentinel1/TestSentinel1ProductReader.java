@@ -39,7 +39,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     private final static File inputS1_meta1GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless1"+File.separator+"manifest.safe");
     private final static File inputS1_meta2GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless2"+File.separator+"manifest.safe");
 
-    private final static File inputGRDFolder = new File("E:\\data\\S1\\aws\\S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
+    private final static File inputGRDFolder = new File(TestData.inputSAR, "S1\\AWS\\S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
 
     private String[] productTypeExemptions = {"RAW","OCN"};
 
@@ -52,6 +52,11 @@ public class TestSentinel1ProductReader extends ReaderTest {
     public void setUp() {
         // If the file does not exist: the test will be ignored
         assumeTrue(inputS1_GRDFile + " not found", inputS1_GRDFile.exists());
+        assumeTrue(inputS1_AnnotGRD + " not found", inputS1_AnnotGRD.exists());
+        assumeTrue(inputS1_meta1GRD + " not found", inputS1_meta1GRD.exists());
+        assumeTrue(inputS1_meta2GRD + " not found", inputS1_meta2GRD.exists());
+        assumeTrue(inputS1_AnnotGRDZip + " not found", inputS1_AnnotGRDZip.exists());
+        assumeTrue(inputGRDFolder + " not found", inputGRDFolder.exists());
 
         for (File file : rootPathsSentinel1) {
             assumeTrue(file + " not found", file.exists());
@@ -75,25 +80,21 @@ public class TestSentinel1ProductReader extends ReaderTest {
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningFile() throws Exception {
         testReader(new File(inputS1_AnnotGRD, "manifest.safe"));
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningBandlessMetadataFile1() throws Exception {
         testReader(inputS1_meta1GRD);
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningBandlessMetadataFile2() throws Exception {
         testReader(inputS1_meta2GRD);
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningAnnotFolder() throws Exception {
         testReader(inputS1_AnnotGRD);
     }

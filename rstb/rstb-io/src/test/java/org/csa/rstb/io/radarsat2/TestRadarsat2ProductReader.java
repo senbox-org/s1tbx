@@ -34,8 +34,8 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestRadarsat2ProductReader extends ReaderTest {
 
-    private static final File folderSLC = new File(S1TBXTests.input,"SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC");
-    private static final File metadataSLC = new File(S1TBXTests.input, "SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC\\product.xml");
+    private static final File folderSLC = new File(S1TBXTests.inputPathProperty,"SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC");
+    private static final File metadataSLC = new File(S1TBXTests.inputPathProperty, "SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC\\product.xml");
 
     private final static File inputRS2_SQuadFile = TestData.inputRS2_SQuad;
 
@@ -46,6 +46,8 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     public void setUp() {
         // If any of the file does not exist: the test will be ignored
         assumeTrue(inputRS2_SQuadFile + " not found", inputRS2_SQuadFile.exists());
+        assumeTrue(folderSLC + " not found", folderSLC.exists());
+        assumeTrue(metadataSLC + " not found", metadataSLC.exists());
 
         for (File file : rootPathsRadarsat2) {
             assumeTrue(file + " not found", file.exists());
@@ -63,13 +65,11 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningFolder() throws Exception {
         testReader(folderSLC);
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningMetadataFile() throws Exception {
         testReader(metadataSLC);
     }
