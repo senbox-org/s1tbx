@@ -21,16 +21,30 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for Calibration Operator.
  */
 public class TestRemoveAntennaPatternOp {
+
+    private final static File inputFile1 = TestData.inputASAR_WSM;
+    private final static File inputFile2 = TestData.inputERS_IMP;
+    private final static File inputFile3 = TestData.inputERS_IMS;
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputFile1 + "not found", inputFile1.exists());
+        assumeTrue(inputFile2 + "not found", inputFile2.exists());
+        assumeTrue(inputFile3 + "not found", inputFile3.exists());
+    }
 
     static {
         TestUtils.initTestEnvironment();
@@ -46,17 +60,17 @@ public class TestRemoveAntennaPatternOp {
 
     @Test
     public void testProcessingASAR_WSM() throws Exception {
-        processFile(TestData.inputASAR_WSM);
+        processFile(inputFile1);
     }
 
     @Test
     public void testProcessingERS_IMP() throws Exception {
-        processFile(TestData.inputERS_IMP);
+        processFile(inputFile2);
     }
 
     @Test
     public void testProcessingERS_IMS() throws Exception {
-        processFile(TestData.inputERS_IMS);
+        processFile(inputFile3);
     }
 
     /**
@@ -66,10 +80,7 @@ public class TestRemoveAntennaPatternOp {
      * @throws Exception general exception
      */
     private void processFile(final File inputFile) throws Exception {
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
+
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final RemoveAntennaPatternOp op = (RemoveAntennaPatternOp) spi.createOperator();

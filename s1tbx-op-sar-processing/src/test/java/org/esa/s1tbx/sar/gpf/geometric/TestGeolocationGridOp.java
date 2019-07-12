@@ -21,16 +21,26 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for Geolocation Grid.
  */
 public class TestGeolocationGridOp {
+
+    private final static File inputFile = TestData.inputASAR_WSM;
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(inputFile + " not found", inputFile.exists());
+    }
 
     static {
         TestUtils.initTestEnvironment();
@@ -49,11 +59,6 @@ public class TestGeolocationGridOp {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final GeolocationGridGeocodingOp op = (GeolocationGridGeocodingOp) spi.createOperator();

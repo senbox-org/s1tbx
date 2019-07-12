@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for Calibration Operator.
@@ -51,6 +52,14 @@ public class TestCalibrationOp {
     @Before
     public void setUp() {
         testProcessor = S1TBXTests.createS1TBXTestProcessor();
+
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(TestData.inputASAR_WSM + "not found", TestData.inputASAR_WSM.exists());
+        assumeTrue(TestData.inputASAR_IMS + "not found", TestData.inputASAR_IMS.exists());
+        assumeTrue(TestData.inputERS_IMP + "not found", TestData.inputERS_IMP.exists());
+        assumeTrue(TestData.inputERS_IMS + "not found", TestData.inputERS_IMS.exists());
+        assumeTrue(TestData.inputS1_GRD + "not found", TestData.inputS1_GRD.exists());
+        assumeTrue(TestData.inputS1_StripmapSLC + "not found", TestData.inputS1_StripmapSLC.exists());
     }
 
     @Test
@@ -104,10 +113,7 @@ public class TestCalibrationOp {
      * @throws Exception general exception
      */
     private void processFile(final File inputFile, final String bandName, final float[] expected) throws Exception {
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
+
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final CalibrationOp op = (CalibrationOp) spi.createOperator();

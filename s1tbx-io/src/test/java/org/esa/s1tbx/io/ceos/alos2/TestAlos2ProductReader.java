@@ -18,7 +18,12 @@ package org.esa.s1tbx.io.ceos.alos2;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test ALOS 2 CEOS Product Reader.
@@ -31,6 +36,17 @@ public class TestAlos2ProductReader {
     private ProductReader reader;
 
     private String[] exceptionExemptions = {"geocoding is null", "not supported"};
+
+    private final static String inputALOS2 = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "ALOS2" + S1TBXTests.sep ;
+    private final static File[] rootPathsALOS2 = S1TBXTests.loadFilePath(inputALOS2);
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        for (File file : rootPathsALOS2) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
 
     public TestAlos2ProductReader() {
         readerPlugin = new Alos2ProductReaderPlugIn();
@@ -45,6 +61,6 @@ public class TestAlos2ProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsALOS2, readerPlugin, reader, null, exceptionExemptions);
+        testProcessor.recurseReadFolder(this, rootPathsALOS2, readerPlugin, reader, null, exceptionExemptions);
     }
 }

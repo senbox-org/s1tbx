@@ -18,6 +18,7 @@ package com.iceye.esa.snap.dataio;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -44,6 +45,7 @@ public class TestIceyeReader {
      *
      * @throws Exception anything
      */
+    @Ignore("Unknown data.")
     @Test
     public void testOpenAll() {
         TestProcessor testProcessor = new TestProcessor(100, 100, 100, 100, 1, true, false);

@@ -15,16 +15,17 @@
  */
 package org.csa.rstb.polarimetric.gpf;
 
-import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for PolarimetricSpeckleFilterOp.
@@ -46,13 +47,22 @@ public class TestPolarimetricSpeckleFilterOp {
     private final static String expectedRefinedLee = TestData.input + "/expected/QuadPol/QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
     private final static String expectedIDAN = TestData.input + "/expected/QuadPol/QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
 
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputPathQuad + "not found", new File(inputPathQuad).exists());
+        assumeTrue(inputQuadFullStack + "not found", new File(inputQuadFullStack).exists());
+        assumeTrue(inputC3Stack + "not found", new File(inputC3Stack).exists());
+        assumeTrue(inputT3Stack + "not found", new File(inputT3Stack).exists());
+
+        assumeTrue(expectedBoxCar + "not found", new File(expectedBoxCar).exists());
+        assumeTrue(expectedRefinedLee + "not found", new File(expectedRefinedLee).exists());
+        assumeTrue(expectedIDAN + "not found", new File(expectedIDAN).exists());
+    }
+
     private Product runFilter(final PolarimetricSpeckleFilterOp op,
                               final String filterName, final String path) throws Exception {
         final File inputFile = new File(path);
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, path + " not found");
-            return null;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         assertNotNull(op);

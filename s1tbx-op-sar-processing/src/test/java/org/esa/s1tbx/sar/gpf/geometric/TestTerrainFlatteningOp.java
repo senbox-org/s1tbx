@@ -21,17 +21,33 @@ import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for Range Doppler.
  */
 public class TestTerrainFlatteningOp {
+
+    private final static File inputFile1 = TestData.inputASAR_WSM;
+    private final static File inputFile2 = TestData.inputASAR_IMS;
+    private final static File inputFile3 = TestData.inputASAR_APM;
+    private final static File inputFile4 = TestData.inputASAR_APM;
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputFile1 + " not found", inputFile1.exists());
+        assumeTrue(inputFile2 + " not found", inputFile2.exists());
+        assumeTrue(inputFile3 + " not found", inputFile3.exists());
+        assumeTrue(inputFile4 + " not found", inputFile4.exists());
+    }
 
     static {
         TestUtils.initTestEnvironment();
@@ -45,12 +61,7 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessWSM() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile1);
 
         final CalibrationOp calOp = new CalibrationOp();
         calOp.setSourceProduct(sourceProduct);
@@ -76,12 +87,7 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessIMS() throws Exception {
-        final File inputFile = TestData.inputASAR_IMS;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile2);
 
         final CalibrationOp calOp = new CalibrationOp();
         calOp.setSourceProduct(sourceProduct);
@@ -103,12 +109,7 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessAPM() throws Exception {
-        final File inputFile = TestData.inputASAR_APM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile3);
 
         final CalibrationOp calOp = new CalibrationOp();
         calOp.setSourceProduct(sourceProduct);
@@ -130,12 +131,7 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessCalibratedAPM() throws Exception {
-        final File inputFile = TestData.inputASAR_APM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile4);
 
         final CalibrationOp calOp = new CalibrationOp();
         calOp.setSourceProduct(sourceProduct);

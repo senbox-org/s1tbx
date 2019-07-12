@@ -18,7 +18,12 @@ package org.esa.s1tbx.io.cosmo;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test Product Reader.
@@ -31,6 +36,17 @@ public class TestCosmoSkymedReader {
     private ProductReader reader;
 
     private String[] exceptionExemptions = {"not supported"};
+
+    public final static String inputCosmo = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "Cosmo" + S1TBXTests.sep ;
+    public final static File[] rootPathsCosmoSkymed = S1TBXTests.loadFilePath(inputCosmo);
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        for (File file : rootPathsCosmoSkymed) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
 
     public TestCosmoSkymedReader() {
         readerPlugin = new CosmoSkymedReaderPlugIn();
@@ -45,6 +61,6 @@ public class TestCosmoSkymedReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
+        testProcessor.recurseReadFolder(this, rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
     }
 }

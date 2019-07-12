@@ -19,16 +19,26 @@ import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for Calibration Operator.
  */
 public class TestPCAOp {
+
+    private final static File inputFile1 = TestData.inputStackIMS;
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(inputFile1 + " not found", inputFile1.exists());
+    }
 
     static {
         TestUtils.initTestEnvironment();
@@ -38,7 +48,7 @@ public class TestPCAOp {
 
     @Test
     public void testProcessingIMS() throws Exception {
-        processFile(TestData.inputStackIMS);
+        processFile(inputFile1);
     }
 
     /**
@@ -48,10 +58,6 @@ public class TestPCAOp {
      * @throws Exception general exception
      */
     public void processFile(File inputFile) throws Exception {
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 

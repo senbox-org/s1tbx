@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test performance of tie point grid geocoding
@@ -44,18 +45,19 @@ public class TestTiePoints {
 
     @Before
     public void setUp() throws Exception {
-        if (inputFile.exists()) {
-            product1 = ProductIO.readProduct(inputFile);
-            product2 = ProductIO.readProduct(inputFile);
-        }
+        // If the file does not exist: the test will be ignored
+        assumeTrue(inputFile + " not found", inputFile.exists());
+
+        product1 = ProductIO.readProduct(inputFile);
+        product2 = ProductIO.readProduct(inputFile);
+
+        // If the product does not exist: the test will be ignored
+        assumeTrue(product1 + " not found", product1 == null);
+        assumeTrue(product2 + " not found", product2 == null);
     }
 
     @Test
     public void testGetPixelDouble() throws Exception {
-        if (product1 == null) {
-            TestUtils.skipTest(this, product1 +" not found");
-            return;
-        }
         TiePointGrid tpg = product1.getTiePointGridAt(0);
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
@@ -71,10 +73,6 @@ public class TestTiePoints {
 
     @Test
     public void testGetPixels() throws Exception {
-        if (product2 == null) {
-            TestUtils.skipTest(this, product2 +" not found");
-            return;
-        }
         TiePointGrid tpg = product2.getTiePointGridAt(0);
         int w = product2.getSceneRasterWidth();
         int h = product2.getSceneRasterHeight();
@@ -86,10 +84,6 @@ public class TestTiePoints {
     @Test
     public void testCompareFloats() throws Exception {
 
-        if (product1 == null) {
-            TestUtils.skipTest(this, product1 +" not found");
-            return;
-        }
         final TiePointGrid tpg = product1.getTiePointGridAt(0);
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();

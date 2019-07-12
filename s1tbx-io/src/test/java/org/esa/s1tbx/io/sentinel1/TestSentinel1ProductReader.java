@@ -19,10 +19,13 @@ import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test Product Reader.
@@ -40,6 +43,22 @@ public class TestSentinel1ProductReader extends ReaderTest {
 
     private String[] productTypeExemptions = {"RAW","OCN"};
 
+    private final static String inputS1 = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "S1" + S1TBXTests.sep ;
+    private final static File[] rootPathsSentinel1 = S1TBXTests.loadFilePath(inputS1);
+
+    private final static File inputS1_GRDFile = TestData.inputS1_GRD;
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(inputS1_GRDFile + " not found", inputS1_GRDFile.exists());
+
+        for (File file : rootPathsSentinel1) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
+
+
     public TestSentinel1ProductReader() {
         super(new Sentinel1ProductReaderPlugIn());
     }
@@ -52,41 +71,46 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsSentinel1, readerPlugIn, reader, productTypeExemptions, null);
+        testProcessor.recurseReadFolder(this, rootPathsSentinel1, readerPlugIn, reader, productTypeExemptions, null);
     }
 
     @Test
+    @Ignore("Unknown data.")
     public void testOpeningFile() throws Exception {
         testReader(new File(inputS1_AnnotGRD, "manifest.safe"));
     }
 
     @Test
+    @Ignore("Unknown data.")
     public void testOpeningBandlessMetadataFile1() throws Exception {
         testReader(inputS1_meta1GRD);
     }
 
     @Test
+    @Ignore("Unknown data.")
     public void testOpeningBandlessMetadataFile2() throws Exception {
         testReader(inputS1_meta2GRD);
     }
 
     @Test
+    @Ignore("Unknown data.")
     public void testOpeningAnnotFolder() throws Exception {
         testReader(inputS1_AnnotGRD);
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(TestData.inputS1_GRD);
+        testReader(inputS1_GRDFile);
     }
 
     @Test
+    @Ignore("Unknown data.")
     public void testOpeningAnnotationProduct() throws Exception {
         testReader(inputS1_AnnotGRDZip);
     }
 
     @Test
-    @Ignore
+    @Ignore("Unknown data.")
     public void testOpeningFolder() throws Exception {
         testReader(inputGRDFolder);
     }

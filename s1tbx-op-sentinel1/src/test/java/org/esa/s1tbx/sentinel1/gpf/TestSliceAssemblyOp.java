@@ -20,12 +20,15 @@ import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for MultilookOperator.
@@ -42,12 +45,16 @@ public class TestSliceAssemblyOp {
 
     private final File nonSliceFile = TestData.inputS1_GRD;
 
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(slice1File + " not found", slice1File.exists());
+        assumeTrue(slice2File + " not found", slice2File.exists());
+        assumeTrue(nonSliceFile + " not found", nonSliceFile.exists());
+    }
+
     @Test
     public void testSingleProduct() throws Exception {
-        if(!slice1File.exists()) {
-            TestUtils.skipTest(this, slice1File +" not found");
-            return;
-        }
 
         final Product slice1Product = TestUtils.readSourceProduct(slice1File);
 
@@ -67,10 +74,6 @@ public class TestSliceAssemblyOp {
 
     @Test
     public void testNonSliceProduct() throws Exception {
-        if(!nonSliceFile.exists() || !slice1File.exists()) {
-            TestUtils.skipTest(this, "input not found");
-            return;
-        }
 
         final Product slice1Product = TestUtils.readSourceProduct(slice1File);
         final Product nonSliceProduct = TestUtils.readSourceProduct(nonSliceFile);
@@ -91,10 +94,6 @@ public class TestSliceAssemblyOp {
 
     @Test
     public void testOrder1_2() throws Exception {
-        if(!slice1File.exists() || !slice2File.exists()) {
-            TestUtils.skipTest(this, "input not found");
-            return;
-        }
 
         final Product slice1Product = TestUtils.readSourceProduct(slice1File);
         final Product slice2Product = TestUtils.readSourceProduct(slice2File);
@@ -110,10 +109,6 @@ public class TestSliceAssemblyOp {
 
     @Test
     public void testOrder2_1() throws Exception {
-        if(!slice1File.exists() || !slice2File.exists()) {
-            TestUtils.skipTest(this, "input not found");
-            return;
-        }
 
         final Product slice1Product = TestUtils.readSourceProduct(slice1File);
         final Product slice2Product = TestUtils.readSourceProduct(slice2File);

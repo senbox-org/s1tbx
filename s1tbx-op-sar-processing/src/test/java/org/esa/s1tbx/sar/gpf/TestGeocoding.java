@@ -32,13 +32,16 @@ import java.io.File;
  */
 public class TestGeocoding {
 
+    private final static File inputFile = TestData.inputASAR_WSM;
+
     static {
         TestUtils.initTestEnvironment();
     }
 
     @Before
     public void setup() {
-        Assume.assumeTrue("Input file does not exist - Skipping test", TestData.inputASAR_WSM.exists());
+        // If the file does not exist: the test will be ignored
+        Assume.assumeTrue("Input file " + inputFile + "does not exist - Skipping test", inputFile.exists());
     }
 
     /**
@@ -48,11 +51,6 @@ public class TestGeocoding {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         GeoCoding gc = sourceProduct.getSceneGeoCoding();

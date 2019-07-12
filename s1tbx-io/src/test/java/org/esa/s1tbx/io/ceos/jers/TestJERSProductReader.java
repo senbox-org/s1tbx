@@ -18,7 +18,12 @@ package org.esa.s1tbx.io.ceos.jers;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test JERS CEOS Product Reader.
@@ -29,6 +34,17 @@ public class TestJERSProductReader {
 
     private JERSProductReaderPlugIn readerPlugin;
     private ProductReader reader;
+
+    public final static String inputJERS = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "JERS" + S1TBXTests.sep ;
+    public final static File[] rootPathsJERS = S1TBXTests.loadFilePath(inputJERS);
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        for (File file : rootPathsJERS) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
 
     private static final String[] exemptions = new String[] {"startTime is null"};
 
@@ -45,6 +61,6 @@ public class TestJERSProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsJERS, readerPlugin, reader, null, exemptions);
+        testProcessor.recurseReadFolder(this, rootPathsJERS, readerPlugin, reader, null, exemptions);
     }
 }

@@ -19,12 +19,14 @@ import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test ERS CEOS Product Reader.
@@ -40,6 +42,12 @@ public class TestImageIOReader {
     ProductReader reader;
 
     String filePath = TestData.inputSAR+"image"+TestData.sep+"PNG"+TestData.sep+"s1_64x.png";
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(filePath + "not found", new File(filePath).exists());
+    }
 
     public TestImageIOReader() {
         readerPlugin = new ImageIOReaderPlugIn();
@@ -66,10 +74,6 @@ public class TestImageIOReader {
     @Test
     public void testOpen() throws Exception {
         File file = new File(filePath);
-        if (!file.exists()) {
-            TestUtils.skipTest(this, filePath+" not found");
-            return;
-        }
 
         Product product = reader.readProductNodes(file, null);
         assertNotNull(product);

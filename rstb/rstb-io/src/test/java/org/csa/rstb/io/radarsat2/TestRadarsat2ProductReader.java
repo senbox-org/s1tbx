@@ -19,10 +19,13 @@ import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test Product Reader.
@@ -34,6 +37,21 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     private static final File folderSLC = new File(S1TBXTests.input,"SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC");
     private static final File metadataSLC = new File(S1TBXTests.input, "SAR\\RS2\\RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC\\product.xml");
 
+    private final static File inputRS2_SQuadFile = TestData.inputRS2_SQuad;
+
+    public final static String inputRS2 = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "RS2" + S1TBXTests.sep ;
+    public final static File[] rootPathsRadarsat2 = S1TBXTests.loadFilePath(inputRS2);
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputRS2_SQuadFile + " not found", inputRS2_SQuadFile.exists());
+
+        for (File file : rootPathsRadarsat2) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
+
     public TestRadarsat2ProductReader() {
         super(new Radarsat2ProductReaderPlugIn());
     }
@@ -41,22 +59,23 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsRadarsat2, readerPlugIn, reader, null, null);
+        testProcessor.recurseReadFolder(this, rootPathsRadarsat2, readerPlugIn, reader, null, null);
     }
 
     @Test
-    @Ignore
+    @Ignore("Unknown data.")
     public void testOpeningFolder() throws Exception {
         testReader(folderSLC);
     }
 
     @Test
+    @Ignore("Unknown data.")
     public void testOpeningMetadataFile() throws Exception {
         testReader(metadataSLC);
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(TestData.inputRS2_SQuad);
+        testReader(inputRS2_SQuadFile);
     }
 }

@@ -17,9 +17,12 @@ package org.esa.s1tbx.io.TAXI;
 
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Created by lveci on 17/12/2014.
@@ -28,13 +31,15 @@ public class TestTaxiParameterFileReader {
 
     public final static File inputParameterFile = new File(TestData.inputSAR+"TAXI"+File.separator+"pp_m20140809_s20140821_s1a-slc-vv_SS1_with_comments.xml");
 
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(inputParameterFile + "not found", inputParameterFile.exists());
+    }
+
     @Test
     public void testOpen() throws Exception {
         final File inputFile = inputParameterFile;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
 
         final TAXIParameterFileReader reader = new TAXIParameterFileReader(inputFile);
         reader.readParameterFile();

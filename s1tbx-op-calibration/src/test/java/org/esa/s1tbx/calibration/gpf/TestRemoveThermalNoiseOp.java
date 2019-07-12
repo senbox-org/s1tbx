@@ -23,17 +23,29 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for RemoveThermalNoise Operator.
  */
 public class TestRemoveThermalNoiseOp {
+
+    private final static File inputFile1 = TestData.inputS1_GRD;
+    private final static File inputFile2 = TestData.inputS1_StripmapSLC;
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputFile1 + "not found", inputFile1.exists());
+        assumeTrue(inputFile2 + "not found", inputFile2.exists());
+    }
 
     static {
         TestUtils.initTestEnvironment();
@@ -48,12 +60,7 @@ public class TestRemoveThermalNoiseOp {
 
     @Test
     public void testProcessingS1_GRD() throws Exception {
-        final File inputFile = TestData.inputS1_GRD;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
+        final Product targetProduct = processFile(inputFile1);
 
         final Band band = targetProduct.getBand("Intensity_VV");
         assertNotNull(band);
@@ -68,12 +75,8 @@ public class TestRemoveThermalNoiseOp {
 
     @Test
     public void testProcessingS1_StripmapSLC() throws Exception {
-        final File inputFile = TestData.inputS1_StripmapSLC;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
+
+        final Product targetProduct = processFile(inputFile2);
 
         final Band band = targetProduct.getBand("Intensity_VV");
         assertNotNull(band);

@@ -31,6 +31,10 @@ import java.util.prefs.Preferences;
  */
 public class S1TBXTests {
 
+    public static final String PROPERTY_NAME_S1_DATA_DIR = "s1tbx.tests.data.dir";
+    public final static String inputPathProperty = System.getProperty(PROPERTY_NAME_S1_DATA_DIR,"/data/ssd/testData/s1tbx/");
+
+
     private static final String S1TBX_TESTS = "s1tbx.tests";
 
     private static final Preferences testPreferences = Config.instance(S1TBX_TESTS).load().preferences();
@@ -84,7 +88,7 @@ public class S1TBXTests {
         }
     }
 
-    private static File[] loadFilePath(final String id, final String defaultPath) {
+    public static File[] loadFilePath(final String id, final String defaultPath) {
         if (testPreferences == null)
             return new File[]{};
 
@@ -97,6 +101,12 @@ public class S1TBXTests {
         if(fileList.isEmpty()) {
             fileList.add(new File(defaultPath));
         }
+        return fileList.toArray(new File[fileList.size()]);
+    }
+
+    public static File[] loadFilePath(final String defaultPath) {
+        final List<File> fileList = new ArrayList<>(3);
+        fileList.add(new File(defaultPath));
         return fileList.toArray(new File[fileList.size()]);
     }
 

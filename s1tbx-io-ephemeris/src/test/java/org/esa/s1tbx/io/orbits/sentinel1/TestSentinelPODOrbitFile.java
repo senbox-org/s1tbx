@@ -23,11 +23,13 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * To test SentinelPODOrbitFile
@@ -37,13 +39,18 @@ public class TestSentinelPODOrbitFile {
     private final static File orbitFile = new File(TestData.inputSAR+"Orbits"+TestData.sep+
             "S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF");
 
+    final File sourceFile = TestData.inputS1_GRDSubset;
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(orbitFile + "not found", orbitFile.exists());
+        assumeTrue(sourceFile + "not found", sourceFile.exists());
+    }
+
     @Test
     public void testRetrieveOrbitFile() throws Exception {
         final File sourceFile = TestData.inputS1_GRDSubset;
-        if(!sourceFile.exists()) {
-            TestUtils.skipTest(this, sourceFile + " not found");
-            return;
-        }
 
         final Product sourceProduct = ProductIO.readProduct(sourceFile);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
@@ -54,12 +61,6 @@ public class TestSentinelPODOrbitFile {
 
     @Test
     public void testSentinelPODOrbitFile() throws Exception {
-
-        final File sourceFile = TestData.inputS1_GRDSubset;
-        if(!sourceFile.exists()) {
-            TestUtils.skipTest(this, sourceFile + " not found");
-            return;
-        }
 
         final Product sourceProduct = ProductIO.readProduct(sourceFile);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
@@ -188,10 +189,6 @@ public class TestSentinelPODOrbitFile {
 
     @Test
     public void testSentinelPODOrbitFileOperations() throws Exception {
-        if (!orbitFile.exists()) {
-            TestUtils.skipTest(this, orbitFile + " not found");
-            return;
-        }
 
         String name = orbitFile.getName();
         final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(name);

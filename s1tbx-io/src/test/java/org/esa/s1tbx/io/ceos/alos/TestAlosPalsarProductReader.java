@@ -21,11 +21,14 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
-import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test ALOS PALSAR CEOS Product Reader.
@@ -41,6 +44,22 @@ public class TestAlosPalsarProductReader {
 
     private String[] exceptionExemptions = {"geocoding is null", "not supported"};
 
+    private static File inputFile = TestData.inputALOS_Zip;
+
+    public final static String inputALOS = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "ALOS" + S1TBXTests.sep ;
+    public final static File[] rootPathsALOS = S1TBXTests.loadFilePath(inputALOS);
+
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(inputFile + " not found", inputFile.exists());
+
+        for (File file : rootPathsALOS) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
+
     public TestAlosPalsarProductReader() {
         readerPlugin = new AlosPalsarProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
@@ -48,11 +67,6 @@ public class TestAlosPalsarProductReader {
 
     @Test
     public void testOpeningZip() throws Exception {
-        final File inputFile = TestData.inputALOS_Zip;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile +" not found");
-            return;
-        }
 
         final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
         Assert.assertTrue(canRead == DecodeQualification.INTENDED);
@@ -69,6 +83,6 @@ public class TestAlosPalsarProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsALOS, readerPlugin, reader, null, exceptionExemptions);
+        testProcessor.recurseReadFolder(this, rootPathsALOS, readerPlugin, reader, null, exceptionExemptions);
     }
 }

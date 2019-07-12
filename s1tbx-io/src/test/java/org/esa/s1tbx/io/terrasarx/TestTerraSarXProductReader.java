@@ -18,7 +18,12 @@ package org.esa.s1tbx.io.terrasarx;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test Product Reader.
@@ -29,6 +34,17 @@ public class TestTerraSarXProductReader {
 
     private TerraSarXProductReaderPlugIn readerPlugin;
     private ProductReader reader;
+
+    private final static String inputTerraSarX = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "TerraSAR-X" + S1TBXTests.sep ;
+    private final static File[] rootPathsTerraSarX = S1TBXTests.loadFilePath(inputTerraSarX);
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        for (File file : rootPathsTerraSarX) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
 
     public TestTerraSarXProductReader() {
         readerPlugin = new TerraSarXProductReaderPlugIn();
@@ -43,6 +59,6 @@ public class TestTerraSarXProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsTerraSarX, readerPlugin, reader, null, null);
+        testProcessor.recurseReadFolder(this, rootPathsTerraSarX, readerPlugin, reader, null, null);
     }
 }

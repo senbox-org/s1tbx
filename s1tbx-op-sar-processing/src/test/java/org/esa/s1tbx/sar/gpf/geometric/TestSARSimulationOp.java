@@ -21,16 +21,27 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for SAR Simulation Operator.
  */
 public class TestSARSimulationOp {
+
+    private final static File inputFile = TestData.inputASAR_WSM;
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue(inputFile + " not found", inputFile.exists());
+    }
+
 
     static {
         TestUtils.initTestEnvironment();
@@ -52,11 +63,6 @@ public class TestSARSimulationOp {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathWSM + " not found");
-            return;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final SARSimulationOp op = (SARSimulationOp) spi.createOperator();

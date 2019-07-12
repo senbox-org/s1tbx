@@ -34,15 +34,25 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for MultilookOperator.
  */
 public class TestMultilookOperator {
 
+    private final static File inputFile = TestData.inputASAR_WSM;
+
+    @Before
+    public void setUp() {
+        // If the file does not exist: the test will be ignored
+        assumeTrue("Input file" + inputFile + " does not exist - Skipping test", inputFile.exists());
+    }
+
     static {
         TestUtils.initTestEnvironment();
     }
+
     private final static OperatorSpi spi = new MultilookOp.Spi();
     private final static TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
 
@@ -101,12 +111,6 @@ public class TestMultilookOperator {
      */
     @Test
     public void testProcessing() throws Exception {
-        Assume.assumeTrue("Input file does not exist - Skipping test", TestData.inputASAR_WSM.exists());
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final MultilookOp op = (MultilookOp) spi.createOperator();

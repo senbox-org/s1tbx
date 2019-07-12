@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test ComputeDerampDemodPhaseOp
@@ -40,15 +41,9 @@ public class TestComputeDerampDemodPhaseOp {
     public void Setup() throws Exception {
 
         final File inputFile = new File(inputPath);
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-
-        if (!inputParameterFile.exists()) {
-            TestUtils.skipTest(this, inputParameterFile + " not found");
-            return;
-        }
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputFile + " not found", inputFile.exists());
+        assumeTrue(inputParameterFile + " not found", inputParameterFile.exists());
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
         op = (DerampDemodPhaseOp) spi.createOperator();

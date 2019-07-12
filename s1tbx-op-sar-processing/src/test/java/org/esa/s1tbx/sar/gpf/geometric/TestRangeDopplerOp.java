@@ -30,16 +30,32 @@ import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for Range Doppler.
  */
 public class TestRangeDopplerOp {
+
+    private final static File inputFile1 = TestData.inputASAR_WSM;
+    private final static File inputFile2 = TestData.inputASAR_IMM;
+    private final static File inputFile3 = TestData.inputASAR_IMS;
+    private final static File inputFile4 = TestData.inputASAR_APM;
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputFile1 + " not found", inputFile1.exists());
+        assumeTrue(inputFile2 + " not found", inputFile2.exists());
+        assumeTrue(inputFile3 + " not found", inputFile3.exists());
+        assumeTrue(inputFile4 + " not found", inputFile4.exists());
+    }
 
     static {
         TestUtils.initTestEnvironment();
@@ -58,12 +74,7 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessWSM() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile1);
 
         final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp) spi.createOperator();
         assertNotNull(op);
@@ -83,14 +94,8 @@ public class TestRangeDopplerOp {
     @Test
     public void testGetLocalDEM() throws Exception {
 
-        final File inputFile = TestData.inputASAR_IMM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile+" not found");
-            return;
-        }
-
-        final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
-        final Product sourceProduct = reader.readProductNodes(inputFile, null);
+        final ProductReader reader = ProductIO.getProductReaderForInput(inputFile2);
+        final Product sourceProduct = reader.readProductNodes(inputFile2, null);
 
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
         final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
@@ -118,12 +123,7 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessIMS() throws Exception {
-        final File inputFile = TestData.inputASAR_IMS;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile3);
 
         final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp) spi.createOperator();
         assertNotNull(op);
@@ -147,12 +147,7 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessAPM() throws Exception {
-        final File inputFile = TestData.inputASAR_APM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile4);
 
         final RangeDopplerGeocodingOp op = (RangeDopplerGeocodingOp) spi.createOperator();
         assertNotNull(op);

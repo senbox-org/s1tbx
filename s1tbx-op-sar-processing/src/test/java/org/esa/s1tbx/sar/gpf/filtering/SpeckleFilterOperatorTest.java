@@ -25,6 +25,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,11 +33,20 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for SpeckleFilterOperator.
  */
 public class SpeckleFilterOperatorTest {
+
+    private final static File inputFile = TestData.inputASAR_WSM;
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue("Input file" + inputFile + " does not exist - Skipping test", inputFile.exists());
+    }
 
     static {
         TestUtils.initTestEnvironment();
@@ -291,11 +301,6 @@ public class SpeckleFilterOperatorTest {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();

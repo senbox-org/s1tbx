@@ -20,7 +20,12 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.dataio.envisat.EnvisatProductReaderPlugIn;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test Product Reader.
@@ -43,6 +48,17 @@ public class TestEnvisatReader {
         reader = readerPlugin.createReaderInstance();
     }
 
+    private final static String inputASAR = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "ASAR" + S1TBXTests.sep ;
+    private final static File[] rootPathsASAR = S1TBXTests.loadFilePath(inputASAR);
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        for(File file : rootPathsASAR) {
+            assumeTrue(file + " not found", file.exists());
+        }
+    }
+
     /**
      * Open all files in a folder recursively
      *
@@ -51,6 +67,6 @@ public class TestEnvisatReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsASAR, readerPlugin, reader, productTypeExemptions, null);
+        testProcessor.recurseReadFolder(this, rootPathsASAR, readerPlugin, reader, productTypeExemptions, null);
     }
 }

@@ -19,16 +19,19 @@ import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for OrientationAngleOp.
  */
 public class TestOrientationAngleOp {
+
 
     static {
         TestUtils.initTestEnvironment();
@@ -41,12 +44,19 @@ public class TestOrientationAngleOp {
     private final static String inputC3Stack = TestData.inputSAR + "/QuadPolStack/RS2-C3-Stack.dim";
     private final static String inputT3Stack = TestData.inputSAR + "/QuadPolStack/RS2-T3-Stack.dim";
 
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputPathQuad + "not found", new File(inputPathQuad).exists());
+        assumeTrue(inputQuadFullStack + "not found", new File(inputQuadFullStack).exists());
+        assumeTrue(inputC3Stack + " not found", new File(inputC3Stack).exists());
+        assumeTrue(inputT3Stack + " not found", new File(inputT3Stack).exists());
+    }
+
+
     private Product runOrientation(final OrientationAngleCorrectionOp op, final String path) throws Exception {
         final File inputFile = new File(path);
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile.getAbsolutePath() + " not found");
-            return null;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         assertNotNull(op);

@@ -15,16 +15,17 @@
  */
 package org.csa.rstb.polarimetric.gpf;
 
-import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for PolarimetricMatricesOp
@@ -43,13 +44,19 @@ public class TestPolarimetricMatricesOp {
     private final static String expectedPathC3 = TestData.input + "/expected/QuadPol/QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
     private final static String expectedPathT3 = TestData.input + "/expected/QuadPol/QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
 
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(quadInputPath + "not found", new File(quadInputPath).exists());
+        assumeTrue(inputQuadFullStack + "not found", new File(inputQuadFullStack).exists());
+
+        assumeTrue(expectedPathC3 + " not found", new File(expectedPathC3).exists());
+        assumeTrue(expectedPathT3 + " not found", new File(expectedPathT3).exists());
+    }
+
     private Product runMatrix(final PolarimetricMatricesOp op,
                               final String decompositionName, final String path) throws Exception {
         final File inputFile = new File(path);
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, path + " not found");
-            return null;
-        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         assertNotNull(op);
