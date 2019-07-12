@@ -52,8 +52,8 @@ public class TestTiePoints {
         product2 = ProductIO.readProduct(inputFile);
 
         // If the product does not exist: the test will be ignored
-        assumeTrue(product1 + " not found", product1 == null);
-        assumeTrue(product2 + " not found", product2 == null);
+        assumeTrue(product1 + " not found", product1 != null);
+        assumeTrue(product2 + " not found", product2 != null);
     }
 
     @Test

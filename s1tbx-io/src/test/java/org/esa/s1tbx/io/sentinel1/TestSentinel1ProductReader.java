@@ -105,13 +105,11 @@ public class TestSentinel1ProductReader extends ReaderTest {
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningAnnotationProduct() throws Exception {
         testReader(inputS1_AnnotGRDZip);
     }
 
     @Test
-    @Ignore("Unknown data.")
     public void testOpeningFolder() throws Exception {
         testReader(inputGRDFolder);
     }

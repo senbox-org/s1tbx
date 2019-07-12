@@ -35,13 +35,15 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestSliceAssemblyOp {
 
+    private final static String sep = S1TBXTests.sep;
+
     static {
         TestUtils.initTestEnvironment();
     }
     private final static OperatorSpi spi = new SliceAssemblyOp.Spi();
 
-    private final File slice1File = new File(S1TBXTests.inputSAR, "S1\\GRD\\Hawaii_slices\\S1A_IW_GRDH_1SDV_20180514T043029_20180514T043054_021896_025D31_BBDA.zip");
-    private final File slice2File = new File(S1TBXTests.inputSAR, "S1\\GRD\\Hawaii_slices\\S1A_IW_GRDH_1SDV_20180514T043054_20180514T043119_021896_025D31_27FE.zip");
+    private final File slice1File = new File(S1TBXTests.inputSAR + sep + "S1" + sep + "GRD" + sep + "Hawaii_slices" + sep + "S1A_IW_GRDH_1SDV_20180514T043029_20180514T043054_021896_025D31_BBDA.zip");
+    private final File slice2File = new File(S1TBXTests.inputSAR + sep + "S1" + sep + "GRD" + sep + "Hawaii_slices" + sep + "S1A_IW_GRDH_1SDV_20180514T043054_20180514T043119_021896_025D31_27FE.zip");
 
     private final File nonSliceFile = TestData.inputS1_GRD;
 
