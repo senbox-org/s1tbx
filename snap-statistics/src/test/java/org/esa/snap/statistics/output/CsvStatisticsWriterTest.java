@@ -54,7 +54,7 @@ public class CsvStatisticsWriterTest {
         csvStatisticsWriter.finaliseOutput();
         csvStream.close();
         String actualOutput = csvOutput.toString();
-        assertTrue(actualOutput.startsWith("# Region\tBand\tmax\tmin\tp90\tp95\n"));
+        assertTrue(actualOutput.startsWith("Id\tBand\tmax\tmin\tp90\tp95\n"));
         String expected_1 = "werdohl\tnormalised_cow_density_index_(ncdi)\t\t\t2.0000\t3.0000\n";
         assertTrue(actualOutput.contains(expected_1));
         String expected_2 = "bielefeld\tnormalised_cow_density_index_(ncdi)\t\t\t1.0000\t3.0000\n";

@@ -16,6 +16,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
     private final PrintStream csvOutput;
     private String[] measureNames;
     private Measures measures;
+    private String featureId;
 
     /**
      * Creates a new instance.
@@ -35,6 +36,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
     @Override
     public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
         this.measureNames = statisticsOutputContext.measureNames;
+        featureId = statisticsOutputContext.featureId;
         Arrays.sort(measureNames);
     }
 
@@ -109,7 +111,7 @@ public class CsvStatisticsWriter implements StatisticsOutputter {
 
     private void writeHeader() {
         if (measures.hasRegions()) {
-            csvOutput.append("# Region")
+            csvOutput.append(featureId)
                     .append("\t");
         }
         if (measures.hasTimeIntervals()) {

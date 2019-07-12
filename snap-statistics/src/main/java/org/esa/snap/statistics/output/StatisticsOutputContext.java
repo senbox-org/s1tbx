@@ -48,6 +48,12 @@ public class StatisticsOutputContext {
     public final TimeInterval[] timeIntervals;
 
 
+    /**
+     * The name of the attribute to which the id's correspond.
+     */
+    public final String featureId;
+
+
     public final boolean isNotNumber(String measure) {
         return measure.equals(StatisticsOp.MAJORITY_CLASS) || measure.equals(StatisticsOp.SECOND_MAJORITY_CLASS);
     }
@@ -66,8 +72,25 @@ public class StatisticsOutputContext {
      * @param regionIds          The ids of the regions where statistics are computed.
      * @return An instance of {@link StatisticsOutputContext}.
      */
+    public static StatisticsOutputContext create(String[] sourceProductNames, String[] bandNames,
+                                                 String[] measureNames, TimeInterval[] timeIntervals, String featureId,
+                                                 String[] regionIds) {
+        return new StatisticsOutputContext(sourceProductNames, bandNames, measureNames, timeIntervals, featureId, regionIds);
+    }
+
+    /**
+     * Factory method for creating a fully specified instance.
+     *
+     * @param sourceProductNames The statistics' source product names.
+     * @param bandNames          The names of the bands considered in the statistics.
+     * @param measureNames     The names of the algorithms considered in the statistics.
+     * @param timeIntervals      The time intervals of the statistics.
+     * @param regionIds          The ids of the regions where statistics are computed.
+     * @return An instance of {@link StatisticsOutputContext}.
+     */
     public static StatisticsOutputContext create(String[] sourceProductNames, String[] bandNames, String[] measureNames, TimeInterval[] timeIntervals, String[] regionIds) {
-        return new StatisticsOutputContext(sourceProductNames, bandNames, measureNames, timeIntervals, regionIds);
+        String featureId = "Id";
+        return new StatisticsOutputContext(sourceProductNames, bandNames, measureNames, timeIntervals, featureId, regionIds);
     }
 
     /**
@@ -83,8 +106,9 @@ public class StatisticsOutputContext {
      */
     public static StatisticsOutputContext create(Product[] sourceProducts, String[] bandNames, String[] measureNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
         final String[] sourceProductNames = extractSourceProductNames(sourceProducts);
+        String featureId = "Id";
         TimeInterval[] timeIntervals = {new TimeInterval(0, startDate, endDate)};
-        return new StatisticsOutputContext(sourceProductNames, bandNames, measureNames, timeIntervals, regionIds);
+        return new StatisticsOutputContext(sourceProductNames, bandNames, measureNames, timeIntervals, featureId, regionIds);
     }
 
     // todo doku ... add context object to factory ... initialize Context object
@@ -101,8 +125,9 @@ public class StatisticsOutputContext {
      * @return An instance of {@link StatisticsOutputContext}.
      */
     public static StatisticsOutputContext create(String[] sourceProductNames, String[] bandNames, String[] measureNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
+        String featureId = "Id";
         TimeInterval[] timeIntervals = {new TimeInterval(0, startDate, endDate)};
-        return new StatisticsOutputContext(sourceProductNames, bandNames, measureNames, timeIntervals, regionIds);
+        return new StatisticsOutputContext(sourceProductNames, bandNames, measureNames, timeIntervals, featureId, regionIds);
     }
 
     /**
@@ -114,8 +139,9 @@ public class StatisticsOutputContext {
      * @return An instance of {@link StatisticsOutputContext}.
      */
     public static StatisticsOutputContext create(Product[] sourceProducts, String[] measureNames, String[] regionIds) {
+        String featureId = "Id";
         final String[] sourceProductNames = extractSourceProductNames(sourceProducts);
-        return new StatisticsOutputContext(sourceProductNames, null, measureNames, null, regionIds);
+        return new StatisticsOutputContext(sourceProductNames, null, measureNames, null, featureId, regionIds);
     }
 
 
@@ -127,10 +153,12 @@ public class StatisticsOutputContext {
      * @return An instance of {@link StatisticsOutputContext}.
      */
     public static StatisticsOutputContext create(String[] bandNames, String[] measureNames) {
-        return new StatisticsOutputContext(null, bandNames, measureNames, null, null);
+        String featureId = "Id";
+        return new StatisticsOutputContext(null, bandNames, measureNames, null, featureId, null);
     }
 
-    private StatisticsOutputContext(String[] sourceProductNames, String[] bandNames, String[] measureNames, TimeInterval[] timeIntervals, String[] regionIds) {
+    private StatisticsOutputContext(String[] sourceProductNames, String[] bandNames, String[] measureNames,
+                                    TimeInterval[] timeIntervals, String featureId, String[] regionIds) {
         this.sourceProductNames = sourceProductNames;
         this.bandNames = bandNames;
         this.measureNames = measureNames;
@@ -142,6 +170,7 @@ public class StatisticsOutputContext {
             this.startDate = null;
             this.endDate = null;
         }
+        this.featureId = featureId;
         this.regionIds = regionIds;
     }
 

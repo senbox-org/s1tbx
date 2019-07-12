@@ -26,7 +26,7 @@ public class StatisticComputerTest {
                 new TimeInterval(0, time_1, time_2), new TimeInterval(0, time_2, time_3),
                 new TimeInterval(0, time_3, time_4), new TimeInterval(0, time_4, time_5)};
         StatisticComputer statisticsComputer =
-                new StatisticComputer(null, null, 0, timeIntervals, Logger.getLogger("StatisticsComputerTest"));
+                new StatisticComputer(null, null, 0, timeIntervals, "", Logger.getLogger("StatisticsComputerTest"));
 
         assertEquals(-1, statisticsComputer.getIntervalIndex(getProduct(time_0, time_1)));
         assertEquals(-1, statisticsComputer.getIntervalIndex(getProduct(time_1)));

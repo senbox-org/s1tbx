@@ -48,15 +48,17 @@ public class StatisticComputer {
     private final int initialBinCount;
     private final Logger logger;
     private final TimeInterval[] timeIntervals;
+    private String featureId;
 
     public StatisticComputer(File shapefile, BandConfiguration[] bandConfigurations, int initialBinCount,
-                             Logger logger) {
+                             String featureId, Logger logger) {
         this(shapefile, bandConfigurations, initialBinCount,
-                new TimeInterval[]{new TimeInterval(0, new ProductData.UTC(0), new ProductData.UTC(1000000))}, logger);
+                new TimeInterval[]{new TimeInterval(0, new ProductData.UTC(0), new ProductData.UTC(1000000))},
+                featureId, logger);
     }
 
     public StatisticComputer(File shapefile, BandConfiguration[] bandConfigurations, int initialBinCount,
-                             TimeInterval[] timeIntervals, Logger logger) {
+                             TimeInterval[] timeIntervals, String featureId, Logger logger) {
         this.initialBinCount = initialBinCount;
         this.timeIntervals = timeIntervals;
         this.logger = logger != null ? logger : SystemUtils.LOG;
@@ -89,6 +91,7 @@ public class StatisticComputer {
         for (int i = 0; i < stxOpMappingsList.length; i++) {
             stxOpMappingsList[i] = new HashMap<>();
         }
+        this.featureId = featureId;
     }
 
     int getIntervalIndex(Product product) {
@@ -190,14 +193,14 @@ public class StatisticComputer {
             final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(),
                     simpleFeature.getFeatureType());
             fc.add(simpleFeature);
-            String name = Util.getFeatureName(simpleFeature);
+            String name = Util.getFeatureName(simpleFeature, featureId);
             result.add(new VectorDataNode(name, fc));
         }
 
-        return result.toArray(new VectorDataNode[result.size()]);
+        return result.toArray(new VectorDataNode[0]);
     }
 
-    static Band getBand(BandConfiguration configuration, Product product) {
+    private static Band getBand(BandConfiguration configuration, Product product) {
         final Band band;
         if (configuration.sourceBandName != null) {
             band = product.getBand(configuration.sourceBandName);

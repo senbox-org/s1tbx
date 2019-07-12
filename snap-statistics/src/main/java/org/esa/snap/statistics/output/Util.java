@@ -16,6 +16,7 @@
 
 package org.esa.snap.statistics.output;
 
+import org.esa.snap.core.util.StringUtils;
 import org.opengis.feature.simple.SimpleFeature;
 
 import javax.media.jai.Histogram;
@@ -40,6 +41,20 @@ public class Util {
             return simpleFeature.getAttribute("name").toString();
         } else if (simpleFeature.getAttribute("NAME") != null) {
             return simpleFeature.getAttribute("NAME").toString();
+        }
+        return simpleFeature.getID();
+    }
+
+    /**
+     * Returns the 'best' name of the given feature.
+     *
+     * @param simpleFeature The feature to inquire the name of.
+     * @param name The name of the attribute from which the name shall be taken.
+     * @return The name if such an attribute exists in the feature, or the feature's id as last resort.
+     */
+    public static String getFeatureName(SimpleFeature simpleFeature, String name) {
+        if (StringUtils.isNotNullAndNotEmpty(name) && simpleFeature.getAttribute(name) != null) {
+            return simpleFeature.getAttribute(name).toString();
         }
         return simpleFeature.getID();
     }

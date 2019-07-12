@@ -128,6 +128,13 @@ public class StatisticsOp extends Operator {
             "If null, all pixels are considered.")
     File shapefile;
 
+    @Parameter(description = "The name of the attribute in the ESRI shapefile that shall be used to identify features" +
+            "in the output. If none is given or if the shapefile does not have the attribute, the feature id will be" +
+            "used. This parameter is case-sensitive. It is only considered when the shapefile parameter is set.",
+            defaultValue = "name"
+    )
+    String featureId;
+
     @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
             "have a start date before the start date given by this parameter are not considered.",
             format = DATETIME_PATTERN, converter = UtcConverter.class)
@@ -193,7 +200,7 @@ public class StatisticsOp extends Operator {
         TimeInterval[] timeIntervals = getTimeIntervals(interval, startDate, endDate);
 
         final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations,
-                Util.computeBinCount(accuracy), timeIntervals, getLogger());
+                Util.computeBinCount(accuracy), timeIntervals, featureId, getLogger());
 
         final ProductValidator productValidator = new ProductValidator(Arrays.asList(bandConfigurations), startDate, endDate, getLogger());
         final ProductLoop productLoop = new ProductLoop(new ProductLoader(), productValidator, statisticComputer, pm, getLogger());
@@ -476,7 +483,7 @@ public class StatisticsOp extends Operator {
         String[] bandNames = getBandNames(qualifier);
         String[] measureNames = getMeasureNames(stxOpsList, percentiles, qualifier);
         StatisticsOutputContext statisticsOutputContext =
-                StatisticsOutputContext.create(productNames, bandNames, measureNames, timeIntervals, regionIDs);
+                StatisticsOutputContext.create(productNames, bandNames, measureNames, timeIntervals, featureId, regionIDs);
         setupOutputters(qualifier);
         Set<StatisticsOutputter> outputters = statisticsOutputters[qualifier];
         for (StatisticsOutputter statisticsOutputter : outputters) {
