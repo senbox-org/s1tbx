@@ -32,7 +32,7 @@ import java.net.URISyntaxException;
 @AboutBox(displayName = "S1TBX", position = 10)
 public class S1tbxAboutBox extends JPanel {
 
-    private final static String releaseNotesHTTP = "https://github.com/senbox-org/s1tbx/blob/master/ReleaseNotes.md";
+    private final static String releaseNotesHTTP = "https://github.com/senbox-org/s1tbx/blob/7.x/ReleaseNotes.md";
 
     public S1tbxAboutBox() {
         super(new BorderLayout(4, 4));
