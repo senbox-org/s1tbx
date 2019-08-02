@@ -1473,10 +1473,11 @@ public final class SliceAssemblyOp extends Operator {
 
                 MetadataElement sliceSwathTiming = getAnnotationElement(sliceProducts[i], imageNum, "swathTiming");
 
-                final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
-                if (sliceLinesPerBurst != linesPerBurst) {
-                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " vs. " + linesPerBurst);
-                }
+                // Commented out to handle cases where slices have different lines per burst
+//                final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
+//                if (sliceLinesPerBurst != linesPerBurst) {
+//                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " vs. " + linesPerBurst);
+//                }
                 final int sliceSamplesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("samplesPerBurst"));
                 //System.out.println("sliceSamplesPerBurst = " + sliceSamplesPerBurst + " samplesPerBurst = " + samplesPerBurst);
                 if (sliceSamplesPerBurst > samplesPerBurst) {
