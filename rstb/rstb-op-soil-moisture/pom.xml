@@ -34,9 +34,9 @@
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
-            <groupId>com</groupId>
+            <groupId>net.sourceforge.jmatio</groupId>
             <artifactId>jmatio</artifactId>
-            <version>0.3</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>net.sf</groupId>
