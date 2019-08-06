@@ -34,8 +34,8 @@ public class IceyeXConstants {
     public static final String MDS1_TX_RX_POLAR = "polarization";
     public static final String AZIMUTH_LOOKS = "azimuth_looks";
     public static final String RANGE_LOOKS = "range_looks";
-    public static final String RANGE_SPACING = "slant_range_spacing";
-    public static final String AZIMUTH_SPACING = "azimuth_ground_spacing";
+    public static final String SLANT_RANGE_SPACING = "slant_range_spacing";
+    public static final String AZIMUTH_GROUND_SPACING = "azimuth_ground_spacing";
     public static final String PULSE_REPETITION_FREQUENCY = "processing_prf";
     public static final String RADAR_FREQUENCY = "carrier_frequency";
     public static final String LINE_TIME_INTERVAL = "azimuth_time_interval";
@@ -79,6 +79,26 @@ public class IceyeXConstants {
     public static final String S_AMPLITUDE = "s_amplitude";
     public static final String ICEYE_PROCESSOR_NAME_PREFIX = "ICEYE_P_";
     public static final String PROC_TIME_UTC = "processing_time";
+    public static final String SLANT_RANGE_TO_FIRST_PIXEL = "slant_range_to_first_pixel";
+    public static final String RIGHT = "right";
+    public static final String ASCENDING = "ascending";
+    public static final String DESCENDING = "descending";
+    public static final String GRSR_GROUND_RANGE_ORIGIN = "grsr_ground_range_origin";
+    public static final String GRSR_COEFFICIENTS = "grsr_coefficients";
+    public static final String RANGE_SPACING = "range_spacing";
+    public static final String COORD_CENTER = "coord_center";
+    public static final String INCIDENCE_NEAR = "incidence_near";
+    public static final String DC_ESTIMATE_POLY_ORDER = "dc_estimate_poly_order";
+    public static final String DC_REFERENCE_PIXEL_TIME = "dc_reference_pixel_time";
+    public static final String DC_ESTIMATE_TIME_UTC = "dc_estimate_time_utc";
+    public static final String GRSR_ZERO_DOPPLER_TIME = "grsr_zero_doppler_time";
+    public static final String INCIDENCE_FAR = "incidence_far";
+    public static final String AZIMUTH_SPACING = "azimuth_spacing";
+    public static final String GDALMETADATA = "<GDALMetadata";
+    public static final String GRD = "grd";
+    public static final String SLC = "slc";
+    public static final String COMPLEX = "COMPLEX";
+    public static final String DETECTED = "DETECTED";
     //    IceyeProductReaderPlugIn
     private static final String ICEYE_FORMAT_NAMES = "IceyeProduct";
     private static final String ICEYE_FORMAT_FILE_EXTENSIONS = "h5";

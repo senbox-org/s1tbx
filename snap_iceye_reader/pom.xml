@@ -11,14 +11,18 @@
 
     <groupId>com.iceye.esa.snap</groupId>
     <artifactId>iceye-slc-reader</artifactId>
-    <version>1.0.0</version>
-    <name>ICEYE snap Desktop Product slc reader</name>
+    <version>2.0.7</version>
+    <name>ICEYE snap Desktop Product readers</name>
     <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-jai</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

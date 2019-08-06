@@ -6,6 +6,6 @@ AutoUpdate-Essential-Module: false
 OpenIDE-Module-Layer: com/iceye/esa/snap/dataio/layer.xml
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP
-OpenIDE-Module-Long-Description: <p>Reader for ICEYE SLC format.</p><p><b>Vendor:</b> ICEYE Oy</p><p>
+OpenIDE-Module-Long-Description: <p>Reader for ICEYE products format.</p><p><b>Vendor:</b> ICEYE Oy</p><p>
  <b>Contact address:</b>Maarintie 6, 02150 Espoo, Finland</p><p><b>Copyright:</b> (C) 2019 by ICEYE Oy</p><p><b>
  Vendor:</b> ICEYE Oy</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p>

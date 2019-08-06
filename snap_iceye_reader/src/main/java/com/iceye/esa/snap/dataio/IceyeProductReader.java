@@ -88,7 +88,7 @@ public class IceyeProductReader extends SARReader {
             final double nearRangeAngle = incidenceAngles[0];
             final double farRangeAngle = incidenceAngles[incidenceAngles.length - 1];
 
-            final double firstRangeTime = netcdfFile.getRootGroup().findVariable(IceyeXConstants.FIRST_PIXEL_TIME).readScalarDouble()*Constants.sTOns;
+            final double firstRangeTime = netcdfFile.getRootGroup().findVariable(IceyeXConstants.FIRST_PIXEL_TIME).readScalarDouble() * Constants.sTOns;
             final double samplesPerLine = netcdfFile.getRootGroup().findVariable(IceyeXConstants.NUM_SAMPLES_PER_LINE).readScalarDouble();
             final double rangeSamplingRate = netcdfFile.getRootGroup().findVariable(IceyeXConstants.RANGE_SAMPLING_RATE).readScalarDouble();
             final double lastRangeTime = firstRangeTime + samplesPerLine / rangeSamplingRate * Constants.sTOns;
@@ -148,9 +148,9 @@ public class IceyeProductReader extends SARReader {
             absRoot.setAttributeDouble(AbstractMetadata.last_far_long, lonLR);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                    netcdfFile.getRootGroup().findVariable(IceyeXConstants.RANGE_SPACING).readScalarDouble());
+                    netcdfFile.getRootGroup().findVariable(IceyeXConstants.SLANT_RANGE_SPACING).readScalarDouble());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                    netcdfFile.getRootGroup().findVariable(IceyeXConstants.AZIMUTH_SPACING).readScalarDouble());
+                    netcdfFile.getRootGroup().findVariable(IceyeXConstants.AZIMUTH_GROUND_SPACING).readScalarDouble());
 
             final double[] latCorners = new double[]{latUL, latUR, latLL, latLR};
             final double[] lonCorners = new double[]{lonUL, lonUR, lonLL, lonLR};
@@ -305,9 +305,9 @@ public class IceyeProductReader extends SARReader {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, netcdfFile.getRootGroup().findVariable(IceyeXConstants.AZIMUTH_LOOKS).readScalarFloat());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, netcdfFile.getRootGroup().findVariable(IceyeXConstants.RANGE_LOOKS).readScalarFloat());
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, netcdfFile.getRootGroup().findVariable(IceyeXConstants.RANGE_SPACING).readScalarFloat());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, netcdfFile.getRootGroup().findVariable(IceyeXConstants.SLANT_RANGE_SPACING).readScalarFloat());
 
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, netcdfFile.getRootGroup().findVariable(IceyeXConstants.AZIMUTH_SPACING).readScalarFloat());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, netcdfFile.getRootGroup().findVariable(IceyeXConstants.AZIMUTH_GROUND_SPACING).readScalarFloat());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, netcdfFile.getRootGroup().findVariable(IceyeXConstants.PULSE_REPETITION_FREQUENCY).readScalarFloat());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, netcdfFile.getRootGroup().findVariable(IceyeXConstants.RADAR_FREQUENCY).readScalarDouble() / Constants.oneMillion);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, netcdfFile.getRootGroup().findVariable(IceyeXConstants.LINE_TIME_INTERVAL).readScalarDouble());
@@ -442,15 +442,15 @@ public class IceyeProductReader extends SARReader {
 
     private String getSampleType() {
         try {
-            if ("slc".equalsIgnoreCase(netcdfFile.getRootGroup().findVariable(IceyeXConstants.SPH_DESCRIPTOR).readScalarString())) {
+            if (IceyeXConstants.SLC.equalsIgnoreCase(netcdfFile.getRootGroup().findVariable(IceyeXConstants.SPH_DESCRIPTOR).readScalarString())) {
                 isComplex = true;
-                return "COMPLEX";
+                return IceyeXConstants.COMPLEX;
             }
         } catch (IOException e) {
             SystemUtils.LOG.severe(e.getMessage());
         }
         isComplex = false;
-        return "DETECTED";
+        return IceyeXConstants.DETECTED;
     }
 
     private void addBandsToProduct() {
@@ -561,12 +561,12 @@ public class IceyeProductReader extends SARReader {
 
         final Variable variable = bandMap.get(destBand);
 
-        destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
-        sourceWidth = Math.min(sourceWidth, sceneWidth-sourceOffsetX);
-        destWidth = Math.min(destWidth, sceneWidth-destOffsetX);
+        sourceHeight = Math.min(sourceHeight, sceneHeight - sourceOffsetY);
+        destHeight = Math.min(destHeight, sceneHeight - sourceOffsetY);
+        sourceWidth = Math.min(sourceWidth, sceneWidth - sourceOffsetX);
+        destWidth = Math.min(destWidth, sceneWidth - destOffsetX);
         final int[] origin = {sourceOffsetY, sourceOffsetX};
         final int[] shape = {1, sourceWidth};
-
         pm.beginTask("Reading util from band " + destBand.getName(), destHeight);
         try {
             for (int y = 0; y < destHeight; y++) {
