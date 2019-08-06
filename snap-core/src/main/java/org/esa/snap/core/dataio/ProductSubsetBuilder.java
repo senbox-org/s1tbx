@@ -88,6 +88,23 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 ProductUtils.copyMetadata(srcAbsRoot, trgAbsRoot);
             }
 
+            final Rectangle region = subsetDef.getRegion();
+            final MetadataAttribute height = trgAbsRoot.getAttribute("num_output_lines");
+            if(height != null)
+                height.getData().setElemUInt(targetProduct.getSceneRasterHeight());
+
+            final MetadataAttribute width = trgAbsRoot.getAttribute("num_samples_per_line");
+            if(width != null)
+                width.getData().setElemUInt(targetProduct.getSceneRasterWidth());
+
+            final MetadataAttribute offsetX = trgAbsRoot.getAttribute("subset_offset_x");
+            if(offsetX != null && region != null)
+                offsetX.getData().setElemUInt(region.x);
+
+            final MetadataAttribute offsetY = trgAbsRoot.getAttribute("subset_offset_y");
+            if(offsetY != null && region != null)
+                offsetY.getData().setElemUInt(region.y);
+
             boolean isSARProduct = trgAbsRoot.getAttributeDouble("radar_frequency", 99999) != 99999;
             if(!isSARProduct)
                 return;
@@ -100,7 +117,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             final double srcFirstLineTime = ProductData.UTC.parse(srcAbsRoot.getAttributeString("first_line_time")).getMJD(); // in days
             final double srcLastLineTime = ProductData.UTC.parse(srcAbsRoot.getAttributeString("last_line_time")).getMJD(); // in days
             final double lineTimeInterval = (srcLastLineTime - srcFirstLineTime) / (sourceImageHeight - 1); // in days
-            final Rectangle region = subsetDef.getRegion();
             if(region != null) {
                 final int regionY = region.y;
                 final double regionHeight = region.getHeight();
@@ -139,22 +155,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 setLatLongMetadata(targetProduct, trgAbsRoot, "last_far_lat", "last_far_long",
                         0.5f, targetProduct.getSceneRasterHeight() - 1 + 0.5f);
             }
-
-            final MetadataAttribute height = trgAbsRoot.getAttribute("num_output_lines");
-            if(height != null)
-                height.getData().setElemUInt(targetProduct.getSceneRasterHeight());
-
-            final MetadataAttribute width = trgAbsRoot.getAttribute("num_samples_per_line");
-            if(width != null)
-                width.getData().setElemUInt(targetProduct.getSceneRasterWidth());
-
-            final MetadataAttribute offsetX = trgAbsRoot.getAttribute("subset_offset_x");
-            if(offsetX != null && region != null)
-                offsetX.getData().setElemUInt(region.x);
-
-            final MetadataAttribute offsetY = trgAbsRoot.getAttribute("subset_offset_y");
-            if(offsetY != null && region != null)
-                offsetY.getData().setElemUInt(region.y);
 
             final MetadataAttribute slantRange = trgAbsRoot.getAttribute("slant_range_to_first_pixel");
             if(slantRange != null) {
