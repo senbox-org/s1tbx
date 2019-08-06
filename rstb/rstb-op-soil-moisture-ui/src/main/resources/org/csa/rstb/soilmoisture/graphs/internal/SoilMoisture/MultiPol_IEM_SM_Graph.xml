@@ -1,0 +1,90 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="Read">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file></file>
+        </parameters>
+    </node>
+    <node id="IEM-Multi-Pol-Inversion">
+        <operator>IEM-Multi-Pol-Inversion</operator>
+        <sources>
+            <sourceProduct refid="Read"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <lutFile/>
+        </parameters>
+    </node>
+    <node id="AddLandCover">
+        <operator>AddLandCover</operator>
+        <sources>
+            <sourceProduct refid="IEM-Multi-Pol-Inversion"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <landCoverNames>AAFC Canada 2012 Crop,AAFC Canada Clay Pct,AAFC Canada Sand Pct</landCoverNames>
+            <resamplingMethod>BICUBIC_INTERPOLATION</resamplingMethod>
+        </parameters>
+    </node>
+    <node id="SM-Dielectric-Modeling">
+        <operator>SM-Dielectric-Modeling</operator>
+        <sources>
+            <sourceProduct refid="AddLandCover"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <modelToUse>Hallikainen</modelToUse>
+            <minSM>0.0</minSM>
+            <maxSM>0.55</maxSM>
+            <outputRDC>true</outputRDC>
+            <outputLandCover>true</outputLandCover>
+            <effectiveSoilTemperature>18.0</effectiveSoilTemperature>
+        </parameters>
+    </node>
+    <node id="Land-Cover-Mask">
+        <operator>Land-Cover-Mask</operator>
+        <sources>
+            <sourceProduct refid="SM-Dielectric-Modeling"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands>
+                <band>sm</band>
+            </sourceBands>
+            <landCoverBand>land_cover_AAFC Canada 2012 Crop</landCoverBand>
+            <validLandCoverClasses>
+                120,121,122,124,125,130,131,132,133,134,135,136,137,138,139,140,142,143,144,145,146,147,150,151,152,153,154,155,156,157,158,159,160,161,162,167,174,175,177,178,180,181,188,191,193,194,195,196,197,198,199
+            </validLandCoverClasses>
+            <includeOtherBands>true</includeOtherBands>
+        </parameters>
+    </node>
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="Land-Cover-Mask"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <formatName>BEAM-DIMAP</formatName>
+            <file></file>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="Read">
+            <displayPosition y="134.0" x="37.0"/>
+        </node>
+        <node id="IEM-Multi-Pol-Inversion">
+            <displayPosition y="133.0" x="128.0"/>
+        </node>
+        <node id="AddLandCover">
+            <displayPosition y="135.0" x="274.0"/>
+        </node>
+        <node id="SM-Dielectric-Modeling">
+            <displayPosition y="134.0" x="377.0"/>
+        </node>
+        <node id="Land-Cover-Mask">
+            <displayPosition y="185.0" x="394.0"/>
+        </node>
+        <node id="Write">
+            <displayPosition y="238.0" x="414.0"/>
+        </node>
+    </applicationData>
+</graph>

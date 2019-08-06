@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Soil Moisture Retrieval</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; <span style="font-weight: bold;">Multi-Polarization IEM Soil
+Moisture Retrieval</span><br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<br>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">By taking a two-step approach, soil moisture (SM)
+can be retrieved from
+radar backscatter coefficients.<o:p></o:p></span></p>
+<p class="MsoNormal" style=""><span style="" lang="EN">Step 1: Use IEM Multi-Polarization inversion to
+obtain the Real Dielectric Constant
+(RDC) from radar backscatter coefficients.<o:p></o:p></span></p>
+<p class="MsoNormal" style=""><span style="" lang="EN">Step 2: Invert SM dielectric model to retrieve SM
+from RDC.<o:p></o:p></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">IEM Multi-Polarization Inversion<o:p></o:p></span></b></p>
+<p class="MsoNormal" style=""><span style="" lang="EN">Source product must contain only one image.</span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">User can&nbsp;browse for a calibrated IEM LUT.
+Matlab (.mat) and CSV (.csv) formats are supported.&nbsp; <o:p></o:p></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">SM Dielectric Model</span></b></p>
+
+<p class="MsoNormal" style="">User can choose one
+    of two models: Hallikainen or Mironov.</p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">Sand
+and clay percentages are required as input for Hallikainen while
+Mironov only requires clay percentage. User can choose a resampling
+method to generate the bands and add them to the source product.</span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">For
+both models, the user can enter the SM range (minimum and maximum) for
+retrieval and optionally select to output RDC as well as the land cover
+bands.</span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">Finally, for Mironov model only, the user needs to
+enter the effective soil temperature.</span></p>
+<br>
+<hr>
+</body>
+</html>

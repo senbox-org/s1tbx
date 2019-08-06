@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Soil Moisture Retrieval</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp;
+            <p class="MsoNormal" style=""><b><span style="font-size: 14pt; line-height: 115%;" lang="EN">SM
+Dielectric Modeling</span></b><span style="" lang="EN"><o:p></o:p></span></p>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<p class="MsoNormal" style=""><span style="" lang="EN"><span style="font-weight: bold;"></span></span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN"><span style="font-weight: bold;"></span>Soil
+moisture plays an important role in the estimation of dielectric
+properties in soil. By inverting a dielectric model, soil moisture can
+be
+retrieved from the soil real dielectric constant (RDC). User can choose
+one of two models:</span></p>
+<ul>
+    <li><span style="" lang="EN">Hallikainen</span></li>
+    <li><span style="" lang="EN">Mironov<br>
+</span></li>
+</ul>
+<p class="MsoNormal" style=""><b><span style="" lang="EN"></span></b><span
+        style="font-weight: bold; text-decoration: underline;"></span>&nbsp;
+    <br>
+</p>
+<span style="font-weight: bold;">&nbsp; Parameters
+Used (all models)</span>
+
+<p class="MsoNormal" style="">All models use the
+    source RDC band.</p>
+
+<p class="MsoNormal" style=""></p>
+
+<p class="MsoNormal" style=""><b><span style="" lang="EN">Outputs (all models)<o:p></o:p></span></b></p>
+<p class="MsoNormal" style=""><span style="" lang="EN">The soil moisture (SM) is output as a band.</span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">User can select whether to copy the input RDC band
+to the target product.</span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">User can also select to output the Land Cover
+bands from the source product to the target product.</span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">&nbsp; </span></p>
+<span style="font-weight: bold;">&nbsp; User Input
+(all models)</span><br>
+<br>
+&nbsp; User can enter the range of SM (minimum and maximum) for
+retreival.<br>
+&nbsp;<br>
+
+<p class="MsoNormal" style="text-decoration: underline;"><b><span style="" lang="EN">Hallikainen Model<o:p></o:p></span></b>
+</p>
+<p class="MsoNormal" style=""><span style="" lang="EN">The Hallikainen model computes soil moisture from
+RDC plus sand and clay
+percentages.<b>
+        <o:p></o:p>
+    </b></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">Additional Parameters (Hallikainen)</span></b><span style=""
+                                                                                                              lang="EN"><o:p></o:p></span>
+</p>
+<p class="MsoNormal" style=""><span style="" lang="EN"><o:p></o:p></span>Both sand and
+    clay source bands are used.
+</p>
+<span style="font-weight: bold;"></span><br>
+&nbsp;&nbsp; <br>
+
+<p class="MsoNormal" style="text-decoration: underline;"><b><span style="" lang="EN">Mironov Model<o:p></o:p></span></b>
+</p>
+<p class="MsoNormal" style=""><span style="" lang="EN">The Mironov model computes soil moisture from RDC,
+clay percentage and effective soil temperature.<b>
+        <o:p></o:p>
+    </b></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">Additional Parameters (Mironov)</span></b></p>
+
+<p class="MsoNormal" style="">Clay source band is
+    used.</p>
+
+<p class="MsoNormal" style="font-weight: bold;">User
+    Input (Mironov)<span style="" lang="EN"></span><span style="" lang="EN"><o:p></o:p></span></p>
+<p class="MsoNormal" style=""><span style="" lang="EN"><o:p></o:p></span>User can enter
+    the effective soil temperature.
+</p>
+<p><br>
+</p>
+<hr>
+</body>
+</html>

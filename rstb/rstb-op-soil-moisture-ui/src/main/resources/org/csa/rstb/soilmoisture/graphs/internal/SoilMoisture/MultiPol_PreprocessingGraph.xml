@@ -1,0 +1,108 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="Read">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+    </node>
+    <node id="Calibration">
+        <operator>Calibration</operator>
+        <sources>
+            <sourceProduct refid="Read"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands>
+                <band>Intensity_VV</band>
+                <band>Intensity_HH</band>
+            </sourceBands>
+            <auxFile>Latest Auxiliary File</auxFile>
+            <externalAuxFile/>
+            <outputImageInComplex>false</outputImageInComplex>
+            <outputImageScaleInDb>false</outputImageScaleInDb>
+            <createGammaBand>false</createGammaBand>
+            <createBetaBand>false</createBetaBand>
+        </parameters>
+    </node>
+    <node id="Speckle-Filter">
+        <operator>Speckle-Filter</operator>
+        <sources>
+            <sourceProduct refid="Calibration"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <filter>Mean</filter>
+            <filterSizeX>5</filterSizeX>
+            <filterSizeY>5</filterSizeY>
+            <dampingFactor>2</dampingFactor>
+            <edgeThreshold>5000.0</edgeThreshold>
+            <estimateENL>true</estimateENL>
+            <enl>1.0</enl>
+        </parameters>
+    </node>
+    <node id="Terrain-Correction">
+        <operator>Terrain-Correction</operator>
+        <sources>
+            <sourceProduct refid="Speckle-Filter"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <demName>SRTM 3Sec</demName>
+            <externalDEMFile/>
+            <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+            <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+            <imgResamplingMethod>BILINEAR_INTERPOLATION</imgResamplingMethod>
+            <pixelSpacingInMeter>13.23</pixelSpacingInMeter>
+            <pixelSpacingInDegree>1.188471120890127E-4</pixelSpacingInDegree>
+            <mapProjection>GEOGCS[&quot;WGS84(DD)&quot;, &#xd;
+                DATUM[&quot;WGS84&quot;, &#xd;
+                SPHEROID[&quot;WGS84&quot;, 6378137.0, 298.257223563]], &#xd;
+                PRIMEM[&quot;Greenwich&quot;, 0.0], &#xd;
+                UNIT[&quot;degree&quot;, 0.017453292519943295], &#xd;
+                AXIS[&quot;Geodetic longitude&quot;, EAST], &#xd;
+                AXIS[&quot;Geodetic latitude&quot;, NORTH]]
+            </mapProjection>
+            <nodataValueAtSea>true</nodataValueAtSea>
+            <saveDEM>false</saveDEM>
+            <saveIncidenceAngleFromEllipsoid>true</saveIncidenceAngleFromEllipsoid>
+            <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>
+            <saveProjectedLocalIncidenceAngle>false</saveProjectedLocalIncidenceAngle>
+            <saveSelectedSourceBand>true</saveSelectedSourceBand>
+            <applyRadiometricNormalization>false</applyRadiometricNormalization>
+            <saveSigmaNought>false</saveSigmaNought>
+            <saveGammaNought>false</saveGammaNought>
+            <saveBetaNought>false</saveBetaNought>
+            <incidenceAngleForSigma0>Use projected local incidence angle from DEM</incidenceAngleForSigma0>
+            <incidenceAngleForGamma0>Use projected local incidence angle from DEM</incidenceAngleForGamma0>
+            <auxFile>Latest Auxiliary File</auxFile>
+            <externalAuxFile/>
+        </parameters>
+    </node>
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="Terrain-Correction"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <formatName>BEAM-DIMAP</formatName>
+            <file></file>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="Read">
+            <displayPosition y="135.0" x="16.0"/>
+        </node>
+        <node id="Calibration">
+            <displayPosition y="136.0" x="81.0"/>
+        </node>
+        <node id="Speckle-Filter">
+            <displayPosition y="136.0" x="160.0"/>
+        </node>
+        <node id="Terrain-Correction">
+            <displayPosition y="137.0" x="255.0"/>
+        </node>
+        <node id="Write">
+            <displayPosition y="137.0" x="379.0"/>
+        </node>
+    </applicationData>
+</graph>

@@ -1,0 +1,14 @@
+# This contains metadata for an IEM LUT.
+Filename = IEM_cb_nt_RDC_RSAT2_QP
+LUT_format = Original IEM
+Data_set_format = MAT
+Version = 1.0
+Date_Time_of_creation = Feb 20, 2014 2:00PM
+Description = Original IEM LUT, each row contains rms, cl, RDC, sigmaHH, sigmaVV
+Mission = Radarsat-2
+Number_of_rows = 583088
+Number_of_columns = 5
+Start_angle = 18
+Stop_angle = 61
+Number_of_rows_per_angle = 13252
+Reference_to_input_data_source = Identical to IEM_cb_nt_RDC.mat from AAFC  

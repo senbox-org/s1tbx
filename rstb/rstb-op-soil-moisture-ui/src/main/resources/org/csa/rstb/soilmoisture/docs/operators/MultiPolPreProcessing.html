@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Soil Moisture Retrieval</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp;&nbsp;<b><span style="font-size: 14pt; line-height: 115%;" lang="EN">Multi-Pol
+Pre-Processing</span></b>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+
+<p class="MsoNormal" style=""><span style="" lang="EN"><o:p></o:p></span>Multi-Pol
+    pre-processing takes a single C-band Quad Pol SLC
+    product as input.&nbsp;
+</p>
+<p class="MsoNormal" style="">The processing graph
+    applies:</p>
+<ul>
+    <li>Radiometric calibration to Sigma0</li>
+    <li>Mean 3x3 speckle filtering</li>
+    <li>Terrain correction using the SRTM 3sec DEM and map
+        projection to WGS84 Lat/Lng geographic coordinates
+    </li>
+</ul>
+<p>The
+    multi-angle soil moisture retrieval requires that the terrain
+    correction operator output the incidence angle from the ellipsoid as a
+    band.</p>
+
+<p></p>
+
+<p>Pre-processing
+    could also be applied from outside the Toolbox. In this case, the input
+    product must adhere to the following input product conditions:</p>
+<ol>
+    <li>The input product must be calibrated to Sigma0</li>
+    <li>All
+        required source bands, namely, sigma0HH, sigma0VV
+        and&nbsp;Incidence
+        Angle&nbsp;must be present in a single input source product.
+    </li>
+    <li>The
+        sigma0HH band name should contain "Sigma0_HH" or "HH" with "Sigma0_HH"
+        taking precedence meaning that if a band whose name contains
+        "Sigma0_HH" is found, other bands whose name contains "HH" will be
+        ignored.
+    </li>
+    <li>The sigma0VV band name should contain "Sigma0_VV" or "VV"
+        with "Sigma0_VV" taking precedence.
+    </li>
+    <li>If no unit is specified for the sigma0 bands or the unit is
+        not decibel (dB), the sigma0 values will be converted to dB.
+    </li>
+    <li>The
+        incidence angle band could be local incidence angle (LIA) or incidence
+        angles from the ellipsoid. Incidence angles should be in degrees.
+    </li>
+    <li>The incidence angle band name should contain
+        "incidenceAngle" or "LIA" with "incidenceAngle" taking precedence.<br>
+        <br>
+    </li>
+</ol>
+<br>
+<hr>
+</body>
+</html>

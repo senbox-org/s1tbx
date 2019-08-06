@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Soil Moisture Retrieval</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp;<span style="font-weight: bold;"> Multi-Angle Pre-Processing</span><br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+
+<p>Multi-Angle pre-processing takes a two C-band Quad Pol SLC
+    products as input - a morning acquistion and an evening acquisition for
+    the same date over the same area.</p>
+
+<p>The order does not matter however, one product should be
+    specified in the Read operator and the other in the Read(2) operator.</p>
+
+<p class="MsoNormal" style="">The processing graph
+    applies:</p>
+<ul>
+    <li>Radiometric calibration to Sigma0</li>
+    <li>Mean 3x3 speckle filtering</li>
+    <li>Terrain correction using the SRTM 3sec DEM and map
+        projection to WGS84 Lat/Lng geographic coordinates
+    </li>
+</ul>
+<p>The
+    multi-angle soil moisture retrieval requires that the terrain
+    correction operator output the incidence angle from the ellipsoid as a
+    band.</p>
+
+<p>The two terrain corrected results are then combined into a
+    single product stack.</p>
+
+<p>Pre-processing could also be applied from outside the Toolbox.
+    In
+    this case, the input product must adhere to the following input product
+    conditions:</p>
+<ol>
+    <li>The input product must be calibrated to Sigma0</li>
+    <li>All
+        required source bands, namely, sigma0HH, sigma0VV
+        and&nbsp;Incidence
+        Angle&nbsp;must be present in a single input source product.
+    </li>
+    <li>The
+        sigma0HH band name should contain "Sigma0_HH" or "HH" with "Sigma0_HH"
+        taking precedence meaning that if a band whose name contains
+        "Sigma0_HH" is found, other bands whose name contains "HH" will be
+        ignored.
+    </li>
+    <li>The sigma0VV band name should contain "Sigma0_VV" or "VV"
+        with "Sigma0_VV" taking precedence.
+    </li>
+    <li>If no unit is specified for the sigma0 bands or the unit is
+        not decibel (dB), the sigma0 values will be converted to dB.
+    </li>
+    <li>The
+        incidence angle band could be local incidence angle (LIA) or incidence
+        angles from the ellipsoid. Incidence angles should be in degrees.
+    </li>
+    <li>The incidence angle band name should contain
+        "incidenceAngle" or "LIA" with "incidenceAngle" taking precedence.
+    </li>
+    <li>It is assumed that the input product contains both AM and
+        PM acquistions in a coregistered stack.
+    </li>
+    <li>There
+        is a "master" band and the rest are "slave" bands. The name of the
+        "master" band is assumed to contain "mst". The "slave" bands are
+        assumed to be numbered such that their names contain "slvx" where x =
+        1, 2, 3, ... , and so on. Assign the number 0 to the "master" band so
+        that each band has a unique number. The bands are grouped into two
+        images by their number order. The bands with lower numbers are grouped
+        into one image while the bands with higher numbers are grouped into
+        another image.
+    </li>
+</ol>
+<p></p>
+<hr>
+</body>
+</html>

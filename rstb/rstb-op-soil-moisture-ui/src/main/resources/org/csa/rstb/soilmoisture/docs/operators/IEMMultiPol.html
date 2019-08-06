@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Soil Moisture Retrieval</title>
+
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp;&nbsp;<b><span style="font-size: 14pt; line-height: 115%;" lang="EN">IEM
+Multi-Polarization Inversion</span></b>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">There is a strong correlation between soil
+dielectric and radar
+backscatter. By inverting the Integral Equation Model (IEM), the real
+dielectric constant (RDC) can be obtained from the radar backscatter
+coefficient. The inversion is accomplished by using a Look Up Table
+(LUT). A k-d tree is used to store the LUT for searching.</span></p>
+<p class="MsoNormal" style="">To
+    address the possibility of multiple roots in the model inversion, an
+    iterative approach is adopted. The first pass produces the closest
+    match RDC value in each pixel. In the second pass, a representative
+    first-pass RDC value (mean is used) is derived from a square
+    neighbourhood centred at the pixel (excluding the centre). This
+    representative value is compared with the pixel's own first-pass RDC
+    value. If it deviates too much from its neighbours, it is labelled as
+    an outlier.&nbsp;</p>
+<p class="MsoNormal" style="">For each outlier,
+    the RDC value with the least deviation among the N closest
+    backscattering coefficients from the LUT is used to replace the
+    first-pass value. If no such RDC value exists or the deviation is still
+    too high, then the RDC value is optionally filtered by replacing it
+    with the representative value. If rms is output, it will also be replaced by its representative (mean) value. <span
+            style="" lang="EN"><o:p></o:p></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">Multi-Polarization Approach<o:p></o:p></span></b></p>
+<p class="MsoNormal" style=""><span style="" lang="EN">The Multi-Polarization approach utilizes the HH
+and VV backscatter
+coefficients in either the AM or PM image (but not both).<o:p></o:p></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">Calibrated IEM LUT<o:p></o:p></span></b></p>
+<p class="MsoNormal" style=""><span style="" lang="EN">User can browse for a calibrated&nbsp;</span><a
+        href="IEM-LUT.html">IEM LUT</a><span style="" lang="EN">. Matlab
+(.mat) and CSV (.csv) formats are supported. <o:p></o:p></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">Parameters Used</span></b><span style="" lang="EN"><o:p></o:p></span>
+</p>
+<p class="MsoNormal" style=""><span style="" lang="EN">The source bands used are the HH and VV
+backscatter coefficients as well as
+the local incidence angles in one image.</span></p>
+<p class="MsoNormal" style="font-weight: bold;">UI Parameters</p>
+<p class="MsoNormal" style=""><span style="font-weight: bold;">N</span> : &nbsp;This is the number of&nbsp;closest&nbsp;matches
+    to request from the kd-tree.</p>
+<p class="MsoNormal" style=""><span style="font-weight: bold;">M</span>: &nbsp; This is the length (in pixels) of the
+    side of the square neighbour. It must be odd and greater than 1.&nbsp;</p>
+<p class="MsoNormal" style=""><span style="font-weight: bold;">RDC deviation threshold</span>:
+    &nbsp;The RDC deviation is the absolute difference between the RDC
+    value and the mean RDC of the neighbourhood pixels, as a fraction of
+    the mean RDC. This is the threshold above which the pixel is labelled
+    an outlier.</p>
+<p class="MsoNormal"><span style="font-weight: bold;">Filter remaining outliers</span>: Checkbox for optional filter
+    using the mean of the neighbouring RDC.<span style="" lang="EN"><o:p></o:p></span></p>
+<p class="MsoNormal" style=""><b><span style="" lang="EN">Outputs</span></b><span style="" lang="EN"><o:p></o:p></span>
+</p>
+<p class="MsoNormal" style="">The RDC from the LUT
+    is output as a band.<br>
+    <br>
+    <span style="" lang="EN">User can also optionally
+output the RMS roughness height (rms)&nbsp;from the LUT as a band.</span></p>
+
+<p class="MsoNormal" style=""><span style="" lang="EN">If sand and clay percentages are present as source
+bands, they will be
+copied from the input product to the output product.</span></p>&nbsp; An optional outlier band outputs the outlier
+status of the pixel:<br>
+<ul>
+    <li>0 means the first-pass RDC value has not been replaced</li>
+    <li>1 means the first-pass RDC value has been replaced by another &#8216;better&#8217; possible root</li>
+    <li>2 means &nbsp;the first-pass RDC value has been replaced by the representative value derived from its
+        neighbours
+    </li>
+</ul>
+<p>The
+    output of this optional outlier band is controlled by setting a
+    preference called "snap.soil_moisture.output_outlier" in the
+    snap.properties file in &nbsp;the folder
+    "snap-desktop\snap-application\target\snap\etc".</p>
+<hr>
+</body>
+</html>

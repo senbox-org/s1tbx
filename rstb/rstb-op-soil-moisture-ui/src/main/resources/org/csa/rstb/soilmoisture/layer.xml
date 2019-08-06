@@ -1,0 +1,252 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-csa-rstb-soilmoisture-gpf-MultiAnglePreProcessing-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Multi-Angle/Hybrid Pre-Processing"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/MultiAngle_PreprocessingGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Multi-Angle/Hybrid Pre-Processing"/>
+                <attr name="targetProductNameSuffix" stringvalue="_multi-angle"/>
+                <attr name="ShortDescription" stringvalue="Multi-Angle/Hybrid AM PM Pre-Processing"/>
+                <attr name="helpId" stringvalue="MultiAnglePreProcessing"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-MultiPolPreProcessing-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Multi-Polarisation Pre-Processing"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/MultiPol_PreprocessingGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Multi-Polarisation Pre-Processing"/>
+                <attr name="targetProductNameSuffix" stringvalue="_multi-pol"/>
+                <attr name="ShortDescription" stringvalue="Multi-Polarisation Pre-Processing"/>
+                <attr name="helpId" stringvalue="MultiPolPreProcessing"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+
+            <file name="org-csa-rstb-soilmoisture-gpf-IEMMultiAngle-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="IEM Multi-Angle Inversion"/>
+                <attr name="operatorName" stringvalue="IEM-Multi-Angle-Inversion"/>
+                <attr name="dialogTitle" stringvalue="IEM Multi-Angle Inversion"/>
+                <attr name="targetProductNameSuffix" stringvalue="_IEM"/>
+                <attr name="ShortDescription" stringvalue="IEM Multi-Angle Inversion"/>
+                <attr name="helpId" stringvalue="IEMMultiAngle"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-IEMMultiPol-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="IEM Multi-Pol Inversion"/>
+                <attr name="operatorName" stringvalue="IEM-Multi-Pol-Inversion"/>
+                <attr name="dialogTitle" stringvalue="IEM Multi-Pol Inversion"/>
+                <attr name="targetProductNameSuffix" stringvalue="_IEM"/>
+                <attr name="ShortDescription" stringvalue="IEM Multi-Pol Inversion"/>
+                <attr name="helpId" stringvalue="IEMMultiPol"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-IEMHybrid-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="IEM Hybrid Inversion"/>
+                <attr name="operatorName" stringvalue="IEM-Hybrid-Inversion"/>
+                <attr name="dialogTitle" stringvalue="IEM Hybrid Inversion"/>
+                <attr name="targetProductNameSuffix" stringvalue="_IEM"/>
+                <attr name="ShortDescription" stringvalue="IEM Hybrid Inversion"/>
+                <attr name="helpId" stringvalue="IEMHybrid"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-SMDielectricModel-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="SM Dielectric Mixture Modeling"/>
+                <attr name="operatorName" stringvalue="SM-Dielectric-Modeling"/>
+                <attr name="dialogTitle" stringvalue="SM Dielectric Mixture Modeling"/>
+                <attr name="targetProductNameSuffix" stringvalue="_sm"/>
+                <attr name="ShortDescription" stringvalue="SM Dielectric Mixture Modeling"/>
+                <attr name="helpId" stringvalue="SMDielectricModel"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+
+            <file name="org-csa-rstb-soilmoisture-gpf-MultiAngleSoilMoisture-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Multi-Angle IEM SM Retrieval"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/MultiAngle_IEM_SM_Graph.xml"/>
+                <attr name="dialogTitle" stringvalue="Multi-Angle IEM SM Retrieval"/>
+                <attr name="targetProductNameSuffix" stringvalue="_sm"/>
+                <attr name="ShortDescription" stringvalue="Multi-Angle IEM SM Retrieval"/>
+                <attr name="helpId" stringvalue="MultiAngleSoilMoisture"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-MultiPolSoilMoisture-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Multi-Pol IEM SM Retrieval"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/MultiPol_IEM_SM_Graph.xml"/>
+                <attr name="dialogTitle" stringvalue="Multi-Pol IEM SM Retrieval"/>
+                <attr name="targetProductNameSuffix" stringvalue="_sm"/>
+                <attr name="ShortDescription" stringvalue="Multi-Pol IEM SM Retrieval"/>
+                <attr name="helpId" stringvalue="MultiPolSoilMoisture"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-HybridSoilMoisture-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Hybrid IEM Soil Moisture Retrieval"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/Hybrid_IEM_SM_Graph.xml"/>
+                <attr name="dialogTitle" stringvalue="Hybrid IEM Soil Moisture Retrieval"/>
+                <attr name="targetProductNameSuffix" stringvalue="_sm"/>
+                <attr name="ShortDescription" stringvalue="Hybrid IEM Soil Moisture Retrieval"/>
+                <attr name="helpId" stringvalue="HybridSoilMoisture"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+
+            <file name="org-csa-rstb-soilmoisture-gpf-MultiAngleFull-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Multi-Angle Pre-Processing and IEM SM Retrieval"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/MultiAngle_FullGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Multi-Angle Pre-Processing and IEM SM Retrieval"/>
+                <attr name="targetProductNameSuffix" stringvalue="_sm"/>
+                <attr name="ShortDescription" stringvalue="Multi-Angle Pre-Processing and IEM SM Retrieval"/>
+                <attr name="helpId" stringvalue="MultiAngleSoilMoisture"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-MultiPolFull-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Multi-Pol Pre-Processing and IEM SM Retrieval"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/MultiPol_FullGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Multi-Pol Pre-Processing and IEM SM Retrieval"/>
+                <attr name="targetProductNameSuffix" stringvalue="_sm"/>
+                <attr name="ShortDescription" stringvalue="Multi-Pol Pre-Processing and IEM SM Retrieval"/>
+                <attr name="helpId" stringvalue="MultiPolSoilMoisture"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+            <file name="org-csa-rstb-soilmoisture-gpf-HybridFull-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Hybrid Pre-Processing and IEM SM Retrieval"/>
+                <attr name="graphFile" stringvalue="SoilMoisture/Hybrid_FullGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Hybrid Pre-Processing and IEM SM Retrieval"/>
+                <attr name="targetProductNameSuffix" stringvalue="_sm"/>
+                <attr name="ShortDescription" stringvalue="Hybrid Pre-Processing and IEM SM Retrieval"/>
+                <attr name="helpId" stringvalue="HybridSoilMoisture"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="enableEditing" stringvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="Radar">
+            <attr name="position" intvalue="510"/>
+            <folder name="Soil Moisture">
+                <attr name="position" intvalue="950"/>
+                <folder name="Pre-Processing">
+                    <attr name="position" intvalue="100"/>
+                    <file name="org-csa-rstb-soilmoisture-gpf-MultiAnglePreProcessing-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-MultiAnglePreProcessing-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-MultiPolPreProcessing-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-MultiPolPreProcessing-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                </folder>
+                <folder name="Modeling Operators">
+                    <attr name="position" intvalue="200"/>
+                    <file name="org-csa-rstb-soilmoisture-gpf-IEMMultiAngle-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-IEMMultiAngle-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-IEMMultiPol-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-IEMMultiPol-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-IEMHybrid-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-IEMHybrid-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-SMDielectricModel-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-SMDielectricModel-Action.instance"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                </folder>
+                <folder name="Soil Moisture Retrieval">
+                    <attr name="position" intvalue="300"/>
+                    <file name="org-csa-rstb-soilmoisture-gpf-MultiAngleSoilMoisture-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-MultiAngleSoilMoisture-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-MultiPolSoilMoisture-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-MultiPolSoilMoisture-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-HybridSoilMoisture-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-HybridSoilMoisture-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                </folder>
+                <folder name="End-to-End Graphs">
+                    <attr name="position" intvalue="400"/>
+                    <file name="org-csa-rstb-soilmoisture-gpf-MultiAngleFull-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-MultiAngleFull-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-MultiPolFull-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-MultiPolFull-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-csa-rstb-soilmoisture-gpf-HybridFull-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-csa-rstb-soilmoisture-gpf-HybridFull-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.csa.rstb.soilmoisture.gpf.ui.IEMMultiPolInverOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.soilmoisture.gpf.ui.IEMInverOpUI"/>
+            <attr name="operatorName" stringvalue="IEM-Multi-Pol-Inversion"/>
+        </file>
+        <file name="org.csa.rstb.soilmoisture.gpf.ui.IEMMultiAngleInverOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.soilmoisture.gpf.ui.IEMInverOpUI"/>
+            <attr name="operatorName" stringvalue="IEM-Multi-Angle-Inversion"/>
+        </file>
+        <file name="org.csa.rstb.soilmoisture.gpf.ui.IEMHybridInverOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.soilmoisture.gpf.ui.IEMInverOpUI"/>
+            <attr name="operatorName" stringvalue="IEM-Hybrid-Inversion"/>
+        </file>
+        <file name="org.csa.rstb.soilmoisture.gpf.ui.filtering.SMDielectricModelInverOpUI">
+            <attr name="operatorUIClass"
+                  stringvalue="org.csa.rstb.soilmoisture.gpf.ui.filtering.SMDielectricModelInverOpUI"/>
+            <attr name="operatorName" stringvalue="SM-Dielectric-Modeling"/>
+        </file>
+    </folder>
+
+</filesystem>

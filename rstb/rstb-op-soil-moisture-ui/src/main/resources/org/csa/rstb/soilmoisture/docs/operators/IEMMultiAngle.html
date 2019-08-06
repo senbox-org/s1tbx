@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Soil Moisture Retrieval</title>
+
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; <span style="font-weight: bold;">IEM Multi-Angle&nbsp;Inversion</span><br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<br>
+There is a strong correlation between soil
+dielectric and radar backscatter. By inverting the Integral Equation
+Model (IEM), the real dielectric constant (RDC) can be obtained from
+the radar backscatter coefficient. The inversion is accomplished by
+using a Look Up Table (LUT). <span style="" lang="EN">A k-d tree is used to store the LUT for searching.<br><br>To address </span>
+the possibility of multiple roots in the model inversion, an
+iterative approach is adopted. The first pass produces the closest
+match RDC value in each pixel. In the second pass, a representative
+first-pass RDC value (mean is used) is derived from a square
+neighbourhood centred at the pixel (excluding the centre). This
+representative value is compared with the pixel's own first-pass RDC
+value. If it deviates too much from its neighbours, it is labelled as
+an outlier.<br><br>For each outlier,
+the RDC value with the least deviation among the N closest
+backscattering coefficients from the LUT is used to replace the
+first-pass value. If no such RDC value exists or the deviation is still
+too high, then the RDC value is optionally filtered by replacing it
+with the representative value. If rms is output, it will also be replaced by its representative (mean) value.<br>
+<br>
+<span style="font-weight: bold;">Multi-Angle Approach<br>
+<br>
+</span>The
+Multi-Angle approach utiliizes one backscatter coefficient (HH or VV)
+from each of the two images (AM or PM). So there are 4 possible
+combinations:<br>
+<ul>
+    <li>HH1-HH2</li>
+    <li>HH1-VV2</li>
+    <li>VV1-VV2</li>
+    <li>VV1-HH2</li>
+</ul>
+where HH1 and VV1 are from the AM image and HH2 and VV2 are from the PM
+image.<br>
+<br>
+User can select one of the 4 combinations.<br>
+<br>
+<span style="font-weight: bold;">Calibrated IEM LUT</span><br>
+<br>
+User can browse for a calibrated <a href="IEM-LUT.html">IEM
+    LUT</a>. Matlab (.mat) and CSV (.csv) formats are supported.<br>
+<br>
+<span style="font-weight: bold;">Parameters Used</span><br>
+<br>
+The source bands used are one backscatter coefficient (HH or
+VV)&nbsp; as well as the local incidence angle from each image.<br><br><span
+        style="font-weight: bold;">UI Parameters</span><br><br><span style="font-weight: bold;">N</span> : &nbsp;This is
+the number of&nbsp;closest matches to request from the kd-tree.<br><br><span style="font-weight: bold;">M</span>: &nbsp;
+This is the length (in pixels) of the side of the square neighbour. It must be odd and greater than 1.<br><br><span
+        style="font-weight: bold;">RDC deviation threshold</span>:
+&nbsp;The RDC deviation is the absolute difference between the RDC
+value and the mean RDC of the neighbourhood pixels, as a fraction of
+the mean RDC. This is the threshold above which the pixel is labelled
+an outlier.<br><br><span style="font-weight: bold;">Filter remaining outliers</span>: Checkbox for optional filter using
+the mean of the neighbouring RDC.<br>
+<br>
+<span style="font-weight: bold;">Outputs<br>
+</span><br>
+The RDC from the LUT is output as a band.<br>
+<br>
+<span style="" lang="EN">User can also optionally
+output the RMS roughness height (rms)&nbsp;from the LUT as a band.</span><br>
+<br>
+If sand and clay percentages are present as source bands, they will be
+copied from the input product to the output product.<br><br>An optional outlier band outputs the outlier status of the
+pixel:<br>
+<ul>
+    <li>0 means the first-pass RDC value has not been replaced</li>
+    <li>1 means the first-pass RDC value has been replaced by another &#8216;better&#8217; possible root</li>
+    <li>2 means &nbsp;the first-pass RDC value has been replaced by the representative value derived from its
+        neighbours
+    </li>
+</ul>
+The
+output of this optional outlier band is controlled by setting a
+preference called "snap.soil_moisture.output_outlier" in the
+snap.properties file in &nbsp;the folder
+"snap-desktop\snap-application\target\snap\etc".<br>
+<hr>
+</body>
+</html>

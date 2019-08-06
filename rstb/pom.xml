@@ -63,7 +63,9 @@
         <module>rstb-op-classification-ui</module>
         <module>rstb-op-polarimetric-tools</module>
         <module>rstb-op-polarimetric-tools-ui</module>
-        
+        <module>rstb-op-soil-moisture</module>
+        <module>rstb-op-soil-moisture-ui</module>
+		
         <module>rstb-kit</module>
     </modules>
 

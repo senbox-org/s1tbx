@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+    <mapID target="MultiAnglePreProcessing" url="operators/MultiAnglePreProcessing.html"/>
+    <mapID target="MultiPolPreProcessing" url="operators/MultiPolPreProcessing.html"/>
+    <mapID target="IEMHybrid" url="operators/IEMHybrid.html"/>
+    <mapID target="IEMMultiAngle" url="operators/IEMMultiAngle.html"/>
+    <mapID target="IEMMultiPol" url="operators/IEMMultiPol.html"/>
+    <mapID target="SMDielectricModel" url="operators/SMDielectricModel.html"/>
+    <mapID target="HybridSoilMoisture" url="operators/HybridSoilMoisture.html"/>
+    <mapID target="MultiAngleSoilMoisture" url="operators/MultiAngleSoilMoisture.html"/>
+    <mapID target="MultiPolSoilMoisture" url="operators/MultiPolSoilMoisture.html"/>
+</map>

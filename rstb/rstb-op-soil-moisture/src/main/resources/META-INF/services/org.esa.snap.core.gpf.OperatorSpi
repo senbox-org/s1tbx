@@ -1,0 +1,4 @@
+org.csa.rstb.soilmoisture.gpf.IEMHybridInverOp$Spi
+org.csa.rstb.soilmoisture.gpf.IEMMultiPolInverOp$Spi
+org.csa.rstb.soilmoisture.gpf.IEMMultiAngleInverOp$Spi
+org.csa.rstb.soilmoisture.gpf.SMDielectricModelInverOp$Spi
