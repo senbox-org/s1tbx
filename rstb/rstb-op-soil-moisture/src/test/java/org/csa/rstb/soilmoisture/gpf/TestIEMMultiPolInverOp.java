@@ -9,6 +9,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -159,6 +160,7 @@ public class TestIEMMultiPolInverOp {
      * @throws Exception general exception
      */
     @Test
+    @Ignore
     public void testIEMMultiPolInversionOfRealImage() throws Exception {
 
         final double epsilon = 1.0e-4d;
@@ -172,23 +174,6 @@ public class TestIEMMultiPolInverOp {
         myTest(true, false, false, epsilon); // just clay, no sand
         myTest(false, true, false, epsilon); // no clay, just sand
         myTest(true, true, false, epsilon);  // both clay and sand
-    }
-
-    @Test
-    public void testLUTs() throws Exception {
-
-        TestUtils.log.info("testLUTs");
-
-        final Product sourceProduct = createOneTestProduct(cols, rows, false, false);
-
-        final IEMMultiPolInverOp op = (IEMMultiPolInverOp) spi.createOperator();
-        assertNotNull(op);
-        op.setSourceProduct(sourceProduct);
-        boolean pass = op.compareCSVLUTWithMatlabLUT(
-                "P:\\asmers\\asmers\\data\\CCN\\Testing\\cecilia\\LUTs\\IEMC_cb_nt_RDC_RSAT2_QP_CSV\\IEMC_cb_nt_RDC_RSAT2_QP.csv",
-                "P:\\asmers\\asmers\\data\\CCN\\Testing\\cecilia\\LUTs\\IEMC_cb_nt_RDC_RSAT2_QP_MAT\\IEMC_cb_nt_RDC_RSAT2_QP.mat",
-                1.0e-5);
-        assertTrue(pass);
     }
 
     private void myTest(final boolean clay, final boolean sand, boolean useMatlabLUT, double epsilon) throws Exception {

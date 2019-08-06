@@ -9,6 +9,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -361,6 +362,7 @@ public class TestIEMMultiAngleInverOp {
      * @throws Exception general exception
      */
     @Test
+    @Ignore
     public void testIEMMultiAngleInversionOfRealImage() throws Exception {
 
         final double epsilon = 1.0e-4d;
