@@ -39,7 +39,7 @@ To build without testing
     
 * Integration Testing
 
-    - Download SNAP desktop version 6.0.0 "http://step.esa.int/main/download/"
+    - Download SNAP desktop version 7.0.0 "http://step.esa.int/main/download/"
     - You can update the application if you want
     - Add plugin:
         - Tools -> Plugins -> Downloaded -> add plugin -> slect pulgin from your target file [.pem]

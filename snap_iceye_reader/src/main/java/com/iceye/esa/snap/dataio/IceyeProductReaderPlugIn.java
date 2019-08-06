@@ -7,11 +7,15 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 /**
  * @author Ahmad Hamouda
  */
 public class IceyeProductReaderPlugIn extends NetCDFReaderPlugIn {
+
+    private AtomicBoolean isTiff = new AtomicBoolean();
 
     public IceyeProductReaderPlugIn() {
         FORMAT_NAMES = IceyeXConstants.getIceyeFormatNames();
@@ -28,9 +32,13 @@ public class IceyeProductReaderPlugIn extends NetCDFReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final File file) {
         final String fileName = file.getName().toLowerCase();
-        if (fileName.endsWith(".h5") && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase()))
+        if (fileName.endsWith(".h5") && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
+            isTiff.set(false);
             return DecodeQualification.INTENDED;
-
+        } else if ((fileName.endsWith(".tif") || fileName.endsWith(".tiff")) && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
+            isTiff.set(true);
+            return DecodeQualification.INTENDED;
+        }
         return DecodeQualification.UNABLE;
     }
 
@@ -47,6 +55,9 @@ public class IceyeProductReaderPlugIn extends NetCDFReaderPlugIn {
      */
     @Override
     public ProductReader createReaderInstance() {
+        if (isTiff.get()) {
+            return new IceyeGRDProductReader(this);
+        }
         return new IceyeProductReader(this);
     }
 
