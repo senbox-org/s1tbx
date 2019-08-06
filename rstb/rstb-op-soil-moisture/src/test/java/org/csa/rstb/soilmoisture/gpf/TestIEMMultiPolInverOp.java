@@ -18,13 +18,10 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for IEMMultiPolInverOperator.
  */
+@Ignore
 public class TestIEMMultiPolInverOp {
 
     private final static OperatorSpi spi = new IEMMultiPolInverOp.Spi();
-
-    static {
-        TestUtils.initTestEnvironment();
-    }
 
     final private int rows = 3;
     final private int cols = 2;
