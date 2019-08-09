@@ -68,6 +68,7 @@ public final class SliceAssemblyOp extends Operator {
     private String[] selectedPolarisations;
 
     private MetadataElement absRoot = null;
+    private String productType = null;
 
     // The slice products will be in order in the array: 1st (top) slice is the 1st element in the array followed by
     // 2nd slice and so on.
@@ -88,6 +89,12 @@ public final class SliceAssemblyOp extends Operator {
     private Map<Product, Map<String, int[]>> sliceSwathImageDimMap = new HashMap<>();
 
     private Map<String, TiePointGeoCoding> swathGeocodingMap = new HashMap<>();
+
+    // Burst information for each band in slice product (for SLC only)
+    private Map<Band, BurstDimension> sliceBandBurstDimMap = new HashMap<>();
+
+    // Target burst information for each swath (for SLC only)
+    private Map<String, BurstDimension> targetSwathBurstDimMap = new HashMap<>();
 
     private boolean isMultiSwath = false;
 
@@ -127,6 +134,7 @@ public final class SliceAssemblyOp extends Operator {
             }
 
             sliceProducts = determineSliceProducts();
+            productType = sliceProducts[0].getProductType();
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sliceProducts[0]);
 
@@ -311,6 +319,70 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private void determineSliceBurstDimension() {
+
+        for (Product srcProduct : sliceProducts) {
+            for (Band srcBand : srcProduct.getBands()) {
+                if (srcBand instanceof VirtualBand) {
+                    continue;
+                }
+                final String swath = getSwathFromBandName(srcBand.getName());
+                final String imageNum = getFirstImageName(srcProduct, swath);
+                final MetadataElement sliceSwathTiming = getAnnotationElement(srcProduct, imageNum, "swathTiming");
+                final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
+                final int sliceSamplesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("samplesPerBurst"));
+                final MetadataElement sliceBurstList = sliceSwathTiming.getElement("burstList");
+                final int sliceBurstListCount = Integer.parseInt(sliceBurstList.getAttributeString("count"));
+
+                sliceBandBurstDimMap.put(srcBand, new BurstDimension(sliceLinesPerBurst, sliceSamplesPerBurst, sliceBurstListCount));
+            }
+        }
+    }
+
+    private void determineTargetBurstDimension() {
+
+        // target burst dimension is determined by the maximum width/height of all bursts from all slices for given swath
+        final ArrayList<String> swaths = getSwaths(sliceProducts[0]);
+
+        for (String swath : swaths) {
+            final String imageNum = getFirstImageName(sliceProducts[0], swath);
+
+            int linesPerBurst = 0;
+            int samplesPerBurst = 0;
+            int count = 0;
+            for (Product srcProduct : sliceProducts) {
+                final MetadataElement sliceSwathTiming = getAnnotationElement(srcProduct, imageNum, "swathTiming");
+                final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
+                if (linesPerBurst < sliceLinesPerBurst) {
+                    linesPerBurst = sliceLinesPerBurst;
+                }
+
+                final int sliceSamplesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("samplesPerBurst"));
+                if (samplesPerBurst < sliceSamplesPerBurst) {
+                    samplesPerBurst = sliceSamplesPerBurst;
+                }
+
+                final MetadataElement sliceBurstList = sliceSwathTiming.getElement("burstList");
+                final int sliceBurstListCount = Integer.parseInt(sliceBurstList.getAttributeString("count"));
+                count += sliceBurstListCount;
+            }
+
+            targetSwathBurstDimMap.put(swath, new BurstDimension(linesPerBurst, samplesPerBurst, count));
+        }
+    }
+
+    private String getFirstImageName(final Product product, final String swath) {
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement[] elements = getElementsToUpdate(origProdRoot, "annotation");
+        for (MetadataElement e : elements) {
+            if (e.getName().contains(swath.toLowerCase())) {
+                return extractImageNumber(e.getName());
+            }
+        }
+        return null;
+    }
+
     private void computeTargetWidthAndHeight() {
 
         // In GRD products, all the bands will have the same width and height, so the width and height of the
@@ -361,7 +433,6 @@ public final class SliceAssemblyOp extends Operator {
         //  IW3: w x h = 25350 x 31077
         // product width = 26351 and height = 31077
 
-        final String productType = sliceProducts[0].getProductType();
 
         if (productType.equals("GRD")) {
 
@@ -380,27 +451,25 @@ public final class SliceAssemblyOp extends Operator {
 
         } else {
 
+            determineSliceBurstDimension();
+
+            determineTargetBurstDimension();
+
             final ArrayList<String> swaths = getSwaths(sliceProducts[0]);
             final Map<String, Integer> swathHeight = new HashMap<>();
             final Map<String, Integer> swathWidth = new HashMap<>();
 
             for (String swath : swaths) {
-                swathHeight.put(swath, 0);
-                swathWidth.put(swath, 0);
+                final BurstDimension tbd = targetSwathBurstDimMap.get(swath);
+                swathHeight.put(swath, tbd.linesPerBurst * tbd.count);
+                swathWidth.put(swath, tbd.samplesPerBurst);
             }
 
             for (Product srcProduct : sliceProducts) {
-
                 for (String swath : swaths) {
 
                     final int[] dim = new int[2];
                     getSwathDim(srcProduct, swath, dim);
-
-                    if (swathWidth.get(swath) < dim[1]) {
-                        swathWidth.replace(swath, dim[1]);
-                    }
-                    swathHeight.replace(swath, swathHeight.get(swath) + dim[0]);
-
 
                     if (sliceSwathImageDimMap.containsKey(srcProduct)) {
                         final Map<String, int[]> tmp = sliceSwathImageDimMap.get(srcProduct);
@@ -425,21 +494,31 @@ public final class SliceAssemblyOp extends Operator {
 
     private Dimension computeTargetBandWidthAndHeight(final String bandName) throws OperatorException {
 
-        // See comments in computeTargetWidthAndHeight().
-        // For band width, we take the max for that band among all slice products.
-        final Dimension dim = new Dimension(0, 0);
-        for (Product srcProduct : sliceProducts) {
-            final Band srcBand = srcProduct.getBand(bandName);
-            if (srcBand == null) {
-                throw new OperatorException(bandName + " not found in product " + srcProduct.getName());
-            }
+        if (productType.equals("GRD")) {
+            // See comments in computeTargetWidthAndHeight().
+            // For band width, we take the max for that band among all slice products.
+            final Dimension dim = new Dimension(0, 0);
+            for (Product srcProduct : sliceProducts) {
+                final Band srcBand = srcProduct.getBand(bandName);
+                if (srcBand == null) {
+                    throw new OperatorException(bandName + " not found in product " + srcProduct.getName());
+                }
 
-            dim.setSize(Math.max(dim.width, srcBand.getRasterWidth()), dim.height + srcBand.getRasterHeight());
+                dim.setSize(Math.max(dim.width, srcBand.getRasterWidth()), dim.height + srcBand.getRasterHeight());
+            }
+            return dim;
+
+        } else {
+
+            final String swath = getSwathFromBandName(bandName);
+            final int width = targetSwathBurstDimMap.get(swath).samplesPerBurst;
+            final int height = targetSwathBurstDimMap.get(swath).count * targetSwathBurstDimMap.get(swath).linesPerBurst;
+            return new Dimension(width, height);
         }
-        return dim;
     }
 
     private void createTargetProduct() {
+
         computeTargetWidthAndHeight();
 
         final Product firstSliceProduct = sliceProducts[0];
@@ -447,7 +526,7 @@ public final class SliceAssemblyOp extends Operator {
         final String lastSliceStopDateAndTime = lastSliceProduct.getName().substring(33, 48);
         final String newProductName = firstSliceProduct.getName().substring(0, 33) + lastSliceStopDateAndTime +
                 firstSliceProduct.getName().substring(48) + PRODUCT_SUFFIX;
-        targetProduct = new Product(newProductName, firstSliceProduct.getProductType(), targetWidth, targetHeight);
+        targetProduct = new Product(newProductName, productType, targetWidth, targetHeight);
 
         // We are creating each target band based on the source band in the first slice product only.
         final Band[] sourceBands = firstSliceProduct.getBands();
@@ -1194,7 +1273,6 @@ public final class SliceAssemblyOp extends Operator {
         // dataName should be "calibration" or "noise"
 
         final Product lastSliceProduct = sliceProducts[sliceProducts.length - 1];
-        final String productType = sliceProducts[0].getProductType();
 
         // The calibration or noise data in metadata in targetProduct at this point is copied from the 1st slice.
         // So we need to concatenate the vectors from the 2nd to last slices to target.
@@ -1424,7 +1502,7 @@ public final class SliceAssemblyOp extends Operator {
                                                                               extractImageNumber(target.getName())));
 
             final String swathID;
-            if (sliceProducts[0].getProductType().equals("GRD")) {
+            if (productType.equals("GRD")) {
                 swathID = "";
             } else {
                 swathID = extractSwathIdentifier(target.getName());
@@ -1432,23 +1510,6 @@ public final class SliceAssemblyOp extends Operator {
             imageInformationElem.setAttributeString("numberOfSamples", Integer.toString(swathAssembledImageDimMap.get(swathID.toUpperCase())[1]));
             imageInformationElem.setAttributeString("numberOfLines", Integer.toString(swathAssembledImageDimMap.get(swathID.toUpperCase())[0]));
         }
-    }
-
-    private static long getByteIncrementPerBurst(final MetadataElement burstList) {
-
-        final MetadataElement[] bursts = burstList.getElements();
-
-        final long increment = Long.parseLong(bursts[1].getAttributeString("byteOffset")) -
-                Long.parseLong(bursts[0].getAttributeString("byteOffset"));
-        for (int i = 2; i < bursts.length; i++) {
-            final long incr = Long.parseLong(bursts[i].getAttributeString("byteOffset")) -
-                    Long.parseLong(bursts[i - 1].getAttributeString("byteOffset"));
-            if (incr != increment) {
-                throw new OperatorException("wrong burst byte increment");
-            }
-        }
-
-        return increment;
     }
 
     private void updateSwathTiming() {
@@ -1459,33 +1520,31 @@ public final class SliceAssemblyOp extends Operator {
         for (MetadataElement e : elements) {
 
             final String imageNum = extractImageNumber(e.getName());
+            final String swath = extractSwathIdentifier(e.getName()).toUpperCase();
             MetadataElement targetSwathTiming = e.getElement("product").getElement("swathTiming");
-            final int linesPerBurst = Integer.parseInt(targetSwathTiming.getAttributeString("linesPerBurst"));
-            int samplesPerBurst = Integer.parseInt(targetSwathTiming.getAttributeString("samplesPerBurst"));
             MetadataElement targetBurstList = targetSwathTiming.getElement("burstList");
             int count = Integer.parseInt(targetBurstList.getAttributeString("count"));
+            if (count == 0) {
+                return;
+            }
 
-            // count can be zero if it is GRD
-            long targetLastByteOffset = count > 0 ? Long.parseLong(targetBurstList.getElementAt(count - 1).getAttributeString("byteOffset")) : 0;
-            long targetByteIncr = count > 0 ? getByteIncrementPerBurst(targetBurstList) : 0;
+            final int linesPerBurst = targetSwathBurstDimMap.get(swath).linesPerBurst;
+            final int samplesPerBurst = targetSwathBurstDimMap.get(swath).samplesPerBurst;
+            targetBurstList.setAttributeString("count", "0");
+            final MetadataElement[] burstListElems = targetBurstList.getElements();
+            for (MetadataElement b : burstListElems) {
+                targetBurstList.removeElement(b);
+            }
 
-            for (int i = 1; i < sliceProducts.length; i++) {
+            long targetByteIncr = 4 * linesPerBurst * samplesPerBurst;
+
+            // update burst list
+            int k = 0;
+            long sliceFirstByteOffset = 0;
+            for (int i = 0; i < sliceProducts.length; i++) {
 
                 MetadataElement sliceSwathTiming = getAnnotationElement(sliceProducts[i], imageNum, "swathTiming");
-
-                // Commented out to handle cases where slices have different lines per burst
-//                final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
-//                if (sliceLinesPerBurst != linesPerBurst) {
-//                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " vs. " + linesPerBurst);
-//                }
-                final int sliceSamplesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("samplesPerBurst"));
-                //System.out.println("sliceSamplesPerBurst = " + sliceSamplesPerBurst + " samplesPerBurst = " + samplesPerBurst);
-                if (sliceSamplesPerBurst > samplesPerBurst) {
-                    samplesPerBurst = sliceSamplesPerBurst;
-                }
-
                 MetadataElement sliceBurstList = sliceSwathTiming.getElement("burstList");
-
                 final int sliceBurstListCount = Integer.parseInt(sliceBurstList.getAttributeString("count"));
                 if (sliceBurstListCount < 1) {
                     // This handles the case when it is a GRD product
@@ -1493,24 +1552,49 @@ public final class SliceAssemblyOp extends Operator {
                 }
 
                 MetadataElement[] sliceBurstListElems = sliceBurstList.getElements();
+                final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
+                final int linesTpPad = linesPerBurst - sliceLinesPerBurst;
                 long newByteOffset = 0;
-                final long sliceFirstByteOffset = Long.parseLong(sliceBurstListElems[0].getAttributeString("byteOffset"));
-
+                if (i == 0) {
+                    sliceFirstByteOffset = Long.parseLong(sliceBurstListElems[0].getAttributeString("byteOffset"));
+                }
                 for (MetadataElement b : sliceBurstListElems) {
                     MetadataElement newB = b.createDeepClone();
-                    final long sliceByteOffset = Long.parseLong(b.getAttributeString("byteOffset"));
-                    newByteOffset = sliceByteOffset + targetLastByteOffset + targetByteIncr - sliceFirstByteOffset;
-                    newB.setAttributeString("byteOffset", Long.toString(newByteOffset));
-                    targetBurstList.addElementAt(newB, count);
-                    count++;
-                }
 
-                targetLastByteOffset = newByteOffset;
-                targetByteIncr = getByteIncrementPerBurst(sliceBurstList);
+                    // update byteOffset
+                    newByteOffset = sliceFirstByteOffset + k * targetByteIncr;
+                    newB.setAttributeString("byteOffset", Long.toString(newByteOffset));
+
+                    // update firstValidSample / lastValidSample
+                    if (linesTpPad > 0) {
+                        final MetadataElement firstValidSampleElem = newB.getElement("firstValidSample");
+                        final MetadataAttribute firstValidSampleAttr = firstValidSampleElem.getAttribute("firstValidSample");
+                        String firstValidSampleDataStr = firstValidSampleAttr.getData().getElemString();
+                        for (int j = 0; j < linesTpPad; ++j) {
+                            firstValidSampleDataStr = firstValidSampleDataStr.concat(" -1");
+                        }
+
+                        firstValidSampleElem.setAttributeString("firstValidSample", firstValidSampleDataStr);
+                        firstValidSampleElem.setAttributeString("count", String.valueOf(linesPerBurst));
+
+                        final MetadataElement lastValidSampleElem = newB.getElement("lastValidSample");
+                        final MetadataAttribute lastValidSampleAttr = lastValidSampleElem.getAttribute("lastValidSample");
+                        String lastValidSampleDataStr = lastValidSampleAttr.getData().getElemString();
+                        for (int j = 0; j < linesTpPad; ++j) {
+                            lastValidSampleDataStr = lastValidSampleDataStr.concat(" -1");
+                        }
+                        lastValidSampleElem.setAttributeString("lastValidSample", lastValidSampleDataStr);
+                        lastValidSampleElem.setAttributeString("count", String.valueOf(linesPerBurst));
+                    }
+
+                    targetBurstList.addElementAt(newB, k);
+                    k++;
+                }
             }
 
+            targetSwathTiming.setAttributeString("linesPerBurst", Integer.toString(linesPerBurst));
             targetSwathTiming.setAttributeString("samplesPerBurst", Integer.toString(samplesPerBurst));
-            targetBurstList.setAttributeString("count", Integer.toString(count));
+            targetBurstList.setAttributeString("count", Integer.toString(targetSwathBurstDimMap.get(swath).count));
         }
     }
 
@@ -1741,14 +1825,28 @@ public final class SliceAssemblyOp extends Operator {
         updateAzimuthFmRateList();
     }
 
+    private String getSwathFromBandName(final String bandName) {
+
+        return bandName.substring(2, 5).toLowerCase().toUpperCase();
+    }
+
     private void determineBandStartEndTimes() {
+
         for (Band targetBand : targetProduct.getBands()) {
+            if (targetBand instanceof VirtualBand) {
+                continue;
+            }
             final List<BandLines> bandLineList = new ArrayList<>(sliceProducts.length);
             int height = 0;
             for (Product srcProduct : sliceProducts) {
                 final Band srcBand = srcProduct.getBand(targetBand.getName());
                 int start = height;
-                height += srcBand.getRasterHeight();
+                if (productType.equals("GRD")) {
+                    height += srcBand.getRasterHeight();
+                } else {
+                    final String swath = getSwathFromBandName(srcBand.getName());
+                    height += sliceBandBurstDimMap.get(srcBand).count * targetSwathBurstDimMap.get(swath).linesPerBurst;
+                }
                 int end = height;
                 bandLineList.add(new BandLines(srcBand, start, end));
             }
@@ -1756,6 +1854,24 @@ public final class SliceAssemblyOp extends Operator {
             bandLineMap.put(targetBand, lines);
         }
     }
+
+    private int getSourceProductLineIndex(
+            final int y, final BandLines line, final int targetLinesPerBurst, final int sourceLinesPerBurst) {
+
+        if (targetLinesPerBurst == sourceLinesPerBurst) {
+            return y - line.start;
+        }
+
+        final int yy = y - line.start;
+        final int burstIdx = yy / targetLinesPerBurst;
+        final int lineIdxInBurst = yy  - burstIdx * targetLinesPerBurst;
+        if (lineIdxInBurst >= sourceLinesPerBurst) {
+            return -1;
+        } else {
+            return burstIdx * sourceLinesPerBurst + lineIdxInBurst;
+        }
+    }
+
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -1784,35 +1900,43 @@ public final class SliceAssemblyOp extends Operator {
             final TileIndex trgIndex = new TileIndex(targetTile);
             final Rectangle srcRect = new Rectangle();
 
+            int targetLinesPerBurst = 0;
+            if (!productType.equals("GRD")) {
+                final String swath = getSwathFromBandName(targetBand.getName());
+                targetLinesPerBurst = targetSwathBurstDimMap.get(swath).linesPerBurst;
+            }
+
             BandLines line = lines[0];
             for (int y = ty0; y < maxY; ++y) {
 
-                //boolean validLine = false;
                 for (BandLines l : lines) {
                     if (y >= l.start && y < l.end) {
                         line = l;
-                        //validLine = true;
                         break;
                     }
                 }
-                //if (!validLine) {
-                //    // should never get here
-                //    throw new OperatorException("line " + y + " not found in slice products");
-                //}
-                //if (tx0 > line.band.getRasterWidth() - 1) {
-                //    return;
-                //}
 
-                final int yy = y - line.start;
-                srcRect.setBounds(targetTileRectangle.x, yy, targetTileRectangle.width, 1);
+                // convert target product line index y to source product line index yy
+                int yy = 0;
+                if (productType.equals("GRD")) {
+                    yy = y - line.start;
+                } else {
+                    final int sourceLinesPerBurst = sliceBandBurstDimMap.get(line.band).linesPerBurst;
+                    yy = getSourceProductLineIndex(y, line, targetLinesPerBurst, sourceLinesPerBurst);
+                    if (yy == -1) {
+                        continue;
+                    }
+                }
 
+                final int sxMax = Math.min(maxX, line.band.getRasterWidth() - 1);
+                srcRect.setBounds(tx0, yy, sxMax - tx0 + 1, 1);
                 final Tile sourceRaster = getSourceTile(line.band, srcRect);
                 final ProductData srcData = sourceRaster.getDataBuffer();
                 final TileIndex srcIndex = new TileIndex(sourceRaster);
                 trgIndex.calculateStride(y);
                 srcIndex.calculateStride(yy);
 
-                for (int x = tx0; x < maxX; ++x) {
+                for (int x = tx0; x < sxMax; ++x) {
                     trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
                 }
             }
@@ -1830,6 +1954,18 @@ public final class SliceAssemblyOp extends Operator {
             this.band = band;
             this.start = s;
             this.end = e;
+        }
+    }
+
+    private static class BurstDimension {
+        final int linesPerBurst;
+        final int samplesPerBurst;
+        final int count;
+
+        BurstDimension(final int linesPerBurst, final int samplesPerBurst, final int count) {
+            this.linesPerBurst = linesPerBurst;
+            this.samplesPerBurst = samplesPerBurst;
+            this.count = count;
         }
     }
 
