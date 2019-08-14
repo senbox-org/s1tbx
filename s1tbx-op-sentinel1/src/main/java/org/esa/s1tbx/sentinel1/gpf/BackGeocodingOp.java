@@ -112,6 +112,7 @@ public final class BackGeocodingOp extends Operator {
 
     private Sentinel1Utils mSU = null;
     private Sentinel1Utils.SubSwathInfo[] mSubSwath = null;
+    private String mstSuffix = null;
 
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
@@ -165,6 +166,8 @@ public final class BackGeocodingOp extends Operator {
             masterProduct = sourceProduct[0];
             mSU = new Sentinel1Utils(masterProduct);
             mSubSwath = mSU.getSubSwath();
+            mSU.computeDopplerRate();
+            mSU.computeReferenceTime();
 
             for(Product product : sourceProduct) {
                 if(product.equals(masterProduct))
@@ -215,7 +218,6 @@ public final class BackGeocodingOp extends Operator {
             createTargetProduct();
 
             final List<String> masterProductBands = new ArrayList<>();
-            final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
             for (String bandName : masterProduct.getBandNames()) {
                 if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                     continue;
@@ -299,12 +301,26 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         
         final String[] masterBandNames = masterProduct.getBandNames();
-        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
+        mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
-            if (masterProduct.getBand(bandName) instanceof VirtualBand) {
+            final Band srcBand = masterProduct.getBand(bandName);
+            if (srcBand instanceof VirtualBand) {
                 continue;
             }
-            final Band targetBand = ProductUtils.copyBand(bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
+
+            Band targetBand;
+            if (disableReramp) {
+                targetBand = new Band(bandName + mstSuffix, ProductData.TYPE_FLOAT32,
+                        srcBand.getRasterWidth(), srcBand.getRasterHeight());
+
+                targetBand.setUnit(srcBand.getUnit());
+                targetBand.setDescription(srcBand.getDescription());
+                targetProduct.addBand(targetBand);
+
+            } else {
+                targetBand = ProductUtils.copyBand(bandName, masterProduct, bandName + mstSuffix,
+                        targetProduct, true);
+            }
 
             if(targetBand != null && targetBand.getUnit() != null && targetBand.getUnit().equals(Unit.IMAGINARY)) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());
@@ -372,14 +388,23 @@ public final class BackGeocodingOp extends Operator {
             }
 
             if (outputDerampDemodPhase) {
-                final Band phaseBand = new Band(
+                final Band mstPhaseBand = new Band(
+                        "derampDemodPhase" + mstSuffix,
+                        ProductData.TYPE_FLOAT32,
+                        masterBandWidth,
+                        masterBandHeight);
+
+                mstPhaseBand.setUnit("radian");
+                targetProduct.addBand(mstPhaseBand);
+
+                final Band slvPhaseBand = new Band(
                         "derampDemodPhase" + slvSuffix,
                         ProductData.TYPE_FLOAT32,
                         masterBandWidth,
                         masterBandHeight);
 
-                phaseBand.setUnit("radian");
-                targetProduct.addBand(phaseBand);
+                slvPhaseBand.setUnit("radian");
+                targetProduct.addBand(slvPhaseBand);
             }
             ++i;
         }
@@ -771,14 +796,45 @@ public final class BackGeocodingOp extends Operator {
             return;
         }
 
-        final double[][] derampDemodPhase = slaveData.sSU.computeDerampDemodPhase(slaveData.sSU.getSubSwath(),
+        final double[][] slvDerampDemodPhase = slaveData.sSU.computeDerampDemodPhase(slaveData.sSU.getSubSwath(),
                 subSwathIndex, sBurstIndex, sourceRectangle);
 
-        if (derampDemodPhase == null) {
+        if (slvDerampDemodPhase == null) {
+            return;
+        }
+
+        final Rectangle targetRectangle = new Rectangle(x0, y0, w, h);
+        final double[][] mstDerampDemodPhase = mSU.computeDerampDemodPhase(mSubSwath,
+                subSwathIndex, mBurstIndex, targetRectangle);
+
+        if (mstDerampDemodPhase == null) {
             return;
         }
 
         for(String polarization : mSU.getPolarizations()) {
+
+            // master bands
+            if (disableReramp) {
+                final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, polarization);
+                final Band masterBandQ = getBand(masterProduct, "q_", swathIndexStr, polarization);
+                final Tile masterTileI = getSourceTile(masterBandI, targetRectangle);
+                final Tile masterTileQ = getSourceTile(masterBandQ, targetRectangle);
+
+                if (masterTileI == null || masterTileQ == null) {
+                    return;
+                }
+
+                final double[][] mstDerampDemodI = new double[targetRectangle.height][targetRectangle.width];
+                final double[][] mstDerampDemodQ = new double[targetRectangle.height][targetRectangle.width];
+
+                performDerampDemod(masterTileI, masterTileQ, targetRectangle, mstDerampDemodPhase,
+                        mstDerampDemodI, mstDerampDemodQ);
+
+                saveMasterBands(x0, y0, w, h, targetTileMap, mstDerampDemodPhase, mstDerampDemodI,
+                        mstDerampDemodQ, polarization);
+            }
+
+            // slave bands
             final Band slaveBandI = getBand(slaveData.slaveProduct, "i_", swathIndexStr, polarization);
             final Band slaveBandQ = getBand(slaveData.slaveProduct, "q_", swathIndexStr, polarization);
             final Tile slaveTileI = getSourceTile(slaveBandI, sourceRectangle);
@@ -788,13 +844,14 @@ public final class BackGeocodingOp extends Operator {
                 return;
             }
 
-            final double[][] derampDemodI = new double[sourceRectangle.height][sourceRectangle.width];
-            final double[][] derampDemodQ = new double[sourceRectangle.height][sourceRectangle.width];
+            final double[][] slvDerampDemodI = new double[sourceRectangle.height][sourceRectangle.width];
+            final double[][] slvDerampDemodQ = new double[sourceRectangle.height][sourceRectangle.width];
 
-            performDerampDemod(slaveTileI, slaveTileQ, sourceRectangle, derampDemodPhase, derampDemodI, derampDemodQ);
+            performDerampDemod(slaveTileI, slaveTileQ, sourceRectangle, slvDerampDemodPhase,
+                    slvDerampDemodI, slvDerampDemodQ);
 
-            performInterpolation(x0, y0, w, h, sourceRectangle, slaveTileI, slaveTileQ, targetTileMap, derampDemodPhase,
-                                 derampDemodI, derampDemodQ, slavePixPos, subSwathIndex, sBurstIndex, slaveData, polarization);
+            performInterpolation(x0, y0, w, h, sourceRectangle, slaveTileI, slaveTileQ, targetTileMap, slvDerampDemodPhase,
+                    slvDerampDemodI, slvDerampDemodQ, slavePixPos, subSwathIndex, sBurstIndex, slaveData, polarization);
         }
     }
 
@@ -1106,28 +1163,28 @@ public final class BackGeocodingOp extends Operator {
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
-    static void performDerampDemod(final Tile slaveTileI, final Tile slaveTileQ,
-                                          final Rectangle slaveRectangle, final double[][] derampDemodPhase,
-                                          final double[][] derampDemodI, final double[][] derampDemodQ) {
+    static void performDerampDemod(final Tile tileI, final Tile tileQ,
+                                   final Rectangle rectangle, final double[][] derampDemodPhase,
+                                   final double[][] derampDemodI, final double[][] derampDemodQ) {
 
         try {
-            final int x0 = slaveRectangle.x;
-            final int y0 = slaveRectangle.y;
-            final int xMax = x0 + slaveRectangle.width;
-            final int yMax = y0 + slaveRectangle.height;
+            final int x0 = rectangle.x;
+            final int y0 = rectangle.y;
+            final int xMax = x0 + rectangle.width;
+            final int yMax = y0 + rectangle.height;
 
-            final ProductData slaveDataI = slaveTileI.getDataBuffer();
-            final ProductData slaveDataQ = slaveTileQ.getDataBuffer();
-            final TileIndex slvIndex = new TileIndex(slaveTileI);
+            final ProductData dataI = tileI.getDataBuffer();
+            final ProductData dataQ = tileQ.getDataBuffer();
+            final TileIndex index = new TileIndex(tileI);
 
             for (int y = y0; y < yMax; y++) {
-                slvIndex.calculateStride(y);
+                index.calculateStride(y);
                 final int yy = y - y0;
                 for (int x = x0; x < xMax; x++) {
-                    final int idx = slvIndex.getIndex(x);
+                    final int idx = index.getIndex(x);
                     final int xx = x - x0;
-                    final double valueI = slaveDataI.getElemDoubleAt(idx);
-                    final double valueQ = slaveDataQ.getElemDoubleAt(idx);
+                    final double valueI = dataI.getElemDoubleAt(idx);
+                    final double valueQ = dataQ.getElemDoubleAt(idx);
                     final double cosPhase = FastMath.cos(derampDemodPhase[yy][xx]);
                     final double sinPhase = FastMath.sin(derampDemodPhase[yy][xx]);
                     derampDemodI[yy][xx] = valueI*cosPhase - valueQ*sinPhase;
@@ -1136,6 +1193,55 @@ public final class BackGeocodingOp extends Operator {
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("performDerampDemod", e);
+        }
+    }
+
+    private void saveMasterBands(final int x0, final int y0, final int w, final int h,
+                                 final Map<Band, Tile> targetTileMap, final double[][] mstDerampDemodPhase,
+                                 final double[][] mstDerampDemodI, final double[][] mstDerampDemodQ,
+                                 final String polarization) throws OperatorException {
+
+        try {
+            final Band iBand = getTargetBand("i_", mstSuffix, polarization);
+            final Band qBand = getTargetBand("q_", mstSuffix, polarization);
+
+            if (iBand == null || qBand == null) {
+                throw new OperatorException("Unable to find " + iBand.getName() +" or "+ qBand.getName());
+            }
+
+            final Tile tgtTileI = targetTileMap.get(iBand);
+            final Tile tgtTileQ = targetTileMap.get(qBand);
+            final ProductData tgtBufferI = tgtTileI.getDataBuffer();
+            final ProductData tgtBufferQ = tgtTileQ.getDataBuffer();
+            final TileIndex tgtIndex = new TileIndex(tgtTileI);
+
+            Tile tgtTilePhase;
+            ProductData tgtBufferPhase = null;
+            if (outputDerampDemodPhase) {
+                final Band phaseBand = getTargetBand("derampDemodPhase", mstSuffix, null);
+                if(phaseBand == null) {
+                    throw new OperatorException("derampDemodPhase not found");
+                }
+                tgtTilePhase = targetTileMap.get(phaseBand);
+                tgtBufferPhase = tgtTilePhase.getDataBuffer();
+            }
+
+            for (int y = y0; y < y0 + h; y++) {
+                tgtIndex.calculateStride(y);
+                final int yy = y - y0;
+                for (int x = x0; x < x0 + w; x++) {
+                    final int xx = x - x0;
+                    final int tgtIdx = tgtIndex.getIndex(x);
+                    tgtBufferI.setElemDoubleAt(tgtIdx, mstDerampDemodI[yy][xx]);
+                    tgtBufferQ.setElemDoubleAt(tgtIdx, mstDerampDemodQ[yy][xx]);
+
+                    if (outputDerampDemodPhase && tgtBufferPhase != null) {
+                        tgtBufferPhase.setElemFloatAt(tgtIdx, (float)mstDerampDemodPhase[yy][xx]);
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("saveMasterBands", e);
         }
     }
 
@@ -1180,9 +1286,16 @@ public final class BackGeocodingOp extends Operator {
             for (int y = y0; y < y0 + h; y++) {
                 tgtIndex.calculateStride(y);
                 final int yy = y - y0;
+                if (yy > sourceRectangle.height - 1) {
+                    continue;
+                }
                 for (int x = x0; x < x0 + w; x++) {
+                    final int xx = x - x0;
+                    if (xx > sourceRectangle.width - 1) {
+                        continue;
+                    }
                     final int tgtIdx = tgtIndex.getIndex(x);
-                    final PixelPos slavePixelPos = slavePixPos[yy][x - x0];
+                    final PixelPos slavePixelPos = slavePixPos[yy][xx];
 
                     if (slavePixelPos == null) {
                         tgtBufferI.setElemDoubleAt(tgtIdx, noDataValue);
