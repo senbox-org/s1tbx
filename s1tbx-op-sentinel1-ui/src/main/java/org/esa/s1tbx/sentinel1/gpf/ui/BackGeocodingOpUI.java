@@ -46,6 +46,7 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
     final JCheckBox maskOutAreaWithoutElevationCheckBox = new JCheckBox("Mask out areas with no elevation");
     final JCheckBox outputRangeAzimuthOffsetCheckBox = new JCheckBox("Output Range and Azimuth Offset");
     final JCheckBox outputDerampDemodPhaseCheckBox = new JCheckBox("Output Deramp and Demod Phase");
+    final JCheckBox disableRerampCheckBox = new JCheckBox("Disable Reramp");
 
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
@@ -57,6 +58,7 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
     private Boolean maskOutAreaWithoutElevation = false;
     private Boolean outputRangeAzimuthOffset = false;
     private Boolean outputDerampDemodPhase = false;
+    private Boolean disableReramp = false;
 
     private final boolean includeOutputRangeAzimuthOffset = false;
 
@@ -112,6 +114,12 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
             }
         });
 
+        disableRerampCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                disableReramp = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
         return new JScrollPane(panel);
     }
 
@@ -143,6 +151,7 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         maskOutAreaWithoutElevation = (Boolean)paramMap.get("maskOutAreaWithoutElevation");
         outputRangeAzimuthOffset = (Boolean)paramMap.get("outputRangeAzimuthOffset");
         outputDerampDemodPhase = (Boolean)paramMap.get("outputDerampDemodPhase");
+        disableReramp = (Boolean)paramMap.get("disableReramp");
 
         if(maskOutAreaWithoutElevation != null) {
             maskOutAreaWithoutElevationCheckBox.setSelected(maskOutAreaWithoutElevation);
@@ -152,6 +161,9 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         }
         if(outputDerampDemodPhase != null) {
             outputDerampDemodPhaseCheckBox.setSelected(outputDerampDemodPhase);
+        }
+        if(disableReramp != null) {
+            disableRerampCheckBox.setSelected(disableReramp);
         }
     }
 
@@ -177,6 +189,7 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         paramMap.put("maskOutAreaWithoutElevation", maskOutAreaWithoutElevation);
         paramMap.put("outputRangeAzimuthOffset", outputRangeAzimuthOffset);
         paramMap.put("outputDerampDemodPhase", outputDerampDemodPhase);
+        paramMap.put("disableReramp", disableReramp);
     }
 
     private JComponent createPanel() {
@@ -206,6 +219,8 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         }
         gbc.gridy++;
         contentPane.add(outputDerampDemodPhaseCheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(disableRerampCheckBox, gbc);
         gbc.gridy++;
 
         DialogUtils.fillPanel(contentPane, gbc);
