@@ -63,12 +63,13 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
                     if (f.getName().equals(Risat1Constants.BAND_HEADER_NAME)) {
                         bandMetaFile = f;
                     }
-                    if (f.isDirectory()) {
-                        final File foundFile = findMetadataFile(f);
-                        if (foundFile != null) {
-                            return foundFile;
-                        }
-                    }
+                    // don't search deeper
+//                    if (f.isDirectory()) {
+//                        final File foundFile = findMetadataFile(f);
+//                        if (foundFile != null) {
+//                            return foundFile;
+//                        }
+//                    }
                 }
             }
             return bandMetaFile;

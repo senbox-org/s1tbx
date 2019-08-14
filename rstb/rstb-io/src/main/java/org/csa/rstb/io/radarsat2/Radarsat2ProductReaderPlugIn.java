@@ -83,12 +83,13 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                             fileName.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
                         return f;
                     }
-                    if (f.isDirectory()) {
-                        final File foundFile = findMetadataFile(f.toPath());
-                        if (foundFile != null) {
-                            return foundFile;
-                        }
-                    }
+                    // don't search deeper
+//                    if (f.isDirectory()) {
+//                        final File foundFile = findMetadataFile(f.toPath());
+//                        if (foundFile != null) {
+//                            return foundFile;
+//                        }
+//                    }
                 }
             }
         } else {
