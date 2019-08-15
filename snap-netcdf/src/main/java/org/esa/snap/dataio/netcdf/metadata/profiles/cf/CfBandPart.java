@@ -434,7 +434,6 @@ public class CfBandPart extends ProfilePartIO {
                     } else {
                         sampleCoding.addSamples(sampleName, intValues, null);
                     }
-                    sampleCoding.addSamples(sampleName, intValues, null);
                     break;
                 case LONG:
                     long[] longValues = {sampleMasks.getNumericValue(i).longValue(),
