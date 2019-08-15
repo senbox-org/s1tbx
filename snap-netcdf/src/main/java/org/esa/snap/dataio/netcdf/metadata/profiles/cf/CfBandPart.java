@@ -255,7 +255,15 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             return 0;
         }
-        final float value = getAttributeValue(attribute).floatValue();
+        float value = 0;
+        if (attribute.isString()) {
+            String stringValue = attribute.getStringValue();
+            if (!stringValue.isEmpty()) {
+                value = getAttributeValue(attribute).floatValue();
+            }else {
+                return 0;
+            }
+        }
 
         final Attribute attUnit = variable.findAttribute(Constants.RADIATION_WAVELENGTH_UNIT);
         if (attUnit == null) {
