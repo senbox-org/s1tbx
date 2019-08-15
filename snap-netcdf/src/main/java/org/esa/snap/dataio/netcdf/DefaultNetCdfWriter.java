@@ -21,6 +21,7 @@ import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductIOException;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
 import org.esa.snap.dataio.netcdf.util.Constants;
@@ -68,7 +69,6 @@ public class DefaultNetCdfWriter extends AbstractProductWriter {
         if (convertLogScaledBandsProperty instanceof Boolean) {
             convertLogScaledBands = (Boolean) convertLogScaledBandsProperty;
         }
-
     }
 
     public void configureProfile(NetCdfWriteProfile profile, AbstractNetCdfWriterPlugIn plugIn) throws IOException {
@@ -116,7 +116,7 @@ public class DefaultNetCdfWriter extends AbstractProductWriter {
     }
 
     @Override
-    public void flush() throws IOException {
+    public void flush() {
     }
 
     @Override
@@ -155,7 +155,8 @@ public class DefaultNetCdfWriter extends AbstractProductWriter {
     }
 
     private String getOutputString() {
-        return String.valueOf(getOutput());
+        String path = String.valueOf(getOutput());
+        return FileUtils.ensureExtension(path, Constants.FILE_EXTENSION_NC);
     }
 
 }
