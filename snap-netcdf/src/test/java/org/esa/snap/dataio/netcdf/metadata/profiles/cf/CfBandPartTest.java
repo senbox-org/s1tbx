@@ -35,7 +35,7 @@ public class CfBandPartTest {
     }
 
     @Test
-    public void testWriteWavelenth() throws Exception {
+    public void testWriteWavelength() throws Exception {
         //execution
         CfBandPart.writeCfBandAttributes(spectralBand, new N3Variable(variable, writeable));
 
