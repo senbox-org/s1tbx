@@ -255,15 +255,7 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             return 0;
         }
-        float value = 0;
-        if (attribute.isString()) {
-            String stringValue = attribute.getStringValue();
-            if (!stringValue.isEmpty()) {
-                value = getAttributeValue(attribute).floatValue();
-            }else {
-                return 0;
-            }
-        }
+        final float value = getAttributeValue(attribute).floatValue();
 
         final Attribute attUnit = variable.findAttribute(Constants.RADIATION_WAVELENGTH_UNIT);
         if (attUnit == null) {
@@ -303,12 +295,15 @@ public class CfBandPart extends ProfilePartIO {
             if (stringValue.endsWith("b")) {
                 // Special management for bytes; Can occur in e.g. ASCAT files from EUMETSAT
                 return Byte.parseByte(stringValue.substring(0, stringValue.length() - 1));
-            } else {
+            } else if (!stringValue.isEmpty()) {
                 return Double.parseDouble(stringValue);
+            } else {
+                return 0;
             }
         } else {
             return attribute.getNumericValue();
         }
+
     }
 
     private static int getRasterDataType(Variable variable, DataTypeWorkarounds workarounds) {
