@@ -135,6 +135,8 @@ public abstract class ProductData implements Cloneable {
      */
     private final int _type;
 
+    private final int _elemSize;
+
     /**
      * The string representation of {@code TYPE_INT8}
      */
@@ -188,6 +190,7 @@ public abstract class ProductData implements Cloneable {
      */
     protected ProductData(int type) {
         _type = type;
+        _elemSize = getElemSize(type);
     }
 
     /**
@@ -376,7 +379,7 @@ public abstract class ProductData implements Cloneable {
      * @return the size of a single element in bytes
      */
     public int getElemSize() {
-        return getElemSize(getType());
+        return _elemSize;
     }
 
     /**
@@ -916,7 +919,7 @@ public abstract class ProductData implements Cloneable {
      * @throws IOException if an I/O error occurs
      */
     public void readFrom(int startPos, int numElems, ImageInputStream input, long inputPos) throws IOException {
-        input.seek(getElemSize() * inputPos);
+        input.seek(_elemSize * inputPos);
         readFrom(startPos, numElems, input);
     }
 
@@ -978,7 +981,7 @@ public abstract class ProductData implements Cloneable {
      * @throws IOException if an I/O error occurs
      */
     public void writeTo(int startPos, int numElems, ImageOutputStream output, long outputPos) throws IOException {
-        output.seek(getElemSize() * outputPos);
+        output.seek(_elemSize * outputPos);
         writeTo(startPos, numElems, output);
     }
 
