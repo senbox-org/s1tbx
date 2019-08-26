@@ -37,7 +37,10 @@ matrices in T3, C3 or C2 format. </li></ul>
     </li>
     <li>Digital Elevation Model: available digital elevation models used in computing local illuminated area.<br>
     </li>
-    <li>DEM resampling Method: resampling method used in getting elevation from DEM.</li><li>Additional
+    <li>DEM resampling Method: resampling method used in getting elevation from DEM.</li><li>External DEM:&nbsp;User specified external DEM file. Currently only DEM in Geotiff format 
+        with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) 
+        referred to global geodetic ellipsoid reference WGS84 (and height in 
+        meters)&nbsp;is accepted.&nbsp;</li><li>DEM No Data Value: No Data Value for user specified external DEM.&nbsp; </li><li>External DEM Apply EGM: checkbox if selected, Earth Gravitional model will be applied to the user specified external DEM.&nbsp; </li><li>Additional
 Overlap Percentage: To perform terrain flattening to a given tile,
 pixels from adjacent tiles are generally needed due to the topography
 in the image area. The overlap percentage is automatically
@@ -52,7 +55,7 @@ oversampling factor is not large enough, then artefacts can be observed
 in the terrain flattened image. In this case user can increase the
 oversampling factor by multiplying it with this coefficient. </li>
 </ul>
-<img style="width: 435px; height: 445px;" alt="" src="images/TerrainFlatteningOp.jpg"><br>
+<img style="width: 435px; height: 443px;" alt="" src="images/TerrainFlatteningOp.jpg"><br>
 
 <p> Reference:&nbsp;</p>
 
