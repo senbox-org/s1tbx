@@ -497,6 +497,7 @@ public class InterferogramOp extends Operator {
                         targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
 
                 targetProduct.setQuicklookBandName(phaseBand.getName());
+                phaseBand.setNoDataValueUsed(true);
                 targetBandNames.add(phaseBand.getName());
             }
 
