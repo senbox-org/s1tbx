@@ -49,11 +49,13 @@ then tiling effect can be observed in the terrain flattened image. In
 this case, user can increase the Additional Overlap Percentage. &nbsp;</li><li>Oversampling
 Multiple: The Terrain Flattening algorithm requires that the DEM
 resolution is higher than the image resolution. Therefore, the DEM is
-generally oversampled by a factor&nbsp;automatically computed based on
-the DEM and image resolution. However, if the automatically computed
-oversampling factor is not large enough, then artefacts can be observed
+generally oversampled. The default oversampling factor is automatically computed based on
+the DEM resolution and image pixel spacings. The final oversampling factor = (default oversampling factor) x (Oversampling
+Multiple). The default value for&nbsp;Oversampling
+Multiple is 1.5.&nbsp; However, if the&nbsp;oversampling factor is not large enough, then artefacts can be observed
 in the terrain flattened image. In this case user can increase the
-oversampling factor by multiplying it with this coefficient. </li>
+oversampling factor by setting Oversampling
+Multiple to a larger value. </li>
 </ul>
 <img style="width: 435px; height: 443px;" alt="" src="images/TerrainFlatteningOp.jpg"><br>
 
