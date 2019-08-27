@@ -16,7 +16,7 @@
     <mapID target="ImportJERSCeos" url="readers/ImportJERSCeos.html"/>
     <mapID target="ImportKompsat5" url="readers/ImportKompsat-5.html"/>
 	<mapID target="ImportPaz" url="readers/ImportPaz.html"/>
-	<mapID target="ImportRisat" url="readers/ImportRisat.html"/>
+	<mapID target="ImportRisat" url="readers/ImportRISAT.html"/>
 	<mapID target="ImportSeaSat" url="readers/ImportSeaSat.html"/>
 	<mapID target="importSentinel1Product" url="readers/ImportSentinel1.html"/>
     <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
