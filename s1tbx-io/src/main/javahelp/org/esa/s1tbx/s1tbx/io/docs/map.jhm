@@ -7,9 +7,11 @@
 
     <!-- Product Readers -->
 	<mapID target="ImportAlosPalsar" url="readers/ImportAlosPalsar.html"/>
+	<mapID target="ImportAlos2" url="readers/ImportAlos2.html"/>
 	<mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
     <mapID target="importEnvisatProduct" url="readers/ImportEnvisat.html"/>
     <mapID target="importErsProduct" url="readers/ImportErs.html"/>
+	<mapID target="importErs2Product" url="readers/ImportErs2.html"/>
     <mapID target="ImportERSCeos" url="readers/ImportERSCeos.html"/>
     <mapID target="ImportJERSCeos" url="readers/ImportJERSCeos.html"/>
     <mapID target="ImportKompsat5" url="readers/ImportKompsat-5.html"/>
@@ -18,6 +20,7 @@
 	<mapID target="ImportSeaSat" url="readers/ImportSeaSat.html"/>
 	<mapID target="importSentinel1Product" url="readers/ImportSentinel1.html"/>
     <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
+	<mapID target="ImportTanDEMX" url="readers/ImportTanDEM-X.html"/>
 
     <!-- Common File Formats -->
     <mapID target="importPCIDSK" url="readers/ImportPCIDSK.html"/>

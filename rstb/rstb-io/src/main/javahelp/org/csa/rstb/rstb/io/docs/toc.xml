@@ -13,6 +13,7 @@
                     <tocitem text="SAR Sensors">
                         <tocitem text="Radarsat-1" target="ImportRadarsat1"/>
                         <tocitem text="Radarsat-2" target="ImportRadarsat2"/>
+						<tocitem text="RCM" target="ImportRCM"/>
                     </tocitem>
                 </tocitem>
             </tocitem>

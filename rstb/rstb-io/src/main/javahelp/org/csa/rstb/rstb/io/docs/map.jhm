@@ -8,5 +8,6 @@
     <!-- Product Readers -->
     <mapID target="ImportRadarsat1" url="readers/ImportRadarsat1.html"/>
     <mapID target="ImportRadarsat2" url="readers/ImportRadarsat2.html"/>
+	<mapID target="ImportRCM" url="readers/ImportRCM.html"/>
 
 </map>
