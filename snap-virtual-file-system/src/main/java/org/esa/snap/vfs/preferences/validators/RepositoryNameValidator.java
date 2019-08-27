@@ -12,7 +12,7 @@ public class RepositoryNameValidator {
     /**
      * The validation pattern for remote file repository name.
      */
-    private static final String REPOSITORY_NAME_VALIDATOR_PATTERN = "^([\\w]{3,25})$";
+    private static final String REPOSITORY_NAME_VALIDATOR_PATTERN = "^([\\w\\-]{3,25})$";
 
     /**
      * Validates remote file repository name property
@@ -22,7 +22,7 @@ public class RepositoryNameValidator {
      */
     public void validateValue(Object value) {
         if (!isValid((String) value)) {
-            throw new IllegalArgumentException("Invalid VFS repository name! Please check if it meets following requirements:\n- It must be alphanumeric.\n- Underscores are allowed.\n- Length is between 3 and 25 characters.");
+            throw new IllegalArgumentException("Invalid VFS repository name! Please check if it meets following requirements:\n- It must be alphanumeric.\n- Underscores and hyphens are allowed.\n- Length is between 3 and 25 characters.");
         }
     }
 

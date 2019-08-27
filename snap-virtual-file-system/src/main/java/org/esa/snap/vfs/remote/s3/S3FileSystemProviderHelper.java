@@ -6,8 +6,10 @@ import org.esa.snap.vfs.remote.VFSWalker;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * File System Service Provider for S3 VFS.
@@ -42,6 +44,11 @@ public class S3FileSystemProviderHelper {
      */
     private static final String SECRET_ACCESS_KEY_PROPERTY_NAME = "secretAccessKey";
 
+    /**
+     * The name pattern of custom parameters, used on S3 VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String CUSTOM_AWS_HEADER_PROPERTY_NAME_REGEX = "^x-amz-[\\w\\-]+$";
+
     private String fileSystemRoot;
 
     private String address;
@@ -50,6 +57,7 @@ public class S3FileSystemProviderHelper {
     private String accessKeyId;
     private String secretAccessKey;
     private String delimiter;
+    private Map<String, String> customParameters;
     private S3AuthenticationV4 s3AuthenticationV4;
 
     S3FileSystemProviderHelper(String fileSystemRoot) {
@@ -60,6 +68,7 @@ public class S3FileSystemProviderHelper {
         this.accessKeyId = "";
         this.secretAccessKey = "";
         this.delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
+        customParameters = new HashMap<>();
         this.s3AuthenticationV4 = null;
     }
 
@@ -110,6 +119,12 @@ public class S3FileSystemProviderHelper {
         String newBucket = (String) connectionData.get(BUCKET_PROPERTY_NAME);
         String newAccessKeyId = (String) connectionData.get(ACCESS_KEY_ID_PROPERTY_NAME);
         String newSecretAccessKey = (String) connectionData.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
+        Pattern customPattern = Pattern.compile(CUSTOM_AWS_HEADER_PROPERTY_NAME_REGEX);
+        for (Map.Entry<String, ?> parameter : connectionData.entrySet()) {
+            if (customPattern.matcher(parameter.getKey()).matches()) {
+                customParameters.put(parameter.getKey(), (String) parameter.getValue());
+            }
+        }
         setupConnectionData(serviceAddress, newBucket, newRegion, newAccessKeyId, newSecretAccessKey);
     }
 
@@ -142,7 +157,7 @@ public class S3FileSystemProviderHelper {
         method = method.toUpperCase();
         synchronized (this) {
             if (this.s3AuthenticationV4 == null) {
-                this.s3AuthenticationV4 = new S3AuthenticationV4(method, this.region, this.accessKeyId, this.secretAccessKey);
+                this.s3AuthenticationV4 = new S3AuthenticationV4(method, this.region, this.accessKeyId, this.secretAccessKey, this.customParameters);
             }
         }
         return buildConnection(url, method, requestProperties, this.s3AuthenticationV4.getAuthorizationToken(url), this.s3AuthenticationV4.getAwsHeaders(url));
