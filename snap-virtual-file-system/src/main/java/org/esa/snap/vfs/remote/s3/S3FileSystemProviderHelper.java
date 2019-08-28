@@ -49,6 +49,16 @@ public class S3FileSystemProviderHelper {
      */
     private static final String CUSTOM_AWS_HEADER_PROPERTY_NAME_REGEX = "^x-amz-[\\w\\-]+$";
 
+    /**
+     * The pattern for AWS URL with self-contained bucket as sub-domain.
+     */
+    private static final String AWS_BUCKET_SELF_CONTAINED_URL_REGEX_1 = "^https?://[\\w\\-.]+\\.s3\\.[\\w\\-]*\\.?amazonaws\\.com/?$";
+
+    /**
+     * The pattern for AWS URL with self-contained bucket as path.
+     */
+    private static final String AWS_BUCKET_SELF_CONTAINED_URL_REGEX_2 = "^https?://s3\\.[\\w\\-]*\\.?amazonaws\\.com/[\\w\\-.]+/?$";
+
     private String fileSystemRoot;
 
     private String address;
@@ -108,7 +118,7 @@ public class S3FileSystemProviderHelper {
      */
     private void setupConnectionData(String address, String bucket, String region, String accessKeyId, String secretAccessKey) {
         this.address = address != null ? address : this.address;
-        this.bucket = bucket != null ? bucket : this.bucket;
+        this.bucket = !isBucketSelfContained() && bucket != null ? bucket : this.bucket;
         this.region = region != null ? region : this.region;
         this.accessKeyId = accessKeyId != null ? accessKeyId : this.accessKeyId;
         this.secretAccessKey = secretAccessKey != null ? secretAccessKey : this.secretAccessKey;
@@ -128,13 +138,28 @@ public class S3FileSystemProviderHelper {
         setupConnectionData(serviceAddress, newBucket, newRegion, newAccessKeyId, newSecretAccessKey);
     }
 
+    private boolean isBucketSelfContained() {
+        return Pattern.compile(AWS_BUCKET_SELF_CONTAINED_URL_REGEX_1).matcher(this.address).matches() || Pattern.compile(AWS_BUCKET_SELF_CONTAINED_URL_REGEX_2).matcher(this.address).matches();
+    }
+
     /**
      * Creates the walker instance used by VFS provider to traverse VFS tree.
      *
      * @return The new VFS walker instance
      */
     VFSWalker newObjectStorageWalker(IRemoteConnectionBuilder remoteConnectionBuilder) {
-        if (this.bucket.isEmpty()) {
+        /*
+         * Check if the Bucket name is defined of self-contained in the URL address:
+         * e.g.
+         * - Landsat:
+         *   https://landsat-pds.s3.amazonaws.com
+         * - Sentinel:
+         *   https://sentinel-s1-l1c.s3.amazonaws.com
+         *   https://sentinel-s2-l1c.s3.amazonaws.com
+         *   https://sentinel-s2-l2a.s3.amazonaws.com
+         *   https://s3.eu-central-1.amazonaws.com/s3bucketl2a
+         */
+        if (this.bucket.isEmpty() && !isBucketSelfContained()) {
             throw new IllegalArgumentException("Missing 'bucket' property.\nPlease provide a bucket name.");
         }
         return new S3Walker(this.address, this.bucket, this.delimiter, this.fileSystemRoot, remoteConnectionBuilder);
