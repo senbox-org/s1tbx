@@ -69,6 +69,8 @@ class S3AuthenticationV4 {
     private final String accessKeyId;
     private final String secretAccessKey;
 
+    private final Map<String, String> customParameters;
+
     private LocalDateTime creationDate;
     private LocalDateTime expirationDate = null;
     private Map<String, String> awsHeaders;
@@ -85,11 +87,12 @@ class S3AuthenticationV4 {
      * @param accessKeyId     The access key id S3 credential (username)
      * @param secretAccessKey The secret access key S3 credential (password)
      */
-    S3AuthenticationV4(String httpVerb, String region, String accessKeyId, String secretAccessKey) {
+    S3AuthenticationV4(String httpVerb, String region, String accessKeyId, String secretAccessKey, Map<String, String> customParameters) {
         this.httpVerb = httpVerb;
         this.region = region;
         this.accessKeyId = accessKeyId;
         this.secretAccessKey = secretAccessKey;
+        this.customParameters = customParameters;
         this.creationDate = LocalDateTime.now(ZoneOffset.UTC);
         this.lastAuthorizedURL = null;
         this.lastAuthorizationToken = null;
@@ -183,6 +186,11 @@ class S3AuthenticationV4 {
         headers.put(AWS_HOST_HEADER_NAME, url.getHost());
         headers.put(AWS_CONTENT_SHA256_HEADER_NAME, AWS_CONTENT_SHA256_HEADER_VALUE);
         headers.put(AWS_DATE_HEADER_NAME, getISODateTime());
+        for (Map.Entry<String, String> customParameter : this.customParameters.entrySet()) {
+            if (!customParameter.getKey().contentEquals(AWS_CONTENT_SHA256_HEADER_NAME) && !customParameter.getKey().contentEquals(AWS_DATE_HEADER_NAME)) {
+                headers.put(customParameter.getKey(), customParameter.getValue());
+            }
+        }
         return headers;
     }
 

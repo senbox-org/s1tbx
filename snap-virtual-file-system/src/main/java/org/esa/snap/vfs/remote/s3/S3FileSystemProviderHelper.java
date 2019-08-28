@@ -6,8 +6,10 @@ import org.esa.snap.vfs.remote.VFSWalker;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * File System Service Provider for S3 VFS.
@@ -42,6 +44,21 @@ public class S3FileSystemProviderHelper {
      */
     private static final String SECRET_ACCESS_KEY_PROPERTY_NAME = "secretAccessKey";
 
+    /**
+     * The name pattern of custom parameters, used on S3 VFS instance creation parameters and defining remote file repository properties.
+     */
+    private static final String CUSTOM_AWS_HEADER_PROPERTY_NAME_REGEX = "^x-amz-[\\w\\-]+$";
+
+    /**
+     * The pattern for AWS URL with self-contained bucket as sub-domain.
+     */
+    private static final String AWS_BUCKET_SELF_CONTAINED_URL_REGEX_1 = "^https?://[\\w\\-.]+\\.s3\\.[\\w\\-]*\\.?amazonaws\\.com/?$";
+
+    /**
+     * The pattern for AWS URL with self-contained bucket as path.
+     */
+    private static final String AWS_BUCKET_SELF_CONTAINED_URL_REGEX_2 = "^https?://s3\\.[\\w\\-]*\\.?amazonaws\\.com/[\\w\\-.]+/?$";
+
     private String fileSystemRoot;
 
     private String address;
@@ -50,6 +67,7 @@ public class S3FileSystemProviderHelper {
     private String accessKeyId;
     private String secretAccessKey;
     private String delimiter;
+    private Map<String, String> customParameters;
     private S3AuthenticationV4 s3AuthenticationV4;
 
     S3FileSystemProviderHelper(String fileSystemRoot) {
@@ -60,6 +78,7 @@ public class S3FileSystemProviderHelper {
         this.accessKeyId = "";
         this.secretAccessKey = "";
         this.delimiter = DELIMITER_PROPERTY_DEFAULT_VALUE;
+        customParameters = new HashMap<>();
         this.s3AuthenticationV4 = null;
     }
 
@@ -99,7 +118,7 @@ public class S3FileSystemProviderHelper {
      */
     private void setupConnectionData(String address, String bucket, String region, String accessKeyId, String secretAccessKey) {
         this.address = address != null ? address : this.address;
-        this.bucket = bucket != null ? bucket : this.bucket;
+        this.bucket = !isBucketSelfContained() && bucket != null ? bucket : this.bucket;
         this.region = region != null ? region : this.region;
         this.accessKeyId = accessKeyId != null ? accessKeyId : this.accessKeyId;
         this.secretAccessKey = secretAccessKey != null ? secretAccessKey : this.secretAccessKey;
@@ -110,7 +129,17 @@ public class S3FileSystemProviderHelper {
         String newBucket = (String) connectionData.get(BUCKET_PROPERTY_NAME);
         String newAccessKeyId = (String) connectionData.get(ACCESS_KEY_ID_PROPERTY_NAME);
         String newSecretAccessKey = (String) connectionData.get(SECRET_ACCESS_KEY_PROPERTY_NAME);
+        Pattern customPattern = Pattern.compile(CUSTOM_AWS_HEADER_PROPERTY_NAME_REGEX);
+        for (Map.Entry<String, ?> parameter : connectionData.entrySet()) {
+            if (customPattern.matcher(parameter.getKey()).matches()) {
+                customParameters.put(parameter.getKey(), (String) parameter.getValue());
+            }
+        }
         setupConnectionData(serviceAddress, newBucket, newRegion, newAccessKeyId, newSecretAccessKey);
+    }
+
+    private boolean isBucketSelfContained() {
+        return Pattern.compile(AWS_BUCKET_SELF_CONTAINED_URL_REGEX_1).matcher(this.address).matches() || Pattern.compile(AWS_BUCKET_SELF_CONTAINED_URL_REGEX_2).matcher(this.address).matches();
     }
 
     /**
@@ -119,7 +148,18 @@ public class S3FileSystemProviderHelper {
      * @return The new VFS walker instance
      */
     VFSWalker newObjectStorageWalker(IRemoteConnectionBuilder remoteConnectionBuilder) {
-        if (this.bucket.isEmpty()) {
+        /*
+         * Check if the Bucket name is defined of self-contained in the URL address:
+         * e.g.
+         * - Landsat:
+         *   https://landsat-pds.s3.amazonaws.com
+         * - Sentinel:
+         *   https://sentinel-s1-l1c.s3.amazonaws.com
+         *   https://sentinel-s2-l1c.s3.amazonaws.com
+         *   https://sentinel-s2-l2a.s3.amazonaws.com
+         *   https://s3.eu-central-1.amazonaws.com/s3bucketl2a
+         */
+        if (this.bucket.isEmpty() && !isBucketSelfContained()) {
             throw new IllegalArgumentException("Missing 'bucket' property.\nPlease provide a bucket name.");
         }
         return new S3Walker(this.address, this.bucket, this.delimiter, this.fileSystemRoot, remoteConnectionBuilder);
@@ -142,7 +182,7 @@ public class S3FileSystemProviderHelper {
         method = method.toUpperCase();
         synchronized (this) {
             if (this.s3AuthenticationV4 == null) {
-                this.s3AuthenticationV4 = new S3AuthenticationV4(method, this.region, this.accessKeyId, this.secretAccessKey);
+                this.s3AuthenticationV4 = new S3AuthenticationV4(method, this.region, this.accessKeyId, this.secretAccessKey, this.customParameters);
             }
         }
         return buildConnection(url, method, requestProperties, this.s3AuthenticationV4.getAuthorizationToken(url), this.s3AuthenticationV4.getAwsHeaders(url));

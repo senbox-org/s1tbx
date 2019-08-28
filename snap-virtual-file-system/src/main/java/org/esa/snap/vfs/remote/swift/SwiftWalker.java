@@ -1,5 +1,6 @@
 package org.esa.snap.vfs.remote.swift;
 
+import org.apache.commons.io.IOUtils;
 import org.esa.snap.vfs.remote.AbstractRemoteWalker;
 import org.esa.snap.vfs.remote.HttpUtils;
 import org.esa.snap.vfs.remote.IRemoteConnectionBuilder;
@@ -20,6 +21,7 @@ import java.net.URLEncoder;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Walker for OpenStack Swift VFS.
@@ -107,6 +109,14 @@ class SwiftWalker extends AbstractRemoteWalker {
                         }
                     }
                 } else {
+                    Logger.getLogger(HttpUtils.class.getName()).warning("HTTP error response:");
+                    Logger.getLogger(HttpUtils.class.getName()).warning(() -> {
+                        try {
+                            return IOUtils.toString(connection.getErrorStream(), "UTF-8").replaceAll("<AWSAccessKeyId>.*</AWSAccessKeyId>","<AWSAccessKeyId>***</AWSAccessKeyId>");
+                        } catch (IOException ignored) {
+                        }
+                        return "";
+                    });
                     throw new IOException(url.toString() + ": response code " + responseCode + ": " + connection.getResponseMessage());
                 }
             } finally {

@@ -1,5 +1,6 @@
 package org.esa.snap.vfs.remote;
 
+import org.apache.commons.io.IOUtils;
 import org.esa.snap.core.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Logger;
 
 /**
  * HttpUtils for VFS
@@ -39,6 +41,14 @@ public class HttpUtils {
                 long size = Long.parseLong(sizeString);
                 return new RegularFileMetadata(urlAddress, lastModified, size);
             } else {
+                Logger.getLogger(HttpUtils.class.getName()).warning("HTTP error response:");
+                Logger.getLogger(HttpUtils.class.getName()).warning(() -> {
+                    try {
+                        return IOUtils.toString(connection.getErrorStream(), "UTF-8");
+                    } catch (IOException ignored) {
+                    }
+                    return "";
+                });
                 throw new IOException(urlAddress + ": response code " + responseCode + ": " + connection.getResponseMessage());
             }
         } finally {
@@ -62,6 +72,14 @@ public class HttpUtils {
                     return result.toString("UTF-8");
                 }
             } else {
+                Logger.getLogger(HttpUtils.class.getName()).warning("HTTP error response:");
+                Logger.getLogger(HttpUtils.class.getName()).warning(() -> {
+                    try {
+                        return IOUtils.toString(connection.getErrorStream(), "UTF-8").replaceAll("<AWSAccessKeyId>.*</AWSAccessKeyId>","<AWSAccessKeyId>***</AWSAccessKeyId>");
+                    } catch (IOException ignored) {
+                    }
+                    return "";
+                });
                 throw new IOException(urlAddress + ": response code " + responseCode + ": " + connection.getResponseMessage());
             }
         } finally {
