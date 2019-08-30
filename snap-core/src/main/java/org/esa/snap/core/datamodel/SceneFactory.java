@@ -71,7 +71,8 @@ public final class SceneFactory {
         int numTransferred = 0;
         for (String rasterName : rasterNames) {
             final RasterDataNode sourceRaster = sourceProduct.getRasterDataNode(rasterName);
-            if (sourceRaster != null) {
+            final RasterDataNode targetRaster = targetProduct.getRasterDataNode(rasterName);
+            if (sourceRaster != null && targetRaster != null) {
                 ProductSubsetDef auxiliarSubsetDef = null;
                 if(subsetDef == null || subsetDef.getRegionMap() == null) {
                     auxiliarSubsetDef = subsetDef;
@@ -82,8 +83,8 @@ public final class SceneFactory {
                 }
 
                 final Scene sourceRasterScene = SceneFactory.createScene(sourceRaster);
-                final RasterDataNode targetRaster = targetProduct.getRasterDataNode(rasterName);
-                if (targetRaster != null) {
+
+                //if (targetRaster != null) {
                     final Scene targetRasterScene = SceneFactory.createScene(targetRaster);
                     if (transferGeoCoding(sourceRasterScene, targetRasterScene, auxiliarSubsetDef)) {
                         numTransferred++;
@@ -91,7 +92,7 @@ public final class SceneFactory {
                         SystemUtils.LOG.warning(
                                 "failed to transfer geo-coding of band '" + sourceRaster.getName() + "'");
                     }
-                }
+                //}
             }
         }
 

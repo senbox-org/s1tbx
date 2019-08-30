@@ -29,6 +29,8 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
@@ -764,6 +766,11 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
         if (!getSourceProduct().transferGeoCodingTo(product, getSubsetDef())) {
             Debug.trace("GeoCoding could not be transferred.");
+        }
+
+        //Adjust sceneGeocoding in singleSizeProducts created from a multisize product
+        if(getSubsetDef() != null && getSubsetDef().getRegionMap() != null && !product.isMultiSize()) {
+            ProductUtils.copyGeoCoding(product.getRasterDataNodes().get(0),product);
         }
     }
 
