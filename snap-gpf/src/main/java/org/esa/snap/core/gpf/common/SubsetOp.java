@@ -224,7 +224,7 @@ public class SubsetOp extends Operator {
         }
         
         if (region != null && !region.isEmpty()) {
-            if(!isMultisize) {
+            if(!isMultisize || referenceBand == null) {
                 if (region.width == 0 || region.x + region.width > sourceProduct.getSceneRasterWidth()) {
                     region.width = sourceProduct.getSceneRasterWidth() - region.x;
                 }
