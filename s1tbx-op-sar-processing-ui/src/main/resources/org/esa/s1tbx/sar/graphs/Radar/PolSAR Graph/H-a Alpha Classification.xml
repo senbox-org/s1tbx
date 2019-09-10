@@ -71,7 +71,6 @@
       <sourceProduct refid="Polarimetric-Classification"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>classification</file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>

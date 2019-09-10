@@ -126,7 +126,6 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <formatName>BEAM-DIMAP</formatName>
-      <file>Deskewed_ML_SPK_RTC.dim</file>
     </parameters>
   </node>
   <applicationData id="Presentation">
