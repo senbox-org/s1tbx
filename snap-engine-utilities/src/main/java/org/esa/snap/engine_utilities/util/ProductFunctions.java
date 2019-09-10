@@ -65,14 +65,12 @@ public class ProductFunctions {
                     return true;
                 }
             }
-            return false;
         } else if (name.endsWith("txt")) {
             for (String str : txtPrefix) {
                 if (name.startsWith(str)) {
                     return true;
                 }
             }
-            return false;
         }
 
         // test with readers
