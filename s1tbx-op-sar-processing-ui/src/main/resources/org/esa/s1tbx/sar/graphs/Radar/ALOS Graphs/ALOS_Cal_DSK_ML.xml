@@ -48,7 +48,6 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <formatName>BEAM-DIMAP</formatName>
-      <file>alos_Cal_Deskewed_ML.dim</file>
     </parameters>
   </node>
   <applicationData id="Presentation">

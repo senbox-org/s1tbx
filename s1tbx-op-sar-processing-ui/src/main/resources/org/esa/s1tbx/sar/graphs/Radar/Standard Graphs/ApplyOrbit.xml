@@ -22,7 +22,6 @@
       <sourceProduct refid="Apply-Orbit-File"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>target.dim</file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>

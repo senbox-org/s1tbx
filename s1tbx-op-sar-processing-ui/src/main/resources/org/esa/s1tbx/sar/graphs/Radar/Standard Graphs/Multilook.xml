@@ -12,7 +12,6 @@
     </sources>
     <parameters>
       <formatName>BEAM-DIMAP</formatName>
-      <file>multilooked.dim</file>
     </parameters>
   </node>
   <node id="Multilook">
