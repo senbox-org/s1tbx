@@ -161,11 +161,11 @@ public class PolBandUtils {
     private static Band[] getBands(final Product srcProduct, final MATRIX sourceProductType, final String[] bandNames) throws Exception {
 
         if (sourceProductType == MATRIX.DUAL_HH_HV) { // dual pol HH HV
-            return getDualPolSrcBands(srcProduct, getComplexBandNames());
+            return getDualPolSrcBands(srcProduct, getComplexBandNames(), sourceProductType);
         } else if (sourceProductType == MATRIX.DUAL_VH_VV) { // dual VH VV
-            return getDualPolSrcBands(srcProduct, getComplexBandNames());
+            return getDualPolSrcBands(srcProduct, getComplexBandNames(), sourceProductType);
         } else if (sourceProductType == MATRIX.DUAL_HH_VV) { // dual HH VV
-            return getDualPolSrcBands(srcProduct, getComplexBandNames());
+            return getDualPolSrcBands(srcProduct, getComplexBandNames(), sourceProductType);
         }else if (sourceProductType == MATRIX.FULL) { // full pol
             return getQuadPolSrcBands(srcProduct, bandNames);
         } else if (sourceProductType == MATRIX.C3) { // C3
@@ -186,18 +186,42 @@ public class PolBandUtils {
         return null;
     }
 
-    private static Band[] getDualPolSrcBands(final Product srcProduct, final String[] srcBandNames) {
+    private static Band[] getDualPolSrcBands(final Product srcProduct, final String[] srcBandNames,
+                                             final MATRIX sourceProductType) {
 
-        final List<Band> bandList = new ArrayList<>();
+        final List<Band> hhBandList = new ArrayList<>();
+        final List<Band> hvBandList = new ArrayList<>();
+        final List<Band> vvBandList = new ArrayList<>();
+        final List<Band> vhBandList = new ArrayList<>();
         for(Band srcBand : srcProduct.getBands()) {
             final String bandName = srcBand.getName();
             for (String s : srcBandNames) {
                 if(bandName.startsWith(s)) {
-                    bandList.add(srcBand);
+                    if (bandName.toLowerCase().contains("hh")) {
+                        hhBandList.add(srcBand);
+                    } else if (bandName.toLowerCase().contains("hv")) {
+                        hvBandList.add(srcBand);
+                    } else if (bandName.toLowerCase().contains("vv")) {
+                        vvBandList.add(srcBand);
+                    } else if (bandName.toLowerCase().contains("vh")) {
+                        vhBandList.add(srcBand);
+                    }
                 }
             }
         }
-        return bandList.toArray(new Band[bandList.size()]);
+
+        if (sourceProductType == MATRIX.DUAL_HH_HV) {
+            hhBandList.addAll(hvBandList);
+            return hhBandList.toArray(new Band[hhBandList.size()]);
+        } else if (sourceProductType == MATRIX.DUAL_VH_VV) {
+            vvBandList.addAll(vhBandList);
+            return vvBandList.toArray(new Band[vvBandList.size()]);
+        } else if (sourceProductType == MATRIX.DUAL_HH_VV) {
+            hhBandList.addAll(vvBandList);
+            return hhBandList.toArray(new Band[hhBandList.size()]);
+        }
+
+        return null;
     }
 
     private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames) {
