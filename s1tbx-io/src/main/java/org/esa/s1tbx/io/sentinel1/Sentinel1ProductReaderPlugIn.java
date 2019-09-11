@@ -37,6 +37,18 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
     private static String[] annotation_prefixes = new String[] {"s1", "s2-", "s3-", "s4-", "s5-", "s6-", "iw", "ew", "rs2", "asa"};
 
     /**
+     * Gets the file for the given relative path.
+     *
+     * @param path The base file.
+     * @param subpath The relative file or directory path.
+     * @return Gets the file or directory for the specified file path.
+     */    
+    private static File getFile(final File path, final String subpath) {
+        File child = path.toPath().resolve(subpath).toFile();
+        return child;
+    }
+
+    /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      *
@@ -47,7 +59,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
             if(file.isDirectory()) {
-                file = new File(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
+                file = getFile(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
                 if(!file.exists()) {
                     return DecodeQualification.UNABLE;
                 }
@@ -64,7 +76,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.INTENDED;
             }
             if(filename.startsWith("s1") && filename.endsWith(".safe") && file.isDirectory()) {
-                File manifest = new File(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
+                File manifest = getFile(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
                 if(manifest.exists()) {
                     if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest)) {
                         return DecodeQualification.INTENDED;
@@ -86,7 +98,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
             return name.contains("_1AS") || name.contains("_1AD") || name.contains("_1SS") || name.contains("_1SD");
         } else {
             final File baseFolder = file.getParentFile();
-            final File annotationFolder = new File(baseFolder, ANNOTATION);
+            final File annotationFolder = getFile(baseFolder, ANNOTATION);
             return annotationFolder.exists() && checkFolder(annotationFolder, ".xml");
         }
     }
@@ -96,7 +108,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
             return ZipUtils.findInZip(file, "s1", ".nc");
         } else {
             final File baseFolder = file.getParentFile();
-            final File measurementFolder = new File(baseFolder, MEASUREMENT);
+            final File measurementFolder = getFile(baseFolder, MEASUREMENT);
             return measurementFolder.exists() && checkFolder(measurementFolder, ".nc");
         }
     }
@@ -117,7 +129,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
             }
         } else {
             final File baseFolder = file.getParentFile();
-            final File annotationFolder = new File(baseFolder, ANNOTATION);
+            final File annotationFolder = getFile(baseFolder, ANNOTATION);
             if (!annotationFolder.exists()) {
                 throw new IOException("annotation folder is missing in product");
             }

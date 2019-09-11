@@ -49,6 +49,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
 import java.io.*;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -233,7 +234,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             try {
                 final File productInfoFile = productDir.getFile("productInfo.json");
                 if(productInfoFile.length() > 0) {
-                    final BufferedReader streamReader = new BufferedReader(new FileReader(productInfoFile.getPath()));
+                    final BufferedReader streamReader = new BufferedReader(new InputStreamReader(Files.newInputStream(productInfoFile.toPath())));
                     final JSONParser parser = new JSONParser();
                     final JSONObject json = (JSONObject) parser.parse(streamReader);
                     json.remove("filenameMap");
