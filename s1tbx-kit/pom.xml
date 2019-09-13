@@ -5,7 +5,7 @@
     <parent>
         <artifactId>s1tbx</artifactId>
         <groupId>org.esa.s1tbx</groupId>
-        <version>7.0.2-SNAPSHOT</version>
+        <version>7.0.2</version>
     </parent>
 
     <artifactId>s1tbx-kit</artifactId>
@@ -161,7 +161,7 @@
 		<dependency>
             <groupId>com.iceye.esa.snap</groupId>
             <artifactId>iceye-slc-reader</artifactId>
-            <version>1.0.0</version>
+            <version>${iceye.version}</version>
         </dependency>
 
         <dependency>
