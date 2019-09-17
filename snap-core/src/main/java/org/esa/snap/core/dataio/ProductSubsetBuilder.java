@@ -768,9 +768,15 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             Debug.trace("GeoCoding could not be transferred.");
         }
 
-        //Adjust sceneGeocoding in singleSizeProducts created from a multisize product
-        if(getSubsetDef() != null && getSubsetDef().getRegionMap() != null && !product.isMultiSize()) {
-            ProductUtils.copyGeoCoding(product.getRasterDataNodes().get(0),product);
+        //Adjust sceneGeocoding
+        if(getSubsetDef() != null && getSubsetDef().getRegionMap() != null) {
+            for(RasterDataNode rasterDataNode : product.getRasterDataNodes()) {
+                if(rasterDataNode.getRasterWidth() == product.getSceneRasterSize().getWidth() &&
+                        rasterDataNode.getRasterHeight() == product.getSceneRasterSize().getHeight()
+                        && rasterDataNode.getGeoCoding() != null) {
+                    ProductUtils.copyGeoCoding(rasterDataNode,product);
+                }
+            }
         }
     }
 

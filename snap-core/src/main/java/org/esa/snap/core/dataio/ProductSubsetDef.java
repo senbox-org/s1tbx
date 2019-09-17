@@ -316,19 +316,20 @@ public class ProductSubsetDef {
         } else if (regionMap != null) {
             int auxWidth = -1;
             int auxHeight = -1;
-            for(Rectangle rec : regionMap.values()) {
-                if(auxHeight == -1 && auxHeight == -1) {
+
+            for (Object nodeName : nodeNameList) {
+                String nodeNameString = nodeName.toString();
+                Rectangle rec = regionMap.get(nodeNameString);
+                if(rec == null) {
+                    continue;
+                }
+                if(auxHeight < rec.height ) {
                     auxHeight = rec.height;
                     auxWidth = rec.width;
                 }
-
-                if (rec.height != auxHeight || rec.width != auxWidth) {
-                    auxWidth = -1;
-                    auxHeight = -1;
-                    break;
-                }
             }
-            if(auxHeight != -1 && auxHeight != -1) {
+
+            if(auxHeight != -1 && auxWidth != -1) {
                 width = auxWidth;
                 height = auxHeight;
             }
