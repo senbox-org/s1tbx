@@ -238,7 +238,7 @@ public class SubsetOp extends Operator {
             }
         }
 
-        if(region == null && geoRegion == null) {
+        if(region == null && geoRegion == null && subsetDef.getNodeNames() != null) {
             HashMap<String,Rectangle> regionMap = new HashMap<>();
             for (String nodeName : subsetDef.getNodeNames()) {
                 RasterDataNode rdn = sourceProduct.getRasterDataNode(nodeName);
