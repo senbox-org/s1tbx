@@ -35,6 +35,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -234,6 +235,21 @@ public class SubsetOp extends Operator {
                 subsetDef.setRegion(region);
             } else {
                 subsetDef.setRegionMap(computeRegionMap (region, referenceBand, sourceProduct, subsetDef.getNodeNames()));
+            }
+        }
+
+        if(region == null && geoRegion == null) {
+            HashMap<String,Rectangle> regionMap = new HashMap<>();
+            for (String nodeName : subsetDef.getNodeNames()) {
+                RasterDataNode rdn = sourceProduct.getRasterDataNode(nodeName);
+                if(rdn == null || rdn.getRasterWidth() == 0 || rdn.getRasterHeight() == 0) {
+                    continue;
+                }
+                regionMap.put(nodeName,new Rectangle(rdn.getRasterWidth(),
+                              rdn.getRasterHeight()));
+            }
+            if(regionMap.size() > 0) {
+                subsetDef.setRegionMap(regionMap);
             }
         }
 
