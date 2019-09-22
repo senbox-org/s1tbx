@@ -37,11 +37,19 @@ import java.awt.*;
  */
 public class MapProjectionHandler {
 
-    private final CrsSelectionPanel crsSelectionPanel;
+    private CrsSelectionPanel crsSelectionPanel;
     private CoordinateReferenceSystem crs;
+    private String mapProjection;
+    private Product[] sourceProducts;
 
     public MapProjectionHandler() {
-        crsSelectionPanel = createCRSPanel();
+    }
+
+    private CrsSelectionPanel getCRSPanel() {
+        if(crsSelectionPanel == null) {
+            crsSelectionPanel = createCRSPanel();
+        }
+        return crsSelectionPanel;
     }
 
     private static CrsSelectionPanel createCRSPanel() {
@@ -53,10 +61,15 @@ public class MapProjectionHandler {
     }
 
     public void initParameters(final String mapProjection, final Product[] sourceProducts) {
-        crs = getCRS(mapProjection, sourceProducts);
+        this.mapProjection = mapProjection;
+        this.sourceProducts = sourceProducts;
+        crs = null;
     }
 
     public CoordinateReferenceSystem getCRS() {
+        if(crs == null) {
+            crs = getCRS(mapProjection, sourceProducts);
+        }
         return crs;
     }
 
@@ -64,7 +77,7 @@ public class MapProjectionHandler {
         if (crs != null) {
             return crs.getName().getCode();
         }
-        return "";
+        return "WGS84(DD)";
     }
 
     private CoordinateReferenceSystem getCRS(final String mapProjection, final Product[] sourceProducts) {
@@ -105,8 +118,8 @@ public class MapProjectionHandler {
     private CoordinateReferenceSystem getCRSFromDialog(final Product[] sourceProducts) {
         try {
             if (sourceProducts == null || sourceProducts[0] == null)
-                return crsSelectionPanel.getCrs(new GeoPos(0, 0));
-            return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(sourceProducts[0]));
+                return getCRSPanel().getCrs(new GeoPos(0, 0));
+            return getCRSPanel().getCrs(ProductUtils.getCenterGeoPos(sourceProducts[0]));
         } catch (Exception e) {
             Dialogs.showError("Unable to create coodinate reference system");
         }
@@ -125,7 +138,7 @@ public class MapProjectionHandler {
         tableLayout.setTablePadding(4, 4);
         tableLayout.setCellPadding(0, 0, new Insets(4, 10, 4, 4));
         final JPanel contentPanel = new JPanel(tableLayout);
-        contentPanel.add(crsSelectionPanel);
+        contentPanel.add(getCRSPanel());
         dialog.setContent(contentPanel);
         if (dialog.show() == ModalDialog.ID_OK) {
             crs = getCRSFromDialog(sourceProducts);
