@@ -1,13 +1,12 @@
 package org.csa.rstb.polarimetric.gpf;
 
-import Jama.Matrix;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-public interface DualPolProcessor extends PolarimetricProcessor {
+public interface DualPolProcessor extends PolarimetricProcessor, MatrixMath {
 
     /**
      * Get mean covariance matrix C2 for given pixel.
@@ -37,19 +36,20 @@ public interface DualPolProcessor extends PolarimetricProcessor {
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-        final Matrix CrMat = new Matrix(2, 2);
-        final Matrix CiMat = new Matrix(2, 2);
+        final double[][] crMat = new double[2][2];
+        final double[][] ciMat = new double[2][2];
+
+        final double[][] tmpCr = new double[2][2];
+        final double[][] tmpCi = new double[2][2];
 
         if (sourceProductType == PolBandUtils.MATRIX.C2) {
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
-                    final Matrix tmpCrMat = new Matrix(2, 2);
-                    final Matrix tmpCiMat = new Matrix(2, 2);
-                    getCovarianceMatrixC2(srcIndex.getIndex(xx), dataBuffers, tmpCrMat.getArray(), tmpCiMat.getArray());
-                    CrMat.plusEquals(tmpCrMat);
-                    CiMat.plusEquals(tmpCiMat);
+                    getCovarianceMatrixC2(srcIndex.getIndex(xx), dataBuffers, tmpCr, tmpCi);
+                    matrixPlusEquals(crMat, tmpCr);
+                    matrixPlusEquals(ciMat, tmpCi);
                 }
             }
 
@@ -65,12 +65,10 @@ public interface DualPolProcessor extends PolarimetricProcessor {
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
-                    final Matrix tmpCrMat = new Matrix(2, 2);
-                    final Matrix tmpCiMat = new Matrix(2, 2);
                     getScatterVector(srcIndex.getIndex(xx), dataBuffers, tempKr, tempKi);
-                    computeCovarianceMatrixC2(tempKr, tempKi, tmpCrMat.getArray(), tmpCiMat.getArray());
-                    CrMat.plusEquals(tmpCrMat);
-                    CiMat.plusEquals(tmpCiMat);
+                    computeCovarianceMatrixC2(tempKr, tempKi, tmpCr, tmpCi);
+                    matrixPlusEquals(crMat, tmpCr);
+                    matrixPlusEquals(ciMat, tmpCi);
                 }
             }
 
@@ -78,18 +76,18 @@ public interface DualPolProcessor extends PolarimetricProcessor {
             throw new OperatorException("getMeanCovarianceMatrixC2 not implemented for raw dual pol");
         }
 
-        CrMat.timesEquals(1.0 / num);
-        CiMat.timesEquals(1.0 / num);
+        matrixTimesEquals(crMat, 1.0 / num);
+        matrixTimesEquals(ciMat, 1.0 / num);
 
-        Cr[0][0] = CrMat.get(0, 0);
-        Ci[0][0] = CiMat.get(0, 0);
-        Cr[0][1] = CrMat.get(0, 1);
-        Ci[0][1] = CiMat.get(0, 1);
+        Cr[0][0] = crMat[0][0];
+        Ci[0][0] = ciMat[0][0];
+        Cr[0][1] = crMat[0][1];
+        Ci[0][1] = ciMat[0][1];
 
-        Cr[1][0] = CrMat.get(1, 0);
-        Ci[1][0] = CiMat.get(1, 0);
-        Cr[1][1] = CrMat.get(1, 1);
-        Ci[1][1] = CiMat.get(1, 1);
+        Cr[1][0] = crMat[1][0];
+        Ci[1][0] = ciMat[1][0];
+        Cr[1][1] = crMat[1][1];
+        Ci[1][1] = ciMat[1][1];
     }
 
     /**
@@ -214,8 +212,10 @@ public interface DualPolProcessor extends PolarimetricProcessor {
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-        final Matrix CrMat = new Matrix(2, 2);
-        final Matrix CiMat = new Matrix(2, 2);
+        final double[][] crMat = new double[2][2];
+        final double[][] ciMat = new double[2][2];
+        final double[][] tmpCrMat = new double[2][2];
+        final double[][] tmpCiMat = new double[2][2];
 
         if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
                 sourceProductType == PolBandUtils.MATRIX.RCHCP ||
@@ -233,16 +233,13 @@ public interface DualPolProcessor extends PolarimetricProcessor {
                 for (int xx = xSt; xx <= xEd; ++xx) {
                     final int idx = srcIndex.getIndex(xx);
 
-                    final Matrix tmpCrMat = new Matrix(2, 2);
-                    final Matrix tmpCiMat = new Matrix(2, 2);
-
                     getScatterVector(idx, mstDataBuffers, K1r, K1i);
                     getScatterVector(idx, slvDataBuffers, K2r, K2i);
 
-                    computeCorrelationMatrixC2(K1r, K1i, K2r, K2i, tmpCrMat.getArray(), tmpCiMat.getArray());
+                    computeCorrelationMatrixC2(K1r, K1i, K2r, K2i, tmpCrMat, tmpCiMat);
 
-                    CrMat.plusEquals(tmpCrMat);
-                    CiMat.plusEquals(tmpCiMat);
+                    matrixPlusEquals(crMat, tmpCrMat);
+                    matrixPlusEquals(ciMat, tmpCiMat);
                 }
             }
 
@@ -250,18 +247,18 @@ public interface DualPolProcessor extends PolarimetricProcessor {
             throw new OperatorException("getMeanCorrelationMatrix: input should be raw dual pol data");
         }
 
-        CrMat.timesEquals(1.0 / num);
-        CiMat.timesEquals(1.0 / num);
+        matrixTimesEquals(crMat, 1.0 / num);
+        matrixTimesEquals(ciMat, 1.0 / num);
 
-        Cr[0][0] = CrMat.get(0, 0);
-        Ci[0][0] = CiMat.get(0, 0);
-        Cr[0][1] = CrMat.get(0, 1);
-        Ci[0][1] = CiMat.get(0, 1);
+        Cr[0][0] = crMat[0][0];
+        Ci[0][0] = ciMat[0][0];
+        Cr[0][1] = crMat[0][1];
+        Ci[0][1] = ciMat[0][1];
 
-        Cr[1][0] = CrMat.get(1, 0);
-        Ci[1][0] = CiMat.get(1, 0);
-        Cr[1][1] = CrMat.get(1, 1);
-        Ci[1][1] = CiMat.get(1, 1);
+        Cr[1][0] = crMat[1][0];
+        Ci[1][0] = ciMat[1][0];
+        Cr[1][1] = crMat[1][1];
+        Ci[1][1] = ciMat[1][1];
     }
 
     default void computeCorrelationMatrixC2(final double[] k1r, final double[] k1i,
