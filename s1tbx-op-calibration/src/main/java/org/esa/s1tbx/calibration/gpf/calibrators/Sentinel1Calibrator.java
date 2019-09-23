@@ -41,6 +41,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -572,6 +573,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
 
             double dn = 0.0, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor, phaseTerm = 0.0;
             int srcIdx;
+            int pixelIdx = -1;
 
             for (int y = y0; y < maxY; ++y) {
                 srcIndex.calculateStride(y);
@@ -599,12 +601,8 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     srcIdx = srcIndex.getIndex(x);
 
                     dn = srcData1.getElemDoubleAt(srcIdx);
-//                    if(noDataValue.equals(dn)) {
-//                        tgtData.setElemDoubleAt(trgIndex.getIndex(x), noDataValue);
-//                        continue;
-//                    }
 
-                    final int pixelIdx = calVec.getPixelIndex(subsetOffsetX + x);
+                    pixelIdx = getPixelIndex(calVec, pixelIdx, subsetOffsetX + x);
                     muX = (subsetOffsetX + x - vec0Pixels[pixelIdx]) /
                             (double)(vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
 
@@ -662,6 +660,21 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
         } finally {
             pm.done();
         }
+    }
+
+    private static int getPixelIndex(final Sentinel1Utils.CalibrationVector calVec, final int lastIndex, final int x) throws Exception {
+        if(lastIndex >= 0 && lastIndex < calVec.pixels.length-1 && x >- calVec.pixels[lastIndex] && x < calVec.pixels[lastIndex+1]) {
+            return lastIndex;
+        }
+        int index = Arrays.binarySearch(calVec.pixels, x);
+        if(index < 0) {
+            index *= -1;
+            index -= 2;
+        }
+        if(index >= calVec.pixels.length-1)
+            index--;
+
+        return index;
     }
 
     public static CALTYPE getCalibrationType(final String bandName) {
