@@ -944,7 +944,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             final RangeDopplerGeocodingOp.TileData td = new RangeDopplerGeocodingOp.TileData(
                     targetTiles.get(targetBand), srcBands, isPolsar, outputComplex,
-                    targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling);
+                    targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling,
+                    null, null);
 
             td.applyRadiometricNormalization = targetBandapplyRadiometricNormalizationFlag.get(targetBand.getName());
             td.applyRetroCalibration = targetBandApplyRetroCalibrationFlag.get(targetBand.getName());

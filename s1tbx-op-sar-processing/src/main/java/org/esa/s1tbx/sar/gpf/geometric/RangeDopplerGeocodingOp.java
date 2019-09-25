@@ -877,6 +877,8 @@ public class RangeDopplerGeocodingOp extends Operator {
                 }
             }
 
+            final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h, tileGeoRef, localDEM);
+
             final GeoPos geoPos = new GeoPos();
             final PositionData posData = new PositionData();
             final int srcMaxRange = sourceImageWidth - 1;
@@ -919,23 +921,28 @@ public class RangeDopplerGeocodingOp extends Operator {
                 }
 
                 final Band[] srcBands = targetBandNameToSourceBand.get(targetBand.getName());
+                Tile sourceTileI = null, sourceTileQ = null;
+                if (sourceRectangle != null) {
+                    sourceTileI = getSourceTile(srcBands[0], sourceRectangle);
+                    sourceTileQ = srcBands.length > 1 ? getSourceTile(srcBands[1], sourceRectangle) : null;
+                }
 
                 final TileData td = new TileData(targetTiles.get(targetBand), srcBands, isPolsar, outputComplex,
-                                                 targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling);
+                        targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling,
+                        sourceTileI, sourceTileQ);
 
                 td.applyRadiometricNormalization = targetBandApplyRadiometricNormalizationFlag.get(targetBand.getName());
                 td.applyRetroCalibration = targetBandApplyRetroCalibrationFlag.get(targetBand.getName());
                 tgtTileList.add(td);
             }
 
-            final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h, tileGeoRef, localDEM);
             final TileData[] tgtTiles = tgtTileList.toArray(new TileData[tgtTileList.size()]);
             for (TileData tileData : tgtTiles) {
                 if (sourceRectangle != null) {
                     try {
                         final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
                         tileData.imgResamplingRaster.setSourceTiles(getSourceTile(srcBands[0], sourceRectangle),
-                                                                    srcBands.length > 1 ? getSourceTile(srcBands[1], sourceRectangle) : null);
+                                srcBands.length > 1 ? getSourceTile(srcBands[1], sourceRectangle) : null);
                     } catch (Exception e) {
                         tileData.imgResamplingRaster.setSourceTiles(null, null);
                     }
@@ -1075,7 +1082,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     private Rectangle getSourceRectangle(final int x0, final int y0, final int w, final int h,
                                          final TileGeoreferencing tileGeoRef, final double[][] localDEM) {
-
+/*
         final PixelPos[] tgtCorners = {new PixelPos(x0, y0), new PixelPos(x0 + w - 1, y0),
                 new PixelPos(x0, y0 + h - 1), new PixelPos(x0 + w - 1, y0 + h - 1)};
 
@@ -1122,6 +1129,64 @@ public class RangeDopplerGeocodingOp extends Operator {
         yMin = Math.max(yMin - margin, 0);
         yMax = Math.min(yMax + margin, sourceImageHeight - 1);
         return new Rectangle(xMin, yMin, xMax - xMin + 1, yMax - yMin + 1);
+*/
+        final int numPointsPerRow = 5;
+        final int numPointsPerCol = 5;
+        final int xOffset = w / (numPointsPerRow - 1);
+        final int yOffset = h / (numPointsPerCol - 1);
+
+        int xMax = Integer.MIN_VALUE;
+        int xMin = Integer.MAX_VALUE;
+        int yMax = Integer.MIN_VALUE;
+        int yMin = Integer.MAX_VALUE;
+
+        PositionData posData = new PositionData();
+        GeoPos geoPos = new GeoPos();
+        for (int i = 0; i < numPointsPerCol; i++) {
+            final int y = (i == numPointsPerCol - 1? y0 + h - 1 : y0 + i*yOffset);
+
+            for (int j = 0; j < numPointsPerRow; ++j) {
+                final int x = (j == numPointsPerRow - 1? x0 + w - 1 : x0 + j*xOffset);
+
+                tileGeoRef.getGeoPos(new PixelPos(x, y), geoPos);
+
+                final Double alt = localDEM[y - y0 + 1][x - x0 + 1];
+                if (alt.equals(demNoDataValue)) {
+                    continue;
+                }
+
+                if (!getPosition(geoPos.lat, geoPos.lon, alt, posData)) {
+                    continue;
+                }
+
+                if (xMax < posData.rangeIndex) {
+                    xMax = (int) Math.ceil(posData.rangeIndex);
+                }
+
+                if (xMin > posData.rangeIndex) {
+                    xMin = (int) Math.floor(posData.rangeIndex);
+                }
+
+                if (yMax < posData.azimuthIndex) {
+                    yMax = (int) Math.ceil(posData.azimuthIndex);
+                }
+
+                if (yMin > posData.azimuthIndex) {
+                    yMin = (int) Math.floor(posData.azimuthIndex);
+                }
+            }
+        }
+
+        xMin = Math.max(xMin - margin, 0);
+        xMax = Math.min(xMax + margin, sourceImageWidth - 1);
+        yMin = Math.max(yMin - margin, 0);
+        yMax = Math.min(yMax + margin, sourceImageHeight - 1);
+
+        if (xMin > xMax || yMin > yMax) {
+            return null;
+        }
+        return new Rectangle(xMin, yMin, xMax - xMin + 1, yMax - yMin + 1);
+
     }
 
     private int getMargin() {
@@ -1216,14 +1281,19 @@ public class RangeDopplerGeocodingOp extends Operator {
                 }
             }
 
+            Band[] srcBands = null;
             if (computeNewSourceRectangle) {
-                final int x0 = (int) (rangeIndex + 0.5);
-                final int y0 = (int) (azimuthIndex + 0.5);
+                final int x0 = (int) (rangeIndex + 0.5) - margin;
+                final int y0 = (int) (azimuthIndex + 0.5) - margin;
+                final int w = 2 * margin + 1;
 
-                Rectangle srcRect = new Rectangle(
-                        Math.max(0, x0 - margin), Math.max(0, y0 - margin), 2 * margin + 1, 2 * margin + 1);
+                if (x0 < 0 || x0 + w > sourceImageWidth - 1 || y0 < 0 || y0 + w > sourceImageHeight) {
+                    return tileData.noDataValue;
+                }
 
-                final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
+                Rectangle srcRect = new Rectangle(x0, y0, w, w);
+
+                srcBands = targetBandNameToSourceBand.get(tileData.bandName);
                 tileData.imgResamplingRaster.setSourceTiles(getSourceTile(srcBands[0], srcRect),
                                                             srcBands.length > 1 ? getSourceTile(srcBands[1], srcRect) : null);
             }
@@ -1236,6 +1306,10 @@ public class RangeDopplerGeocodingOp extends Operator {
             double v = imgResampling.resample(tileData.imgResamplingRaster, tileData.imgResamplingIndex);
 
             subSwathIndex[0] = tileData.imgResamplingRaster.getSubSwathIndex();
+
+            if (computeNewSourceRectangle) {
+                tileData.imgResamplingRaster.setSourceTiles(tileData.sourceTileI, tileData.sourceTileQ);
+            }
 
             return v;
 
@@ -1276,11 +1350,13 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         final ResamplingRaster imgResamplingRaster;
         final Resampling.Index imgResamplingIndex;
+        final Tile sourceTileI;
+        final Tile sourceTileQ;
 
         TileData(final Tile tile, final Band[] srcBands, final boolean isPolsar, final boolean outputComplex,
-                 final String name,
-                 final Unit.UnitType unit, final MetadataElement absRoot, final Calibrator calibrator,
-                 final Resampling imgResampling) {
+                 final String name, final Unit.UnitType unit, final MetadataElement absRoot, final Calibrator calibrator,
+                 final Resampling imgResampling, final Tile sourceTileI, final Tile sourceTileQ) {
+
             this.targetTile = tile;
             this.tileDataBuffer = tile.getDataBuffer();
             this.bandName = name;
@@ -1295,6 +1371,8 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             this.imgResamplingRaster = new ResamplingRaster(this);
             imgResamplingIndex = imgResampling.createIndex();
+            this.sourceTileI = sourceTileI;
+            this.sourceTileQ = sourceTileQ;
         }
     }
 
