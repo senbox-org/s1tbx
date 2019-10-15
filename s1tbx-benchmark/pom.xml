@@ -45,6 +45,12 @@
             <artifactId>snap-dem</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-raster</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
         </dependency>
@@ -67,21 +73,17 @@
             <artifactId>s1tbx-op-sentinel1</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-io</artifactId>
+            <version>${rstb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-op-polarimetric-tools</artifactId>
+            <version>${rstb.version}</version>
+        </dependency>
     </dependencies>
 
-    <!--build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build-->
 </project>
