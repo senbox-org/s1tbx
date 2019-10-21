@@ -52,8 +52,18 @@ public final class FtpDownloader {
 
     public FtpDownloader(final String server, final String user, final String password) throws IOException {
         this.server = server;
-        this.user = user;
-        this.password = password;
+
+        // SIITBX-335: Jaxa Forest land Cover download fails (failed to connect to FTP)
+        // 20191018: Login changed for Jaxa for user anonymous, a password having email address format is needed
+        if (this.server.equalsIgnoreCase("ftp.eorc.jaxa.jp")) {
+            this.user = "anonymous";
+            this.password = "anonymous@gmail.com";
+        }
+        else {
+            this.user = user;
+            this.password = password;
+        }
+
         connect();
     }
 
@@ -61,8 +71,9 @@ public final class FtpDownloader {
         ftpClient.setRemoteVerificationEnabled(false);
         ftpClient.connect(server);
         int reply = ftpClient.getReplyCode();
-        if (FTPReply.isPositiveCompletion(reply))
-            ftpClientConnected = ftpClient.login(user, password);
+        if (FTPReply.isPositiveCompletion(reply)) {
+                ftpClientConnected = ftpClient.login(user, password);
+        }
         if (!ftpClientConnected) {
             disconnect();
             throw new IOException("Unable to connect to " + server);
