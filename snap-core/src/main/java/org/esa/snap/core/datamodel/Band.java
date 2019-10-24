@@ -417,8 +417,8 @@ public class Band extends AbstractBand {
                     width = region.width;
                     height = region.height;
                 }
-                width /= 1 + subsetDef.getSubSamplingX();
-                height /= 1 + subsetDef.getSubSamplingY();
+                width /= subsetDef.getSubSamplingX();
+                height /= subsetDef.getSubSamplingY();
                 numDataElems = width * height;
             }
             size += ProductData.getElemSize(getDataType()) * numDataElems;
