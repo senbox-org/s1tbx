@@ -409,13 +409,16 @@ public class Band extends AbstractBand {
             if (subsetDef != null) {
                 long width = getRasterWidth();
                 long height = getRasterHeight();
-                Rectangle region = subsetDef.getRegion();
-                if (region != null) {
+                if(subsetDef.getRegionMap() != null && subsetDef.getRegionMap().containsKey(this.getName())) {
+                    width = subsetDef.getRegionMap().get(this.getName()).width;
+                    height = subsetDef.getRegionMap().get(this.getName()).height;
+                } else if (subsetDef.getRegion() != null) {
+                    Rectangle region = subsetDef.getRegion();
                     width = region.width;
                     height = region.height;
                 }
-                width /= 1 + subsetDef.getSubSamplingX();
-                height /= 1 + subsetDef.getSubSamplingY();
+                width = (width - 1) / subsetDef.getSubSamplingX() + 1;
+                height = (height - 1) / subsetDef.getSubSamplingY() + 1;
                 numDataElems = width * height;
             }
             size += ProductData.getElemSize(getDataType()) * numDataElems;
