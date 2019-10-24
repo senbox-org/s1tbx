@@ -409,8 +409,11 @@ public class Band extends AbstractBand {
             if (subsetDef != null) {
                 long width = getRasterWidth();
                 long height = getRasterHeight();
-                Rectangle region = subsetDef.getRegion();
-                if (region != null) {
+                if(subsetDef.getRegionMap() != null && subsetDef.getRegionMap().containsKey(this.getName())) {
+                    width = subsetDef.getRegionMap().get(this.getName()).width;
+                    height = subsetDef.getRegionMap().get(this.getName()).height;
+                } else if (subsetDef.getRegion() != null) {
+                    Rectangle region = subsetDef.getRegion();
                     width = region.width;
                     height = region.height;
                 }
