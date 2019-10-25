@@ -328,10 +328,10 @@ public class PhaseFilterOp extends Operator {
      * @see OperatorSpi#createOperator()
      * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
-//    public static class Spi extends OperatorSpi {
-//        public Spi() {
-//            super(PhaseFilterOp.class);
-//        }
-//    }
+    public static class Spi extends OperatorSpi {
+        public Spi() {
+            super(PhaseFilterOp.class);
+        }
+    }
 
 }
