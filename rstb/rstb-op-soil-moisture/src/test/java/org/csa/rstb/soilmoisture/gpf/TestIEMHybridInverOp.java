@@ -23,11 +23,11 @@ public class TestIEMHybridInverOp {
 
     private final static OperatorSpi spi = new IEMHybridInverOp.Spi();
 
+    private final static double epsilon = 1.0e-4d;
     final private int rows = 3;
     final private int cols = 2;
 
-    public static boolean almostEqual(final double a, final double b, final double epsilon) {
-
+    private static boolean almostEqual(final double a, final double b, final double epsilon) {
         return Math.abs(a - b) < epsilon;
     }
 
@@ -194,12 +194,10 @@ public class TestIEMHybridInverOp {
         slvMetadata.addElement(metadata1);
 
         if (clay) {
-
             addClay(testProduct[0], w, h);
         }
 
         if (sand) {
-
             addSand(testProduct[0], w, h);
         }
 
@@ -212,23 +210,20 @@ public class TestIEMHybridInverOp {
      * @throws Exception general exception
      */
     @Test
-    @Ignore
     public void testIEMHybridInversionOfRealImage() throws Exception {
 
-        final double epsilon = 1.0e-4d;
+        myTest(false, false, true); // no clay, no sand
+        myTest(true, false, true); // just clay, no sand
+        myTest(false, true, true); // no clay, just sand
+        myTest(true, true, true);  // both clay and sand
 
-        myTest(false, false, true, epsilon); // no clay, no sand
-        myTest(true, false, true, epsilon); // just clay, no sand
-        myTest(false, true, true, epsilon); // no clay, just sand
-        myTest(true, true, true, epsilon);  // both clay and sand
-
-        myTest(false, false, false, epsilon); // no clay, no sand
-        myTest(true, false, false, epsilon); // just clay, no sand
-        myTest(false, true, false, epsilon); // no clay, just sand
-        myTest(true, true, false, epsilon);  // both clay and sand
+        myTest(false, false, false); // no clay, no sand
+        myTest(true, false, false); // just clay, no sand
+        myTest(false, true, false); // no clay, just sand
+        myTest(true, true, false);  // both clay and sand
     }
 
-    private void myTest(final boolean clay, final boolean sand, boolean useMatlabLUT, double epsilon) throws Exception {
+    private void myTest(final boolean clay, final boolean sand, boolean useMatlabLUT) throws Exception {
 
         TestUtils.log.info("***************** myTest: clay = " + clay + " sand = " + sand + " useMatlabLUT = " + useMatlabLUT + " epsilon = " + epsilon);
 
@@ -339,5 +334,4 @@ public class TestIEMHybridInverOp {
             }
         }
     }
-
 }
