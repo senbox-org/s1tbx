@@ -66,7 +66,6 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     }
 
     @Test
-    @Ignore("Fail")
     public void testOpeningFolder() throws Exception {
         testReader(folderSLC);
     }
