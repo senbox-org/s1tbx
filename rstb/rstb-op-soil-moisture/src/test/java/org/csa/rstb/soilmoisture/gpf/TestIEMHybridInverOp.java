@@ -6,11 +6,14 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.nio.file.Path;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -22,8 +25,8 @@ import static org.junit.Assert.assertTrue;
 public class TestIEMHybridInverOp {
 
     private final static OperatorSpi spi = new IEMHybridInverOp.Spi();
-
     private final static double epsilon = 1.0e-4d;
+
     final private int rows = 3;
     final private int cols = 2;
 
@@ -212,20 +215,15 @@ public class TestIEMHybridInverOp {
     @Test
     public void testIEMHybridInversionOfRealImage() throws Exception {
 
-        myTest(false, false, true); // no clay, no sand
-        myTest(true, false, true); // just clay, no sand
-        myTest(false, true, true); // no clay, just sand
-        myTest(true, true, true);  // both clay and sand
-
-        myTest(false, false, false); // no clay, no sand
-        myTest(true, false, false); // just clay, no sand
-        myTest(false, true, false); // no clay, just sand
-        myTest(true, true, false);  // both clay and sand
+        myTest(false, false); // no clay, no sand
+        myTest(true, false); // just clay, no sand
+        myTest(false, true); // no clay, just sand
+        myTest(true, true);  // both clay and sand
     }
 
-    private void myTest(final boolean clay, final boolean sand, boolean useMatlabLUT) throws Exception {
+    private void myTest(final boolean clay, final boolean sand) throws Exception {
 
-        TestUtils.log.info("***************** myTest: clay = " + clay + " sand = " + sand + " useMatlabLUT = " + useMatlabLUT + " epsilon = " + epsilon);
+        TestUtils.log.info("***************** myTest: clay = " + clay + " sand = " + sand + " epsilon = " + epsilon);
 
         int numBands = 3;
         if (clay) {
@@ -236,15 +234,12 @@ public class TestIEMHybridInverOp {
         }
 
         final Product sourceProduct = createOneTestProduct(cols, rows, clay, sand);
+        final Path resourcePath = ResourceInstaller.findModuleCodeBasePath(IEMInverBase.class).resolve("auxdata/sm_luts");
 
         final IEMHybridInverOp op = (IEMHybridInverOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
-        if (useMatlabLUT) {
-            op.setLUTFile("P:\\asmers\\asmers\\data\\CCN\\Testing\\cecilia\\LUTs\\IEM_cb_nt_RDC_RSAT2_QP_MAT\\IEM_cb_nt_RDC_RSAT2_QP.mat");
-        } else {
-            op.setLUTFile("P:\\asmers\\asmers\\data\\CCN\\Testing\\cecilia\\LUTs\\IEM_cb_nt_RDC_RSAT2_QP_CSV\\IEM_cb_nt_RDC_RSAT2_QP.csv");
-        }
+        op.setLUTFile(resourcePath.resolve("IEM_cb_nt_RDC_RSAT2_QP.mat").toFile().getAbsolutePath());
         op.setOptionalOutputs(true);
 
         // get targetProduct: execute initialize()
@@ -329,7 +324,7 @@ public class TestIEMHybridInverOp {
                 assertTrue(almostEqual(resultValues[i][j], expectedValues[i][j], epsilon));
                 if (!almostEqual(resultValues[i][j], expectedValues[i][j], epsilon)) {
                     TestUtils.log.warning("Not Equal: i = " + i + " j = " + j + " " + resultValues[i][j] + " " + expectedValues[i][j]);
-                    throw new Exception("");
+                    //throw new Exception("");
                 }
             }
         }

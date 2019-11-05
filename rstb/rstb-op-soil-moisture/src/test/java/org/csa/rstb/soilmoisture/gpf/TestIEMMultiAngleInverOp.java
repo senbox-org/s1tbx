@@ -6,11 +6,14 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.nio.file.Path;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -22,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 public class TestIEMMultiAngleInverOp {
 
     private final static OperatorSpi spi = new IEMMultiAngleInverOp.Spi();
+    private final static double epsilon = 1.0e-4d;
 
     final private int rows = 3;
     final private int cols = 2;
@@ -359,29 +363,21 @@ public class TestIEMMultiAngleInverOp {
      * @throws Exception general exception
      */
     @Test
-    @Ignore
     public void testIEMMultiAngleInversionOfRealImage() throws Exception {
 
         final double epsilon = 1.0e-4d;
 
         for (POL pol : POL.values()) {
-            myTest(pol, false, false, true, epsilon); // no clay, no sand
-            myTest(pol, true, false, true, epsilon); // just clay, no sand
-            myTest(pol, false, true, true, epsilon); // no clay, just sand
-            myTest(pol, true, true, true, epsilon);  // both clay and sand
-        }
-
-        for (POL pol : POL.values()) {
-            myTest(pol, false, false, false, epsilon); // no clay, no sand
-            myTest(pol, true, false, false, epsilon); // just clay, no sand
-            myTest(pol, false, true, false, epsilon); // no clay, just sand
-            myTest(pol, true, true, false, epsilon);  // both clay and sand
+            myTest(pol, false, false); // no clay, no sand
+            myTest(pol, true, false); // just clay, no sand
+            myTest(pol, false, true); // no clay, just sand
+            myTest(pol, true, true);  // both clay and sand
         }
     }
 
-    private void myTest(final POL pol, final boolean clay, final boolean sand, boolean useMatlabLUT, double epsilon) throws Exception {
+    private void myTest(final POL pol, final boolean clay, final boolean sand) throws Exception {
 
-        TestUtils.log.info("***************** myTest: pol = " + pol + " clay = " + clay + " sand = " + sand + " useMatlabLUT = " + useMatlabLUT + " epsilon = " + epsilon);
+        TestUtils.log.info("***************** myTest: pol = " + pol + " clay = " + clay + " sand = " + sand + " epsilon = " + epsilon);
 
         int numBands = 2;
         if (clay) {
@@ -392,15 +388,13 @@ public class TestIEMMultiAngleInverOp {
         }
 
         final Product sourceProduct = createOneTestProduct(pol, cols, rows, clay, sand);
+        final Path resourcePath = ResourceInstaller.findModuleCodeBasePath(IEMInverBase.class).resolve("auxdata/sm_luts");
 
         final IEMMultiAngleInverOp op = (IEMMultiAngleInverOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
-        if (useMatlabLUT) {
-            op.setLUTFile("P:\\asmers\\asmers\\data\\CCN\\Testing\\cecilia\\LUTs\\IEMC_cb_nt_RDC_RSAT2_QP_MAT\\IEMC_cb_nt_RDC_RSAT2_QP.mat");
-        } else {
-            op.setLUTFile("P:\\asmers\\asmers\\data\\CCN\\Testing\\cecilia\\LUTs\\IEMC_cb_nt_RDC_RSAT2_QP_CSV\\IEMC_cb_nt_RDC_RSAT2_QP.csv");
-        }
+        op.setLUTFile(resourcePath.resolve("IEMC_cb_nt_RDC_RSAT2_QP.mat").toFile().getAbsolutePath());
+
         switch (pol) {
 
             case HH1HH2:
