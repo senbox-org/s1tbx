@@ -20,8 +20,11 @@ public class TestPazProductReader extends ReaderTest {
 
     private final static String sep = S1TBXTests.sep;
 
-    //private final static File inputMetaXML = new File("D:\\EO\\PAZ\\PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315\\PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315.xml");
-    private final static File inputMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315" + sep + "PAZ1_SAR__SSC______SM_S_SRA_20110312T204307_20110312T204315.xml");
+    private final static File inputMGDMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "NewDelhi\\PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712\\PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712.xml");
+    private final static File inputMGDFolder = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "NewDelhi\\PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712");
+
+    private final static File inputSSCMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "Mojave Interferometric pair\\PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228\\PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228.xml");
+    private final static File inputSSCFolder = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "Mojave Interferometric pair\\PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228");
 
     public TestPazProductReader() {
         super(new PazProductReaderPlugIn());
@@ -30,23 +33,35 @@ public class TestPazProductReader extends ReaderTest {
     @Before
     public void setUp() {
         // If any of the file does not exist: the test will be ignored
-        assumeTrue(inputMetaXML + " not found", inputMetaXML.exists());
+        assumeTrue(inputMGDMetaXML + " not found", inputMGDMetaXML.exists());
+        assumeTrue(inputMGDFolder + " not found", inputMGDFolder.exists());
+        assumeTrue(inputSSCMetaXML + " not found", inputSSCMetaXML.exists());
+        assumeTrue(inputSSCFolder + " not found", inputSSCFolder.exists());
     }
 
-    @Test
-    @Ignore
-    public void testOpeningFolder() throws Exception {
-        //testReader(inputFolder);
-    }
+//    @Test
+//    public void testOpeningMGDFolder() throws Exception {
+//        testReader(inputMGDFolder);
+//    }
 
     @Test
-    public void testOpeningMetadata() throws Exception {
-        testReader(inputMetaXML);
+    public void testOpeningMGDMetadata() throws Exception {
+        testReader(inputMGDMetaXML);
     }
 
+//    @Test
+//    public void testOpeningSSCFolder() throws Exception {
+//        testReader(inputSSCFolder);
+//    }
+
     @Test
-    @Ignore
-    public void testOpeningZip() throws Exception {
-        //testReader(inputZip);
+    public void testOpeningSSCMetadata() throws Exception {
+        testReader(inputSSCMetaXML);
     }
+
+//    @Test
+//    @Ignore
+//    public void testOpeningZip() throws Exception {
+//        //testReader(inputZip);
+//    }
 }
