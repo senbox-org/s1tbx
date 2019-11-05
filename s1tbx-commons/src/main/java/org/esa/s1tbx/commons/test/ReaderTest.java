@@ -15,6 +15,8 @@ public class ReaderTest {
 
     protected final ProductReaderPlugIn readerPlugIn;
     protected final ProductReader reader;
+    protected boolean verifyTime = true;
+    protected boolean verifyGeocoding = true;
 
     static {
         TestUtils.initTestEnvironment();
@@ -46,7 +48,7 @@ public class ReaderTest {
             throw new Exception("Unable to read product");
         }
 
-        TestUtils.verifyProduct(product, true, true);
+        TestUtils.verifyProduct(product, verifyTime, verifyGeocoding);
         validateMetadata(product);
 
         return product;

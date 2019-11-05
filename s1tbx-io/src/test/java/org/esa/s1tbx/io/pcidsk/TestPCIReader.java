@@ -1,11 +1,9 @@
 
 package org.esa.s1tbx.io.pcidsk;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -17,26 +15,23 @@ import static org.junit.Assume.assumeTrue;
  *
  * @author lveci
  */
-public class TestPCIReader {
+public class TestPCIReader extends ReaderTest {
 
-    private final static File folder = new File( "P:\\rstb\\rstb\\data\\PCIDSK");
-
-    private final PCIReaderPlugIn readerPlugin = new PCIReaderPlugIn();
-    private final ProductReader reader = readerPlugin.createReaderInstance();
+    private final static String sep = S1TBXTests.sep;
+    private final static File file = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "pcidsk\\kompsat2_pcidsk_msc.pix");
 
     @Before
     public void setup() {
-        assumeTrue(folder.exists());
+        assumeTrue(file.exists());
     }
 
-    /**
-     * Open all files in a folder recursively
-     *
-     * @throws Exception anything
-     */
+    public TestPCIReader() {
+        super(new PCIReaderPlugIn());
+    }
+
     @Test
-    public void testOpenAll() throws Exception {
-        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, new File[]{folder}, readerPlugin, reader, null, null);
+    public void testOpeningFile() throws Exception {
+        verifyTime = false;
+        testReader(file);
     }
 }
