@@ -3,7 +3,6 @@ package org.esa.s1tbx.fex.gpf.decisiontree;
 
 import junit.framework.TestCase;
 import org.esa.snap.core.datamodel.*;
-import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -20,17 +19,9 @@ public class TestDescisionTreeOp extends TestCase {
     private OperatorSpi spi;
 
     @Override
-    protected void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
+    protected void setUp() {
         spi = new DecisionTreeOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
 
     public void testMultilookOfRealImage() throws Exception {
 
