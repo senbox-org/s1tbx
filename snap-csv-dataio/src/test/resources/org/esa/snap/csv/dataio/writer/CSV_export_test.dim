@@ -1,0 +1,1320 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dimap_Document name="CSV_export_test.dim">
+    <Metadata_Id>
+        <METADATA_FORMAT version="2.12.1">DIMAP</METADATA_FORMAT>
+        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>
+    </Metadata_Id>
+    <Dataset_Id>
+        <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>
+        <DATASET_NAME>CSV_export_test</DATASET_NAME>
+    </Dataset_Id>
+    <Dataset_Use>
+        <DATASET_COMMENTS>ESA CCI land cover surface reflectance 7 day composite</DATASET_COMMENTS>
+    </Dataset_Use>
+    <Production>
+        <DATASET_PRODUCER_NAME />
+        <PRODUCT_TYPE>CF-1.6</PRODUCT_TYPE>
+    </Production>
+    <Coordinate_Reference_System>
+        <WKT>
+             GEOGCS["WGS84(DD)", 
+               DATUM["WGS84", 
+                 SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+               PRIMEM["Greenwich", 0.0], 
+               UNIT["degree", 0.017453292519943295], 
+               AXIS["Geodetic longitude", EAST], 
+               AXIS["Geodetic latitude", NORTH]]
+        </WKT>
+    </Coordinate_Reference_System>
+    <Geoposition>
+        <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+    </Geoposition>
+    <Index_Coding name="current_pixel_state">
+        <Index>
+            <INDEX_NAME>invalid</INDEX_NAME>
+            <INDEX_VALUE>0</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>clear_land</INDEX_NAME>
+            <INDEX_VALUE>1</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>clear_water</INDEX_NAME>
+            <INDEX_VALUE>2</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>clear_snow_ice</INDEX_NAME>
+            <INDEX_VALUE>3</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>cloud</INDEX_NAME>
+            <INDEX_VALUE>4</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>cloud_shadow</INDEX_NAME>
+            <INDEX_VALUE>5</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+    </Index_Coding>
+    <Index_Coding name="current_pixel_state">
+        <Index>
+            <INDEX_NAME>invalid</INDEX_NAME>
+            <INDEX_VALUE>0</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>clear_land</INDEX_NAME>
+            <INDEX_VALUE>1</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>clear_water</INDEX_NAME>
+            <INDEX_VALUE>2</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>clear_snow_ice</INDEX_NAME>
+            <INDEX_VALUE>3</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>cloud</INDEX_NAME>
+            <INDEX_VALUE>4</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+        <Index>
+            <INDEX_NAME>cloud_shadow</INDEX_NAME>
+            <INDEX_VALUE>5</INDEX_VALUE>
+            <INDEX_DESCRIPTION />
+        </Index>
+    </Index_Coding>
+    <Raster_Dimensions>
+        <NCOLS>5</NCOLS>
+        <NROWS>5</NROWS>
+        <NBANDS>33</NBANDS>
+    </Raster_Dimensions>
+    <Data_Access>
+        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>
+        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>
+        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/current_pixel_state.hdr" />
+            <BAND_INDEX>0</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/clear_land_count.hdr" />
+            <BAND_INDEX>1</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/clear_water_count.hdr" />
+            <BAND_INDEX>2</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/clear_snow_ice_count.hdr" />
+            <BAND_INDEX>3</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/cloud_count.hdr" />
+            <BAND_INDEX>4</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/cloud_shadow_count.hdr" />
+            <BAND_INDEX>5</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_1_mean.hdr" />
+            <BAND_INDEX>6</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_1_uncertainty.hdr" />
+            <BAND_INDEX>7</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_2_mean.hdr" />
+            <BAND_INDEX>8</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_2_uncertainty.hdr" />
+            <BAND_INDEX>9</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_3_mean.hdr" />
+            <BAND_INDEX>10</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_3_uncertainty.hdr" />
+            <BAND_INDEX>11</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_4_mean.hdr" />
+            <BAND_INDEX>12</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_4_uncertainty.hdr" />
+            <BAND_INDEX>13</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_5_mean.hdr" />
+            <BAND_INDEX>14</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_5_uncertainty.hdr" />
+            <BAND_INDEX>15</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_6_mean.hdr" />
+            <BAND_INDEX>16</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_6_uncertainty.hdr" />
+            <BAND_INDEX>17</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_7_mean.hdr" />
+            <BAND_INDEX>18</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_7_uncertainty.hdr" />
+            <BAND_INDEX>19</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_8_mean.hdr" />
+            <BAND_INDEX>20</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_8_uncertainty.hdr" />
+            <BAND_INDEX>21</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_9_mean.hdr" />
+            <BAND_INDEX>22</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_9_uncertainty.hdr" />
+            <BAND_INDEX>23</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_10_mean.hdr" />
+            <BAND_INDEX>24</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_10_uncertainty.hdr" />
+            <BAND_INDEX>25</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_12_mean.hdr" />
+            <BAND_INDEX>26</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_12_uncertainty.hdr" />
+            <BAND_INDEX>27</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_13_mean.hdr" />
+            <BAND_INDEX>28</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_13_uncertainty.hdr" />
+            <BAND_INDEX>29</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_14_mean.hdr" />
+            <BAND_INDEX>30</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/sr_14_uncertainty.hdr" />
+            <BAND_INDEX>31</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="CSV_export_test.data/vegetation_index_mean.hdr" />
+            <BAND_INDEX>32</BAND_INDEX>
+        </Data_File>
+    </Data_Access>
+    <Image_Display>
+        <Band_Statistics>
+            <BAND_INDEX>0</BAND_INDEX>
+            <NUM_COLORS>6</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>0.0</SAMPLE>
+                <LABEL>invalid</LABEL>
+                <COLOR red="232" green="237" blue="174" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>1.0</SAMPLE>
+                <LABEL>clear_land</LABEL>
+                <COLOR red="98" green="46" blue="179" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>2.0</SAMPLE>
+                <LABEL>clear_water</LABEL>
+                <COLOR red="186" green="166" blue="187" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>3.0</SAMPLE>
+                <LABEL>clear_snow_ice</LABEL>
+                <COLOR red="8" green="56" blue="151" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>4.0</SAMPLE>
+                <LABEL>cloud</LABEL>
+                <COLOR red="10" green="235" blue="165" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>5.0</SAMPLE>
+                <LABEL>cloud_shadow</LABEL>
+                <COLOR red="42" green="147" blue="63" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>10</BAND_INDEX>
+            <STX_MIN>0.10704968124628067</STX_MIN>
+            <STX_MAX>0.12285614013671875</STX_MAX>
+            <STX_MEAN>0.11487731367349625</STX_MEAN>
+            <STX_STD_DEV>0.00346616808018206</STX_STD_DEV>
+            <STX_RES_LEVEL>0</STX_RES_LEVEL>
+            <HISTOGRAM>1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>0.10704968124628067</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.11852484062314034</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.13</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>26</BAND_INDEX>
+            <STX_MIN>0.3161168098449707</STX_MIN>
+            <STX_MAX>0.3431984782218933</STX_MAX>
+            <STX_MEAN>0.3334985744953156</STX_MEAN>
+            <STX_STD_DEV>0.006436745979131956</STX_STD_DEV>
+            <STX_RES_LEVEL>0</STX_RES_LEVEL>
+            <HISTOGRAM>1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>0.3161168098449707</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.32960475014988333</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.34309269045479596</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+    </Image_Display>
+    <Image_Interpretation>
+        <Spectral_Band_Info>
+            <BAND_INDEX>0</BAND_INDEX>
+            <BAND_DESCRIPTION>LC pixel type mask</BAND_DESCRIPTION>
+            <BAND_NAME>current_pixel_state</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>int8</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <INDEX_CODING_NAME>current_pixel_state</INDEX_CODING_NAME>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>-1.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>1</BAND_INDEX>
+            <BAND_DESCRIPTION>number of clear_land observations</BAND_DESCRIPTION>
+            <BAND_NAME>clear_land_count</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>int16</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>-1.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>2</BAND_INDEX>
+            <BAND_DESCRIPTION>number of clear_water observations</BAND_DESCRIPTION>
+            <BAND_NAME>clear_water_count</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>int16</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>-1.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>3</BAND_INDEX>
+            <BAND_DESCRIPTION>number of clear_snow_ice observations</BAND_DESCRIPTION>
+            <BAND_NAME>clear_snow_ice_count</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>int16</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>-1.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>4</BAND_INDEX>
+            <BAND_DESCRIPTION>number of cloud observations</BAND_DESCRIPTION>
+            <BAND_NAME>cloud_count</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>int16</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>-1.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>5</BAND_INDEX>
+            <BAND_DESCRIPTION>number of cloud_shadow observations</BAND_DESCRIPTION>
+            <BAND_NAME>cloud_shadow_count</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>int16</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>-1.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>6</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 1</BAND_DESCRIPTION>
+            <BAND_NAME>sr_1_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>7</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 1</BAND_DESCRIPTION>
+            <BAND_NAME>sr_1_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>8</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 2</BAND_DESCRIPTION>
+            <BAND_NAME>sr_2_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>9</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 2</BAND_DESCRIPTION>
+            <BAND_NAME>sr_2_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>10</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 3</BAND_DESCRIPTION>
+            <BAND_NAME>sr_3_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>11</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 3</BAND_DESCRIPTION>
+            <BAND_NAME>sr_3_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>12</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 4</BAND_DESCRIPTION>
+            <BAND_NAME>sr_4_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>13</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 4</BAND_DESCRIPTION>
+            <BAND_NAME>sr_4_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>14</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 5</BAND_DESCRIPTION>
+            <BAND_NAME>sr_5_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>15</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 5</BAND_DESCRIPTION>
+            <BAND_NAME>sr_5_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>16</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 6</BAND_DESCRIPTION>
+            <BAND_NAME>sr_6_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>17</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 6</BAND_DESCRIPTION>
+            <BAND_NAME>sr_6_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>18</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 7</BAND_DESCRIPTION>
+            <BAND_NAME>sr_7_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>19</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 7</BAND_DESCRIPTION>
+            <BAND_NAME>sr_7_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>20</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 8</BAND_DESCRIPTION>
+            <BAND_NAME>sr_8_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>21</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 8</BAND_DESCRIPTION>
+            <BAND_NAME>sr_8_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>22</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 9</BAND_DESCRIPTION>
+            <BAND_NAME>sr_9_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>23</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 9</BAND_DESCRIPTION>
+            <BAND_NAME>sr_9_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>24</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 10</BAND_DESCRIPTION>
+            <BAND_NAME>sr_10_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>25</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 10</BAND_DESCRIPTION>
+            <BAND_NAME>sr_10_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>26</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 12</BAND_DESCRIPTION>
+            <BAND_NAME>sr_12_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>27</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 12</BAND_DESCRIPTION>
+            <BAND_NAME>sr_12_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>28</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 13</BAND_DESCRIPTION>
+            <BAND_NAME>sr_13_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>29</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 13</BAND_DESCRIPTION>
+            <BAND_NAME>sr_13_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>30</BAND_INDEX>
+            <BAND_DESCRIPTION>normalised (averaged) surface reflectance of channel 14</BAND_DESCRIPTION>
+            <BAND_NAME>sr_14_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>31</BAND_INDEX>
+            <BAND_DESCRIPTION>uncertainty of normalised surface reflectance of channel 14</BAND_DESCRIPTION>
+            <BAND_NAME>sr_14_uncertainty</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>32</BAND_INDEX>
+            <BAND_DESCRIPTION>mean of vegetation index</BAND_DESCRIPTION>
+            <BAND_NAME>vegetation_index_mean</BAND_NAME>
+            <BAND_RASTER_WIDTH>5</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>5</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>0.002777777889690643,0.0,0.0,-0.002777778154747429,8.036111371128873,35.62777752370023</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+    </Image_Interpretation>
+    <Dataset_Sources>
+        <MDElem name="metadata">
+            <MDElem name="Global_Attributes">
+                <MDATTR name="title" type="ascii">ESA CCI land cover surface reflectance 7 day composite</MDATTR>
+                <MDATTR name="summary" type="ascii">This dataset contains a tile of a Level-3 7-day global surface reflectance composite from satellite observations placed onto a regular grid.</MDATTR>
+                <MDATTR name="project" type="ascii">Climate Change Initiative - European Space Agency</MDATTR>
+                <MDATTR name="references" type="ascii">http://www.esa-landcover-cci.org/</MDATTR>
+                <MDATTR name="institution" type="ascii">Brockmann Consult GmbH</MDATTR>
+                <MDATTR name="contact" type="ascii">info@brockmann-consult.de</MDATTR>
+                <MDATTR name="source" type="ascii">MERIS FR L1B r02</MDATTR>
+                <MDATTR name="history" type="ascii">amorgos-4,0, lc-sdr-2.0, lc-sr-2.0</MDATTR>
+                <MDATTR name="Conventions" type="ascii">CF-1.6</MDATTR>
+                <MDATTR name="standard_name_vocabulary" type="ascii">NetCDF Climate and Forecast (CF) Standard Names version 18</MDATTR>
+                <MDATTR name="keywords" type="ascii">satellite,observation,reflectance</MDATTR>
+                <MDATTR name="keywords_vocabulary" type="ascii">NASA Global Change Master Directory (GCMD) Science Keywords</MDATTR>
+                <MDATTR name="license" type="ascii">ESA CCI Data Policy: free and open access</MDATTR>
+                <MDATTR name="naming_authority" type="ascii">org.esa-cci</MDATTR>
+                <MDATTR name="cdm_data_type" type="ascii">grid</MDATTR>
+                <MDATTR name="platform" type="ascii">ENVISAT</MDATTR>
+                <MDATTR name="sensor" type="ascii">MERIS</MDATTR>
+                <MDATTR name="type" type="ascii">SR-300m-7d</MDATTR>
+                <MDATTR name="id" type="ascii">ESACCI-LC-L3-SR-MERIS-300m-P7D-h37v10-20090730-v1.0</MDATTR>
+                <MDATTR name="tracking_id" type="ascii">92dc4a78-30d1-4d41-9151-7fab0835376b</MDATTR>
+                <MDATTR name="tile" type="ascii">h37v10</MDATTR>
+                <MDATTR name="product_version" type="ascii">1.0</MDATTR>
+                <MDATTR name="date_created" type="ascii">20130514T013430Z</MDATTR>
+                <MDATTR name="creator_name" type="ascii">Brockmann Consult</MDATTR>
+                <MDATTR name="creator_url" type="ascii">http://www.brockmann-consult.de/</MDATTR>
+                <MDATTR name="creator_email" type="ascii">info@brockmann-consult.de</MDATTR>
+                <MDATTR name="time_coverage_start" type="ascii">20090730T000000Z</MDATTR>
+                <MDATTR name="time_coverage_end" type="ascii">20090806T000000Z</MDATTR>
+                <MDATTR name="time_coverage_duration" type="ascii">P7D</MDATTR>
+                <MDATTR name="time_coverage_resolution" type="ascii">P7D</MDATTR>
+                <MDATTR name="geospatial_lat_min" type="ascii">35.0</MDATTR>
+                <MDATTR name="geospatial_lat_max" type="ascii">40.0</MDATTR>
+                <MDATTR name="geospatial_lon_min" type="ascii">5.0</MDATTR>
+                <MDATTR name="geospatial_lon_max" type="ascii">10.0</MDATTR>
+                <MDATTR name="spatial_resolution" type="ascii">300m</MDATTR>
+                <MDATTR name="geospatial_lat_units" type="ascii">degrees_north</MDATTR>
+                <MDATTR name="geospatial_lat_resolution" type="ascii">0.002778</MDATTR>
+                <MDATTR name="geospatial_lon_units" type="ascii">degrees_east</MDATTR>
+                <MDATTR name="geospatial_lon_resolution" type="ascii">0.002778</MDATTR>
+                <MDATTR name="TileSize" type="ascii">600:600</MDATTR>
+            </MDElem>
+            <MDElem name="Variable_Attributes">
+                <MDElem name="current_pixel_state">
+                    <MDATTR name="long_name" type="ascii">LC pixel type mask</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance status_flag</MDATTR>
+                    <MDATTR name="flag_values" type="int8" elems="6">0,1,2,3,4,5</MDATTR>
+                    <MDATTR name="flag_meanings" type="ascii">invalid clear_land clear_water clear_snow_ice cloud cloud_shadow</MDATTR>
+                    <MDATTR name="valid_min" type="int32">0</MDATTR>
+                    <MDATTR name="valid_max" type="int32">5</MDATTR>
+                    <MDATTR name="_FillValue" type="int8">-1</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="clear_land_count">
+                    <MDATTR name="long_name" type="ascii">number of clear_land observations</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance number_of_observations</MDATTR>
+                    <MDATTR name="valid_min" type="int32">0</MDATTR>
+                    <MDATTR name="valid_max" type="int32">150</MDATTR>
+                    <MDATTR name="_FillValue" type="int16">-1</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="clear_water_count">
+                    <MDATTR name="long_name" type="ascii">number of clear_water observations</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance number_of_observations</MDATTR>
+                    <MDATTR name="valid_min" type="int32">0</MDATTR>
+                    <MDATTR name="valid_max" type="int32">150</MDATTR>
+                    <MDATTR name="_FillValue" type="int16">-1</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="clear_snow_ice_count">
+                    <MDATTR name="long_name" type="ascii">number of clear_snow_ice observations</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance number_of_observations</MDATTR>
+                    <MDATTR name="valid_min" type="int32">0</MDATTR>
+                    <MDATTR name="valid_max" type="int32">150</MDATTR>
+                    <MDATTR name="_FillValue" type="int16">-1</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="cloud_count">
+                    <MDATTR name="long_name" type="ascii">number of cloud observations</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance number_of_observations</MDATTR>
+                    <MDATTR name="valid_min" type="int32">0</MDATTR>
+                    <MDATTR name="valid_max" type="int32">150</MDATTR>
+                    <MDATTR name="_FillValue" type="int16">-1</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="cloud_shadow_count">
+                    <MDATTR name="long_name" type="ascii">number of cloud_shadow observations</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance number_of_observations</MDATTR>
+                    <MDATTR name="valid_min" type="int32">0</MDATTR>
+                    <MDATTR name="valid_max" type="int32">150</MDATTR>
+                    <MDATTR name="_FillValue" type="int16">-1</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_1_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 1</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">412.691</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_1_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_1_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 1</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">412.691</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_2_mean">
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">442.55902</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_2_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 2</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_2_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 2</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">442.55902</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_3_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 3</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">489.88202</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_3_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_3_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 3</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">489.88202</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_4_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 4</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">509.81903</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_4_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_4_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 4</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">509.81903</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_5_mean">
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">559.69403</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_5_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 5</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_5_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 5</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">559.69403</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_6_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 6</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">619.601</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_6_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_6_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 6</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">619.601</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_7_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 7</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">664.57306</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_7_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_7_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 7</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">664.57306</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_8_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 8</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">680.82104</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_8_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_8_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 8</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">680.82104</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_9_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 9</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">708.32904</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_9_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_9_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 9</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">708.32904</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_10_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 10</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">753.37103</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_10_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_10_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 10</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">753.37103</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_12_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 12</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">778.40906</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_12_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_12_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 12</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">778.40906</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_13_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 13</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">864.87604</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_13_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_13_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 13</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="wavelength" type="float32">864.87604</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_14_mean">
+                    <MDATTR name="long_name" type="ascii">normalised (averaged) surface reflectance of channel 14</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance</MDATTR>
+                    <MDATTR name="wavelength" type="float32">884.94403</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">sr_14_uncertainty current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="sr_14_uncertainty">
+                    <MDATTR name="long_name" type="ascii">uncertainty of normalised surface reflectance of channel 14</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">surface_bidirectional_reflectance standard_error</MDATTR>
+                    <MDATTR name="wavelength" type="float32">884.94403</MDATTR>
+                    <MDATTR name="valid_min" type="float32">0.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="vegetation_index_mean">
+                    <MDATTR name="long_name" type="ascii">mean of vegetation index</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">normalized_difference_vegetation_index</MDATTR>
+                    <MDATTR name="valid_min" type="float32">-1.0</MDATTR>
+                    <MDATTR name="valid_max" type="float32">1.0</MDATTR>
+                    <MDATTR name="_FillValue" type="float32">NaN</MDATTR>
+                    <MDATTR name="ancillary_variables" type="ascii">current_pixel_state clear_land_count clear_water_count clear_snow_ice_count cloud_count cloud_shadow_count</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32" elems="2">600,600</MDATTR>
+                </MDElem>
+                <MDElem name="lat">
+                    <MDATTR name="units" type="ascii">degrees_north</MDATTR>
+                    <MDATTR name="long_name" type="ascii">latitude</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">latitude</MDATTR>
+                    <MDATTR name="valid_min" type="float32">35.00139</MDATTR>
+                    <MDATTR name="valid_max" type="float32">39.99861</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32">1800</MDATTR>
+                    <MDElem name="Values" desc="Showing 100 of 1800 values.">
+                        <MDATTR name="data" type="float32" elems="100">39.99861,39.995834,39.993057,39.990276,39.9875,39.984722,39.981945,39.979168,39.976387,39.97361,39.970833,39.968056,39.96528,39.9625,39.95972,39.956944,39.954166,39.95139,39.948612,39.945835,39.943054,39.940277,39.9375,39.934723,39.931946,39.929165,39.926388,39.92361,39.920834,39.918056,39.91528,39.9125,39.90972,39.906944,39.904167,39.90139,39.898613,39.895832,39.893055,39.890278,39.8875,39.884724,39.881943,39.879166,39.87639,39.87361,39.870834,39.868057,39.865276,39.8625,39.859722,39.856945,39.854168,39.851387,39.84861,39.845833,39.843056,39.84028,39.8375,39.83472,39.831944,39.829166,39.82639,39.823612,39.820835,39.818054,39.815277,39.8125,39.809723,39.806946,39.804165,39.801388,39.79861,39.795834,39.793056,39.79028,39.7875,39.78472,39.781944,39.779167,39.77639,39.773613,39.770832,39.768055,39.765278,39.7625,39.759724,39.756943,39.754166,39.75139,39.74861,39.745834,39.743057,39.740276,39.7375,39.734722,39.731945,39.729168,39.726387,39.72361</MDATTR>
+                    </MDElem>
+                </MDElem>
+                <MDElem name="lon">
+                    <MDATTR name="units" type="ascii">degrees_east</MDATTR>
+                    <MDATTR name="long_name" type="ascii">longitude</MDATTR>
+                    <MDATTR name="standard_name" type="ascii">longitude</MDATTR>
+                    <MDATTR name="valid_min" type="float32">5.001389</MDATTR>
+                    <MDATTR name="valid_max" type="float32">9.998611</MDATTR>
+                    <MDATTR name="_ChunkSize" type="int32">1800</MDATTR>
+                    <MDElem name="Values" desc="Showing 100 of 1800 values.">
+                        <MDATTR name="data" type="float32" elems="100">5.001389,5.0041666,5.0069447,5.009722,5.0125,5.015278,5.0180554,5.0208335,5.023611,5.026389,5.0291667,5.0319443,5.0347223,5.0375,5.040278,5.0430555,5.045833,5.048611,5.0513887,5.054167,5.0569444,5.0597224,5.0625,5.0652776,5.0680556,5.070833,5.0736113,5.076389,5.079167,5.0819445,5.084722,5.0875,5.0902777,5.0930557,5.0958333,5.098611,5.101389,5.1041665,5.1069446,5.109722,5.1125,5.115278,5.1180553,5.1208334,5.123611,5.126389,5.1291666,5.1319447,5.134722,5.1375,5.140278,5.1430554,5.1458335,5.148611,5.151389,5.1541667,5.1569443,5.1597223,5.1625,5.165278,5.1680555,5.170833,5.173611,5.1763887,5.179167,5.1819444,5.1847224,5.1875,5.1902776,5.1930556,5.195833,5.1986113,5.201389,5.204167,5.2069445,5.209722,5.2125,5.2152777,5.2180557,5.2208333,5.223611,5.226389,5.2291665,5.2319446,5.234722,5.2375,5.240278,5.2430553,5.2458334,5.248611,5.251389,5.2541666,5.2569447,5.259722,5.2625,5.265278,5.2680554,5.2708335,5.273611,5.276389</MDATTR>
+                    </MDElem>
+                </MDElem>
+                <MDElem name="crs">
+                    <MDATTR name="wkt" type="ascii">GEOGCS["WGS84(DD)", 
+  DATUM["WGS84", 
+    SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+  PRIMEM["Greenwich", 0.0], 
+  UNIT["degree", 0.017453292519943295], 
+  AXIS["Geodetic longitude", EAST], 
+  AXIS["Geodetic latitude", NORTH]]</MDATTR>
+                    <MDATTR name="i2m" type="ascii">0.002777777777777778,0.0,0.0,-0.002777777777777778,5.0,40.0</MDATTR>
+                </MDElem>
+            </MDElem>
+            <MDElem name="history">
+                <MDElem name="SubsetInfo">
+                    <MDATTR name="SourceProduct.name" type="ascii">ESACCI-LC-L3-SR-MERIS-300m-P7D-h37v10-20090730-v1.0</MDATTR>
+                    <MDATTR name="SubSampling.x" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubSampling.y" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubRegion.x" type="int32" mode="rw">1093</MDATTR>
+                    <MDATTR name="SubRegion.y" type="int32" mode="rw">1574</MDATTR>
+                    <MDATTR name="SubRegion.width" type="int32" mode="rw">5</MDATTR>
+                    <MDATTR name="SubRegion.height" type="int32" mode="rw">5</MDATTR>
+                    <MDATTR name="ProductNodeName.1" type="ascii">current_pixel_state</MDATTR>
+                    <MDATTR name="ProductNodeName.2" type="ascii">clear_land_count</MDATTR>
+                    <MDATTR name="ProductNodeName.3" type="ascii">clear_water_count</MDATTR>
+                    <MDATTR name="ProductNodeName.4" type="ascii">clear_snow_ice_count</MDATTR>
+                    <MDATTR name="ProductNodeName.5" type="ascii">cloud_count</MDATTR>
+                    <MDATTR name="ProductNodeName.6" type="ascii">cloud_shadow_count</MDATTR>
+                    <MDATTR name="ProductNodeName.7" type="ascii">sr_1_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.8" type="ascii">sr_1_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.9" type="ascii">sr_2_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.10" type="ascii">sr_2_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.11" type="ascii">sr_3_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.12" type="ascii">sr_3_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.13" type="ascii">sr_4_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.14" type="ascii">sr_4_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.15" type="ascii">sr_5_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.16" type="ascii">sr_5_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.17" type="ascii">sr_6_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.18" type="ascii">sr_6_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.19" type="ascii">sr_7_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.20" type="ascii">sr_7_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.21" type="ascii">sr_8_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.22" type="ascii">sr_8_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.23" type="ascii">sr_9_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.24" type="ascii">sr_9_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.25" type="ascii">sr_10_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.26" type="ascii">sr_10_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.27" type="ascii">sr_12_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.28" type="ascii">sr_12_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.29" type="ascii">sr_13_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.30" type="ascii">sr_13_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.31" type="ascii">sr_14_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.32" type="ascii">sr_14_uncertainty</MDATTR>
+                    <MDATTR name="ProductNodeName.33" type="ascii">vegetation_index_mean</MDATTR>
+                    <MDATTR name="ProductNodeName.34" type="ascii">Global_Attributes</MDATTR>
+                    <MDATTR name="ProductNodeName.35" type="ascii">Variable_Attributes</MDATTR>
+                </MDElem>
+            </MDElem>
+        </MDElem>
+    </Dataset_Sources>
+</Dimap_Document>

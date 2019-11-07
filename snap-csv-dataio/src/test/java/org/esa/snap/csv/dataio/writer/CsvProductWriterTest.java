@@ -26,10 +26,9 @@ import org.junit.Test;
 
 import java.io.StringWriter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author Olaf Danne
  * @author Thomas Storm
  */
@@ -43,18 +42,19 @@ public class CsvProductWriterTest {
     public void setUp() throws Exception {
         result = new StringWriter();
 
-        final CsvProductWriterPlugIn plugIn = new CsvProductWriterPlugIn(result, CsvProductWriter.WRITE_FEATURES |
-                                                                                 CsvProductWriter.WRITE_PROPERTIES);
-        writer = plugIn.createWriterInstance();
         product = new Product("testProduct", "testType", 2, 3);
         fillBandDataFloat(product.addBand("radiance_1", ProductData.TYPE_FLOAT32), 0);
         fillBandDataFloat(product.addBand("radiance_2", ProductData.TYPE_FLOAT64), 10);
         fillBandDataInt(product.addBand("radiance_3", ProductData.TYPE_INT32), 100);
+
+        final CsvProductWriterPlugIn plugIn = new CsvProductWriterPlugIn(result, CsvProductWriter.WRITE_FEATURES |
+                CsvProductWriter.WRITE_PROPERTIES);
+        writer = plugIn.createWriterInstance();
         writer.writeProductNodes(product, "");
     }
 
     @Test
-    public void testWriteHeader() throws Exception {
+    public void testWriteHeader() {
         StringWriter expected = getExpectedHeader();
         assertEquals(expected.toString(), result.toString().trim());
     }
@@ -84,8 +84,8 @@ public class CsvProductWriterTest {
         final ProductData data = band.createCompatibleProductData(product.getSceneRasterWidth() * product.getSceneRasterHeight());
         int value = startValue;
         int dataIndex = 0;
-        for(int i = 0; i < product.getSceneRasterWidth(); i++) {
-            for(int j = 0; j < product.getSceneRasterHeight(); j++) {
+        for (int i = 0; i < product.getSceneRasterWidth(); i++) {
+            for (int j = 0; j < product.getSceneRasterHeight(); j++) {
                 data.setElemIntAt(dataIndex++, value++);
             }
         }
@@ -96,8 +96,8 @@ public class CsvProductWriterTest {
         final ProductData data = band.createCompatibleProductData(product.getSceneRasterWidth() * product.getSceneRasterHeight());
         int value = startValue;
         int dataIndex = 0;
-        for(int i = 0; i < product.getSceneRasterWidth(); i++) {
-            for(int j = 0; j < product.getSceneRasterHeight(); j++) {
+        for (int i = 0; i < product.getSceneRasterWidth(); i++) {
+            for (int j = 0; j < product.getSceneRasterHeight(); j++) {
                 data.setElemFloatAt(dataIndex++, value++);
             }
         }
