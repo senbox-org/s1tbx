@@ -26,7 +26,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -37,6 +36,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * The product reader for SeaSat products.
@@ -87,15 +87,15 @@ public class SeaSatProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            dataDir = createDirectory(fileFromInput);
+            final Path inputPath = getPathFromInput(getInput());
+            dataDir = createDirectory(inputPath.toFile());
             dataDir.readProductDirectory();
             final Product product = dataDir.createProduct();
 
             final MetadataElement absMeta = AbstractMetadata.getAbstractedMetadata(product);
 
             product.getGcpGroup();
-            product.setFileLocation(fileFromInput);
+            product.setFileLocation(inputPath.toFile());
             product.setProductReader(this);
 
             setQuicklookBandName(product);

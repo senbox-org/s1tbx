@@ -23,6 +23,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -38,15 +39,15 @@ public class SeaSatProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            final String filename = file.getName().toUpperCase();
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            final String filename = path.getFileName().toString().toUpperCase();
             if (filename.startsWith(SeaSatConstants.PRODUCT_HEADER_PREFIX)) {
                 if (filename.endsWith(SeaSatConstants.getIndicationKey()) && !filename.endsWith(".ISO.XML")) {
                     return DecodeQualification.INTENDED;
                 }
                 if (filename.endsWith(".ZIP") &&
-                        ZipUtils.findInZip(file, SeaSatConstants.PRODUCT_HEADER_PREFIX, SeaSatConstants.getIndicationKey())) {
+                        ZipUtils.findInZip(path.toFile(), SeaSatConstants.PRODUCT_HEADER_PREFIX, SeaSatConstants.getIndicationKey())) {
                     return DecodeQualification.INTENDED;
                 }
             }

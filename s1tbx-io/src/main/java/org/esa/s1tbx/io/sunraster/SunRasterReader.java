@@ -16,23 +16,22 @@
 package org.esa.s1tbx.io.sunraster;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 
 /**
  * Reader for sun raster files
  */
-public class SunRasterReader extends AbstractProductReader {
+public class SunRasterReader extends SARReader {
 
     private ImageInputStream inStream;
     private int width, height, depth;
@@ -46,16 +45,16 @@ public class SunRasterReader extends AbstractProductReader {
     }
 
     protected Product readProductNodesImpl() throws IOException {
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
-        inStream = new FileImageInputStream(inputFile);
+        final Path inputPath = getPathFromInput(getInput());
+        inStream = new FileImageInputStream(inputPath.toFile());
         inStream.setByteOrder(ByteOrder.LITTLE_ENDIAN);
 
         readHeader();
 
-        final Product product = new Product(inputFile.getName(), "SunRaster",
+        final Product product = new Product(inputPath.getFileName().toString(), "SunRaster",
                 width, height);
         product.setProductReader(this);
-        product.setFileLocation(inputFile);
+        product.setFileLocation(inputPath.toFile());
 
         final Band band = new Band("data", ProductData.TYPE_FLOAT32, width, height);
         band.setUnit(Unit.AMPLITUDE);

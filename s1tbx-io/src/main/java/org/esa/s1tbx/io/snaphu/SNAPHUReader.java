@@ -30,6 +30,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Created by lveci on 17/12/2014.
@@ -45,7 +46,8 @@ public class SNAPHUReader extends EnviProductReader {
     }
 
     protected Product readProductNodesImpl() throws IOException {
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+        final File inputFile = inputPath.toFile();
 
         try (BufferedReader headerReader = getHeaderReader(inputFile)) {
             header = new Header(headerReader);
