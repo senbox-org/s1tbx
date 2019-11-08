@@ -41,6 +41,7 @@ import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
@@ -93,11 +94,11 @@ public class TerraSarXProductReader extends SARReader {
 
         Product product = null;
         try {
-            final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            dataDir = createProductDirectory(fileFromInput);
+            final Path inputPath = getPathFromInput(getInput());
+            dataDir = createProductDirectory(inputPath.toFile());
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
-            product.setFileLocation(fileFromInput);
+            product.setFileLocation(inputPath.toFile());
             product.setProductReader(this);
             addCommonSARMetadata(product);
 

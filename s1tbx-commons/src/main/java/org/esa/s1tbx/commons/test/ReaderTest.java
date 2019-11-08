@@ -10,6 +10,8 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ReaderTest {
 
@@ -27,10 +29,12 @@ public class ReaderTest {
         this.reader = readerPlugIn.createReaderInstance();
     }
 
+    @Deprecated
     protected Product testReader(final File inputFile) throws Exception {
         return testReader(inputFile, readerPlugIn);
     }
 
+    @Deprecated
     protected Product testReader(final File inputFile, final ProductReaderPlugIn readerPlugIn) throws Exception {
         if(!inputFile.exists()){
             TestUtils.skipTest(this, inputFile +" not found");
@@ -44,6 +48,33 @@ public class ReaderTest {
 
         final ProductReader reader = readerPlugIn.createReaderInstance();
         final Product product = reader.readProductNodes(inputFile, null);
+        if(product == null) {
+            throw new Exception("Unable to read product");
+        }
+
+        TestUtils.verifyProduct(product, verifyTime, verifyGeocoding);
+        validateMetadata(product);
+
+        return product;
+    }
+
+    protected Product testReader(final Path inputPath) throws Exception {
+        return testReader(inputPath, readerPlugIn);
+    }
+
+    protected Product testReader(final Path inputPath, final ProductReaderPlugIn readerPlugIn) throws Exception {
+        if(!Files.exists(inputPath)){
+            TestUtils.skipTest(this, inputPath +" not found");
+            return null;
+        }
+
+        final DecodeQualification canRead = readerPlugIn.getDecodeQualification(inputPath);
+        if(canRead != DecodeQualification.INTENDED) {
+            throw new Exception("Reader not intended");
+        }
+
+        final ProductReader reader = readerPlugIn.createReaderInstance();
+        final Product product = reader.readProductNodes(inputPath, null);
         if(product == null) {
             throw new Exception("Unable to read product");
         }

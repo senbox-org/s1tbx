@@ -36,7 +36,7 @@ public class TestPCIReader extends ReaderTest {
 
     @Before
     public void setup() {
-        assumeTrue(file.exists());
+        assumeTrue(file + " not found", file.exists());
     }
 
     public TestPCIReader() {
@@ -46,6 +46,6 @@ public class TestPCIReader extends ReaderTest {
     @Test
     public void testOpeningFile() throws Exception {
         verifyTime = false;
-        testReader(file);
+        testReader(file.toPath());
     }
 }

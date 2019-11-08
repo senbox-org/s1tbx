@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -32,7 +33,7 @@ public class PCIReaderPlugIn implements ProductReaderPlugIn {
     private final static String[] FORMAT_NAMES = {"PCIDSK"};
     private final static String[] FORMAT_FILE_EXTENSIONS = {"pix"};
     private final static String PLUGIN_DESCRIPTION = "PCIDSK Databases";
-    private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
+    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -43,9 +44,9 @@ public class PCIReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
 
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null && file.isFile()) {
-            final String name = file.getName().toLowerCase();
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            final String name = path.getFileName().toString().toLowerCase();
             for (String ext : FORMAT_FILE_EXTENSIONS) {
                 if (name.endsWith(ext)) {
                     return DecodeQualification.INTENDED;
@@ -131,7 +132,13 @@ public class PCIReaderPlugIn implements ProductReaderPlugIn {
          */
         @Override
         public boolean accept(final File file) {
-            return super.accept(file);
+            final String name = file.getName().toLowerCase();
+            for (String ext : FORMAT_FILE_EXTENSIONS) {
+                if (name.endsWith(ext)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Skywatch. https://www.skywatch.co
+ * Copyright (C) 2019 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -37,13 +38,13 @@ public class PazProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file == null) {
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path == null) {
             return DecodeQualification.UNABLE;
         }
-        final String filename = file.getName().toUpperCase();
-        for (String header : PazConstants.HEADER_PREFIX) {
-            if (filename.startsWith(header) && filename.endsWith(".XML")) {
+        final String filename = path.getFileName().toString().toUpperCase();
+        for (String prefix : PazConstants.HEADER_PREFIX) {
+            if (filename.startsWith(prefix) && filename.toLowerCase().endsWith(PazConstants.METADATA_EXT)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -133,8 +134,9 @@ public class PazProductReaderPlugIn implements ProductReaderPlugIn {
                 if (file.isDirectory())
                     return true;
                 for (String header : PazConstants.HEADER_PREFIX) {
-                    if (name.startsWith(header))
+                    if (name.startsWith(header) && name.toLowerCase().endsWith(PazConstants.METADATA_EXT)) {
                         return true;
+                    }
                 }
             }
             return false;

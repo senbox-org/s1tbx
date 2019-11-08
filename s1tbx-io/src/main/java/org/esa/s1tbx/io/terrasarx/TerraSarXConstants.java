@@ -16,27 +16,20 @@
 package org.esa.s1tbx.io.terrasarx;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * Several constants used for reading TerraSarX products.
  */
 class TerraSarXConstants {
 
+    final static String METADATA_EXT = ".xml";
     private final static String[] FORMAT_NAMES = new String[]{"TerraSarX"};
-    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"xml"};
+    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{METADATA_EXT};
     private final static String PLUGIN_DESCRIPTION = "TerraSarX Products";      /*I18N*/
-    final static String PRODUCT_TYPE_PREFIX = "";
     final static String[] HEADER_PREFIX = {"TSX1", "TSX2", "TDX1", "TDX2", "TDM1", "TDM2"};
 
-    final static String PRODUCT_DESCRIPTION_PREFIX = "TerraSarX product ";
-
-    private final static String INDICATION_KEY = "XML";
-
-    final static Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
-
-    public static String getIndicationKey() {
-        return INDICATION_KEY;
-    }
+    final static Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     public static String getPluginDescription() {
         return PLUGIN_DESCRIPTION;
