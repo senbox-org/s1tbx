@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Skywatch. https://www.skywatch.co
+ * Copyright (C) 2019 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,7 +22,7 @@ import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import java.io.File;
 
 /**
- * The product reader for TerraSarX products.
+ * The product reader for PAZ products.
  */
 public class PazProductReader extends TerraSarXProductReader {
 

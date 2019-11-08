@@ -15,8 +15,9 @@
  */
 package org.esa.s1tbx.io.TAXI;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.TestData;
-import org.esa.snap.engine_utilities.util.TestUtils;
+import org.esa.s1tbx.io.terrasarx.TerraSarXProductReaderPlugIn;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ import static org.junit.Assume.assumeTrue;
 /**
  * Created by lveci on 17/12/2014.
  */
-public class TestTaxiParameterFileReader {
+public class TestTaxiParameterFileReader extends ReaderTest {
 
     public final static File inputParameterFile = new File(TestData.inputSAR+"TAXI"+File.separator+"pp_m20140809_s20140821_s1a-slc-vv_SS1_with_comments.xml");
 
@@ -37,12 +38,13 @@ public class TestTaxiParameterFileReader {
         assumeTrue(inputParameterFile + "not found", inputParameterFile.exists());
     }
 
+    public TestTaxiParameterFileReader() {
+        super(new TerraSarXProductReaderPlugIn());
+    }
+
     @Test
     public void testOpen() throws Exception {
-        final File inputFile = inputParameterFile;
-
-        final TAXIParameterFileReader reader = new TAXIParameterFileReader(inputFile);
+        final TAXIParameterFileReader reader = new TAXIParameterFileReader(inputParameterFile);
         reader.readParameterFile();
-
     }
 }

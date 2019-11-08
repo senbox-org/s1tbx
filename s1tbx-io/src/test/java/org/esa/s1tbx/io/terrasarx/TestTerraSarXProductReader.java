@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.terrasarx;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
@@ -30,11 +31,9 @@ import static org.junit.Assume.assumeTrue;
  *
  * @author lveci
  */
-public class TestTerraSarXProductReader {
+public class TestTerraSarXProductReader extends ReaderTest {
 
-    private TerraSarXProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
-
+    private final static File metadataFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR\\TerraSAR-X\\Oslo_StaringSpotlight\\TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446\\TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446.xml");
     private final static String inputTerraSarX = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "TerraSAR-X" + S1TBXTests.sep ;
     private final static File[] rootPathsTerraSarX = S1TBXTests.loadFilePath(inputTerraSarX);
 
@@ -47,8 +46,12 @@ public class TestTerraSarXProductReader {
     }
 
     public TestTerraSarXProductReader() {
-        readerPlugin = new TerraSarXProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new TerraSarXProductReaderPlugIn());
+    }
+
+    @Test
+    public void testOpenMetadata() throws Exception {
+        testReader(metadataFile.toPath());
     }
 
     /**
@@ -59,6 +62,6 @@ public class TestTerraSarXProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, rootPathsTerraSarX, readerPlugin, reader, null, null);
+        testProcessor.recurseReadFolder(this, rootPathsTerraSarX, readerPlugIn, reader, null, null);
     }
 }

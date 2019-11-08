@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.pcidsk;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
@@ -29,8 +30,8 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -38,7 +39,7 @@ import java.util.StringTokenizer;
 /**
  * The product reader for PCIDSK products.
  */
-public class PCIReader extends AbstractProductReader {
+public class PCIReader extends SARReader {
 
     private int numBands = 1;
 
@@ -93,9 +94,9 @@ public class PCIReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = getPathFromInput(getInput());
 
-        imageInputStream = FileImageInputStreamExtImpl.createInputStream(inputFile);
+        imageInputStream = FileImageInputStreamExtImpl.createInputStream(inputPath.toFile());
         final BinaryFileReader binaryReader = new BinaryFileReader(imageInputStream);
         final BinaryRecord fileHeaderRecord = new BinaryRecord(binaryReader, -1, fileHeaderXML, "fileHeader.xml");
 
@@ -128,7 +129,7 @@ public class PCIReader extends AbstractProductReader {
             imgHdrList[i] = new BinaryRecord(binaryReader, -1, imageHeaderXML, "imageHeader.xml");
         }
 
-        final Product product = new Product(inputFile.getName(),
+        final Product product = new Product(inputPath.getFileName().toString(),
                 "PCIDSK",
                 (int) rasterWidth, (int) rasterHeight);
 
@@ -181,7 +182,7 @@ public class PCIReader extends AbstractProductReader {
 
         product.setProductReader(this);
         product.setModified(false);
-        product.setFileLocation(inputFile);
+        product.setFileLocation(inputPath.toFile());
 
         return product;
     }

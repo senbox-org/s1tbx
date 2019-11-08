@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -37,13 +38,13 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file == null) {
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path == null) {
             return DecodeQualification.UNABLE;
         }
-        final String filename = file.getName().toUpperCase();
-        for (String header : TerraSarXConstants.HEADER_PREFIX) {
-            if (filename.startsWith(header) && filename.endsWith(".XML")) {
+        final String filename = path.getFileName().toString().toUpperCase();
+        for (String prefix : TerraSarXConstants.HEADER_PREFIX) {
+            if (filename.startsWith(prefix) && filename.toLowerCase().endsWith(TerraSarXConstants.METADATA_EXT)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -133,12 +134,12 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
                 if (file.isDirectory())
                     return true;
                 for (String header : TerraSarXConstants.HEADER_PREFIX) {
-                    if (name.startsWith(header))
+                    if (name.startsWith(header) && name.toLowerCase().endsWith(TerraSarXConstants.METADATA_EXT)) {
                         return true;
+                    }
                 }
             }
             return false;
         }
-
     }
 }

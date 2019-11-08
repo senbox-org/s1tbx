@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Skywatch. https://www.skywatch.co
+ * Copyright (C) 2019 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,27 +16,20 @@
 package org.esa.s1tbx.io.paz;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
- * Several constants used for reading TerraSarX products.
+ * Several constants used for reading PAZ products.
  */
 class PazConstants {
 
+    final static String METADATA_EXT = ".xml";
     private final static String[] FORMAT_NAMES = new String[]{"PAZ"};
-    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"xml"};
-    private final static String PLUGIN_DESCRIPTION = "Paz Products";
-    final static String PRODUCT_TYPE_PREFIX = "";
+    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{METADATA_EXT};
+    private final static String PLUGIN_DESCRIPTION = "PAZ Products";
     final static String[] HEADER_PREFIX = {"PAZ"};
 
-    final static String PRODUCT_DESCRIPTION_PREFIX = "Paz product ";
-
-    private final static String INDICATION_KEY = "XML";
-
-    final static Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
-
-    public static String getIndicationKey() {
-        return INDICATION_KEY;
-    }
+    final static Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     public static String getPluginDescription() {
         return PLUGIN_DESCRIPTION;

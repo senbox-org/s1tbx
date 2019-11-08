@@ -28,6 +28,7 @@ import org.esa.snap.engine_utilities.eo.GeoUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
@@ -174,5 +175,23 @@ public abstract class SARReader extends AbstractProductReader {
 
         Arrays.sort(longitudeList);
         return (longitudeList[longitudeList.length-1] - longitudeList[0] > 270.0f);
+    }
+
+    /**
+     * Returns a <code>Path</code> if the given input is a <code>String</code> or <code>File</code>,
+     * otherwise it returns null;
+     *
+     * @param input an input object of unknown type
+     * @return a <code>Path</code> or <code>null</code> it the input can not be resolved to a <code>Path</code>.
+     */
+    public static Path getPathFromInput(final Object input) throws IOException {
+        if (input instanceof String) {
+            return new File((String) input).toPath();
+        } else if (input instanceof File) {
+            return ((File)input).toPath();
+        } else if (input instanceof Path) {
+            return (Path)input;
+        }
+        throw new IOException("Unable to get Path from " + input);
     }
 }

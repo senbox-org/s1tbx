@@ -163,7 +163,7 @@ public class TAXIParameterFileReader {
         return stringToDoubleArray(str, ",");
     }
 
-    public static double[] stringToDoubleArray(final String csvString, final String delim) {
+    private static double[] stringToDoubleArray(final String csvString, final String delim) {
         final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
         final List<String> strList = new ArrayList<>(tokenizer.countTokens());
         while (tokenizer.hasMoreTokens()) {
