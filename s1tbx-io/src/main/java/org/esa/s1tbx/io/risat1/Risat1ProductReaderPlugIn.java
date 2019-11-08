@@ -23,6 +23,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -38,14 +39,14 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            final File metadataFile = findMetadataFile(file);
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            final File metadataFile = findMetadataFile(path.toFile());
             if (metadataFile != null) {
                 return DecodeQualification.INTENDED;
             }
-            final String filename = file.getName().toLowerCase();
-            if (filename.endsWith(".zip") && ZipUtils.findInZip(file, "", Risat1Constants.BAND_HEADER_NAME)) {
+            final String filename = path.getFileName().toString().toLowerCase();
+            if (filename.endsWith(".zip") && ZipUtils.findInZip(path.toFile(), "", Risat1Constants.BAND_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -54,7 +55,7 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    public static File findMetadataFile(final File folder) {
+    private static File findMetadataFile(final File folder) {
         if (folder.isDirectory()) {
             final File[] fileList = folder.listFiles();
             File bandMetaFile = null;

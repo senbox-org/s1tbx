@@ -34,6 +34,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * The product reader for RISAT-1 products.
@@ -94,11 +96,11 @@ public class Risat1ProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            if(fileFromInput.isDirectory()) {
-                fileFromInput = new File(fileFromInput, Risat1Constants.BAND_HEADER_NAME);
+            Path inputPath = getPathFromInput(getInput());
+            if(Files.isDirectory(inputPath)) {
+                inputPath = inputPath.resolve(Risat1Constants.BAND_HEADER_NAME);
             }
-            dataDir = createDirectory(fileFromInput);
+            dataDir = createDirectory(inputPath.toFile());
             dataDir.readProductDirectory();
             final Product product = dataDir.createProduct();
 
@@ -107,7 +109,7 @@ public class Risat1ProductReader extends SARReader {
             isAntennaPointingRight = absMeta.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
 
             product.getGcpGroup();
-            product.setFileLocation(fileFromInput);
+            product.setFileLocation(inputPath.toFile());
             product.setProductReader(this);
 
             setQuicklookBandName(product);
