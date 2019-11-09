@@ -19,7 +19,7 @@ import org.esa.s1tbx.io.ceos.CEOSProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The ReaderPlugIn for ALOS PALSAR CEOS products.
@@ -41,18 +41,17 @@ public class AlosPalsarProductReaderPlugIn extends CEOSProductReaderPlugIn {
     }
 
     @Override
-    protected DecodeQualification checkProductQualification(File file) {
-        final String name = file.getName().toUpperCase();
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String name = path.getFileName().toString().toUpperCase();
         if(name.endsWith(".ZIP") && (name.startsWith("ALPSR") || name.startsWith("ALOS") || name.startsWith("AL1") && !name.startsWith("ALOS2"))) {
             return DecodeQualification.INTENDED;
         }
         for (String prefix : constants.getVolumeFilePrefix()) {
             if (name.startsWith(prefix) && !name.contains("ALOS2")) {
                 final AlosPalsarProductReader reader = new AlosPalsarProductReader(this);
-                return reader.checkProductQualification(file);
+                return reader.checkProductQualification(path);
             }
         }
         return DecodeQualification.UNABLE;
     }
-
 }

@@ -20,6 +20,8 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * The ReaderPlugIn for CosmoSkymed products.
@@ -61,10 +63,10 @@ public class Kompsat5ReaderPlugIn extends NetCDFReaderPlugIn {
     }
 
     @Override
-    protected DecodeQualification checkProductQualification(final File file) {
-        final String fileName = file.getName().toLowerCase();
-        if(file.isDirectory()) {
-            final File metadataFile = findMetadataFile(file);
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String fileName = path.getFileName().toString().toLowerCase();
+        if(Files.isDirectory(path)) {
+            final File metadataFile = findMetadataFile(path.toFile());
             if (metadataFile != null) {
                 return DecodeQualification.INTENDED;
             }

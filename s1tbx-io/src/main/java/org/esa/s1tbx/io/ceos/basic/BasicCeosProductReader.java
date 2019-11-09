@@ -21,7 +21,7 @@ import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The product reader for CEOS products.
@@ -43,14 +43,15 @@ public class BasicCeosProductReader extends CEOSProductReader {
         return new BasicCeosProductDirectory(productDir);
     }
 
-    DecodeQualification checkProductQualification(File file) {
+    DecodeQualification checkProductQualification(final Path path) {
 
         try {
-            dataDir = createProductDirectory(createProductDir(file));
+            dataDir = createProductDirectory(createProductDir(path));
 
             final BasicCeosProductDirectory dataDir = (BasicCeosProductDirectory) this.dataDir;
-            if (dataDir.isCeos())
+            if (dataDir.isCeos()) {
                 return DecodeQualification.SUITABLE;
+            }
             return DecodeQualification.UNABLE;
 
         } catch (Exception e) {

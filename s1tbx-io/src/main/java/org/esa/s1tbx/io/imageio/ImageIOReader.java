@@ -17,7 +17,7 @@ package org.esa.s1tbx.io.imageio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.io.ImageIOFile;
-import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -25,7 +25,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,7 @@ import java.util.Map;
 /**
  * The product reader for ImageIO products.
  */
-public class ImageIOReader extends AbstractProductReader {
+public class ImageIOReader extends SARReader {
 
     private ImageIOFile imgIOFile = null;
     private String productType = "productType";
@@ -62,7 +61,7 @@ public class ImageIOReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final File inputFile = getPathFromInput(getInput()).toFile();
 
         imgIOFile = new ImageIOFile(inputFile, ImageIOFile.getIIOReader(inputFile), inputFile);
 

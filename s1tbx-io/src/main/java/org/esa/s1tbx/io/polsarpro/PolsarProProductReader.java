@@ -36,6 +36,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,8 +51,9 @@ public class PolsarProProductReader extends EnviProductReader {
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
-        final File folder = inputFile.getParentFile();
+        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+        final File inputFile = inputPath.toFile();
+        final File folder = inputPath.getParent().toFile();
         final File[] fileList = folder.listFiles();
 
         if(fileList == null) {

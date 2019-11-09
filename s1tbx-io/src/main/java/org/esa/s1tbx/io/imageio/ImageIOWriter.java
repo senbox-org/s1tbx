@@ -84,7 +84,7 @@ public class ImageIOWriter extends AbstractProductWriter {
     protected void writeProductNodesImpl() throws IOException {
         _outputStream = null;
 
-        file = ReaderUtils.getFileFromInput(getOutput());
+        file = ReaderUtils.getPathFromInput(getOutput()).toFile();
         // ensure extension //todo this should not be done here
         if (!file.getName().toLowerCase().endsWith(format.toLowerCase())) {
             file = new File(file.getAbsolutePath() + '.' + format.toLowerCase());

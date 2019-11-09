@@ -23,6 +23,8 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.ImageIO;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -121,20 +123,20 @@ public class ImageIOReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file == null) {
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path == null) {
             return DecodeQualification.UNABLE;
         }
 
-        final File parentDir = file.getParentFile();
-        if (file.isFile() && parentDir != null && parentDir.isDirectory()) {
-            return checkProductQualification(file);
+        final Path parentDir = path.getParent();
+        if (Files.isDirectory(path) && parentDir != null && Files.isDirectory(parentDir)) {
+            return checkProductQualification(path);
         }
         return DecodeQualification.UNABLE;
     }
 
-    private static DecodeQualification checkProductQualification(File file) {
-        final String fileExt = file.getName().toLowerCase();
+    private static DecodeQualification checkProductQualification(final Path path) {
+        final String fileExt = path.getFileName().toString().toLowerCase();
         for (String ext : FORMAT_FILE_EXTENSIONS) {
             if (!ext.isEmpty() && fileExt.endsWith(ext.toLowerCase())) {
                 if (ext.equalsIgnoreCase("tif") || ext.equalsIgnoreCase("tiff"))

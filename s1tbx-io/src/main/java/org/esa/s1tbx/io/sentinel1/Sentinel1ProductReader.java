@@ -34,6 +34,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * The product reader for Sentinel1 products.
@@ -85,27 +87,27 @@ public class Sentinel1ProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-            if(fileFromInput.isDirectory()) {
-                fileFromInput = new File(fileFromInput, Sentinel1Constants.PRODUCT_HEADER_NAME);
+            Path inputPath = getPathFromInput(getInput());
+            if(Files.isDirectory(inputPath)) {
+                inputPath = inputPath.resolve(Sentinel1Constants.PRODUCT_HEADER_NAME);
             }
-            if(!fileFromInput.exists()) {
-                throw new IOException(fileFromInput.toString() + " not found");
+            if(!Files.exists(inputPath)) {
+                throw new IOException(inputPath.toString() + " not found");
             }
 
-            if (Sentinel1ProductReaderPlugIn.isLevel2(fileFromInput)) {
-                dataDir = new Sentinel1Level2Directory(fileFromInput);
-            } else if (Sentinel1ProductReaderPlugIn.isLevel1(fileFromInput)) {
-                dataDir = new Sentinel1Level1Directory(fileFromInput);
-            } else if (Sentinel1ProductReaderPlugIn.isLevel0(fileFromInput)) {
-                dataDir = new Sentinel1Level0Directory(fileFromInput);
+            if (Sentinel1ProductReaderPlugIn.isLevel2(inputPath)) {
+                dataDir = new Sentinel1Level2Directory(inputPath.toFile());
+            } else if (Sentinel1ProductReaderPlugIn.isLevel1(inputPath)) {
+                dataDir = new Sentinel1Level1Directory(inputPath.toFile());
+            } else if (Sentinel1ProductReaderPlugIn.isLevel0(inputPath)) {
+                dataDir = new Sentinel1Level0Directory(inputPath.toFile());
             }
             if (dataDir == null) {
-                Sentinel1ProductReaderPlugIn.validateInput(fileFromInput);
+                Sentinel1ProductReaderPlugIn.validateInput(inputPath);
             }
             dataDir.readProductDirectory();
             final Product product = dataDir.createProduct();
-            product.setFileLocation(fileFromInput);
+            product.setFileLocation(inputPath.toFile());
             product.setProductReader(this);
             if (dataDir instanceof Sentinel1Level2Directory) {
                 ((Sentinel1Level2Directory) dataDir).addGeoCodingToBands(product);

@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -32,7 +33,7 @@ public class NetCDFReaderPlugIn implements ProductReaderPlugIn {
     protected String[] FORMAT_NAMES = NetcdfConstants.NETCDF_FORMAT_NAMES;
     protected String[] FORMAT_FILE_EXTENSIONS = NetcdfConstants.NETCDF_FORMAT_FILE_EXTENSIONS;
     protected String PLUGIN_DESCRIPTION = NetcdfConstants.NETCDF_PLUGIN_DESCRIPTION;
-    private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
+    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -42,16 +43,16 @@ public class NetCDFReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file == null) {
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path == null) {
             return DecodeQualification.UNABLE;
         }
 
-        return checkProductQualification(file);
+        return checkProductQualification(path);
     }
 
-    protected DecodeQualification checkProductQualification(final File file) {
-        final String fileName = file.getName().toLowerCase();
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String fileName = path.getFileName().toString().toLowerCase();
         for (String ext : FORMAT_FILE_EXTENSIONS) {
             if (!ext.isEmpty() && fileName.endsWith(ext.toLowerCase()))
                 return isIntended(ext);

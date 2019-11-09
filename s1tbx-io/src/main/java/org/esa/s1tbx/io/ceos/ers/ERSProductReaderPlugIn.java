@@ -19,7 +19,7 @@ import org.esa.s1tbx.io.ceos.CEOSProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The ReaderPlugIn for ERS CEOS products.
@@ -41,17 +41,17 @@ public class ERSProductReaderPlugIn extends CEOSProductReaderPlugIn {
     }
 
     @Override
-    protected DecodeQualification checkProductQualification(final File file) {
-        final String name = file.getName().toUpperCase();
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String name = path.getFileName().toString().toUpperCase();
         if (name.startsWith("VDF")) {
             final ERSProductReader reader = new ERSProductReader(this);
-            return reader.checkProductQualification(file);
+            return reader.checkProductQualification(path);
         }
         if(name.endsWith(".ZIP")) {
             if(name.startsWith("ER01") || name.startsWith("ER02") || name.startsWith("E1_") || name.startsWith("E2_")
                     || name.startsWith("SAR_")) {
                 final ERSProductReader reader = new ERSProductReader(this);
-                return reader.checkProductQualification(file);
+                return reader.checkProductQualification(path);
             }
         }
         return DecodeQualification.UNABLE;

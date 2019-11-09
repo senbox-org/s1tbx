@@ -21,7 +21,7 @@ import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The product reader for ERS products.
@@ -43,14 +43,15 @@ public class ERSProductReader extends CEOSProductReader {
         return new ERSProductDirectory(productDir);
     }
 
-    DecodeQualification checkProductQualification(File file) {
+    DecodeQualification checkProductQualification(final Path path) {
 
         try {
-            dataDir = createProductDirectory(createProductDir(file));
+            dataDir = createProductDirectory(createProductDir(path));
 
             final ERSProductDirectory ersDataDir = (ERSProductDirectory) dataDir;
-            if (ersDataDir.isERS())
+            if (ersDataDir.isERS()) {
                 return DecodeQualification.INTENDED;
+            }
             return DecodeQualification.UNABLE;
 
         } catch (Exception e) {

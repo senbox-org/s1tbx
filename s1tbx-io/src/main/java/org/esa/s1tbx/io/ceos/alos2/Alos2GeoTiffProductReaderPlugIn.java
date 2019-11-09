@@ -22,26 +22,16 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     private static final String[] FORMAT_NAMES = new String[]{"ALOS-2 GeoTIFF"};
@@ -74,55 +64,33 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         return ZIP_FILE_SYSTEM_CONSTRUCTOR.newInstance(ZIP_FILE_SYSTEM_PROVIDER, zipPath, Collections.emptyMap());
     }
 
-    public static Path convertInputToPath(Object input) {
-        if (input == null) {
-            throw new NullPointerException();
-        } else if (input instanceof File) {
-            return ((File) input).toPath();
-        } else if (input instanceof Path) {
-            return (Path) input;
-        } else if (input instanceof String) {
-            return Paths.get((String) input);
-        } else {
-            throw new IllegalArgumentException("Unknown input '" + input + "'.");
-        }
-    }
-
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
-        try{
-            final File inputFile;
-            if (input instanceof String){
-                inputFile = new File((String) input);
-            } else if (input instanceof File){
-                inputFile = (File)input;
-            } else{
+        try {
+            final Path inputPath = ReaderUtils.getPathFromInput(input);
+            if (inputPath == null) {
                 return DecodeQualification.UNABLE;
             }
-            if(input instanceof String || input instanceof File){
-                final String extension = FileUtils.getExtension(inputFile);
+            final String extension = FileUtils.getExtension(inputPath.toFile());
 
-                if (extension != null && extension.toUpperCase().equals(".ZIP")){
-                    return checkZIPFile(inputFile);
-                }
-                return checkFileName(inputFile);
+            if (extension != null && extension.toUpperCase().equals(".ZIP")) {
+                return checkZIPFile(inputPath);
             }
+            return checkFileName(inputPath.toFile());
 
-            return DecodeQualification.UNABLE;
-
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return DecodeQualification.UNABLE;
         }
     }
 
     // Additional helper functions for getDecodeQualification
-    private DecodeQualification checkFileName(File inputFile){
+    private DecodeQualification checkFileName(File inputFile) {
         boolean hasValidImage = false;
         boolean hasMetadata = false;
 
         final File[] files = inputFile.getParentFile().listFiles();
-        if(files != null) {
+        if (files != null) {
             for (File f : files) {
                 String name = f.getName().toUpperCase();
                 if (name.equals("SUMMARY.TXT")) {
@@ -131,19 +99,19 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 }
                 if (name.contains("ALOS2") && (name.endsWith("TIF") || name.endsWith("TIFF")) &&
                         (name.contains("IMG-") &&
-                                (name.contains("-HH-") || name.contains("-HV-") || name.contains("-VH-") || name.contains("-VV-")))){
+                                (name.contains("-HH-") || name.contains("-HV-") || name.contains("-VH-") || name.contains("-VV-")))) {
                     hasValidImage = true;
                 }
             }
         }
-        if(hasMetadata && hasValidImage)
+        if (hasMetadata && hasValidImage)
             return DecodeQualification.INTENDED;
 
         return DecodeQualification.UNABLE;
     }
 
     private List<String> listFilesFromZipArchive(Path baseFile) throws IOException {
-        List<String> filesAndFolders = new ArrayList<>();
+        final List<String> filesAndFolders = new ArrayList<>();
         try (FileSystem fileSystem = newZipFileSystem(baseFile)) {
             for (Path root : fileSystem.getRootDirectories()) {
                 FileVisitor<Path> visitor = new ListFilesAndFolderVisitor() {
@@ -180,9 +148,8 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         return filesAndFolders;
     }
 
-    private DecodeQualification checkZIPFile(Object input) throws IOException {
-        Path imageIOInputPath = convertInputToPath(input);
-        List<String> zipContents = listFilesFromZipArchive(imageIOInputPath);
+    private DecodeQualification checkZIPFile(Path imageIOInputPath) throws IOException {
+        final List<String> zipContents = listFilesFromZipArchive(imageIOInputPath);
         boolean hasValidImage = false;
         boolean hasMetadata = false;
 
@@ -196,29 +163,25 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                                     name.contains("-VV-")))) {
                 hasValidImage = true;
             }
-            if (name.contains("SUMMARY.TXT")){
+            if (name.contains("SUMMARY.TXT")) {
                 hasMetadata = true;
             }
 
         }
-        if (hasMetadata && hasValidImage){
+        if (hasMetadata && hasValidImage) {
             return DecodeQualification.INTENDED;
-        } else{
+        } else {
             return DecodeQualification.UNABLE;
         }
     }
 
     @Override
     public Class[] getInputTypes() {
-        Class [] returnClass = new Class[2];
-
-        returnClass[0] = String.class;
-        returnClass[1] = File.class;
-        return returnClass;
+        return new Class[]{String.class, File.class, Path.class};
     }
 
     @Override
-    public ProductReader createReaderInstance()  {
+    public ProductReader createReaderInstance() {
         return new Alos2GeoTiffProductReader(this);
     }
 
@@ -229,11 +192,7 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getDefaultFileExtensions() {
-        final String [] extensions = new String[3];
-        extensions[0] = "tif";
-        extensions[1] = "tiff";
-        extensions[2] = "zip";
-        return extensions;
+        return new String[]{"tif", "tiff", "zip"};
     }
 
     @Override
@@ -244,7 +203,6 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     @Override
     public SnapFileFilter getProductFileFilter() {
         return new SnapFileFilter(FORMAT_NAMES[0], getDefaultFileExtensions(), getDescription(null));
-
     }
 
     private abstract class ListFilesAndFolderVisitor implements FileVisitor<Path> {

@@ -19,7 +19,7 @@ import org.esa.s1tbx.io.netcdf.NetCDFReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The ReaderPlugIn for CosmoSkymed products.
@@ -38,11 +38,11 @@ public class CosmoSkymedReaderPlugIn extends NetCDFReaderPlugIn {
     }
 
     @Override
-    protected DecodeQualification checkProductQualification(final File file) {
-        final String fileName = file.getName().toLowerCase();
-        if (fileName.endsWith(".h5") && fileName.startsWith(COSMO_FILE_PREFIX))
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String fileName = path.getFileName().toString().toLowerCase();
+        if (fileName.endsWith(".h5") && fileName.startsWith(COSMO_FILE_PREFIX)) {
             return DecodeQualification.INTENDED;
-
+        }
         return DecodeQualification.UNABLE;
     }
 
@@ -55,5 +55,4 @@ public class CosmoSkymedReaderPlugIn extends NetCDFReaderPlugIn {
     public ProductReader createReaderInstance() {
         return new CosmoSkymedReader(this);
     }
-
 }

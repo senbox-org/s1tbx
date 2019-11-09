@@ -28,6 +28,7 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * The product reader for Radarsat products.
@@ -69,11 +70,11 @@ public abstract class CEOSProductReader extends SARReader {
         super.close();
     }
 
-    protected VirtualDir createProductDir(final File inputFile) {
-        if (ZipUtils.isZip(inputFile)) {
-            return VirtualDir.create(inputFile);
+    protected VirtualDir createProductDir(final Path inputPath) {
+        if (ZipUtils.isZip(inputPath)) {
+            return VirtualDir.create(inputPath.toFile());
         } else {
-            return VirtualDir.create(inputFile.getParentFile());
+            return VirtualDir.create(inputPath.getParent().toFile());
         }
     }
 
@@ -87,16 +88,16 @@ public abstract class CEOSProductReader extends SARReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
 
-        productDir = createProductDir(inputFile);
+        productDir = createProductDir(inputPath);
 
         Product product = null;
         try {
             dataDir = createProductDirectory(productDir);
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
-            product.setFileLocation(inputFile);
+            product.setFileLocation(inputPath.toFile());
 
             setQuicklookBandName(product);
             addQuicklooks(product, productDir);
