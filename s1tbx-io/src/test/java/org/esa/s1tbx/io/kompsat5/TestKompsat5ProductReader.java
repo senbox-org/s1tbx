@@ -51,12 +51,12 @@ public class TestKompsat5ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningFolder() throws Exception {
-        testReader(inputFolder);
+        testReader(inputFolder.toPath());
     }
 
     @Test
     public void testOpeningMetadata() throws Exception {
-        testReader(inputMetaXML);
+        testReader(inputMetaXML.toPath());
     }
 
 //    @Test

@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.sentinel1;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.TestData;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.dimap.DimapProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
@@ -43,7 +44,7 @@ public class TestS1SLCInputProductValidator extends ReaderTest {
 
     @Test
     public void TestSentinel1SLCProduct() throws Exception {
-        final Product sourceProduct = testReader(TestData.inputS1_StripmapSLC);
+        final Product sourceProduct = ProductIO.readProduct(TestData.inputS1_StripmapSLC);
         if(sourceProduct != null) {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
 

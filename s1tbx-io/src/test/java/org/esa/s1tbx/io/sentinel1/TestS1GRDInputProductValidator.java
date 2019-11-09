@@ -41,7 +41,7 @@ public class TestS1GRDInputProductValidator extends ReaderTest {
 
     @Test
     public void TestSentinel1GRDProduct() throws Exception {
-        final Product sourceProduct = testReader(TestData.inputS1_GRD);
+        final Product sourceProduct = testReader(TestData.inputS1_GRD.toPath());
         if(sourceProduct != null) {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
 

@@ -35,7 +35,7 @@ public class TestRadarsatProductReader extends ReaderTest  {
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(zipFile);
+        testReader(zipFile.toPath());
     }
 
 //    @Test
@@ -45,6 +45,6 @@ public class TestRadarsatProductReader extends ReaderTest  {
 
     @Test
     public void testOpeningVolFile() throws Exception {
-        testReader(metaFile);
+        testReader(metaFile.toPath());
     }
 }
