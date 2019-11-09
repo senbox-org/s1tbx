@@ -23,8 +23,8 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * The product writer for SAFE products.
@@ -56,8 +56,8 @@ public class GeoTiffXMLProductWriter extends GeoTiffProductWriter {
 
     private void writeMetadataXML() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
-        File file = ReaderUtils.getFileFromInput(getOutput());
-        AbstractMetadataIO.saveExternalMetadata(getSourceProduct(), absRoot, new File(file.getParentFile(),
-                FileUtils.getFilenameWithoutExtension(file.getName()) + ".xml"));
+        final Path path = ReaderUtils.getPathFromInput(getOutput());
+        final Path xmlFile = path.getParent().resolve(FileUtils.getFilenameWithoutExtension(path.getFileName().toString()) + ".xml");
+        AbstractMetadataIO.saveExternalMetadata(getSourceProduct(), absRoot, xmlFile.toFile());
     }
 }

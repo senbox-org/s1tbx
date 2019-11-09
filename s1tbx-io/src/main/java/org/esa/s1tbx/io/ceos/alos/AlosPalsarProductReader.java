@@ -28,6 +28,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * The product reader for AlosPalsar products.
@@ -49,14 +50,15 @@ public class AlosPalsarProductReader extends CEOSProductReader {
         return new AlosPalsarProductDirectory(productDir);
     }
 
-    DecodeQualification checkProductQualification(File file) {
+    DecodeQualification checkProductQualification(final Path path) {
 
         try {
-            dataDir = createProductDirectory(createProductDir(file));
+            dataDir = createProductDirectory(createProductDir(path));
 
             final AlosPalsarProductDirectory alosDataDir = (AlosPalsarProductDirectory) this.dataDir;
-            if (alosDataDir.isALOS())
+            if (alosDataDir.isALOS()) {
                 return DecodeQualification.INTENDED;
+            }
             return DecodeQualification.UNABLE;
 
         } catch (Exception e) {

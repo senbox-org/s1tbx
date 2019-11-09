@@ -24,6 +24,8 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -44,28 +46,29 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        File file = ReaderUtils.getFileFromInput(input);
-        if (file != null) {
-            if(file.isDirectory()) {
-                file = new File(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
-                if(!file.exists()) {
+        Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            if(Files.isDirectory(path)) {
+                path = path.resolve(Sentinel1Constants.PRODUCT_HEADER_NAME);
+                if(!Files.exists(path)) {
                     return DecodeQualification.UNABLE;
                 }
             }
 
-            final String filename = file.getName().toLowerCase();
+            final String filename = path.getFileName().toString().toLowerCase();
             if (filename.equals(Sentinel1Constants.PRODUCT_HEADER_NAME)) {
-                if (isLevel1(file) || isLevel2(file) || isLevel0(file)) {
+                if (isLevel1(path) || isLevel2(path) || isLevel0(path)) {
                     return DecodeQualification.INTENDED;
                 }
             }
-            if (filename.endsWith(".zip") && filename.startsWith("s1") && (ZipUtils.findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
-                    ZipUtils.findInZip(file, "rs2", Sentinel1Constants.PRODUCT_HEADER_NAME))) {
+            if (filename.endsWith(".zip") && filename.startsWith("s1") &&
+                    (ZipUtils.findInZip(path.toFile(), "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
+                    ZipUtils.findInZip(path.toFile(), "rs2", Sentinel1Constants.PRODUCT_HEADER_NAME))) {
                 return DecodeQualification.INTENDED;
             }
-            if(filename.startsWith("s1") && filename.endsWith(".safe") && file.isDirectory()) {
-                File manifest = new File(file, Sentinel1Constants.PRODUCT_HEADER_NAME);
-                if(manifest.exists()) {
+            if(filename.startsWith("s1") && filename.endsWith(".safe") && Files.isDirectory(path)) {
+                Path manifest = path.resolve(Sentinel1Constants.PRODUCT_HEADER_NAME);
+                if(Files.exists(manifest)) {
                     if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest)) {
                         return DecodeQualification.INTENDED;
                     }
@@ -77,48 +80,43 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    static boolean isLevel1(final File file) {
-        if (ZipUtils.isZip(file)) {
-            if(ZipUtils.findInZip(file, "s1", ".tiff")) {
+    static boolean isLevel1(final Path path) {
+        if (ZipUtils.isZip(path)) {
+            if(ZipUtils.findInZip(path.toFile(), "s1", ".tiff")) {
                 return true;
             }
-            final String name = file.getName().toUpperCase();
+            final String name = path.getFileName().toString().toUpperCase();
             return name.contains("_1AS") || name.contains("_1AD") || name.contains("_1SS") || name.contains("_1SD");
         } else {
-            final File baseFolder = file.getParentFile();
-            final File annotationFolder = new File(baseFolder, ANNOTATION);
+            final File annotationFolder = path.getParent().resolve(ANNOTATION).toFile();
             return annotationFolder.exists() && checkFolder(annotationFolder, ".xml");
         }
     }
 
-    static boolean isLevel2(final File file) {
-        if (ZipUtils.isZip(file)) {
-            return ZipUtils.findInZip(file, "s1", ".nc");
+    static boolean isLevel2(final Path path) {
+        if (ZipUtils.isZip(path)) {
+            return ZipUtils.findInZip(path.toFile(), "s1", ".nc");
         } else {
-            final File baseFolder = file.getParentFile();
-            final File measurementFolder = new File(baseFolder, MEASUREMENT);
+            final File measurementFolder = path.getParent().resolve(MEASUREMENT).toFile();
             return measurementFolder.exists() && checkFolder(measurementFolder, ".nc");
         }
     }
 
-    static boolean isLevel0(final File file) {
-        if (ZipUtils.isZip(file)) {
-            return ZipUtils.findInZip(file, "s1", ".dat");
+    static boolean isLevel0(final Path path) {
+        if (ZipUtils.isZip(path)) {
+            return ZipUtils.findInZip(path.toFile(), "s1", ".dat");
         } else {
-            final File baseFolder = file.getParentFile();
-            return checkFolder(baseFolder, ".dat");
+            return checkFolder(path.getParent().toFile(), ".dat");
         }
     }
 
-    static void validateInput(final File file) throws IOException {
-        if (ZipUtils.isZip(file)) {
-            if(!ZipUtils.findInZip(file, "s1", ".tiff")) {
+    static void validateInput(final Path path) throws IOException {
+        if (ZipUtils.isZip(path)) {
+            if(!ZipUtils.findInZip(path.toFile(), "s1", ".tiff")) {
                 throw new IOException("measurement folder is missing in product");
             }
         } else {
-            final File baseFolder = file.getParentFile();
-            final File annotationFolder = new File(baseFolder, ANNOTATION);
-            if (!annotationFolder.exists()) {
+            if (!Files.exists(path.getParent().resolve(ANNOTATION))) {
                 throw new IOException("annotation folder is missing in product");
             }
         }

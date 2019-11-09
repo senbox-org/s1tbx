@@ -16,36 +16,28 @@
 package org.esa.s1tbx.io.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MapGeoCoding;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelGeoCoding;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 /**
  * The product reader for NetCDF products.
  */
-public class NetCDFReader extends AbstractProductReader {
+public class NetCDFReader extends SARReader {
 
     private NetcdfFile netcdfFile = null;
     private Product product = null;
@@ -80,21 +72,21 @@ public class NetCDFReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputPath = getPathFromInput(getInput());
         initReader();
 
-        netcdfFile = NetcdfFile.open(inputFile.getPath());
+        netcdfFile = NetcdfFile.open(inputPath.toFile().getAbsolutePath());
         if (netcdfFile == null) {
             close();
-            throw new IllegalFileFormatException(inputFile.getName() +
-                                                         " Could not be interpretted by the reader.");
+            throw new IllegalFileFormatException(inputPath.getFileName().toString() +
+                    " Could not be interpretted by the reader.");
         }
 
         final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
         if (variableListMap.isEmpty()) {
             close();
             throw new IllegalFileFormatException("No netCDF variables found which could\n" +
-                                                         "be interpreted as remote sensing bands.");  /*I18N*/
+                    "be interpreted as remote sensing bands.");  /*I18N*/
         }
         final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
         final Variable[] rasterVariables = NetCDFUtils.getRasterVariables(variableListMap, rasterDim);
@@ -105,12 +97,12 @@ public class NetCDFReader extends AbstractProductReader {
 
         final NcAttributeMap globalAttributes = NcAttributeMap.create(netcdfFile);
 
-        product = new Product(inputFile.getName(),
-                              NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]),
-                              rasterDim.getDimX().getLength(),
-                              rasterDim.getDimY().getLength(),
-                              this);
-        product.setFileLocation(inputFile);
+        product = new Product(inputPath.getFileName().toString(),
+                NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]),
+                rasterDim.getDimX().getLength(),
+                rasterDim.getDimY().getLength(),
+                this);
+        product.setFileLocation(inputPath.toFile());
         product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
         product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
         product.setEndTime(NetCDFUtils.getSceneRasterStopTime(globalAttributes));
@@ -173,7 +165,7 @@ public class NetCDFReader extends AbstractProductReader {
             if (rank >= 3 && gridHeight <= 1)
                 gridHeight = variable.getDimension(rank - 3).getLength();
             final TiePointGrid tpg = NetCDFUtils.createTiePointGrid(variable, gridWidth, gridHeight,
-                                                                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
 
             product.addTiePointGrid(tpg);
         }
@@ -207,8 +199,8 @@ public class NetCDFReader extends AbstractProductReader {
         if (lonVar != null && latVar != null && rasterDim.fitsTo(lonVar, latVar)) {
             try {
                 final NetCDFUtils.MapInfoX mapInfoX = NetCDFUtils.createMapInfoX(lonVar, latVar,
-                                                                                 product.getSceneRasterWidth(),
-                                                                                 product.getSceneRasterHeight());
+                        product.getSceneRasterWidth(),
+                        product.getSceneRasterHeight());
                 if (mapInfoX != null) {
                     yFlipped = mapInfoX.isYFlipped();
                     product.setSceneGeoCoding(new MapGeoCoding(mapInfoX.getMapInfo()));
@@ -252,8 +244,8 @@ public class NetCDFReader extends AbstractProductReader {
         }
         if (latBand != null && lonBand != null) {
             product.setSceneGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                         latBand.getValidPixelExpression(),
-                                                         5, ProgressMonitor.NULL));
+                    latBand.getValidPixelExpression(),
+                    5, ProgressMonitor.NULL));
         }
     }
 

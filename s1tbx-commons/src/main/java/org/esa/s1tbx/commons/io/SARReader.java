@@ -25,6 +25,7 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,7 +122,7 @@ public abstract class SARReader extends AbstractProductReader {
         return null;
     }
 
-    protected void addCommonSARMetadata(final Product product) throws Exception {
+    protected void addCommonSARMetadata(final Product product) {
         if(product.getSceneGeoCoding() == null) {
             return;
         }
@@ -137,7 +138,6 @@ public abstract class SARReader extends AbstractProductReader {
         AbstractMetadata.setAttribute(absRoot, "centre_lon", geoPos.getLon());
         AbstractMetadata.setAttribute(absRoot, "centre_heading", heading.heading1);
         AbstractMetadata.setAttribute(absRoot, "centre_heading2", heading.heading2);
-
     }
 
     public static void discardUnusedMetadata(final Product product) {
@@ -193,13 +193,10 @@ public abstract class SARReader extends AbstractProductReader {
      * @return a <code>Path</code> or <code>null</code> it the input can not be resolved to a <code>Path</code>.
      */
     public static Path getPathFromInput(final Object input) throws IOException {
-        if (input instanceof String) {
-            return new File((String) input).toPath();
-        } else if (input instanceof File) {
-            return ((File)input).toPath();
-        } else if (input instanceof Path) {
-            return (Path)input;
+        Path path = ReaderUtils.getPathFromInput(input);
+        if(path == null) {
+            throw new IOException("Unable to get Path from " + input);
         }
-        throw new IOException("Unable to get Path from " + input);
+        return path;
     }
 }

@@ -20,7 +20,7 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The ReaderPlugIn for ALOS 2 CEOS products.
@@ -42,17 +42,17 @@ public class Alos2ProductReaderPlugIn extends CEOSProductReaderPlugIn {
     }
 
     @Override
-    protected DecodeQualification checkProductQualification(File file) {
-        final String name = file.getName().toUpperCase();
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String name = path.getFileName().toString().toUpperCase();
         if(name.contains("ALOS2")) {
             for (String prefix : constants.getVolumeFilePrefix()) {
                 if (name.startsWith(prefix)) {
                     final Alos2ProductReader reader = new Alos2ProductReader(this);
-                    return reader.checkProductQualification(file);
+                    return reader.checkProductQualification(path);
                 }
             }
         }
-        if (name.endsWith(".ZIP") && (ZipUtils.findInZip(file, "vol-alos2", ""))) {
+        if (name.endsWith(".ZIP") && (ZipUtils.findInZip(path.toFile(), "vol-alos2", ""))) {
             return DecodeQualification.INTENDED;
         }
         return DecodeQualification.UNABLE;

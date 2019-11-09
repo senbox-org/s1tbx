@@ -16,13 +16,14 @@
 package org.esa.s1tbx.io.ceos;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * Several constants used for reading CEOS products.
  */
 public interface CEOSConstants {
 
-    Class[] VALID_INPUT_TYPES = {File.class, String.class};
+    Class[] VALID_INPUT_TYPES = {Path.class, File.class, String.class};
 
     String[] getVolumeFilePrefix();
 
@@ -31,8 +32,6 @@ public interface CEOSConstants {
     String[] getImageFilePrefix();
 
     String[] getTrailerFilePrefix();
-
-    int getMinimumNumFiles();
 
     String getPluginDescription();
 

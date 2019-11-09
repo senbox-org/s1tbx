@@ -16,8 +16,8 @@
 package org.esa.s1tbx.io.gamma;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.gamma.header.Header;
-import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -34,6 +34,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ import java.util.Map;
 /**
  * Reader for stamps insar products
  */
-public class GammaReader extends AbstractProductReader {
+public class GammaReader extends SARReader {
 
     private Header header;
     private boolean isComplex = false;
@@ -54,7 +55,8 @@ public class GammaReader extends AbstractProductReader {
     }
 
     protected Product readProductNodesImpl() throws IOException {
-        final File inputParFile = ReaderUtils.getFileFromInput(getInput());
+        final Path inputParPath = getPathFromInput(getInput());
+        final File inputParFile = inputParPath.toFile();
 
         try (BufferedReader headerReader = new BufferedReader(new FileReader(inputParFile))) {
             header = new Header(headerReader);

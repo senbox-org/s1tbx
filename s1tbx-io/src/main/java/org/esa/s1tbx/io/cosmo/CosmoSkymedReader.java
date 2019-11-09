@@ -49,6 +49,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,13 +100,13 @@ public class CosmoSkymedReader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         try {
-            final File inputFile = ReaderUtils.getFileFromInput(getInput());
+            final Path inputPath = getPathFromInput(getInput());
             initReader();
 
-            final NetcdfFile netcdfFile = NetcdfFile.open(inputFile.getPath());
+            final NetcdfFile netcdfFile = NetcdfFile.open(inputPath.toFile().getAbsolutePath());
             if (netcdfFile == null) {
                 close();
-                throw new IllegalFileFormatException(inputFile.getName() +
+                throw new IllegalFileFormatException(inputPath.getFileName().toString() +
                         " Could not be interpreted by the reader.");
             }
 
@@ -131,11 +132,11 @@ public class CosmoSkymedReader extends SARReader {
             final int rasterWidth = rasterDim.getDimX().getLength();
             final int rasterHeight = rasterDim.getDimY().getLength();
 
-            product = new Product(inputFile.getName(),
+            product = new Product(inputPath.getFileName().toString(),
                     productType,
                     rasterWidth, rasterHeight,
                     this);
-            product.setFileLocation(inputFile);
+            product.setFileLocation(inputPath.toFile());
             product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
             product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
             product.setEndTime(NetCDFUtils.getSceneRasterStopTime(globalAttributes));

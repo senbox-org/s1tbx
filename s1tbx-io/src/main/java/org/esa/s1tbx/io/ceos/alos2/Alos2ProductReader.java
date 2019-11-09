@@ -30,8 +30,8 @@ import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * The product reader for AlosPalsar products.
@@ -53,14 +53,15 @@ public class Alos2ProductReader extends CEOSProductReader {
         return new Alos2ProductDirectory(productDir);
     }
 
-    DecodeQualification checkProductQualification(File file) {
+    DecodeQualification checkProductQualification(final Path path) {
 
         try {
-            dataDir = createProductDirectory(createProductDir(file));
+            dataDir = createProductDirectory(createProductDir(path));
 
             final Alos2ProductDirectory dataDir = (Alos2ProductDirectory) this.dataDir;
-            if (dataDir.isALOS2())
+            if (dataDir.isALOS2()) {
                 return DecodeQualification.INTENDED;
+            }
             return DecodeQualification.UNABLE;
 
         } catch (Exception e) {

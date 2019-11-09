@@ -24,6 +24,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,7 +53,9 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        File inputFile = ReaderUtils.getFileFromInput(getInput());
+        Path inputPath = ReaderUtils.getPathFromInput(getInput());
+        File inputFile = inputPath.toFile();
+
         inputFile = findImageFile(inputFile);
         this.imageFileName = inputFile.getName();
         if (inputFile.getPath().toUpperCase().endsWith("ZIP")) {
@@ -103,7 +106,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
 
 
         } else {
-            this.metadataSummary = metaDataFileToHashMap(inputFile.getParent() + "/summary.txt");
+            this.metadataSummary = metaDataFileToHashMap(inputPath.getParent().resolve("summary.txt").toFile().getAbsolutePath());
             product = geoTiffReader.readProductNodes(inputFile, null);
             Band curBand = product.getBands()[0];
             String polarization = inputFile.getName().substring(4, 6);
@@ -143,7 +146,6 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
                 }
             }
         }
-
 
         product.setFileLocation(inputFile);
         product.setName(getProduct());
@@ -191,9 +193,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         }
         fileBR.close();
         return metaDataObject;
-
     }
-
 
     // Metadata reading with input stream
     private Map<String, String> metaDataFileToHashMap(InputStream fileStream) throws IOException {
@@ -209,9 +209,7 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
         }
         fileBR.close();
         return metaDataObject;
-
     }
-
 
     private float getRangeSpacing() {
         return Float.parseFloat(metadataSummary.get("Pds_PixelSpacing"));
@@ -220,7 +218,6 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     private float getAzimuthSpacing() {
         return Float.parseFloat(metadataSummary.get("Pds_PixelSpacing"));
     }
-
 
     // Confirmed methods
 
@@ -314,7 +311,6 @@ public class Alos2GeoTiffProductReader extends GeoTiffProductReader {
     public void addAbstractedMetadata(final Product product) {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(product.getMetadataRoot());
-
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProduct());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, getProductType());

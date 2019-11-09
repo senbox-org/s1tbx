@@ -25,6 +25,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  */
@@ -99,7 +100,9 @@ public class Kompsat5Reader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         try {
-            File inputFile = ReaderUtils.getFileFromInput(getInput());
+            Path inputPath = getPathFromInput(getInput());
+            File inputFile = inputPath.toFile();
+
             if(inputFile.isDirectory()) {
                 inputFile = readerPlugIn.findMetadataFile(inputFile);
             }

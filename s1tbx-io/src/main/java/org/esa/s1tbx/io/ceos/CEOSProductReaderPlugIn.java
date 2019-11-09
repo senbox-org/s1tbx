@@ -23,6 +23,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -40,16 +41,16 @@ public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = ReaderUtils.getFileFromInput(input);
-        if (file == null) {
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path == null) {
             return DecodeQualification.UNABLE;
         }
 
-        return checkProductQualification(file);
+        return checkProductQualification(path);
     }
 
-    protected DecodeQualification checkProductQualification(File file) {
-        final String name = file.getName().toUpperCase();
+    protected DecodeQualification checkProductQualification(Path path) {
+        final String name = path.getFileName().toString().toUpperCase();
         for (String prefix : constants.getVolumeFilePrefix()) {
             if (name.startsWith(prefix)) {
                 return DecodeQualification.SUITABLE;
