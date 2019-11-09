@@ -39,12 +39,12 @@ public class TestRisat1ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningCEOSFolder() throws Exception {
-        testReader(inputCEOSFolder);
+        testReader(inputCEOSFolder.toPath());
     }
 
     @Test
     public void testOpeningCEOSMetadata() throws Exception {
-        testReader(inputCEOSMetaXML);
+        testReader(inputCEOSMetaXML.toPath());
     }
 
 //    @Test

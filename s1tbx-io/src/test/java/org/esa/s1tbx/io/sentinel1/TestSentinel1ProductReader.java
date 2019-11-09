@@ -20,7 +20,6 @@ import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -81,36 +80,36 @@ public class TestSentinel1ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningFile() throws Exception {
-        testReader(new File(inputS1_AnnotGRD, "manifest.safe"));
+        testReader(inputS1_AnnotGRD.toPath().resolve("manifest.safe"));
     }
 
     @Test
     public void testOpeningBandlessMetadataFile1() throws Exception {
-        testReader(inputS1_meta1GRD);
+        testReader(inputS1_meta1GRD.toPath());
     }
 
     @Test
     public void testOpeningBandlessMetadataFile2() throws Exception {
-        testReader(inputS1_meta2GRD);
+        testReader(inputS1_meta2GRD.toPath());
     }
 
     @Test
     public void testOpeningAnnotFolder() throws Exception {
-        testReader(inputS1_AnnotGRD);
+        testReader(inputS1_AnnotGRD.toPath());
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(inputS1_GRDFile);
+        testReader(inputS1_GRDFile.toPath());
     }
 
     @Test
     public void testOpeningAnnotationProduct() throws Exception {
-        testReader(inputS1_AnnotGRDZip);
+        testReader(inputS1_AnnotGRDZip.toPath());
     }
 
     @Test
     public void testOpeningFolder() throws Exception {
-        testReader(inputGRDFolder);
+        testReader(inputGRDFolder.toPath());
     }
 }

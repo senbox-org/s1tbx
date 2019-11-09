@@ -67,16 +67,16 @@ public class TestRadarsat2ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningFolder() throws Exception {
-        testReader(folderSLC);
+        testReader(folderSLC.toPath());
     }
 
     @Test
     public void testOpeningMetadataFile() throws Exception {
-        testReader(metadataSLC);
+        testReader(metadataSLC.toPath());
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(inputRS2_SQuadFile);
+        testReader(inputRS2_SQuadFile.toPath());
     }
 }

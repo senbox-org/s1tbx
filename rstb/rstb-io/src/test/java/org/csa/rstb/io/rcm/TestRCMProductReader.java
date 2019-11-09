@@ -48,54 +48,54 @@ public class TestRCMProductReader extends ReaderTest {
     @Test
     @Ignore("No data")
     public void testOpeningGRDManifest() throws Exception {
-        testReader(inputGRDManifest);
+        testReader(inputGRDManifest.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningGRDZip() throws Exception {
-        testReader(inputGRDZip);
+        testReader(inputGRDZip.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningGRDFolder() throws Exception {
-        testReader(inputGRDFolder);
+        testReader(inputGRDFolder.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningSLCManifest() throws Exception {
-        testReader(inputSLCManifest);
+        testReader(inputSLCManifest.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningSLCZip() throws Exception {
-        testReader(inputSLCZip);
+        testReader(inputSLCZip.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningSLCFolder() throws Exception {
-        testReader(inputSLCFolder);
+        testReader(inputSLCFolder.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningCPSLCZip() throws Exception {
-        testReader(inputCPSLC);
+        testReader(inputCPSLC.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningCPGRCZip() throws Exception {
-        testReader(inputCPGRC);
+        testReader(inputCPGRC.toPath());
     }
 
     @Test
     @Ignore("No data")
     public void testOpeningGRCZip() throws Exception {
-        testReader(inputGRCZip);
+        testReader(inputGRCZip.toPath());
     }
 }
