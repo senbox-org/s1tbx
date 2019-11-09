@@ -19,7 +19,7 @@ import org.esa.s1tbx.io.ceos.CEOSProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The ReaderPlugIn for Radarsat 1 products.
@@ -41,15 +41,15 @@ public class RadarsatProductReaderPlugIn extends CEOSProductReaderPlugIn {
     }
 
     @Override
-    protected DecodeQualification checkProductQualification(final File file) {
-        final String name = file.getName().toUpperCase();
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String name = path.getFileName().toString().toUpperCase();
         if(name.endsWith(".ZIP") && (name.startsWith("R1_") || name.startsWith("RS1_"))) {
             return DecodeQualification.INTENDED;
         }
         for (String prefix : constants.getVolumeFilePrefix()) {
             if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
                 final RadarsatProductReader reader = new RadarsatProductReader(this);
-                return reader.checkProductQualification(file);
+                return reader.checkProductQualification(path);
             }
         }
         return DecodeQualification.UNABLE;

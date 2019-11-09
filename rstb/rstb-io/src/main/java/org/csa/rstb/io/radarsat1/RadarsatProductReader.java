@@ -21,7 +21,7 @@ import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * The product reader for Radarsat products.
@@ -43,14 +43,15 @@ public class RadarsatProductReader extends CEOSProductReader {
         return new RadarsatProductDirectory(productDir);
     }
 
-    DecodeQualification checkProductQualification(File file) {
+    DecodeQualification checkProductQualification(final Path path) {
 
         try {
-            dataDir = createProductDirectory(createProductDir(file));
+            dataDir = createProductDirectory(createProductDir(path));
 
             final RadarsatProductDirectory dataDir = (RadarsatProductDirectory) this.dataDir;
-            if (dataDir.isRadarsat())
+            if (dataDir.isRadarsat()) {
                 return DecodeQualification.INTENDED;
+            }
             return DecodeQualification.UNABLE;
 
         } catch (Exception e) {

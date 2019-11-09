@@ -16,6 +16,7 @@
 package org.csa.rstb.io.radarsat2;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * Several constants used for reading Radarsat2 products.
@@ -32,7 +33,7 @@ public class Radarsat2Constants {
 
     private final static String INDICATION_KEY = "XML";
 
-    final static Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
+    final static Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     public static String getIndicationKey() {
         return INDICATION_KEY;
