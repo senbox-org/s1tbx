@@ -6,7 +6,7 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -26,12 +26,12 @@ public class IceyeProductReaderPlugIn extends NetCDFReaderPlugIn {
     /**
      * Validate file extension and start
      *
-     * @param file
+     * @param path
      * @return check result
      */
     @Override
-    protected DecodeQualification checkProductQualification(final File file) {
-        final String fileName = file.getName().toLowerCase();
+    protected DecodeQualification checkProductQualification(final Path path) {
+        final String fileName = path.getFileName().toString().toLowerCase();
         if (fileName.endsWith(".h5") && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
             isTiff.set(false);
             return DecodeQualification.INTENDED;
@@ -44,8 +44,8 @@ public class IceyeProductReaderPlugIn extends NetCDFReaderPlugIn {
 
     @Override
     public DecodeQualification getDecodeQualification(final Object input) {
-        File file = ReaderUtils.getFileFromInput(input);
-        return file == null ? DecodeQualification.UNABLE : this.checkProductQualification(file);
+        final Path path = ReaderUtils.getPathFromInput(input);
+        return path == null ? DecodeQualification.UNABLE : this.checkProductQualification(path);
     }
 
     /**

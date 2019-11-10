@@ -22,6 +22,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -176,8 +177,8 @@ public class IceyeProductReader extends SARReader {
     protected Product readProductNodesImpl() {
         try {
 
-            final File inputFile = ReaderUtils.getFileFromInput(getInput());
-
+            final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+            final File inputFile = inputPath.toFile();
             initReader();
 
             final NetcdfFile tempNetcdfFile = NetcdfFile.open(inputFile.getPath());
