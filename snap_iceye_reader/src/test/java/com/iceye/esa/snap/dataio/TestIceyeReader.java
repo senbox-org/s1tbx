@@ -15,7 +15,8 @@
  */
 package com.iceye.esa.snap.dataio;
 
-import org.esa.snap.core.dataio.ProductReader;
+import org.esa.s1tbx.commons.test.ReaderTest;
+import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,17 +27,18 @@ import java.io.File;
 /**
  * @author Ahmad Hamouda
  */
-public class TestIceyeReader {
+public class TestIceyeReader extends ReaderTest {
 
     public static final String TESTING_IMAGE_PATH = "/home/ahmad/Documents/Projects/snap/test";
-    private IceyeProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
+
+    private final static String inputIceyeFolder = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "Iceye" + S1TBXTests.sep ;
+    private final static File[] iceyeSLCFiles = S1TBXTests.loadFilePath(inputIceyeFolder + "SLC");
+    private final static File[] iceyeGRDFiles = S1TBXTests.loadFilePath(inputIceyeFolder + "GRD");
 
     private String[] exceptionExemptions = {"not supported"};
 
     public TestIceyeReader() {
-        readerPlugin = new IceyeProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new IceyeProductReaderPlugIn());
     }
 
     /**
@@ -52,9 +54,31 @@ public class TestIceyeReader {
         File[] folderPaths = new File[1];
         folderPaths[0] = file;
         try {
-            testProcessor.recurseReadFolder(this, folderPaths, readerPlugin, reader, null, exceptionExemptions);
+            testProcessor.recurseReadFolder(this, folderPaths, readerPlugIn, reader, null, exceptionExemptions);
         } catch (Exception e) {
             Assert.fail();
         }
+    }
+
+    /**
+     * Open all files in a folder recursively
+     *
+     * @throws Exception anything
+     */
+    @Test
+    public void testTestServerOpenAllSLC() throws Exception {
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.recurseReadFolder(this, iceyeSLCFiles, readerPlugIn, null, null, null);
+    }
+
+    /**
+     * Open all files in a folder recursively
+     *
+     * @throws Exception anything
+     */
+    @Test
+    public void testTestServerOpenAllGRD() throws Exception {
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.recurseReadFolder(this, iceyeGRDFiles, readerPlugIn, null, null, null);
     }
 }

@@ -34,6 +34,7 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.*;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -174,12 +175,13 @@ public class IceyeGRDProductReader extends SARReader {
         initReader();
         try {
 
-            final File inputFile = ReaderUtils.getFileFromInput(getInput());
-            if (inputFile == null) {
+            final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+            if (inputPath == null) {
                 close();
                 throw new IllegalFileFormatException("File Could not be interpreted by the reader.");
             }
 
+            final File inputFile = inputPath.toFile();
             TIFFImageMetadata tempNetcdfFile = getTiffMetadata(inputFile);
             if (tempNetcdfFile == null) {
                 close();
@@ -519,7 +521,7 @@ public class IceyeGRDProductReader extends SARReader {
 
     private void addBandsToProduct() {
         try {
-            final File inputFile = ReaderUtils.getFileFromInput(getInput());
+            final File inputFile = getPathFromInput(getInput()).toFile();
             String imgPath = inputFile.getPath();
             final String name = imgPath.substring(imgPath.lastIndexOf('/') + 1).toLowerCase();
             final int rasterWidth = Integer.parseInt(this.tiffFeilds.get(IceyeXConstants.NUM_SAMPLES_PER_LINE.toUpperCase()));
