@@ -30,25 +30,10 @@ import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PointOpImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RasterFormatTag;
-import javax.media.jai.RenderedOp;
+import javax.media.jai.*;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.image.ComponentSampleModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.*;
+import java.awt.image.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -110,8 +95,6 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
     private static final double EPS = 0.04; // used by quad-tree search
     private static final boolean TRACE = false;
     private static final double D2R = Math.PI / 180.0;
-
-    private Boolean crossingMeridianAt180;
     private final Band latBand;
     private final Band lonBand;
     private final String validMaskExpression;
@@ -120,8 +103,9 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
     private final int rasterHeight;
     private final boolean useTiling;
     private final boolean fractionAccuracy;
-    private GeoCoding pixelPosEstimator;
     private final boolean estimatorCreatedInternally;
+    private Boolean crossingMeridianAt180;
+    private GeoCoding pixelPosEstimator;
     private PixelGrid latGrid;
     private PixelGrid lonGrid;
     private boolean initialized;
@@ -190,16 +174,16 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
 
             Interpolation nearestInterpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
             final RenderedOp tempLatOffsetImg = ScaleDescriptor.create(latImage, 1.0f, 1.0f,
-                                                                       unscaledImageOffsetX, unscaledImageOffsetY,
-                                                                       nearestInterpolation, null);
+                    unscaledImageOffsetX, unscaledImageOffsetY,
+                    nearestInterpolation, null);
             final RenderedOp tempLatImg = ScaleDescriptor.create(tempLatOffsetImg, scale, scale, 0f, 0f,
-                                                                 nearestInterpolation, null);
+                    nearestInterpolation, null);
 
             final RenderedOp tempLonOffsetImg = ScaleDescriptor.create(lonImage, 1.0f, 1.0f,
-                                                                       unscaledImageOffsetX, unscaledImageOffsetY,
-                                                                       nearestInterpolation, null);
+                    unscaledImageOffsetX, unscaledImageOffsetY,
+                    nearestInterpolation, null);
             final RenderedOp tempLonImg = ScaleDescriptor.create(tempLonOffsetImg, scale, scale, 0f, 0f,
-                                                                 nearestInterpolation, null);
+                    nearestInterpolation, null);
 
             final int minX = tempLatImg.getMinX();
             final int minY = tempLatImg.getMinY();
@@ -207,16 +191,16 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             final boolean containsAngles = true;
 
             final float[] latTiePoints = tempLatImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
-                                                                                               tpGridHeight,
-                                                                                               new float[numTiePoints]);
+                    tpGridHeight,
+                    new float[numTiePoints]);
             final float[] lonTiePoints = tempLonImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
-                                                                                               tpGridHeight,
-                                                                                               new float[numTiePoints]);
+                    tpGridHeight,
+                    new float[numTiePoints]);
 
             final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, tpOffsetX, tpOffsetY,
-                                                            subSampling, subSampling, latTiePoints, containsAngles);
+                    subSampling, subSampling, latTiePoints, containsAngles);
             final TiePointGrid tpLonGrid = new TiePointGrid("lon", tpGridWidth, tpGridHeight, tpOffsetX, tpOffsetY,
-                                                            subSampling, subSampling, lonTiePoints, containsAngles);
+                    subSampling, subSampling, lonTiePoints, containsAngles);
             pixelPosEstimator = new TiePointGeoCoding(tpLatGrid, tpLonGrid);
             estimatorCreatedInternally = true;
         } else {
@@ -263,6 +247,157 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         initialized = true;
     }
 
+    /**
+     * Computes an estimation of the memory required to create an instance of this class for the given product.
+     * The estimation is returned in bytes.
+     *
+     * @return an estimation of the required memory in bytes
+     */
+    public static long getRequiredMemory(Product product, boolean usesValidMask) {
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
+        if (geoCoding == null) {
+            return 0;
+        }
+        final long sizeofFloat = 4;
+        final long pixelCount = product.getSceneRasterWidth() * product.getSceneRasterHeight();
+        // lat + lon band converted to 32-bit float tie-point data
+        long size = 2 * sizeofFloat * pixelCount;
+        if (geoCoding.isCrossingMeridianAt180()) {
+            // additional 32-bit float sine and cosine grids for to lon grid
+            size += 2 * sizeofFloat * pixelCount;
+        }
+        if (usesValidMask) {
+            // additional 1-bit data mask
+            size += pixelCount / 4;
+        }
+        return size;
+    }
+
+    static double getNegativeLonMax(double lon0, double lon1, double lon2, double lon3) {
+        double lonMax;
+        lonMax = -180.0f;
+        if (lon0 < 0.0f) {
+            lonMax = lon0;
+        }
+        if (lon1 < 0.0f) {
+            lonMax = max(lon1, lonMax);
+        }
+        if (lon2 < 0.0f) {
+            lonMax = max(lon2, lonMax);
+        }
+        if (lon3 < 0.0f) {
+            lonMax = max(lon3, lonMax);
+        }
+        return lonMax;
+    }
+
+    static double getPositiveLonMin(double lon0, double lon1, double lon2, double lon3) {
+        double lonMin;
+        lonMin = 180.0f;
+        if (lon0 >= 0.0f) {
+            lonMin = lon0;
+        }
+        if (lon1 >= 0.0f) {
+            lonMin = min(lon1, lonMin);
+        }
+        if (lon2 >= 0.0f) {
+            lonMin = min(lon2, lonMin);
+        }
+        if (lon3 >= 0.0f) {
+            lonMin = min(lon3, lonMin);
+        }
+        return lonMin;
+    }
+
+    static boolean isCrossingMeridianInsideQuad(boolean crossingMeridianInsideProduct, double lon0, double lon1,
+                                                double lon2, double lon3) {
+        if (!crossingMeridianInsideProduct) {
+            return false;
+        }
+        double lonMin = min(lon0, min(lon1, min(lon2, lon3)));
+        double lonMax = max(lon0, max(lon1, max(lon2, lon3)));
+
+        return Math.abs(lonMax - lonMin) > 180.0;
+    }
+
+    private static double min(final double a, final double b) {
+        return (a <= b) ? a : b;
+    }
+
+    private static double max(final double a, final double b) {
+        return (a >= b) ? a : b;
+    }
+
+    private static double sq(final double dx, final double dy) {
+        return dx * dx + dy * dy;
+    }
+
+    private static double lonDiff(double a1, double a2) {
+        double d = a1 - a2;
+        if (d < 0.0f) {
+            d = -d;
+        }
+        if (d > 180.0f) {
+            d = 360.0f - d;
+        }
+        return d;
+    }
+
+    private static boolean getPixelPos(final double lat, final double lon,
+                                       final double[] lata, final double[] lona,
+                                       final int[] xa, final int[] ya,
+                                       final PixelPos pixelPos) {
+        final Matrix mA = new Matrix(3, 3);
+        mA.set(0, 0, 1.0);
+        mA.set(1, 0, 1.0);
+        mA.set(2, 0, 1.0);
+        mA.set(0, 1, lata[0]);
+        mA.set(1, 1, lata[1]);
+        mA.set(2, 1, lata[2]);
+        mA.set(0, 2, lona[0]);
+        mA.set(1, 2, lona[1]);
+        mA.set(2, 2, lona[2]);
+        final LUDecomposition decomp = new LUDecomposition(mA);
+
+        final Matrix mB = new Matrix(3, 1);
+
+        mB.set(0, 0, ya[0] + 0.5);
+        mB.set(1, 0, ya[1] + 0.5);
+        mB.set(2, 0, ya[2] + 0.5);
+        Exception err = null;
+
+        Matrix mY = null;
+        try {
+            mY = decomp.solve(mB);
+        } catch (Exception e) {
+            System.out.printf("y1 = %d, y2 = %d, y3 = %d%n", ya[0], ya[1], ya[2]);
+            err = e;
+
+        }
+
+        mB.set(0, 0, xa[0] + 0.5);
+        mB.set(1, 0, xa[1] + 0.5);
+        mB.set(2, 0, xa[2] + 0.5);
+        Matrix mX = null;
+        try {
+            mX = decomp.solve(mB);
+        } catch (Exception e) {
+            System.out.printf("x1 = %d, x2 = %d, x3 = %d%n", xa[0], xa[1], xa[2]);
+            err = e;
+        }
+
+        if (err != null) {
+            return false;
+        }
+
+
+        final double fx = mX.get(0, 0) + mX.get(1, 0) * lat + mX.get(2, 0) * lon;
+        final double fy = mY.get(0, 0) + mY.get(1, 0) * lat + mY.get(2, 0) * lon;
+
+        pixelPos.setLocation(fx, fy);
+        return true;
+    }
+
     private void initData(final Band latBand, final Band lonBand,
                           final String validMaskExpr, ProgressMonitor pm) throws IOException {
 
@@ -272,7 +407,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                 validMask = latBand.getProduct().getMaskImage(validMaskExpr, latBand);
             }
             latLonImage = new LatLonImage(this.latBand.getGeophysicalImage(), this.lonBand.getGeophysicalImage(),
-                                          validMask, pixelPosEstimator);
+                    validMask, pixelPosEstimator);
         } else {
             Mask validMask = null;
             try {
@@ -285,12 +420,12 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                     validMask = Mask.BandMathsType.create(maskName, "", sceneSize.width, sceneSize.height, validMaskExpr, Color.RED, 0.0);
                     validMask.setOwner(latBand.getProduct());
                     fillInvalidGaps(new ValidMaskValidator(rasterWidth, 0, validMask),
-                                    (float[]) latGrid.getDataElems(),
-                                    (float[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
+                            (float[]) latGrid.getDataElems(),
+                            (float[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 pm.done();
-                if(validMask != null) {
+                if (validMask != null) {
                     validMask.setOwner(null);
                     validMask.dispose();
                 }
@@ -303,7 +438,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         List<String> names = Arrays.asList(maskGroup.getNodeNames());
         String currentName = startName;
         int index = 1;
-        while(names.contains(currentName)) {
+        while (names.contains(currentName)) {
             currentName = String.format("%s_%d", startName, index);
         }
         return currentName;
@@ -346,32 +481,6 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                 pm.done();
             }
         }
-    }
-
-    /**
-     * Computes an estimation of the memory required to create an instance of this class for the given product.
-     * The estimation is returned in bytes.
-     *
-     * @return an estimation of the required memory in bytes
-     */
-    public static long getRequiredMemory(Product product, boolean usesValidMask) {
-        final GeoCoding geoCoding = product.getSceneGeoCoding();
-        if (geoCoding == null) {
-            return 0;
-        }
-        final long sizeofFloat = 4;
-        final long pixelCount = product.getSceneRasterWidth() * product.getSceneRasterHeight();
-        // lat + lon band converted to 32-bit float tie-point data
-        long size = 2 * sizeofFloat * pixelCount;
-        if (geoCoding.isCrossingMeridianAt180()) {
-            // additional 32-bit float sine and cosine grids for to lon grid
-            size += 2 * sizeofFloat * pixelCount;
-        }
-        if (usesValidMask) {
-            // additional 1-bit data mask
-            size += pixelCount / 4;
-        }
-        return size;
     }
 
     @Override
@@ -525,6 +634,9 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             } else {
                 pixelPos.setInvalid();
             }
+        } else {
+            // not inside product tb 2019-11-11
+            pixelPos.setInvalid();
         }
     }
 
@@ -551,10 +663,10 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             ComponentSampleModel sampleModel = (ComponentSampleModel) latLonData.getSampleModel();
             DataBuffer dataBufferX = latLonData.getDataBuffer();
             double[][] bankData;
-            if(dataBufferX instanceof javax.media.jai.DataBufferDouble) {
-                bankData = ((javax.media.jai.DataBufferDouble)dataBufferX).getBankData();
-            } else if(dataBufferX instanceof java.awt.image.DataBufferDouble) {
-                bankData = ((java.awt.image.DataBufferDouble)dataBufferX).getBankData();
+            if (dataBufferX instanceof javax.media.jai.DataBufferDouble) {
+                bankData = ((javax.media.jai.DataBufferDouble) dataBufferX).getBankData();
+            } else if (dataBufferX instanceof java.awt.image.DataBufferDouble) {
+                bankData = ((java.awt.image.DataBufferDouble) dataBufferX).getBankData();
             } else {
                 return Double.MAX_VALUE;
             }
@@ -636,11 +748,11 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
 
         final Result result = new Result();
         boolean pixelFound = quadTreeSearch(0,
-                                            geoPos.lat, geoPos.lon,
-                                            0, 0,
-                                            rasterWidth,
-                                            rasterHeight,
-                                            result);
+                geoPos.lat, geoPos.lon,
+                0, 0,
+                rasterWidth,
+                rasterHeight,
+                result);
 
         if (pixelFound) {
             pixelPos.setLocation(result.x + 0.5f, result.y + 0.5f);
@@ -744,12 +856,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         if (!lonBand.equals(that.lonBand)) {
             return false;
         }
-        if (validMaskExpression != null ? !validMaskExpression.equals(
-                that.validMaskExpression) : that.validMaskExpression != null) {
-            return false;
-        }
-
-        return true;
+        return validMaskExpression != null ? validMaskExpression.equals(
+                that.validMaskExpression) : that.validMaskExpression == null;
     }
 
     @Override
@@ -872,52 +980,12 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         return pixelFound;
     }
 
-    static double getNegativeLonMax(double lon0, double lon1, double lon2, double lon3) {
-        double lonMax;
-        lonMax = -180.0f;
-        if (lon0 < 0.0f) {
-            lonMax = lon0;
-        }
-        if (lon1 < 0.0f) {
-            lonMax = max(lon1, lonMax);
-        }
-        if (lon2 < 0.0f) {
-            lonMax = max(lon2, lonMax);
-        }
-        if (lon3 < 0.0f) {
-            lonMax = max(lon3, lonMax);
-        }
-        return lonMax;
-    }
-
-    static double getPositiveLonMin(double lon0, double lon1, double lon2, double lon3) {
-        double lonMin;
-        lonMin = 180.0f;
-        if (lon0 >= 0.0f) {
-            lonMin = lon0;
-        }
-        if (lon1 >= 0.0f) {
-            lonMin = min(lon1, lonMin);
-        }
-        if (lon2 >= 0.0f) {
-            lonMin = min(lon2, lonMin);
-        }
-        if (lon3 >= 0.0f) {
-            lonMin = min(lon3, lonMin);
-        }
-        return lonMin;
-    }
-
-    static boolean isCrossingMeridianInsideQuad(boolean crossingMeridianInsideProduct, double lon0, double lon1,
-                                                double lon2, double lon3) {
-        if (!crossingMeridianInsideProduct) {
-            return false;
-        }
-        double lonMin = min(lon0, min(lon1, min(lon2, lon3)));
-        double lonMax = max(lon0, max(lon1, max(lon2, lon3)));
-
-        return Math.abs(lonMax - lonMin) > 180.0;
-    }
+    /*
+     * Computes the absolute and smaller difference for two angles.
+     * @param a1 the first angle in the degrees (-180 <= a1 <= 180)
+     * @param a2 the second angle in degrees (-180 <= a2 <= 180)
+     * @return the difference between 0 and 180 degrees
+     */
 
     private void getGeoPosInternal(int pixelX, int pixelY, GeoPos geoPos) {
         if (useTiling) {
@@ -934,6 +1002,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             geoPos.setLocation(lat, lon);
         }
     }
+
+    // todo - (nf) do not delete this method, it could be used later, if we want to determine x,y fractions
 
     private boolean quadTreeRecursion(final int depth,
                                       final double lat, final double lon,
@@ -963,107 +1033,19 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         return b1 || b2 || b3 || b4;
     }
 
-
-    private static double min(final double a, final double b) {
-        return (a <= b) ? a : b;
-    }
-
-    private static double max(final double a, final double b) {
-        return (a >= b) ? a : b;
-    }
-
-    private static double sq(final double dx, final double dy) {
-        return dx * dx + dy * dy;
-    }
-
-    /*
-     * Computes the absolute and smaller difference for two angles.
-     * @param a1 the first angle in the degrees (-180 <= a1 <= 180)
-     * @param a2 the second angle in degrees (-180 <= a2 <= 180)
-     * @return the difference between 0 and 180 degrees
-     */
-
-    private static double lonDiff(double a1, double a2) {
-        double d = a1 - a2;
-        if (d < 0.0f) {
-            d = -d;
-        }
-        if (d > 180.0f) {
-            d = 360.0f - d;
-        }
-        return d;
-    }
-
-    // todo - (nf) do not delete this method, it could be used later, if we want to determine x,y fractions
-
-    private static boolean getPixelPos(final double lat, final double lon,
-                                       final double[] lata, final double[] lona,
-                                       final int[] xa, final int[] ya,
-                                       final PixelPos pixelPos) {
-        final Matrix mA = new Matrix(3, 3);
-        mA.set(0, 0, 1.0);
-        mA.set(1, 0, 1.0);
-        mA.set(2, 0, 1.0);
-        mA.set(0, 1, lata[0]);
-        mA.set(1, 1, lata[1]);
-        mA.set(2, 1, lata[2]);
-        mA.set(0, 2, lona[0]);
-        mA.set(1, 2, lona[1]);
-        mA.set(2, 2, lona[2]);
-        final LUDecomposition decomp = new LUDecomposition(mA);
-
-        final Matrix mB = new Matrix(3, 1);
-
-        mB.set(0, 0, ya[0] + 0.5);
-        mB.set(1, 0, ya[1] + 0.5);
-        mB.set(2, 0, ya[2] + 0.5);
-        Exception err = null;
-
-        Matrix mY = null;
-        try {
-            mY = decomp.solve(mB);
-        } catch (Exception e) {
-            System.out.printf("y1 = %d, y2 = %d, y3 = %d%n", ya[0], ya[1], ya[2]);
-            err = e;
-
-        }
-
-        mB.set(0, 0, xa[0] + 0.5);
-        mB.set(1, 0, xa[1] + 0.5);
-        mB.set(2, 0, xa[2] + 0.5);
-        Matrix mX = null;
-        try {
-            mX = decomp.solve(mB);
-        } catch (Exception e) {
-            System.out.printf("x1 = %d, x2 = %d, x3 = %d%n", xa[0], xa[1], xa[2]);
-            err = e;
-        }
-
-        if (err != null) {
-            return false;
-        }
-
-
-        final double fx = mX.get(0, 0) + mX.get(1, 0) * lat + mX.get(2, 0) * lon;
-        final double fy = mY.get(0, 0) + mY.get(1, 0) * lat + mY.get(2, 0) * lon;
-
-        pixelPos.setLocation(fx, fy);
-        return true;
-    }
-
     private void trace(final int x0, final int y0, int bestX, int bestY, int bestCount) {
         if (bestCount > 0) {
             int dx = bestX - x0;
             int dy = bestY - y0;
             if (Math.abs(dx) >= searchRadius || Math.abs(dy) >= searchRadius) {
                 Debug.trace("WARNING: search radius reached at " +
-                            "(x0 = " + x0 + ", y0 = " + y0 + "), " +
-                            "(dx = " + dx + ", dy = " + dy + "), " +
-                            "#best = " + bestCount);
+                        "(x0 = " + x0 + ", y0 = " + y0 + "), " +
+                        "(dx = " + dx + ", dy = " + dy + "), " +
+                        "#best = " + bestCount);
             }
         } else {
             Debug.trace("WARNING: no better pixel found at " +
-                        "(x0 = " + x0 + ", y0 = " + y0 + ")");
+                    "(x0 = " + x0 + ", y0 = " + y0 + ")");
         }
     }
 
@@ -1104,9 +1086,22 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             validMaskExpression = null;
         }
         destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                  validMaskExpression,
-                                                  getSearchRadius()));
+                validMaskExpression,
+                getSearchRadius()));
         return true;
+    }
+
+    /**
+     * Gets the datum, the reference point or surface against which {@link GeoPos} measurements are made.
+     *
+     * @return the datum
+     */
+    @Override
+    public Datum getDatum() {
+        if (pixelPosEstimator != null) {
+            return pixelPosEstimator.getDatum();
+        }
+        return Datum.WGS_84;
     }
 
     private static class PixelGrid extends TiePointGrid {
@@ -1174,20 +1169,6 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         }
     }
 
-    /**
-     * Gets the datum, the reference point or surface against which {@link GeoPos} measurements are made.
-     *
-     * @return the datum
-     */
-    @Override
-    public Datum getDatum() {
-        if (pixelPosEstimator != null) {
-            return pixelPosEstimator.getDatum();
-        }
-        return Datum.WGS_84;
-    }
-
-
     private static class LatLonImage extends PointOpImage {
 
         private final GeoCoding estimator;
@@ -1197,12 +1178,30 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         private final RasterFormatTag maskRasterFormatTag;
         private final RasterFormatTag targetRasterFormatTag;
 
+        private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validSrc, GeoCoding estimator) {
+            this(latSrc, lonSrc, validSrc, layout(latSrc, lonSrc), estimator);
+        }
+
+        private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validMaskSrc, ImageLayout imageLayout,
+                            GeoCoding estimator) {
+            super(vector(latSrc, lonSrc, validMaskSrc), imageLayout, renderingHints(imageLayout), true);
+            this.estimator = estimator;
+            latRasterFormatTag = getRasterFormatTag(latSrc.getSampleModel());
+            lonRasterFormatTag = getRasterFormatTag(lonSrc.getSampleModel());
+            if (validMaskSrc != null) {
+                maskRasterFormatTag = getRasterFormatTag(validMaskSrc.getSampleModel());
+            } else {
+                maskRasterFormatTag = null;
+            }
+            targetRasterFormatTag = getRasterFormatTag(getSampleModel());
+        }
+
         private static ImageLayout layout(RenderedImage latSrc, RenderedImage lonSrc) {
             int maxDataType = Math.max(latSrc.getSampleModel().getDataType(), lonSrc.getSampleModel().getDataType());
             final SampleModel sampleModel = RasterFactory.createBandedSampleModel(maxDataType,
-                                                                                  latSrc.getTileWidth(),
-                                                                                  latSrc.getTileHeight(),
-                                                                                  2);
+                    latSrc.getTileWidth(),
+                    latSrc.getTileHeight(),
+                    2);
             final ImageLayout imageLayout = new ImageLayout();
             imageLayout.setSampleModel(sampleModel);
             return imageLayout;
@@ -1225,24 +1224,6 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             return v;
         }
 
-        private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validSrc, GeoCoding estimator) {
-            this(latSrc, lonSrc, validSrc, layout(latSrc, lonSrc), estimator);
-        }
-
-        private LatLonImage(RenderedImage latSrc, RenderedImage lonSrc, RenderedImage validMaskSrc, ImageLayout imageLayout,
-                            GeoCoding estimator) {
-            super(vector(latSrc, lonSrc, validMaskSrc), imageLayout, renderingHints(imageLayout), true);
-            this.estimator = estimator;
-            latRasterFormatTag = getRasterFormatTag(latSrc.getSampleModel());
-            lonRasterFormatTag = getRasterFormatTag(lonSrc.getSampleModel());
-            if (validMaskSrc != null) {
-                maskRasterFormatTag = getRasterFormatTag(validMaskSrc.getSampleModel());
-            } else {
-                maskRasterFormatTag = null;
-            }
-            targetRasterFormatTag = getRasterFormatTag(getSampleModel());
-        }
-
         private static RasterFormatTag getRasterFormatTag(SampleModel sampleModel1) {
             int compatibleTag = RasterAccessor.findCompatibleTag(null, sampleModel1);
             return new RasterFormatTag(sampleModel1, compatibleTag);
@@ -1251,13 +1232,13 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         @Override
         protected void computeRect(Raster[] sources, WritableRaster dest, Rectangle destRect) {
             RasterAccessor latAcc = new RasterAccessor(sources[0], destRect, latRasterFormatTag,
-                                                       getSourceImage(0).getColorModel());
+                    getSourceImage(0).getColorModel());
             RasterAccessor lonAcc = new RasterAccessor(sources[1], destRect, lonRasterFormatTag,
-                                                       getSourceImage(1).getColorModel());
+                    getSourceImage(1).getColorModel());
             RasterAccessor validMaskAcc = null;
             if (maskRasterFormatTag != null) {
                 validMaskAcc = new RasterAccessor(sources[2], destRect, maskRasterFormatTag,
-                                                  getSourceImage(2).getColorModel());
+                        getSourceImage(2).getColorModel());
             }
             RasterAccessor destAcc = new RasterAccessor(dest, destRect, targetRasterFormatTag, getColorModel());
 
