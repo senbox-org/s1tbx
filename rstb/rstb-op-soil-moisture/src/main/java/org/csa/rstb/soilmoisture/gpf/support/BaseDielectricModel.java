@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.csa.rstb.soilmoisture.gpf;
+package org.csa.rstb.soilmoisture.gpf.support;
 
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -96,25 +96,21 @@ public class BaseDielectricModel {
             if (s.toLowerCase().contains(keyword)) {
 
                 if (bandName.isEmpty()) {
-
                     bandName = s;
 
                 } else {
-
                     throw new OperatorException("Too many " + keyword + " bands");
                 }
             }
         }
 
         if (bandName.isEmpty()) {
-
             throw new OperatorException("No " + keyword + " band name in product");
         }
 
         final Band band = sourceProduct.getBand(bandName);
 
         if (band == null) {
-
             throw new OperatorException("Failed to get source " + keyword + " band ");
         }
 

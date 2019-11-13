@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.csa.rstb.soilmoisture.gpf;
+package org.csa.rstb.soilmoisture.gpf.support;
 
 /**
  * Interface for single variable function with fixed parameters.

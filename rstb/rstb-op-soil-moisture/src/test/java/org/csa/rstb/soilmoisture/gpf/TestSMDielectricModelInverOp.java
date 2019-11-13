@@ -1,6 +1,7 @@
 package org.csa.rstb.soilmoisture.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.gpf.support.DielectricModelFactory;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

@@ -16,6 +16,7 @@
 package org.csa.rstb.soilmoisture.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.gpf.support.IEMInverBase;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -31,7 +32,6 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 
@@ -50,7 +50,6 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "IEM-Hybrid-Inversion",
         category = "Radar/Soil Moisture",
-        authors = "Cecilia Wong",
         description = "Performs IEM inversion using Hybrid approach")
 public class IEMHybridInverOp extends IEMInverBase {
 
@@ -104,7 +103,6 @@ public class IEMHybridInverOp extends IEMInverBase {
     public void initialize() throws OperatorException {
 
         try {
-
             initBaseParams(sourceProduct, lutFile, outputRMS);
 
             setNumberOfImages(NUM_SOURCE_IMAGES);
@@ -131,7 +129,6 @@ public class IEMHybridInverOp extends IEMInverBase {
             updateMetadata("Hybrid IEM");
 
         } catch (Throwable e) {
-
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -452,7 +449,6 @@ public class IEMHybridInverOp extends IEMInverBase {
     }
 
     protected int convertToKDTreeMapIntKey(KDTreeInfo info) {
-
         final int[] sectionIdx = info.getSectionIdx();
         return sectionIdx[0] * 1000 + sectionIdx[2];
     }
@@ -474,22 +470,8 @@ public class IEMHybridInverOp extends IEMInverBase {
      * @param flag True means output all bands.
      */
     public void setOptionalOutputs(final boolean flag) {
-
         outputRMS = flag;
         outputCL = flag;
-    }
-
-    /**
-     * Compare the values read from CSV LUT and Matlab LUT files.
-     * This function is used for unit test only.
-     *
-     * @param csvLUTFilePath    The full path to the CSV LUT file.
-     * @param matlabLUTFilePath The full path to the Matlab LUT file.
-     * @param epsilon           Precision for comparison.
-     */
-    public boolean compareCSVLUTWithMatlabLUT(final String csvLUTFilePath, final String matlabLUTFilePath, final double epsilon) throws IOException {
-
-        return compareLUTs(csvLUTFilePath, matlabLUTFilePath, 3, epsilon);
     }
 
     /**

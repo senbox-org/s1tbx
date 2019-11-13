@@ -244,7 +244,7 @@
         </file>
         <file name="org.csa.rstb.soilmoisture.gpf.ui.filtering.SMDielectricModelInverOpUI">
             <attr name="operatorUIClass"
-                  stringvalue="org.csa.rstb.soilmoisture.gpf.ui.filtering.SMDielectricModelInverOpUI"/>
+                  stringvalue="org.csa.rstb.soilmoisture.gpf.ui.SMDielectricModelInverOpUI"/>
             <attr name="operatorName" stringvalue="SM-Dielectric-Modeling"/>
         </file>
     </folder>

@@ -16,6 +16,9 @@
 package org.csa.rstb.soilmoisture.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.gpf.support.DielectricModel;
+import org.csa.rstb.soilmoisture.gpf.support.DielectricModelFactory;
+import org.csa.rstb.soilmoisture.gpf.support.MironovDielectricModel;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -47,7 +50,6 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "SM-Dielectric-Modeling",
         category = "Radar/Soil Moisture",
-        authors = "Cecilia Wong",
         description = "Performs SM inversion using dielectric model")
 public class SMDielectricModelInverOp extends Operator {
 
@@ -86,7 +88,6 @@ public class SMDielectricModelInverOp extends Operator {
      * requires that an operator has a default constructor.
      */
     public SMDielectricModelInverOp() {
-
     }
 
     /**
@@ -105,7 +106,6 @@ public class SMDielectricModelInverOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-
             getSourceImageDimension();
 
             createTargetProduct();
@@ -121,11 +121,9 @@ public class SMDielectricModelInverOp extends Operator {
             dielectricModel.initialize();
 
         } catch (Throwable e) {
-
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
-
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.

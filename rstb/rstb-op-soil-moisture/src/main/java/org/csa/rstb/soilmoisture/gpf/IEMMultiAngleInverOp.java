@@ -16,6 +16,7 @@
 package org.csa.rstb.soilmoisture.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.gpf.support.IEMInverBase;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -54,7 +55,6 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "IEM-Multi-Angle-Inversion",
         category = "Radar/Soil Moisture",
-        authors = "Cecilia Wong",
         description = "Performs IEM inversion using Multi-angle approach")
 public class IEMMultiAngleInverOp extends IEMInverBase {
 
@@ -163,7 +163,6 @@ public class IEMMultiAngleInverOp extends IEMInverBase {
 
             updateMetadata("Multi-Angle IEM");
         } catch (Throwable e) {
-
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -478,7 +477,6 @@ public class IEMMultiAngleInverOp extends IEMInverBase {
      * @param flag True means output all bands.
      */
     public void setOptionalOutputs(final boolean flag) {
-
         outputRMS = flag;
     }
 

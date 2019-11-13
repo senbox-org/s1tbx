@@ -16,6 +16,7 @@
 package org.csa.rstb.soilmoisture.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.gpf.support.IEMInverBase;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -31,6 +32,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 
@@ -49,7 +51,6 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "IEM-Multi-Pol-Inversion",
         category = "Radar/Soil Moisture",
-        authors = "Cecilia Wong",
         description = "Performs IEM inversion using Multi-polarization approach")
 public class IEMMultiPolInverOp extends IEMInverBase {
 
@@ -117,7 +118,6 @@ public class IEMMultiPolInverOp extends IEMInverBase {
             updateMetadata("Multi-Pol IEM");
 
         } catch (Throwable e) {
-
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
@@ -256,9 +256,7 @@ public class IEMMultiPolInverOp extends IEMInverBase {
                     int outlier = INVALID_OUTLIER_VALUE;
 
                     double[] outParmas = new double[3];
-                    for (int i = 0; i < outParmas.length; i++) {
-                        outParmas[i] = INVALID_OUTPUT_VALUE;
-                    }
+                    Arrays.fill(outParmas, INVALID_OUTPUT_VALUE);
 
                     final KDTreeNearestNeighbours nn = nearestNeighbours[x0][y0];
                     if (nn != null) {

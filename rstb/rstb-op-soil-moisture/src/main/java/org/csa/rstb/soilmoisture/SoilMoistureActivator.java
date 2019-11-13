@@ -27,9 +27,21 @@ import java.util.stream.Stream;
 
 /**
  * Activator class for deploying soil moisture resources to the aux data dir
- *
  */
 public class SoilMoistureActivator implements Activator {
+
+    private static void fixUpPermissions(Path destPath) throws IOException {
+        final Stream<Path> files = Files.list(destPath);
+        files.forEach(path -> {
+            if (Files.isDirectory(path)) {
+                try {
+                    fixUpPermissions(path);
+                } catch (IOException e) {
+                    SystemUtils.LOG.severe("Failed to fix permissions on " + path);
+                }
+            }
+        });
+    }
 
     @Override
     public void start() {
@@ -53,18 +65,5 @@ public class SoilMoistureActivator implements Activator {
     @Override
     public void stop() {
         // Purposely no-op
-    }
-
-    private static void fixUpPermissions(Path destPath) throws IOException {
-        final Stream<Path> files = Files.list(destPath);
-        files.forEach(path -> {
-            if (Files.isDirectory(path)) {
-                try {
-                    fixUpPermissions(path);
-                } catch (IOException e) {
-                    SystemUtils.LOG.severe("Failed to fix permissions on " + path);
-                }
-            }
-        });
     }
 }

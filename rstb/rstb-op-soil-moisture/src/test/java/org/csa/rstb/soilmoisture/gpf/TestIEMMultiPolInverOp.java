@@ -1,6 +1,7 @@
 package org.csa.rstb.soilmoisture.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.gpf.support.IEMInverBase;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -21,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for IEMMultiPolInverOperator.
  */
-@Ignore
 public class TestIEMMultiPolInverOp {
 
     private final static OperatorSpi spi = new IEMMultiPolInverOp.Spi();

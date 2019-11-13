@@ -13,11 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.csa.rstb.soilmoisture.gpf;
+package org.csa.rstb.soilmoisture.gpf.support;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.exception.TooManyEvaluationsException;
-import org.apache.commons.math3.exception.TooManyIterationsException;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.MaxIter;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
@@ -58,26 +56,11 @@ public class SVFMinimizer {
 
         final BrentOptimizer brentOptimizer = new BrentOptimizer(RELATIVE_ACCURACY, ABSOLUTE_ACCURACY);
 
-        double minVal = invalidValue;
-
+        double minVal;
         try {
-
             UnivariatePointValuePair ptValPair = brentOptimizer.optimize(maxEval, maxIter, GoalType.MINIMIZE, searchInterval, uof);
             minVal = ptValPair.getPoint();
-
-        } catch (TooManyIterationsException e) {
-
-            //System.out.println("SVFMinimizer: BrentOptimizer exceeded max iterations - " + e.getMessage());
-            minVal = invalidValue;
-
-        } catch (TooManyEvaluationsException e) {
-
-            //System.out.println("SVFMinimizer: BrentOptimizer function evaluation exception - " + e.getMessage());
-            minVal = invalidValue;
-
         } catch (Throwable e) {
-
-            //System.out.println("SVFMinimizer: Unknown exception from BrentOptimizer - " + e.getMessage());
             minVal = invalidValue;
         }
 

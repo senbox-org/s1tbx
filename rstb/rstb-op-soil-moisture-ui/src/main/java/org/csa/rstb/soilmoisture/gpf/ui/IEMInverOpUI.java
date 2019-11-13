@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.soilmoisture.gpf.ui;
 
-import org.csa.rstb.soilmoisture.gpf.IEMInverBase;
+import org.csa.rstb.soilmoisture.gpf.support.IEMInverBase;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -26,7 +26,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Map;
 
 /**
@@ -67,13 +66,8 @@ public class IEMInverOpUI extends BaseOperatorUI {
 
     private void populateLUTs(final String operatorName) {
         lutFolder = IEMInverBase.initializeLUTFolder();
-        final File[] files = lutFolder.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.isFile() && (file.getName().endsWith(IEMInverBase.MAT_FILE_EXTENSION) ||
-                        file.getName().endsWith(IEMInverBase.CSV_FILE_EXTENSION));
-            }
-        });
+        final File[] files = lutFolder.listFiles(file -> file.isFile() && (file.getName().endsWith(IEMInverBase.MAT_FILE_EXTENSION) ||
+                file.getName().endsWith(IEMInverBase.CSV_FILE_EXTENSION)));
         if (files != null) {
             for (File file : files) {
                 String name = file.getName().toUpperCase();

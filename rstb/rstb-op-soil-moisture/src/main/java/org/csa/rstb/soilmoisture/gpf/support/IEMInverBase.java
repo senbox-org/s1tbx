@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.csa.rstb.soilmoisture.gpf;
+package org.csa.rstb.soilmoisture.gpf.support;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.bc.ceres.core.ProgressMonitor;
@@ -252,7 +252,7 @@ public class IEMInverBase extends Operator {
             throw new OperatorException("Can't extract slave number from band name 1 " + s1 + ' ' + s2);
         }
 
-        final int rank1 = Integer.valueOf(slvStr1);
+        final int rank1 = Integer.parseInt(slvStr1);
 
         final String slvStr2 = s2.substring(slvStartIdx2 + 3, slvEndIdx2);
 
@@ -261,7 +261,7 @@ public class IEMInverBase extends Operator {
             throw new OperatorException("Can't extract slave number from band name 2 " + s1 + ' ' + s2);
         }
 
-        final int rank2 = Integer.valueOf(slvStr2);
+        final int rank2 = Integer.parseInt(slvStr2);
 
         if (rank1 == rank2) {
 
@@ -294,7 +294,7 @@ public class IEMInverBase extends Operator {
     // This needs to be called by the extended class before initialize() is called.
     // This is the number of images (1 or 2) used in the approach.
 
-    static double toDecibels(final double sigma) {
+    protected static double toDecibels(final double sigma) {
 
         if (sigma < underFlowFloat) {
 
@@ -1771,11 +1771,11 @@ public class IEMInverBase extends Operator {
         }
     }
 
-    protected class KDTreeNearestNeighbours {
+    protected static class KDTreeNearestNeighbours {
 
-        final protected ArrayList<Double> rdc;
-        final protected ArrayList<Double> rms;
-        final protected ArrayList<double[]> sigmas;
+        public final ArrayList<Double> rdc;
+        public final ArrayList<Double> rms;
+        public final ArrayList<double[]> sigmas;
 
         KDTreeNearestNeighbours(final ArrayList<Double> rdc, final ArrayList<Double> rms, ArrayList<double[]> sigmas) {
             this.rdc = rdc;
@@ -1786,7 +1786,7 @@ public class IEMInverBase extends Operator {
 
     protected class KDTreeNearestNeighbours1 extends KDTreeNearestNeighbours {
 
-        final protected ArrayList<Double> cl;
+        public final ArrayList<Double> cl;
 
         KDTreeNearestNeighbours1(final ArrayList<Double> rdc, final ArrayList<Double> rms, final ArrayList<Double> cl,
                                  ArrayList<double[]> sigmas) {

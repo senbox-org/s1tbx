@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.soilmoisture.gpf.ui;
 
-import org.csa.rstb.soilmoisture.gpf.DielectricModelFactory;
+import org.csa.rstb.soilmoisture.gpf.support.DielectricModelFactory;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -23,8 +23,6 @@ import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Map;
 
 /**
@@ -51,11 +49,7 @@ public class SMDielectricModelInverOpUI extends BaseOperatorUI {
         final JComponent panel = createPanel();
         initParameters();
 
-        modelToUseComboBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent event) {
-                showMironovParams(modelToUseComboBox.getSelectedItem().equals(DielectricModelFactory.MIRONOV));
-            }
-        });
+        modelToUseComboBox.addItemListener(event -> showMironovParams(modelToUseComboBox.getSelectedItem().equals(DielectricModelFactory.MIRONOV)));
 
         return panel;
     }
