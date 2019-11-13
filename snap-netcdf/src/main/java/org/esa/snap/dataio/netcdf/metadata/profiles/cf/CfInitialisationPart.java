@@ -62,14 +62,12 @@ public class CfInitialisationPart extends ProfileInitPartIO {
     public void writeProductBody(ProfileWriteContext ctx, Product product) throws IOException {
         NFileWriteable writeable = ctx.getNetcdfFileWriteable();
         writeable.addGlobalAttribute("Conventions", "CF-1.4");
-        if(!isLatLonPresent(product)) {
-            if (CfGeocodingPart.isGeographicCRS(product.getSceneGeoCoding())) {
-                writeDimensions(writeable, product, "lat", "lon");
-            } else {
-                writeDimensions(writeable, product, "y", "x");
-            }
-        } else {
+        if (!isLatLonPresent(product) && CfGeocodingPart.isGeographicCRS(product.getSceneGeoCoding())) {
+            writeDimensions(writeable, product, "lat", "lon");
+        } else if (isLatLonPresent(product) && CfGeocodingPart.isGeographicCRS(product.getSceneGeoCoding())) {
             writeDimensions(writeable, product, "lat_intern", "lon_intern");
+        } else {
+            writeDimensions(writeable, product, "y", "x");
         }
         Dimension tileSize = ImageManager.getPreferredTileSize(product);
         writeable.addGlobalAttribute("TileSize", tileSize.height + ":" + tileSize.width);
