@@ -23,10 +23,12 @@ pipeline {
         deployDirName = ''
         snapMajorVersion = ''
         sonarOption = ""
+        longTestsOption = ""
     }
     agent { label 'snap-test' }
     parameters {
         booleanParam(name: 'launchTests', defaultValue: true, description: 'When true all stages are launched, When false only stages "Package", "Deploy" and "Save installer data" are launched.')
+        booleanParam(name: 'runLongUnitTests', defaultValue: false, description: 'When true the option -Denable.long.tests=true is added to maven command so the long unit tests will be executed')
     }
     stages {
         stage('Package') {
@@ -48,9 +50,13 @@ pipeline {
                         // Only use sonar on master branch
                         sonarOption = "sonar:sonar"
                     }
+                    longTestsOption = ""
+                    if("${params.runLongUnitTests}" == "true") {
+                        longTestsOption = "-Denable.long.tests=true"
+                    }
                 }
                 echo "Build Job ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install ${sonarOption} -U -DskipTests=false -Ds1tbx.tests.data.dir=/data/ssd/testData/s1tbx/"
+                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap clean package install ${sonarOption} ${longTestsOption} -U -DskipTests=false -Ds1tbx.tests.data.dir=/data/ssd/testData/s1tbx/"
             }
             post {
                 always {
