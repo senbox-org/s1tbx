@@ -446,6 +446,14 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>test-utils</artifactId>
+                <version>${snap.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
 			
 			<!-- JSoup -->
 
