@@ -1,0 +1,45 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <fileList/>
+    </parameters>
+  </node>
+  <node id="DecisionTree">
+    <operator>DecisionTree</operator>
+    <sources>
+      <sourceProduct refid="ProductSet-Reader"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <decisionTree>
+        <treeNode>id=node0 expression= trueNode=node1 falseNode=node2</treeNode>
+        <treeNode>id=node1 expression= trueNode=null falseNode=null</treeNode>
+        <treeNode>id=node2 expression= trueNode=null falseNode=null</treeNode>
+      </decisionTree>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="DecisionTree"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>classification.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Write">
+      <displayPosition x="351.0" y="124.0"/>
+    </node>
+    <node id="DecisionTree">
+      <displayPosition x="191.0" y="123.0"/>
+    </node>
+    <node id="ProductSet-Reader">
+      <displayPosition x="25.0" y="124.0"/>
+    </node>
+  </applicationData>
+</graph>
