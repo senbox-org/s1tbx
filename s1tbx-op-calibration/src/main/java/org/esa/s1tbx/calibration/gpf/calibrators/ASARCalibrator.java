@@ -51,6 +51,8 @@ import java.util.Date;
  */
 public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"ENVISAT"};
+
     private File externalAuxFile = null;
 
     private String auxFile = null;
@@ -109,6 +111,11 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     private static final int INVALID_SUB_SWATH_INDEX = -1;
 
     public ASARCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

@@ -45,6 +45,8 @@ import java.util.Set;
 
 public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"TSX","TDX"};
+
     private String productType = null;
     private String acquisitionMode = null;
     private boolean useIncidenceAngleFromGIM = false;
@@ -67,6 +69,11 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public TerraSARXCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

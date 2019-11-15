@@ -72,6 +72,8 @@ import java.util.TimeZone;
  */
 public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"ERS1","ERS2"};
+
     private String pafID; // processing facility identifier
     private String psID;  // processing system identifier
     private String pvID;  // processing version identifier
@@ -162,6 +164,11 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public ERSCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

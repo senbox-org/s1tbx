@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2019 by SkyWatch Space Applications http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.calibration.gpf.calibrators;
+package org.csa.rstb.calibration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
@@ -41,6 +41,7 @@ import java.util.StringTokenizer;
 
 public class RCMCalibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"RCM"};
     private static final String USE_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
 
     private TiePointGrid incidenceAngle = null;
@@ -55,6 +56,11 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public RCMCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

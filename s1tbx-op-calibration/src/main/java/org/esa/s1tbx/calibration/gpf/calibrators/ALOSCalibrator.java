@@ -38,6 +38,8 @@ import java.io.File;
 
 public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"ALOS","ALOS2"};
+
     private double calibrationFactor = 0;
     private TiePointGrid incidenceAngle = null;
 
@@ -48,6 +50,11 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public ALOSCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

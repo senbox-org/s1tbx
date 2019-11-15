@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by SkyWatch Space Applications http://www.skywatch.co
+ * Copyright (C) 2019 by SkyWatch Space Applications http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -39,6 +39,8 @@ import java.util.HashMap;
 
 public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"RISAT1"};
+
     private final HashMap<String, Double> calibrationFactor = new HashMap<>(2);
     private TiePointGrid incidenceAngle = null;
     private double incidenceAngleAtSceneCentre = 0.0;
@@ -50,6 +52,11 @@ public class Risat1Calibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public Risat1Calibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

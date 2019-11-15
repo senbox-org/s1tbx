@@ -59,6 +59,7 @@
 
     <modules>
 	    <module>rstb-io</module>
+		<module>rstb-op-calibration</module>
         <module>rstb-op-classification</module>
         <module>rstb-op-classification-ui</module>
         <module>rstb-op-polarimetric-tools</module>

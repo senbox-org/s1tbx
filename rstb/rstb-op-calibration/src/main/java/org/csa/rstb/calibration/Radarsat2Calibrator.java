@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.calibration.gpf.calibrators;
+package org.csa.rstb.calibration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
@@ -38,6 +38,8 @@ import java.io.File;
 
 public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"RS2"};
+
     private static final String lutsigma = "lutSigma";
     private static final String lutgamma = "lutGamma";
     private static final String lutbeta = "lutBeta";
@@ -57,6 +59,11 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public Radarsat2Calibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

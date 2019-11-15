@@ -143,11 +143,6 @@ public class TestCalibrationOp {
     }
 
     @Test
-    public void testProcessAllRadarsat2() throws Exception {
-        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsRadarsat2, "RADARSAT-2", productTypeExemptions, null);
-    }
-
-    @Test
     public void testProcessAllCosmo() throws Exception {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsCosmoSkymed, "CosmoSkymed", productTypeExemptions, exceptionExemptions);
     }

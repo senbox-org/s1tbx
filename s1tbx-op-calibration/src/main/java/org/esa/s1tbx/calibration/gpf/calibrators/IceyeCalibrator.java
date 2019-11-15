@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by SkyWatch Space Applications http://www.skywatch.co
+ * Copyright (C) 2019 by SkyWatch Space Applications http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,13 +31,14 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
 
 /**
  * Calibration for ICEYE products.
  */
 
 public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
+
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"ICEYE"};
 
     private double calibrationFactor;
     private TiePointGrid incidenceAngle = null;
@@ -50,6 +51,11 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public IceyeCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**
