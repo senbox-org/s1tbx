@@ -48,10 +48,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.eo.LocalGeometry;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
-import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
+import org.esa.snap.engine_utilities.gpf.*;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -1194,7 +1191,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         if (imgResampling == Resampling.BILINEAR_INTERPOLATION) {
             return 1;
         } else if (imgResampling == Resampling.NEAREST_NEIGHBOUR) {
-            return 0;
+            return 1;
         } else if (imgResampling == Resampling.CUBIC_CONVOLUTION) {
             return 2;
         } else if (imgResampling == Resampling.BISINC_5_POINT_INTERPOLATION) {
@@ -1267,7 +1264,6 @@ public class RangeDopplerGeocodingOp extends Operator {
                                  final TileData tileData, final int[] subSwathIndex) {
 
         try {
-
             boolean computeNewSourceRectangle = false;
             if (tileData.imgResamplingRaster.sourceRectangle == null) {
                 computeNewSourceRectangle = true;
@@ -1283,15 +1279,13 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             Band[] srcBands = null;
             if (computeNewSourceRectangle) {
-                final int x0 = (int) (rangeIndex + 0.5) - margin;
-                final int y0 = (int) (azimuthIndex + 0.5) - margin;
-                final int w = 2 * margin + 1;
-
-                if (x0 < 0 || x0 + w > sourceImageWidth - 1 || y0 < 0 || y0 + w > sourceImageHeight) {
-                    return tileData.noDataValue;
-                }
-
-                Rectangle srcRect = new Rectangle(x0, y0, w, w);
+                final int x0 = Math.max((int)rangeIndex - margin, 0);
+                final int y0 = Math.max((int)azimuthIndex - margin, 0);
+                final int xMax = Math.min(x0 + 2 * margin + 1, sourceImageWidth);
+                final int yMax = Math.min(y0 + 2 * margin + 1, sourceImageHeight);
+                final int w = xMax - x0;
+                final int h = yMax - y0;
+                Rectangle srcRect = new Rectangle(x0, y0, w, h);
 
                 srcBands = targetBandNameToSourceBand.get(tileData.bandName);
                 tileData.imgResamplingRaster.setSourceTiles(getSourceTile(srcBands[0], srcRect),

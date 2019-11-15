@@ -76,9 +76,9 @@ public final class SARGeocoding {
         double upperBoundFreq = getDopplerFrequency(
                 earthPoint, sensorPosition[upperBound], sensorVelocity[upperBound], wavelength);
 
-        if (Double.compare(lowerBoundFreq, 0.0) == 0) {
+        if (Math.abs(lowerBoundFreq) < 1.0) {
             return firstLineUTC + lowerBound * lineTimeInterval;
-        } else if (Double.compare(upperBoundFreq, 0.0) == 0) {
+        } else if (Math.abs(upperBoundFreq) < 1.0) {
             return firstLineUTC + upperBound * lineTimeInterval;
         } else if (lowerBoundFreq * upperBoundFreq > 0.0) {
             return NonValidZeroDopplerTime;
