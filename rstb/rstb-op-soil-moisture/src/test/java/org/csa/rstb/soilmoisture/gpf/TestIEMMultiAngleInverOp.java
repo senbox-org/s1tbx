@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for IEMMultiAngleInverOperator.
  */
+@Ignore
 public class TestIEMMultiAngleInverOp {
 
     private final static OperatorSpi spi = new IEMMultiAngleInverOp.Spi();
