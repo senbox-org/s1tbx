@@ -40,6 +40,8 @@ import java.util.List;
 
 public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"Kompsat5"};
+
     private String acquisitionMode = null;
     private double referenceIncidenceAngle = 0.0;
     private double rescalingFactor = 0.0;
@@ -63,6 +65,11 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public Kompsat5Calibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

@@ -51,6 +51,8 @@ import java.util.List;
 
 public final class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"SENTINEL-1A","SENTINEL-1B"};
+
     private CalibrationInfo[] calibration = null;
     private boolean isMultiSwath = false;
     private boolean priorToIPFV234 = false;
@@ -71,6 +73,11 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
      * requires that an operator has a default constructor.
      */
     public Sentinel1Calibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

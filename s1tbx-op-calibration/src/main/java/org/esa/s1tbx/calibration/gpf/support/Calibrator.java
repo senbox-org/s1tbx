@@ -69,4 +69,6 @@ public interface Calibrator {
     void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile, final String srcBandName);
 
     Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames);
+
+    String[] getSupportedMissions();
 }

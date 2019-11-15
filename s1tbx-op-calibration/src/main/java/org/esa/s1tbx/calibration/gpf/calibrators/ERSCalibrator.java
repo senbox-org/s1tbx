@@ -19,7 +19,13 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
@@ -38,10 +44,23 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.operator.SubsampleAverageDescriptor;
-import java.awt.*;
-import java.awt.image.*;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -71,6 +90,8 @@ import java.util.TimeZone;
  * 4. analogue to digital converter non-linearity correction
  */
 public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
+
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"ERS1","ERS2"};
 
     private String pafID; // processing facility identifier
     private String psID;  // processing system identifier
@@ -162,6 +183,11 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      * requires that an operator has a default constructor.
      */
     public ERSCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**
@@ -1001,7 +1027,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             reader.readProduct(file);
 
             final ProductData elevAngleData = reader.getAuxData("elev_ang_is2");
-            elevationAngle = (double) elevAngleData.getElemFloat();
+            elevationAngle = elevAngleData.getElemFloat();
             //System.out.println("elevation angle is " + elevationAngle);
             //System.out.println();
 
@@ -1784,7 +1810,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
         if (psID.contains(VMP)) {
             computeAntennaPatternGainForVMPProduct(x0, w);
-        } else { // PGS (XEOS or ENVISAT)
+        } else { // PGS (CEOS or ENVISAT)
             computeAntennaPatternGainForPGSProduct(x0, w);
         }
     }
@@ -1872,13 +1898,13 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th, tileDescriptionFlags);
 
         // 2. Compute intensity image
-        RenderedImage intendityImage = getIntensityImage(sourceBand1, sourceBand2, sourceTileRectangle, bandUnit);
+        RenderedImage intensityImage = getIntensityImage(sourceBand1, sourceBand2, sourceTileRectangle, bandUnit);
         //System.out.println("intendityImage width: " + intendityImage.getWidth());
         //System.out.println("intendityImage height: " + intendityImage.getHeight());
         //outputRealImage(intendityImage, 0, 999);
 
         // 3. Average intensity image with an 8x8 block.
-        RenderedImage downSampledImage = downSampleImage(intendityImage);
+        RenderedImage downSampledImage = downSampleImage(intensityImage);
         //System.out.println("downSampledImage width: " + downSampledImage.getWidth());
         //System.out.println("downSampledImage height: " + downSampledImage.getHeight());
         //outputRealImage(downSampledImage, 0, 999);
@@ -2003,11 +2029,11 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         return new BufferedImage(colourModel, raster, false, new Hashtable());
     }
 
-    private RenderedImage downSampleImage(RenderedImage intendityImage) {
+    private RenderedImage downSampleImage(RenderedImage intensityImage) {
 
         final double scaleX = 1.0 / blockWidth; // 1/8 = 0.125
         final double scaleY = 1.0 / blockHeight; // 1/8 = 0.125
-        return SubsampleAverageDescriptor.create(intendityImage, scaleX, scaleY, null);
+        return SubsampleAverageDescriptor.create(intensityImage, scaleX, scaleY, null);
     }
 
     private RenderedImage removeFactorsApplied(final RenderedImage downSampledImage, final Rectangle sourceTileRectangle) {

@@ -143,8 +143,8 @@ public class TestCalibrationOp {
     }
 
     @Test
-    public void testProcessAllRadarsat2() throws Exception {
-        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsRadarsat2, "RADARSAT-2", productTypeExemptions, null);
+    public void testProcessAllALOS2() throws Exception {
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsALOS2, "ALOS-2", productTypeExemptions, exceptionExemptions);
     }
 
     @Test

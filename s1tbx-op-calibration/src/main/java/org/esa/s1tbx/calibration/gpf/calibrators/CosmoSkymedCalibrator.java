@@ -42,6 +42,8 @@ import java.util.HashMap;
 
 public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator {
 
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"CSK"};
+
     private double referenceSlantRange = 0.;
     private double referenceSlantRangeExp = 0.;
     private double referenceIncidenceAngle = 0.;
@@ -57,6 +59,11 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
      * requires that an operator has a default constructor.
      */
     public CosmoSkymedCalibrator() {
+    }
+
+    @Override
+    public String[] getSupportedMissions() {
+        return SUPPORTED_MISSIONS;
     }
 
     /**

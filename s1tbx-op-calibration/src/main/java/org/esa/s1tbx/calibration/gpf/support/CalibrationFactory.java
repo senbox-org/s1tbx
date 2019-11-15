@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.calibration.gpf.support;
 
-import org.esa.s1tbx.calibration.gpf.calibrators.*;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorException;
@@ -27,8 +26,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
  */
 public class CalibrationFactory {
 
-    public static Calibrator createCalibrator(Product sourceProduct)
-            throws OperatorException, IllegalArgumentException {
+    public static Calibrator createCalibrator(Product sourceProduct) throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         if (absRoot == null) {
@@ -36,33 +34,12 @@ public class CalibrationFactory {
         }
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
-        if (mission.equals("ENVISAT")) {
-            return new ASARCalibrator();
-        } else if (mission.contains("ERS1") || mission.contains("ERS2")) {
-            return new ERSCalibrator();
-        } else if (mission.equals("ALOS") || mission.equals("ALOS2")) {
-            return new ALOSCalibrator();
-        } else if (mission.equals("RCM")) {
-            return new RCMCalibrator();
-        } else if (mission.equals("RS2")) {
-            return new Radarsat2Calibrator();
-        } else if (mission.contains("TSX") || mission.contains("TDX")) {
-            return new TerraSARXCalibrator();
-        } else if (mission.contains("CSK")) {
-            return new CosmoSkymedCalibrator();
-        } else if (mission.contains("SENTINEL-1")) {
-            return new Sentinel1Calibrator();
-        } else if (mission.contains("Kompsat5")) {
-            return new Kompsat5Calibrator();
-        } else if (mission.contains("RISAT1")) {
-            return new Risat1Calibrator();
-        } else if (mission.contains("PAZ")) {
-            return new PazCalibrator();
-        } else if (mission.contains("ICEYE")) {
-            return new IceyeCalibrator();
-        } else {
+        Calibrator calibrator = CalibratorRegistry.getInstance().getCalibrator(mission);
+        if(calibrator == null) {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
         }
+
+        return calibrator;
     }
 
     //================================== Create Sigma0, Gamma0 and Beta0 virtual bands ====================================
