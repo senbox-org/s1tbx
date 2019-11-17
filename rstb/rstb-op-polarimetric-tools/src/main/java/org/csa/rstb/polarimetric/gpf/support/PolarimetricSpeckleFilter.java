@@ -13,10 +13,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.csa.rstb.polarimetric.gpf.specklefilters;
+package org.csa.rstb.polarimetric.gpf.support;
 
-import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
-import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Interface for Polarimetric Speckle Filters
  */
-public interface SpeckleFilter extends DualPolProcessor, QuadPolProcessor {
+public interface PolarimetricSpeckleFilter extends DualPolProcessor, QuadPolProcessor {
 
     enum T3Elem {
         T11, T12_real, T12_imag, T13_real, T13_imag, T22, T23_real, T23_imag, T33

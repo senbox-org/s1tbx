@@ -1,7 +1,7 @@
 package org.csa.rstb.polarimetric.gpf.specklefilters.covariance;
 
-import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
-import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
 

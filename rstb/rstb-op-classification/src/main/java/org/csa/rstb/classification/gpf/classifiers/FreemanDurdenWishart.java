@@ -16,7 +16,7 @@
 package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.csa.rstb.polarimetric.gpf.decompositions.FreemanDurden;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;

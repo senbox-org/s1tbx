@@ -15,6 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf;
 
+import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 

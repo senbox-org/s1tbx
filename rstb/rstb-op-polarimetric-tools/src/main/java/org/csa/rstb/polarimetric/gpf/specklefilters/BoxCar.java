@@ -15,9 +15,10 @@
  */
 package org.csa.rstb.polarimetric.gpf.specklefilters;
 
-import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.DualPolProcessor;
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
-import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.PolarimetricSpeckleFilter;
+import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -32,7 +33,7 @@ import java.util.Map;
 /**
  * Polarimetric Speckle Filter
  */
-public class BoxCar implements SpeckleFilter, DualPolProcessor, QuadPolProcessor {
+public class BoxCar implements PolarimetricSpeckleFilter, DualPolProcessor, QuadPolProcessor {
 
     private final PolarimetricSpeckleFilterOp operator;
     private final Product sourceProduct;

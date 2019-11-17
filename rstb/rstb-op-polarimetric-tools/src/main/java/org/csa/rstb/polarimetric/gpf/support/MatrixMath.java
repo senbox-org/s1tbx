@@ -1,4 +1,4 @@
-package org.csa.rstb.polarimetric.gpf;
+package org.csa.rstb.polarimetric.gpf.support;
 
 public interface MatrixMath {
 

@@ -35,7 +35,7 @@ public class CalibrationFactory {
         }
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
-        Calibrator calibrator = CalibratorRegistry.getInstance().getDescriptor(mission);
+        Calibrator calibrator = CalibratorRegistry.getInstance().getCalibrator(mission);
         if(calibrator == null) {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
         }

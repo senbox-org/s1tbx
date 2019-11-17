@@ -1,4 +1,4 @@
-package org.csa.rstb.polarimetric.gpf;
+package org.csa.rstb.polarimetric.gpf.support;
 
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.ProductData;

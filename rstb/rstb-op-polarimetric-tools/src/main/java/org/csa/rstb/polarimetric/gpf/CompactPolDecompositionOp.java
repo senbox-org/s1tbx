@@ -21,6 +21,7 @@ import org.csa.rstb.polarimetric.gpf.decompositions_cp.CP_MDelta;
 import org.csa.rstb.polarimetric.gpf.decompositions_cp.CP_RVOG;
 import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.polarimetric.gpf.decompositions.Decomposition;
+import org.csa.rstb.polarimetric.gpf.support.CompactPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;

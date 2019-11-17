@@ -1,4 +1,4 @@
-package org.csa.rstb.polarimetric.gpf;
+package org.csa.rstb.polarimetric.gpf.support;
 
 import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.decompositions.DecompositionBase;

@@ -27,28 +27,20 @@ import java.util.Set;
  */
 public class CalibratorRegistry {
 
-    private final ServiceRegistry<Calibrator> descriptors;
+    private final ServiceRegistry<Calibrator> calibrators;
 
     private CalibratorRegistry() {
-        descriptors = ServiceRegistryManager.getInstance().getServiceRegistry(Calibrator.class);
-        ServiceLoader.loadServices(descriptors);
+        calibrators = ServiceRegistryManager.getInstance().getServiceRegistry(Calibrator.class);
+        ServiceLoader.loadServices(calibrators);
     }
 
     public static CalibratorRegistry getInstance() {
         return Holder.instance;
     }
 
-    public void addDescriptor(final Calibrator modelDescriptor) {
-        descriptors.addService(modelDescriptor);
-    }
-
-    public void removeDescriptor(final Calibrator modelDescriptor) {
-        descriptors.removeService(modelDescriptor);
-    }
-
-    public Calibrator getDescriptor(final String name) {
+    public Calibrator getCalibrator(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        final Set<Calibrator> services = descriptors.getServices();
+        final Set<Calibrator> services = calibrators.getServices();
         for (Calibrator descriptor : services) {
             final String[] missions = descriptor.getSupportedMissions();
             for(String mission : missions) {
@@ -60,8 +52,8 @@ public class CalibratorRegistry {
         return null;
     }
 
-    public Calibrator[] getAllDescriptors() {
-        return descriptors.getServices().toArray(new Calibrator[descriptors.getServices().size()]);
+    public Calibrator[] getAllCalibrators() {
+        return calibrators.getServices().toArray(new Calibrator[calibrators.getServices().size()]);
     }
 
     // Initialization on demand holder idiom
