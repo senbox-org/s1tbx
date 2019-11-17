@@ -17,9 +17,9 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestRadarsatProductReader extends ReaderTest  {
 
-    private static final File zipFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR" + S1TBXTests.sep + "RS1\\RS1_m0700850_S7_20121103_232202_HH_SGF.zip");
-    private static final File folder = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR" + S1TBXTests.sep + "RS1\\RS1_m0700850_S7_20121103_232202_HH_SGF");
-    private static final File metaFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR" + S1TBXTests.sep + "RS1\\RS1_m0700850_S7_20121103_232202_HH_SGF\\RS1_m0700850_S7_20121103_232202_HH_SGF.vol");
+    private static final File zipFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR" + S1TBXTests.sep + "RS1/RS1_m0700850_S7_20121103_232202_HH_SGF.zip");
+    private static final File folder = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR" + S1TBXTests.sep + "RS1/RS1_m0700850_S7_20121103_232202_HH_SGF");
+    private static final File metaFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR" + S1TBXTests.sep + "RS1/RS1_m0700850_S7_20121103_232202_HH_SGF/RS1_m0700850_S7_20121103_232202_HH_SGF.vol");
 
     @Before
     public void setUp() {
