@@ -1008,7 +1008,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             reader.readProduct(file);
 
             final ProductData elevAngleData = reader.getAuxData("elev_ang_is2");
-            elevationAngle = (double) elevAngleData.getElemFloat();
+            elevationAngle = elevAngleData.getElemFloat();
             //System.out.println("elevation angle is " + elevationAngle);
             //System.out.println();
 
@@ -1791,7 +1791,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
         if (psID.contains(VMP)) {
             computeAntennaPatternGainForVMPProduct(x0, w);
-        } else { // PGS (XEOS or ENVISAT)
+        } else { // PGS (CEOS or ENVISAT)
             computeAntennaPatternGainForPGSProduct(x0, w);
         }
     }
@@ -1879,7 +1879,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th, tileDescriptionFlags);
 
         // 2. Compute intensity image
-        RenderedImage intendityImage = getIntensityImage(sourceBand1, sourceBand2, sourceTileRectangle, bandUnit);
+        RenderedImage intensityImage = getIntensityImage(sourceBand1, sourceBand2, sourceTileRectangle, bandUnit);
         //System.out.println("intendityImage width: " + intendityImage.getWidth());
         //System.out.println("intendityImage height: " + intendityImage.getHeight());
         //outputRealImage(intendityImage, 0, 999);
@@ -2010,11 +2010,11 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         return new BufferedImage(colourModel, raster, false, new Hashtable());
     }
 
-    private RenderedImage downSampleImage(RenderedImage intendityImage) {
+    private RenderedImage downSampleImage(RenderedImage intensityImage) {
 
         final double scaleX = 1.0 / blockWidth; // 1/8 = 0.125
         final double scaleY = 1.0 / blockHeight; // 1/8 = 0.125
-        return SubsampleAverageDescriptor.create(intendityImage, scaleX, scaleY, null);
+        return SubsampleAverageDescriptor.create(intensityImage, scaleX, scaleY, null);
     }
 
     private RenderedImage removeFactorsApplied(final RenderedImage downSampledImage, final Rectangle sourceTileRectangle) {

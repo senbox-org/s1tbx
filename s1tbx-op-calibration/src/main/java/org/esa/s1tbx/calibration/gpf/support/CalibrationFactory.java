@@ -26,8 +26,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
  */
 public class CalibrationFactory {
 
-    public static Calibrator createCalibrator(Product sourceProduct)
-            throws OperatorException, IllegalArgumentException {
+    public static Calibrator createCalibrator(Product sourceProduct) throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         if (absRoot == null) {

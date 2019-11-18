@@ -38,14 +38,14 @@ public class CalibratorRegistry {
         return Holder.instance;
     }
 
-    public Calibrator getCalibrator(final String name) {
+    public Calibrator getCalibrator(final String name) throws Exception {
         Guardian.assertNotNullOrEmpty("name", name);
         final Set<Calibrator> services = calibrators.getServices();
         for (Calibrator descriptor : services) {
             final String[] missions = descriptor.getSupportedMissions();
             for(String mission : missions) {
                 if (name.equalsIgnoreCase(mission)) {
-                    return descriptor;
+                    return descriptor.getClass().newInstance();
                 }
             }
         }
