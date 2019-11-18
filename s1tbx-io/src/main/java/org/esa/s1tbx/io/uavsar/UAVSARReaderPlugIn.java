@@ -34,7 +34,7 @@ public class UAVSARReaderPlugIn implements ProductReaderPlugIn {
     private final static String[] FORMAT_NAMES = {"UAVSAR"};
     private final static String[] FORMAT_FILE_EXTENSIONS = {"mlc", "grd", "slc", "dat"};
     private final static String PLUGIN_DESCRIPTION = "UAVSAR";
-    private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
+    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it

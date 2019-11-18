@@ -94,7 +94,7 @@ public class UAVSARReader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+        final Path inputPath = getPathFromInput(getInput());
         final File inputFile = inputPath.toFile();
 
         final File annFile = findAnnotationFile(inputFile);
