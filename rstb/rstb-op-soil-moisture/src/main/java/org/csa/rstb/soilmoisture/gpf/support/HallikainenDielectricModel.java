@@ -16,6 +16,7 @@
 package org.csa.rstb.soilmoisture.gpf.support;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.SoilMoistureActivator;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -214,6 +215,11 @@ public class HallikainenDielectricModel extends BaseDielectricModel implements D
 
         final File configFolder = new File(Settings.instance().getAuxDataFolder(), "sm_luts");
         final File configFile = new File(configFolder, "soil_moisture.config");
+
+        if(!configFile.exists()) {
+            SoilMoistureActivator activator = new SoilMoistureActivator();
+            activator.start();
+        }
 
         final PropertyMap configPref = new DefaultPropertyMap();
         configPref.load(configFile.toPath());

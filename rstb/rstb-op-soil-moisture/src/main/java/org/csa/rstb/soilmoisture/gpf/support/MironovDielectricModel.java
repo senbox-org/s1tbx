@@ -16,6 +16,7 @@
 package org.csa.rstb.soilmoisture.gpf.support;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.soilmoisture.SoilMoistureActivator;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -154,7 +155,7 @@ public class MironovDielectricModel extends BaseDielectricModel implements Diele
 
         } catch (IOException e) {
 
-            throw new OperatorException("MironovDielectricModel::initialize(): Failed to get config parameters ");
+            throw new OperatorException("MironovDielectricModel::initialize(): Failed to get config parameters ", e);
         }
     }
 
@@ -386,6 +387,11 @@ public class MironovDielectricModel extends BaseDielectricModel implements Diele
 
         final File configFolder = new File(Settings.instance().getAuxDataFolder(), "sm_luts");
         final File configFile = new File(configFolder, "soil_moisture.config");
+
+        if(!configFile.exists()) {
+            SoilMoistureActivator activator = new SoilMoistureActivator();
+            activator.start();
+        }
 
         final PropertyMap configPref = new DefaultPropertyMap();
         configPref.load(configFile.toPath());

@@ -37,6 +37,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.TreeMap;
 
 /**
@@ -314,7 +315,7 @@ public class IEMInverBase extends Operator {
     private static double demoteToFloatPrecision(double a) {
 
         final float b = (float) a;
-        return (double) b;
+        return b;
     }
 
     private static double[] demoteToFloatPrecision(double[] a) {
@@ -370,9 +371,7 @@ public class IEMInverBase extends Operator {
 
     protected static void initResults(final double[][] result, final double[][] resultSigma) {
         for (int i = 0; i < result.length; i++) {
-            for (int j = 0; j < result[i].length; j++) {
-                result[i][j] = INVALID_OUTPUT_VALUE;
-            }
+            Arrays.fill(result[i], INVALID_OUTPUT_VALUE);
             resultSigma[i][0] = INVALID_OUTPUT_VALUE;
             resultSigma[i][1] = INVALID_OUTPUT_VALUE;
         }
@@ -727,7 +726,7 @@ public class IEMInverBase extends Operator {
             }
         }
 
-        int rowIndices[] = null;
+        int[] rowIndices = null;
         try {
             rowIndices = doKDTreeSearchForN(sigma, sectionIdx, pol);
         } catch (Exception e) {
@@ -1195,12 +1194,12 @@ public class IEMInverBase extends Operator {
             return null;
         }
 
-        Object object[] = kdTree.nearest(sigma, N);
+        Object[] object = kdTree.nearest(sigma, N);
         if (object == null || object.length == 0) { // This should never happen
             return null;
         }
 
-        RowIndex result[] = new RowIndex[object.length];
+        RowIndex[] result = new RowIndex[object.length];
         for (int i = 0; i < result.length; i++) {
             result[i] = (RowIndex) object[i];
         }
@@ -1479,20 +1478,20 @@ public class IEMInverBase extends Operator {
         getLUTMetadata();
         paramLUT = new double[NUM_ROWS_PER_ANGLE_DEGREE][numParams];
         initLUTFromCSVFile();
-        final double csvParamLUT[][] = paramLUT.clone();
+        final double[][] csvParamLUT = paramLUT.clone();
         paramLUT = null;
 
         lutFile = new File(matlabLUTFilePath);
         getLUTMetadata();
         paramLUT = new double[NUM_ROWS_PER_ANGLE_DEGREE][numParams];
         initLUTFromMatlabFile();
-        final double matlabParamLUT[][] = paramLUT.clone();
+        final double[][] matlabParamLUT = paramLUT.clone();
         paramLUT = null;
 
         System.out.println("csvParamLUT.length = " + csvParamLUT.length);
         System.out.println("matlabParamLUT.length = " + matlabParamLUT.length);
 
-        double maxParamDiff[] = new double[numParams];
+        double[] maxParamDiff = new double[numParams];
         for (int j = 0; j < numParams; j++) {
             maxParamDiff[j] = 0.0d;
         }
@@ -1508,7 +1507,7 @@ public class IEMInverBase extends Operator {
             }
         }
 
-        String paramsStr[] = new String[numParams];
+        String[] paramsStr = new String[numParams];
         paramsStr[0] = "max abs rms diff";
         if (numParams == 2) {
             paramsStr[1] = "max abs RDC diff";
@@ -1523,7 +1522,7 @@ public class IEMInverBase extends Operator {
             }
         }
 
-        double maxSigmaDiff[] = new double[2];
+        double[] maxSigmaDiff = new double[2];
         maxSigmaDiff[0] = 0.0d;
         maxSigmaDiff[1] = 0.0d;
 
@@ -1541,7 +1540,7 @@ public class IEMInverBase extends Operator {
             }
         }
 
-        String sigmaStr[] = {"max sigmaHH abs diff", "max sigmaVV abs diff"};
+        String[] sigmaStr = {"max sigmaHH abs diff", "max sigmaVV abs diff"};
         for (int i = 0; i < 2; i++) {
             System.out.println(sigmaStr[i] + " = " + maxSigmaDiff[0]);
             if (maxSigmaDiff[i] > epsilon) {
@@ -1572,7 +1571,7 @@ public class IEMInverBase extends Operator {
 
     protected Rectangle getExtendedRectangle(final int tx0, final int ty0, final int tw, final int th) {
 
-        final int result[] = new int[2];
+        final int[] result = new int[2];
 
         getExtendedDims(tx0, tw, srcRasterWidth, result);
         final int tx1 = result[0];
@@ -1638,7 +1637,7 @@ public class IEMInverBase extends Operator {
     }
 
     protected int getBestKDTreeNeighbour(final int x, final int y, KDTreeNearestNeighbours[][] nearestNeighbours,
-                                         final double outParams[]) {
+                                         final double[] outParams) {
 
         final ArrayList<Double> nnRDC = nearestNeighbours[x][y].rdc;
 
@@ -1761,13 +1760,13 @@ public class IEMInverBase extends Operator {
             for (int aSectionIndex : sectionIndex) {
                 System.out.print(aSectionIndex + " ");
             }
-            System.out.println("");
+            System.out.println();
 
             System.out.print("sigmaColIndex: ");
             for (int aSigmaColIndex : sigmaColIndex) {
                 System.out.print(aSigmaColIndex + " ");
             }
-            System.out.println("");
+            System.out.println();
         }
     }
 
@@ -1784,7 +1783,7 @@ public class IEMInverBase extends Operator {
         }
     }
 
-    protected class KDTreeNearestNeighbours1 extends KDTreeNearestNeighbours {
+    protected static class KDTreeNearestNeighbours1 extends KDTreeNearestNeighbours {
 
         public final ArrayList<Double> cl;
 
