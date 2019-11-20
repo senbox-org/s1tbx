@@ -299,13 +299,27 @@ public class ImageIOFile {
         public final int imageID;
         public final int bandSampleOffset;
         public final ImageIOFile img;
-        public boolean isImaginary = false;
+        public final boolean isImaginary;
+        public Band realBand, imaginaryBand;
 
         public BandInfo(final Band band, final ImageIOFile imgFile, final int id, final int offset) {
             img = imgFile;
             imageID = id;
             bandSampleOffset = offset;
             isImaginary = band.getUnit() != null && band.getUnit().equals(Unit.IMAGINARY);
+            if(isImaginary) {
+                imaginaryBand = band;
+            } else {
+                realBand = band;
+            }
+        }
+
+        public void setRealBand(final Band band) {
+            this.realBand = band;
+        }
+
+        public void setImaginaryBand(final Band band) {
+            this.imaginaryBand = band;
         }
     }
 

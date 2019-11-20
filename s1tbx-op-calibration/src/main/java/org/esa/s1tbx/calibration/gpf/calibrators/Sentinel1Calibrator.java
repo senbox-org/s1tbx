@@ -41,6 +41,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -558,6 +559,11 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
             final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
             final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
+            final boolean isUnitAmplitude = srcBandUnit == Unit.UnitType.AMPLITUDE;
+            final boolean isUnitIntensity = srcBandUnit == Unit.UnitType.INTENSITY;
+            final boolean isUnitReal = srcBandUnit == Unit.UnitType.REAL;
+            final boolean isUnitIntensitydB = srcBandUnit == Unit.UnitType.INTENSITY_DB;
+
             final ProductData tgtData = targetTile.getDataBuffer();
             final TileIndex srcIndex = new TileIndex(sourceRaster1);
             final TileIndex trgIndex = new TileIndex(targetTile);
@@ -572,6 +578,9 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
 
             double dn = 0.0, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor, phaseTerm = 0.0;
             int srcIdx;
+            int pixelIdx = -1;
+
+            float trgFloorValue = Sentinel1RemoveThermalNoiseOp.trgFloorValue;
 
             for (int y = y0; y < maxY; ++y) {
                 srcIndex.calculateStride(y);
@@ -593,18 +602,12 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                 final int[] vec0Pixels = vec0.pixels;
                 final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
 
-                float trgFloorValue = Sentinel1RemoveThermalNoiseOp.trgFloorValue;
-
                 for (int x = x0; x < maxX; ++x) {
                     srcIdx = srcIndex.getIndex(x);
 
                     dn = srcData1.getElemDoubleAt(srcIdx);
-//                    if(noDataValue.equals(dn)) {
-//                        tgtData.setElemDoubleAt(trgIndex.getIndex(x), noDataValue);
-//                        continue;
-//                    }
 
-                    final int pixelIdx = calVec.getPixelIndex(subsetOffsetX + x);
+                    pixelIdx = getPixelIndex(calVec, pixelIdx, subsetOffsetX + x);
                     muX = (subsetOffsetX + x - vec0Pixels[pixelIdx]) /
                             (double)(vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
 
@@ -613,15 +616,15 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
 
                     calibrationFactor = 1.0 / (lutVal*lutVal);
 
-                    if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
+                    if (isUnitAmplitude) {
                         dn *= dn;
-                    } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
+                    } else if (isUnitIntensity) {
                         if (dataType != null) {
                             retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
                                     muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
                         }
                         calibrationFactor *= retroLutVal;
-                    } else if (srcBandUnit == Unit.UnitType.REAL) {
+                    } else if (isUnitReal) {
                         i = dn;
                         q = srcData2.getElemDoubleAt(srcIdx);
                         dn = i * i + q * q;
@@ -634,7 +637,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                         } else {
                             phaseTerm = 0.0;
                         }
-                    } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
+                    } else if (isUnitIntensitydB) {
                         dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                     } else {
                         throw new OperatorException("Sentinel-1 Calibration: unhandled unit");
@@ -662,6 +665,21 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
         } finally {
             pm.done();
         }
+    }
+
+    private static int getPixelIndex(final Sentinel1Utils.CalibrationVector calVec, final int lastIndex, final int x) {
+        if(lastIndex >= 0 && lastIndex < calVec.pixels.length-1 && x >- calVec.pixels[lastIndex] && x < calVec.pixels[lastIndex+1]) {
+            return lastIndex;
+        }
+        int index = Arrays.binarySearch(calVec.pixels, x);
+        if(index < 0) {
+            index *= -1;
+            index -= 2;
+        }
+        if(index >= calVec.pixels.length-1)
+            index--;
+
+        return index;
     }
 
     public static CALTYPE getCalibrationType(final String bandName) {

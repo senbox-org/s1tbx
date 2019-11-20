@@ -299,7 +299,7 @@ public final class BackGeocodingOp extends Operator {
                 masterProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
-        
+
         final String[] masterBandNames = masterProduct.getBandNames();
         mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
@@ -331,6 +331,17 @@ public final class BackGeocodingOp extends Operator {
         final Band masterBand = masterProduct.getBand(masterBandNames[0]);
         final int masterBandWidth = masterBand.getRasterWidth();
         final int masterBandHeight = masterBand.getRasterHeight();
+
+        if (outputDerampDemodPhase) {
+            final Band mstPhaseBand = new Band(
+                    "derampDemodPhase" + mstSuffix,
+                    ProductData.TYPE_FLOAT32,
+                    masterBandWidth,
+                    masterBandHeight);
+
+            mstPhaseBand.setUnit("radian");
+            targetProduct.addBand(mstPhaseBand);
+        }
 
         int i = 1;
         for(SlaveData slaveData : slaveDataList) {
@@ -388,15 +399,6 @@ public final class BackGeocodingOp extends Operator {
             }
 
             if (outputDerampDemodPhase) {
-                final Band mstPhaseBand = new Band(
-                        "derampDemodPhase" + mstSuffix,
-                        ProductData.TYPE_FLOAT32,
-                        masterBandWidth,
-                        masterBandHeight);
-
-                mstPhaseBand.setUnit("radian");
-                targetProduct.addBand(mstPhaseBand);
-
                 final Band slvPhaseBand = new Band(
                         "derampDemodPhase" + slvSuffix,
                         ProductData.TYPE_FLOAT32,

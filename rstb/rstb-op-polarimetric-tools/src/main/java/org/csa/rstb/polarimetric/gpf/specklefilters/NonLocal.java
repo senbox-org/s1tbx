@@ -140,12 +140,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                         final Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, totalWeight, originalMatrix);
                         final double enlNL = computeENL(weight, totalWeight);
 
-                        final Covariance sigmaNLBR;
-                        if(matrixSize == 3) {
-                            sigmaNLBR = new CovarianceMatrix.C3();
-                        } else {
-                            sigmaNLBR = new CovarianceMatrix.C2();
-                        }
+                        final Covariance sigmaNLBR = new CovarianceMatrix.C3();
                         final double enlNLRB = performBiasReduction(
                                 x, y, sx0, sy0, weight, totalWeight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
 
@@ -163,12 +158,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
                         Covariance sigmaNL = computeWeightedEstimate(x, y, sx0, sy0, weight, totalWeight, originalMatrix);
                         final double enlNL = computeENL(weight, totalWeight);
 
-                        final Covariance sigmaNLBR;
-                        if(matrixSize == 3) {
-                            sigmaNLBR = new CovarianceMatrix.C3();
-                        } else {
-                            sigmaNLBR = new CovarianceMatrix.C2();
-                        }
+                        final Covariance sigmaNLBR = new CovarianceMatrix.C2();
                         final double enlNLRB = performBiasReduction(
                                 x, y, sx0, sy0, weight, totalWeight, enlNL, originalMatrix, sigmaNL, sigmaNLBR);
                         saveC2(sigmaNLBR, trgIndex.getIndex(x), targetDataBuffers);
@@ -471,7 +461,7 @@ public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcess
         return avgC;
     }
 
-    private double computeENL(final double[][] weight, final double totalWeight) {
+    private static double computeENL(final double[][] weight, final double totalWeight) {
 
         final int cols = weight[0].length;
 

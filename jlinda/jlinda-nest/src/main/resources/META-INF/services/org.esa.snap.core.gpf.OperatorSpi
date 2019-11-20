@@ -4,7 +4,6 @@ org.jlinda.nest.gpf.SubtRefDemOp$Spi
 org.jlinda.nest.gpf.SimulateAmplitudeOp$Spi
 org.jlinda.nest.gpf.DInSAROp$Spi
 org.jlinda.nest.gpf.Slant2HeightOp$Spi
-org.jlinda.nest.gpf.PhaseFilterOp$Spi
 org.jlinda.nest.dataio.SnaphuImportOp$Spi
 org.jlinda.nest.dataio.SnaphuExportOp$Spi
 org.jlinda.nest.gpf.CrossResamplingOp$Spi

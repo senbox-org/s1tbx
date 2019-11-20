@@ -1,6 +1,5 @@
 package org.csa.rstb.polarimetric.gpf;
 
-import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.decompositions.DecompositionBase;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
@@ -17,7 +16,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
 
-public interface QuadPolProcessor extends PolarimetricProcessor {
+public interface QuadPolProcessor extends PolarimetricProcessor, MatrixMath {
 
     default void getQuadPolDataBuffer(final Operator op, final Band[] srcBands, final Rectangle sourceRectangle,
                                       final PolBandUtils.MATRIX sourceProductType,
@@ -957,8 +956,8 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
         final int yEd = FastMath.min(y + halfWindowSizeY, sourceImageHeight - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
-        final Matrix TrMat = new Matrix(3, 3);
-        final Matrix TiMat = new Matrix(3, 3);
+        final double[][] trMat = new double[3][3];
+        final double[][] tiMat = new double[3][3];
 
         if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
@@ -966,8 +965,8 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
                     getCoherencyMatrixT3(srcIndex.getIndex(xx), dataBuffers, tempTr, tempTi);
-                    TrMat.plusEquals(new Matrix(tempTr));
-                    TiMat.plusEquals(new Matrix(tempTi));
+                    matrixPlusEquals(trMat, tempTr);
+                    matrixPlusEquals(tiMat, tempTi);
                 }
             }
 
@@ -978,8 +977,8 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
                 for (int xx = xSt; xx <= xEd; ++xx) {
                     getCovarianceMatrixC3(srcIndex.getIndex(xx), dataBuffers, tempCr, tempCi);
                     c3ToT3(tempCr, tempCi, tempTr, tempTi);
-                    TrMat.plusEquals(new Matrix(tempTr));
-                    TiMat.plusEquals(new Matrix(tempTi));
+                    matrixPlusEquals(trMat, tempTr);
+                    matrixPlusEquals(tiMat, tempTi);
                 }
             }
 
@@ -990,20 +989,35 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
                 for (int xx = xSt; xx <= xEd; ++xx) {
                     getComplexScatterMatrix(srcIndex.getIndex(xx), dataBuffers, tempSr, tempSi);
                     computeCoherencyMatrixT3(tempSr, tempSi, tempTr, tempTi);
-                    TrMat.plusEquals(new Matrix(tempTr));
-                    TiMat.plusEquals(new Matrix(tempTi));
+                    matrixPlusEquals(trMat, tempTr);
+                    matrixPlusEquals(tiMat, tempTi);
                 }
             }
         }
 
-        TrMat.timesEquals(1.0 / num);
-        TiMat.timesEquals(1.0 / num);
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                Tr[i][j] = TrMat.get(i, j);
-                Ti[i][j] = TiMat.get(i, j);
-            }
-        }
+        matrixTimesEquals(trMat, 1.0 / num);
+        matrixTimesEquals(tiMat, 1.0 / num);
+
+        Tr[0][0] = trMat[0][0];
+        Ti[0][0] = tiMat[0][0];
+        Tr[0][1] = trMat[0][1];
+        Ti[0][1] = tiMat[0][1];
+        Tr[0][2] = trMat[0][2];
+        Ti[0][2] = tiMat[0][2];
+
+        Tr[1][0] = trMat[1][0];
+        Ti[1][0] = tiMat[1][0];
+        Tr[1][1] = trMat[1][1];
+        Ti[1][1] = tiMat[1][1];
+        Tr[1][2] = trMat[1][2];
+        Ti[1][2] = tiMat[1][2];
+
+        Tr[2][0] = trMat[2][0];
+        Ti[2][0] = tiMat[2][0];
+        Tr[2][1] = trMat[2][1];
+        Ti[2][1] = tiMat[2][1];
+        Tr[2][2] = trMat[2][2];
+        Ti[2][2] = tiMat[2][2];
     }
 
     /**
@@ -1035,8 +1049,8 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-        final Matrix CrMat = new Matrix(3, 3);
-        final Matrix CiMat = new Matrix(3, 3);
+        final double[][] crMat = new double[3][3];
+        final double[][] ciMat = new double[3][3];
 
         if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
@@ -1044,8 +1058,8 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
                     getCovarianceMatrixC3(srcIndex.getIndex(xx), dataBuffers, tempCr, tempCi);
-                    CrMat.plusEquals(new Matrix(tempCr));
-                    CiMat.plusEquals(new Matrix(tempCi));
+                    matrixPlusEquals(crMat, tempCr);
+                    matrixPlusEquals(ciMat, tempCi);
                 }
             }
 
@@ -1058,8 +1072,8 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
                 for (int xx = xSt; xx <= xEd; ++xx) {
                     getCoherencyMatrixT3(srcIndex.getIndex(xx), dataBuffers, tempTr, tempTi);
                     t3ToC3(tempTr, tempTi, tempCr, tempCi);
-                    CrMat.plusEquals(new Matrix(tempCr));
-                    CiMat.plusEquals(new Matrix(tempCi));
+                    matrixPlusEquals(crMat, tempCr);
+                    matrixPlusEquals(ciMat, tempCi);
                 }
             }
 
@@ -1072,23 +1086,24 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
                 for (int xx = xSt; xx <= xEd; ++xx) {
                     getComplexScatterMatrix(srcIndex.getIndex(xx), dataBuffers, tempSr, tempSi);
                     computeCovarianceMatrixC3(tempSr, tempSi, tempCr, tempCi);
-                    CrMat.plusEquals(new Matrix(tempCr));
-                    CiMat.plusEquals(new Matrix(tempCi));
+                    matrixPlusEquals(crMat, tempCr);
+                    matrixPlusEquals(ciMat, tempCi);
                 }
             }
         }
 
-        CrMat.timesEquals(1.0 / num);
-        CiMat.timesEquals(1.0 / num);
+        matrixTimesEquals(crMat, 1.0 / num);
+        matrixTimesEquals(ciMat, 1.0 / num);
+
         for (int i = 0; i < 3; i++) {
-            Cr[i][0] = CrMat.get(i, 0);
-            Ci[i][0] = CiMat.get(i, 0);
+            Cr[i][0] = crMat[i][0];
+            Ci[i][0] = ciMat[i][0];
 
-            Cr[i][1] = CrMat.get(i, 1);
-            Ci[i][1] = CiMat.get(i, 1);
+            Cr[i][1] = crMat[i][1];
+            Ci[i][1] = ciMat[i][1];
 
-            Cr[i][2] = CrMat.get(i, 2);
-            Ci[i][2] = CiMat.get(i, 2);
+            Cr[i][2] = crMat[i][2];
+            Ci[i][2] = ciMat[i][2];
         }
     }
 
@@ -1108,32 +1123,33 @@ public interface QuadPolProcessor extends PolarimetricProcessor {
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-        final Matrix CrMat = new Matrix(4, 4);
-        final Matrix CiMat = new Matrix(4, 4);
+        final double[][] crMat = new double[4][4];
+        final double[][] ciMat = new double[4][4];
 
         for (int yy = ySt; yy <= yEd; ++yy) {
             srcIndex.calculateStride(yy);
             for (int xx = xSt; xx <= xEd; ++xx) {
                 getCovarianceMatrixC4(srcIndex.getIndex(xx), sourceProductType, dataBuffers, tempCr, tempCi);
-                CrMat.plusEquals(new Matrix(tempCr));
-                CiMat.plusEquals(new Matrix(tempCi));
+                matrixPlusEquals(crMat, tempCr);
+                matrixPlusEquals(ciMat, tempCi);
             }
         }
 
-        CrMat.timesEquals(1.0 / num);
-        CiMat.timesEquals(1.0 / num);
-        for (int i = 0; i < 4; i++) {
-            Cr[i][0] = CrMat.get(i, 0);
-            Ci[i][0] = CiMat.get(i, 0);
+        matrixTimesEquals(crMat, 1.0 / num);
+        matrixTimesEquals(ciMat, 1.0 / num);
 
-            Cr[i][1] = CrMat.get(i, 1);
-            Ci[i][1] = CiMat.get(i, 1);
+        for (int i = 0; i < 3; i++) {
+            Cr[i][0] = crMat[i][0];
+            Ci[i][0] = ciMat[i][0];
 
-            Cr[i][2] = CrMat.get(i, 2);
-            Ci[i][2] = CiMat.get(i, 2);
+            Cr[i][1] = crMat[i][1];
+            Ci[i][1] = ciMat[i][1];
 
-            Cr[i][3] = CrMat.get(i, 3);
-            Ci[i][3] = CiMat.get(i, 3);
+            Cr[i][2] = crMat[i][2];
+            Ci[i][2] = ciMat[i][2];
+
+            Cr[i][3] = crMat[i][3];
+            Ci[i][3] = ciMat[i][3];
         }
     }
 
