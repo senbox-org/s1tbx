@@ -143,6 +143,11 @@ public class TestCalibrationOp {
     }
 
     @Test
+    public void testProcessAllALOS2() throws Exception {
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsALOS2, "ALOS-2", productTypeExemptions, exceptionExemptions);
+    }
+
+    @Test
     public void testProcessAllCosmo() throws Exception {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsCosmoSkymed, "CosmoSkymed", productTypeExemptions, exceptionExemptions);
     }

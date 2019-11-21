@@ -38,7 +38,7 @@ import java.io.File;
 
 public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
 
-    private static final String[] SUPPORTED_MISSIONS = new String[] {"ICEYE"};
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"ICEYE", "ICEYE-X2"};
 
     private double calibrationFactor;
     private TiePointGrid incidenceAngle = null;
