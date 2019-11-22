@@ -424,9 +424,14 @@ public final class SARSimulationOp extends Operator {
         final PosVector earthPoint = new PosVector();
         final PosVector sensorPos = new PosVector();
 
+        final int xMin = Math.max(x0 - w/2, 0);
+        final int xMax = Math.min(x0 + w + w/2, sourceImageWidth);
+        final int yMin = Math.max(y0 - h/2, 0);
+        final int yMax = Math.min(y0 + h + h/2, sourceImageHeight);
+
         double tileOverlapUp = 0.0, tileOverlapDown = 0.0, tileOverlapLeft = 0.0, tileOverlapRight = 0.0;
-        for (int y = y0; y < y0 + h; y += 20) {
-            for (int x = x0; x < x0 + w; x += 20) {
+        for (int y = yMin; y < yMax; y += 20) {
+            for (int x = xMin; x < xMax; x += 20) {
                 pixPos.setLocation(x, y);
                 targetGeoCoding.getGeoPos(pixPos, geoPos);
                 final double alt = dem.getElevation(geoPos);
@@ -555,7 +560,8 @@ public final class SARSimulationOp extends Operator {
 
         double[] slrs = null;
         double[] elev = null;
-        int[] index = null;
+        double[] azIndex = null;
+        double[] rgIndex = null;
         boolean[] savePixel = null;
 
         try {
@@ -577,7 +583,8 @@ public final class SARSimulationOp extends Operator {
                 if (saveLayoverShadowMask) {
                     slrs = new double[nLon];
                     elev = new double[nLon];
-                    index = new int[nLon];
+                    azIndex = new double[nLon];
+                    rgIndex = new double[nLon];
                     savePixel = new boolean[nLon];
                 }
 
@@ -587,7 +594,8 @@ public final class SARSimulationOp extends Operator {
                     if (saveLayoverShadowMask) {
                         Arrays.fill(slrs, 0.0);
                         Arrays.fill(elev, 0.0);
-                        Arrays.fill(index, -1);
+                        Arrays.fill(azIndex, 0.0);
+                        Arrays.fill(rgIndex, 0.0);
                         Arrays.fill(savePixel, Boolean.FALSE);
                     }
 
@@ -670,7 +678,8 @@ public final class SARSimulationOp extends Operator {
                             int rIndex = (int) posData.rangeIndex;
                             int aIndex = (int) posData.azimuthIndex;
                             if (rIndex >= x0 && rIndex < x0 + w && aIndex >= y0 && aIndex < y0 + h) {
-                                index[j] = targetTile.getDataBufferIndex(rIndex, aIndex);
+                                azIndex[j] = posData.azimuthIndex;
+                                rgIndex[j] = posData.rangeIndex;
                                 slrs[j] = posData.slantRange;
                                 elev[j] = computeElevationAngle(
                                         posData.slantRange, posData.earthPoint, posData.sensorPos);
@@ -682,7 +691,7 @@ public final class SARSimulationOp extends Operator {
                     }
 
                     if (saveLayoverShadowMask) {
-                        computeLayoverShadow(savePixel, slrs, index, elev, layoverShadowMaskBuffer);
+                        computeLayoverShadow(x0, y0, w, h, savePixel, slrs, elev, azIndex, rgIndex, targetTile, layoverShadowMaskBuffer);
                     }
                 }
 
@@ -693,7 +702,8 @@ public final class SARSimulationOp extends Operator {
                 if (saveLayoverShadowMask) {
                     slrs = new double[widthExt];
                     elev = new double[widthExt];
-                    index = new int[widthExt];
+                    azIndex = new double[widthExt];
+                    rgIndex = new double[widthExt];
                     savePixel = new boolean[widthExt];
                 }
 
@@ -721,7 +731,8 @@ public final class SARSimulationOp extends Operator {
                     if (saveLayoverShadowMask) {
                         Arrays.fill(slrs, 0.0);
                         Arrays.fill(elev, 0.0);
-                        Arrays.fill(index, -1);
+                        Arrays.fill(azIndex, 0.0);
+                        Arrays.fill(rgIndex, 0.0);
                         Arrays.fill(savePixel, Boolean.FALSE);
                     }
 
@@ -790,7 +801,8 @@ public final class SARSimulationOp extends Operator {
                             int rIndex = (int) posData.rangeIndex;
                             int aIndex = (int) posData.azimuthIndex;
                             if (rIndex >= x0 && rIndex < x0 + w && aIndex >= y0 && aIndex < y0 + h) {
-                                index[xx] = targetTile.getDataBufferIndex(rIndex, aIndex);
+                                azIndex[xx] = posData.azimuthIndex;
+                                rgIndex[xx] = posData.rangeIndex;
                                 slrs[xx] = posData.slantRange;
                                 elev[xx] = computeElevationAngle(
                                         posData.slantRange, posData.earthPoint, posData.sensorPos);
@@ -802,7 +814,7 @@ public final class SARSimulationOp extends Operator {
                     }
 
                     if (saveLayoverShadowMask) {
-                        computeLayoverShadow(savePixel, slrs, index, elev, layoverShadowMaskBuffer);
+                        computeLayoverShadow(x0, y0, w, h, savePixel, slrs, elev, azIndex, rgIndex, targetTile, layoverShadowMaskBuffer);
                     }
 
                 }
@@ -878,8 +890,10 @@ public final class SARSimulationOp extends Operator {
         }
     }
 
-    private void computeLayoverShadow(final boolean[] savePixel, final double[] slrs, final int[] index,
-                                      final double[] elev, final ProductData layoverShadowMaskBuffer) {
+    private void computeLayoverShadow(final int x0, final int y0, final int w, final int h,
+                                      final boolean[] savePixel, final double[] slrs, final double[] elev,
+                                      final double[] azIndex, final double[] rgIndex, final Tile targetTile,
+                                      final ProductData layoverShadowMaskBuffer) {
 
         final int length = savePixel.length;
         try {
@@ -892,7 +906,7 @@ public final class SARSimulationOp extends Operator {
                         if (slrs[i] > maxSlantRange) {
                             maxSlantRange = slrs[i];
                         } else {
-                            layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                            saveLayoverShadow(x0, y0, w, h, rgIndex[i], azIndex[i], targetTile, layoverShadowMaskBuffer, 1);
                         }
                     }
                 }
@@ -904,7 +918,7 @@ public final class SARSimulationOp extends Operator {
                         if (slrs[i] <= minSlantRange) {
                             minSlantRange = slrs[i];
                         } else {
-                            layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                            saveLayoverShadow(x0, y0, w, h, rgIndex[i], azIndex[i], targetTile, layoverShadowMaskBuffer, 1);
                         }
                     }
                 }
@@ -916,8 +930,7 @@ public final class SARSimulationOp extends Operator {
                         if (elev[i] > maxElevAngle) {
                             maxElevAngle = elev[i];
                         } else {
-                            layoverShadowMaskBuffer.setElemIntAt(index[i],
-                                    2 + layoverShadowMaskBuffer.getElemIntAt(index[i]));
+                            saveLayoverShadow(x0, y0, w, h, rgIndex[i], azIndex[i], targetTile, layoverShadowMaskBuffer, 2);
                         }
                     }
                 }
@@ -931,7 +944,7 @@ public final class SARSimulationOp extends Operator {
                         if (slrs[i] > maxSlantRange) {
                             maxSlantRange = slrs[i];
                         } else {
-                            layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                            saveLayoverShadow(x0, y0, w, h, rgIndex[i], azIndex[i], targetTile, layoverShadowMaskBuffer, 1);
                         }
                     }
                 }
@@ -943,7 +956,7 @@ public final class SARSimulationOp extends Operator {
                         if (slrs[i] < minSlantRange) {
                             minSlantRange = slrs[i];
                         } else {
-                            layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                            saveLayoverShadow(x0, y0, w, h, rgIndex[i], azIndex[i], targetTile, layoverShadowMaskBuffer, 1);
                         }
                     }
                 }
@@ -955,8 +968,7 @@ public final class SARSimulationOp extends Operator {
                         if (elev[i] > maxElevAngle) {
                             maxElevAngle = elev[i];
                         } else {
-                            layoverShadowMaskBuffer.setElemIntAt(index[i],
-                                    2 + layoverShadowMaskBuffer.getElemIntAt(index[i]));
+                            saveLayoverShadow(x0, y0, w, h, rgIndex[i], azIndex[i], targetTile, layoverShadowMaskBuffer, 2);
                         }
                     }
                 }
@@ -965,6 +977,29 @@ public final class SARSimulationOp extends Operator {
             e.printStackTrace();
         }
     }
+
+    private void saveLayoverShadow(final int x0, final int y0, final int w, final int h,
+                                   final double rgIndex, final double azIndex, final Tile targetTile,
+                                   final ProductData layoverShadowMaskBuffer, final int value) {
+
+        final int xMin = (int)rgIndex;
+        final int xMax = Math.min(xMin + 1, x0 + w - 1);
+        final int yMin = (int)azIndex;
+        final int yMax = Math.min(yMin + 1, y0 + h - 1);
+        for (int y = yMin; y <= yMax; ++y) {
+            for (int x = xMin; x <= xMax; ++x) {
+                final int idx = targetTile.getDataBufferIndex(x, y);
+                final int v0 = layoverShadowMaskBuffer.getElemIntAt(idx);
+                if (v0 == 0) {
+                    layoverShadowMaskBuffer.setElemIntAt(idx, value);
+                } else if (v0 == 1 && value == 2){
+                    layoverShadowMaskBuffer.setElemIntAt(idx, v0 + value);
+                }
+            }
+        }
+    }
+
+
 
     /**
      * Compute backscattered power for a given local incidence angle.
