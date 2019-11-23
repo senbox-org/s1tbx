@@ -51,7 +51,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>test-utils</artifactId>
+            <artifactId>snap-test-utils</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

@@ -449,7 +449,7 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>test-utils</artifactId>
+                <artifactId>snap-test-utils</artifactId>
                 <version>${snap.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
