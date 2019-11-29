@@ -29,12 +29,12 @@ pipeline {
         booleanParam(name: 'launchTests', defaultValue: true, description: 'When true all stages are launched, When false only stages "Package", "Deploy" and "Save installer data" are launched.')
     }
     stages {
-        stage('Package') {
+        stage('Package and deploy') {
             agent {
                 docker {
                     label 'snap-test'
                     image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
-                    args '-e MAVEN_CONFIG=/var/maven/.m2 -v /data/ssd/testData/:/data/ssd/testData/ -v /opt/maven/.m2/settings.xml:/home/snap/.m2/settings.xml'
+                    args '-e MAVEN_CONFIG=/var/maven/.m2 -v /data/ssd/testData/:/data/ssd/testData/ -v /opt/maven/.m2/settings.xml:/home/snap/.m2/settings.xml -v docker_local-update-center:/local-update-center'
                 }
             }
             steps {
@@ -57,9 +57,18 @@ pipeline {
                     junit "**/target/surefire-reports/*.xml"
                     jacoco(execPattern: '**/*.exec')
                 }
+                success {
+                    script {
+                        if ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/) {
+                            echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
+                            sh "mvn -Dm2repo=/var/tmp/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap -Dsnap.vfs.tests.data.dir=/data/ssd/testData/s2tbx -Dsnap.cep.tests.data.dir=/data/ssd/testData/s2tbx deploy -DskipTests=true"
+                            sh "/opt/scripts/saveToLocalUpdateCenter.sh . ${deployDirName} ${branchVersion} ${toolName}"
+                        }
+                    }
+                }
             }
         }
-        stage('Deploy') {
+        /*stage('Deploy') {
             agent {
                 docker {
                     label 'snap-test'
@@ -77,7 +86,7 @@ pipeline {
                 sh "mvn -Dm2repo=/var/tmp/repository/ -Duser.home=/home/snap -Dsnap.userdir=/home/snap -Dsnap.vfs.tests.data.dir=/data/ssd/testData/s2tbx -Dsnap.cep.tests.data.dir=/data/ssd/testData/s2tbx deploy -U -DskipTests=true"
                 sh "/opt/scripts/saveToLocalUpdateCenter.sh . ${deployDirName} ${branchVersion} ${toolName}"
             }
-        }
+        }*/
         stage('Save installer data') {
             agent {
                 docker {
