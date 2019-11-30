@@ -31,7 +31,7 @@ pipeline {
         booleanParam(name: 'runLongUnitTests', defaultValue: false, description: 'When true the option -Denable.long.tests=true is added to maven command so the long unit tests will be executed')
     }
     stages {
-        stage('Package') {
+        stage('Package and deploy') {
             agent {
                 docker {
                     label 'snap-test'
