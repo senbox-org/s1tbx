@@ -76,6 +76,11 @@
             "description": "Meris.Case2Regional product, format:  NetCDF4-CF, conventions: CF-1.4"
         },
         {
+            "id": "S3A_OL_1_EFR____20170101T095821_20170101T100021_20171010T055022_0119_012_350______MR1_R_NT_002_SEN3__calimnos",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-CF/S3A_OL_1_EFR____20170101T095821_20170101T100021_20171010T055022_0119_012_350______MR1_R_NT_002.SEN3__calimnos.nc",
+            "description": "OLCI Calimnos product, format:  NetCDF4-CF, conventions: CF-1.4"
+        },
+        {
             "id": "CHRIS_IL_030902_377D_41",
             "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_IL_030902_377D_41.hdf",
             "description": "Product type: CHRIS_M0"

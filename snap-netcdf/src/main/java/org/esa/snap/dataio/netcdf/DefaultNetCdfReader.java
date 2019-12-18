@@ -24,6 +24,8 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.netcdf.util.Constants;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
+import org.esa.snap.dataio.netcdf.util.TimeUtils;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
@@ -61,9 +63,25 @@ class DefaultNetCdfReader extends AbstractProductReader {
         product.setFileLocation(fileLocation);
         product.setProductReader(this);
         product.setModified(false);
+        applyTimeCoverageAttributes(product);
         return product;
 
     }
+
+    private void applyTimeCoverageAttributes(Product product) {
+        for (int i = 0; i < netcdfFile.getGlobalAttributes().size(); i++) {
+            Attribute attribute = netcdfFile.getGlobalAttributes().get(i);
+            if (attribute.getShortName().equals("time_coverage_start")) {
+                final String startTime = (String) attribute.getValue(0);
+                product.setStartTime(TimeUtils.parseDateTime(startTime));
+            }
+            if (attribute.getShortName().equals("time_coverage_end")) {
+                final String endTime = (String) attribute.getValue(0);
+                product.setEndTime(TimeUtils.parseDateTime(endTime));
+            }
+        }
+    }
+
 
     static String extractProductName(File fileLocation) {
         String name = fileLocation.getName();

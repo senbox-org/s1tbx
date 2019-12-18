@@ -1,0 +1,2001 @@
+{
+    "id": "S3A_OL_1_EFR____20170101T095821_20170101T100021_20171010T055022_0119_012_350______MR1_R_NT_002_SEN3__calimnos",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 181,
+        "sceneHeight": 219,
+        "startTime": "01-JAN-2017 09:59:10.901902",
+        "endTime": "01-JAN-2017 09:59:20.494171",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 78.0,
+                    "y": 117.0,
+                    "lat": 45.64990465308462,
+                    "lon": 10.646588360525984
+                },
+                {
+                    "x": 134.0,
+                    "y": 142.0,
+                    "lat": 45.54811067149544,
+                    "lon": 10.806106388745754
+                }
+            ],
+            "reverseAccuracy": 0.5
+        },
+        "flagCodings": [
+            {
+                "name": "quality_flags",
+                "samples": [
+                    {
+                        "name": "land",
+                        "value": 2147483648
+                    },
+                    {
+                        "name": "coastline",
+                        "value": 1073741824
+                    },
+                    {
+                        "name": "fresh_inland_water",
+                        "value": 536870912
+                    },
+                    {
+                        "name": "tidal_region",
+                        "value": 268435456
+                    },
+                    {
+                        "name": "bright",
+                        "value": 134217728
+                    },
+                    {
+                        "name": "straylight_risk",
+                        "value": 67108864
+                    },
+                    {
+                        "name": "invalid",
+                        "value": 33554432
+                    },
+                    {
+                        "name": "cosmetic",
+                        "value": 16777216
+                    },
+                    {
+                        "name": "duplicated",
+                        "value": 8388608
+                    },
+                    {
+                        "name": "sun_glint_risk",
+                        "value": 4194304
+                    },
+                    {
+                        "name": "dubious",
+                        "value": 2097152
+                    },
+                    {
+                        "name": "saturated_Oa01",
+                        "value": 1048576
+                    },
+                    {
+                        "name": "saturated_Oa02",
+                        "value": 524288
+                    },
+                    {
+                        "name": "saturated_Oa03",
+                        "value": 262144
+                    },
+                    {
+                        "name": "saturated_Oa04",
+                        "value": 131072
+                    },
+                    {
+                        "name": "saturated_Oa05",
+                        "value": 65536
+                    },
+                    {
+                        "name": "saturated_Oa06",
+                        "value": 32768
+                    },
+                    {
+                        "name": "saturated_Oa07",
+                        "value": 16384
+                    },
+                    {
+                        "name": "saturated_Oa08",
+                        "value": 8192
+                    },
+                    {
+                        "name": "saturated_Oa09",
+                        "value": 4096
+                    },
+                    {
+                        "name": "saturated_Oa10",
+                        "value": 2048
+                    },
+                    {
+                        "name": "saturated_Oa11",
+                        "value": 1024
+                    },
+                    {
+                        "name": "saturated_Oa12",
+                        "value": 512
+                    },
+                    {
+                        "name": "saturated_Oa13",
+                        "value": 256
+                    },
+                    {
+                        "name": "saturated_Oa14",
+                        "value": 128
+                    },
+                    {
+                        "name": "saturated_Oa15",
+                        "value": 64
+                    },
+                    {
+                        "name": "saturated_Oa16",
+                        "value": 32
+                    },
+                    {
+                        "name": "saturated_Oa17",
+                        "value": 16
+                    },
+                    {
+                        "name": "saturated_Oa18",
+                        "value": 8
+                    },
+                    {
+                        "name": "saturated_Oa19",
+                        "value": 4
+                    },
+                    {
+                        "name": "saturated_Oa20",
+                        "value": 2
+                    },
+                    {
+                        "name": "saturated_Oa21",
+                        "value": 1
+                    }
+                ]
+            },
+            {
+                "name": "idePoly_pixel_classif_flags",
+                "samples": [
+                    {
+                        "name": "IDEPIX_INVALID",
+                        "value": 1
+                    },
+                    {
+                        "name": "IDEPIX_CLOUD",
+                        "value": 2
+                    },
+                    {
+                        "name": "IDEPIX_CLOUD_AMBIGUOUS",
+                        "value": 4
+                    },
+                    {
+                        "name": "IDEPIX_CLOUD_SURE",
+                        "value": 8
+                    },
+                    {
+                        "name": "IDEPIX_CLOUD_BUFFER",
+                        "value": 16
+                    },
+                    {
+                        "name": "IDEPIX_CLOUD_SHADOW",
+                        "value": 32
+                    },
+                    {
+                        "name": "IDEPIX_SNOW_ICE",
+                        "value": 64
+                    },
+                    {
+                        "name": "IDEPIX_BRIGHT",
+                        "value": 128
+                    },
+                    {
+                        "name": "IDEPIX_WHITE",
+                        "value": 256
+                    },
+                    {
+                        "name": "IDEPIX_COASTLINE",
+                        "value": 512
+                    },
+                    {
+                        "name": "IDEPIX_LAND",
+                        "value": 1024
+                    }
+                ]
+            },
+            {
+                "name": "idePoly_quality_flags",
+                "samples": [
+                    {
+                        "name": "land",
+                        "value": 2147483648
+                    },
+                    {
+                        "name": "coastline",
+                        "value": 1073741824
+                    },
+                    {
+                        "name": "fresh_inland_water",
+                        "value": 536870912
+                    },
+                    {
+                        "name": "tidal_region",
+                        "value": 268435456
+                    },
+                    {
+                        "name": "bright",
+                        "value": 134217728
+                    },
+                    {
+                        "name": "straylight_risk",
+                        "value": 67108864
+                    },
+                    {
+                        "name": "invalid",
+                        "value": 33554432
+                    },
+                    {
+                        "name": "cosmetic",
+                        "value": 16777216
+                    },
+                    {
+                        "name": "duplicated",
+                        "value": 8388608
+                    },
+                    {
+                        "name": "sun_glint_risk",
+                        "value": 4194304
+                    },
+                    {
+                        "name": "dubious",
+                        "value": 2097152
+                    },
+                    {
+                        "name": "saturated_Oa01",
+                        "value": 1048576
+                    },
+                    {
+                        "name": "saturated_Oa02",
+                        "value": 524288
+                    },
+                    {
+                        "name": "saturated_Oa03",
+                        "value": 262144
+                    },
+                    {
+                        "name": "saturated_Oa04",
+                        "value": 131072
+                    },
+                    {
+                        "name": "saturated_Oa05",
+                        "value": 65536
+                    },
+                    {
+                        "name": "saturated_Oa06",
+                        "value": 32768
+                    },
+                    {
+                        "name": "saturated_Oa07",
+                        "value": 16384
+                    },
+                    {
+                        "name": "saturated_Oa08",
+                        "value": 8192
+                    },
+                    {
+                        "name": "saturated_Oa09",
+                        "value": 4096
+                    },
+                    {
+                        "name": "saturated_Oa10",
+                        "value": 2048
+                    },
+                    {
+                        "name": "saturated_Oa11",
+                        "value": 1024
+                    },
+                    {
+                        "name": "saturated_Oa12",
+                        "value": 512
+                    },
+                    {
+                        "name": "saturated_Oa13",
+                        "value": 256
+                    },
+                    {
+                        "name": "saturated_Oa14",
+                        "value": 128
+                    },
+                    {
+                        "name": "saturated_Oa15",
+                        "value": 64
+                    },
+                    {
+                        "name": "saturated_Oa16",
+                        "value": 32
+                    },
+                    {
+                        "name": "saturated_Oa17",
+                        "value": 16
+                    },
+                    {
+                        "name": "saturated_Oa18",
+                        "value": 8
+                    },
+                    {
+                        "name": "saturated_Oa19",
+                        "value": 4
+                    },
+                    {
+                        "name": "saturated_Oa20",
+                        "value": 2
+                    },
+                    {
+                        "name": "saturated_Oa21",
+                        "value": 1
+                    }
+                ]
+            },
+            {
+                "name": "poly_bitmask",
+                "samples": [
+                    {
+                        "name": "LAND",
+                        "value": 1
+                    },
+                    {
+                        "name": "CLOUD_BASE",
+                        "value": 2
+                    },
+                    {
+                        "name": "L1_INVALID",
+                        "value": 4
+                    },
+                    {
+                        "name": "NEGATIVE_BB",
+                        "value": 8
+                    },
+                    {
+                        "name": "OUT_OF_BOUNDS",
+                        "value": 16
+                    },
+                    {
+                        "name": "EXCEPTION",
+                        "value": 32
+                    },
+                    {
+                        "name": "THICK_AEROSOL",
+                        "value": 64
+                    },
+                    {
+                        "name": "HIGH_AIR_MASS",
+                        "value": 128
+                    },
+                    {
+                        "name": "EXTERNAL_MASK",
+                        "value": 512
+                    },
+                    {
+                        "name": "CASE2",
+                        "value": 1024
+                    },
+                    {
+                        "name": "INCONSISTENCY",
+                        "value": 2048
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "lat",
+                "description": "latitude",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "degrees_north",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 9,
+                        "y": 39,
+                        "value": 45.89525
+                    },
+                    {
+                        "x": 124,
+                        "y": 186,
+                        "value": 45.442905
+                    }
+                ]
+            },
+            {
+                "name": "lon",
+                "description": "longitude",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "degrees_east",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 52,
+                        "y": 56,
+                        "value": 10.624565
+                    },
+                    {
+                        "x": 110,
+                        "y": 79,
+                        "value": 10.79344
+                    }
+                ]
+            },
+            {
+                "name": "quality_flags",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "2.147483649E9",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 99,
+                        "y": 163,
+                        "value": 2.68435456E9
+                    },
+                    {
+                        "x": 110,
+                        "y": 203,
+                        "value": 2.14748365E9
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Vantrepotte_TSM_Calimnos",
+                "description": "concentration of total suspended matter obtained using GloboLakes-tuned Vantrepotte et al. 2011 algorithm applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "g.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 28,
+                        "y": 145,
+                        "value": -4222945.0
+                    },
+                    {
+                        "x": 93,
+                        "y": 200,
+                        "value": -4222945.0
+                    }
+                ]
+            },
+            {
+                "name": "idePoly_pixel_classif_flags",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 136,
+                        "y": 106,
+                        "value": 1024.0
+                    },
+                    {
+                        "x": 172,
+                        "y": 106,
+                        "value": 1024.0
+                    }
+                ]
+            },
+            {
+                "name": "idePoly_quality_flags",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "2.147483649E9",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 61,
+                        "y": 196,
+                        "value": 2.14748365E9
+                    },
+                    {
+                        "x": 1,
+                        "y": 103,
+                        "value": 2.14748365E9
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_709_TSM_Calimnos",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 59,
+                        "y": 43,
+                        "value": -1016.0986
+                    },
+                    {
+                        "x": 49,
+                        "y": 9,
+                        "value": -1016.0986
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_709_Turb_Calimnos",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 175,
+                        "y": 132,
+                        "value": -751.91296
+                    },
+                    {
+                        "x": 103,
+                        "y": 156,
+                        "value": 0.35652485
+                    }
+                ]
+            },
+            {
+                "name": "blended_chla_top_3_weighted",
+                "description": "concentration of chlorophyll-a blended from the per-pixel three highest scoring optical water types derived from Polymer atmospherically corrected reflectance and tuning in GloboLakes",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 41,
+                        "y": 108,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 58,
+                        "y": 158,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "blended_tsm_top_3_weighted",
+                "description": "concentration of TSM blended from the per-pixel three highest scoring optical water types derived from Polymer atmospherically corrected reflectance and tuning in GloboLakes",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "g.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 64,
+                        "y": 109,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 72,
+                        "y": 96,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "blended_dominant_owt",
+                "description": "optical water type class number with the heighest membership score",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 104,
+                        "y": 20,
+                        "value": 13.0
+                    },
+                    {
+                        "x": 116,
+                        "y": 3,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "blended_trophic_state",
+                "description": "trophic state index derived with Calimnos blending of chlorophyll-a algorithms tuned in the GloboLakes project",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 176,
+                        "y": 80,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 171,
+                        "y": 207,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "blended_turbidity",
+                "description": "turbidity derived with Calimnos optical water type dependant blending of total suspended matter or turbidity algorithms as tuned in the GloboLakes project",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "NTU",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 20,
+                        "y": 98,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 103,
+                        "y": 123,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "blended_chla_top_3_weighted_validity",
+                "description": "relative weight of optical water type scores used in blending",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 91,
+                        "y": 114,
+                        "value": 100.0
+                    },
+                    {
+                        "x": 81,
+                        "y": 127,
+                        "value": 100.0
+                    }
+                ]
+            },
+            {
+                "name": "blended_tsm_top_3_weighted_validity",
+                "description": "relative weight of optical water type scores used in blending",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2,
+                        "y": 92,
+                        "value": 100.0
+                    },
+                    {
+                        "x": 12,
+                        "y": 217,
+                        "value": 129.0
+                    }
+                ]
+            },
+            {
+                "name": "blended_chla_from_predominant_owt",
+                "description": "concentration of chlorophyll-a following the algorithm associated with the highest scoring optical water type in the whole water body derived from Polymer atmospherically corrected reflectance and tuning in GloboLakes",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 53,
+                        "y": 163,
+                        "value": 1.489704
+                    },
+                    {
+                        "x": 145,
+                        "y": 161,
+                        "value": 1.489704
+                    }
+                ]
+            },
+            {
+                "name": "blended_tsm_from_predominant_owt",
+                "description": "concentration of TSM following the algorithm associated with the highest scoring optical water type in the whole water body derived from Polymer atmospherically corrected reflectance and tuning in GloboLakes",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "g.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 151,
+                        "y": 207,
+                        "value": "Infinity"
+                    },
+                    {
+                        "x": 44,
+                        "y": 116,
+                        "value": "Infinity"
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Zhang_TSM_Calimnos",
+                "description": "concentration of total suspended matter obtained using GloboLakes-tuned Zhang et al. 2014 algorithm applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "g.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 110,
+                        "y": 56,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 100,
+                        "y": 33,
+                        "value": "Infinity"
+                    }
+                ]
+            },
+            {
+                "name": "poly_QAA_Mishra_phycocyanin_Calimnos",
+                "description": "concentration of phycocyanin derived using the Mishra et al 2013 QAA algorithm applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 86,
+                        "y": 122,
+                        "value": 17.193169
+                    },
+                    {
+                        "x": 17,
+                        "y": 186,
+                        "value": 128.83943
+                    }
+                ]
+            },
+            {
+                "name": "poly_QAA_Mishra_chla_Calimnos",
+                "description": "concentration of chlorophyll-a derived using the the Limnades-tuned Mishra et al 2013 QAA algorithm applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 17,
+                        "y": 17,
+                        "value": 21.06397
+                    },
+                    {
+                        "x": 82,
+                        "y": 148,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_QAA_Mishra_chla_C7_Calimnos",
+                "description": "concentration of chlorophyll-a derived using the Limnades-tuned (cluster 7) Mishra et al 2013 QAA algorithm applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 84,
+                        "y": 196,
+                        "value": 50.843918
+                    },
+                    {
+                        "x": 157,
+                        "y": 131,
+                        "value": 50.843918
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_865_TSM_Calimnos",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 174,
+                        "y": 83,
+                        "value": -6289.4717
+                    },
+                    {
+                        "x": 15,
+                        "y": 116,
+                        "value": -6289.4717
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_865_Turb_Calimnos",
+                "description": "turbidity in FNU determined using the algorithms defined by Nechad et al. (2009;2010) using the 865nm band",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 133,
+                        "y": 130,
+                        "value": -4654.209
+                    },
+                    {
+                        "x": 176,
+                        "y": 40,
+                        "value": -4654.209
+                    }
+                ]
+            },
+            {
+                "name": "poly_oc2_chla_Calimnos",
+                "description": "concentration of chlorophyll-a derived with the GloboLakes-tuned OC2Ev6 algorithm applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 83,
+                        "y": 57,
+                        "value": 1.489704
+                    },
+                    {
+                        "x": 41,
+                        "y": 141,
+                        "value": 1.489704
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_665_TSM_Calimnos",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 115,
+                        "y": 95,
+                        "value": -609.31006
+                    },
+                    {
+                        "x": 96,
+                        "y": 124,
+                        "value": -609.31006
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_665_Turb_Calimnos",
+                "description": "turbidity in FNU determined using the algorithms defined by Nechad et al. (2009;2010) using the 665nm band",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 71,
+                        "y": 46,
+                        "value": -450.88943
+                    },
+                    {
+                        "x": 50,
+                        "y": 194,
+                        "value": -450.88943
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_779_TSM_Calimnos",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 171,
+                        "y": 127,
+                        "value": -3745.473
+                    },
+                    {
+                        "x": 137,
+                        "y": 71,
+                        "value": -3745.473
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Nechad_779_Turb_Calimnos",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 101,
+                        "y": 63,
+                        "value": 0.980182
+                    },
+                    {
+                        "x": 150,
+                        "y": 190,
+                        "value": -2771.65
+                    }
+                ]
+            },
+            {
+                "name": "poly_TSM_Binding_TSM_Calimnos",
+                "description": "concentration of total suspended matter obtained using GloboLakes-tuned Binding et al. 2010 algorithm applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "g.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 19,
+                        "y": 194,
+                        "value": "Infinity"
+                    },
+                    {
+                        "x": 62,
+                        "y": 178,
+                        "value": 0.9825617
+                    }
+                ]
+            },
+            {
+                "name": "poly_bitmask",
+                "description": "polymer processing flags",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 32,
+                        "y": 151,
+                        "value": 512.0
+                    },
+                    {
+                        "x": 107,
+                        "y": 120,
+                        "value": 512.0
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw400",
+                "description": "fully normalized water-leaving reflectance at 400 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 37,
+                        "y": 67,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 74,
+                        "y": 189,
+                        "value": 0.01725184
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw412",
+                "description": "fully normalized water-leaving reflectance at 412 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 127,
+                        "y": 196,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 53,
+                        "y": 217,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw443",
+                "description": "fully normalized water-leaving reflectance at 443 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 99,
+                        "y": 25,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 35,
+                        "y": 122,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw490",
+                "description": "fully normalized water-leaving reflectance at 490 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 82,
+                        "y": 28,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 150,
+                        "y": 125,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw510",
+                "description": "fully normalized water-leaving reflectance at 510 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 18,
+                        "y": 148,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 132,
+                        "y": 103,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw560",
+                "description": "fully normalized water-leaving reflectance at 560 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 25,
+                        "y": 14,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 152,
+                        "y": 65,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw620",
+                "description": "fully normalized water-leaving reflectance at 620 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 107,
+                        "y": 212,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 140,
+                        "y": 6,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw665",
+                "description": "fully normalized water-leaving reflectance at 665 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 39,
+                        "y": 53,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 57,
+                        "y": 42,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw674",
+                "description": "fully normalized water-leaving reflectance at 674 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 51,
+                        "y": 193,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 180,
+                        "y": 16,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw681",
+                "description": "fully normalized water-leaving reflectance at 681 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 148,
+                        "y": 109,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 11,
+                        "y": 84,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw709",
+                "description": "fully normalized water-leaving reflectance at 709 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 50,
+                        "y": 127,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 168,
+                        "y": 30,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw754",
+                "description": "fully normalized water-leaving reflectance at 754 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 18,
+                        "y": 31,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 159,
+                        "y": 23,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw760",
+                "description": "fully normalized water-leaving reflectance at 760 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 66,
+                        "y": 193,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 105,
+                        "y": 126,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw764",
+                "description": "fully normalized water-leaving reflectance at 764 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 61,
+                        "y": 71,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 67,
+                        "y": 187,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw767",
+                "description": "fully normalized water-leaving reflectance at 767 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 58,
+                        "y": 150,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 116,
+                        "y": 147,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw779",
+                "description": "fully normalized water-leaving reflectance at 779 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 95,
+                        "y": 28,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 83,
+                        "y": 175,
+                        "value": 0.0030532263
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw865",
+                "description": "fully normalized water-leaving reflectance at 865 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 145,
+                        "y": 197,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 4,
+                        "y": 152,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw885",
+                "description": "fully normalized water-leaving reflectance at 885 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 160,
+                        "y": 126,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 115,
+                        "y": 198,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw900",
+                "description": "fully normalized water-leaving reflectance at 900 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 177,
+                        "y": 70,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 65,
+                        "y": 1,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw940",
+                "description": "fully normalized water-leaving reflectance at 940 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 151,
+                        "y": 124,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 106,
+                        "y": 87,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_Rw1020",
+                "description": "fully normalized water-leaving reflectance at 1020 nm obtained from polymer atmospheric correction processor",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 71,
+                        "y": 216,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 41,
+                        "y": 157,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_r708_r665_chla_Calimnos",
+                "description": "concentration of chlorophyll-a derived with the GloboLakes-tuned NIR-red band ratio algorithm sensu Gilerson et al (2010) applied to Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 169,
+                        "y": 63,
+                        "value": 24.63
+                    },
+                    {
+                        "x": 56,
+                        "y": 186,
+                        "value": 24.63
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_01",
+                "description": "membership score of optical water type 1 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 59,
+                        "y": 115,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 64,
+                        "y": 175,
+                        "value": 0.59587276
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_02",
+                "description": "membership score of optical water type 2 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 101,
+                        "y": 47,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 17,
+                        "y": 154,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_03",
+                "description": "membership score of optical water type 3 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 127,
+                        "y": 174,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 152,
+                        "y": 14,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_04",
+                "description": "membership score of optical water type 4 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 151,
+                        "y": 49,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 118,
+                        "y": 203,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_05",
+                "description": "membership score of optical water type 5 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 48,
+                        "y": 188,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 69,
+                        "y": 81,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_06",
+                "description": "membership score of optical water type 6 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 175,
+                        "y": 149,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 131,
+                        "y": 93,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_07",
+                "description": "membership score of optical water type 7 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 90,
+                        "y": 30,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 175,
+                        "y": 29,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_08",
+                "description": "membership score of optical water type 8 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 130,
+                        "y": 121,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 127,
+                        "y": 216,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_09",
+                "description": "membership score of optical water type 9 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 115,
+                        "y": 198,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 151,
+                        "y": 116,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_10",
+                "description": "membership score of optical water type 10 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 90,
+                        "y": 203,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 103,
+                        "y": 169,
+                        "value": 0.63872874
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_11",
+                "description": "membership score of optical water type 11 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 168,
+                        "y": 8,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 127,
+                        "y": 158,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_12",
+                "description": "membership score of optical water type 12 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 62,
+                        "y": 1,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 39,
+                        "y": 188,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_13",
+                "description": "membership score of optical water type 13 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 22,
+                        "y": 22,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 15,
+                        "y": 25,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_membership_sum",
+                "description": "sum of membership scores of optical water types 1-13 obtained using GloboLakes fuzzy classification and Polymer atmospherically corrected reflectance",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "1",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 125,
+                        "y": 15,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 87,
+                        "y": 190,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_owt_412_779_13C_owt_membership_sum_normalized",
+                "description": "",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 51,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 45,
+                        "y": 212,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "poly_gons05_Limnades_chla_Calimnos",
+                "description": "concentration of chlorophyll-a derived with the GloboLakes-tuned Gons et al (2005) algorithm applied to Polymer atmospherically corrected reflectance and tuning in GloboLakes",
+                "bandWidth": 181,
+                "bandHeight": 219,
+                "geophysicalUnit": "mg.m-3",
+                "noDataValue": "9.969209968386869E36",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 129,
+                        "y": 74,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 116,
+                        "y": 111,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Variable_Attributes/poly_Rw560/_ChunkSize",
+                "value": "1,219,181"
+            },
+            {
+                "path": "Variable_Attributes/poly_owt_412_779_13C_owt_04/_FillValue",
+                "value": "9.96921E36"
+            },
+            {
+                "path": "Variable_Attributes/poly_Rw1020/standard_name",
+                "value": "fully_normalized_water_leaving_reflectance_at_1020nm"
+            },
+            {
+                "path": "Global_Attributes/comment",
+                "value": ""
+            },
+            {
+                "path": "Variable_Attributes/poly_Rw764/coordinates",
+                "value": "lat lon"
+            },
+            {
+                "path": "Variable_Attributes/poly_TSM_Nechad_865_TSM_Calimnos/standard_name",
+                "value": ""
+            },
+            {
+                "path": "Global_Attributes/iso19115_topic_categories",
+                "value": "environment"
+            },
+            {
+                "path": "Global_Attributes/time_coverage_end",
+                "value": "01-JAN-2017 09:59:20.494171"
+            },
+            {
+                "path": "Variable_Attributes/poly_TSM_Nechad_779_Turb_Calimnos/_FillValue",
+                "value": "9.96921E36"
+            },
+            {
+                "path": "Global_Attributes/gcmd_keywords",
+                "value": "EARTH_SCIENCE-OCEANS-OCEAN_OPTICS-WATER-LEAVING RADIANCE;EARTH_SCIENCE-TERRESTRIAL_HYDROSPHERE-WATER_QUALITY_WATER_CHEMISTRY-CHLOROPHYLL,SUSPENDED_SOLIDS,TURBIDITY"
+            }
+        ]
+    }
+}
