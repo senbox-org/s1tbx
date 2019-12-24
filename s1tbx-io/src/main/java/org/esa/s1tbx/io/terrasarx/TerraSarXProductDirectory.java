@@ -22,6 +22,7 @@ import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
+import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.s1tbx.io.sunraster.SunRasterReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
@@ -639,28 +640,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     if (imgStream == null)
                         throw new IOException("Unable to open " + imgPath);
 
-                    final ImageIOFile img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                    final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_UINT16, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
                 }
             }
         }
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     private void addShiftFiles(final Product product) {

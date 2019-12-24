@@ -20,6 +20,7 @@ import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.JSONProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
+import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -91,10 +92,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
                     final ImageIOFile img;
                     if (isSLC()) {
-                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                        img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                                 1, 1, ProductData.TYPE_INT32, productInputFile);
                     } else {
-                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                        img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                                 1, 1, ProductData.TYPE_INT32, productInputFile);
                     }
                     bandImageFileMap.put(img.getName(), img);
@@ -103,22 +104,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 SystemUtils.LOG.severe(imgPath +" not found");
             }
         }
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     @Override

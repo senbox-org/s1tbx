@@ -16,9 +16,11 @@
 package org.esa.s1tbx.commons.io;
 
 import com.bc.ceres.core.VirtualDir;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -26,14 +28,20 @@ import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.zip.ZipFile;
+
+import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.NO_METADATA_STRING;
 
 /**
  * This class represents a product directory.
@@ -118,6 +126,13 @@ public abstract class AbstractProductDirectory {
 
     protected boolean isCompressed() {
         return productDir.isCompressed();
+    }
+
+    protected static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat dateFormat) {
+        String start = elem.getAttributeString(tag, NO_METADATA_STRING);
+        start = start.replace("T", "_");
+
+        return AbstractMetadata.parseUTC(start, dateFormat);
     }
 
     protected final void findImages(final String parentPath, final MetadataElement newRoot) throws IOException {

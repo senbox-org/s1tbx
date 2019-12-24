@@ -21,6 +21,7 @@ import org.esa.s1tbx.commons.io.PropertyMapProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.ceos.risat.RisatCeosProductReader;
 import org.esa.s1tbx.io.ceos.risat.RisatCeosProductReaderPlugIn;
+import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.image.ImageManager;
@@ -100,10 +101,10 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 
                 final ImageIOFile img;
                 if (isSLC()) {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                    img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 2, ProductData.TYPE_INT32, productInputFile);
                 } else {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                    img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream), productInputFile);
                 }
                 bandImageFileMap.put(img.getName(), img);
             }
@@ -115,22 +116,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             bProduct.setName(bProduct.getName() + "_" + pol);
             bandProductList.add(bProduct);
         }
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     private String getPol(String imgName) {
@@ -450,13 +435,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         getPolarizations(absRoot, productElem);
 //        addSRGRCoefficients(absRoot, productElem);
 //        addDopplerCentroidCoefficients(absRoot, productElem);
-    }
-
-    private static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
-        if (elem == null)
-            return AbstractMetadata.NO_METADATA_UTC;
-        final String timeStr = elem.getAttributeString(tag, " ").toUpperCase().trim();
-        return AbstractMetadata.parseUTC(timeStr, timeFormat);
     }
 
     private static int getFlag(final MetadataElement elem, String tag) {
