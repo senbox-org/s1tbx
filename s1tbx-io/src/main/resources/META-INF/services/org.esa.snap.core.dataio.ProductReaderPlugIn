@@ -1,3 +1,4 @@
+org.esa.s1tbx.io.capella.CapellaProductReaderPlugIn
 org.esa.s1tbx.io.ceos.ers.ERSProductReaderPlugIn
 org.esa.s1tbx.io.ceos.jers.JERSProductReaderPlugIn
 org.esa.s1tbx.io.ceos.alos.AlosPalsarProductReaderPlugIn
