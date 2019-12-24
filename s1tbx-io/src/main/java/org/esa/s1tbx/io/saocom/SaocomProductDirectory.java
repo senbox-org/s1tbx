@@ -22,6 +22,7 @@ import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
+import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.s1tbx.io.sunraster.SunRasterReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
@@ -36,7 +37,6 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
@@ -51,8 +51,6 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -62,9 +60,6 @@ import java.util.*;
  * This class represents a product directory.
  */
 public class SaocomProductDirectory extends XMLProductDirectory {
-
-    private static final String TERRA_SAR_X = "TerraSAR-X";
-    private static final String TAN_DEM_X = "TanDEM-X";
 
     private final File headerFile;
     private String productName = null;
@@ -84,7 +79,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     // For TDM CoSSC products only
     private String masterProductName = null;
     private String slaveProductName = null;
-    private boolean isTanDEMX = false;
 
     public SaocomProductDirectory(final File inputFile) {
         super(inputFile);
@@ -96,177 +90,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             return ""; //todo
         } else {
             return headerFile.getName();
-        }
-    }
-
-    protected String getRelativePathToImageFolder() {
-        return getRootFolder() + "IMAGEDATA" + '/';
-    }
-
-    private static void replaceAbstractedMetadataField(final MetadataElement abstractedMetadata, final String attrName, final String newValue) {
-
-        final ProductData productData = abstractedMetadata.getAttribute(attrName).getData();
-        productData.setElems(newValue);
-    }
-
-    private MetadataElement addMetaDataForTanDemX() throws IOException {
-
-        // xmlDoc is the "main" annotation (i.e., the file with name "TDM... .xml")
-        final Element mainRootElement = xmlDoc.getRootElement();
-
-        final String inSARmasterID = mainRootElement.getChild("commonAcquisitionInfo")
-                .getChild("inSARmasterID").getText().toLowerCase();
-        final String inSARslaveID = inSARmasterID.endsWith("1") ? "sat2" : "sat1";
-        final String masterSatellite = mainRootElement.getChild("commonAcquisitionInfo")
-                .getChild("satelliteID" + inSARmasterID).getText();
-        final String slaveSatellite = mainRootElement.getChild("commonAcquisitionInfo")
-                .getChild("satelliteID" + inSARslaveID).getText();
-
-        final List<Element> componentList = mainRootElement.getChild("productComponents").getChildren("component");
-        Element masterAnnotationComponent = null;
-        Element slaveAnnotationComponent = null;
-        for (Element component : componentList) {
-            final String satId = component.getChild("instrument").getChildText("satIDs");
-            if (component.getChildText("name").startsWith("cossc_annotation")) {
-                if (satId.equals(masterSatellite)) {
-                    masterAnnotationComponent = component;
-                }
-                if (satId.equals(slaveSatellite)) {
-                    slaveAnnotationComponent = component;
-                }
-            }
-            if (masterAnnotationComponent != null && slaveAnnotationComponent != null) {
-                break;
-            }
-        }
-        if (masterAnnotationComponent == null) {
-            throw new IOException("Cannot locate primary annotation component (master product) in main annotation of TDM product");
-        }
-        if (slaveAnnotationComponent == null) {
-            throw new IOException("Cannot locate secondary annotation component (slave product) in main annotation of TDM product");
-        }
-
-        String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        masterProductName = masterHeader.substring(0, masterHeader.indexOf('/'));
-
-        masterHeader = findHeaderFile(masterHeader, masterProductName);
-
-        // Build the slave metadata
-
-        String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        slaveProductName = slaveHeader.substring(0, slaveHeader.indexOf('/'));
-
-        slaveHeader = findHeaderFile(slaveHeader, slaveProductName);
-
-        final Document slaveDoc;
-        try (final InputStream is = getInputStream(slaveHeader)) {
-            slaveDoc = XMLSupport.LoadXML(is);
-        }
-        final Element slaveRootElement = slaveDoc.getRootElement();
-
-        final MetadataElement slaveRoot = new MetadataElement("Slave_Metadata");
-        AbstractMetadataIO.AddXMLMetadata(slaveRootElement, AbstractMetadata.addOriginalProductMetadata(slaveRoot));
-        addAbstractedMetadataHeader(slaveRoot);
-
-        final MetadataElement slaveAbstractedMetadataElem = slaveRoot.getElement("Abstracted_Metadata");
-
-        // Add Product_Information to slave Abstracted_Metadata
-        final MetadataElement productInfo = new MetadataElement("Product_Information");
-        final MetadataElement inputProd = new MetadataElement("InputProducts");
-        productInfo.addElement(inputProd);
-        inputProd.setAttributeString("InputProduct", slaveProductName);
-        slaveAbstractedMetadataElem.addElement(productInfo);
-
-        // Change the name from Abstracted_Metadata to the slave product name
-        slaveAbstractedMetadataElem.setName(slaveProductName);
-
-        // Use the master's annotation to build the Abstracted_Metadata and Original_Product_Metadata.
-
-        final MetadataElement metadataRoot = new MetadataElement(Product.METADATA_ROOT_NAME);
-
-        final Document masterDoc;
-        try (final InputStream is = getInputStream(masterHeader)) {
-            masterDoc = XMLSupport.LoadXML(is);
-        }
-
-        final Element masterRootElement = masterDoc.getRootElement();
-        AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(metadataRoot));
-
-        addAbstractedMetadataHeader(metadataRoot);
-
-        // Replace the product name (which right now is the master product) with the TDM product.
-        // Replace data in Abstracted_Metadata with TDM values.
-
-        MetadataElement abstractedMetadata = metadataRoot.getElement("Abstracted_Metadata");
-
-        // Turn on the coregistration flag
-        abstractedMetadata.setAttributeInt("coregistered_stack", 1);
-
-        // Replace PRODUCT
-        productName = getHeaderFileName().substring(0, getHeaderFileName().length() - 4);
-        replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT", productName);
-
-        // Replace PRODUCT_TYPE
-        productType = mainRootElement.getChild("productInfo").getChildText("productType");
-        replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT_TYPE", productType);
-
-        // Replace SPH_DESCRIPTOR
-        replaceAbstractedMetadataField(abstractedMetadata, "SPH_DESCRIPTOR", mainRootElement.getChild("generalHeader").getChildText("itemName"));
-
-        // Replace mission
-        replaceAbstractedMetadataField(abstractedMetadata, "MISSION", "TDM");
-
-        // Add the CoSSC metadata, i.e., the "main" annotation from the file with name "TDM... .xml"
-        final MetadataElement cosscMetadataElem = new MetadataElement("CoSSC_Metadata");
-        AbstractMetadataIO.AddXMLMetadata(mainRootElement, cosscMetadataElem);
-        metadataRoot.addElement(cosscMetadataElem);
-
-        // Turn on the bi-static flag
-        abstractedMetadata.setAttributeInt("bistatic_stack", 1);
-
-        // Add the slave metadata
-        metadataRoot.addElement(slaveRoot);
-
-        return metadataRoot;
-    }
-
-    private String findHeaderFile(final String slaveHeader, final String slaveProductName) throws IOException {
-        try {
-            // test file
-            File slaveHeaderFile = getFile(slaveHeader);
-        } catch (FileNotFoundException e) {
-            File slaveProductFolder = getFile(slaveProductName);
-            File[] files = slaveProductFolder.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return pathname.getName().toLowerCase().endsWith(".xml");
-                }
-            });
-            if (files != null && files.length > 0) {
-                return slaveProductName + '/' + files[0].getName();
-            }
-        }
-        return slaveHeader;
-    }
-
-    public boolean isTanDEMX() {
-        return isTanDEMX;
-    }
-
-    @Override
-    protected MetadataElement addMetaData() throws IOException {
-
-        if (getHeaderFileName().startsWith("TSX") || getHeaderFileName().startsWith("TDX")) {
-            productName = TERRA_SAR_X;
-            productType = TERRA_SAR_X;
-            return super.addMetaData();
-        } else if (getHeaderFileName().startsWith("TDM")) {
-            productName = TAN_DEM_X;
-            productType = TAN_DEM_X;
-            isTanDEMX = true;
-            return addMetaDataForTanDemX();
-        } else {
-            throw new IOException("Invalid header file: " + getHeaderFileName());
         }
     }
 
@@ -639,28 +462,12 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     if (imgStream == null)
                         throw new IOException("Unable to open " + imgPath);
 
-                    final ImageIOFile img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                    final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_UINT16, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
                 }
             }
         }
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     private void addShiftFiles(final Product product) {

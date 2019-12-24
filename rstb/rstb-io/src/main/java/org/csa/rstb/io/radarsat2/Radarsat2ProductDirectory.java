@@ -20,6 +20,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
+import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -102,31 +103,15 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
                     final ImageIOFile img;
                     if (isSLC()) {
-                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                        img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                                 1, 2, dataType, productInputFile);
                     } else {
-                        img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                        img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream), productInputFile);
                     }
                     bandImageFileMap.put(img.getName(), img);
                 }
             }
         }
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     private String getPol(final String imgName) {

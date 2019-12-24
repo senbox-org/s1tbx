@@ -125,18 +125,7 @@ public class SaocomProductReader extends SARReader {
     }
 
     private void addQuicklooks(final Product product) {
-        if(dataDir.isTanDEMX()) {
-            addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile("COMMON_PREVIEW/QL_SLT_ampl_composite.tif"));
-            addQuicklook(product, "QL_SLT_coher", getQuicklookFile("COMMON_PREVIEW/QL_SLT_coher.tif"));
-            addQuicklook(product, "QL_SLT_phase", getQuicklookFile("COMMON_PREVIEW/QL_SLT_phase.tif"));
-            addQuicklook(product, "QL_GTC_amplitude", getQuicklookFile("COMMON_PREVIEW/QL_GTC_amplitude.tif"));
-            addQuicklook(product, "QL_GTC_coherence", getQuicklookFile("COMMON_PREVIEW/QL_GTC_coherence.tif"));
-            addQuicklook(product, "QL_GTC_DEM", getQuicklookFile("COMMON_PREVIEW/QL_GTC_DEM.tif"));
-            addQuicklook(product, "QL_SLT_dinsar_phase", getQuicklookFile("COMMON_PREVIEW/QL_SLT_dinsar_phase.tif"));
-            addQuicklook(product, "QL_SLT_dinsar_radargr", getQuicklookFile("COMMON_PREVIEW/QL_SLT_dinsar_radargr.tif"));
-        } else {
-            addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile("PREVIEW/BROWSE.tif"));
-        }
+        addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile("PREVIEW/BROWSE.tif"));
     }
 
     private File getQuicklookFile(final String relativeFilePath) {

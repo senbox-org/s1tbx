@@ -8,6 +8,7 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.*;
@@ -141,22 +142,6 @@ public class IceyeGRDProductReader extends SARReader {
 
     private static String[] convertDateStringToStringArrayBySpace(String string) {
         return string.replace("\n", " ").replaceAll("\\s+", " ").replace("  ", " ").replace("[", "").replace("]", "").trim().split(" ");
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     private void initReader() {
@@ -528,7 +513,7 @@ public class IceyeGRDProductReader extends SARReader {
             final int rasterHeight = Integer.parseInt(this.tiffFeilds.get(IceyeXConstants.NUM_OUTPUT_LINES.toUpperCase()));
             try (final InputStream inStream = new BufferedInputStream(new FileInputStream(inputFile))) {
                 final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, new Dimension(rasterWidth, rasterHeight));
-                final ImageIOFile img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), inputFile);
+                final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream), inputFile);
                 String polarization = tiffFeilds.get(IceyeXConstants.MDS1_TX_RX_POLAR.toUpperCase());
                 String bandName = "Amplitude_" + polarization;
                 final Band band = new Band(bandName, ProductData.TYPE_UINT32, rasterWidth, rasterHeight);

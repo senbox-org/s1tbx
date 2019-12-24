@@ -19,6 +19,7 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
+import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -83,31 +84,15 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
 
                 final ImageIOFile img;
                 if (isSLC()) {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream),
+                    img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 2, ProductData.TYPE_FLOAT32, productInputFile);
                 } else {
-                    img = new ImageIOFile(name, imgStream, getTiffIIOReader(imgStream), productInputFile);
+                    img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream), productInputFile);
                 }
                 bandImageFileMap.put(img.getName(), img);
                 imageFile = getFile(imgPath);
             }
         }
-    }
-
-    public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {
-        ImageReader reader = null;
-        final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        while (imageReaders.hasNext()) {
-            final ImageReader iioReader = imageReaders.next();
-            if (iioReader instanceof TIFFImageReader) {
-                reader = iioReader;
-                break;
-            }
-        }
-        if (reader == null)
-            throw new IOException("Unable to open " + stream.toString());
-        reader.setInput(stream, true, true);
-        return reader;
     }
 
     @Override
