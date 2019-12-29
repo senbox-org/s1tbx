@@ -123,6 +123,7 @@ public class TestRCMProductReader extends ReaderTest {
     }
 
     @Test
+    @Ignore("not implemented")
     public void testOpeningCPGRCZip() throws Exception {
         testReader(inputCPGRCZip.toPath());
     }
