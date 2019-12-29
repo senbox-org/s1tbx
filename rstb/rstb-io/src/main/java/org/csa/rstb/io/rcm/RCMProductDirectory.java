@@ -244,6 +244,8 @@ public class RCMProductDirectory extends XMLProductDirectory {
     }
 
     private void addMetadataFiles(final String internalPath, final MetadataElement destElem) throws IOException {
+        if(!productDir.exists(internalPath))
+            return;
         String[] metaFiles = productDir.list(internalPath);
         for (String file : metaFiles) {
             if (file.endsWith(".xml")) {
@@ -322,7 +324,8 @@ public class RCMProductDirectory extends XMLProductDirectory {
         final String orbitFile = orbitInformation.getAttributeString("orbitDataFileName", defStr);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.orbit_state_vector_file, orbitFile);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, Integer.parseInt(orbitFile.substring(0, orbitFile.indexOf('_')).trim()));
+        //String orbStr = orbitFile.lastIndexOf('_').trim();
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, Integer.parseInt(orbitFile.substring(0, );
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
                 generalProcessingInformation.getAttributeString("processingFacility", defStr) + '-' +

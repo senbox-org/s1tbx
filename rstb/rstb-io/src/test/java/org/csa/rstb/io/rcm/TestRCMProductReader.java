@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Skywatch. https://www.skywatch.co
+ * Copyright (C) 2018 Skywatch. https://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,10 +17,13 @@ package org.csa.rstb.io.rcm;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test Product Reader.
@@ -29,73 +32,99 @@ import java.io.File;
  */
 public class TestRCMProductReader extends ReaderTest {
 
-    private final static File inputGRDZip = new File("E:\\Data\\RCM\\RCM1_OK77686_PK688502_4_SC4D_20130822_020936_HH_GRD.zip");
-    private final static File inputGRDFolder = new File("E:\\Data\\RCM\\RCM1_OK77686_PK688502_4_SC4D_20130822_020936_HH_GRD");
-    private final static File inputGRDManifest = new File("E:\\Data\\RCM\\RCM1_OK77686_PK688502_4_SC4D_20130822_020936_HH_GRD\\manifest.safe");
+    private final static File inputGRDZip = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK21594_PK225278_4_QP15_20110624_225945_HH_VV_HV_VH_GRD.zip");
+    private final static File inputGRDFolder = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK21594_PK225278_4_QP15_20110624_225945_HH_VV_HV_VH_GRD");
+    private final static File inputGRDManifest = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK21594_PK225278_4_QP15_20110624_225945_HH_VV_HV_VH_GRD/manifest.safe");
 
-    private final static File inputSLCZip = new File("E:\\data\\RCM\\RCM1_OK77686_PK688502_2_3M26_20130822_020936_HH_SLC.zip");
-    private final static File inputSLCFolder = new File("E:\\data\\RCM\\RCM1_OK77686_PK688502_2_3M26_20130822_020936_HH_SLC");
-    private final static File inputSLCManifest = new File("E:\\data\\RCM\\RCM1_OK77686_PK688502_2_3M26_20130822_020936_HH_SLC\\manifest.safe");
+    private final static File inputGRCFolder = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK21594_PK225278_6_QP15_20110624_225945_HH_VV_HV_VH_GRC");
+    private final static File inputGRCManifest = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK21594_PK225278_6_QP15_20110624_225945_HH_VV_HV_VH_GRC/manifest.safe");
 
-    private final static File inputCPSLC = new File("E:\\data\\RCM\\RCM1_OK21594_PK225278_2_16MCP8_20110624_225945_CH_CV_SLC");
-    private final static File inputCPGRC = new File("E:\\data\\RCM\\RCM1_OK21594_PK225278_6_16MCP8_20110624_225945_CH_CV_GRC");
-    private final static File inputGRCZip = new File("E:\\data\\RCM\\RCM1_OK77686_PK688502_6_3M27_20130822_020936_HH_GRC.zip");
+    //private final static File inputSLCZip = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK77686_PK688502_2_3M26_20130822_020936_HH_SLC.zip");
+    private final static File inputSLCFolder = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK21594_PK225278_2_QP15_20110624_225945_HH_VV_HV_VH_SLC");
+    private final static File inputSLCManifest = new File(S1TBXTests.TEST_ROOT +"RCM/QP/RCM1_OK21594_PK225278_2_QP15_20110624_225945_HH_VV_HV_VH_SLC/manifest.safe");
+
+    private final static File inputCPSLC = new File(S1TBXTests.TEST_ROOT +"RCM/CP/RCM1_OK21594_PK225278_2_16MCP9_20110624_225945_CH_CV_SLC");
+    private final static File inputCPGRC = new File(S1TBXTests.TEST_ROOT +"RCM/CP/RCM1_OK21594_PK225278_6_16MCP9_20110624_225945_CH_CV_GRC");
+    private final static File inputCPGRD = new File(S1TBXTests.TEST_ROOT +"RCM/CP/RCM1_OK21594_PK225278_4_16MCP9_20110624_225945_CH_CV_GRD");
+    private final static File inputCPGRCZip = new File(S1TBXTests.TEST_ROOT +"RCM/CP/RCM1_OK21594_PK225278_6_16MCP9_20110624_225945_CH_CV_GRC.zip");
 
     public TestRCMProductReader() {
         super(new RCMProductReaderPlugIn());
     }
 
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(inputGRDZip + " not found", inputGRDZip.exists());
+        assumeTrue(inputGRDFolder + " not found", inputGRDFolder.exists());
+        assumeTrue(inputGRDManifest + " not found", inputGRDManifest.exists());
+
+        assumeTrue(inputGRCFolder + " not found", inputGRCFolder.exists());
+        assumeTrue(inputGRCManifest + " not found", inputGRCManifest.exists());
+
+        assumeTrue(inputSLCFolder + " not found", inputSLCFolder.exists());
+        assumeTrue(inputSLCManifest + " not found", inputSLCManifest.exists());
+
+        assumeTrue(inputCPSLC + " not found", inputCPSLC.exists());
+        assumeTrue(inputCPGRC + " not found", inputCPGRC.exists());
+        assumeTrue(inputCPGRD + " not found", inputCPGRD.exists());
+        assumeTrue(inputCPGRCZip + " not found", inputCPGRCZip.exists());
+    }
+
     @Test
-    @Ignore("No data")
     public void testOpeningGRDManifest() throws Exception {
-        testReader(inputGRDManifest);
+        testReader(inputGRDManifest.toPath());
     }
 
     @Test
-    @Ignore("No data")
+    @Ignore("failing test")
     public void testOpeningGRDZip() throws Exception {
-        testReader(inputGRDZip);
+        testReader(inputGRDZip.toPath());
     }
 
     @Test
-    @Ignore("No data")
     public void testOpeningGRDFolder() throws Exception {
-        testReader(inputGRDFolder);
+        testReader(inputGRDFolder.toPath());
     }
 
     @Test
-    @Ignore("No data")
+    public void testOpeningGRCManifest() throws Exception {
+        testReader(inputGRCManifest.toPath());
+    }
+
+    @Test
+    public void testOpeningGRCFolder() throws Exception {
+        testReader(inputGRCFolder.toPath());
+    }
+
+    @Test
     public void testOpeningSLCManifest() throws Exception {
-        testReader(inputSLCManifest);
+        testReader(inputSLCManifest.toPath());
     }
 
     @Test
-    @Ignore("No data")
-    public void testOpeningSLCZip() throws Exception {
-        testReader(inputSLCZip);
-    }
-
-    @Test
-    @Ignore("No data")
     public void testOpeningSLCFolder() throws Exception {
-        testReader(inputSLCFolder);
+        testReader(inputSLCFolder.toPath());
     }
 
     @Test
-    @Ignore("No data")
-    public void testOpeningCPSLCZip() throws Exception {
-        testReader(inputCPSLC);
+    public void testOpeningCPSLC() throws Exception {
+        testReader(inputCPSLC.toPath());
     }
 
     @Test
-    @Ignore("No data")
+    public void testOpeningCPGRC() throws Exception {
+        testReader(inputCPGRC.toPath());
+    }
+
+    @Test
+    public void testOpeningCPGRD() throws Exception {
+        testReader(inputCPGRD.toPath());
+    }
+
+    @Test
+    @Ignore("not implemented")
     public void testOpeningCPGRCZip() throws Exception {
-        testReader(inputCPGRC);
-    }
-
-    @Test
-    @Ignore("No data")
-    public void testOpeningGRCZip() throws Exception {
-        testReader(inputGRCZip);
+        testReader(inputCPGRCZip.toPath());
     }
 }
