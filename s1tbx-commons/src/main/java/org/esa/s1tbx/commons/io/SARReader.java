@@ -84,7 +84,9 @@ public abstract class SARReader extends AbstractProductReader {
     }
 
     public static void createVirtualIntensityBand(final Product product, final Band band, final String countStr) {
-        final String expression = band.getName() + " * " + band.getName();
+        final String bandName = band.getName();
+        final double nodatavalue = band.getNoDataValue();
+        final String expression = bandName +" == " + nodatavalue +" ? " + nodatavalue +" : " + bandName + " * " + bandName;
 
         final VirtualBand virtBand = new VirtualBand("Intensity" + countStr,
                 ProductData.TYPE_FLOAT32,
@@ -94,6 +96,12 @@ public abstract class SARReader extends AbstractProductReader {
         virtBand.setUnit(Unit.INTENSITY);
         virtBand.setDescription("Intensity from complex data");
         virtBand.setNoDataValueUsed(true);
+        virtBand.setNoDataValue(nodatavalue);
+
+        if (band.getGeoCoding() != product.getSceneGeoCoding()) {
+            virtBand.setGeoCoding(band.getGeoCoding());
+        }
+
         product.addBand(virtBand);
     }
 
