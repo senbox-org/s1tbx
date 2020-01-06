@@ -159,7 +159,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
     @Override
     protected void addBands(final Product product) {
 
-        int cnt = 1;
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             int numImages = img.getNumImages();
@@ -167,8 +166,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
             String suffix = pol;
             if (isSLC()) {
                 numImages *= 2; // real + imaginary
-                suffix = suffix + '_' + cnt;
-                ++cnt;
             }
 
             String bandName;
@@ -188,13 +185,13 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                             unit = Unit.IMAGINARY;
                         }
 
-                        final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(unit);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
 
                         product.addBand(band);
-                        final ImageIOFile.BandInfo bandInfo = new ImageIOFile.BandInfo(band, img, i, b);
+                        final ImageIOFile.BandInfo bandInfo = new ImageIOFile.BandInfo(band, img, 0, b);
                         bandMap.put(band, bandInfo);
 
                         if (real) {
