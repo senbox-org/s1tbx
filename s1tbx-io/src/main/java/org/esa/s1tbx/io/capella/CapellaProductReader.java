@@ -22,6 +22,7 @@ import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,12 +102,24 @@ public class CapellaProductReader extends SARReader {
                 destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                 bandInfo.imageID, bandInfo.bandSampleOffset);
 
+        final boolean isSLC = dataDir.isSLC();
+        final boolean isImaginary = destBand.getUnit().contains(Unit.IMAGINARY);
         final double nodatavalue = destBand.getNoDataValue();
         final double scaleFactor = dataDir.getScaleFactor();
         for(int i=0; i< destBuffer.getNumElems(); ++i) {
-            double val = destBuffer.getElemDoubleAt(i);
-            if(val != nodatavalue) {
-                destBuffer.setElemDoubleAt(i, val * scaleFactor);
+            int val = destBuffer.getElemIntAt(i);
+            if(isSLC) {
+                if(isImaginary) {
+                    double secondHalf = (short) (val & 0xffff);
+                    destBuffer.setElemDoubleAt(i, secondHalf * scaleFactor);
+                } else {
+                    double firstHalf = (short) (val >> 16);
+                    destBuffer.setElemDoubleAt(i, firstHalf * scaleFactor);
+                }
+            } else {
+                if (val != nodatavalue) {
+                    destBuffer.setElemDoubleAt(i, Math.sqrt(val * scaleFactor));
+                }
             }
         }
     }
