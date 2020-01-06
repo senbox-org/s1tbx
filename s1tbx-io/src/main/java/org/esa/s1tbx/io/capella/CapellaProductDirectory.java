@@ -89,10 +89,12 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
         width = image.getAttributeInt("columns");
         height = image.getAttributeInt("rows");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, width);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, height);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("pixel_spacing_row"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("pixel_spacing_row"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("range_resolution"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("azimuth_resolution"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, image.getAttributeDouble("range_looks"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, image.getAttributeDouble("azimuth_looks"));
@@ -134,7 +136,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) {
         final String name = getBandFileNameFromImage(imgPath);
-        if ((name.endsWith("tif"))) {
+        if ((name.endsWith("tif")) && name.startsWith(productName) && !name.contains("preview")) {
             try {
                 final Dimension bandDimensions = new Dimension(width, height);
                 final InputStream inStream = getInputStream(imgPath);
@@ -186,7 +188,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                             unit = Unit.IMAGINARY;
                         }
 
-                        final Band band = new Band(bandName, ProductData.TYPE_INT16, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
                         band.setUnit(unit);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
@@ -219,6 +221,9 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
                         SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
+
+                        // reset to null so it doesn't adopt a geocoding from the bands
+                        product.setSceneGeoCoding(null);
                     }
                 }
             }
