@@ -49,10 +49,19 @@
                 <attr name="helpId" stringvalue="ImportAlosPalsar"/>
                 <attr name="ShortDescription" stringvalue="Open ALOS-2 GeoTiff data product."/>
             </file>
+            <file name="org-esa-s1tbx-io-importCapella.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="CAPELLA"/>
+                <attr name="formatName" stringvalue="Capella"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importCapella"/>
+                <attr name="ShortDescription" stringvalue="Open Capella data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importCosmoSkymed.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                <attr name="displayName" stringvalue="Cosmo-Skymed"/>
+                <attr name="displayName" stringvalue="COSMO-SKYMED"/>
                 <attr name="formatName" stringvalue="CosmoSkymed"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importCosmoSkymed"/>
@@ -79,7 +88,7 @@
             <file name="org-esa-s1tbx-io-importSeaSatProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                <attr name="displayName" stringvalue="SeaSat"/>
+                <attr name="displayName" stringvalue="SEASAT"/>
                 <attr name="formatName" stringvalue="SeaSat"/>
                 <attr name="useAllFileFilter" boolvalue="false"/>
                 <attr name="helpId" stringvalue="importSeaSat"/>
@@ -213,6 +222,10 @@
                     <file name="org-esa-s1tbx-io-importAlos2GeoTiffProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importAlos2GeoTiffProduct.instance"/>
                         <attr name="position" intvalue="210"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importCapella.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importCapella.instance"/>
+                        <attr name="position" intvalue="280"/>
                     </file>
                     <file name="org-esa-s1tbx-io-importCosmoSkymed.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importCosmoSkymed.instance"/>
