@@ -82,16 +82,18 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>oracle-tools</id>
+            <id>jdk-tools</id>
             <activation>
                 <property>
-                    <name>java.vendor</name>
-                    <value>Oracle Corporation</value>
+                    <!-- Maybe this needs to be updated when detecting JDK distributions where
+                    the following does not apply. Currently, it works for the JDKs from Oracle, Adopt, Azul and Amazon-->
+                    <name>java.vm.specification.name</name>
+                    <value>Java Virtual Machine Specification</value>
                 </property>
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.oracle</groupId>
+                    <groupId>com.sun</groupId>
                     <artifactId>tools</artifactId>
                     <version>1.8.0</version>
                     <scope>system</scope>
