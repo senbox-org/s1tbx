@@ -27,6 +27,7 @@ import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfIndexCodingPart;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
+import org.esa.snap.dataio.netcdf.util.UnsignedChecker;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -44,6 +45,7 @@ public class BeamIndexCodingPart extends ProfilePartIO {
         for (Band band : bands) {
             String variableName = ReaderUtils.getVariableName(band);
             final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
+            UnsignedChecker.setUnsignedType(variable);
             final IndexCoding indexCoding = readIndexCoding(variable, band.getName() + "_index_coding");
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);

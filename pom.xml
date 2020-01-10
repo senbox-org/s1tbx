@@ -40,7 +40,7 @@
         <snap.version>${project.version}</snap.version>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7.1</hdf.version>
-        <netcdf.version>4.3.22</netcdf.version>
+        <netcdf.version>5.0.0-beta6</netcdf.version>
         <slf4j.version>1.6.6</slf4j.version> <!-- used by netcdf, yes we hate that! -->
         <geotools.version>17.1</geotools.version>
         <jide.version>3.6.1</jide.version>
@@ -227,16 +227,13 @@
                 <artifactId>lib-hdf</artifactId>
                 <version>${hdf.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>edu.ucar</groupId>
-                <artifactId>netcdf</artifactId>
+                <artifactId>netcdfAll</artifactId>
                 <version>${netcdf.version}</version>
             </dependency>
-            <dependency>
-                <groupId>edu.ucar</groupId>
-                <artifactId>opendap</artifactId>
-                <version>${netcdf.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -246,11 +243,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>edu.ucar</groupId>
-                <artifactId>nujan</artifactId>
-                <version>1.4.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.htmlparser</groupId>

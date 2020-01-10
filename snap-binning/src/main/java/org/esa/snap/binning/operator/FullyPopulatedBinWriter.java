@@ -27,14 +27,11 @@ import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFileWriteable;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility class that writes SeaDAS-Level-3-alike NetCDF files containing binned Level-3 data.
@@ -60,7 +57,7 @@ class FullyPopulatedBinWriter extends AbstractBinWriter {
 
     @Override
     public void write(Map<String, String> metadataProperties, List<TemporalBin> temporalBins) throws IOException {
-        final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(getTargetFilePath());
+        final NetcdfFileWriter netcdfFile = NetcdfFileWriter.createNew(getTargetFilePath(),false);
         netcdfFile.setLargeFile(true);
 
         netcdfFile.addGlobalAttribute("title", "Level-3 Binned Data");
@@ -81,19 +78,19 @@ class FullyPopulatedBinWriter extends AbstractBinWriter {
         final Dimension binListDim = netcdfFile.addDimension("bin_list", (int) numBinsLong);
 
 
-        final Variable numObsVar = netcdfFile.addVariable("bl_nobs", DataType.INT, new Dimension[]{binListDim});
-        final Variable numScenesVar = netcdfFile.addVariable("bl_nscenes", DataType.INT, new Dimension[]{binListDim});
+        final Variable numObsVar = netcdfFile.addVariable("bl_nobs", DataType.INT, Arrays.asList(binListDim));
+        final Variable numScenesVar = netcdfFile.addVariable("bl_nscenes", DataType.INT, Arrays.asList(binListDim));
 
-        Variable longitude = netcdfFile.addVariable("longitude", DataType.FLOAT, new Dimension[]{binListDim});
+        Variable longitude = netcdfFile.addVariable("longitude", DataType.FLOAT, Arrays.asList(binListDim));
         longitude.addAttribute(new Attribute("units", "degrees_east"));
-        Variable latitude = netcdfFile.addVariable("latitude", DataType.FLOAT, new Dimension[]{binListDim});
+        Variable latitude = netcdfFile.addVariable("latitude", DataType.FLOAT, Arrays.asList(binListDim));
         latitude.addAttribute(new Attribute("units", "degrees_north"));
 
         final BinManager binManager = binningContext.getBinManager();
         final String[] resultFeatureNames = binManager.getResultFeatureNames();
         final ArrayList<Variable> featureVars = new ArrayList<Variable>(resultFeatureNames.length);
         for (String featureName : resultFeatureNames) {
-            final Variable featureVar = netcdfFile.addVariable(featureName, DataType.FLOAT, new Dimension[]{binListDim});
+            final Variable featureVar = netcdfFile.addVariable(featureName, DataType.FLOAT, Arrays.asList(binListDim));
             featureVar.addAttribute(new Attribute("_FillValue", Float.NaN));
             featureVars.add(featureVar);
         }
@@ -108,7 +105,7 @@ class FullyPopulatedBinWriter extends AbstractBinWriter {
         }
     }
 
-    private void writeBinListVariables(final NetcdfFileWriteable netcdfFile,
+    private void writeBinListVariables(final NetcdfFileWriter netcdfFile,
                                        final Variable numObsVar,
                                        final Variable numScenesVar,
                                        final Variable latitude,
@@ -166,7 +163,7 @@ class FullyPopulatedBinWriter extends AbstractBinWriter {
         writeBinListVariable(netcdfFile, temporalBins, binListVars);
     }
 
-    private void writeBinListVariable(NetcdfFileWriteable netcdfFile,
+    private void writeBinListVariable(NetcdfFileWriter netcdfFile,
                                        List<TemporalBin> temporalBins,
                                        List<BinListVar> vars) throws IOException, InvalidRangeException {
         getLogger().info("Writing bin list variables");
@@ -222,7 +219,7 @@ class FullyPopulatedBinWriter extends AbstractBinWriter {
         }
     }
 
-    private int writeRowBins(NetcdfFileWriteable netcdfFile,
+    private int writeRowBins(NetcdfFileWriter netcdfFile,
                              ArrayList<TemporalBin> rowBins,
                              List<BinListVar> vars,
                              int[] origin,

@@ -25,7 +25,7 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFileWriteable;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -81,7 +81,7 @@ public abstract class AbstractBinWriter implements BinWriter {
         return region;
     }
 
-    protected void writeGlobalSEAGridMetadata(NetcdfFileWriteable netcdfFile, int numRows) {
+    protected void writeGlobalSEAGridMetadata(NetcdfFileWriter netcdfFile, int numRows) {
         netcdfFile.addGlobalAttribute("SEAGrid_bins", 2 * numRows);
         netcdfFile.addGlobalAttribute("SEAGrid_radius", SEAGrid.RE);
         netcdfFile.addGlobalAttribute("SEAGrid_max_north", +90.0);
@@ -89,7 +89,7 @@ public abstract class AbstractBinWriter implements BinWriter {
         netcdfFile.addGlobalAttribute("SEAGrid_seam_lon", -180.0);
     }
 
-    protected void writeGlobalCommonMetadata(Map<String, String> metadataProperties, NetcdfFileWriteable netcdfFile) {
+    protected void writeGlobalCommonMetadata(Map<String, String> metadataProperties, NetcdfFileWriter netcdfFile) {
         for (String name : metadataProperties.keySet()) {
             final String value = metadataProperties.get(name);
             try {
@@ -104,7 +104,7 @@ public abstract class AbstractBinWriter implements BinWriter {
         return utc != null ? dateFormat.format(utc.getAsDate()) : "";
     }
 
-    protected void writeGlobalTimeCoverageMetadata(NetcdfFileWriteable netcdfFile) {
+    protected void writeGlobalTimeCoverageMetadata(NetcdfFileWriter netcdfFile) {
         final String startTimeString = toDateString(startTime);
         final String stopTimeString = toDateString(stopTime);
         netcdfFile.addGlobalAttribute("start_time", startTimeString);
@@ -119,7 +119,7 @@ public abstract class AbstractBinWriter implements BinWriter {
         }
     }
 
-    protected static void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin) throws IOException, InvalidRangeException {
+    protected static void writeBinListVars(NetcdfFileWriter netcdfFile, List<BinListVar> vars, int[] origin) throws IOException, InvalidRangeException {
         for (BinListVar var : vars) {
             netcdfFile.write(var.variable.getFullName(),
                              origin,
@@ -127,7 +127,7 @@ public abstract class AbstractBinWriter implements BinWriter {
         }
     }
 
-    protected static void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin, int bufferIndex) throws IOException,
+    protected static void writeBinListVars(NetcdfFileWriter netcdfFile, List<BinListVar> vars, int[] origin, int bufferIndex) throws IOException,
             InvalidRangeException {
         final int[] origin0 = {0};
         final int[] shape = {bufferIndex};

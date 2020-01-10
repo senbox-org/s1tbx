@@ -25,15 +25,13 @@ import java.util.Map;
 class ProfileReadContextImpl implements ProfileReadContext {
 
     private final Map<String, Object> propertyMap;
-    private final NetcdfFile netcdfFile;
-
+    private NetcdfFile netcdfFile;
     private RasterDigest rasterDigest;
 
     public ProfileReadContextImpl(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
         this.propertyMap = new HashMap<>();
     }
-
 
     @Override
     public void setRasterDigest(RasterDigest rasterDigest) {
@@ -59,5 +57,4 @@ class ProfileReadContextImpl implements ProfileReadContext {
     public NetcdfFile getNetcdfFile() {
         return netcdfFile;
     }
-
 }

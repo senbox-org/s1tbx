@@ -150,6 +150,19 @@ public class OperatorContext {
         startTileComputationObservation();
     }
 
+    public static void setTileCache(OpImage image, boolean force) {
+        if (force && image.getTileCache() == null) {
+            image.setTileCache(getTileCache());
+            boolean disableTileCache = Config.instance().preferences().getBoolean(GPF.DISABLE_TILE_CACHE_PROPERTY, false);
+            if (disableTileCache) {
+                SystemUtils.LOG.info(String.format("Tile cache assigned to %s", image));
+            }
+        } else {
+            setTileCache(image);
+        }
+    }
+
+
     /**
      * Makes sure that the given JAI OpImage has a valid tile cache (see System property {@link GPF#USE_FILE_TILE_CACHE_PROPERTY}),
      * or makes sure that it has none (see System property {@link GPF#DISABLE_TILE_CACHE_PROPERTY}).
@@ -158,11 +171,19 @@ public class OperatorContext {
      */
     public static void setTileCache(OpImage image) {
         boolean disableTileCache = Config.instance().preferences().getBoolean(GPF.DISABLE_TILE_CACHE_PROPERTY, false);
+        if (image instanceof OperatorImage) {
+            OperatorImage operatorImage = (OperatorImage) image;
+            String bandName = operatorImage.getTargetBand().getName();
+            String operatorAlias = operatorImage.getOperatorContext().getOperatorSpi().getOperatorAlias();
+            if ("TileCache".equals(operatorAlias)) {
+                return;  // do not put TileCacheOp outputs into default tile cache, but keep their tile cache pointer
+            }
+        }
         if (disableTileCache) {
             image.setTileCache(null);
         } else if (image.getTileCache() == null) {
             image.setTileCache(getTileCache());
-            SystemUtils.LOG.finest(String.format("Tile cache assigned to %s", image));
+            SystemUtils.LOG.fine(String.format("Tile cache assigned to %s", image));
         }
     }
 

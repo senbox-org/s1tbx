@@ -27,11 +27,12 @@ import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 
 public class BeamImageInfoPart extends ProfilePartIO {
@@ -78,10 +79,10 @@ public class BeamImageInfoPart extends ProfilePartIO {
             greenValues[i] = point.getColor().getGreen();
             blueValues[i] = point.getColor().getBlue();
         }
-        variable.addAttribute(COLOR_TABLE_SAMPLE_VALUES, Array.factory(sampleValues));
-        variable.addAttribute(COLOR_TABLE_RED_VALUES, Array.factory(redValues));
-        variable.addAttribute(COLOR_TABLE_GREEN_VALUES, Array.factory(greenValues));
-        variable.addAttribute(COLOR_TABLE_BLUE_VALUES, Array.factory(blueValues));
+        variable.addAttribute(COLOR_TABLE_SAMPLE_VALUES, Array.factory(DataType.DOUBLE, new int[]{points.length}, sampleValues));
+        variable.addAttribute(COLOR_TABLE_RED_VALUES, Array.factory(DataType.INT, new int[]{points.length}, redValues));
+        variable.addAttribute(COLOR_TABLE_GREEN_VALUES, Array.factory(DataType.INT, new int[]{points.length}, greenValues));
+        variable.addAttribute(COLOR_TABLE_BLUE_VALUES, Array.factory(DataType.INT, new int[]{points.length}, blueValues));
     }
 
     private static void readImageInfo(Variable variable, Band band) throws ProductIOException {

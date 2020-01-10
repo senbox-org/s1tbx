@@ -410,6 +410,15 @@ public class WriteOp extends Operator {
         }
     }
 
+    private void newWriteTileRow(Band band, Tile[] cacheLine) throws IOException {
+        for (Tile tile : cacheLine) {
+            final Rectangle r = tile.getRectangle();
+            synchronized (productWriter) {
+                productWriter.writeBandRasterData(band, r.x, r.y, r.width, r.height, tile.getRawSamples(), ProgressMonitor.NULL);
+            }
+        }
+    }
+
     private void markTileAsHandled(Band targetBand, int tileX, int tileY) {
         int bandIndex = writableBands.indexOf(targetBand);
         tilesWritten[bandIndex][tileY][tileX] = true;

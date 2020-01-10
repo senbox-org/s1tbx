@@ -27,59 +27,59 @@ public class DataTypeUtilsTest {
     public void testConvertToBYTE() {
         Number convertedNumber = DataTypeUtils.convertTo(12.3, DataType.BYTE);
         assertEquals((byte) 12, convertedNumber);
-        assertEquals(DataType.BYTE, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.BYTE, DataType.getType(convertedNumber.getClass(),false));
         convertedNumber = DataTypeUtils.convertTo(-123, DataType.BYTE);
         assertEquals((byte) -123, convertedNumber);
-        assertEquals(DataType.BYTE, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.BYTE, DataType.getType(convertedNumber.getClass(),false));
     }
 
     @Test
     public void testConvertToSHORT() {
         Number convertedNumber = DataTypeUtils.convertTo(12.3, DataType.SHORT);
-        assertEquals(DataType.SHORT, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.SHORT, DataType.getType(convertedNumber.getClass(),false));
         assertEquals((short) 12, convertedNumber);
         convertedNumber = DataTypeUtils.convertTo(-123, DataType.SHORT);
-        assertEquals(DataType.SHORT, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.SHORT, DataType.getType(convertedNumber.getClass(),false));
         assertEquals((short) -123, convertedNumber);
     }
 
     @Test
     public void testConvertToINT() {
         Number convertedNumber = DataTypeUtils.convertTo(12.3, DataType.INT);
-        assertEquals(DataType.INT, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.INT, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(12, convertedNumber);
         convertedNumber = DataTypeUtils.convertTo(-123, DataType.INT);
-        assertEquals(DataType.INT, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.INT, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(-123, convertedNumber);
     }
 
     @Test
     public void testConvertToLONG() {
         Number convertedNumber = DataTypeUtils.convertTo(12.3, DataType.LONG);
-        assertEquals(DataType.LONG, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.LONG, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(12L, convertedNumber);
         convertedNumber = DataTypeUtils.convertTo(-123, DataType.LONG);
-        assertEquals(DataType.LONG, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.LONG, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(-123L, convertedNumber);
     }
 
     @Test
     public void testConvertToFLOAT() {
         Number convertedNumber = DataTypeUtils.convertTo(12.3, DataType.FLOAT);
-        assertEquals(DataType.FLOAT, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.FLOAT, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(12.3f, convertedNumber);
         convertedNumber = DataTypeUtils.convertTo(-123, DataType.FLOAT);
-        assertEquals(DataType.FLOAT, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.FLOAT, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(-123f, convertedNumber);
     }
 
     @Test
     public void testConvertToDOUBLE() {
         Number convertedNumber = DataTypeUtils.convertTo(12.3, DataType.DOUBLE);
-        assertEquals(DataType.DOUBLE, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.DOUBLE, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(12.3, convertedNumber);
         convertedNumber = DataTypeUtils.convertTo(-123, DataType.DOUBLE);
-        assertEquals(DataType.DOUBLE, DataType.getType(convertedNumber.getClass()));
+        assertEquals(DataType.DOUBLE, DataType.getType(convertedNumber.getClass(),false));
         assertEquals(-123.0, convertedNumber);
     }
 

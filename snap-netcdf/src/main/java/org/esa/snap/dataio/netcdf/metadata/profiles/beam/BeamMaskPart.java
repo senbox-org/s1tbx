@@ -165,7 +165,7 @@ public class BeamMaskPart extends ProfilePartIO {
                 colorValues[INDEX_GREEN] = color.getGreen();
                 colorValues[INDEX_BLUE] = color.getBlue();
                 colorValues[INDEX_ALPHA] = color.getAlpha();
-                variable.addAttribute(COLOR, Array.factory(colorValues));
+                variable.addAttribute(COLOR, Array.factory(DataType.INT,new int[]{4}, colorValues));
 
                 final double transparency = mask.getImageTransparency();
                 variable.addAttribute(TRANSPARENCY, transparency);

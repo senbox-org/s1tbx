@@ -88,7 +88,7 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
         this.warp = warp;
         int compatibleTag = RasterAccessor.findCompatibleTag(null, layout.getSampleModel(null));
         rasterFormatTag = new RasterFormatTag(layout.getSampleModel(null), compatibleTag);
-        OperatorContext.setTileCache(this);
+        OperatorContext.setTileCache(this, true);
     }
 
     @Override

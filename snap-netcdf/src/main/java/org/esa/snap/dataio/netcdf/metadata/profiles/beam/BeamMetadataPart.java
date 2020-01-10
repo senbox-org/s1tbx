@@ -213,7 +213,7 @@ public class BeamMetadataPart extends ProfilePartIO {
         if (productData instanceof ProductData.ASCII || productData instanceof ProductData.UTC) {
             ncVariable.addAttribute(ncAttributeName, productData.getElemString());
         } else {
-            ncVariable.addAttribute(ncAttributeName, Array.factory(productData.getElems()));
+            ncVariable.addAttribute(ncAttributeName, Array.factory(ncFile.getNetcdfDataType(productData.getType()), new int[]{productData.getNumElems()}, productData.getElems()));
         }
         if (metadataAttr.getUnit() != null) {
             ncVariable.addAttribute(ncAttributeName + "." + UNIT_SUFFIX, metadataAttr.getUnit());

@@ -36,6 +36,7 @@ import org.esa.snap.dataio.netcdf.util.DataTypeUtils;
 import org.esa.snap.dataio.netcdf.util.DimKey;
 import org.esa.snap.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
+import org.esa.snap.dataio.netcdf.util.UnsignedChecker;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
@@ -58,6 +59,7 @@ import java.util.logging.Logger;
 public class CfBandPart extends ProfilePartIO {
 
     private static final DataTypeWorkarounds dataTypeWorkarounds = new DataTypeWorkarounds();
+
     private static final String NANO_METER = "nm";
     private static UnitFormat unitFormatManager = UnitFormatManager.instance();
 
@@ -89,10 +91,6 @@ public class CfBandPart extends ProfilePartIO {
             unit = CfCompliantUnitMapper.tryFindUnitString(unit);
             variable.addAttribute("units", unit);
         }
-        final boolean unsigned = isUnsigned(rasterDataNode);
-        if (unsigned) {
-            variable.addAttribute("_Unsigned", String.valueOf(true));
-        }
 
         double noDataValue;
         if (!rasterDataNode.isLog10Scaled()) {
@@ -113,7 +111,7 @@ public class CfBandPart extends ProfilePartIO {
         }
         if (rasterDataNode.isNoDataValueUsed()) {
             Number fillValue = DataTypeUtils.convertTo(noDataValue, variable.getDataType());
-            variable.addAttribute(Constants.FILL_VALUE_ATT_NAME, fillValue);
+            variable.addAttribute(Constants.FILL_VALUE_ATT_NAME, fillValue,variable.getDataType().isUnsigned());
         }
         variable.addAttribute("coordinates", "lat lon");
         if (rasterDataNode instanceof Band) {
@@ -140,7 +138,7 @@ public class CfBandPart extends ProfilePartIO {
             }
             DataType netcdfDataType = DataTypeUtils.getNetcdfDataType(dataType);
             java.awt.Dimension tileSize = ImageManager.getPreferredTileSize(rasterDataNode.getProduct());
-            final NVariable variable = ncFile.addVariable(variableName, netcdfDataType, tileSize, dimensions);
+            final NVariable variable = ncFile.addVariable(variableName, netcdfDataType,netcdfDataType.isUnsigned(), tileSize, dimensions);
             writeCfBandAttributes(rasterDataNode, variable);
         }
     }
@@ -148,6 +146,7 @@ public class CfBandPart extends ProfilePartIO {
     @Override
     public void decode(final ProfileReadContext ctx, final Product p) throws IOException {
         for (final Variable variable : ctx.getRasterDigest().getRasterVariables()) {
+            UnsignedChecker.setUnsignedType(variable);          
             final List<Dimension> dimensions = variable.getDimensions();
             final int rank = dimensions.size();
             final String bandBasename = variable.getShortName();
@@ -224,6 +223,7 @@ public class CfBandPart extends ProfilePartIO {
             addSampleCodingOrMasksIfApplicable(p, band, variable, variable.getFullName(), false);
         }
     }
+
 
     private static double getScalingFactor(Variable variable) {
         Attribute attribute = variable.findAttribute(Constants.SCALE_FACTOR_ATT_NAME);
@@ -312,7 +312,7 @@ public class CfBandPart extends ProfilePartIO {
         }
         int rasterDataType = DataTypeUtils.getRasterDataType(variable);
         if (variable.getDataType() == DataType.LONG) {
-            rasterDataType = variable.isUnsigned() ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
+            rasterDataType = variable.getDataType().isUnsigned() ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
         }
         return rasterDataType;
     }
@@ -365,19 +365,23 @@ public class CfBandPart extends ProfilePartIO {
             final String sampleName = CfFlagCodingPart.replaceNonWordCharacters(uniqueNames[i]);
             switch (sampleValues.getDataType()) {
                 case BYTE:
+                case UBYTE:
                     sampleCoding.addSample(sampleName,
                                            DataType.unsignedByteToShort(
                                                    sampleValues.getNumericValue(i).byteValue()), null);
                     break;
                 case SHORT:
+                case USHORT:
                     sampleCoding.addSample(sampleName,
                                            DataType.unsignedShortToInt(
                                                    sampleValues.getNumericValue(i).shortValue()), null);
                     break;
                 case INT:
+                case UINT:
                     sampleCoding.addSample(sampleName, sampleValues.getNumericValue(i).intValue(), null);
                     break;
                 case LONG:
+                case ULONG:
                     final long sampleValue = sampleValues.getNumericValue(i).longValue();
                     if (msb) {
                         final long sampleValueMsb = sampleValue >>> 32;
