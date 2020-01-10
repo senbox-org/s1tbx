@@ -53,11 +53,13 @@ import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.core.gpf.graph.GraphContext;
 import org.esa.snap.core.gpf.graph.GraphIO;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.RectangleExtender;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.converters.JtsGeometryConverter;
 import org.esa.snap.core.util.io.WildcardMatcher;
 import org.geotools.geometry.jts.JTS;
 
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.io.File;
@@ -726,7 +728,19 @@ public class BinningOp extends Operator {
         if (region != null) {
             SubsetOp subsetOp = new SubsetOp();
             subsetOp.setSourceProduct(sourceProduct);
-            subsetOp.setGeoRegion(region);
+
+            final Rectangle subsetRectangle = SubsetOp.computePixelRegion(sourceProduct, region, 0);
+            if (subsetRectangle.height <= 2 || subsetRectangle.width <= 2) {
+                // increase rectangle size by 1 pixel to each side, making sure not to extend source product boundaries
+                final Rectangle clippingRect = new Rectangle(sourceProduct.getSceneRasterWidth(),
+                                                             sourceProduct.getSceneRasterHeight());
+                final RectangleExtender rectangleExtender = new RectangleExtender(clippingRect, 1, 1);
+                final Rectangle extendedSubsetRectangle = rectangleExtender.extend(subsetRectangle);
+                subsetOp.setRegion(extendedSubsetRectangle);
+            } else {
+                subsetOp.setGeoRegion(region);
+            }
+
             sourceProduct = subsetOp.getTargetProduct();
             // TODO mz/nf/mp 2013-11-06: avoid creation of subset products
             //  - replace subset with rectangle as parameter to SpatialProductBinner
