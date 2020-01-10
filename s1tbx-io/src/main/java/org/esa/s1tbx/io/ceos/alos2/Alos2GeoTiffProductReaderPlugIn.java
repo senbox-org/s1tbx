@@ -89,7 +89,7 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         boolean hasValidImage = false;
         boolean hasMetadata = false;
 
-        final File[] files = inputFile.getParentFile().listFiles();
+        final File[] files = inputFile.getParentFile() != null ? inputFile.getParentFile().listFiles() : null;
         if (files != null) {
             for (File f : files) {
                 String name = f.getName().toUpperCase();
