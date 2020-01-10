@@ -53,7 +53,6 @@
             <artifactId>guava</artifactId>
             <version>21.0</version>
         </dependency>
-        <!-- compile with dependency included, then package without -->
         <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
             <artifactId>LibSVM</artifactId>
@@ -73,7 +72,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- -->
         <dependency>
             <groupId>net.sf</groupId>
             <artifactId>javaml</artifactId>
