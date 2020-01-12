@@ -218,7 +218,7 @@ public class NetCDFUtils {
     }
 
     private static int getRasterDataType(final Variable variable) {
-        return getProductDataType(variable.getDataType(), variable.isUnsigned(), true);
+        return getProductDataType(variable.getDataType(), variable.getDataType().isUnsigned(), true);
     }
 
     private static boolean isValidRasterDataType(final DataType dataType) {
@@ -319,7 +319,7 @@ public class NetCDFUtils {
 
     private static int getProductDataType(Variable variable) {
         final DataType ncDataType = variable.getDataType();
-        final boolean unsigned = variable.isUnsigned();
+        final boolean unsigned = variable.getDataType().isUnsigned();
         final boolean rasterDataOnly = false;
         return DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
     }
