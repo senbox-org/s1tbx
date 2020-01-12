@@ -39,7 +39,7 @@
         <buildDate>${maven.build.timestamp}</buildDate>
         
 		<hdf.version>2.7.1</hdf.version>
-        <netcdf.version>4.3.22</netcdf.version>	
+        <netcdf.version>5.0.0-beta6</netcdf.version>
         <jblas.version>1.2.4</jblas.version>
         <junit.version>4.12</junit.version>
 	</properties>
