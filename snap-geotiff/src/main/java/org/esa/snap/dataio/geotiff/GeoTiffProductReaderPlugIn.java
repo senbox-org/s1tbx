@@ -59,7 +59,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 if (ext != null) {
                     boolean extensionMatch = Arrays.stream(TIFF_FILE_EXTENSION).anyMatch(ext::equalsIgnoreCase);
                     if (extensionMatch) {
-                        return DecodeQualification.INTENDED;
+                        return DecodeQualification.SUITABLE;
                     } else if (ext.equalsIgnoreCase(ZIP_FILE_EXTENSION)) {
                         return checkZip((File) imageIOInput);
                     }
@@ -67,16 +67,6 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.UNABLE;
             }
 
-            if(input instanceof String || input instanceof File) {
-                final String ext = FileUtils.getExtension((File) imageIOInput);
-                if(ext != null && ext.equalsIgnoreCase(".tif") || ext.equalsIgnoreCase(".tiff") || ext.equalsIgnoreCase(".btf")) {
-                    return DecodeQualification.SUITABLE;
-                } else if(ext != null && ext.equalsIgnoreCase(".zip")) {
-                    return checkZip((File) imageIOInput);
-                } else {
-                    return DecodeQualification.UNABLE;
-                }
-            }
             final ImageInputStream stream = ImageIO.createImageInputStream(imageIOInput);
             try {
                 return getDecodeQualificationImpl(stream);
@@ -84,7 +74,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 // nothing to do, return value is already UNABLE
             }
 
-        } catch (IOException _) {}
+        } catch (IOException ignore) {}
 
         return DecodeQualification.UNABLE;
     }
