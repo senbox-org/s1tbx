@@ -948,6 +948,11 @@
                         </dependency>
                     </dependencies>
                     <configuration>
+                        <!-- necessary because of issue described here:
+                        http://mail-archives.apache.org/mod_mbox/netbeans-dev/201906.mbox/%3cCAArD4mAMKOXQtxCwcMdB2tVEXCNirEfKT4+c=0-rUm6YDg8EHg@mail.gmail.com%3e
+                        -->
+                        <verifyRuntime>false</verifyRuntime>
+
                         <moduleType>normal</moduleType>
                         <licenseName>GPL 3</licenseName>
                         <licenseFile>${project.basedir}/../LICENSE.txt</licenseFile>
