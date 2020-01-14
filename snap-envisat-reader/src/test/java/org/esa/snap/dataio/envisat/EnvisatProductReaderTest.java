@@ -130,6 +130,22 @@ public class EnvisatProductReaderTest {
         }
     }
 
+    @Test
+    public void testGetResolutionInKilometers() {
+        assertEquals(0.3, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME), 1e-8);
+        assertEquals(0.3, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME), 1e-8);
+        assertEquals(0.3, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_FSG_L1B_PRODUCT_TYPE_NAME), 1e-8);
+        assertEquals(0.3, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_FRG_L1B_PRODUCT_TYPE_NAME), 1e-8);
+        assertEquals(0.3, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_FR_L2_PRODUCT_TYPE_NAME), 1e-8);
+        assertEquals(0.3, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_FRS_L2_PRODUCT_TYPE_NAME), 1e-8);
+
+        assertEquals(1.2, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME), 1e-8);
+        assertEquals(1.2, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.MERIS_RR_L2_PRODUCT_TYPE_NAME), 1e-8);
+
+        assertEquals(1.0, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME), 1e-8);
+        assertEquals(1.0, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.AATSR_L2_NR_PRODUCT_TYPE_NAME), 1e-8);
+    }
+
     private void readFloats(String resourceName, float[] floats) {
         final Scanner scanner = new Scanner(getClass().getResourceAsStream(resourceName), "US-ASCII");
         scanner.useLocale(Locale.ENGLISH);

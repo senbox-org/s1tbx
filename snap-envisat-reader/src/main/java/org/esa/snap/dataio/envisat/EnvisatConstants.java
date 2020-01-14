@@ -86,6 +86,11 @@ public interface EnvisatConstants {
      */
     String AATSR_L2_NR_PRODUCT_TYPE_NAME = "ATS_NR__2P";
 
+    // average pixel sizes in kilometres
+    double MERIS_FR_PX_SIZE_IN_KM = 0.3;
+    double MERIS_RR_PX_SIZE_IN_KM = 1.2;
+    double AATSR_PX_SIZE_IN_KM = 1.0;
+
     /**
      * A pattern which matches MERIS L1b product types
      *

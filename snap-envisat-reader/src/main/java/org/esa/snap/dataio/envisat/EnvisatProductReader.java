@@ -18,20 +18,7 @@ package org.esa.snap.dataio.envisat;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCodingFactory;
-import org.esa.snap.core.datamodel.LineTimeCoding;
-import org.esa.snap.core.datamodel.Mask;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PointingFactory;
-import org.esa.snap.core.datamodel.PointingFactoryRegistry;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.ArrayUtils;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.io.FileUtils;
@@ -39,7 +26,7 @@ import org.esa.snap.runtime.Config;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -189,8 +176,8 @@ public class EnvisatProductReader extends AbstractProductReader {
                 }
 
                 bandLineReader.readRasterLine(sourceMinX, sourceMaxX, sourceStepX,
-                                              sourceY,
-                                              destBuffer, destArrayPos);
+                        sourceY,
+                        destBuffer, destArrayPos);
 
                 destArrayPos += destWidth;
                 pm.worked(sourceStepY);
@@ -216,10 +203,10 @@ public class EnvisatProductReader extends AbstractProductReader {
 
         int sceneRasterHeight = getSceneRasterHeight();
         Product product = new Product(productName,
-                                      getProductFile().getProductType(),
-                                      getSceneRasterWidth(),
-                                      sceneRasterHeight,
-                                      this);
+                getProductFile().getProductType(),
+                getSceneRasterWidth(),
+                sceneRasterHeight,
+                this);
 
         product.setFileLocation(getProductFile().getFile());
         product.setDescription(getProductFile().getProductDescription());
@@ -279,12 +266,12 @@ public class EnvisatProductReader extends AbstractProductReader {
                 if (bandLineReader instanceof BandLineReader.Virtual) {
                     final BandLineReader.Virtual virtual = ((BandLineReader.Virtual) bandLineReader);
                     band = new VirtualBand(bandName, ProductData.TYPE_FLOAT64,//bandInfo.getDataType(),
-                                           width, height,
-                                           virtual.getExpression());
+                            width, height,
+                            virtual.getExpression());
                 } else {
                     band = new Band(bandName,
-                                    bandInfo.getDataType() < ProductData.TYPE_FLOAT32 ? bandInfo.getDataType() : bandLineReader.getPixelDataField().getDataType(),
-                                    width, height);
+                            bandInfo.getDataType() < ProductData.TYPE_FLOAT32 ? bandInfo.getDataType() : bandLineReader.getPixelDataField().getDataType(),
+                            width, height);
                 }
                 band.setScalingOffset(bandInfo.getScalingOffset());
 
@@ -386,7 +373,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         }
     }
 
-    private static void addGeoCodingToProduct(Product product) {
+    private static void addGeoCodingToProduct(Product product) throws IOException {
         initTiePointGeoCoding(product);
 
         Preferences preferences = Config.instance("snap").preferences();
@@ -415,10 +402,18 @@ public class EnvisatProductReader extends AbstractProductReader {
     /**
      * Installs an Envisat-specific tie-point geo-coding in the given product.
      */
-    public static void initTiePointGeoCoding(final Product product) {
-        TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
-        TiePointGrid lonGrid = product.getTiePointGrid(EnvisatConstants.LON_DS_NAME);
+    public static void initTiePointGeoCoding(final Product product) throws IOException {
+        final TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
+        final TiePointGrid lonGrid = product.getTiePointGrid(EnvisatConstants.LON_DS_NAME);
         if (latGrid != null && lonGrid != null) {
+            lonGrid.loadRasterData();
+            latGrid.loadRasterData();
+
+            final ProductData data = lonGrid.getData();
+            final double[] longitudes = new double[data.getNumElems()];
+            final double[] latitudes = new double[data.getNumElems()];
+            //new GeoRaster(longitudes, latitudes, lonGrid.getGridWidth(), lonGrid.getGridHeight(), lonGrid.getRasterWidth(), lonGrid.getRasterHeight())
+
             product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         }
     }
@@ -447,22 +442,22 @@ public class EnvisatProductReader extends AbstractProductReader {
                 final MetadataElement dsdGroup = new MetadataElement("DSD." + (i + 1));
                 dsdGroup.addAttribute(
                         new MetadataAttribute("DATASET_NAME",
-                                              ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
-                                              true));
+                                ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
+                                true));
                 dsdGroup.addAttribute(new MetadataAttribute("DATASET_TYPE",
-                                                            ProductData.createInstance(new String(new char[]{dsd.getDatasetType()})),
-                                                            true));
+                        ProductData.createInstance(new String(new char[]{dsd.getDatasetType()})),
+                        true));
                 dsdGroup.addAttribute(new MetadataAttribute("FILE_NAME",
-                                                            ProductData.createInstance(getNonNullString(dsd.getFileName())),
-                                                            true));
+                        ProductData.createInstance(getNonNullString(dsd.getFileName())),
+                        true));
                 dsdGroup.addAttribute(new MetadataAttribute("OFFSET", ProductData.createInstance(new long[]{dsd.getDatasetOffset()}), true));
                 dsdGroup.addAttribute(new MetadataAttribute("SIZE", ProductData.createInstance(new long[]{dsd.getDatasetSize()}), true));
                 dsdGroup.addAttribute(new MetadataAttribute("NUM_RECORDS",
-                                                            ProductData.createInstance(new int[]{dsd.getNumRecords()}),
-                                                            true));
+                        ProductData.createInstance(new int[]{dsd.getNumRecords()}),
+                        true));
                 dsdGroup.addAttribute(new MetadataAttribute("RECORD_SIZE",
-                                                            ProductData.createInstance(new int[]{dsd.getRecordSize()}),
-                                                            true));
+                        ProductData.createInstance(new int[]{dsd.getRecordSize()}),
+                        true));
                 dsdsGroup.addElement(dsdGroup);
             }
         }
@@ -585,13 +580,13 @@ public class EnvisatProductReader extends AbstractProductReader {
         double subSamplingY = getProductFile().getTiePointSubSamplingY(gridWidth);
 
         final TiePointGrid tiePointGrid = createTiePointGrid(bandName,
-                                                             gridWidth,
-                                                             gridHeight,
-                                                             offsetX,
-                                                             offsetY,
-                                                             subSamplingX,
-                                                             subSamplingY,
-                                                             tiePoints);
+                gridWidth,
+                gridHeight,
+                offsetX,
+                offsetY,
+                subSamplingX,
+                subSamplingY,
+                tiePoints);
         if (bandInfo.getPhysicalUnit() != null) {
             tiePointGrid.setUnit(bandInfo.getPhysicalUnit());
         }
@@ -680,6 +675,29 @@ public class EnvisatProductReader extends AbstractProductReader {
             return TiePointGrid.DISCONT_AT_180;
         } else {
             return TiePointGrid.DISCONT_NONE;
+        }
+    }
+
+    static double getResolutionInKilometers(String productTypeName) {
+        switch (productTypeName) {
+            case EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME:
+            case EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME:
+            case EnvisatConstants.MERIS_FSG_L1B_PRODUCT_TYPE_NAME:
+            case EnvisatConstants.MERIS_FRG_L1B_PRODUCT_TYPE_NAME:
+            case EnvisatConstants.MERIS_FR_L2_PRODUCT_TYPE_NAME:
+            case EnvisatConstants.MERIS_FRS_L2_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.MERIS_FR_PX_SIZE_IN_KM;
+
+            case EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME:
+            case EnvisatConstants.MERIS_RR_L2_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.MERIS_RR_PX_SIZE_IN_KM;
+
+            case EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME:
+            case EnvisatConstants.AATSR_L2_NR_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.AATSR_PX_SIZE_IN_KM;
+
+            default:
+                throw new IllegalStateException("undefined product resolution for type: " + productTypeName);
         }
     }
 }

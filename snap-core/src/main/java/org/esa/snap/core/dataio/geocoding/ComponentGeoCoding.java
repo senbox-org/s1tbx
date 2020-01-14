@@ -32,18 +32,54 @@ public class ComponentGeoCoding implements GeoCoding {
     private final CoordinateReferenceSystem geoCRS;
     private volatile MathTransform image2Map;
 
+    /**
+     * Constructs a GeoCoding with given GeoRaster, ForwardCoding and InverseCoding. No geoChecks will be performed during initialize phase.
+     * Defaults to WGS84 CRS. Forward and/or Inverse coding can be null.
+     *
+     * @param geoRaster     the GeoRaster
+     * @param forwardCoding the ForwardCoding, can be null
+     * @param inverseCoding the InverseCoding, can be null
+     */
     public ComponentGeoCoding(GeoRaster geoRaster, ForwardCoding forwardCoding, InverseCoding inverseCoding) {
         this(geoRaster, forwardCoding, inverseCoding, GeoChecks.NONE, DefaultGeographicCRS.WGS84);
     }
 
+    /**
+     * Constructs a GeoCoding with given GeoRaster, ForwardCoding, InverseCoding and GeoCheck definition to be executed during initialize phase.
+     * Defaults to WGS84 CRS. Forward and/or Inverse coding can be null.
+     *
+     * @param geoRaster     the GeoRaster
+     * @param forwardCoding the ForwardCoding, can be null
+     * @param inverseCoding the InverseCoding, can be null
+     * @param geoChecks     definition of GeoChecks to be executed during initialization
+     */
     public ComponentGeoCoding(GeoRaster geoRaster, ForwardCoding forwardCoding, InverseCoding inverseCoding, GeoChecks geoChecks) {
         this(geoRaster, forwardCoding, inverseCoding, geoChecks, DefaultGeographicCRS.WGS84);
     }
 
+    /**
+     * Constructs a GeoCoding with given GeoRaster, ForwardCoding, InverseCoding and CRS. No GeoChecks will be performed during initialize phase.
+     * Forward and/or Inverse coding can be null.
+     *
+     * @param geoRaster     the GeoRaster
+     * @param forwardCoding the ForwardCoding, can be null
+     * @param inverseCoding the InverseCoding, can be null
+     * @param geoCRS        the CRS
+     */
     public ComponentGeoCoding(GeoRaster geoRaster, ForwardCoding forwardCoding, InverseCoding inverseCoding, CoordinateReferenceSystem geoCRS) {
         this(geoRaster, forwardCoding, inverseCoding, GeoChecks.NONE, geoCRS);
     }
 
+    /**
+     * Constructs a GeoCoding with given GeoRaster, ForwardCoding, InverseCoding, GeoChecks to be performed during initialization and CRS.
+     * Forward and/or Inverse coding can be null.
+     *
+     * @param geoRaster the GeoRaster
+     * @param forwardCoding the ForwardCoding, can be null
+     * @param inverseCoding the InverseCoding, can be null
+     * @param geoChecks definition of GeoChecks to be executed during initialization
+     * @param geoCRS  the CRS
+     */
     public ComponentGeoCoding(GeoRaster geoRaster, ForwardCoding forwardCoding, InverseCoding inverseCoding,
                               GeoChecks geoChecks, CoordinateReferenceSystem geoCRS) {
         this.forwardCoding = forwardCoding;
