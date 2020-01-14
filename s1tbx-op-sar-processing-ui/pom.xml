@@ -36,6 +36,11 @@
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io-ephemeris</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-ui</artifactId>
         </dependency>
@@ -92,7 +97,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
