@@ -18,6 +18,7 @@ package org.esa.snap.dataio.envisat;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.dataio.geocoding.*;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.ArrayUtils;
 import org.esa.snap.core.util.Debug;
@@ -359,7 +360,6 @@ public class EnvisatProductReader extends AbstractProductReader {
                     band.setSolarFlux(solar_fluxes[sbi % solar_fluxes.length]);
                 }
             }
-//            Debug.trace(band.toString());
         }
     }
 
@@ -373,49 +373,79 @@ public class EnvisatProductReader extends AbstractProductReader {
         }
     }
 
-    private static void addGeoCodingToProduct(Product product) throws IOException {
-        initTiePointGeoCoding(product);
-
-        Preferences preferences = Config.instance("snap").preferences();
+    private void addGeoCodingToProduct(Product product) throws IOException {
+        final Preferences preferences = Config.instance("snap").preferences();
         final boolean usePixelGeoCoding = preferences.getBoolean(SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING, false);
-        if (usePixelGeoCoding) {
-            Band latBand = product.getBand(EnvisatConstants.LAT_DS_NAME);
-            if (latBand == null) {
-                latBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME);
-            }
-            Band lonBand = product.getBand(EnvisatConstants.LON_DS_NAME);
-            if (lonBand == null) {
-                lonBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME);
-            }
-            if (latBand != null && lonBand != null) {
-                String validMask;
-                if (EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(product.getProductType()).matches()) {
-                    validMask = "NOT l1_flags.INVALID";
-                } else {
-                    validMask = "l2_flags.LAND or l2_flags.CLOUD or l2_flags.WATER";
-                }
-                product.setSceneGeoCoding(GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, 6));
-            }
+
+        final String productType = productFile.getProductType();
+
+        final ComponentGeoCoding geoCoding;
+        if (usePixelGeoCoding &&
+                (productType.equalsIgnoreCase(EnvisatConstants.MERIS_FSG_L1B_PRODUCT_TYPE_NAME) ||
+                        productType.equalsIgnoreCase(EnvisatConstants.MERIS_FRG_L1B_PRODUCT_TYPE_NAME))) {
+            geoCoding = createPixelGeoCoding(product);
+        } else {
+            geoCoding = createTiePointGeoCoding(product);
         }
+
+        if (geoCoding == null) {
+            return;
+        }
+
+        // @todo 2 tb/tb maybe not here? 2020-01-15
+        geoCoding.initialize();
+        product.setSceneGeoCoding(geoCoding);
     }
 
-    /**
-     * Installs an Envisat-specific tie-point geo-coding in the given product.
-     */
-    public static void initTiePointGeoCoding(final Product product) throws IOException {
+    private ComponentGeoCoding createPixelGeoCoding(Product product) throws IOException {
+        final Band lonBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME);
+        final Band latBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME);
+
+        final double[] longitudes = loadData(lonBand);
+        final double[] latitudes = loadData(latBand);
+        final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
+
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonBand.getRasterWidth(), lonBand.getRasterHeight(),
+                lonBand.getRasterWidth(), lonBand.getRasterHeight(), resolutionInKilometers,
+                0.5, 0.5,
+                1.0, 1.0);
+        final ForwardCoding forward = ComponentFactory.getForward("FWD_PIXEL");
+        final InverseCoding inverse = ComponentFactory.getInverse("INV_PIXEL_QUAD_TREE");
+
+        return new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
+    }
+
+    private ComponentGeoCoding createTiePointGeoCoding(Product product) throws IOException {
         final TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
         final TiePointGrid lonGrid = product.getTiePointGrid(EnvisatConstants.LON_DS_NAME);
-        if (latGrid != null && lonGrid != null) {
-            lonGrid.loadRasterData();
-            latGrid.loadRasterData();
-
-            final ProductData data = lonGrid.getData();
-            final double[] longitudes = new double[data.getNumElems()];
-            final double[] latitudes = new double[data.getNumElems()];
-            //new GeoRaster(longitudes, latitudes, lonGrid.getGridWidth(), lonGrid.getGridHeight(), lonGrid.getRasterWidth(), lonGrid.getRasterHeight())
-
-            product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        if (latGrid == null || lonGrid == null) {
+            return null;
         }
+
+        final double[] longitudes = loadData(lonGrid);
+        final double[] latitudes = loadData(latGrid);
+        final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
+
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonGrid.getGridWidth(), lonGrid.getGridHeight(),
+                lonGrid.getRasterWidth(), lonGrid.getRasterHeight(), resolutionInKilometers,
+                lonGrid.getOffsetX(), lonGrid.getOffsetY(),
+                lonGrid.getSubSamplingX(), lonGrid.getSubSamplingY());
+//        final ForwardCoding forward = ComponentFactory.getForward("FWD_TIE_POINT_SPLINE");
+        final ForwardCoding forward = ComponentFactory.getForward("FWD_TIE_POINT_BILINEAR");
+        final InverseCoding inverse = ComponentFactory.getInverse("INV_TIE_POINT");
+        // @todo 1 tb/tb use properties to read codings, the default is the stuff above
+
+        return new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
+    }
+
+    private double[] loadData(RasterDataNode dataNode) throws IOException {
+        dataNode.loadRasterData();
+        final ProductData data = dataNode.getData();
+        final double[] values = new double[data.getNumElems()];
+        for (int i = 0; i < data.getNumElems(); i++) {
+            values[i] = data.getElemDoubleAt(i);
+        }
+        return values;
     }
 
     /**
