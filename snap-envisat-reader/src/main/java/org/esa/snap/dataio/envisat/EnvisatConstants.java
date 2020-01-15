@@ -86,10 +86,22 @@ public interface EnvisatConstants {
      */
     String AATSR_L2_NR_PRODUCT_TYPE_NAME = "ATS_NR__2P";
 
+    /**
+     * Product type ID for ASAR APP L1 products.
+     */
+    String ASAR_L1B_APP_PRODUCT_TYPE_NAME = "ASA_APP_1P";
+
+    /**
+     * Product type ID for ASAR APM L1 products.
+     */
+    String ASAR_L1B_APM_PRODUCT_TYPE_NAME = "ASA_APM_1P";
+
     // average pixel sizes in kilometres
     double MERIS_FR_PX_SIZE_IN_KM = 0.3;
     double MERIS_RR_PX_SIZE_IN_KM = 1.2;
     double AATSR_PX_SIZE_IN_KM = 1.0;
+    double ASAR_APP_PX_SIZE_IN_KM = 0.03;
+    double ASAR_APM_PX_SIZE_IN_KM = 0.15;
 
     /**
      * A pattern which matches MERIS L1b product types

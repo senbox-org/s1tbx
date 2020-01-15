@@ -144,6 +144,10 @@ public class EnvisatProductReaderTest {
 
         assertEquals(1.0, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME), 1e-8);
         assertEquals(1.0, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.AATSR_L2_NR_PRODUCT_TYPE_NAME), 1e-8);
+
+        assertEquals(0.03, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.ASAR_L1B_APP_PRODUCT_TYPE_NAME), 1e-8);
+
+        assertEquals(0.15, EnvisatProductReader.getResolutionInKilometers(EnvisatConstants.ASAR_L1B_APM_PRODUCT_TYPE_NAME), 1e-8);
     }
 
     private void readFloats(String resourceName, float[] floats) {

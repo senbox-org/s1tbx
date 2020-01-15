@@ -726,6 +726,12 @@ public class EnvisatProductReader extends AbstractProductReader {
             case EnvisatConstants.AATSR_L2_NR_PRODUCT_TYPE_NAME:
                 return EnvisatConstants.AATSR_PX_SIZE_IN_KM;
 
+            case EnvisatConstants.ASAR_L1B_APP_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.ASAR_APP_PX_SIZE_IN_KM;
+
+            case EnvisatConstants.ASAR_L1B_APM_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.ASAR_APM_PX_SIZE_IN_KM;
+
             default:
                 throw new IllegalStateException("undefined product resolution for type: " + productTypeName);
         }
