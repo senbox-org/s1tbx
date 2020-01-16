@@ -1285,21 +1285,22 @@ public final class BackGeocodingOp extends Operator {
 
             final Resampling.Index resamplingIndex = selectedResampling.createIndex();
 
+            final int sxMin = sourceRectangle.x;
+            final int syMin = sourceRectangle.y;
+            final int sxMax = sourceRectangle.x + sourceRectangle.width - 1;
+            final int syMax = sourceRectangle.y + sourceRectangle.height - 1;
+
             for (int y = y0; y < y0 + h; y++) {
                 tgtIndex.calculateStride(y);
                 final int yy = y - y0;
-                if (yy > sourceRectangle.height - 1) {
-                    continue;
-                }
                 for (int x = x0; x < x0 + w; x++) {
                     final int xx = x - x0;
-                    if (xx > sourceRectangle.width - 1) {
-                        continue;
-                    }
                     final int tgtIdx = tgtIndex.getIndex(x);
                     final PixelPos slavePixelPos = slavePixPos[yy][xx];
 
-                    if (slavePixelPos == null) {
+                    if (slavePixelPos == null || slavePixelPos.x < sxMin || slavePixelPos.x > sxMax ||
+                            slavePixelPos.y < syMin || slavePixelPos.y > syMax) {
+
                         tgtBufferI.setElemDoubleAt(tgtIdx, noDataValue);
                         tgtBufferQ.setElemDoubleAt(tgtIdx, noDataValue);
 
@@ -1309,46 +1310,36 @@ public final class BackGeocodingOp extends Operator {
                         continue;
                     }
 
-                    if (isSlavePixPosValid(slavePixelPos, subswathIndex, sBurstIndex, slaveData.sSU.getSubSwath())) {
+                    selectedResampling.computeCornerBasedIndex(
+                            slavePixelPos.x - sourceRectangle.x, slavePixelPos.y - sourceRectangle.y,
+                            sourceRectangle.width, sourceRectangle.height, resamplingIndex);
 
-                        selectedResampling.computeCornerBasedIndex(
-                                slavePixelPos.x - sourceRectangle.x, slavePixelPos.y - sourceRectangle.y,
-                                sourceRectangle.width, sourceRectangle.height, resamplingIndex);
+                    final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
+                    final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
+                    final double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
+                    final double cosPhase = FastMath.cos(samplePhase);
+                    final double sinPhase = FastMath.sin(samplePhase);
+                    double rerampRemodI = sampleI * cosPhase + sampleQ * sinPhase;
+                    double rerampRemodQ = -sampleI * sinPhase + sampleQ * cosPhase;
 
-                        final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
-                        final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
-                        final double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
-                        final double cosPhase = FastMath.cos(samplePhase);
-                        final double sinPhase = FastMath.sin(samplePhase);
-                        double rerampRemodI = sampleI * cosPhase + sampleQ * sinPhase;
-                        double rerampRemodQ = -sampleI * sinPhase + sampleQ * cosPhase;
+                    if (Double.isNaN(rerampRemodI)) {
+                        rerampRemodI = noDataValue;
+                    }
 
-                        if (Double.isNaN(rerampRemodI)) {
-                            rerampRemodI = noDataValue;
-                        }
+                    if (Double.isNaN(rerampRemodQ)) {
+                        rerampRemodQ = noDataValue;
+                    }
 
-                        if (Double.isNaN(rerampRemodQ)) {
-                            rerampRemodQ = noDataValue;
-                        }
-
-                        if (disableReramp) {
-                            tgtBufferI.setElemDoubleAt(tgtIdx, sampleI);
-                            tgtBufferQ.setElemDoubleAt(tgtIdx, sampleQ);
-                        } else {
-                            tgtBufferI.setElemDoubleAt(tgtIdx, rerampRemodI);
-                            tgtBufferQ.setElemDoubleAt(tgtIdx, rerampRemodQ);
-                        }
-
-                        if (outputDerampDemodPhase) {
-                            tgtBufferPhase.setElemFloatAt(tgtIdx, (float)samplePhase);
-                        }
-
+                    if (disableReramp) {
+                        tgtBufferI.setElemDoubleAt(tgtIdx, sampleI);
+                        tgtBufferQ.setElemDoubleAt(tgtIdx, sampleQ);
                     } else {
-                        tgtBufferI.setElemDoubleAt(tgtIdx, noDataValue);
-                        tgtBufferQ.setElemDoubleAt(tgtIdx, noDataValue);
-                        if (outputDerampDemodPhase) {
-                            tgtBufferPhase.setElemFloatAt(tgtIdx, (float)noDataValue);
-                        }
+                        tgtBufferI.setElemDoubleAt(tgtIdx, rerampRemodI);
+                        tgtBufferQ.setElemDoubleAt(tgtIdx, rerampRemodQ);
+                    }
+
+                    if (outputDerampDemodPhase) {
+                        tgtBufferPhase.setElemFloatAt(tgtIdx, (float)samplePhase);
                     }
                 }
             }
