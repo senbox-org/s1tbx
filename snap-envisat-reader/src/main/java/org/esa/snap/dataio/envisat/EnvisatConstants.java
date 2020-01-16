@@ -87,21 +87,115 @@ public interface EnvisatConstants {
     String AATSR_L2_NR_PRODUCT_TYPE_NAME = "ATS_NR__2P";
 
     /**
+     * Product type ID for ASAR APG L1 products.
+     */
+    String ASAR_L1B_APG_PRODUCT_TYPE_NAME = "ASA_APG_1P";
+
+    /**
      * Product type ID for ASAR APP L1 products.
      */
     String ASAR_L1B_APP_PRODUCT_TYPE_NAME = "ASA_APP_1P";
+
+    /**
+     * Product type ID for ASAR AP L1 browse products.
+     */
+    String ASAR_L1B_AP_BP_PRODUCT_TYPE_NAME = "ASA_AP__BP";
 
     /**
      * Product type ID for ASAR APM L1 products.
      */
     String ASAR_L1B_APM_PRODUCT_TYPE_NAME = "ASA_APM_1P";
 
+    /**
+     * Product type ID for ASAR APM L1 products.
+     */
+    String ASAR_L1B_APS_PRODUCT_TYPE_NAME = "ASA_APS_1P";
+
+    /**
+     * Product type ID for ASAR APM L1 products.
+     */
+    String ASAR_L1B_GM1_PRODUCT_TYPE_NAME = "ASA_GM1_1P";
+
+    /**
+     * Product type ID for ASAR APM L1 browse products.
+     */
+    String ASAR_L1B_GMB_PRODUCT_TYPE_NAME = "ASA_GM1_BP";
+
+    /**
+     * Product type ID for ASAR IMG L1 products.
+     */
+    String ASAR_L1B_IMG_PRODUCT_TYPE_NAME = "ASA_IMG_1P";
+
+    /**
+     * Product type ID for ASAR IM L1 browse products.
+     */
+    String ASAR_L1B_IM_BP_PRODUCT_TYPE_NAME = "ASA_IM__BP";
+
+    /**
+     * Product type ID for ASAR IMM L1 products.
+     */
+    String ASAR_L1B_IMM_PRODUCT_TYPE_NAME = "ASA_IMM_1P";
+
+    /**
+     * Product type ID for ASAR IMP L1 products.
+     */
+    String ASAR_L1B_IMP_PRODUCT_TYPE_NAME = "ASA_IMP_1P";
+
+    /**
+     * Product type ID for ASAR IMS L1 products.
+     */
+    String ASAR_L1B_IMS_PRODUCT_TYPE_NAME = "ASA_IMS_1P";
+
+    /**
+     * Product type ID for ASAR WS L1 browse products.
+     */
+    String ASAR_L1B_WS_BP_PRODUCT_TYPE_NAME = "ASA_WS__BP";
+
+    /**
+     * Product type ID for ASAR WSM L1 products.
+     */
+    String ASAR_L1B_WSM_PRODUCT_TYPE_NAME = "ASA_WSM_1P";
+
+    /**
+     * Product type ID for ASAR WSS L1 products.
+     */
+    String ASAR_L1B_WSS_PRODUCT_TYPE_NAME = "ASA_WSS_1P";
+
+    /**
+     * Product type ID for ASAR WVI L1 products.
+     */
+    String ASAR_L1B_WVI_PRODUCT_TYPE_NAME = "ASA_WVI_1P";
+
+    /**
+     * Product type ID for ASAR WVS L1 products.
+     */
+    String ASAR_L1B_WVS_PRODUCT_TYPE_NAME = "ASA_WVS_1P";
+
+    /**
+     * Product type ID for ASAR WVW L2 products.
+     */
+    String ASAR_L2_WVW_PRODUCT_TYPE_NAME = "ASA_WVW_2P";
+
     // average pixel sizes in kilometres
     double MERIS_FR_PX_SIZE_IN_KM = 0.3;
     double MERIS_RR_PX_SIZE_IN_KM = 1.2;
     double AATSR_PX_SIZE_IN_KM = 1.0;
-    double ASAR_APP_PX_SIZE_IN_KM = 0.03;
+    double ASAR_APG_PX_SIZE_IN_KM = 0.0125;
     double ASAR_APM_PX_SIZE_IN_KM = 0.15;
+    double ASAR_APP_PX_SIZE_IN_KM = 0.03;
+    double ASAR_AP_BP_PX_SIZE_IN_KM = 0.225;
+    double ASAR_APS_PX_SIZE_IN_KM = 0.012;
+    double ASAR_GM1_PX_SIZE_IN_KM = 1.0;
+    double ASAR_IM_BP_PX_SIZE_IN_KM = 0.225;
+    double ASAR_IMG_PX_SIZE_IN_KM = 0.0125;
+    double ASAR_IMM_PX_SIZE_IN_KM = 0.15;
+    double ASAR_IMP_PX_SIZE_IN_KM = 0.03;
+    double ASAR_IMS_PX_SIZE_IN_KM = 0.008;
+    double ASAR_WS_BP_PX_SIZE_IN_KM = 0.9;
+    double ASAR_WSM_PX_SIZE_IN_KM = 0.15;
+    double ASAR_WSS_PX_SIZE_IN_KM = 0.008;
+    double ASAR_WVI_PX_SIZE_IN_KM = 0.02;
+    double ASAR_WVS_PX_SIZE_IN_KM = 5.0;
 
     /**
      * A pattern which matches MERIS L1b product types
