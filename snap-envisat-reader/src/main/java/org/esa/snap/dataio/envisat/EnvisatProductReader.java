@@ -52,6 +52,10 @@ public class EnvisatProductReader extends AbstractProductReader {
      * @since BEAM 4.9
      */
     private static final String SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING = "snap.envisat.usePixelGeoCoding";
+    // @todo 2 tb/** this is defined at least 3 times as private constant. Move to a common location 2020-01-16
+    private static final String SYSPROP_SNAP_PIXEL_CODING_FRACTION_ACCURACY= "snap.pixelGeoCoding.fractionAccuracy";
+    private static final String SYSPROP_ENVISAT_PIXEL_CODING_INVERSE= "snap.envisat.pixelGeoCoding.inverse";
+    private static final String SYSPROP_ENVISAT_TIE_POINT_CODING_FORWARD= "snap.envisat.tiePointGeoCoding.forward";
 
     /**
      * Represents the product's file.
@@ -409,10 +413,38 @@ public class EnvisatProductReader extends AbstractProductReader {
                 lonBand.getRasterWidth(), lonBand.getRasterHeight(), resolutionInKilometers,
                 0.5, 0.5,
                 1.0, 1.0);
-        final ForwardCoding forward = ComponentFactory.getForward("FWD_PIXEL");
-        final InverseCoding inverse = ComponentFactory.getInverse("INV_PIXEL_QUAD_TREE");
+        final String[] codingKeys = getForwardAndInverseKeys_pixelCoding();
+
+        final ForwardCoding forward = ComponentFactory.getForward(codingKeys[0]);
+        final InverseCoding inverse = ComponentFactory.getInverse(codingKeys[1]);
 
         return new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
+    }
+
+    private String[] getForwardAndInverseKeys_pixelCoding() {
+        final String[] codingNames = new String[2];
+
+        final Preferences preferences = Config.instance("snap").preferences();
+        final boolean useFractAccuracy = preferences.getBoolean(SYSPROP_SNAP_PIXEL_CODING_FRACTION_ACCURACY, false);
+        if (useFractAccuracy) {
+            codingNames[0] = "FWD_PIXEL_INTERPOLATING";
+        } else {
+            codingNames[0] = "FWD_PIXEL";
+        }
+
+        codingNames[1] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_INVERSE, "INV_PIXEL_QUAD_TREE");
+
+        return codingNames;
+    }
+
+    private String[] getForwardAndInverseKeys_tiePointCoding() {
+        final String[] codingNames = new String[2];
+
+        final Preferences preferences = Config.instance("snap").preferences();
+        codingNames[0] = preferences.get(SYSPROP_ENVISAT_TIE_POINT_CODING_FORWARD, "FWD_TIE_POINT_BILINEAR");
+        codingNames[1] = "INV_TIE_POINT";
+
+        return codingNames;
     }
 
     private ComponentGeoCoding createTiePointGeoCoding(Product product) throws IOException {
@@ -430,10 +462,10 @@ public class EnvisatProductReader extends AbstractProductReader {
                 lonGrid.getRasterWidth(), lonGrid.getRasterHeight(), resolutionInKilometers,
                 lonGrid.getOffsetX(), lonGrid.getOffsetY(),
                 lonGrid.getSubSamplingX(), lonGrid.getSubSamplingY());
-//        final ForwardCoding forward = ComponentFactory.getForward("FWD_TIE_POINT_SPLINE");
-        final ForwardCoding forward = ComponentFactory.getForward("FWD_TIE_POINT_BILINEAR");
-        final InverseCoding inverse = ComponentFactory.getInverse("INV_TIE_POINT");
-        // @todo 1 tb/tb use properties to read codings, the default is the stuff above
+
+        final String[] codingKeys = getForwardAndInverseKeys_tiePointCoding();
+        final ForwardCoding forward = ComponentFactory.getForward(codingKeys[0]);
+        final InverseCoding inverse = ComponentFactory.getInverse(codingKeys[1]);
 
         return new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
     }
@@ -697,8 +729,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         if (name.equalsIgnoreCase(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME) ||
                 name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_360;
-        } else if (name.equalsIgnoreCase(EnvisatConstants.LON_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
+        } else if (name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
                 name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
                 name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
                 name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
