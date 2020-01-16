@@ -179,21 +179,17 @@ public interface EnvisatConstants {
     // average pixel sizes in kilometres
     double MERIS_FR_PX_SIZE_IN_KM = 0.3;
     double MERIS_RR_PX_SIZE_IN_KM = 1.2;
+
     double AATSR_PX_SIZE_IN_KM = 1.0;
-    double ASAR_APG_PX_SIZE_IN_KM = 0.0125;
-    double ASAR_APM_PX_SIZE_IN_KM = 0.15;
-    double ASAR_APP_PX_SIZE_IN_KM = 0.03;
-    double ASAR_AP_BP_PX_SIZE_IN_KM = 0.225;
+
+    double ASAR_xxG_PX_SIZE_IN_KM = 0.0125;
+    double ASAR_xxM_PX_SIZE_IN_KM = 0.15;
+    double ASAR_xxP_PX_SIZE_IN_KM = 0.03;
+    double ASAR_xxS_PX_SIZE_IN_KM = 0.008;
+    double ASAR_BP_PX_SIZE_IN_KM = 0.225;
     double ASAR_APS_PX_SIZE_IN_KM = 0.012;
     double ASAR_GM1_PX_SIZE_IN_KM = 1.0;
-    double ASAR_IM_BP_PX_SIZE_IN_KM = 0.225;
-    double ASAR_IMG_PX_SIZE_IN_KM = 0.0125;
-    double ASAR_IMM_PX_SIZE_IN_KM = 0.15;
-    double ASAR_IMP_PX_SIZE_IN_KM = 0.03;
-    double ASAR_IMS_PX_SIZE_IN_KM = 0.008;
     double ASAR_WS_BP_PX_SIZE_IN_KM = 0.9;
-    double ASAR_WSM_PX_SIZE_IN_KM = 0.15;
-    double ASAR_WSS_PX_SIZE_IN_KM = 0.008;
     double ASAR_WVI_PX_SIZE_IN_KM = 0.02;
     double ASAR_WVS_PX_SIZE_IN_KM = 5.0;
 

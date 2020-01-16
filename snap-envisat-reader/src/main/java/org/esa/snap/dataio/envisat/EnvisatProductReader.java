@@ -727,43 +727,31 @@ public class EnvisatProductReader extends AbstractProductReader {
                 return EnvisatConstants.AATSR_PX_SIZE_IN_KM;
 
             case EnvisatConstants.ASAR_L1B_APG_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_APG_PX_SIZE_IN_KM;
+            case EnvisatConstants.ASAR_L1B_IMG_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.ASAR_xxG_PX_SIZE_IN_KM;
 
             case EnvisatConstants.ASAR_L1B_APP_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_APP_PX_SIZE_IN_KM;
+            case EnvisatConstants.ASAR_L1B_IMP_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.ASAR_xxP_PX_SIZE_IN_KM;
 
             case EnvisatConstants.ASAR_L1B_AP_BP_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_AP_BP_PX_SIZE_IN_KM;
+            case EnvisatConstants.ASAR_L1B_IM_BP_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.ASAR_BP_PX_SIZE_IN_KM;
 
+            case EnvisatConstants.ASAR_L1B_IMM_PRODUCT_TYPE_NAME:
             case EnvisatConstants.ASAR_L1B_APM_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_APM_PX_SIZE_IN_KM;
+            case EnvisatConstants.ASAR_L1B_WSM_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.ASAR_xxM_PX_SIZE_IN_KM;
 
             case EnvisatConstants.ASAR_L1B_APS_PRODUCT_TYPE_NAME:
                 return EnvisatConstants.ASAR_APS_PX_SIZE_IN_KM;
 
-            case EnvisatConstants.ASAR_L1B_IM_BP_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_IM_BP_PX_SIZE_IN_KM;
-
-            case EnvisatConstants.ASAR_L1B_IMG_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_IMG_PX_SIZE_IN_KM;
-
-            case EnvisatConstants.ASAR_L1B_IMM_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_IMM_PX_SIZE_IN_KM;
-
-            case EnvisatConstants.ASAR_L1B_IMP_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_IMP_PX_SIZE_IN_KM;
-
             case EnvisatConstants.ASAR_L1B_IMS_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_IMS_PX_SIZE_IN_KM;
+            case EnvisatConstants.ASAR_L1B_WSS_PRODUCT_TYPE_NAME:
+                return EnvisatConstants.ASAR_xxS_PX_SIZE_IN_KM;
 
             case EnvisatConstants.ASAR_L1B_WS_BP_PRODUCT_TYPE_NAME:
                 return EnvisatConstants.ASAR_WS_BP_PX_SIZE_IN_KM;
-
-            case EnvisatConstants.ASAR_L1B_WSS_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_WSS_PX_SIZE_IN_KM;
-
-            case EnvisatConstants.ASAR_L1B_WSM_PRODUCT_TYPE_NAME:
-                return EnvisatConstants.ASAR_WSM_PX_SIZE_IN_KM;
 
             case EnvisatConstants.ASAR_L1B_WVI_PRODUCT_TYPE_NAME:
                 return EnvisatConstants.ASAR_WVI_PX_SIZE_IN_KM;
