@@ -10,6 +10,8 @@ public class TiePointBilinearForward extends TiePointForward {
 
     private TiePointGrid lonGrid;
     private TiePointGrid latGrid;
+    private int sceneWidth;
+    private int sceneHeight;
 
     public TiePointBilinearForward() {
         lonGrid = null;
@@ -31,6 +33,9 @@ public class TiePointBilinearForward extends TiePointForward {
                 RasterUtils.toFloat(geoRaster.getLatitudes()));
 
         checkGrids(lonGrid, latGrid);
+
+        this.sceneWidth = geoRaster.getSceneWidth();
+        this.sceneHeight = geoRaster.getSceneHeight();
     }
 
     @Override
@@ -38,8 +43,8 @@ public class TiePointBilinearForward extends TiePointForward {
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
-        if (pixelPos.x < 0 || pixelPos.x > latGrid.getRasterWidth()
-                || pixelPos.y < 0 || pixelPos.y > latGrid.getRasterHeight()) {
+        if (pixelPos.x < 0 || pixelPos.x > sceneWidth
+                || pixelPos.y < 0 || pixelPos.y > sceneHeight) {
             geoPos.setInvalid();
         } else {
             geoPos.lat = latGrid.getPixelDouble(pixelPos.x, pixelPos.y);

@@ -410,7 +410,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
 
         final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonBand.getRasterWidth(), lonBand.getRasterHeight(),
-                lonBand.getRasterWidth(), lonBand.getRasterHeight(), resolutionInKilometers,
+                product.getSceneRasterWidth(), product.getSceneRasterHeight(), resolutionInKilometers,
                 0.5, 0.5,
                 1.0, 1.0);
         final String[] codingKeys = getForwardAndInverseKeys_pixelCoding();
@@ -459,7 +459,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
 
         final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonGrid.getGridWidth(), lonGrid.getGridHeight(),
-                lonGrid.getRasterWidth(), lonGrid.getRasterHeight(), resolutionInKilometers,
+                product.getSceneRasterWidth(), product.getSceneRasterHeight(), resolutionInKilometers,
                 lonGrid.getOffsetX(), lonGrid.getOffsetY(),
                 lonGrid.getSubSamplingX(), lonGrid.getSubSamplingY());
 
