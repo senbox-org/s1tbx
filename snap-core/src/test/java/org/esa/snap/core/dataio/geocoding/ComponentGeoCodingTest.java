@@ -279,4 +279,37 @@ public class ComponentGeoCodingTest {
         verifyNoMoreInteractions(forwardCoding);
         verifyNoMoreInteractions(inverseCoding);
     }
+
+    @Test
+    public void testIsCrossingMeridianAt180_uninitialized() {
+        final GeoRaster geoRaster = TestData.get_MER_RR();
+
+        final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding);
+
+        try {
+            geoCoding.isCrossingMeridianAt180();
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException expected){
+        }
+    }
+
+    @Test
+    public void testIsCrossingMeridianAt180_not() {
+        final GeoRaster geoRaster = TestData.get_MER_RR();
+
+        final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, GeoChecks.ANTIMERIDIAN);
+        geoCoding.initialize();
+
+        assertFalse(geoCoding.isCrossingMeridianAt180());
+    }
+
+    @Test
+    public void testIsCrossingMeridianAt180_is() {
+        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_POLE_LON, AMSUB.AMSUB_POLE_LAT, 25, 25, 25, 25, 16.0);
+
+        final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, GeoChecks.ANTIMERIDIAN);
+        geoCoding.initialize();
+
+        assertTrue(geoCoding.isCrossingMeridianAt180());
+    }
 }

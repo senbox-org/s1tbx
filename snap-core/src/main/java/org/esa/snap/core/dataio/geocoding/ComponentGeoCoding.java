@@ -31,6 +31,8 @@ public class ComponentGeoCoding implements GeoCoding {
     private final CoordinateReferenceSystem mapCRS;
     private final CoordinateReferenceSystem geoCRS;
     private volatile MathTransform image2Map;
+    private boolean isInitialized;
+    private boolean isCrossingAntiMeridian;
 
     /**
      * Constructs a GeoCoding with given GeoRaster, ForwardCoding and InverseCoding. No geoChecks will be performed during initialize phase.
@@ -89,6 +91,9 @@ public class ComponentGeoCoding implements GeoCoding {
         this.mapCRS = geoCRS;
         this.imageCRS = createImageCRS(getMapCRS(), new GeoCodingMathTransform(this));
         this.geoChecks = geoChecks;
+
+        isInitialized = false;
+        isCrossingAntiMeridian = false;
     }
 
     protected static DefaultDerivedCRS createImageCRS(CoordinateReferenceSystem baseCRS,
@@ -101,7 +106,11 @@ public class ComponentGeoCoding implements GeoCoding {
 
     @Override
     public boolean isCrossingMeridianAt180() {
-        throw new NotImplementedException();
+        if (!isInitialized) {
+            throw new IllegalStateException("Geocoding is not initialized.");
+        }
+
+        return isCrossingAntiMeridian;
     }
 
     @Override
@@ -200,22 +209,23 @@ public class ComponentGeoCoding implements GeoCoding {
     }
 
     public void initialize() {
-        boolean crossesAntiMeridian = false;
         PixelPos[] poleLocations = new PixelPos[0];
 
         if (geoChecks != GeoChecks.NONE) {
-            crossesAntiMeridian = RasterUtils.containsAntiMeridian(geoRaster.getLongitudes(), geoRaster.getRasterWidth());
-            if (crossesAntiMeridian && geoChecks == GeoChecks.POLES) {
+            isCrossingAntiMeridian = RasterUtils.containsAntiMeridian(geoRaster.getLongitudes(), geoRaster.getRasterWidth());
+            if (isCrossingAntiMeridian && geoChecks == GeoChecks.POLES) {
                 poleLocations = RasterUtils.getPoleLocations(geoRaster);
             }
         }
 
         if (forwardCoding != null) {
-            forwardCoding.initialize(geoRaster, crossesAntiMeridian, poleLocations);
+            forwardCoding.initialize(geoRaster, isCrossingAntiMeridian, poleLocations);
         }
         if (inverseCoding != null) {
-            inverseCoding.initialize(geoRaster, crossesAntiMeridian, poleLocations);
+            inverseCoding.initialize(geoRaster, isCrossingAntiMeridian, poleLocations);
         }
+
+        isInitialized = true;
     }
 
     // package access for testing only tb 2019-11-18
