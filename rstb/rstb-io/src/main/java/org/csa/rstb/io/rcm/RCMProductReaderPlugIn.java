@@ -38,7 +38,7 @@ public class RCMProductReaderPlugIn implements ProductReaderPlugIn {
     final static String[] PRODUCT_HEADER_EXT = {".SAFE"};
     private final static String PLUGIN_DESCRIPTION = "Radarsat Constellation Mission";
 
-    private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
+    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it

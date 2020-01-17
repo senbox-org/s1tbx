@@ -39,7 +39,7 @@ public class ImageIOReaderPlugIn implements ProductReaderPlugIn {
     private final static String[] FORMAT_FILE_EXTENSIONS = getFormatFileExtensions();
     private final static String[] IMAGEIO_FILE_EXTENSIONS = getPrunedImageIOExtensions();
     private final static String PLUGIN_DESCRIPTION = "ImageIO Products";
-    private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
+    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     private static String[] getFormatNamesList() {
         final List<String> names = new ArrayList<>(40);

@@ -66,31 +66,31 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
-        try{
+        try {
             final Path inputPath = ReaderUtils.getPathFromInput(input);
             if (inputPath == null) {
                 return DecodeQualification.UNABLE;
             }
             final String extension = FileUtils.getExtension(inputPath.toFile());
 
-                if (extension != null && extension.toUpperCase().equals(".ZIP")){
+            if (extension != null && extension.toUpperCase().equals(".ZIP")) {
                 return checkZIPFile(inputPath);
-                }
+            }
             return checkFileName(inputPath.toFile());
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return DecodeQualification.UNABLE;
         }
     }
 
     // Additional helper functions for getDecodeQualification
-    private DecodeQualification checkFileName(File inputFile){
+    private DecodeQualification checkFileName(File inputFile) {
         boolean hasValidImage = false;
         boolean hasMetadata = false;
 
         final File[] files = inputFile.getParentFile() != null ? inputFile.getParentFile().listFiles() : null;
-        if(files != null) {
+        if (files != null) {
             for (File f : files) {
                 String name = f.getName().toUpperCase();
                 if (name.equals("SUMMARY.TXT")) {
@@ -99,12 +99,12 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 }
                 if (name.contains("ALOS2") && (name.endsWith("TIF") || name.endsWith("TIFF")) &&
                         (name.contains("IMG-") &&
-                                (name.contains("-HH-") || name.contains("-HV-") || name.contains("-VH-") || name.contains("-VV-")))){
+                                (name.contains("-HH-") || name.contains("-HV-") || name.contains("-VH-") || name.contains("-VV-")))) {
                     hasValidImage = true;
                 }
             }
         }
-        if(hasMetadata && hasValidImage)
+        if (hasMetadata && hasValidImage)
             return DecodeQualification.INTENDED;
 
         return DecodeQualification.UNABLE;
@@ -163,14 +163,14 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                                     name.contains("-VV-")))) {
                 hasValidImage = true;
             }
-            if (name.contains("SUMMARY.TXT")){
+            if (name.contains("SUMMARY.TXT")) {
                 hasMetadata = true;
             }
 
         }
-        if (hasMetadata && hasValidImage){
+        if (hasMetadata && hasValidImage) {
             return DecodeQualification.INTENDED;
-        } else{
+        } else {
             return DecodeQualification.UNABLE;
         }
     }
@@ -181,7 +181,7 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     @Override
-    public ProductReader createReaderInstance()  {
+    public ProductReader createReaderInstance() {
         return new Alos2GeoTiffProductReader(this);
     }
 

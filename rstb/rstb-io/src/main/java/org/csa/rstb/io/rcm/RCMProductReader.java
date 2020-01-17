@@ -77,7 +77,7 @@ public class RCMProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            Path path = ReaderUtils.getPathFromInput(getInput());
+            Path path = getPathFromInput(getInput());
             File fileFromInput = path.toFile();
             if (fileFromInput.isDirectory()) {
                 fileFromInput = RCMProductReaderPlugIn.findMetadataFile(path);

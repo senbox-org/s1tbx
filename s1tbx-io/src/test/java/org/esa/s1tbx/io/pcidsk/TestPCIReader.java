@@ -32,7 +32,7 @@ import static org.junit.Assume.assumeTrue;
 public class TestPCIReader extends ReaderTest {
 
     private final static String sep = S1TBXTests.sep;
-    private final static File file = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "pcidsk\\kompsat2_pcidsk_msc.pix");
+    private final static File file = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "pcidsk/kompsat2_pcidsk_msc.pix");
 
     @Before
     public void setup() {
