@@ -405,8 +405,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         final Band lonBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME);
         final Band latBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME);
 
-        final double[] longitudes = loadData(lonBand);
-        final double[] latitudes = loadData(latBand);
+        final double[] longitudes = loadDataScaled(lonBand);
+        final double[] latitudes = loadDataScaled(latBand);
         final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
 
         final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonBand.getRasterWidth(), lonBand.getRasterHeight(),
@@ -477,6 +477,14 @@ public class EnvisatProductReader extends AbstractProductReader {
         for (int i = 0; i < data.getNumElems(); i++) {
             values[i] = data.getElemDoubleAt(i);
         }
+        return values;
+    }
+
+    private double[] loadDataScaled(RasterDataNode dataNode) throws IOException {
+        dataNode.loadRasterData();
+        final Dimension rasterSize = dataNode.getRasterSize();
+        final double[] values = new double[rasterSize.width * rasterSize.height];
+        dataNode.readPixels(0, 0, rasterSize.width, rasterSize.height, values);
         return values;
     }
 
