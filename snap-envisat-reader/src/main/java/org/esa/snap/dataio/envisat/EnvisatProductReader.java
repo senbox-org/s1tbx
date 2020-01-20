@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.geocoding.*;
+import org.esa.snap.core.dataio.geocoding.util.RasterUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.ArrayUtils;
 import org.esa.snap.core.util.Debug;
@@ -405,8 +406,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         final Band lonBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME);
         final Band latBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME);
 
-        final double[] longitudes = loadDataScaled(lonBand);
-        final double[] latitudes = loadDataScaled(latBand);
+        final double[] longitudes = RasterUtils.loadDataScaled(lonBand);
+        final double[] latitudes = RasterUtils.loadDataScaled(latBand);
         final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
 
         final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonBand.getRasterWidth(), lonBand.getRasterHeight(),
@@ -454,8 +455,8 @@ public class EnvisatProductReader extends AbstractProductReader {
             return null;
         }
 
-        final double[] longitudes = loadData(lonGrid);
-        final double[] latitudes = loadData(latGrid);
+        final double[] longitudes = RasterUtils.loadData(lonGrid);
+        final double[] latitudes = RasterUtils.loadData(latGrid);
         final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
 
         final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonGrid.getGridWidth(), lonGrid.getGridHeight(),
@@ -468,24 +469,6 @@ public class EnvisatProductReader extends AbstractProductReader {
         final InverseCoding inverse = ComponentFactory.getInverse(codingKeys[1]);
 
         return new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
-    }
-
-    private double[] loadData(RasterDataNode dataNode) throws IOException {
-        dataNode.loadRasterData();
-        final ProductData data = dataNode.getData();
-        final double[] values = new double[data.getNumElems()];
-        for (int i = 0; i < data.getNumElems(); i++) {
-            values[i] = data.getElemDoubleAt(i);
-        }
-        return values;
-    }
-
-    private double[] loadDataScaled(RasterDataNode dataNode) throws IOException {
-        dataNode.loadRasterData();
-        final Dimension rasterSize = dataNode.getRasterSize();
-        final double[] values = new double[rasterSize.width * rasterSize.height];
-        dataNode.readPixels(0, 0, rasterSize.width, rasterSize.height, values);
-        return values;
     }
 
     /**

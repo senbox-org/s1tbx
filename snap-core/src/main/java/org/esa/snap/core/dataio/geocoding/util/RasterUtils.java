@@ -3,14 +3,18 @@ package org.esa.snap.core.dataio.geocoding.util;
 import org.esa.snap.core.dataio.geocoding.Discontinuity;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.util.math.RsMathUtils;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class RasterUtils {
 
     private static final double MEAN_EARTH_RADIUS_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
-    private static double STEP_THRESH = 180.0;
+    private static final double STEP_THRESH = 180.0;
 
     // this one is for backward compatibility - I guess it can be removed during the merge operation with SNAP core tb 2019-10-24
     // @todo discuss with Marco and Norman
@@ -150,6 +154,24 @@ public class RasterUtils {
         }
 
         return doubles;
+    }
+
+    public static double[] loadDataScaled(RasterDataNode dataNode) throws IOException {
+        dataNode.loadRasterData();
+        final Dimension rasterSize = dataNode.getRasterSize();
+        final double[] values = new double[rasterSize.width * rasterSize.height];
+        dataNode.readPixels(0, 0, rasterSize.width, rasterSize.height, values);
+        return values;
+    }
+
+    public static double[] loadData(RasterDataNode dataNode) throws IOException {
+        dataNode.loadRasterData();
+        final ProductData data = dataNode.getData();
+        final double[] values = new double[data.getNumElems()];
+        for (int i = 0; i < data.getNumElems(); i++) {
+            values[i] = data.getElemDoubleAt(i);
+        }
+        return values;
     }
 
     // returns al (x/y) positions that have a latitude above the defined pole-angle threshold
