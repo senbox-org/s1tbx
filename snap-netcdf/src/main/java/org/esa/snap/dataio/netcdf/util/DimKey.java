@@ -32,11 +32,11 @@ public class DimKey {
 
     private static final String[] TYPICAL_X_DIM_NAMES = new String[]{
             "lon", "long", "longitude", "ni", "NX", "SX", "x", "xc",
-            "across_track", "numRows", "row", "rows", "row", "rows"
+            "across_track", "numCells", "col", "cols", "column", "columns"
     };
     private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{
             "lat", "lat", "latitude", "nj", "NY", "SY", "y", "yc",
-            "along_track", "numCells", "col", "cols", "column", "columns"
+            "along_track", "numRows", "row", "rows", "row", "rows"
     };
 
     private final Dimension[] dims;
