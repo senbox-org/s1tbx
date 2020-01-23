@@ -442,7 +442,10 @@ public class BinningOp extends Operator {
 
         try {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
-            SpatialBinCollection spatialBinMap = doSpatialBinning(productFilter);
+            final SpatialBinCollection spatialBinMap = doSpatialBinning(productFilter);
+            if (numProductsAggregated == 0) {
+                throw new OperatorException("No valid input products found during spatial binning. Quitting operator");
+            }
             if (!spatialBinMap.isEmpty()) {
                 // update region
                 if (region == null && regionArea != null) {
@@ -615,7 +618,7 @@ public class BinningOp extends Operator {
                 }
             }
         }
-        if (sourceProductPaths != null) {
+        if (sourceProductPaths != null && sourceProductPaths.length > 0)  {
             getLogger().info("expanding sourceProductPaths wildcards.");
             SortedSet<File> fileSet = new TreeSet<>();
             for (String filePattern : sourceProductPaths) {
@@ -658,7 +661,7 @@ public class BinningOp extends Operator {
                 }
             }
         }
-        if (sourceGraphPaths != null) {
+        if (sourceGraphPaths != null && sourceGraphPaths.length > 0) {
             getLogger().info("expanding sourceGraphPaths wildcards.");
             SortedSet<File> fileSet = new TreeSet<>();
             for (String filePattern : sourceGraphPaths) {
