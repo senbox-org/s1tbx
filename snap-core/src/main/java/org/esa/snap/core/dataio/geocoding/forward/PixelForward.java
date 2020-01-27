@@ -22,8 +22,8 @@ public class PixelForward implements ForwardCoding {
             return geoPos;
         }
 
-        int x0 = (int) Math.floor(pixelPos.getX());
-        int y0 = (int) Math.floor(pixelPos.getY());
+        final int x0 = (int) Math.floor(pixelPos.getX());
+        final int y0 = (int) Math.floor(pixelPos.getY());
         if (x0 < 0 || x0 >= sceneWidth || y0 < 0 || y0 >= sceneHeight) {
             return geoPos;
         }
