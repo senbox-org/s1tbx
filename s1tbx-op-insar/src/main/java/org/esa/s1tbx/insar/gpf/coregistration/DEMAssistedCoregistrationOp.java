@@ -145,6 +145,10 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 throw new OperatorException("Please select two or more source products");
             }
 
+            if (checkIfS1SLCProduct()) {
+                throw new OperatorException("For coregistration of S-1 TOPS SLC products, please use S-1 Back Geocoding");
+            }
+
             masterProduct = sourceProduct[0];
             slaveProducts = new Product[sourceProduct.length-1];
             System.arraycopy(sourceProduct, 1, slaveProducts, 0, slaveProducts.length);
@@ -178,6 +182,16 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private boolean checkIfS1SLCProduct() throws OperatorException {
+        final MetadataElement mAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
+        if (mAbsRoot == null) {
+            throw new OperatorException("Cannot find the abstracted metadata for product "+ sourceProduct[0].getName());
+        }
+        String mission = mAbsRoot.getAttributeString(AbstractMetadata.MISSION);
+        String productType = mAbsRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE, "");
+        return mission != null && productType != null && mission.startsWith("SENTINEL-1") && productType.equals("SLC");
     }
 
     private static void getProductMetadata(final Product sourceProduct, final Metadata metadata) throws Exception {
