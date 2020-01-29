@@ -577,6 +577,10 @@ public final class BackGeocodingOp extends Operator {
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
                     final BurstIndices mBurstIndices = getBurstIndices(subSwathIndex, mSU, earthPoint);
 
+                    if (mBurstIndices == null) {
+                        continue;
+                    }
+
                     for(SlaveData slaveData : slaveDataList) {
                         if(slaveData.burstOffset != -9999)
                             continue;
@@ -617,6 +621,12 @@ public final class BackGeocodingOp extends Operator {
                     return;
                 }
             }
+
+            for(SlaveData slaveData : slaveDataList) {
+                slaveData.burstOffset = 0;
+            }
+            burstOffsetComputed = true;
+
         } catch (Throwable t) {
             t.printStackTrace();
         }
