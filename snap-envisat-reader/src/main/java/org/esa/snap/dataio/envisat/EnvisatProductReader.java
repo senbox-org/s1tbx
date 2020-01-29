@@ -54,9 +54,10 @@ public class EnvisatProductReader extends AbstractProductReader {
      */
     private static final String SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING = "snap.envisat.usePixelGeoCoding";
     // @todo 2 tb/** this is defined at least 3 times as private constant. Move to a common location 2020-01-16
-    private static final String SYSPROP_SNAP_PIXEL_CODING_FRACTION_ACCURACY= "snap.pixelGeoCoding.fractionAccuracy";
-    private static final String SYSPROP_ENVISAT_PIXEL_CODING_INVERSE= "snap.envisat.pixelGeoCoding.inverse";
-    private static final String SYSPROP_ENVISAT_TIE_POINT_CODING_FORWARD= "snap.envisat.tiePointGeoCoding.forward";
+    private static final String SYSPROP_SNAP_PIXEL_CODING_FRACTION_ACCURACY = "snap.pixelGeoCoding.fractionAccuracy";
+    private static final String SYSPROP_ENVISAT_PIXEL_CODING_FORWARD = "snap.envisat.pixelGeoCoding.forward";
+    private static final String SYSPROP_ENVISAT_PIXEL_CODING_INVERSE = "snap.envisat.pixelGeoCoding.inverse";
+    private static final String SYSPROP_ENVISAT_TIE_POINT_CODING_FORWARD = "snap.envisat.tiePointGeoCoding.forward";
 
     /**
      * Represents the product's file.
@@ -430,7 +431,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         if (useFractAccuracy) {
             codingNames[0] = "FWD_PIXEL_INTERPOLATING";
         } else {
-            codingNames[0] = "FWD_PIXEL";
+            codingNames[0] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_FORWARD,"FWD_PIXEL");
         }
 
         codingNames[1] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_INVERSE, "INV_PIXEL_QUAD_TREE");
