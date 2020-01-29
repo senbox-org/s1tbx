@@ -8,8 +8,11 @@ import org.esa.snap.core.dataio.geocoding.util.XYInterpolator;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.core.util.math.RsMathUtils;
 
 public class PixelQuadTreeInverse implements InverseCoding {
+
+    private static final double TO_DEG = 180.0 / Math.PI ;
 
     private final boolean fractionalAccuracy;
     private final XYInterpolator interpolator;
@@ -80,7 +83,7 @@ public class PixelQuadTreeInverse implements InverseCoding {
         this.longitudes = geoRaster.getLongitudes();
         this.latitudes = geoRaster.getLatitudes();
 
-        epsilon = getEpsilon();
+        epsilon = getEpsilon(geoRaster.getRasterResolutionInKm());
         isCrossingMeridian = containsAntiMeridian;
 
         offsetX = geoRaster.getOffsetX();
@@ -101,19 +104,22 @@ public class PixelQuadTreeInverse implements InverseCoding {
     }
 
     // package access for testing only tb 2019-12-16
-    double getEpsilon() {
-        final int x_center = rasterWidth / 2;
-        final int y_center = rasterHeight / 2;
+    double getEpsilon(double resolutionInKm) {
+//        final int x_center = rasterWidth / 2;
+//        final int y_center = rasterHeight / 2;
+//
+//        final GeoPos geoPos_1 = new GeoPos();
+//        final GeoPos geoPos_2 = new GeoPos();
+//        getGeoPos(x_center, y_center, geoPos_1);
+//        getGeoPos(x_center + 1, y_center + 1, geoPos_2);
+//
+//        final double deltaLat = Math.abs(geoPos_1.lat - geoPos_2.lat);
+//        final double deltaLon = Math.abs(geoPos_1.lon - geoPos_2.lon);
+//
+//        return Math.max(deltaLat, deltaLon) / Math.sqrt(2);
 
-        final GeoPos geoPos_1 = new GeoPos();
-        final GeoPos geoPos_2 = new GeoPos();
-        getGeoPos(x_center, y_center, geoPos_1);
-        getGeoPos(x_center + 1, y_center + 1, geoPos_2);
-
-        final double deltaLat = Math.abs(geoPos_1.lat - geoPos_2.lat);
-        final double deltaLon = Math.abs(geoPos_1.lon - geoPos_2.lon);
-
-        return Math.max(deltaLat, deltaLon) / Math.sqrt(2);
+        final double angle = 2.0 * Math.asin((resolutionInKm * 1000.0) / (2 * RsMathUtils.MEAN_EARTH_RADIUS));
+        return TO_DEG * angle * 2.0;
     }
 
     // package access for testing only tb 2019-12-16

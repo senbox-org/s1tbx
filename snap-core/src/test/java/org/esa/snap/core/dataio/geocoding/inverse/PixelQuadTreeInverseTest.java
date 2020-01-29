@@ -58,15 +58,15 @@ public class PixelQuadTreeInverseTest {
         assertEquals(NaN, pixelPos.x, 1e-8);
         assertEquals(NaN, pixelPos.y, 1e-8);
 
-        pixelPos = inverse.getPixelPos(new GeoPos(45.838, -130.24), null);
+        pixelPos = inverse.getPixelPos(new GeoPos(45.838, -130.23), null);
         assertEquals(NaN, pixelPos.x, 1e-8);
         assertEquals(NaN, pixelPos.y, 1e-8);
 
-        pixelPos = inverse.getPixelPos(new GeoPos(45.773, -130.26), null);
+        pixelPos = inverse.getPixelPos(new GeoPos(45.773, -130.24), null);
         assertEquals(NaN, pixelPos.x, 1e-8);
         assertEquals(NaN, pixelPos.y, 1e-8);
 
-        pixelPos = inverse.getPixelPos(new GeoPos(45.791, -130.375), null);
+        pixelPos = inverse.getPixelPos(new GeoPos(45.791, -130.38), null);
         assertEquals(NaN, pixelPos.x, 1e-8);
         assertEquals(NaN, pixelPos.y, 1e-8);
     }
@@ -236,22 +236,18 @@ public class PixelQuadTreeInverseTest {
     @Test
     public void testGetEpsilon_AMSR2() {
         final GeoRaster geoRaster = new GeoRaster(AMSR2.AMSR2_ANTI_MERID_LON, AMSR2.AMSR2_ANTI_MERID_LAT, 32, 26,
-                32, 26, 0.3, 0.5, 0.5, 1.0, 1.0);
+                32, 26, 5.0, 0.5, 0.5, 1.0, 1.0);
 
         inverse.initialize(geoRaster, false, new PixelPos[0]);
 
-        final double epsilon = inverse.getEpsilon();
-        assertEquals(0.2218123261904139, epsilon, 1e-8);
+        final double epsilon = inverse.getEpsilon(5.0);
+        assertEquals(0.08993220524744582, epsilon, 1e-8);
     }
 
     @Test
     public void testGetEpsilon_SLSTR_OL() {
-        final GeoRaster geoRaster = get_SLSTR_OL();
-
-        inverse.initialize(geoRaster, false, new PixelPos[0]);
-
-        final double epsilon = inverse.getEpsilon();
-        assertEquals(0.0023030467863381344, epsilon, 1e-8);
+        final double epsilon = inverse.getEpsilon(0.3);
+        assertEquals(0.005395932176867367, epsilon, 1e-8);
     }
 
     @Test
