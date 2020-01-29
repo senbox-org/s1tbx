@@ -291,83 +291,84 @@ public final class TOPSARSplitOp extends Operator {
      */
     private void updateAbstractedMetadata() {
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        final MetadataElement absSrc = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
-        absRoot.setAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(
+        absTgt.setAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(
                 subSwathInfo[subSwathIndex - 1].burstFirstLineTime[firstBurstIndex - 1] / Constants.secondsInDay));
 
-        absRoot.setAttributeUTC(AbstractMetadata.last_line_time, new ProductData.UTC(
+        absTgt.setAttributeUTC(AbstractMetadata.last_line_time, new ProductData.UTC(
                 subSwathInfo[subSwathIndex - 1].burstLastLineTime[lastBurstIndex - 1] / Constants.secondsInDay));
 
-        absRoot.setAttributeDouble(AbstractMetadata.line_time_interval,
+        absTgt.setAttributeDouble(AbstractMetadata.line_time_interval,
                 subSwathInfo[subSwathIndex - 1].azimuthTimeInterval);
 
-        absRoot.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
+        absTgt.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
                 subSwathInfo[subSwathIndex - 1].slrTimeToFirstPixel * Constants.lightSpeed);
 
-        absRoot.setAttributeDouble(AbstractMetadata.range_spacing,
+        absTgt.setAttributeDouble(AbstractMetadata.range_spacing,
                 subSwathInfo[subSwathIndex - 1].rangePixelSpacing);
 
-        absRoot.setAttributeDouble(AbstractMetadata.azimuth_spacing,
+        absTgt.setAttributeDouble(AbstractMetadata.azimuth_spacing,
                 subSwathInfo[subSwathIndex - 1].azimuthPixelSpacing);
 
-        absRoot.setAttributeInt(AbstractMetadata.num_output_lines,
+        absTgt.setAttributeInt(AbstractMetadata.num_output_lines,
                 subSwathInfo[subSwathIndex - 1].linesPerBurst * (lastBurstIndex - firstBurstIndex + 1));
 
-        absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line,
+        absTgt.setAttributeInt(AbstractMetadata.num_samples_per_line,
                 subSwathInfo[subSwathIndex - 1].numOfSamples);
 
         final int cols = subSwathInfo[subSwathIndex - 1].latitude[0].length;
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat,
                 subSwathInfo[subSwathIndex - 1].latitude[firstBurstIndex - 1][0]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_long,
                 subSwathInfo[subSwathIndex - 1].longitude[firstBurstIndex - 1][0]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat,
                 subSwathInfo[subSwathIndex - 1].latitude[firstBurstIndex - 1][cols - 1]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_long,
                 subSwathInfo[subSwathIndex - 1].longitude[firstBurstIndex - 1][cols - 1]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_lat,
                 subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex][0]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long,
                 subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex][0]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat,
                 subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex][cols - 1]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long,
                 subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex][cols - 1]);
 
         final double incidenceNear = OperatorUtils.getIncidenceAngle(targetProduct).getPixelDouble(
                 0, targetProduct.getSceneRasterHeight() / 2);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, incidenceNear);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.incidence_near, incidenceNear);
 
         final double incidenceFar = OperatorUtils.getIncidenceAngle(targetProduct).getPixelDouble(
                 targetProduct.getSceneRasterWidth() - 1, targetProduct.getSceneRasterHeight() / 2);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, incidenceFar);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.incidence_far, incidenceFar);
 
-        absRoot.setAttributeString(AbstractMetadata.swath, subswath);
+        absTgt.setAttributeString(AbstractMetadata.swath, subswath);
 
         for (int i = 0; i < selectedPolarisations.length; i++) {
             if (i == 0) {
-                absRoot.setAttributeString(AbstractMetadata.mds1_tx_rx_polar, selectedPolarisations[i]);
+                absTgt.setAttributeString(AbstractMetadata.mds1_tx_rx_polar, selectedPolarisations[i]);
             } else if (i == 1) {
-                absRoot.setAttributeString(AbstractMetadata.mds2_tx_rx_polar, selectedPolarisations[i]);
+                absTgt.setAttributeString(AbstractMetadata.mds2_tx_rx_polar, selectedPolarisations[i]);
             } else if (i == 2) {
-                absRoot.setAttributeString(AbstractMetadata.mds3_tx_rx_polar, selectedPolarisations[i]);
+                absTgt.setAttributeString(AbstractMetadata.mds3_tx_rx_polar, selectedPolarisations[i]);
             } else {
-                absRoot.setAttributeString(AbstractMetadata.mds4_tx_rx_polar, selectedPolarisations[i]);
+                absTgt.setAttributeString(AbstractMetadata.mds4_tx_rx_polar, selectedPolarisations[i]);
             }
         }
 
-        final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
+        final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absTgt);
         for (MetadataElement bandMeta : bandMetadataList) {
             boolean include = false;
 
@@ -382,8 +383,18 @@ public final class TOPSARSplitOp extends Operator {
             }
             if (!include) {
                 // remove band metadata if polarization or subswath is not included
-                absRoot.removeElement(bandMeta);
+                absTgt.removeElement(bandMeta);
             }
+        }
+
+        // Do not delete the following lines because the orbit state vector time in the target product could be wrong.
+        final MetadataElement tgtOrbitVectorsElem = absTgt.getElement(AbstractMetadata.orbit_state_vectors);
+        final MetadataElement srcOrbitVectorsElem = absSrc.getElement(AbstractMetadata.orbit_state_vectors);
+        final int numOrbitVectors = srcOrbitVectorsElem.getNumElements();
+        for (int i = 1; i <= numOrbitVectors; ++i) {
+            final MetadataElement orbElem = srcOrbitVectorsElem.getElement(AbstractMetadata.orbit_vector + i);
+            final ProductData.UTC time = orbElem.getAttributeUTC(AbstractMetadata.orbit_vector_time);
+            tgtOrbitVectorsElem.getElement(AbstractMetadata.orbit_vector + i).setAttributeUTC(AbstractMetadata.orbit_vector_time, time);
         }
     }
 
