@@ -93,7 +93,13 @@ public class PixelGeoIndexInverse implements InverseCoding {
         for (int y = 0; y < geoRaster.getSceneHeight(); y++) {
             final int y_offset = y * width;
             for (int x = 0; x < width; x++) {
-                final long index = toIndex(longitudes[y_offset + x], latitudes[y_offset + x]);
+                final double lon = longitudes[y_offset + x];
+                final double lat = latitudes[y_offset + x];
+                if (Double.isNaN(lon) || Double.isNaN(lat)) {
+                    continue;
+                }
+
+                final long index = toIndex(lon, lat);
                 final RasterRegion rasterRegion = regionIndex.get(index);
                 if (rasterRegion == null) {
                     regionIndex.put(index, new RasterRegion(x, y));

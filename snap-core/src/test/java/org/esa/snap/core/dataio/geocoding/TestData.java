@@ -79,6 +79,11 @@ public class TestData {
                 32, 36, 0.3, 0.5, 0.5, 1.0, 1.0);
     }
 
+    public static GeoRaster get_SYN_AOD() {
+        return new GeoRaster(S3_SYN.SYN_AOD_LON, S3_SYN.SYN_AOD_LAT, 25, 27,
+                25, 27, 0.3, 0.5, 0.5, 1.0, 1.0);
+    }
+
 
     public static double[] getSubSampled(int factor, double[] data, int dataWidth) {
         final int height = data.length / dataWidth;

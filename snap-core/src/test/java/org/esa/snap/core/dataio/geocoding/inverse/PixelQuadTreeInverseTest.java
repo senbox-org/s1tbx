@@ -95,6 +95,29 @@ public class PixelQuadTreeInverseTest {
     }
 
     @Test
+    public void testGeoPixelPos_SYN_AOD_fillValues() {
+        final GeoRaster geoRaster = TestData.get_SYN_AOD();
+
+        inverse.initialize(geoRaster, false, new PixelPos[0]);
+
+        PixelPos pixelPos = inverse.getPixelPos(new GeoPos(59.2421, -136.13405), null);
+        assertEquals(9.5, pixelPos.x, 1e-8);
+        assertEquals(1.5, pixelPos.y, 1e-8);
+
+        pixelPos = inverse.getPixelPos(new GeoPos(59.19238, -135.08754), null);
+        assertEquals(24.5, pixelPos.x, 1e-8);
+        assertEquals(1.5, pixelPos.y, 1e-8);
+
+        pixelPos = inverse.getPixelPos(new GeoPos(58.232895, -135.29134), null);
+        assertEquals(24.5, pixelPos.x, 1e-8);
+        assertEquals(26.5, pixelPos.y, 1e-8);
+
+        pixelPos = inverse.getPixelPos(new GeoPos(58.28423, -136.32547), null);
+        assertEquals(9.5, pixelPos.x, 1e-8);
+        assertEquals(26.5, pixelPos.y, 1e-8);
+    }
+
+    @Test
     public void testGetPixelPos_OLCI_interpolating() {
         inverse = new PixelQuadTreeInverse(true);
 
