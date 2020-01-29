@@ -31,6 +31,7 @@ import static junit.framework.TestCase.*;
 /**
  * Test Sentinel-1 QC Scrapping of orbit files
  */
+@Ignore("Obsolete scrapping of QC")
 public class TestSentinelOrbitRetrieval {
     private static final int STARTYEARS1A = 2017; //2014;
     private static final int STARTYEARS1B = 2017; //2015;
