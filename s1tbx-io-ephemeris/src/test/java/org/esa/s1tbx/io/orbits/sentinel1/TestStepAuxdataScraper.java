@@ -29,7 +29,7 @@ import static junit.framework.TestCase.*;
 /**
  * find files on step
  */
-@Ignore
+@Ignore("Used to scrape step auxdata")
 public class TestStepAuxdataScraper {
 
     @BeforeClass

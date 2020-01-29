@@ -23,7 +23,7 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * Test Sentinel-1 QC Scrapping of orbit files
  */
-@Ignore("Takes too long")
+@Ignore("Obsolete scrapper")
 public class TestQCScraper {
 
     @Test
