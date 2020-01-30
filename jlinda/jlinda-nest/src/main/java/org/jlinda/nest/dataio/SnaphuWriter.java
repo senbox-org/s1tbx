@@ -86,7 +86,7 @@ public class SnaphuWriter extends AbstractProductWriter {
         deleteRemovedNodes();
 
         // dump snaphu config file
-	    createSnaphuConfFile();
+        createSnaphuConfFile();
 
     }
 
@@ -464,10 +464,16 @@ public class SnaphuWriter extends AbstractProductWriter {
         parameters.setOutFileName(UNWRAPPED_PREFIX + phaseName + SNAPHU_IMAGE_EXTENSION);
 
         Window dataWindow = new Window(masterMetadata.getCurrentWindow());
+        int size = 0;
+        for (Band b : sourceProduct.getBands()){
+            if (b.getName().toLowerCase().contains("phase")){
+                size = b.getRasterWidth();
+            }
+        }
 
         /// initiate snaphuconfig
         try {
-            snaphuConfigFile = new SnaphuConfigFile(masterMetadata, slaveMetadata, masterOrbit, slaveOrbit, dataWindow, parameters);
+            snaphuConfigFile = new SnaphuConfigFile(masterMetadata, slaveMetadata, masterOrbit, slaveOrbit, dataWindow, parameters, size);
             snaphuConfigFile.buildConfFile();
         } catch (Exception e) {
             e.printStackTrace();
