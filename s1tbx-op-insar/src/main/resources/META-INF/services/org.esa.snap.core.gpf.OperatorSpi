@@ -7,6 +7,7 @@ org.esa.s1tbx.insar.gpf.GoldsteinFilterOp$Spi
 org.esa.s1tbx.insar.gpf.PhaseToElevationOp$Spi
 org.esa.s1tbx.insar.gpf.StackAveragingOp$Spi
 org.esa.s1tbx.insar.gpf.StackSplitWriter$Spi
+org.esa.s1tbx.insar.gpf.MultiMasterOp$Spi
 org.esa.s1tbx.insar.gpf.CoherenceOp$Spi
 org.esa.s1tbx.insar.gpf.InterferogramOp$Spi
 org.esa.s1tbx.insar.gpf.PCAOp$Spi

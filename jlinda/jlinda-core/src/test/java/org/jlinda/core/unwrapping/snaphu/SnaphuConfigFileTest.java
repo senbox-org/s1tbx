@@ -57,7 +57,7 @@ public class SnaphuConfigFileTest {
         parameters.setVerbosityFlag("true");
 
         /// initiate snaphuconfig
-        snaphuConfigFile = new SnaphuConfigFile(masterMetadata, slaveMetadata, masterOrbit, slaveOrbit, dataWindow, parameters);
+        snaphuConfigFile = new SnaphuConfigFile(masterMetadata, slaveMetadata, masterOrbit, slaveOrbit, dataWindow, parameters, 5142);
 
     }
 

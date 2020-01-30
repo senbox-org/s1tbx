@@ -1,0 +1,28 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="MultiMasterStackGenerator">
+    <operator>MultiMasterStackGenerator</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <outputFolder>/tmp/testing</outputFolder>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+            <displayPosition x="37.0" y="134.0"/>
+    </node>
+    <node id="MultiMasterStackGenerator">
+      <displayPosition x="140.0" y="133.0"/>
+    </node>
+  </applicationData>
+</graph>

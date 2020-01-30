@@ -111,6 +111,7 @@ public class PyRateHeaderWriter {
             writeHeaders(srcProduct, outputFiles);
         }
         // Write normal header as well
+        /*
         final String oldEOL = System.getProperty("line.separator");
         System.setProperty("line.separator", "\n");
         final FileOutputStream out = new FileOutputStream(outputFile);
@@ -154,6 +155,8 @@ public class PyRateHeaderWriter {
         } finally {
             System.setProperty("line.separator", oldEOL);
         }
+        */
+
 
 
     }

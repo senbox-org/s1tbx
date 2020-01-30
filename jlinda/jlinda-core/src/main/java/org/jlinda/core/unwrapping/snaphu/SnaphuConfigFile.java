@@ -22,6 +22,7 @@ public class SnaphuConfigFile {
     private Orbit masterOrbit;
     private Orbit slaveOrbit;
     private Window dataWindow;
+    private int size;
 
     private SnaphuParameters parameters;
 
@@ -34,13 +35,15 @@ public class SnaphuConfigFile {
     public SnaphuConfigFile(SLCImage masterSLC, SLCImage slaveSLC,
                             Orbit masterOrbit, Orbit slaveOrbit,
                             Window dataWindow,
-                            SnaphuParameters parameters) {
+                            SnaphuParameters parameters,
+                            int size) {
         this.masterSLC = masterSLC;
         this.slaveSLC = slaveSLC;
         this.masterOrbit = masterOrbit;
         this.slaveOrbit = slaveOrbit;
         this.dataWindow = dataWindow;
         this.parameters = parameters;
+        this.size = size;
     }
 
     public void setMasterSLC(SLCImage masterSLC) {
@@ -90,7 +93,8 @@ public class SnaphuConfigFile {
         final double baselineTotal = baseline.getB(pointSAR);
         final double baselineAlpha = baseline.getAlpha(pointSAR);
 
-        String DIMENSIONS = Long.toString(dataWindow.pixels() - 1); // account for zeros
+
+        String DIMENSIONS = Long.toString(size); // account for zeros
         String IN_FILE_NAME = parameters.phaseFileName;
 
         formattedConfig.format("# CONFIG FOR SNAPHU\n");

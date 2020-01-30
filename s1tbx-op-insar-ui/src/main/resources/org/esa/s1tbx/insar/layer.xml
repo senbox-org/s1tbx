@@ -56,6 +56,17 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="PCA"/>
             </file>
+            <file name="org-esa-s1tbx-insar-gpf-MultiMasterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Split stack into multiple masters"/>
+                <attr name="graphFile" stringvalue="coregistration/MultiMasterStackGenerator.xml"/>
+                <attr name="dialogTitle" stringvalue="Split stack into multiple masters"/>
+                <attr name="ShortDescription" stringvalue="Split stack into multiple masters"/>
+                <attr name="targetProductNameSuffix" stringvalue="_pca"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="MultiMaster"/>
+            </file>
             <file name="org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -178,6 +189,10 @@
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-StackSplit-Action.instance"/>
                         <attr name="position" intvalue="300"/>
                     </file>
+                    <file name="org-esa-s1tbx-insar-gpf-MultiMasterOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-MultiMasterOp-Action.instance"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
                 </folder>
             </folder>
             <folder name="Interferometric">
@@ -231,6 +246,10 @@
     </folder>
 
     <folder name="OperatorUIs">
+        <file name="org.esa.s1tbx.insar.gpf.ui.MultiMasterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.MultiMasterOpUI"/>
+            <attr name="operatorName" stringvalue="MultiMasterStackGenerator"/>
+        </file>
         <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.CreateStackOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.CreateStackOpUI"/>
             <attr name="operatorName" stringvalue="CreateStack"/>
