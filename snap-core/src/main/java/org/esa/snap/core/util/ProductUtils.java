@@ -22,31 +22,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.ColorPaletteDef;
-import org.esa.snap.core.datamodel.DensityPlot;
-import org.esa.snap.core.datamodel.FlagCoding;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.ImageInfo;
-import org.esa.snap.core.datamodel.IndexCoding;
-import org.esa.snap.core.datamodel.Mask;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNode;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.ProductVisitorAdapter;
-import org.esa.snap.core.datamodel.RGBChannelDef;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.Scene;
-import org.esa.snap.core.datamodel.SceneFactory;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.TimeCoding;
-import org.esa.snap.core.datamodel.VectorDataNode;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.layer.MaskLayerType;
 import org.esa.snap.core.util.geotiff.GeoCoding2GeoTIFFMetadata;
@@ -62,29 +38,13 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.PlanarImage;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.*;
+import java.awt.geom.*;
+import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -113,7 +73,6 @@ public class ProductUtils {
      * @param assignMissingImageInfos if {@code true}, it is ensured that to all {@code RasterDataNode}s a valid {@code ImageInfo} will be assigned.
      * @param pm                      The progress monitor.
      * @return image information
-     *
      * @throws IOException if an I/O error occurs
      * @since BEAM 4.2
      */
@@ -152,7 +111,6 @@ public class ProductUtils {
      * @param imageInfo the image info provides the information how to create the image
      * @param pm        a monitor to inform the user about progress
      * @return the created image
-     *
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo(ImageInfo)
      */
@@ -161,7 +119,7 @@ public class ProductUtils {
                                                final ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 1 || rasters.length == 2 || rasters.length == 3,
-                        "rasters.length == 1 || rasters.length == 2 || rasters.length == 3");
+                "rasters.length == 1 || rasters.length == 2 || rasters.length == 3");
 
         final RasterDataNode raster0 = rasters[0];
         ProductNodeGroup<Mask> maskGroup = raster0.getOverlayMaskGroup();
@@ -207,12 +165,12 @@ public class ProductUtils {
             // Compute indices into palette --> rgbSamples
             if (indexCoding == null) {
                 raster.quantizeRasterData(minSample,
-                                          maxSample,
-                                          1.0,
-                                          rgbSamples,
-                                          0,
-                                          numColorComponents,
-                                          ProgressMonitor.NULL);
+                        maxSample,
+                        1.0,
+                        rgbSamples,
+                        0,
+                        numColorComponents,
+                        ProgressMonitor.NULL);
                 indexValidator = raster::isPixelValid;
                 palette = ImageManager.createColorPalette(raster.getImageInfo());
                 pm.worked(50);
@@ -237,14 +195,14 @@ public class ProductUtils {
                     palette[palette.length - 1] = ImageInfo.NO_COLOR;
                 }
                 indexValidator = pixelIndex -> raster.isPixelValid(pixelIndex)
-                                               && (noDataIndex == 0 ||
-                                                   (rgbSamples[pixelIndex * numColorComponents] & 0xff) != noDataIndex);
+                        && (noDataIndex == 0 ||
+                        (rgbSamples[pixelIndex * numColorComponents] & 0xff) != noDataIndex);
                 pm.worked(50);
                 checkCanceled(pm);
             }
 
             convertPaletteToRgbSamples(palette, imageInfo.getNoDataColor(), numColorComponents, rgbSamples,
-                                       indexValidator);
+                    indexValidator);
             pm.worked(40);
             checkCanceled(pm);
 
@@ -334,26 +292,26 @@ public class ProductUtils {
                 final RasterDataNode raster = rasters[i];
                 pm.setSubTaskName(taskMessages[i]);
                 raster.quantizeRasterData(imageInfo.getRgbChannelDef().getMinDisplaySample(i),
-                                          imageInfo.getRgbChannelDef().getMaxDisplaySample(i),
-                                          imageInfo.getRgbChannelDef().getGamma(i),
-                                          rgbSamples,
-                                          numColorComponents - 1 - i,
-                                          numColorComponents,
-                                          ProgressMonitor.NULL);
+                        imageInfo.getRgbChannelDef().getMaxDisplaySample(i),
+                        imageInfo.getRgbChannelDef().getGamma(i),
+                        rgbSamples,
+                        numColorComponents - 1 - i,
+                        numColorComponents,
+                        ProgressMonitor.NULL);
                 pm.worked(30);
                 checkCanceled(pm);
             }
 
             final boolean validMaskUsed = rasters[0].isValidMaskUsed()
-                                          || rasters[1].isValidMaskUsed()
-                                          || (rasters.length > 2 && rasters[2].isValidMaskUsed());
+                    || rasters[1].isValidMaskUsed()
+                    || (rasters.length > 2 && rasters[2].isValidMaskUsed());
             boolean pixelValid;
             int pixelIndex = 0;
             for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
                 pixelValid = !validMaskUsed
-                             || rasters[0].isPixelValid(pixelIndex)
-                                && rasters[1].isPixelValid(pixelIndex)
-                                && (rasters.length < 3 || rasters[2].isPixelValid(pixelIndex));
+                        || rasters[0].isPixelValid(pixelIndex)
+                        && rasters[1].isPixelValid(pixelIndex)
+                        && (rasters.length < 3 || rasters[2].isPixelValid(pixelIndex));
                 if (pixelValid) {
                     if (numColorComponents == 4) {
                         rgbSamples[i] = (byte) 255;
@@ -393,11 +351,11 @@ public class ProductUtils {
         final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
         final int colorComponentCount = imageInfo.getColorComponentCount();
         final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
-                                                                 colorComponentCount * width,
-                                                                 colorComponentCount,
-                                                                 colorComponentCount == 4 ?
-                                                                 RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
-                                                                 null
+                colorComponentCount * width,
+                colorComponentCount,
+                colorComponentCount == 4 ?
+                        RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
+                null
         );
         return new BufferedImage(cm, wr, false, null);
     }
@@ -411,7 +369,6 @@ public class ProductUtils {
      * @param rasterDataNode the raster data node, must not be {@code null}
      * @param pm             a monitor to inform the user about progress
      * @return the color indexed image
-     *
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#getImageInfo()
      */
@@ -460,7 +417,6 @@ public class ProductUtils {
      * @param product the input product, must not be null
      * @param step    the step given in pixels
      * @return an array of geographical coordinates
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      */
     public static GeoPos[] createGeoBoundary(Product product, int step) {
@@ -478,7 +434,6 @@ public class ProductUtils {
      * @param region  the region rectangle in product pixel coordinates, can be null for entire product
      * @param step    the step given in pixels
      * @return an array of geographical coordinates
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createPixelBoundary(RasterDataNode, java.awt.Rectangle, int)
      */
@@ -488,17 +443,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates the geographical boundary of the given region within the given product and returns it as a list of
-     * geographical coordinates.
-     *
-     * @param product        the input product, must not be null
-     * @param region         the region rectangle in product pixel coordinates, can be null for entire product
-     * @param step           the step given in pixels
-     * @param usePixelCenter {@code true} if the pixel center should be used to create the boundary
-     * @return an array of geographical coordinates
-     *
-     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createPixelBoundary(Product, java.awt.Rectangle, int, boolean)
+     * @deprecated use {@link GeoUtils} instead
      */
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step,
                                              final boolean usePixelCenter) {
@@ -509,9 +454,9 @@ public class ProductUtils {
         }
         if (region == null) {
             region = new Rectangle(0,
-                                   0,
-                                   product.getSceneRasterWidth(),
-                                   product.getSceneRasterHeight());
+                    0,
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight());
         }
         final PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
         final ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
@@ -533,9 +478,9 @@ public class ProductUtils {
         }
         if (region == null) {
             region = new Rectangle(0,
-                                   0,
-                                   rasterDataNode.getRasterWidth(),
-                                   rasterDataNode.getRasterHeight());
+                    0,
+                    rasterDataNode.getRasterWidth(),
+                    rasterDataNode.getRasterHeight());
         }
         final PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
         final ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
@@ -547,6 +492,7 @@ public class ProductUtils {
         }
         return geoPoints.toArray(new GeoPos[geoPoints.size()]);
     }
+
     /**
      * Creates the geographical boundary of the given region within the given raster and returns it as a list of
      * geographical coordinates.
@@ -555,7 +501,6 @@ public class ProductUtils {
      * @param region the region rectangle in raster pixel coordinates, can be null for entire raster
      * @param step   the step given in pixels
      * @return an array of geographical coordinates
-     *
      * @throws IllegalArgumentException if raster is null or if the raster has no {@link GeoCoding} is null
      * @see #createPixelBoundary(RasterDataNode, java.awt.Rectangle, int)
      */
@@ -582,7 +527,6 @@ public class ProductUtils {
      *
      * @param product the input product
      * @return an array of shape objects
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createGeoBoundary(Product, int)
      */
@@ -595,7 +539,7 @@ public class ProductUtils {
     public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode) {
         final Rectangle rect = new Rectangle(0, 0, rasterDataNode.getRasterWidth(), rasterDataNode.getRasterHeight());
         final int step = Math.min(rect.width, rect.height) / 8;
-        return createGeoBoundaryPaths(rasterDataNode, rect, step > 0 ? step : 1,false);
+        return createGeoBoundaryPaths(rasterDataNode, rect, step > 0 ? step : 1, false);
     }
 
     /**
@@ -612,7 +556,6 @@ public class ProductUtils {
      * @param region  the region rectangle in product pixel coordinates, can be null for entire product
      * @param step    the step given in pixels
      * @return an array of shape objects
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createGeoBoundary(Product, java.awt.Rectangle, int)
      */
@@ -638,7 +581,6 @@ public class ProductUtils {
      * @param step           the step given in pixels
      * @param usePixelCenter {@code true} if the pixel center should be used to create the pathes
      * @return an array of shape objects
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createGeoBoundary(Product, java.awt.Rectangle, int, boolean)
      */
@@ -673,18 +615,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
-     * + 2 * (5 - 2) = 26 pixel positions.
-     * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
-     * co-ordinates.
-     * <p> This method delegates to {@link #createPixelBoundary(Product, java.awt.Rectangle, int, boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
-     * and the additional boolean parameter {@code usePixelCenter} is {@code true}.
-     *
-     * @param product the product
-     * @param rect    the source rectangle
-     * @param step    the mean distance from one pixel position to the other in the returned array
-     * @return the rectangular boundary
+     * @deprecated
      */
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step) {
         final boolean usePixelCenter = true;
@@ -692,63 +623,34 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
-     * + 2 * (5 - 2) = 26 pixel positions.
-     * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
-     * co-ordinates.
-     *
-     * @param product        the product
-     * @param rect           the source rectangle
-     * @param step           the mean distance from one pixel position to the other in the returned array
-     * @param usePixelCenter {@code true} if the pixel center should be used to create the boundary
-     * @return the rectangular boundary
+     * @deprecated
      */
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step,
                                                  final boolean usePixelCenter) {
         if (rect == null) {
             rect = new Rectangle(0,
-                                 0,
-                                 product.getSceneRasterWidth(),
-                                 product.getSceneRasterHeight());
+                    0,
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight());
         }
         return createRectBoundary(rect, step, usePixelCenter);
     }
 
     /**
-     * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
-     * + 2 * (5 - 2) = 26 pixel positions.
-     * <p>This method is used for an intermediate step when determining a raster boundary expressed in geographical
-     * co-ordinates.
-     *
-     * @param raster the raster
-     * @param rect   the source rectangle
-     * @param step   the mean distance from one pixel position to the other in the returned array
-     * @return the rectangular boundary
+     * @deprecated use {@link GeoUtils} instead
      */
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
         if (rect == null) {
             rect = new Rectangle(0,
-                                 0,
-                                 raster.getRasterWidth(),
-                                 raster.getRasterHeight());
+                    0,
+                    raster.getRasterWidth(),
+                    raster.getRasterHeight());
         }
         return createRectBoundary(rect, step);
     }
 
     /**
-     * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
-     * + 2 * (5 - 2) = 26 pixel positions.
-     * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
-     * co-ordinates.
-     * <p> This method delegates to {@link #createRectBoundary(java.awt.Rectangle, int, boolean) createRectBoundary(Rectangle, int, boolean)}
-     * and the additional boolean parameter {@code usePixelCenter} is {@code true}.
-     *
-     * @param rect the source rectangle
-     * @param step the mean distance from one pixel position to the other in the returned array
-     * @return the rectangular boundary
+     * @deprecated use {@link GeoUtils} instead
      */
     public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
         final boolean usePixelCenter = true;
@@ -756,18 +658,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
-     * + 2 * (5 - 2) = 26 pixel positions.
-     * <p>
-     * This method is used for an intermediate step when determining a product boundary expressed in geographical
-     * co-ordinates.
-     * <p>
-     *
-     * @param rect           the source rectangle
-     * @param step           the mean distance from one pixel position to the other in the returned array
-     * @param usePixelCenter {@code true} if the pixel center should be used
-     * @return the rectangular boundary
+     * @deprecated use {@link GeoUtils} instead
      */
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
         final double insetDistance = usePixelCenter ? 0.5 : 0.0;
@@ -920,7 +811,7 @@ public class ProductUtils {
         for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
             final Mask mask = sourceMaskGroup.get(i);
             if (!targetProduct.getMaskGroup().contains(mask.getName())
-                && mask.getImageType().canTransferMask(mask, targetProduct)) {
+                    && mask.getImageType().canTransferMask(mask, targetProduct)) {
                 mask.getImageType().transferMask(mask, targetProduct);
             }
         }
@@ -1028,7 +919,7 @@ public class ProductUtils {
      * Copies a virtual band and keeps it as a virtual band
      * The size of the {@code srcBand} is preserved .
      *
-     * @param target the target productto copy the virtual band to.
+     * @param target  the target productto copy the virtual band to.
      * @param srcBand the virtual band to copy.
      * @param name    the name of the new band.
      * @return the copy of the band.
@@ -1052,10 +943,10 @@ public class ProductUtils {
     public static VirtualBand copyVirtualBand(final Product target, final VirtualBand srcBand, final String name, boolean adaptToSceneRasterSize) {
 
         final VirtualBand virtBand = new VirtualBand(name,
-                                                     srcBand.getDataType(),
-                                                     adaptToSceneRasterSize ? target.getSceneRasterWidth() : srcBand.getRasterWidth(),
-                                                     adaptToSceneRasterSize ? target.getSceneRasterHeight() : srcBand.getRasterHeight(),
-                                                     srcBand.getExpression());
+                srcBand.getDataType(),
+                adaptToSceneRasterSize ? target.getSceneRasterWidth() : srcBand.getRasterWidth(),
+                adaptToSceneRasterSize ? target.getSceneRasterHeight() : srcBand.getRasterHeight(),
+                srcBand.getExpression());
         virtBand.setUnit(srcBand.getUnit());
         virtBand.setDescription(srcBand.getDescription());
         virtBand.setNoDataValue(srcBand.getNoDataValue());
@@ -1077,7 +968,6 @@ public class ProductUtils {
      * @param targetProduct   the target product.
      * @param copySourceImage whether the source image of the source band should be copied.
      * @return the copy of the band, or {@code null} if the sourceProduct does not contain a band with the given name.
-     *
      * @since BEAM 4.10
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct,
@@ -1097,7 +987,6 @@ public class ProductUtils {
      * @param targetProduct   the target product.
      * @param copySourceImage whether the source image of the source band should be copied.
      * @return the copy of the band, or {@code null} if the sourceProduct does not contain a band with the given name.
-     *
      * @since BEAM 4.10
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct,
@@ -1113,7 +1002,7 @@ public class ProductUtils {
             return null;
         }
         Band targetBand = new Band(targetBandName, sourceBand.getDataType(),
-                                   sourceBand.getRasterWidth(), sourceBand.getRasterHeight());
+                sourceBand.getRasterWidth(), sourceBand.getRasterHeight());
         targetProduct.addBand(targetBand);
         copyRasterDataNodeProperties(sourceBand, targetBand);
         if (copySourceImage) {
@@ -1198,6 +1087,7 @@ public class ProductUtils {
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+        ProductUtils.copyFlagBands(sourceProduct, targetProduct, true);
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
@@ -1286,7 +1176,7 @@ public class ProductUtils {
                 }
             }
             if (!targetRaster.isSourceImageSet()
-                && !sourceRaster.getImageToModelTransform().equals(targetRaster.getImageToModelTransform())) {
+                    && !sourceRaster.getImageToModelTransform().equals(targetRaster.getImageToModelTransform())) {
                 targetRaster.setImageToModelTransform(sourceRaster.getImageToModelTransform());
             }
         }
@@ -1363,12 +1253,12 @@ public class ProductUtils {
                 String name = sourceVDN.getName();
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
                 featureCollection = FeatureUtils.clipCollection(featureCollection,
-                                                                srcModelCrs,
-                                                                clipGeometry,
-                                                                DefaultGeographicCRS.WGS84,
-                                                                null,
-                                                                targetModelCrs,
-                                                                ProgressMonitor.NULL);
+                        srcModelCrs,
+                        clipGeometry,
+                        DefaultGeographicCRS.WGS84,
+                        null,
+                        targetModelCrs,
+                        ProgressMonitor.NULL);
                 if (!targetProduct.getVectorDataGroup().contains(name)) {
                     targetProduct.getVectorDataGroup().add(new VectorDataNode(name, featureCollection.getSchema()));
                 }
@@ -1389,8 +1279,8 @@ public class ProductUtils {
      */
     public static boolean canGetPixelPos(Product product) {
         return product != null
-               && product.getSceneGeoCoding() != null
-               && product.getSceneGeoCoding().canGetPixelPos();
+                && product.getSceneGeoCoding() != null
+                && product.getSceneGeoCoding().canGetPixelPos();
     }
 
     /**
@@ -1401,8 +1291,8 @@ public class ProductUtils {
      */
     public static boolean canGetPixelPos(final RasterDataNode raster) {
         return raster != null
-               && raster.getGeoCoding() != null
-               && raster.getGeoCoding().canGetPixelPos();
+                && raster.getGeoCoding() != null
+                && raster.getGeoCoding().canGetPixelPos();
     }
 
     /**
@@ -1421,7 +1311,6 @@ public class ProductUtils {
      * @param image      an image to be used as output image, if {@code null} a new image is created
      * @param pm         the progress monitor
      * @return the density plot image
-     *
      * @throws java.io.IOException when an error occurred.
      */
     public static BufferedImage createDensityPlotImage(final RasterDataNode raster1,
@@ -1441,24 +1330,24 @@ public class ProductUtils {
         Guardian.assertNotNull("raster2", raster2);
         Guardian.assertNotNull("background", background);
         if (raster1.getRasterWidth() != raster2.getRasterWidth()
-            || raster1.getRasterHeight() != raster2.getRasterHeight()) {
+                || raster1.getRasterHeight() != raster2.getRasterHeight()) {
             throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
         }
 
         image = getCompatibleBufferedImageForDensityPlot(image, width, height, background);
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         DensityPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
-                               height, pixelValues, pm);
+                height, pixelValues, pm);
         return image;
     }
 
     private static BufferedImage getCompatibleBufferedImageForDensityPlot(BufferedImage image, int width, int height,
                                                                           Color background) {
         if (image == null
-            || image.getWidth() != width
-            || image.getHeight() != height
-            || !(image.getColorModel() instanceof IndexColorModel)
-            || !(image.getRaster().getDataBuffer() instanceof DataBufferByte)) {
+                || image.getWidth() != width
+                || image.getHeight() != height
+                || !(image.getColorModel() instanceof IndexColorModel)
+                || !(image.getRaster().getDataBuffer() instanceof DataBufferByte)) {
             final int palSize = 256;
             final byte[] r = new byte[palSize];
             final byte[] g = new byte[palSize];
@@ -1481,9 +1370,9 @@ public class ProductUtils {
                 a[i] = (byte) 255;
             }
             image = new BufferedImage(width,
-                                      height,
-                                      BufferedImage.TYPE_BYTE_INDEXED,
-                                      new IndexColorModel(8, palSize, r, g, b, a));
+                    height,
+                    BufferedImage.TYPE_BYTE_INDEXED,
+                    new IndexColorModel(8, palSize, r, g, b, a));
         }
         return image;
     }
@@ -1495,7 +1384,6 @@ public class ProductUtils {
      * @param overlayBIm the source image which is used as base image for all the overlays.
      * @param pm         a monitor to inform the user about progress
      * @return the modified given overlayBImm which contains all the activated masks.
-     *
      * @see RasterDataNode#getOverlayMaskGroup()
      */
 
@@ -1527,7 +1415,7 @@ public class ProductUtils {
         final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding != null) {
             final PixelPos centerPixelPos = new PixelPos(0.5 * product.getSceneRasterWidth() + 0.5,
-                                                         0.5 * product.getSceneRasterHeight() + 0.5);
+                    0.5 * product.getSceneRasterHeight() + 0.5);
             return geoCoding.getGeoPos(centerPixelPos, null);
         }
         return null;
@@ -1540,7 +1428,6 @@ public class ProductUtils {
      * @param polygon a geographical, closed polygon
      * @return 0 if normalizing has not been applied , -1 if negative normalizing has been applied, 1 if positive
      * normalizing has been applied, 2 if positive and negative normalising has been applied
-     *
      * @see #denormalizeGeoPolygon(GeoPos[])
      */
     public static int normalizeGeoPolygon(GeoPos[] polygon) {
@@ -1706,7 +1593,7 @@ public class ProductUtils {
         final Dimension preferredTileSize = sourceProduct.getPreferredTileSize();
         if (preferredTileSize != null) {
             final Rectangle targetRect = new Rectangle(targetProduct.getSceneRasterWidth(),
-                                                       targetProduct.getSceneRasterHeight());
+                    targetProduct.getSceneRasterHeight());
             final Rectangle tileRect = new Rectangle(preferredTileSize).intersection(targetRect);
             targetProduct.setPreferredTileSize(tileRect.width, tileRect.height);
         }
@@ -1861,7 +1748,7 @@ public class ProductUtils {
                 if (validExpr != null && !product.isCompatibleBandArithmeticExpression(validExpr)) {
                     raster.setValidPixelExpression(null);
                     String pattern = "Valid pixel expression ''{0}'' removed from output {1} ''{2}'' " +
-                                     "because it is not applicable.";   /*I18N*/
+                            "because it is not applicable.";   /*I18N*/
                     messages.add(MessageFormat.format(pattern, validExpr, type, raster.getName()));
                 }
             }
@@ -1988,7 +1875,7 @@ public class ProductUtils {
                 destGeoCoding.getGeoPos(pixelPos, geoPos);
                 sourceGeoCoding.getPixelPos(geoPos, pixelPos);
                 if (pixelPos.x >= 0.0 && pixelPos.x < sourceWidth
-                    && pixelPos.y >= 0.0 && pixelPos.y < sourceHeight) {
+                        && pixelPos.y >= 0.0 && pixelPos.y < sourceHeight) {
                     pixelCoords[coordIndex] = new PixelPos(pixelPos.x, pixelPos.y);
                 } else {
                     pixelCoords[coordIndex] = null;
@@ -2007,7 +1894,6 @@ public class ProductUtils {
      * order:<br> &nbsp;&nbsp;&nbsp;&nbsp;[0] - the minimum value<br>&nbsp;&nbsp;&nbsp;&nbsp;[1] - the maximum
      * value<br><br>or {@code null} if no minimum or maximum can be retrieved because there given array is
      * empty.
-     *
      * @throws IllegalArgumentException if the given pixelPositions are {@code null}.
      */
     public static double[] computeMinMaxY(PixelPos[] pixelPositions) {
@@ -2041,10 +1927,10 @@ public class ProductUtils {
                                                  final double defaultNoDataValue,
                                                  final Map<Band, RasterDataNode> addedRasterDataNodes) {
         copyBandsForGeomTransform(sourceProduct,
-                                  targetProduct,
-                                  false,
-                                  defaultNoDataValue,
-                                  addedRasterDataNodes);
+                targetProduct,
+                false,
+                defaultNoDataValue,
+                addedRasterDataNodes);
     }
 
     /**
@@ -2090,21 +1976,21 @@ public class ProductUtils {
                 final Band targetBand;
                 if (sourceBand instanceof VirtualBand) {
                     targetBand = new VirtualBand(sourceBand.getName(),
-                                                 sourceBand.getDataType(),
-                                                 targetProduct.getSceneRasterWidth(),
-                                                 targetProduct.getSceneRasterHeight(),
-                                                 ((VirtualBand) sourceBand).getExpression());
+                            sourceBand.getDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight(),
+                            ((VirtualBand) sourceBand).getExpression());
                 } else if (sourceBand.isScalingApplied()) {
                     targetBand = new Band(sourceBand.getName(),
-                                          ProductData.TYPE_FLOAT32,
-                                          targetProduct.getSceneRasterWidth(),
-                                          targetProduct.getSceneRasterHeight());
+                            ProductData.TYPE_FLOAT32,
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                     targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
                 } else {
                     targetBand = new Band(sourceBand.getName(),
-                                          sourceBand.getDataType(),
-                                          targetProduct.getSceneRasterWidth(),
-                                          targetProduct.getSceneRasterHeight());
+                            sourceBand.getDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                 }
                 targetBand.setUnit(sourceBand.getUnit());
                 if (sourceBand.getDescription() != null) {
@@ -2153,9 +2039,9 @@ public class ProductUtils {
             for (final TiePointGrid sourceGrid : sourceProduct.getTiePointGrids()) {
                 if (sourceGrid.getGeoCoding() != null) {
                     Band targetBand = new Band(sourceGrid.getName(),
-                                               sourceGrid.getGeophysicalDataType(),
-                                               targetProduct.getSceneRasterWidth(),
-                                               targetProduct.getSceneRasterHeight());
+                            sourceGrid.getGeophysicalDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                     targetBand.setUnit(sourceGrid.getUnit());
                     if (sourceGrid.getDescription() != null) {
                         targetBand.setDescription(sourceGrid.getDescription());
@@ -2362,8 +2248,8 @@ public class ProductUtils {
      */
     public static boolean areRastersEqualInSize(RasterDataNode... rasters) {
         return rasters.length < 2 ||
-               areRastersEqualInSize(rasters[0].getRasterWidth(),
-                                     rasters[0].getRasterHeight(), rasters);
+                areRastersEqualInSize(rasters[0].getRasterWidth(),
+                        rasters[0].getRasterHeight(), rasters);
     }
 
     /**
