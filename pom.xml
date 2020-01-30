@@ -35,6 +35,7 @@
 		<s1tbx.version>8.0.0-SNAPSHOT</s1tbx.version>
         <rstb.version>8.0.0-SNAPSHOT</rstb.version>
         <jlinda.version>8.0.0-SNAPSHOT</jlinda.version>
+		<iceye.version>2.0.7</iceye.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <buildDate>${maven.build.timestamp}</buildDate>
         

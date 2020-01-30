@@ -161,7 +161,7 @@
 		<dependency>
             <groupId>com.iceye.esa.snap</groupId>
             <artifactId>iceye-slc-reader</artifactId>
-            <version>1.0.0</version>
+            <version>${iceye.version}</version>
         </dependency>
 
         <dependency>
