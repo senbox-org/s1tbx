@@ -34,12 +34,13 @@ public class S1TBXTests {
     public static final String PROPERTY_NAME_S1_DATA_DIR = "s1tbx.tests.data.dir";
     public final static String inputPathProperty = System.getProperty(PROPERTY_NAME_S1_DATA_DIR,"/data/ssd/testData/s1tbx/");
 
+    public final static String sep = File.separator;
+    public final static String TEST_ROOT = inputPathProperty + sep +"SAR" + sep;
 
     private static final String S1TBX_TESTS = "s1tbx.tests";
 
     private static final Preferences testPreferences = Config.instance(S1TBX_TESTS).load().preferences();
 
-    public final static String sep = File.separator;
     public static String input = "/data/ssd/testData/s1tbx/";
     static {
         File file = new File(input);
@@ -60,6 +61,7 @@ public class S1TBXTests {
     public final static File[] rootPathsALOS = loadFilePath("test.rootPathALOS", inputSAR + "ALOS");
     public final static File[] rootPathsALOS2 = loadFilePath("test.rootPathALOS2", inputSAR + "ALOS2");
     public final static File[] rootPathsCosmoSkymed = loadFilePath("test.rootPathCosmoSkymed", inputSAR + "Cosmo");
+    public final static File[] rootPathsIceye = loadFilePath("test.rootPathIceye", inputSAR + "Iceye");
 
     public static int subsetX = 0;
     public static int subsetY = 0;
