@@ -33,11 +33,22 @@ public class GeoUtils {
         }
 
         final PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
-        final ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
+        ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
+        boolean calculateInsets = false;
         for (final PixelPos pixelPos : points) {
             final GeoPos gcGeoPos = gc.getGeoPos(pixelPos, null);
+            if (!gcGeoPos.isValid()) {
+                calculateInsets = true;
+                break;
+            }
             geoPoints.add(gcGeoPos);
         }
+
+        if (calculateInsets) {
+            geoPoints.clear();
+            geoPoints = createInsetsGeoBoundary(gc, step, region, usePixelCenter);
+        }
+
         return geoPoints.toArray(new GeoPos[0]);
     }
 
@@ -104,6 +115,195 @@ public class GeoUtils {
     public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
         final boolean usePixelCenter = true;
         return createRectBoundary(rect, step, usePixelCenter);
+    }
+
+    static ArrayList<GeoPos> createInsetsGeoBoundary(GeoCoding gc, int step, Rectangle rect, boolean usePixelCenter) {
+        final double insetDistance = usePixelCenter ? 0.5 : 0.0;
+        int xStart = rect.x;
+        int yStart = rect.y;
+        final int w = usePixelCenter ? rect.width - 1 : rect.width;
+        final int h = usePixelCenter ? rect.height - 1 : rect.height;
+        int xEnd = xStart + w;
+        int yEnd = yStart + h;
+
+        final ArrayList<GeoPos> geoPosList = new ArrayList<>();
+
+        final int validYMin = getFirstValid_Y(gc, insetDistance, xStart, yStart, xEnd, yEnd);
+        if (validYMin >= yEnd) {
+            return geoPosList;  // empty list, we do not have valid geo positions within the rectangle tb 2020-01-31
+        }
+        final int validYMax = getLastValid_Y(gc, insetDistance, xStart, yStart, xEnd, yEnd);
+        if (validYMax <= validYMin) {
+            return geoPosList;  // empty list, we do not have valid geo positions within the rectangle tb 2020-01-31
+        }
+
+        yStart = validYMin;
+        yEnd = validYMax;
+
+        final int validXMin = getFirstValid_X(gc, insetDistance, xStart, yStart, xEnd, yEnd);
+        if (validXMin >= xEnd) {
+            return geoPosList; // empty list, we do not have valid geo positions within the rectangle tb 2020-01-31
+        }
+        final int validXMax = getLastValid_X(gc, insetDistance, xStart, yStart, xEnd, yEnd);
+        if (validXMax <= validXMin) {
+            return geoPosList; // empty list, we do not have valid geo positions within the rectangle tb 2020-01-31
+        }
+
+        xStart = validXMin;
+        xEnd = validXMax;
+
+        PixelPos pixelPos;
+        GeoPos geoPos;
+
+        int lastX = 0;
+        for (int x = xStart; x < xEnd; x += step) {
+            final double xPos = x + insetDistance;
+            pixelPos = new PixelPos(xPos, yStart + insetDistance);
+            geoPos = gc.getGeoPos(pixelPos, null);
+            if (geoPos.isValid()) {
+                geoPosList.add(geoPos);
+            } else {
+                // increase y until we have a valid pixel.
+                for (int y = yStart + 1; y < yEnd; y++) {
+                    pixelPos = new PixelPos(xPos, y + insetDistance);
+                    geoPos = gc.getGeoPos(pixelPos, null);
+                    if (geoPos.isValid()) {
+                        geoPosList.add(geoPos);
+                        break;
+                    }
+                }
+            }
+            lastX = x;
+        }
+
+        int lastY = 0;
+        for (int y = yStart; y < yEnd; y += step) {
+            final double yPos = y + insetDistance;
+            pixelPos = new PixelPos(xEnd, yPos);
+            geoPos = gc.getGeoPos(pixelPos, null);
+            if (geoPos.isValid()) {
+                geoPosList.add(geoPos);
+            } else {
+                // decrease x until we have a valid pixel
+                for (int x = xEnd; x >= xStart; x--) {
+                    pixelPos = new PixelPos(x, yPos);
+                    geoPos = gc.getGeoPos(pixelPos, null);
+                    if (geoPos.isValid()) {
+                        geoPosList.add(geoPos);
+                        break;
+                    }
+                }
+            }
+            lastY = y;
+        }
+
+        // add corner pixel, if it is a valid one
+        pixelPos = new PixelPos(xEnd, yEnd);
+        geoPos = gc.getGeoPos(pixelPos, null);
+        if (geoPos.isValid()) {
+            geoPosList.add(geoPos);
+        }
+
+        for (int x = lastX; x > xStart; x -= step) {
+            final double xPos = x + insetDistance;
+            pixelPos = new PixelPos(xPos, yEnd + insetDistance);
+            geoPos = gc.getGeoPos(pixelPos, null);
+            if (geoPos.isValid()) {
+                geoPosList.add(geoPos);
+            } else {
+                // decrease y until we have a valid pixel.
+                for (int y = yEnd -1; y >= yStart; y--) {
+                    pixelPos = new PixelPos(xPos, y + insetDistance);
+                    geoPos = gc.getGeoPos(pixelPos, null);
+                    if (geoPos.isValid()) {
+                        geoPosList.add(geoPos);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // add corner pixel, if it is a valid one
+        pixelPos = new PixelPos(xStart, yEnd);
+        geoPos = gc.getGeoPos(pixelPos, null);
+        if (geoPos.isValid()) {
+            geoPosList.add(geoPos);
+        }
+
+        for (int y = lastY; y > yStart; y -= step) {
+            final double yPos = y + insetDistance;
+            pixelPos = new PixelPos(xStart + insetDistance, yPos);
+            geoPos = gc.getGeoPos(pixelPos, null);
+            if (geoPos.isValid()) {
+                geoPosList.add(geoPos);
+            }else {
+                // increase x until we have a valid pixel
+                for (int x = xStart; x < xEnd; x++) {
+                    pixelPos = new PixelPos(x + insetDistance, yPos);
+                    geoPos = gc.getGeoPos(pixelPos, null);
+                    if (geoPos.isValid()) {
+                        geoPosList.add(geoPos);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return geoPosList;
+    }
+
+    private static int getFirstValid_Y(GeoCoding gc, double insetDistance, int xStart, int yStart, int xEnd, int yEnd) {
+        for (int y = yStart; y < yEnd; y++) {
+            for (int x = xStart; x < xEnd; x++) {
+                final PixelPos pixelPos = new PixelPos(x + insetDistance, y + insetDistance);
+                final GeoPos geoPos = gc.getGeoPos(pixelPos, null);
+                if (geoPos.isValid()) {
+                    return y;
+                }
+            }
+        }
+        return yEnd;
+    }
+
+    private static int getLastValid_Y(GeoCoding gc, double insetDistance, int xStart, int yStart, int xEnd, int yEnd) {
+        for (int y = yEnd; y >= yStart; y--) {
+            for (int x = xStart; x < xEnd; x++) {
+                final PixelPos pixelPos = new PixelPos(x + insetDistance, y + insetDistance);
+                final GeoPos geoPos = gc.getGeoPos(pixelPos, null);
+                if (geoPos.isValid()) {
+                    return y;
+                }
+            }
+        }
+        return yStart;
+    }
+
+    private static int getFirstValid_X(GeoCoding gc, double insetDistance, int xStart, int yStart, int xEnd, int yEnd) {
+        for (int x = xStart; x < xEnd; x++) {
+            for (int y = yStart; y < yEnd; y++) {
+                final PixelPos pixelPos = new PixelPos(x + insetDistance, y + insetDistance);
+                final GeoPos geoPos = gc.getGeoPos(pixelPos, null);
+                if (geoPos.isValid()) {
+                    return x;
+                }
+            }
+        }
+
+        return xEnd;
+    }
+
+    private static int getLastValid_X(GeoCoding gc, double insetDistance, int xStart, int yStart, int xEnd, int yEnd) {
+        for (int x = xEnd; x >= xStart; x--) {
+            for (int y = yStart; y < yEnd; y++) {
+                final PixelPos pixelPos = new PixelPos(x + insetDistance, y + insetDistance);
+                final GeoPos geoPos = gc.getGeoPos(pixelPos, null);
+                if (geoPos.isValid()) {
+                    return x;
+                }
+            }
+        }
+
+        return xEnd;
     }
 
     /**
