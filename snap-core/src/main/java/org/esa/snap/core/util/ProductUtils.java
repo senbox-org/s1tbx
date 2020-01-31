@@ -412,12 +412,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates the geographical boundary of the given product and returns it as a list of geographical coordinates.
-     *
-     * @param product the input product, must not be null
-     * @param step    the step given in pixels
-     * @return an array of geographical coordinates
-     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
+     * @deprecated use {@link GeoUtils} instead
      */
     public static GeoPos[] createGeoBoundary(Product product, int step) {
         final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
@@ -425,17 +420,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates the geographical boundary of the given region within the given product and returns it as a list of
-     * geographical coordinates.
-     * <p> This method delegates to {@link #createGeoBoundary(Product, java.awt.Rectangle, int, boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
-     * and the additional boolean parameter {@code usePixelCenter} is {@code true}.
-     *
-     * @param product the input product, must not be null
-     * @param region  the region rectangle in product pixel coordinates, can be null for entire product
-     * @param step    the step given in pixels
-     * @return an array of geographical coordinates
-     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createPixelBoundary(RasterDataNode, java.awt.Rectangle, int)
+     * @deprecated no replacement
      */
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
@@ -469,6 +454,9 @@ public class ProductUtils {
         return geoPoints.toArray(new GeoPos[geoPoints.size()]);
     }
 
+    /**
+     * @deprecated use {@link GeoUtils} instead
+     */
     public static GeoPos[] createGeoBoundary(RasterDataNode rasterDataNode, Rectangle region, int step,
                                              final boolean usePixelCenter) {
         Guardian.assertNotNull("rasterDataNode", rasterDataNode);
@@ -494,15 +482,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates the geographical boundary of the given region within the given raster and returns it as a list of
-     * geographical coordinates.
-     *
-     * @param raster the input raster, must not be null
-     * @param region the region rectangle in raster pixel coordinates, can be null for entire raster
-     * @param step   the step given in pixels
-     * @return an array of geographical coordinates
-     * @throws IllegalArgumentException if raster is null or if the raster has no {@link GeoCoding} is null
-     * @see #createPixelBoundary(RasterDataNode, java.awt.Rectangle, int)
+     * @deprecated use {@link GeoUtils} instead
      */
     public static GeoPos[] createGeoBoundary(RasterDataNode raster, Rectangle region, int step) {
         Guardian.assertNotNull("raster", raster);

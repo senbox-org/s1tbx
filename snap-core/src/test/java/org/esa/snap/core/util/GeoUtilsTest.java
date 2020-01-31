@@ -271,6 +271,33 @@ public class GeoUtilsTest {
     }
 
     @Test
+    public void testCreateGeoBoundary_fromRasterDataNode() {
+        final TestGeoCoding geoCoding = new TestGeoCoding(SL_LON, SL_LAT, 8);
+
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+        when(dataNode.getGeoCoding()).thenReturn(geoCoding);
+        when(dataNode.getRasterWidth()).thenReturn(8);
+        when(dataNode.getRasterHeight()).thenReturn(10);
+
+        final GeoPos[] geoBoundary = GeoUtils.createGeoBoundary(dataNode, null, 5, true);
+        assertEquals(8, geoBoundary.length);
+
+        assertEquals(-75.94413850836722, geoBoundary[1].lon, 1e-8);
+        assertEquals(19.25552191075319, geoBoundary[1].lat, 1e-8);
+
+        assertEquals(-76.25865930197398, geoBoundary[4].lon, 1e-8);
+        assertEquals(19.284073556222438, geoBoundary[4].lat, 1e-8);
+
+        assertEquals(-75.20218073710458, geoBoundary[7].lon, 1e-8);
+        assertEquals(19.423577996240176, geoBoundary[7].lat, 1e-8);
+
+        verify(dataNode, times(1)).getGeoCoding();
+        verify(dataNode, times(1)).getRasterWidth();
+        verify(dataNode, times(1)).getRasterHeight();
+        verifyNoMoreInteractions(dataNode);
+    }
+
+    @Test
     public void testCreateGeoBoundary_noGeoCoding() {
         final Product slstrProduct = createSLSTR();
         slstrProduct.setSceneGeoCoding(null);
