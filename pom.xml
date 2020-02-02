@@ -38,9 +38,9 @@
         <iceye.version>8.0.0-SNAPSHOT</iceye.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <buildDate>${maven.build.timestamp}</buildDate>
-
-        <hdf.version>2.7.1</hdf.version>
-        <netcdf.version>4.3.22</netcdf.version>
+        
+		<hdf.version>2.7.1</hdf.version>
+        <netcdf.version>5.3.1</netcdf.version>
         <jblas.version>1.2.4</jblas.version>
         <junit.version>4.12</junit.version>
     </properties>
@@ -282,7 +282,7 @@
 
 			<dependency>
                 <groupId>edu.ucar</groupId>
-                <artifactId>netcdf</artifactId>
+                <artifactId>netcdfAll</artifactId>
                 <version>${netcdf.version}</version>
             </dependency>
 
@@ -292,12 +292,14 @@
                 <version>${snap.version}</version>
             </dependency>
 			
+			<!--
 			<dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
                 <version>1.4.1.1</version>
             </dependency>
-			
+            -->
+
             <!-- NetBeans Modules -->
 
             <dependency>
@@ -425,7 +427,7 @@
                 <artifactId>commons-math3</artifactId>
                 <version>3.6.1</version>
             </dependency>
-			
+
 			<dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -456,7 +458,7 @@
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
-			
+
 			<!-- JSoup -->
 
             <dependency>

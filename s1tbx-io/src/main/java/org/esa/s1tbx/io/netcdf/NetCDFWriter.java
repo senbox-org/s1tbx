@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.sun.tools.javac.util.List;
 import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.datamodel.Band;
@@ -38,7 +39,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.Group;
-import ucar.nc2.NetcdfFileWriteable;
+import ucar.nc2.NetcdfFileWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +50,7 @@ import java.util.Map;
 public class NetCDFWriter extends AbstractProductWriter {
 
     private File outputFile = null;
-    private NetcdfFileWriteable netCDFWriteable = null;
+    private NetcdfFileWriter netCDFWriteable = null;
 
     /**
      * Construct a new instance of a product writer for the given product writer plug-in.
@@ -113,26 +114,26 @@ public class NetCDFWriter extends AbstractProductWriter {
 
         final Product product = getSourceProduct();
 
-        netCDFWriteable = NetcdfFileWriteable.createNew(outputFile.getAbsolutePath(), true);
+        netCDFWriteable = NetcdfFileWriter.createNew(outputFile.getAbsolutePath(), true);
 
 
         netCDFWriteable.addDimension(NetcdfConstants.LON_VAR_NAMES[0], product.getSceneRasterWidth());
         netCDFWriteable.addDimension(NetcdfConstants.LAT_VAR_NAMES[0], product.getSceneRasterHeight());
 
-        final Group rootGroup = netCDFWriteable.getRootGroup();
+        final Group rootGroup = netCDFWriteable.getNetcdfFile().getRootGroup();
         netCDFWriteable.addVariable(NetcdfConstants.LAT_VAR_NAMES[0], DataType.FLOAT,
-                                    new Dimension[]{rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0])});
+                                    List.from(new Dimension[]{rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0])}));
         netCDFWriteable.addVariableAttribute(NetcdfConstants.LAT_VAR_NAMES[0], "units", "degrees_north (+N/-S)");
         netCDFWriteable.addVariable(NetcdfConstants.LON_VAR_NAMES[0], DataType.FLOAT,
-                                    new Dimension[]{rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])});
+                List.from(new Dimension[]{rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])}));
         netCDFWriteable.addVariableAttribute(NetcdfConstants.LON_VAR_NAMES[0], "units", "degrees_east (+E/-W)");
 
         for (Band band : product.getBands()) {
             final String name = StringUtils.createValidName(band.getName(), new char[]{'_'}, '_');
             netCDFWriteable.addVariable(name, DataType.DOUBLE,
-                                        new Dimension[]{rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0]),
-                                                rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])}
-            );
+                    List.from(new Dimension[]{rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0]),
+                            rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])}
+            ));
             if (band.getDescription() != null)
                 netCDFWriteable.addVariableAttribute(name, "description", band.getDescription());
             if (band.getUnit() != null)
@@ -144,7 +145,7 @@ public class NetCDFWriter extends AbstractProductWriter {
             netCDFWriteable.addDimension(name + 'x', tpg.getGridWidth());
             netCDFWriteable.addDimension(name + 'y', tpg.getGridHeight());
             netCDFWriteable.addVariable(name, DataType.FLOAT,
-                                        new Dimension[]{rootGroup.findDimension(name + 'y'), rootGroup.findDimension(name + 'x')});
+                    List.from(new Dimension[]{rootGroup.findDimension(name + 'y'), rootGroup.findDimension(name + 'x')}));
             if (tpg.getDescription() != null)
                 netCDFWriteable.addVariableAttribute(name, "description", tpg.getDescription());
             if (tpg.getUnit() != null)
@@ -168,15 +169,20 @@ public class NetCDFWriter extends AbstractProductWriter {
         final float[] latData = getLatData(product, latGridName);
         final float[] lonData = getLonData(product, lonGridName);
         if (latData != null && lonData != null) {
-            final Array latNcArray = Array.factory(latData);
-            final Array lonNcArray = Array.factory(lonData);
+            final Array latNcArray = Array.factory(DataType.FLOAT, new int[] { latData.length }, latData);
+            final Array lonNcArray = Array.factory(DataType.FLOAT, new int[] { lonData.length }, lonData);
 
             try {
                 netCDFWriteable.write(NetcdfConstants.LAT_VAR_NAMES[0], latNcArray);
                 netCDFWriteable.write(NetcdfConstants.LON_VAR_NAMES[0], lonNcArray);
 
                 for (TiePointGrid tpg : product.getTiePointGrids()) {
-                    final Array tpgArray = Array.factory(getTiePointGridData(tpg));
+                    final float[][] tiePointGridData = getTiePointGridData(tpg);
+                    final int[] tiePointShape = new int[tiePointGridData.length];
+                    for (int i=0; i<tiePointGridData.length; ++i) {
+                        tiePointShape[i] = tiePointGridData[i].length;
+                    }
+                    final Array tpgArray = Array.factory(DataType.FLOAT, tiePointShape, tiePointGridData);
                     netCDFWriteable.write(tpg.getName(), tpgArray);
                 }
             } catch (InvalidRangeException rangeE) {
@@ -267,7 +273,7 @@ public class NetCDFWriter extends AbstractProductWriter {
     private void addMetadata(final Product product) {
 
         final MetadataElement rootElem = product.getMetadataRoot();
-        final Group rootGroup = netCDFWriteable.getRootGroup();
+        final Group rootGroup = netCDFWriteable.getNetcdfFile().getRootGroup();
 
         addElements(rootElem, rootGroup);
         addAttributes(rootElem, rootGroup);
@@ -301,12 +307,17 @@ public class NetCDFWriter extends AbstractProductWriter {
                 subElement.setName(subElement.getName() + "." + cnt);
             }
 
-            final Group newGroup = new Group(netCDFWriteable, parentGroup, subElement.getName());
+            final Group newGroup = new Group(netCDFWriteable.getNetcdfFile(), parentGroup, subElement.getName());
             addAttributes(subElement, newGroup);
             // recurse
             addElements(subElement, newGroup);
 
-            netCDFWriteable.addGroup(parentGroup, newGroup);
+            //netCDFWriteable.addGroup(parentGroup, newGroup);
+            if (parentGroup != null) {
+                parentGroup.addGroup(newGroup);
+            } else {
+                netCDFWriteable.getNetcdfFile().getRootGroup().addGroup(newGroup);
+            }
         }
     }
 
