@@ -25,7 +25,7 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>7.0.2</snap.version>
+        <snap.version>7.0.4-SNAPSHOT</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
@@ -40,7 +40,7 @@
         <buildDate>${maven.build.timestamp}</buildDate>
         
 		<hdf.version>2.7.1</hdf.version>
-        <netcdf.version>4.3.22</netcdf.version>	
+        <netcdf.version>5.0.0-beta6</netcdf.version>
         <jblas.version>1.2.4</jblas.version>
         <junit.version>4.12</junit.version>
 	</properties>
@@ -283,7 +283,7 @@
 
 			<dependency>
                 <groupId>edu.ucar</groupId>
-                <artifactId>netcdf</artifactId>
+                <artifactId>netcdfAll</artifactId>
                 <version>${netcdf.version}</version>
             </dependency>
 
@@ -293,11 +293,13 @@
                 <version>${snap.version}</version>
             </dependency>
 			
+			<!--
 			<dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
                 <version>1.4.1.1</version>
             </dependency>
+            -->
 			
             <!-- NetBeans Modules -->
 
