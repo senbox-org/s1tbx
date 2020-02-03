@@ -198,14 +198,7 @@ public class MultiMasterOp extends Operator{
 
         }
         te.complete();
-        File paths = new File(outputFolder + "/newProducts.txt");
-        FileWriter fw = new FileWriter(paths);
-        BufferedWriter w = new BufferedWriter(fw);
-        for (String path : writtenProductPaths){
-            w.write(path + "\n");
-        }
-        w.close();
-        fw.close();
+
     }
     private int strDatetoInt(String date){
         String [] tmp = date.split("-");
