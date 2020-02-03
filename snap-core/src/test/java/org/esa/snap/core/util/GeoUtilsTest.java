@@ -7,9 +7,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.*;
+import java.awt.geom.*;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class GeoUtilsTest {
@@ -298,6 +299,40 @@ public class GeoUtilsTest {
     }
 
     @Test
+    public void testCreateGeoBoundary_fromRasterDataNode_with_region() {
+        final TestGeoCoding geoCoding = new TestGeoCoding(SL_LON, SL_LAT, 8);
+
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+        when(dataNode.getGeoCoding()).thenReturn(geoCoding);
+        when(dataNode.getRasterWidth()).thenReturn(8);
+        when(dataNode.getRasterHeight()).thenReturn(10);
+
+        final GeoPos[] geoBoundary = GeoUtils.createGeoBoundary(dataNode, new Rectangle(2, 2, 4, 5), 5);
+        assertEquals(4, geoBoundary.length);
+
+        assertEquals(-75.95395072128582, geoBoundary[2].lon, 1e-8);
+        assertEquals(19.30822057502671, geoBoundary[2].lat, 1e-8);
+
+        assertEquals(-75.50398043901724, geoBoundary[3].lon, 1e-8);
+        assertEquals(19.38306676275105, geoBoundary[3].lat, 1e-8);
+
+        verify(dataNode, times(1)).getGeoCoding();
+        verifyNoMoreInteractions(dataNode);
+    }
+
+    @Test
+    public void testCreateGeoBoundary_fromRasterDataNode_no_geoCoding() {
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+        when(dataNode.getGeoCoding()).thenReturn(null);
+
+        try {
+            GeoUtils.createGeoBoundary(dataNode, null, 5, true);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
     public void testCreateGeoBoundary_noGeoCoding() {
         final Product slstrProduct = createSLSTR();
         slstrProduct.setSceneGeoCoding(null);
@@ -309,6 +344,124 @@ public class GeoUtilsTest {
         }
     }
 
+    @Test
+    public void testCreateGeoBoundary_minimumParameterCall() {
+        final Product slstrProduct = createSLSTR();
+
+        final GeoPos[] geoBoundary = GeoUtils.createGeoBoundary(slstrProduct, 5);
+        assertEquals(8, geoBoundary.length);
+
+        assertEquals(-75.19421818715499, geoBoundary[0].lon, 1e-8);
+        assertEquals(19.379739611214635, geoBoundary[0].lat, 1e-8);
+
+        assertEquals(-75.94413850836722, geoBoundary[1].lon, 1e-8);
+        assertEquals(19.25552191075319, geoBoundary[1].lat, 1e-8);
+
+        assertEquals(-76.25865930197398, geoBoundary[4].lon, 1e-8);
+        assertEquals(19.284073556222438, geoBoundary[4].lat, 1e-8);
+    }
+
+    @Test
+    public void testCreateGeoBoundaryPaths() {
+        final Product slstrProduct = createSLSTR();
+
+        final GeneralPath[] geoBoundary = GeoUtils.createGeoBoundaryPaths(slstrProduct, null,5, false);
+        assertEquals(1, geoBoundary.length);
+
+        assertEquals(1, geoBoundary[0].getWindingRule());
+
+        final Rectangle2D bounds = geoBoundary[0].getBounds2D();
+        assertEquals(-76.25865936279297, bounds.getX(), 1e-8);
+        assertEquals(19.204973220825195, bounds.getY(), 1e-8);
+        assertEquals(1.0644378662109375, bounds.getWidth(), 1e-8);
+        assertEquals(0.2536754608154297, bounds.getHeight(), 1e-8);
+    }
+
+    @Test
+    public void testCreateGeoBoundaryPath_fromRasterDataNode() {
+        final TestGeoCoding geoCoding = new TestGeoCoding(SL_LON, SL_LAT, 8);
+
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+        when(dataNode.getGeoCoding()).thenReturn(geoCoding);
+        when(dataNode.getRasterWidth()).thenReturn(8);
+        when(dataNode.getRasterHeight()).thenReturn(10);
+
+        final GeneralPath[] geoBoundary = GeoUtils.createGeoBoundaryPaths(dataNode, null, 4, true);
+        assertEquals(1, geoBoundary.length);
+
+        assertEquals(1, geoBoundary[0].getWindingRule());
+
+        final Rectangle2D bounds = geoBoundary[0].getBounds2D();
+        assertEquals(-76.25865936279297, bounds.getX(), 1e-8);
+        assertEquals(19.204973220825195, bounds.getY(), 1e-8);
+        assertEquals(1.0644378662109375, bounds.getWidth(), 1e-8);
+        assertEquals(0.2536754608154297, bounds.getHeight(), 1e-8);
+
+
+        verify(dataNode, times(1)).getGeoCoding();
+        verify(dataNode, times(1)).getRasterWidth();
+        verify(dataNode, times(1)).getRasterHeight();
+        verifyNoMoreInteractions(dataNode);
+    }
+
+    @Test
+    public void testCreateGeoBoundaryPaths_default_on_center() {
+        final Product slstrProduct = createSLSTR();
+
+        final GeneralPath[] geoBoundary = GeoUtils.createGeoBoundaryPaths(slstrProduct, null,5);
+        assertEquals(1, geoBoundary.length);
+
+        assertEquals(1, geoBoundary[0].getWindingRule());
+
+        final Rectangle2D bounds = geoBoundary[0].getBounds2D();
+        assertEquals(-76.25865936279297, bounds.getX(), 1e-8);
+        assertEquals(19.204973220825195, bounds.getY(), 1e-8);
+        assertEquals(1.0644378662109375, bounds.getWidth(), 1e-8);
+        assertEquals(0.2536754608154297, bounds.getHeight(), 1e-8);
+    }
+
+    @Test
+    public void testCreateGeoBoundaryPath_from_datanode_default_implementation() {
+        final TestGeoCoding geoCoding = new TestGeoCoding(SL_LON, SL_LAT, 8);
+
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+        when(dataNode.getGeoCoding()).thenReturn(geoCoding);
+        when(dataNode.getRasterWidth()).thenReturn(8);
+        when(dataNode.getRasterHeight()).thenReturn(10);
+
+        final GeneralPath[] geoBoundary = GeoUtils.createGeoBoundaryPaths(dataNode);
+        assertEquals(1, geoBoundary.length);
+
+        assertEquals(1, geoBoundary[0].getWindingRule());
+
+        final Rectangle2D bounds = geoBoundary[0].getBounds2D();
+        assertEquals(-76.25865936279297, bounds.getX(), 1e-8);
+        assertEquals(19.204973220825195, bounds.getY(), 1e-8);
+        assertEquals(1.0644378662109375, bounds.getWidth(), 1e-8);
+        assertEquals(0.2536754608154297, bounds.getHeight(), 1e-8);
+
+
+        verify(dataNode, times(1)).getGeoCoding();
+        verify(dataNode, times(1)).getRasterWidth();
+        verify(dataNode, times(1)).getRasterHeight();
+        verifyNoMoreInteractions(dataNode);
+    }
+
+    @Test
+    public void testCreateGeoBoundaryPaths_from_product_default_implementation() {
+        final Product slstrProduct = createSLSTR();
+
+        final GeneralPath[] geoBoundary = GeoUtils.createGeoBoundaryPaths(slstrProduct);
+        assertEquals(1, geoBoundary.length);
+
+        assertEquals(1, geoBoundary[0].getWindingRule());
+
+        final Rectangle2D bounds = geoBoundary[0].getBounds2D();
+        assertEquals(-76.25865936279297, bounds.getX(), 1e-8);
+        assertEquals(19.204973220825195, bounds.getY(), 1e-8);
+        assertEquals(1.0644378662109375, bounds.getWidth(), 1e-8);
+        assertEquals(0.2536754608154297, bounds.getHeight(), 1e-8);
+    }
 
     private static Product createSLSTR() {
         final Product product = new Product("slstr-test", "TEST_TYPE", 8, 10);

@@ -1,12 +1,14 @@
 package org.esa.snap.core.util;
 
 import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.util.math.Range;
 
 import java.awt.*;
-import java.awt.geom.GeneralPath;
+import java.awt.geom.*;
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.esa.snap.core.util.ProductUtils.assemblePathList;
+import static org.esa.snap.core.util.ProductUtils.normalizeGeoPolygon;
 
 public class GeoUtils {
 
@@ -19,8 +21,7 @@ public class GeoUtils {
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      */
     public static GeoPos[] createGeoBoundary(Product product, int step) {
-        final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        return createGeoBoundary(product, rect, step, true);
+        return createGeoBoundary(product, null, step, true);
     }
 
     /**
@@ -95,9 +96,66 @@ public class GeoUtils {
     }
 
     // @todo 1 tb/tb implement this! 2020-01-31
-    public static ArrayList<GeoPos[]> createGeoBoundaries(Product product, Rectangle region, int step,
-                                                          final boolean usePixelCenter) {
-        throw new RuntimeException("not implemented");
+//    public static ArrayList<GeoPos[]> createGeoBoundaries(Product product, Rectangle region, int step,
+//                                                          final boolean usePixelCenter) {
+//        throw new RuntimeException("not implemented");
+//    }
+
+    /**
+     * Converts the geographic boundary entire product into one, two or three shape objects. If the product does not
+     * intersect the 180 degree meridian, a single general path is returned. Otherwise two or three shapes are created
+     * and returned in the order from west to east.
+     * <p>
+     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
+     *
+     * @param product the input product
+     * @return an array of shape objects
+     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
+     * @see #createGeoBoundary(Product, int)
+     */
+    public static GeneralPath[] createGeoBoundaryPaths(Product product) {
+        final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        final int step = Math.min(rect.width, rect.height) / 8;
+        return createGeoBoundaryPaths(product, rect, step > 0 ? step : 1);
+    }
+
+    /**
+     * Converts the geographic boundary entire raster data node into one, two or three shape objects. If the data does not
+     * intersect the 180 degree meridian, a single general path is returned. Otherwise two or three shapes are created
+     * and returned in the order from west to east.
+     * <p>
+     * The geographic boundary of the given raster data node are returned as shapes comprising (longitude,latitude) pairs.
+     *
+     * @param rasterDataNode the input raster data node
+     * @return an array of shape objects
+     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
+     * @see #createGeoBoundary(Product, int)
+     */
+    public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode) {
+        final Rectangle rect = new Rectangle(0, 0, rasterDataNode.getRasterWidth(), rasterDataNode.getRasterHeight());
+        final int step = Math.min(rect.width, rect.height) / 8;
+        return createGeoBoundaryPaths(rasterDataNode, rect, step > 0 ? step : 1, false);
+    }
+
+    /**
+     * Converts the geographic boundary of the region within the given product into one, two or three shape objects. If
+     * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
+     * shapes are created and returned in the order from west to east.
+     * <p>
+     * This method delegates to {@link #createGeoBoundaryPaths(Product, java.awt.Rectangle, int, boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
+     * and the additional parameter {@code usePixelCenter} is {@code true}.
+     * <p>
+     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
+     *
+     * @param product the input product
+     * @param region  the region rectangle in product pixel coordinates, can be null for entire product
+     * @param step    the step given in pixels
+     * @return an array of shape objects
+     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
+     */
+    public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step) {
+        final boolean usePixelCenter = true;
+        return createGeoBoundaryPaths(product, region, step, usePixelCenter);
     }
 
     /**
@@ -118,7 +176,32 @@ public class GeoUtils {
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step,
                                                        final boolean usePixelCenter) {
         final GeoPos[] geoPoints = createGeoBoundary(product, region, step, usePixelCenter);
-        ProductUtils.normalizeGeoPolygon(geoPoints);
+        normalizeGeoPolygon(geoPoints);
+
+        final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);
+
+        return pathList.toArray(new GeneralPath[0]);
+    }
+
+    /**
+     * Converts the geographic boundary of the region within the given rastrer data node into one, two or three shape objects. If
+     * the data node does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
+     * shapes are created and returned in the order from west to east.
+     * <p>
+     * The geographic boundary of the given raster data node are returned as shapes comprising (longitude,latitude) pairs.
+     *
+     * @param rasterDataNode the input raster data node
+     * @param region         the region rectangle in product pixel coordinates, can be null for entire product
+     * @param step           the step given in pixels
+     * @param usePixelCenter {@code true} if the pixel center should be used to create the pathes
+     * @return an array of shape objects
+     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
+     * @see #createGeoBoundary(Product, java.awt.Rectangle, int, boolean)
+     */
+    public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step,
+                                                       final boolean usePixelCenter) {
+        final GeoPos[] geoPoints = createGeoBoundary(rasterDataNode, region, step, usePixelCenter);
+        normalizeGeoPolygon(geoPoints);
 
         final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);
 
@@ -449,5 +532,108 @@ public class GeoUtils {
         }
 
         return pixelPosList.toArray(new PixelPos[0]);
+    }
+
+    static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
+        final ArrayList<GeneralPath> pathList = new ArrayList<>(16);
+
+        if (geoPoints.length > 1) {
+            final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
+            Range range = fillPath(geoPoints, path);
+
+            int runIndexMin = (int) Math.floor((range.getMin() + 180) / 360);
+            int runIndexMax = (int) Math.floor((range.getMax() + 180) / 360);
+
+            if (runIndexMin == 0 && runIndexMax == 0) {
+                // the path is completely within [-180, 180] longitude
+                pathList.add(path);
+                return pathList;
+            }
+
+            final Area pathArea = new Area(path);
+            for (int k = runIndexMin; k <= runIndexMax; k++) {
+                final Area currentArea = new Area(new Rectangle2D.Double(k * 360.0 - 180.0, -90.0, 360.0, 180.0));
+                currentArea.intersect(pathArea);
+                if (!currentArea.isEmpty()) {
+                    pathList.addAll(areaToSubPaths(currentArea, -k * 360.0));
+                }
+            }
+        }
+        return pathList;
+    }
+
+    /**
+     * Fills the path with the given geo-points.
+     *
+     * @param geoPoints the points to add to the path
+     * @param path      the path
+     * @return the longitude value range
+     */
+    static Range fillPath(GeoPos[] geoPoints, GeneralPath path) {
+        double lon = geoPoints[0].getLon();
+
+        final Range range = new Range(lon, lon);
+        path.moveTo(lon, geoPoints[0].getLat());
+
+        for (int i = 1; i < geoPoints.length; i++) {
+            if (!geoPoints[i].isValid()) {
+                continue;
+            }
+
+            lon = geoPoints[i].getLon();
+            final double lat = geoPoints[i].getLat();
+            if (lon < range.getMin()) {
+                range.setMin(lon);
+            }
+            if (lon > range.getMax()) {
+                range.setMax(lon);
+            }
+            path.lineTo(lon, lat);
+        }
+
+        path.closePath();
+        return range;
+    }
+
+    /**
+     * Turns an area into one or multiple paths.
+     *
+     * @param area   the area to convert
+     * @param deltaX the value is used to translate the x-cordinates
+     * @return the list of paths
+     */
+    public static java.util.List<GeneralPath> areaToSubPaths(Area area, double deltaX) {
+        final List<GeneralPath> subPaths = new ArrayList<>();
+
+        final float[] floats = new float[6];
+
+        // move to correct rectangle
+        final AffineTransform transform = AffineTransform.getTranslateInstance(deltaX, 0.0);
+        final PathIterator iterator = area.getPathIterator(transform);
+
+        GeneralPath pixelPath = null;
+        while (!iterator.isDone()) {
+            if (pixelPath == null) {
+                pixelPath = new GeneralPath(GeneralPath.WIND_NON_ZERO);
+            }
+            final int segmentType = iterator.currentSegment(floats);
+            switch (segmentType) {
+                case PathIterator.SEG_LINETO:
+                    pixelPath.lineTo(floats[0], floats[1]);
+                    break;
+                case PathIterator.SEG_MOVETO:
+                    pixelPath.moveTo(floats[0], floats[1]);
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    pixelPath.closePath();
+                    subPaths.add(pixelPath);
+                    pixelPath = null;
+                    break;
+                default:
+                    throw new IllegalStateException("unhandled segment type in path iterator: " + segmentType);
+            }
+            iterator.next();
+        }
+        return subPaths;
     }
 }

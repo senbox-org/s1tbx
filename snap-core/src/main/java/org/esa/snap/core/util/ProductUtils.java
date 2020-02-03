@@ -43,8 +43,8 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -73,11 +73,10 @@ public class ProductUtils {
      * @param assignMissingImageInfos if {@code true}, it is ensured that to all {@code RasterDataNode}s a valid {@code ImageInfo} will be assigned.
      * @param pm                      The progress monitor.
      * @return image information
-     * @throws IOException if an I/O error occurs
      * @since BEAM 4.2
      */
     public static ImageInfo createImageInfo(RasterDataNode[] rasters, boolean assignMissingImageInfos,
-                                            ProgressMonitor pm) throws IOException {
+                                            ProgressMonitor pm) {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length > 0 && rasters.length <= 3, "rasters.length > 0 && rasters.length <= 3");
         if (rasters.length == 1) {
@@ -414,6 +413,7 @@ public class ProductUtils {
     /**
      * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static GeoPos[] createGeoBoundary(Product product, int step) {
         final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
         return createGeoBoundary(product, rect, step);
@@ -422,6 +422,7 @@ public class ProductUtils {
     /**
      * @deprecated no replacement
      */
+    @Deprecated
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
         return createGeoBoundary(product, region, step, usePixelCenter);
@@ -430,6 +431,7 @@ public class ProductUtils {
     /**
      * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step,
                                              final boolean usePixelCenter) {
         Guardian.assertNotNull("product", product);
@@ -457,6 +459,7 @@ public class ProductUtils {
     /**
      * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static GeoPos[] createGeoBoundary(RasterDataNode rasterDataNode, Rectangle region, int step,
                                              final boolean usePixelCenter) {
         Guardian.assertNotNull("rasterDataNode", rasterDataNode);
@@ -484,6 +487,7 @@ public class ProductUtils {
     /**
      * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static GeoPos[] createGeoBoundary(RasterDataNode raster, Rectangle region, int step) {
         Guardian.assertNotNull("raster", raster);
         final GeoCoding gc = raster.getGeoCoding();
@@ -499,23 +503,19 @@ public class ProductUtils {
     }
 
     /**
-     * Converts the geographic boundary entire product into one, two or three shape objects. If the product does not
-     * intersect the 180 degree meridian, a single general path is returned. Otherwise two or three shapes are created
-     * and returned in the order from west to east.
-     * <p>
-     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
-     *
-     * @param product the input product
-     * @return an array of shape objects
-     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary(Product, int)
+     * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(Product product) {
         final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
         final int step = Math.min(rect.width, rect.height) / 8;
         return createGeoBoundaryPaths(product, rect, step > 0 ? step : 1);
     }
 
+    /**
+     * @deprecated use {@link GeoUtils} instead
+     */
+    @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode) {
         final Rectangle rect = new Rectangle(0, 0, rasterDataNode.getRasterWidth(), rasterDataNode.getRasterHeight());
         final int step = Math.min(rect.width, rect.height) / 8;
@@ -523,47 +523,27 @@ public class ProductUtils {
     }
 
     /**
-     * Converts the geographic boundary of the region within the given product into one, two or three shape objects. If
-     * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
-     * shapes are created and returned in the order from west to east.
-     * <p>
-     * This method delegates to {@link #createGeoBoundaryPaths(Product, java.awt.Rectangle, int, boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
-     * and the additional parameter {@code usePixelCenter} is {@code true}.
-     * <p>
-     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
-     *
-     * @param product the input product
-     * @param region  the region rectangle in product pixel coordinates, can be null for entire product
-     * @param step    the step given in pixels
-     * @return an array of shape objects
-     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary(Product, java.awt.Rectangle, int)
+     * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
         return createGeoBoundaryPaths(product, region, step, usePixelCenter);
     }
 
+    /**
+     * @deprecated no replacement
+     */
+    @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step) {
         final boolean usePixelCenter = false;
         return createGeoBoundaryPaths(rasterDataNode, region, step, usePixelCenter);
     }
 
     /**
-     * Converts the geographic boundary of the region within the given product into one, two or three shape objects. If
-     * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
-     * shapes are created and returned in the order from west to east.
-     * <p>
-     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
-     *
-     * @param product        the input product
-     * @param region         the region rectangle in product pixel coordinates, can be null for entire product
-     * @param step           the step given in pixels
-     * @param usePixelCenter {@code true} if the pixel center should be used to create the pathes
-     * @return an array of shape objects
-     * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary(Product, java.awt.Rectangle, int, boolean)
+     * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step,
                                                        final boolean usePixelCenter) {
         Guardian.assertNotNull("product", product);
@@ -579,6 +559,10 @@ public class ProductUtils {
         return pathList.toArray(new GeneralPath[pathList.size()]);
     }
 
+    /**
+     * @deprecated use {@link GeoUtils} instead
+     */
+    @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step,
                                                        final boolean usePixelCenter) {
         Guardian.assertNotNull("rasterDataNode", rasterDataNode);
@@ -597,14 +581,16 @@ public class ProductUtils {
     /**
      * @deprecated
      */
+    @Deprecated
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step) {
         final boolean usePixelCenter = true;
         return createPixelBoundary(product, rect, step, usePixelCenter);
     }
 
     /**
-     * @deprecated
+     * @deprecated no replacement
      */
+    @Deprecated
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step,
                                                  final boolean usePixelCenter) {
         if (rect == null) {
@@ -619,6 +605,7 @@ public class ProductUtils {
     /**
      * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
         if (rect == null) {
             rect = new Rectangle(0,
@@ -632,6 +619,7 @@ public class ProductUtils {
     /**
      * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
         final boolean usePixelCenter = true;
         return createRectBoundary(rect, step, usePixelCenter);
@@ -640,6 +628,7 @@ public class ProductUtils {
     /**
      * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
         final double insetDistance = usePixelCenter ? 0.5 : 0.0;
         final int x1 = rect.x;
@@ -1623,12 +1612,9 @@ public class ProductUtils {
     }
 
     /**
-     * Turns an area into one or multiple paths.
-     *
-     * @param area   the area to convert
-     * @param deltaX the value is used to translate the x-cordinates
-     * @return the list of paths
+     * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     public static List<GeneralPath> areaToSubPaths(Area area, double deltaX) {
         List<GeneralPath> subPaths = new ArrayList<>();
 
@@ -2279,12 +2265,9 @@ public class ProductUtils {
     }
 
     /**
-     * Fills the path with the given geo-points.
-     *
-     * @param geoPoints the points to add to the path
-     * @param path      the path
-     * @return the longitude value range
+     * @deprecated use {@link GeoUtils} instead
      */
+    @Deprecated
     static Range fillPath(GeoPos[] geoPoints, GeneralPath path) {
         double lon = geoPoints[0].getLon();
 
