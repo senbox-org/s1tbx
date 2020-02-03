@@ -14,10 +14,13 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.geotools.data.shapefile.shp.xml.Metadata;
+import org.geotools.referencing.operation.projection.AzimuthalEquidistant;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ import java.util.HashMap;
         version = "1.0",
         copyright = "Copyright (C) 2020 by SkyWatch Space Applications Inc.",
         description = "Generates a set of master-slave pairs from a coregistered stack for use in SBAS processing")
-public class MultiMasterOp extends Operator {
+public class MultiMasterOp extends Operator{
     // Things this needs:
     // output folder
     // input coregistered stack product
@@ -89,8 +92,9 @@ public class MultiMasterOp extends Operator {
         MetadataElement rootMetadata = singleMaster_MultiSlave.getMetadataRoot();
         Band[] bands = singleMaster_MultiSlave.getBands();
         MetadataElement slaves = rootMetadata.getElement("Slave_Metadata");
-        MetadataElement[] slaveAbstractedMetadata = slaves.getElements();
+        MetadataElement [] slaveAbstractedMetadata = slaves.getElements();
         MetadataElement masterAbstractedMetadata = rootMetadata.getElement("Abstracted_Metadata");
+        //MetadataElement masterOrbitData = masterAbstractedMetadata.getElement("Orbit_State_Vectors");
         HashMap<Integer, ArrayList<Band>> date_bandpairs = new HashMap<Integer, ArrayList<Band>>();
         HashMap<Integer, MetadataElement> date_metadatapairs = new HashMap<Integer, MetadataElement>();
         ArrayList<Integer> dates = new ArrayList<Integer>();
@@ -123,7 +127,7 @@ public class MultiMasterOp extends Operator {
         ThreadExecutor te = new ThreadExecutor();
 
         final int worked = 100 / (dates.size() - 1);
-        final Product[] toOpenInSnap = new Product[dates.size() - 1];
+        final Product [] toOpenInSnap = new Product[dates.size() - 1];
         ArrayList<String> writtenProductPaths = new ArrayList<>();
 
         for (int x = 0; x < dates.size() - 1; x++){
@@ -135,8 +139,12 @@ public class MultiMasterOp extends Operator {
             final Product p = cleanProduct(tmp);
             MetadataElement root = p.getMetadataRoot();
             MetadataElement absMetadata = new MetadataElement("Abstracted_Metadata");// date_metadatapairs.get(dateMst);
-            ProductUtils.copyMetadata(date_metadatapairs.get(dateMst), absMetadata);
+            ProductUtils.copyMetadata(masterAbstractedMetadata, absMetadata);
             root.addElement(absMetadata);
+            MetadataAttribute multimaster = new MetadataAttribute("multimaster_split", ProductData.TYPE_UINT8);
+            absMetadata.addAttribute(multimaster);
+            //absMetadata.removeElement(absMetadata.getElement("Orbit_State_Vectors"));
+            //absMetadata.addElement(masterOrbitData);
             try{
                 MetadataAttribute coregistered_stack = new MetadataAttribute(AbstractMetadata.coregistered_stack, ProductData.TYPE_INT8);
                 absMetadata.addAttribute(coregistered_stack);
@@ -147,7 +155,10 @@ public class MultiMasterOp extends Operator {
             absMetadata.setAttributeInt(AbstractMetadata.coregistered_stack, 1);
             MetadataElement slave_data = new MetadataElement("Slave_Metadata");
 
+            slave_data.addElement(date_metadatapairs.get(dateMst));
             slave_data.addElement(date_metadatapairs.get(dateSlv));
+
+
             root.addElement(slave_data);
             mstBands = date_bandpairs.get(dateMst);
             final ArrayList<Band> slvBands = date_bandpairs.get(dateSlv);
@@ -187,7 +198,14 @@ public class MultiMasterOp extends Operator {
 
         }
         te.complete();
-
+        File paths = new File(outputFolder + "/newProducts.txt");
+        FileWriter fw = new FileWriter(paths);
+        BufferedWriter w = new BufferedWriter(fw);
+        for (String path : writtenProductPaths){
+            w.write(path + "\n");
+        }
+        w.close();
+        fw.close();
     }
     private int strDatetoInt(String date){
         String [] tmp = date.split("-");

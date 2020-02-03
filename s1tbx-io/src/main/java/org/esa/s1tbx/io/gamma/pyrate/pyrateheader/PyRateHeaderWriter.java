@@ -207,12 +207,18 @@ public class PyRateHeaderWriter {
 
 
     private double getRadarFrequencyHz(Product phaseProduct, boolean master) throws IOException {
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
-        double freq;
         if (! phaseProduct.getMetadataRoot().containsElement("Slave_Metadata")){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
+
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
+
         MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        if (absRoot.containsAttribute("multimaster_split")){
+            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+        }
+        double freq;
         if(master){
             freq = absRoot.getAttributeDouble("radar_frequency") * 1000000;
         }else{
@@ -222,13 +228,18 @@ public class PyRateHeaderWriter {
     }
 
     private double getIncidenceAngle(Product phaseProduct, boolean master) throws IOException{
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
-        String angle;
-        double [] angles = new double[2];
         if (! phaseProduct.getMetadataRoot().containsElement("Slave_Metadata")){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
+
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
+
         MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        if (absRoot.containsAttribute("multimaster_split")){
+            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+        }
+        double [] angles = new double[2];
         if(master){
             angles[0] = absRoot.getAttributeDouble("incidence_near");
             angles[1] = absRoot.getAttributeDouble("incidence_far");
@@ -243,12 +254,20 @@ public class PyRateHeaderWriter {
         return getDateStringKey(phaseProduct, true) + "-" + getDateStringKey(phaseProduct, false);
     }
     public static String getDateStringKey(Product phaseProduct, boolean master) throws IOException {
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
-        String dateString = "";
         if (! phaseProduct.getMetadataRoot().containsElement("Slave_Metadata")){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
+
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
+
         MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        if (absRoot.containsAttribute("multimaster_split")){
+            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+        }
+        String dateString = "";
+
+
         String svt = "";
         if(master){
             // Get master time
@@ -274,6 +293,10 @@ public class PyRateHeaderWriter {
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
         MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        if (absRoot.containsAttribute("multimaster_split")){
+            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+        }
         String svt = "";
         if(master){
             // Get master time

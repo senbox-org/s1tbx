@@ -198,7 +198,13 @@ public class InterferogramOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            if(AbstractMetadata.getAbstractedMetadata(sourceProduct).containsAttribute("multimaster_split")){
+                mstRoot = sourceProduct.getMetadataRoot().getElement("Slave_Metadata").getElementAt(0);
+            }
+            else{
+                mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
+            }
 
             checkUserInput();
 
@@ -437,7 +443,7 @@ public class InterferogramOp extends Operator {
                 Band bandReal = null;
                 Band bandImag = null;
                 for (String bandName : product.getBandNames()) {
-                    if (bandName.contains(tag) && bandName.contains(date)) {
+                    if (tag == "mst" && bandName.contains(tag) || (bandName.contains(tag) && bandName.contains(date))) {
                         if (subswath.isEmpty() || bandName.contains(subswath)) {
                             if (pol.isEmpty() || bandName.contains(pol)) {
                                 final Band band = product.getBand(bandName);

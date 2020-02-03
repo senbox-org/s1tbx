@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf.ui;
 
 import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -50,6 +51,7 @@ public class MultiMasterOpUI extends BaseOperatorUI {
 
     @Override
     public void initParameters() {
+        outputDirectory.setSelectedFile(new File(System.getProperty("user.home")));
     }
 
 
