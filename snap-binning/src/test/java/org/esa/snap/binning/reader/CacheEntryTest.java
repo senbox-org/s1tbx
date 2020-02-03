@@ -14,7 +14,7 @@ public class CacheEntryTest {
 
     @Before
     public void setUp() {
-        testArray = new ArrayByte(new int[]{1, 2},false);
+        testArray = new ArrayByte(new int[]{1, 2});
         cacheEntry = new CacheEntry(testArray);
     }
 

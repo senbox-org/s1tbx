@@ -54,7 +54,17 @@
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>
-            <artifactId>netcdfAll</artifactId>
+            <artifactId>netcdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>nujan</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>udunits</artifactId>
+            <version>${netcdf.version}</version>
+<!--            <version>4.5.5</version>-->
         </dependency>
         <!--
         We have to include the following UGLY dependencies so that they are put into the NBM module's ext folder.
@@ -109,7 +119,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>edu.ucar.netcdfAll</publicPackage>
+                        <publicPackage>edu.ucar.ral.nujan.netcdf</publicPackage>
                         <publicPackage>ucar.ma2</publicPackage>
                         <publicPackage>ucar.nc2</publicPackage>
                         <publicPackage>ucar.nc2.constants</publicPackage>
@@ -134,21 +144,12 @@
                         <publicPackage>ucar.unidata.io.bzip2</publicPackage>
                         <publicPackage>ucar.unidata.util</publicPackage>
                         <publicPackage>ucar.nc2.ft.point.standard.*</publicPackage>
+                        <publicPackage>thredds.catalog</publicPackage>
                         <publicPackage>javax.annotation</publicPackage>
                         <publicPackage>org.slf4j</publicPackage>
                         <publicPackage>org.slf4j.impl</publicPackage>
                         <publicPackage>org.esa.snap.dataio.netcdf.*</publicPackage>
                     </publicPackages>
-                    <nbmResources>
-                        <nbmResource>
-                            <directory>src/main/resources/lib/</directory>
-                            <targetPath>modules/lib/</targetPath>
-                            <includes>
-                                <include>**/*.dll</include>
-                                <include>**/*.so</include>
-                            </includes>
-                        </nbmResource>
-                    </nbmResources>
                 </configuration>
             </plugin>
             <plugin>

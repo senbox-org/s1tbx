@@ -16,184 +16,95 @@
 
 package org.esa.snap.dataio.netcdf.nc;
 
-
-import com.google.common.primitives.Booleans;
-import com.google.common.primitives.Bytes;
-import com.google.common.primitives.Chars;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Floats;
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
-import com.google.common.primitives.Shorts;
+import edu.ucar.ral.nujan.netcdf.NhDimension;
+import edu.ucar.ral.nujan.netcdf.NhException;
+import edu.ucar.ral.nujan.netcdf.NhVariable;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//**
-// * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhVariable}.
-// *
-// * @author MarcoZ
-// */
-
+/**
+ * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhVariable}.
+ *
+ * @author MarcoZ
+ */
 public class N4Variable implements NVariable {
 
     // MAX_ATTRIBUTE_LENGTH taken from
     // https://github.com/bcdev/nujan/blob/master/src/main/java/edu/ucar/ral/nujan/hdf/MsgAttribute.java#L185
     public static final int MAX_ATTRIBUTE_LENGTH = 65535 - 1000;
 
-    private final Variable variable;
-    private final java.awt.Dimension tileSize;
+    private final NhVariable variable;
+    private final Dimension tileSize;
     private ChunkWriter writer;
-    private final NetcdfFileWriter netcdfFileWriter;
 
-    public N4Variable(Variable variable, java.awt.Dimension tileSize, NetcdfFileWriter netcdfFileWriter) {
+    public N4Variable(NhVariable variable, Dimension tileSize) {
         this.variable = variable;
         this.tileSize = tileSize;
-        this.netcdfFileWriter = netcdfFileWriter;
     }
 
     @Override
     public String getName() {
-        return variable.getFullName();
+        return variable.getName();
     }
 
     @Override
     public DataType getDataType() {
-        return variable.getDataType();
+        int type = variable.getType();
+        return N4DataType.convert(type);
     }
 
     @Override
-    public void setDataType(DataType dataType) {
-        variable.setDataType(dataType);
+    public void addAttribute(String name, String value) throws IOException {
+        addAttributeImpl(name, cropStringToMaxAttributeLength(name, value), NhVariable.TP_STRING_VAR);
     }
 
     @Override
-    public Attribute addAttribute(String name, String value) throws IOException {
-        if (value != null) {
-            return addAttributeImpl(name, cropStringToMaxAttributeLength(name, value), value.getClass().getName(), false);
-        } else {
-            return addAttributeImpl(name, null, "String", false);
-        }
+    public void addAttribute(String name, Number value) throws IOException {
+        addAttribute(name, value, false);
     }
 
     @Override
-    public Attribute addAttribute(String name, Number value) throws IOException {
-        return addAttribute(name, value, false);
+    public void addAttribute(String name, Number value, boolean isUnsigned) throws IOException {
+        DataType dataType = DataType.getType(value.getClass());
+        int nhType = N4DataType.convert(dataType, isUnsigned);
+        addAttributeImpl(name, value, nhType);
     }
 
     @Override
-    public Attribute addAttribute(String name, Number value, boolean isUnsigned) throws IOException {
-        return addAttributeImpl(name, value, name.getClass().getName(), isUnsigned);
+    public void addAttribute(String name, Array value) throws IOException {
+        DataType dataType = DataType.getType(value.getElementType());
+        int nhType = N4DataType.convert(dataType, value.isUnsigned());
+
+        addAttributeImpl(name, value.getStorage(), nhType);
     }
 
-    @Override
-    public Attribute addAttribute(String name, Array value) throws IOException {
-        return addAttributeImpl(name, value.getStorage(), value.getClass().getName(), false);
-    }
-
-
-    private Attribute addAttributeImpl(String name, Object value, String type, boolean isUnsigned) throws IOException {
+    private void addAttributeImpl(String name, Object value, int type) throws IOException {
         name = name.replace('.', '_');
         try {
-            if (value != null) {
-                Attribute existingAttribute = variable.findAttribute(name);
-                if (existingAttribute == null) {
-                    if (value instanceof Integer) {
-                        Attribute attribute = new Attribute(name, (Integer) value, isUnsigned);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof String) {
-                        Attribute attribute = new Attribute(name, (String) value);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof Array) {
-                        Attribute attribute = new Attribute(name, (Array) value);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof Float) {
-                        Attribute attribute = new Attribute(name, (Float) value);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof List) {
-                        Attribute attribute = new Attribute(name, (List) value);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof Double) {
-                        Attribute attribute = new Attribute(name, (Double) value, false);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof Byte) {
-                        Attribute attribute = new Attribute(name, (Byte) value);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof Short) {
-                        Attribute attribute = new Attribute(name, (Short) value);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof int[]) {
-                        List<Integer> temp = Ints.asList((int[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof byte[]) {
-                        List<Byte> temp = Bytes.asList((byte[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof short[]) {
-                        List<Short> temp = Shorts.asList((short[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof float[]) {
-                        List<Float> temp = Floats.asList((float[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof double[]) {
-                        List<Double> temp = Doubles.asList((double[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof long[]) {
-                        List<Long> temp = Longs.asList((long[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof boolean[]) {
-                        List<Boolean> temp = Booleans.asList((boolean[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof char[]) {
-                        List<Character> temp = Chars.asList((char[]) value);
-                        Attribute attribute = new Attribute(name, temp);
-                        return variable.addAttribute(attribute);
-                    } else if (value instanceof Number) {
-                        Attribute attribute = new Attribute(name, (Number) value, isUnsigned);
-                        return variable.addAttribute(attribute);
-                    } else {
-                        throw new IllegalArgumentException("wrong type " + value.getClass().toString() + " of the attribute " + name);
-                    }
-                } else {
-                    return existingAttribute;
-                }
-            } else {
-                Attribute attribute = new Attribute(name, "");
-                return variable.addAttribute(attribute);
+            if (!variable.attributeExists(name)) {
+                //attributes can only bet set once
+                variable.addAttribute(name, type, value);
             }
-        } catch (Exception e) {
+        } catch (NhException e) {
             throw new IOException(e);
         }
-    }
-
-    @Override
-    public Attribute findAttribute(String name) {
-        return variable.findAttribute(name);
     }
 
     @Override
     public void writeFully(Array values) throws IOException {
         int[] idxes = new int[values.getShape().length];
         try {
-            netcdfFileWriter.write(variable, idxes, values);
-        } catch (Exception e) {
+            variable.writeData(idxes, values);
+        } catch (NhException e) {
             throw new IOException(e);
         }
     }
@@ -206,8 +117,8 @@ public class N4Variable implements NVariable {
         writer.write(x, y, width, height, data);
     }
 
-    static String cropStringToMaxAttributeLength(String name, String value) {
-        if (value != null && value.length() > MAX_ATTRIBUTE_LENGTH) {
+    static String cropStringToMaxAttributeLength(String name,  String value) {
+        if(value != null && value.length() > MAX_ATTRIBUTE_LENGTH) {
             value = value.substring(0, MAX_ATTRIBUTE_LENGTH);
             String msg = String.format("Metadata attribute '%s' has been cropped. Exceeded maximum length of %d", name, MAX_ATTRIBUTE_LENGTH);
             Logger.getLogger(N4Variable.class.getSimpleName()).log(Level.WARNING, msg);
@@ -216,20 +127,21 @@ public class N4Variable implements NVariable {
     }
 
     private ChunkWriter createWriter(boolean isYFlipped) {
-        List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
-        int sceneWidth = dimensions.get(1).getLength();
-        int sceneHeight = dimensions.get(0).getLength();
+        NhDimension[] nhDimensions = variable.getDimensions();
+        int sceneWidth = nhDimensions[1].getLength();
+        int sceneHeight = nhDimensions[0].getLength();
         int chunkWidth = tileSize.width;
         int chunkHeight = tileSize.height;
         return new NetCDF4ChunkWriter(sceneWidth, sceneHeight, chunkWidth, chunkHeight, isYFlipped);
     }
 
     private class NetCDF4ChunkWriter extends ChunkWriter {
+
         private final Set<Rectangle> writtenChunkRects;
 
         public NetCDF4ChunkWriter(int sceneWidth, int sceneHeight, int chunkWidth, int chunkHeight, boolean YFlipped) {
             super(sceneWidth, sceneHeight, chunkWidth, chunkHeight, YFlipped);
-            writtenChunkRects = new HashSet<>((sceneWidth / chunkWidth) * (sceneHeight / chunkHeight));
+            writtenChunkRects = new HashSet<Rectangle>((sceneWidth / chunkWidth) * (sceneHeight / chunkHeight));
         }
 
         @Override
@@ -238,16 +150,15 @@ public class N4Variable implements NVariable {
                 // netcdf4 chunks can only be written once
                 final int[] origin = new int[]{rect.y, rect.x};
                 final int[] shape = new int[]{rect.height, rect.width};
-                DataType dataType = variable.getDataType();
+                DataType dataType = N4DataType.convert(variable.getType());
                 final Array values = Array.factory(dataType, shape, data.getElems());
                 try {
-                    netcdfFileWriter.write(variable, origin, values);
-                } catch (Exception e) {
+                    variable.writeData(origin, values);
+                } catch (NhException e) {
                     throw new IOException(e);
                 }
                 writtenChunkRects.add(rect);
             }
         }
     }
-
 }

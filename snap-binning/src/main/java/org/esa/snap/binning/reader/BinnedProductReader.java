@@ -465,8 +465,8 @@ public class BinnedProductReader extends AbstractProductReader {
 
         final DataType dataType = variable.getDataType();
         int productDataType = ProductData.TYPE_INT32;
-        final DataType dType = DataType.getType(Double.class,false);
-        final DataType fType = DataType.getType(Float.class,false);
+        final DataType dType = DataType.getType(Double.class);
+        final DataType fType = DataType.getType(Float.class);
         if (fType.equals(dataType)) {
             productDataType = ProductData.TYPE_FLOAT32;
         } else if (dType.equals(dataType)) {

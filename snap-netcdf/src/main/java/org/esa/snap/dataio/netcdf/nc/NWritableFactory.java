@@ -27,9 +27,9 @@ public class NWritableFactory {
 
     public static NFileWriteable create(String filename, String format) throws IOException {
         if ("netcdf3".equalsIgnoreCase(format)) {
-            return new  N3FileWriteable(filename);
+            return N3FileWriteable.create(filename);
         } else if ("netcdf4".equalsIgnoreCase(format)) {
-            return new N4FileWriteable(filename);
+            return N4FileWriteable.create(filename);
         } else {
             throw new IllegalArgumentException("Unsupported format: " +  format);
         }

@@ -3,6 +3,11 @@ package org.esa.snap.dataio.netcdf;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.jai.JAIUtils;
+import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
+import org.esa.snap.dataio.netcdf.nc.NVariable;
+import org.esa.snap.dataio.netcdf.nc.NWritableFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,11 +17,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -24,39 +26,35 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Marco Peters
  */
 public class GloballyShiftedDataTest {
+    // This generates data which mimics the LCCCI data for the Climate Data Store, just with a lower resolution
+    // This test relates to https://senbox.atlassian.net/browse/SNAP-950 and https://senbox.atlassian.net/browse/SNAP-951
 
     private static File tempFile;
-    private static final int WIDTH = 8100;
-    private static final int HEIGHT = 4050;
-    private static final int STEP_HEIGHT = 50;
+    private static final int WIDTH = 810;
+    private static final int HEIGHT = 405;
+    private static final int STEP_HEIGHT = 5;
     private static final int HALF_WIDTH = WIDTH / 2;
     private Product product;
 
-    // This generates data which mimics the LCCCI data for the Climate Data Store, just with a lower resolution
-    // This test relates to https://senbox.atlassian.net/browse/SNAP-950
     @BeforeClass
     public static void createTestDataFile() throws IOException {
 
         tempFile = File.createTempFile(GloballyShiftedDataTest.class.getSimpleName(), ".nc");
-//        tempFile = new File(String.format("%s\\%s.nc", System.getProperty("user.home"), GloballyShiftedDataTest.class.getSimpleName()));
-        NetcdfFileWriter ncFile = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, tempFile.getAbsolutePath());
+        NFileWriteable ncFile = NWritableFactory.create(tempFile.getAbsolutePath(), "netcdf4");
         ncFile.addDimension("lat", HEIGHT);
         ncFile.addDimension("lon", WIDTH);
-        Variable lat = ncFile.addVariable("lat", DataType.DOUBLE, "lat");
-        lat.addAttribute(new Attribute("units", "degrees_north"));
-        lat.addAttribute(new Attribute("standard_name", "latitude"));
+        Dimension tileSize = JAIUtils.computePreferredTileSize(WIDTH, HEIGHT, 1);
 
-        Variable lon = ncFile.addVariable("lon", DataType.DOUBLE, "lon");
-        lon.addAttribute(new Attribute("units", "degrees_east"));
-        lon.addAttribute(new Attribute("standard_name", "longitude"));
-
-        Variable data = ncFile.addVariable("data", DataType.INT, "lat lon");
+        NVariable lat = ncFile.addVariable("lat", DataType.DOUBLE, null, "lat");
+        NVariable lon = ncFile.addVariable("lon", DataType.DOUBLE, null, "lon");
+        NVariable data = ncFile.addVariable("data", DataType.INT, tileSize, "lat lon");
 
         final double[] latValues = new double[HEIGHT];
         double latStep = 180.0 / HEIGHT;
@@ -70,32 +68,31 @@ public class GloballyShiftedDataTest {
         }
 
         ncFile.create();
-        try {
-            ncFile.write(lat, Array.makeFromJavaArray(latValues));
-            ncFile.write(lon, Array.makeFromJavaArray(lonValues));
-            ncFile.flush();
-        } catch (InvalidRangeException e) {
-            throw new IOException(e);
-        }
+        lat.writeFully(Array.factory(DataType.DOUBLE, new int[]{HEIGHT}, latValues));
+        lon.writeFully(Array.factory(DataType.DOUBLE, new int[]{WIDTH}, lonValues));
 
-        try {
-            // rightValues are written to the left side of the image, but as the data is globally shifted
-            // they will be on the right side when read in
-            int[] rightDataValues = new int[HALF_WIDTH * STEP_HEIGHT];
-            int[] leftDataValues = new int[HALF_WIDTH * STEP_HEIGHT];
-            Arrays.setAll(rightDataValues, i -> i + HALF_WIDTH);
-            Arrays.setAll(leftDataValues, i -> i);
-            for (int i = 0; i < HEIGHT; i = i + STEP_HEIGHT) {
-                Array rightValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, rightDataValues);
-                ncFile.write(data, new int[]{i, 0}, rightValues);
-                Array leftValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, leftDataValues);
-                ncFile.write(data, new int[]{i, HALF_WIDTH}, leftValues);
-            }
-        } catch (InvalidRangeException e) {
-            throw new IOException(e);
+        // rightValues are written to the left side of the image, but as the data is globally shifted
+        // they will be on the right side when read in
+        int[] rightDataValues = new int[HALF_WIDTH * STEP_HEIGHT];
+        int[] leftDataValues = new int[HALF_WIDTH * STEP_HEIGHT];
+        Arrays.setAll(rightDataValues, i -> i + HALF_WIDTH);
+        Arrays.setAll(leftDataValues, i -> i);
+        Array rightValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, rightDataValues);
+        Array leftValues = Array.factory(DataType.INT, new int[]{STEP_HEIGHT, HALF_WIDTH}, leftDataValues);
+        ProductData rightProduData = ProductData.createInstance(ProductData.TYPE_INT32, rightValues.copyTo1DJavaArray());
+        ProductData leftProduData = ProductData.createInstance(ProductData.TYPE_INT32, leftValues.copyTo1DJavaArray());
+
+        for (int i = 0; i < HEIGHT; i = i + STEP_HEIGHT) {
+            data.write(0, i, HALF_WIDTH, STEP_HEIGHT, false, rightProduData);
+            data.write(HALF_WIDTH, i, HALF_WIDTH, STEP_HEIGHT, false, leftProduData);
         }
 
         ncFile.close();
+    }
+
+    @Before
+    public void readProduct() throws Exception {
+        product = ProductIO.readProduct(tempFile);
     }
 
     @AfterClass
@@ -105,12 +102,6 @@ public class GloballyShiftedDataTest {
                 tempFile.deleteOnExit();
             }
         }
-    }
-
-
-    @Before
-    public void readProduct() throws Exception {
-        product = ProductIO.readProduct(tempFile);
     }
 
     @After
@@ -154,8 +145,8 @@ public class GloballyShiftedDataTest {
 
     }
 
-    @Ignore("Not fixed yet: SNAP-951")
     @Test
+    @Ignore("Not fixed yet: SNAP-951")
     public void testLevelImagesNotScrambled() {
         Band band = product.getBandAt(0);
 
@@ -172,12 +163,18 @@ public class GloballyShiftedDataTest {
             }
 
             // for visual inspection
+            // Look at it in SNAP or some other GIS software OS image preview doesn't show the data well.
+            // needs to be tiff 32-bit int is not supported by png
 //            String userHome = System.getProperty("user.home");
-//            String path = String.format("%s\\%s_Level%d.png", userHome, GloballyShiftedDataTest.class.getSimpleName(), level);
+//            String path = String.format("%s\\%s_Level%d.tif", userHome, GloballyShiftedDataTest.class.getSimpleName(), level);
 //            File imageFile = new File(path);
-              // needs to be tiff 32-bit int is not supported by png
 //            ImageIO.write(levelImage, "TIFF", imageFile);
         }
 
     }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().startsWith("win");
+    }
+
 }

@@ -18,18 +18,14 @@ package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
-import org.esa.snap.dataio.netcdf.util.DataTypeUtils;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
-import org.esa.snap.dataio.netcdf.util.UnsignedChecker;
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -49,7 +45,6 @@ public class CfIndexCodingPart extends ProfilePartIO {
         for (Band band : bands) {
             String varName = EscapeStrings.backslashEscape(band.getName(), NetcdfFile.reservedSectionSpec);
             Variable variable = ctx.getNetcdfFile().findVariable(varName);
-            UnsignedChecker.setUnsignedType(variable);
             final IndexCoding indexCoding = readIndexCoding(variable, band.getName());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
@@ -73,26 +68,15 @@ public class CfIndexCodingPart extends ProfilePartIO {
 
     public static void writeIndexCoding(IndexCoding indexCoding, NVariable variable) throws IOException {
         final String[] indexNames = indexCoding.getIndexNames();
-        ProductData indexValues = ProductData.createInstance(DataTypeUtils.getRasterDataType(variable.getDataType(), variable.getDataType().isUnsigned()), indexNames.length);
+        final int[] indexValues = new int[indexNames.length];
         final StringBuilder meanings = new StringBuilder();
-        for (int i = 0; i < indexValues.getNumElems(); i++) {
-            if (meanings.length() > 0) {
-                meanings.append(" ");
-            }
+        for (int i = 0; i < indexValues.length; i++) {
             String name = indexNames[i];
-            meanings.append(name);
-            indexValues.setElemIntAt(i, indexCoding.getIndexValue(name));
+            meanings.append(name).append(" ");
+            indexValues[i] = indexCoding.getIndexValue(name);
         }
         variable.addAttribute(FLAG_MEANINGS, meanings.toString().trim());
-        final Array maskValues = Array.factory(variable.getDataType(), new int[]{indexNames.length}, indexValues.getElems());
-        Attribute attribute = variable.addAttribute(FLAG_VALUES, maskValues);
-        try {
-            if (indexValues.isUnsigned()) {
-                attribute.setDataType(attribute.getDataType().withSignedness(DataType.Signedness.UNSIGNED));
-            }
-        } catch (NullPointerException ignore) {
-            // why can an NPE occur?
-        }
+        variable.addAttribute(FLAG_VALUES, Array.factory(indexValues));
     }
 
     public static IndexCoding readIndexCoding(Variable variable, String indexCodingName) {

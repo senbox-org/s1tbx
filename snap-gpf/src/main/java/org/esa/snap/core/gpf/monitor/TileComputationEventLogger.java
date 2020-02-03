@@ -15,7 +15,6 @@
  */
 package org.esa.snap.core.gpf.monitor;
 
-import com.sun.media.jai.util.SunTileCache;
 import org.esa.snap.core.gpf.internal.OperatorImage;
 
 import java.util.HashSet;
@@ -97,11 +96,6 @@ public class TileComputationEventLogger extends TileComputationObserver {
                 recordedEventSet.add(tileEvent);
                 newEvent = true;
             }
-        }
-        if (tileEvent.image.getTileCache() instanceof SunTileCache) {
-            message += " " + (((SunTileCache)tileEvent.image.getTileCache()).getCacheMemoryUsed() / 1024 / 1024)
-                     + "/" + (((SunTileCache)tileEvent.image.getTileCache()).getMemoryCapacity() / 1024 / 1024)
-                     + " " + ((SunTileCache)tileEvent.image.getTileCache()).getCacheTileCount();
         }
         if (newEvent) {
             getLogger().log(Level.INFO, "Tile computed: " + message);

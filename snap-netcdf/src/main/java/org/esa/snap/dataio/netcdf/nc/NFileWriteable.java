@@ -16,107 +16,41 @@
 
 package org.esa.snap.dataio.netcdf.nc;
 
-
-import org.esa.snap.dataio.netcdf.util.VariableNameHelper;
 import ucar.ma2.DataType;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFileWriter;
 
+import java.awt.Dimension;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-///**
-/// * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhFileWriter}.
-// *
-// * @author MarcoZ
-// */
-public abstract class NFileWriteable {
+/**
+ * An abstraction of the netcdf3/4 writing API.
+ *
+ * @author MarcoZ
+ */
+public interface NFileWriteable {
 
-    private static final int DEFAULT_COMPRESSION = 6;
-    private String dimensions = "";
-    protected Map<String, Dimension> dimensionsMap = new HashMap<>();
+    void addDimension(String name, int length) throws IOException;
 
-    public NetcdfFileWriter getWriter() {
-        return netcdfFileWriter;
-    }
+    String getDimensions();
 
-    protected NetcdfFileWriter netcdfFileWriter;
-    protected Map<String, NVariable> variables = new HashMap<>();
+    void addGlobalAttribute(String name, String value) throws IOException;
 
-    public void addDimension(String name, int length) throws IOException {
-        try {
-            dimensionsMap.put(name, netcdfFileWriter.addDimension(null, name, length));
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-        boolean firstDimension = dimensions.length() == 0;
-        if (firstDimension) {
-            dimensions = name;
-        } else {
-            dimensions = dimensions + " " + name;
-        }
-    }
+    void addGlobalAttribute(String name, Number value) throws IOException;
 
-    public String getDimensions() {
-        return dimensions;
-    }
+    NVariable addScalarVariable(String name, DataType dataType) throws IOException;
 
-    public void addGlobalAttribute(String name, String value) throws IOException {
-        try {
-            Attribute attribute = new Attribute(name, value);
-            netcdfFileWriter.addGroupAttribute(null, attribute);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
+    NVariable addVariable(String name, DataType dataType, Dimension tileSize, String dims) throws IOException;
 
-    public void addGlobalAttribute(String name, Number value) throws IOException {
-        try {
-            Attribute attribute = new Attribute(name, value);
-            netcdfFileWriter.addGroupAttribute(null, attribute);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
+    NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dims) throws IOException;
 
-    public NVariable addVariable(String name, DataType dataType, java.awt.Dimension tileSize, String dims) throws IOException {
-        return addVariable(name, dataType, false, tileSize, dims);
-    }
+    NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dims, int compressionLevel) throws IOException;
 
-    abstract public NVariable addScalarVariable(String name, DataType dataType);
+    NVariable findVariable(String variableName);
 
-    public NVariable addVariable(String name, DataType dataType, boolean unsigned, java.awt.Dimension tileSize, String dims) {
-        return addVariable(name, dataType, unsigned, tileSize, dims, DEFAULT_COMPRESSION);
-    }
+    boolean isNameValid(String name);
 
-    abstract public NVariable addVariable(String name, DataType dataType, boolean unsigned, java.awt.Dimension tileSize, String dimensions, int compressionLevel);
+    String makeNameValid(String name);
 
-    public NVariable findVariable(String variableName) {
-        return variables.get(variableName);
-    }
+    void create() throws IOException;
 
-    public boolean isNameValid(String name) {
-        return VariableNameHelper.isVariableNameValid(name);
-    }
-
-    public String makeNameValid(String name) {
-        return VariableNameHelper.convertToValidName(name);
-    }
-
-    abstract public DataType getNetcdfDataType(int dataType);
-
-    public void create() throws IOException {
-        netcdfFileWriter.create();
-    }
-
-    public void close() throws IOException {
-        try {
-            netcdfFileWriter.close();
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
-
+    void close() throws IOException;
 }

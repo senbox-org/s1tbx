@@ -25,8 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ucar.nc2.NetcdfFile;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm

@@ -171,8 +171,8 @@ public class CfGeocodingPart extends ProfilePartIO {
                 geoCoding.getGeoPos(pixelPos, geoPos);
                 lon[x] = geoPos.getLon();
             }
-            latVariable.writeFully( Array.factory(DataType.DOUBLE,new int[]{h}, lat));
-            lonVariable.writeFully( Array.factory(DataType.DOUBLE,new int[]{w},lon));
+            latVariable.writeFully(Array.factory(lat));
+            lonVariable.writeFully(Array.factory(lon));
         } else {
             final double[] lat = new double[w];
             final double[] lon = new double[w];
@@ -286,7 +286,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             // add a global attribute which will be analyzed when setting up the image(s)
             final List<Variable> variables = ctx.getNetcdfFile().getVariables();
             for (Variable next : variables) {
-                next.addAttribute(new Attribute("LONGITUDE_SHIFTED_180",1));
+                next.getAttributes().add(new Attribute("LONGITUDE_SHIFTED_180", 1));
             }
             for (int i = 0; i < lonData.getSize(); i++) {
                 final Index ii = lonData.getIndex().set(i);

@@ -26,7 +26,6 @@ import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -97,8 +96,8 @@ public class BeamStxPart extends ProfilePartIO {
                     statistics[INDEX_SCALED_MAX] = stx.getMaximum();
                     statistics[INDEX_MEAN] = stx.getMean();
                     statistics[INDEX_STANDARD_DEVIATION] = stx.getStandardDeviation();
-                    variable.addAttribute(STATISTICS, Array.factory(DataType.DOUBLE,new int[]{4},statistics));
-                    variable.addAttribute(SAMPLE_FREQUENCIES, Array.factory(DataType.INT,new int[]{stx.getHistogramBinCount()}, stx.getHistogramBins()));
+                    variable.addAttribute(STATISTICS, Array.factory(statistics));
+                    variable.addAttribute(SAMPLE_FREQUENCIES, Array.factory(stx.getHistogramBins()));
                 }
             }
         }

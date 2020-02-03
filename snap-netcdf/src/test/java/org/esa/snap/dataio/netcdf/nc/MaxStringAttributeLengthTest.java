@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+
 /**
  * @author Marco Peters
  */
@@ -25,9 +26,9 @@ public class MaxStringAttributeLengthTest {
     @Before
     public void setUp() throws Exception {
         nc4TempFile = Files.createTempFile(getClass().getSimpleName(), "nc4");
-        nc4Writable = NWritableFactory.create(nc4TempFile.toString(),"netcdf4");
+        nc4Writable = N4FileWriteable.create(nc4TempFile.toString());
         nc3TempFile = Files.createTempFile(getClass().getSimpleName(), "nc3");
-        nc3Writable = NWritableFactory.create(nc3TempFile.toString(),"netcdf3");
+        nc3Writable = N3FileWriteable.create(nc3TempFile.toString());
     }
 
     @After
@@ -58,7 +59,7 @@ public class MaxStringAttributeLengthTest {
 
     @Test
     public void testMaxStringVariableAttributeLengthNC3() throws IOException {
-        NFileWriteable ncFile = NWritableFactory.create(Files.createTempFile(getClass().getSimpleName(), null).toString(),"netcdf3");
+        NFileWriteable ncFile = N3FileWriteable.create(Files.createTempFile(getClass().getSimpleName(), null).toString());
         NVariable variable = ncFile.addScalarVariable("metadataVariable", DataType.BYTE);
         variable.addAttribute("longVariableAttributeValue", createLongString(TOO_LONG));
     }

@@ -142,7 +142,7 @@ public class MetadataUtils {
 
     public static void addAttribute(Variable variable, MetadataElement valuesElem, int maxNumValuesRead) {
         final DataType ncDataType = variable.getDataType();
-        final boolean unsigned = variable.getDataType().isUnsigned();
+        final boolean unsigned = variable.isUnsigned();
         final boolean rasterDataOnly = false;
         final int productDataType = DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
         if (productDataType == -1) {
