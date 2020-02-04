@@ -51,7 +51,10 @@ public class MultiMasterOpUI extends BaseOperatorUI {
 
     @Override
     public void initParameters() {
-        outputDirectory.setSelectedFile(new File(System.getProperty("user.home")));
+        if(outputDirectory.getSelectedFile() == null){
+            outputDirectory.setSelectedFile(new File(System.getProperty("user.home")));
+
+        }
     }
 
 
