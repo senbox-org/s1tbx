@@ -94,6 +94,7 @@ public class MultiMasterOp extends Operator{
         MetadataElement slaves = rootMetadata.getElement("Slave_Metadata");
         MetadataElement [] slaveAbstractedMetadata = slaves.getElements();
         MetadataElement masterAbstractedMetadata = rootMetadata.getElement("Abstracted_Metadata");
+
         //MetadataElement masterOrbitData = masterAbstractedMetadata.getElement("Orbit_State_Vectors");
         HashMap<Integer, ArrayList<Band>> date_bandpairs = new HashMap<Integer, ArrayList<Band>>();
         HashMap<Integer, MetadataElement> date_metadatapairs = new HashMap<Integer, MetadataElement>();
@@ -146,8 +147,8 @@ public class MultiMasterOp extends Operator{
             //absMetadata.removeElement(absMetadata.getElement("Orbit_State_Vectors"));
             //absMetadata.addElement(masterOrbitData);
             try{
-                MetadataAttribute coregistered_stack = new MetadataAttribute(AbstractMetadata.coregistered_stack, ProductData.TYPE_INT8);
-                absMetadata.addAttribute(coregistered_stack);
+                MetadataElement original_product_metadata = rootMetadata.getElement("Original_Product_Metadata");
+                root.addElement(original_product_metadata);
             } catch(Exception e){
                 e.printStackTrace();
             }
