@@ -35,7 +35,11 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.Group;
+import ucar.nc2.Structure;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -218,7 +222,7 @@ public class NetCDFUtils {
     }
 
     private static int getRasterDataType(final Variable variable) {
-        return getProductDataType(variable.getDataType(), variable.getDataType().isUnsigned(), true);
+        return getProductDataType(variable.getDataType(), variable.isUnsigned(), true);
     }
 
     private static boolean isValidRasterDataType(final DataType dataType) {
@@ -319,7 +323,7 @@ public class NetCDFUtils {
 
     private static int getProductDataType(Variable variable) {
         final DataType ncDataType = variable.getDataType();
-        final boolean unsigned = variable.getDataType().isUnsigned();
+        final boolean unsigned = variable.isUnsigned();
         final boolean rasterDataOnly = false;
         return DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
     }
