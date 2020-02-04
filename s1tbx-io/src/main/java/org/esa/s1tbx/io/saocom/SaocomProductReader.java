@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by SkyWatch Space Applications Inc. http://www.skywatch.com
+ * Copyright (C) 2020 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,33 +16,18 @@
 package org.esa.s1tbx.io.saocom;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.commons.io.SARReader;
-import org.esa.s1tbx.io.binary.ArrayCopy;
 import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.Rectangle;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 /**
  * The product reader for TerraSarX products.
@@ -98,18 +83,13 @@ public class SaocomProductReader extends SARReader {
             dataDir = createProductDirectory(inputPath.toFile());
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
+
             product.setFileLocation(inputPath.toFile());
             product.setProductReader(this);
             addCommonSARMetadata(product);
 
             setQuicklookBandName(product);
             addQuicklooks(product);
-
-            /*if(dataDir.isComplex()) {
-                product = product.createFlippedProduct(ProductFlipper.FLIP_HORIZONTAL, product.getName(), product.getDescription());
-                product.setFileLocation(fileFromInput);
-                product.setProductReader(this);
-            }    */
 
             product.getGcpGroup();
             product.setModified(false);
@@ -130,7 +110,7 @@ public class SaocomProductReader extends SARReader {
 
     private File getQuicklookFile(final String relativeFilePath) {
         try {
-            if(dataDir.exists(dataDir.getRootFolder() + relativeFilePath)) {
+            if (dataDir.exists(dataDir.getRootFolder() + relativeFilePath)) {
                 return dataDir.getFile(dataDir.getRootFolder() + relativeFilePath);
             }
         } catch (IOException e) {
@@ -147,248 +127,30 @@ public class SaocomProductReader extends SARReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        try {
-            final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
-            if (bandInfo != null && bandInfo.img != null) {
+        final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
 
-                Product product = destBand.getProduct();
+        bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                bandInfo.imageID, bandInfo.bandSampleOffset);
 
-                if (dataDir.isMapProjected()) {
-
-                    bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                            destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo.imageID,
-                            bandInfo.bandSampleOffset);
-
-                } else {
-
-                    MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-                    final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-                    if (isAscending) {
-                        readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                0, bandInfo.img, bandInfo.bandSampleOffset);
-                    } else {
-                        readDescendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                0, bandInfo.img, bandInfo.bandSampleOffset);
-                    }
-                }
-
-            } else {
-
-                final ImageInputStream iiStream = dataDir.getCosarImageInputStream(destBand);
-                final boolean isImaginary = destBand.getUnit() != null && destBand.getUnit().equals(Unit.IMAGINARY);
-                readBandRasterDataSLC16Bit(sourceOffsetX, sourceOffsetY,
-                        sourceWidth, sourceHeight,
-                        sourceStepX, sourceStepY,
-                        destWidth, destBuffer,
-                        !isImaginary, iiStream, pm);
-            }
-        } catch (Exception e) {
-            handleReaderException(e);
-        }
-    }
-
-    public void readAscendingRasterBand(final int sourceOffsetX, final int sourceOffsetY,
-                                        final int sourceStepX, final int sourceStepY,
-                                        final ProductData destBuffer,
-                                        final int destOffsetX, final int destOffsetY,
-                                        final int destWidth, final int destHeight,
-                                        final int imageID, final ImageIOFile img,
-                                        final int bandSampleOffset) throws IOException {
-        final Raster data;
-
-        synchronized (dataDir) {
-            final ImageReader reader = img.getReader();
-            final ImageReadParam param = reader.getDefaultReadParam();
-            param.setSourceSubsampling(sourceStepX, sourceStepY,
-                    sourceOffsetX % sourceStepX,
-                    sourceOffsetY % sourceStepY);
-
-            final RenderedImage image = reader.readAsRenderedImage(0, param);
-            Rectangle rect = new Rectangle(destOffsetX, Math.max(0, img.getSceneHeight() - destOffsetY - destHeight),
-                    destWidth, destHeight);
-            data = image.getData(rect);
-        }
-
-        final int w = data.getWidth();
-        final int h = data.getHeight();
-        final DataBuffer dataBuffer = data.getDataBuffer();
-        final SampleModel sampleModel = data.getSampleModel();
-        final int sampleOffset = imageID + bandSampleOffset;
-
-        final double[] dArray = new double[dataBuffer.getSize()];
-        sampleModel.getSamples(0, 0, w, h, sampleOffset, dArray, dataBuffer);
-
-        // flip the image upside down
-        int is, id;
-        for (int r = 0; r < h; r++) {
-            for (int c = 0; c < w; c++) {
-                is = r * w + c;
-                id = (h - r - 1) * w + c;
-                destBuffer.setElemDoubleAt(id, dArray[is]);
-            }
-        }
-    }
-
-    public void readDescendingRasterBand(final int sourceOffsetX, final int sourceOffsetY,
-                                         final int sourceStepX, final int sourceStepY,
-                                         final ProductData destBuffer,
-                                         final int destOffsetX, final int destOffsetY,
-                                         final int destWidth, final int destHeight,
-                                         final int imageID, final ImageIOFile img,
-                                         final int bandSampleOffset) throws IOException {
-
-        final Raster data;
-
-        synchronized (dataDir) {
-            final ImageReader reader = img.getReader();
-            final ImageReadParam param = reader.getDefaultReadParam();
-            param.setSourceSubsampling(sourceStepX, sourceStepY,
-                    sourceOffsetX % sourceStepX,
-                    sourceOffsetY % sourceStepY);
-
-            final RenderedImage image = reader.readAsRenderedImage(0, param);
-            data = image.getData(new Rectangle(Math.max(0, img.getSceneWidth() - destOffsetX - destWidth),
-                    destOffsetY, destWidth, destHeight));
-        }
-
-        final int w = data.getWidth();
-        final int h = data.getHeight();
-        final DataBuffer dataBuffer = data.getDataBuffer();
-        final SampleModel sampleModel = data.getSampleModel();
-        final int sampleOffset = imageID + bandSampleOffset;
-
-        final double[] dArray = new double[dataBuffer.getSize()];
-        sampleModel.getSamples(0, 0, w, h, sampleOffset, dArray, dataBuffer);
-
-        // flip the image left to right
-        int is, id;
-        for (int r = 0; r < h; r++) {
-            for (int c = 0; c < w; c++) {
-                is = r * w + c;
-                id = r * w + w - c - 1;
-                destBuffer.setElemDoubleAt(id, dArray[is]);
-            }
-        }
-    }
-
-    private static synchronized void readBandRasterDataSLC16Bit(final int sourceOffsetX, final int sourceOffsetY,
-                                                                final int sourceWidth, final int sourceHeight,
-                                                                final int sourceStepX, final int sourceStepY,
-                                                                final int destWidth, final ProductData destBuffer, boolean oneOf2,
-                                                                final ImageInputStream iiStream, final ProgressMonitor pm)
-            throws IOException {
-
-        iiStream.seek(0);
-        final int bib = iiStream.readInt();
-        final int rsri = iiStream.readInt();
-        final int rs = iiStream.readInt();
-        final int as = iiStream.readInt();
-        final int bi = iiStream.readInt();
-        final int rtnb = iiStream.readInt();
-        final int tnl = iiStream.readInt();
-        //System.out.print("bib"+bib+" rsri"+rsri+" rs"+rs+" as"+as+" bi"+bi+" rtbn"+rtnb+" tnl"+tnl);
-        //System.out.println(" sourceOffsetX="+sourceOffsetX+" sourceOffsetY="+sourceOffsetY);
-
-        final long imageRecordLength = (long) rtnb;
-        final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
-        final int x = sourceOffsetX * 4;
-        final int filler = 2;
-        final int asri = rs;
-        final int asfv = rs;
-        final int aslv = rs;
-
-        final int csar = iiStream.readInt();
-        final int version = iiStream.readInt();
-
-        if (version != 1 && version != 2) {
-            throw new IOException("Unknown version = " + version);
-        }
-
-        //System.out.println("csar = " + csar + " version = " + version);
-
-        final boolean isSSC = (version == 1); // true means it is SSC, false means it is CoSSC
-
-        //final long xpos = rtnb + x + ((filler + asri +filler+ asfv +filler+ aslv +filler+filler)*4);
-        final long xpos = rtnb + x + ((filler + asri + filler + asfv + filler + aslv + filler) * 4);
-        iiStream.setByteOrder(ByteOrder.BIG_ENDIAN);
-
-        pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
-        int y = 0;
-
-        if(isSSC) {
-            final short[] destLine = new short[destWidth];
-            try {
-                final short[] srcLine = new short[sourceWidth * 2];
-                for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-
-                    // Read source line
-                    //synchronized (iiStream) {
-                    iiStream.seek(imageRecordLength * y + xpos);
-                    iiStream.readFully(srcLine, 0, srcLine.length);
-                    //}
-
-                    // Copy source line into destination buffer
-                    final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-                    if (oneOf2)
-                        ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
-                    else
-                        ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
-
-                    System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
-
-                    pm.worked(1);
-                }
-            } catch (Exception e) {
-                //System.out.println(e.toString());
-                final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-                Arrays.fill(destLine, (short) 0);
-                System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
-            } finally {
-                pm.done();
-            }
-        } else {
-            final char[] destLine = new char[destWidth];
-            try {
-                final char[] srcLine = new char[sourceWidth * 2];
-                for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-
-                    // Read source line
-                    //synchronized (iiStream) {
-                    iiStream.seek(imageRecordLength * y + xpos);
-                    iiStream.readFully(srcLine, 0, srcLine.length);
-                    //}
-
-                    // Copy source line into destination buffer
-                    final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-                    if (oneOf2)
-                        ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
-                    else
-                        ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
-
-                    for (int i = 0; i < destWidth; i++) {
-                        destBuffer.setElemFloatAt(i+currentLineIndex, ArrayCopy.convert16BitsTo32BitFloat(destLine[i]));
-                    }
-
-                    pm.worked(1);
-                }
-            } catch (Exception e) {
-                //System.out.println(e.toString());
-                final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-                Arrays.fill(destLine, (char) 0);
-                for (int i = 0; i < destWidth; i++) {
-                    destBuffer.setElemFloatAt(i+currentLineIndex, ArrayCopy.convert16BitsTo32BitFloat(destLine[i]));
-                }
-            } finally {
-                pm.done();
-            }
-        }
+//        final boolean isSLC = dataDir.isSLC();
+//        final boolean isImaginary = destBand.getUnit().contains(Unit.IMAGINARY);
+//        final double nodatavalue = destBand.getNoDataValue();
+//        for(int i=0; i< destBuffer.getNumElems(); ++i) {
+//            int val = destBuffer.getElemIntAt(i);
+//            if(isSLC) {
+//                if(isImaginary) {
+//                    double secondHalf = (short) (val & 0xffff);
+//                    destBuffer.setElemDoubleAt(i, secondHalf);
+//                } else {
+//                    double firstHalf = (short) (val >> 16);
+//                    destBuffer.setElemDoubleAt(i, firstHalf);
+//                }
+//            } else {
+//                if (val != nodatavalue) {
+//                    destBuffer.setElemDoubleAt(i, Math.sqrt(val));
+//                }
+//            }
+//        }
     }
 }

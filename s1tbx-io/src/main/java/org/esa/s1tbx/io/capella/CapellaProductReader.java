@@ -50,7 +50,10 @@ public class CapellaProductReader extends SARReader {
 
     @Override
     public void close() throws IOException {
-        dataDir.close();
+        if (dataDir != null) {
+            dataDir.close();
+            dataDir = null;
+        }
         super.close();
     }
 
@@ -80,6 +83,7 @@ public class CapellaProductReader extends SARReader {
         dataDir.readProductDirectory();
         final Product product = dataDir.createProduct();
 
+        addCommonSARMetadata(product);
         product.getGcpGroup();
         product.setFileLocation(metadataFile);
         product.setProductReader(this);

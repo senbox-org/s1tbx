@@ -17,7 +17,6 @@ package org.esa.s1tbx.io.terrasarx;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
@@ -47,8 +46,6 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
 import java.io.File;
@@ -92,6 +89,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         headerFile = inputFile;
     }
 
+    @Override
     protected String getHeaderFileName() {
         if (ZipUtils.isZip(headerFile)) {
             return ""; //todo
@@ -100,6 +98,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
+    @Override
     protected String getRelativePathToImageFolder() {
         return getRootFolder() + "IMAGEDATA" + '/';
     }
@@ -272,7 +271,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
