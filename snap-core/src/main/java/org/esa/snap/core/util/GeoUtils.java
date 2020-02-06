@@ -246,7 +246,7 @@ public class GeoUtils {
                     rasterWidth,
                     rasterHeight);
         }
-        return createRectBoundary(rect, step);
+        return createPixelBoundaryFromRect(rect, step);
     }
 
     /**
@@ -255,20 +255,20 @@ public class GeoUtils {
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
-     * <p> This method delegates to {@link #createRectBoundary(java.awt.Rectangle, int, boolean) createRectBoundary(Rectangle, int, boolean)}
+     * <p> This method delegates to {@link #createPixelBoundaryFromRect(java.awt.Rectangle, int, boolean) createPixelBoundaryFromRect(Rectangle, int, boolean)}
      * and the additional boolean parameter {@code usePixelCenter} is {@code true}.
      *
      * @param rect the source rectangle
      * @param step the mean distance from one pixel position to the other in the returned array
      * @return the rectangular boundary
      */
-    public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
+    public static PixelPos[] createPixelBoundaryFromRect(Rectangle rect, int step) {
         final boolean usePixelCenter = true;
-        return createRectBoundary(rect, step, usePixelCenter);
+        return createPixelBoundaryFromRect(rect, step, usePixelCenter);
     }
 
     private static GeoPos[] getGeoBoundary(GeoCoding gc, Rectangle region, int step, boolean usePixelCenter) {
-        final PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
+        final PixelPos[] points = createPixelBoundaryFromRect(region, step, usePixelCenter);
         ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
         boolean calculateInsets = false;
         for (final PixelPos pixelPos : points) {
@@ -491,7 +491,7 @@ public class GeoUtils {
      * @param usePixelCenter {@code true} if the pixel center should be used
      * @return the rectangular boundary
      */
-    static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
+    static PixelPos[] createPixelBoundaryFromRect(final Rectangle rect, int step, final boolean usePixelCenter) {
         // package access for testing only tb 2020-01-30
         final double insetDistance = usePixelCenter ? 0.5 : 0.0;
         final int x1 = rect.x;

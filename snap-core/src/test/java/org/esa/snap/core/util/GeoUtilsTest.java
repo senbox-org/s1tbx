@@ -8,7 +8,6 @@ import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.*;
 import java.awt.geom.*;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -16,9 +15,9 @@ import static org.mockito.Mockito.*;
 public class GeoUtilsTest {
 
     @Test
-    public void testCreateRectBoundary_usePixelCenter_false() {
+    public void testCreatePixelBoundaryFromRect_usePixelCenter_false() {
         final boolean usePixelCenter = false;
-        final PixelPos[] rectBoundary = GeoUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
+        final PixelPos[] rectBoundary = GeoUtils.createPixelBoundaryFromRect(new Rectangle(2, 3, 15, 20), 7,
                 usePixelCenter);
         assertEquals(12, rectBoundary.length);
         assertEquals(new PixelPos(2, 3), rectBoundary[0]);
@@ -36,9 +35,9 @@ public class GeoUtilsTest {
     }
 
     @Test
-    public void testCreateRectBoundary_usePixelCenter_true() {
+    public void testCreatePixelBoundaryFromRect_usePixelCenter_true() {
         final boolean usePixelCenter = true;
-        final PixelPos[] rectBoundary = GeoUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7, usePixelCenter);
+        final PixelPos[] rectBoundary = GeoUtils.createPixelBoundaryFromRect(new Rectangle(2, 3, 15, 20), 7, usePixelCenter);
         assertEquals(10, rectBoundary.length);
         assertEquals(new PixelPos(2.5f, 3.5f), rectBoundary[0]);
         assertEquals(new PixelPos(9.5f, 3.5f), rectBoundary[1]);
@@ -53,9 +52,9 @@ public class GeoUtilsTest {
     }
 
     @Test
-    public void testCreateRectBoundary_usePixelCenter_true_step_zero() {
+    public void testCreatePixelBoundaryFromRect_usePixelCenter_true_step_zero() {
         final boolean usePixelCenter = true;
-        final PixelPos[] rectBoundary = GeoUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 0, usePixelCenter);
+        final PixelPos[] rectBoundary = GeoUtils.createPixelBoundaryFromRect(new Rectangle(2, 3, 15, 20), 0, usePixelCenter);
         assertEquals(4, rectBoundary.length);
         assertEquals(new PixelPos(2.5f, 3.5f), rectBoundary[0]);
         assertEquals(new PixelPos(16.5f, 3.5f), rectBoundary[1]);
@@ -64,8 +63,8 @@ public class GeoUtilsTest {
     }
 
     @Test
-    public void testCreateRectBoundary() {
-        final PixelPos[] rectBoundary = GeoUtils.createRectBoundary(new Rectangle(5, 10, 22, 44), 10);
+    public void testCreatePixelBoundaryFromRect() {
+        final PixelPos[] rectBoundary = GeoUtils.createPixelBoundaryFromRect(new Rectangle(5, 10, 22, 44), 10);
         assertEquals(16, rectBoundary.length);
         assertEquals(new PixelPos(5.5, 10.5), rectBoundary[0]);
         assertEquals(new PixelPos(15.5, 10.5), rectBoundary[1]);

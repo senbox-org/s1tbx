@@ -537,7 +537,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
-        return GeoUtils.createRectBoundary(rect, step, true);
+        return GeoUtils.createPixelBoundaryFromRect(rect, step, true);
     }
 
     /**
@@ -545,7 +545,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
-        return GeoUtils.createRectBoundary(rect, step, usePixelCenter);
+        return GeoUtils.createPixelBoundaryFromRect(rect, step, usePixelCenter);
     }
 
     /**
