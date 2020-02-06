@@ -43,8 +43,8 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -415,8 +415,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static GeoPos[] createGeoBoundary(Product product, int step) {
-        final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        return createGeoBoundary(product, rect, step);
+        return GeoUtils.createGeoBoundary(product, step);
     }
 
     /**
@@ -424,8 +423,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step) {
-        final boolean usePixelCenter = true;
-        return createGeoBoundary(product, region, step, usePixelCenter);
+        return GeoUtils.createGeoBoundary(product, region, step, true);
     }
 
     /**
@@ -434,26 +432,7 @@ public class ProductUtils {
     @Deprecated
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step,
                                              final boolean usePixelCenter) {
-        Guardian.assertNotNull("product", product);
-        final GeoCoding gc = product.getSceneGeoCoding();
-        if (gc == null) {
-            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
-        }
-        if (region == null) {
-            region = new Rectangle(0,
-                    0,
-                    product.getSceneRasterWidth(),
-                    product.getSceneRasterHeight());
-        }
-        final PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
-        final ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
-        for (final PixelPos pixelPos : points) {
-            final GeoPos gcGeoPos = gc.getGeoPos(pixelPos, null);
-            if (true) { // including valid positions only leads to unit test failures 'very elsewhere' rq-20140414
-                geoPoints.add(gcGeoPos);
-            }
-        }
-        return geoPoints.toArray(new GeoPos[geoPoints.size()]);
+        return GeoUtils.createGeoBoundary(product, region, step, usePixelCenter);
     }
 
     /**
@@ -462,26 +441,7 @@ public class ProductUtils {
     @Deprecated
     public static GeoPos[] createGeoBoundary(RasterDataNode rasterDataNode, Rectangle region, int step,
                                              final boolean usePixelCenter) {
-        Guardian.assertNotNull("rasterDataNode", rasterDataNode);
-        final GeoCoding gc = rasterDataNode.getGeoCoding();
-        if (gc == null) {
-            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
-        }
-        if (region == null) {
-            region = new Rectangle(0,
-                    0,
-                    rasterDataNode.getRasterWidth(),
-                    rasterDataNode.getRasterHeight());
-        }
-        final PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
-        final ArrayList<GeoPos> geoPoints = new ArrayList<>(points.length);
-        for (final PixelPos pixelPos : points) {
-            final GeoPos gcGeoPos = gc.getGeoPos(pixelPos, null);
-            if (true) { // including valid positions only leads to unit test failures 'very elsewhere' rq-20140414
-                geoPoints.add(gcGeoPos);
-            }
-        }
-        return geoPoints.toArray(new GeoPos[geoPoints.size()]);
+        return GeoUtils.createGeoBoundary(rasterDataNode, region, step, usePixelCenter);
     }
 
     /**
@@ -489,17 +449,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static GeoPos[] createGeoBoundary(RasterDataNode raster, Rectangle region, int step) {
-        Guardian.assertNotNull("raster", raster);
-        final GeoCoding gc = raster.getGeoCoding();
-        if (gc == null) {
-            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
-        }
-        PixelPos[] points = createPixelBoundary(raster, region, step);
-        GeoPos[] geoPoints = new GeoPos[points.length];
-        for (int i = 0; i < geoPoints.length; i++) {
-            geoPoints[i] = gc.getGeoPos(points[i], null);
-        }
-        return geoPoints;
+        return GeoUtils.createGeoBoundary(raster, region, step);
     }
 
     /**
@@ -507,9 +457,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(Product product) {
-        final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        final int step = Math.min(rect.width, rect.height) / 8;
-        return createGeoBoundaryPaths(product, rect, step > 0 ? step : 1);
+        return GeoUtils.createGeoBoundaryPaths(product);
     }
 
     /**
@@ -517,9 +465,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode) {
-        final Rectangle rect = new Rectangle(0, 0, rasterDataNode.getRasterWidth(), rasterDataNode.getRasterHeight());
-        final int step = Math.min(rect.width, rect.height) / 8;
-        return createGeoBoundaryPaths(rasterDataNode, rect, step > 0 ? step : 1, false);
+        return GeoUtils.createGeoBoundaryPaths(rasterDataNode);
     }
 
     /**
@@ -527,8 +473,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step) {
-        final boolean usePixelCenter = true;
-        return createGeoBoundaryPaths(product, region, step, usePixelCenter);
+        return GeoUtils.createGeoBoundaryPaths(product, region, step, true);
     }
 
     /**
@@ -536,50 +481,27 @@ public class ProductUtils {
      */
     @Deprecated
     public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step) {
-        final boolean usePixelCenter = false;
-        return createGeoBoundaryPaths(rasterDataNode, region, step, usePixelCenter);
+        return GeoUtils.createGeoBoundaryPaths(rasterDataNode, region, step, false);
     }
 
     /**
      * @deprecated use {@link GeoUtils} instead
      */
     @Deprecated
-    public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step,
-                                                       final boolean usePixelCenter) {
-        Guardian.assertNotNull("product", product);
-        final GeoCoding gc = product.getSceneGeoCoding();
-        if (gc == null) {
-            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
-        }
-        final GeoPos[] geoPoints = createGeoBoundary(product, region, step, usePixelCenter);
-        normalizeGeoPolygon(geoPoints);
-
-        final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);
-
-        return pathList.toArray(new GeneralPath[pathList.size()]);
+    public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step, final boolean usePixelCenter) {
+        return GeoUtils.createGeoBoundaryPaths(product, region, step, usePixelCenter);
     }
 
     /**
      * @deprecated use {@link GeoUtils} instead
      */
     @Deprecated
-    public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step,
-                                                       final boolean usePixelCenter) {
-        Guardian.assertNotNull("rasterDataNode", rasterDataNode);
-        final GeoCoding gc = rasterDataNode.getGeoCoding();
-        if (gc == null) {
-            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
-        }
-        final GeoPos[] geoPoints = createGeoBoundary(rasterDataNode, region, step, usePixelCenter);
-        normalizeGeoPolygon(geoPoints);
-
-        final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);
-
-        return pathList.toArray(new GeneralPath[pathList.size()]);
+    public static GeneralPath[] createGeoBoundaryPaths(RasterDataNode rasterDataNode, Rectangle region, int step, final boolean usePixelCenter) {
+        return GeoUtils.createGeoBoundaryPaths(rasterDataNode, region, step, usePixelCenter);
     }
 
     /**
-     * @deprecated
+     * @deprecated no replacement
      */
     @Deprecated
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step) {
@@ -607,13 +529,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
-        if (rect == null) {
-            rect = new Rectangle(0,
-                    0,
-                    raster.getRasterWidth(),
-                    raster.getRasterHeight());
-        }
-        return createRectBoundary(rect, step);
+        return GeoUtils.createPixelBoundary(raster, rect, step);
     }
 
     /**
@@ -621,8 +537,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
-        final boolean usePixelCenter = true;
-        return createRectBoundary(rect, step, usePixelCenter);
+        return GeoUtils.createRectBoundary(rect, step, true);
     }
 
     /**
@@ -630,45 +545,7 @@ public class ProductUtils {
      */
     @Deprecated
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
-        final double insetDistance = usePixelCenter ? 0.5 : 0.0;
-        final int x1 = rect.x;
-        final int y1 = rect.y;
-        final int w = usePixelCenter ? rect.width - 1 : rect.width;
-        final int h = usePixelCenter ? rect.height - 1 : rect.height;
-        final int x2 = x1 + w;
-        final int y2 = y1 + h;
-
-        if (step <= 0) {
-            step = 2 * Math.max(rect.width, rect.height); // don't step!
-        }
-
-        final ArrayList<PixelPos> pixelPosList = new ArrayList<>(2 * (rect.width + rect.height) / step + 10);
-
-        int lastX = 0;
-        for (int x = x1; x < x2; x += step) {
-            pixelPosList.add(new PixelPos(x + insetDistance, y1 + insetDistance));
-            lastX = x;
-        }
-
-        int lastY = 0;
-        for (int y = y1; y < y2; y += step) {
-            pixelPosList.add(new PixelPos(x2 + insetDistance, y + insetDistance));
-            lastY = y;
-        }
-
-        pixelPosList.add(new PixelPos(x2 + insetDistance, y2 + insetDistance));
-
-        for (int x = lastX; x > x1; x -= step) {
-            pixelPosList.add(new PixelPos(x + insetDistance, y2 + insetDistance));
-        }
-
-        pixelPosList.add(new PixelPos(x1 + insetDistance, y2 + insetDistance));
-
-        for (int y = lastY; y > y1; y -= step) {
-            pixelPosList.add(new PixelPos(x1 + insetDistance, y + insetDistance));
-        }
-
-        return pixelPosList.toArray(new PixelPos[pixelPosList.size()]);
+        return GeoUtils.createRectBoundary(rect, step, usePixelCenter);
     }
 
     /**
