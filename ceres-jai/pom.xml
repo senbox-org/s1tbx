@@ -25,15 +25,15 @@
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>
-            <artifactId>jai-core-openjdk</artifactId>
+            <artifactId>jai-core</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>
-            <artifactId>jai-codec-openjdk</artifactId>
+            <artifactId>jai-codec</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>
-            <artifactId>mlibwrapper-jai-openjdk</artifactId>
+            <artifactId>mlibwrapper-jai</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.media</groupId>
@@ -46,21 +46,6 @@
         <dependency>
             <groupId>it.geosolutions.imageio-ext</groupId>
             <artifactId>imageio-ext-tiff</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.media</groupId>
-                    <artifactId>jai_core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.media</groupId>
-                    <artifactId>jai_codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.media</groupId>
-                    <artifactId>jai_imageio</artifactId>
-                </exclusion>
-            </exclusions>
-
         </dependency>
 
         <dependency>
