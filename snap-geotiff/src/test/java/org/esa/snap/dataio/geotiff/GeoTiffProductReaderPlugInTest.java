@@ -86,10 +86,10 @@ public class GeoTiffProductReaderPlugInTest {
     public void testDecodeQualification() throws URISyntaxException {
         assertEquals(DecodeQualification.UNABLE, plugIn.getDecodeQualification("file.zip"));
         assertEquals(DecodeQualification.UNABLE, plugIn.getDecodeQualification("file"));
-        assertEquals(DecodeQualification.SUITABLE, plugIn.getDecodeQualification("file.tif"));
-        assertEquals(DecodeQualification.SUITABLE, plugIn.getDecodeQualification("file.tiff"));
-        assertEquals(DecodeQualification.SUITABLE, plugIn.getDecodeQualification("file.btf"));
-        assertEquals(DecodeQualification.SUITABLE, plugIn.getDecodeQualification("file.gtif"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.tif"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.tiff"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.btf"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.gtif"));
 
         final File zippedgeoTiff = new File(getClass().getResource("nearGreenwichMeridian.zip").toURI());
         if(zippedgeoTiff.exists()) {

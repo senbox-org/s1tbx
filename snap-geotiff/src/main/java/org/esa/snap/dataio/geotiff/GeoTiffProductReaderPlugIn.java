@@ -59,7 +59,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                 if (ext != null) {
                     boolean extensionMatch = Arrays.stream(TIFF_FILE_EXTENSION).anyMatch(ext::equalsIgnoreCase);
                     if (extensionMatch) {
-                        return DecodeQualification.SUITABLE;
+                        return DecodeQualification.INTENDED;
                     } else if (ext.equalsIgnoreCase(ZIP_FILE_EXTENSION)) {
                         return checkZip((File) imageIOInput);
                     }
