@@ -61,7 +61,7 @@ public class AlosPalsarImageFile extends CEOSImageFile {
         imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
         binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
         int numRecs = imageFDR.getAttributeInt("Number of lines per data set");
-//	System.out.format("numRecs %d\n",numRecs);
+
         imageRecords = new BinaryRecord[imageFDR.getAttributeInt("Number of lines per data set")];
         if (imageRecords.length > 0) {
             imageRecords[0] = createNewImageRecord(0);
@@ -72,13 +72,10 @@ public class AlosPalsarImageFile extends CEOSImageFile {
             startDay = imageRecords[0].getAttributeInt("Sensor acquisition day of year");
             startMsec = imageRecords[0].getAttributeInt("Sensor acquisition milliseconds of day");
             int startRange = imageRecords[0].getAttributeInt("Slant range to 1st pixel");
-//	    System.out.format("startRange %d\n",startRange);
-//          System.out.format("start msec %d %d %d\n",startYear,startDay,startMsec);
+
             endYear = imageRecords[numRecs - 1].getAttributeInt("Sensor acquisition year");
             endDay = imageRecords[numRecs - 1].getAttributeInt("Sensor acquisition day of year");
             endMsec = imageRecords[numRecs - 1].getAttributeInt("Sensor acquisition milliseconds of day");
-//          System.out.format("end msec %d %d %d\n",endYear,endDay,endMsec);
-
         }
         imageHeaderLength = imageFDR.getAttributeInt("Number of bytes of prefix data per record");
     }

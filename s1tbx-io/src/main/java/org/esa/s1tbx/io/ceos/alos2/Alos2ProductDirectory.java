@@ -16,7 +16,6 @@
 package org.esa.s1tbx.io.ceos.alos2;
 
 import com.bc.ceres.core.VirtualDir;
-import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarProductDirectory;
@@ -41,8 +40,18 @@ public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
         productDir = dir;
     }
 
+    private static final String[] excludeExt = new String[] {".jpg",".hdr"};
+
+    private static boolean isValid(final String name) {
+        for(String ext : excludeExt) {
+            if(name.endsWith(ext))
+                return false;
+        }
+        return true;
+    }
+
     @Override
-    protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
+    protected void readProductDirectory() throws IOException {
         readVolumeDirectoryFileStream();
 
         updateProductType();
@@ -56,6 +65,9 @@ public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
         final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
         final List<AlosPalsarImageFile> imgArray = new ArrayList<>(ceosFiles.length);
         for (CeosFile imageFile : ceosFiles) {
+            if(!isValid(imageFile.fileName)) {
+                continue;
+            }
             try {
                 final AlosPalsarImageFile imgFile = new AlosPalsarImageFile(imageFile.imgInputStream,
                         getProductLevel(), imageFile.fileName);
@@ -71,7 +83,7 @@ public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
         sceneHeight = imageFiles[0].getRasterHeight();
         for (final AlosPalsarImageFile imageFile : imageFiles) {
             if (sceneWidth != imageFile.getRasterWidth() || sceneHeight != imageFile.getRasterHeight()) {
-                throw new IOException("ALOS2 ScanSAR products are not currently supported.");
+                //throw new IOException("ALOS2 ScanSAR products are not currently supported.");
             }
         }
 
