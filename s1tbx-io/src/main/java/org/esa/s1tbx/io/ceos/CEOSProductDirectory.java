@@ -20,12 +20,7 @@ import org.esa.s1tbx.commons.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -36,23 +31,13 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
-
+ *
  */
 public abstract class CEOSProductDirectory {
 
@@ -152,7 +137,7 @@ public abstract class CEOSProductDirectory {
                 final double angle2 = facility.getAttributeDouble("Incidence angle at centre range pixel");
                 final double angle3 = facility.getAttributeDouble("Incidence angle at last valid range pixel");
 
-                final float[] angles = new float[]{(float)angle1, (float)angle2, (float)angle3};
+                final float[] angles = new float[]{(float) angle1, (float) angle2, (float) angle3};
                 final float[] fineAngles = new float[gridWidth * gridHeight];
 
                 ReaderUtils.createFineTiePointGrid(3, 1, gridWidth, gridHeight, angles, fineAngles);
@@ -170,7 +155,7 @@ public abstract class CEOSProductDirectory {
                 final double time2 = scene.getAttributeDouble("Zero-doppler range time of centre range pixel") * Constants.oneMillion; // ms to ns
                 final double time3 = scene.getAttributeDouble("Zero-doppler range time of last range pixel") * Constants.oneMillion; // ms to ns
 
-                final float[] times = new float[]{(float)time1, (float)time2, (float)time3};
+                final float[] times = new float[]{(float) time1, (float) time2, (float) time3};
                 final float[] fineTimes = new float[gridWidth * gridHeight];
 
                 ReaderUtils.createFineTiePointGrid(3, 1, gridWidth, gridHeight, times, fineTimes);
@@ -196,10 +181,10 @@ public abstract class CEOSProductDirectory {
         } else if (bitsPerSample == 8) {
             dataType = isProductSLC ? ProductData.TYPE_INT8 : ProductData.TYPE_UINT8;
         }
-        if(product.getBand(name) != null) {
+        if (product.getBand(name) != null) {
             int cnt = 0;
-            for(String bandName : product.getBandNames()) {
-                if(bandName.startsWith(name)) {
+            for (String bandName : product.getBandNames()) {
+                if (bandName.startsWith(name)) {
                     ++cnt;
                 }
             }
@@ -331,7 +316,7 @@ public abstract class CEOSProductDirectory {
     }
 
     protected int isGroundRange(final BinaryRecord mapProjRec) {
-        if(mapProjRec != null) {
+        if (mapProjRec != null) {
             final String projDesc = mapProjRec.getAttributeString("Map projection descriptor").toLowerCase();
             if (projDesc.contains("slant"))
                 return 0;
@@ -359,7 +344,7 @@ public abstract class CEOSProductDirectory {
     }
 
     private void addVector(String name, MetadataElement orbitVectorListElem,
-                                  BinaryRecord platformPosRec, int num) {
+                           BinaryRecord platformPosRec, int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time, getOrbitTime(platformPosRec, num));
@@ -465,10 +450,10 @@ public abstract class CEOSProductDirectory {
 
     protected InputStream findFile(final String fileName) throws IOException {
         try {
-            if(productDir.isCompressed()) {
+            if (productDir.isCompressed()) {
                 String folder = "";
                 String[] fileList = productDir.list("");
-                while(fileList.length > 0 && fileList.length <= 3) {
+                while (fileList.length > 0 && fileList.length <= 3) {
                     folder += fileList[0] + '/';
                     fileList = productDir.list(folder);
                 }
@@ -488,22 +473,22 @@ public abstract class CEOSProductDirectory {
         final List<CeosFile> list = new ArrayList<>(4);
         String folder = "";
         String[] fileList = productDir.list("");
-        while(fileList.length > 0 && fileList.length <= 3) {
+        while (fileList.length > 0 && fileList.length <= 3) {
             folder += fileList[0] + '/';
             fileList = productDir.list(folder);
         }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += "/";
         }
-	for (int i = 0; i < fileList.length; i++){
-	    String name = fileList[i].toUpperCase();
-	    if((name.startsWith("AL1_"))&&name.endsWith(".CEOS")) {
-		folder = fileList[i] + '/';
-		fileList = productDir.list(folder);
-		break;
-	    }
-	}
-        for(String name : fileList) {
+        for (int i = 0; i < fileList.length; i++) {
+            String name = fileList[i].toUpperCase();
+            if ((name.startsWith("AL1_")) && name.endsWith(".CEOS")) {
+                folder = fileList[i] + '/';
+                fileList = productDir.list(folder);
+                break;
+            }
+        }
+        for (String name : fileList) {
             String nameUp = name.toUpperCase();
             for (String prefix : prefixList) {
                 if (nameUp.startsWith(prefix) || nameUp.endsWith('.' + prefix)) {
@@ -528,6 +513,7 @@ public abstract class CEOSProductDirectory {
     public static class CeosFile {
         public ImageInputStream imgInputStream;
         public String fileName;
+
         public CeosFile(ImageInputStream imgInputStream, String fileName) {
             this.imgInputStream = imgInputStream;
             this.fileName = fileName;
