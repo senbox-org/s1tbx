@@ -2,22 +2,16 @@ package org.esa.snap.core.dataio.geocoding;
 
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.geocoding.util.RasterUtils;
-import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.AbstractGeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Scene;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.core.transform.GeoCodingMathTransform;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class ComponentGeoCoding implements GeoCoding {
+public class ComponentGeoCoding extends AbstractGeoCoding {
 
     private static final GeoPos INVALID_GEO_POS = new GeoPos(Double.NaN, Double.NaN);
     private static final PixelPos INVALID_PIXEL_POS = new PixelPos(Double.NaN, Double.NaN);
@@ -27,10 +21,6 @@ public class ComponentGeoCoding implements GeoCoding {
     private final GeoRaster geoRaster;
     private final GeoChecks geoChecks;
 
-    private final CoordinateReferenceSystem imageCRS;
-    private final CoordinateReferenceSystem mapCRS;
-    private final CoordinateReferenceSystem geoCRS;
-    private volatile MathTransform image2Map;
     private boolean isInitialized;
     private boolean isCrossingAntiMeridian;
 
@@ -76,32 +66,22 @@ public class ComponentGeoCoding implements GeoCoding {
      * Constructs a GeoCoding with given GeoRaster, ForwardCoding, InverseCoding, GeoChecks to be performed during initialization and CRS.
      * Forward and/or Inverse coding can be null.
      *
-     * @param geoRaster the GeoRaster
+     * @param geoRaster     the GeoRaster
      * @param forwardCoding the ForwardCoding, can be null
      * @param inverseCoding the InverseCoding, can be null
-     * @param geoChecks definition of GeoChecks to be executed during initialization
-     * @param geoCRS  the CRS
+     * @param geoChecks     definition of GeoChecks to be executed during initialization
+     * @param geoCRS        the CRS
      */
     public ComponentGeoCoding(GeoRaster geoRaster, ForwardCoding forwardCoding, InverseCoding inverseCoding,
                               GeoChecks geoChecks, CoordinateReferenceSystem geoCRS) {
+        super(geoCRS);
         this.forwardCoding = forwardCoding;
         this.inverseCoding = inverseCoding;
         this.geoRaster = geoRaster;
-        this.geoCRS = geoCRS;
-        this.mapCRS = geoCRS;
-        this.imageCRS = createImageCRS(getMapCRS(), new GeoCodingMathTransform(this));
         this.geoChecks = geoChecks;
 
         isInitialized = false;
         isCrossingAntiMeridian = false;
-    }
-
-    protected static DefaultDerivedCRS createImageCRS(CoordinateReferenceSystem baseCRS,
-                                                      MathTransform baseToDerivedTransform) {
-        return new DefaultDerivedCRS("Image CS based on " + baseCRS.getName(),
-                baseCRS,
-                baseToDerivedTransform,
-                DefaultCartesianCS.DISPLAY);
     }
 
     @Override
@@ -174,38 +154,6 @@ public class ComponentGeoCoding implements GeoCoding {
     @Deprecated
     public Datum getDatum() {
         throw new NotImplementedException();
-    }
-
-    @Override
-    public CoordinateReferenceSystem getImageCRS() {
-        return imageCRS;
-    }
-
-    @Override
-    public CoordinateReferenceSystem getMapCRS() {
-        return mapCRS;
-    }
-
-    @Override
-    public CoordinateReferenceSystem getGeoCRS() {
-        return geoCRS;
-    }
-
-    @Override
-    public MathTransform getImageToMapTransform() {
-        if (image2Map == null) {
-            synchronized (this) {
-                if (image2Map == null) {
-                    try {
-                        image2Map = CRS.findMathTransform(imageCRS, mapCRS);
-                    } catch (FactoryException e) {
-                        throw new IllegalArgumentException(
-                                "Not able to find a math transformation from image to map CRS.", e);
-                    }
-                }
-            }
-        }
-        return image2Map;
     }
 
     public void initialize() {
