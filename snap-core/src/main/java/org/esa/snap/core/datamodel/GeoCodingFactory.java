@@ -97,7 +97,7 @@ public class GeoCodingFactory {
         }
     }
 
-    static Band createSubset(Band sourceBand, Scene targetScene, ProductSubsetDef subsetDef) {
+    public static Band createSubset(Band sourceBand, Scene targetScene, ProductSubsetDef subsetDef) {
         final Band targetBand = new Band(sourceBand.getName(),
                                          sourceBand.getDataType(),
                                          targetScene.getRasterWidth(),

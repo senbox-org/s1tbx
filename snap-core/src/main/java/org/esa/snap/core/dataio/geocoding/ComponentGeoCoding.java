@@ -2,10 +2,7 @@ package org.esa.snap.core.dataio.geocoding;
 
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.geocoding.util.RasterUtils;
-import org.esa.snap.core.datamodel.AbstractGeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -130,9 +127,30 @@ public class ComponentGeoCoding extends AbstractGeoCoding {
      * @return true, if the geo-coding could be transferred.
      */
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
-        // geo-subsetting
-        // subsampling
-        //
+        // @todo 1 tb/tb check if we have pixel or tie-point geo-coding, the stuff below is only for PixelGeoCodings
+
+        final Product destProduct = destScene.getProduct();
+        Band lonBand = destProduct.getBand(geoRaster.getLonVariableName());
+        if (lonBand == null) {
+            final Band srcLonBand = srcScene.getProduct().getBand(geoRaster.getLonVariableName());
+            lonBand = GeoCodingFactory.createSubset(srcLonBand, destScene, subsetDef);
+            destProduct.addBand(lonBand);
+        }
+        Band latBand = destProduct.getBand(geoRaster.getLatVariableName());
+        if (latBand == null) {
+            final Band srcLatBand = srcScene.getProduct().getBand(geoRaster.getLatVariableName());
+            latBand = GeoCodingFactory.createSubset(srcLatBand, destScene, subsetDef);
+            destProduct.addBand(latBand);
+        }
+
+
+        // @todo 1 tb/tb
+        // read target raster data as doubles
+        // extract width/height
+        // detect current forward and inverse
+        // create new ones and assemble new GeoCoding
+        // initialize new GeoCoding
+        
         throw new NotImplementedException();
     }
 
