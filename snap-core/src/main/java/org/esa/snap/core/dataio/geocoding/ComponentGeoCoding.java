@@ -130,7 +130,9 @@ public class ComponentGeoCoding extends AbstractGeoCoding {
      * @return true, if the geo-coding could be transferred.
      */
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
-        // @todo 1 tb/tb check if we can implement a general solution here. If not, we have to define this class as abstract 2019-08-23
+        // geo-subsetting
+        // subsampling
+        //
         throw new NotImplementedException();
     }
 

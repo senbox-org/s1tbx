@@ -100,7 +100,7 @@ public class TiePointForwardTest {
 
     @Test
     public void testCheckGeoRaster_pass() {
-        final GeoRaster geoRaster = new GeoRaster(new double[3], new double[3], 100, 500,
+        final GeoRaster geoRaster = new GeoRaster(new double[3], new double[3], "bla", "bli", 100, 500,
                 100, 500, 12.8, 0.5, 0.5, 1.0, 1.0);
 
         forward.checkGeoRaster(geoRaster);
@@ -108,7 +108,7 @@ public class TiePointForwardTest {
 
     @Test
     public void testCheckGeoRaster_fail_gridSize() {
-        final GeoRaster geoRaster = new GeoRaster(new double[3], new double[4], 100, 500,
+        final GeoRaster geoRaster = new GeoRaster(new double[3], new double[4], "blub", "huhu", 100, 500,
                 100, 500, 12.8, 0.5, 0.5, 1.0, 1.0);
 
         try {

@@ -189,7 +189,7 @@ public class ComponentGeoCodingTest {
 
     @Test
     public void testInitialize_noChecks() {
-        final GeoRaster geoRaster = new GeoRaster(null, null, 5, 6, 5, 6, 7.5);
+        final GeoRaster geoRaster = new GeoRaster(null, null, null, null, 5, 6, 7.5);
 
         final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding);
 
@@ -203,7 +203,7 @@ public class ComponentGeoCodingTest {
 
     @Test
     public void testInitialize_noChecks_noForward() {
-        final GeoRaster geoRaster = new GeoRaster(null, null, 5, 6, 5, 6, 7.5);
+        final GeoRaster geoRaster = new GeoRaster(null, null, null, null, 5, 6, 7.5);
 
         final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, null, inverseCoding);
 
@@ -215,7 +215,7 @@ public class ComponentGeoCodingTest {
 
     @Test
     public void testInitialize_noChecks_noInverse() {
-        final GeoRaster geoRaster = new GeoRaster(null, null, 5, 6, 5, 6, 7.5);
+        final GeoRaster geoRaster = new GeoRaster(null, null, null, null, 5, 6, 7.5);
 
         final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, null);
 
@@ -240,7 +240,7 @@ public class ComponentGeoCodingTest {
 
     @Test
     public void testInitialize_checks_anti_meridian_contained() {
-        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_ANTI_MERID_LON, AMSUB.AMSUB_ANTI_MERID_LAT, 31, 31, 31, 31, 16.0);
+        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_ANTI_MERID_LON, AMSUB.AMSUB_ANTI_MERID_LAT, null, null, 31, 31, 16.0);
 
         final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, GeoChecks.ANTIMERIDIAN);
 
@@ -267,7 +267,7 @@ public class ComponentGeoCodingTest {
 
     @Test
     public void testInitialize_checks_poles_anti_meridian() {
-        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_POLE_LON, AMSUB.AMSUB_POLE_LAT, 25, 25, 25, 25, 16.0);
+        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_POLE_LON, AMSUB.AMSUB_POLE_LAT, null, null, 25, 25,16.0);
 
         final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, GeoChecks.POLES);
 
@@ -305,7 +305,7 @@ public class ComponentGeoCodingTest {
 
     @Test
     public void testIsCrossingMeridianAt180_is() {
-        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_POLE_LON, AMSUB.AMSUB_POLE_LAT, 25, 25, 25, 25, 16.0);
+        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_POLE_LON, AMSUB.AMSUB_POLE_LAT, null, null, 25, 25,16.0);
 
         final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, GeoChecks.ANTIMERIDIAN);
         geoCoding.initialize();

@@ -177,7 +177,7 @@ public class PixelGeoIndexInverseTest {
 
     @Test
     public void testToIndex_50km() {
-        final GeoRaster geoRaster = new GeoRaster(new double[0], new double[0], 0, 0, 0, 0,
+        final GeoRaster geoRaster = new GeoRaster(new double[0], new double[0], null, null, 0, 0,
                 50.0);
         inverse.initialize(geoRaster, false, new PixelPos[0]);
 
@@ -190,7 +190,7 @@ public class PixelGeoIndexInverseTest {
 
     @Test
     public void testToIndex_5km() {
-        final GeoRaster geoRaster = new GeoRaster(new double[0], new double[0], 0, 0, 0, 0,
+        final GeoRaster geoRaster = new GeoRaster(new double[0], new double[0], null, null, 0, 0,
                 5.0);
         inverse.initialize(geoRaster, false, new PixelPos[0]);
 
@@ -203,7 +203,7 @@ public class PixelGeoIndexInverseTest {
 
     @Test
     public void testToIndex_300m() {
-        final GeoRaster geoRaster = new GeoRaster(new double[0], new double[0], 0, 0, 0, 0,
+        final GeoRaster geoRaster = new GeoRaster(new double[0], new double[0], null, null, 0, 0,
                 0.3);
         inverse.initialize(geoRaster, false, new PixelPos[0]);
 

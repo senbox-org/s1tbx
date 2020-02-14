@@ -45,7 +45,7 @@ public class RasterUtilsTest {
     public void testGetPoleLocations_no_pole() {
         double[] longitudes = new double[]{54., 55., 56., 57., 58., 59f};
         double[] latitudes = new double[]{-11., -10.5, -10., -9.5, -9., 8.5f};
-        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, 3, 2, 3, 2, 15.0);
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, null, null, 3, 2, 15.0);
 
         final PixelPos[] poleLocations = RasterUtils.getPoleLocations(geoRaster);
         assertEquals(0, poleLocations.length);
@@ -63,7 +63,7 @@ public class RasterUtilsTest {
                 89.32, 89.68, 89.92, 89.52,
                 89.3, 89.62, 89.79, 89.48f
         };
-        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, 4, 4, 4, 4, 12.0);
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, null, null, 4, 4, 12.0);
 
         final PixelPos[] poleLocations = RasterUtils.getPoleLocations(geoRaster);
         assertEquals(1, poleLocations.length);
@@ -84,7 +84,7 @@ public class RasterUtilsTest {
                 89.32, 89.68, 89.92, 89.52,
                 89.3, 89.62, 89.79, 89.48f
         };
-        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, 4, 4, 4, 4, 16.0);
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, null, null, 4, 4, 16.0);
 
         final PixelPos[] poleLocations = RasterUtils.getPoleLocations(geoRaster);
         assertEquals(2, poleLocations.length);
@@ -106,7 +106,7 @@ public class RasterUtilsTest {
 
     @Test
     public void testGetPoleLocations_AMSUB_northPole() {
-        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_POLE_LON, AMSUB.AMSUB_POLE_LAT, 25, 25, 25, 25, 16.0);
+        final GeoRaster geoRaster = new GeoRaster(AMSUB.AMSUB_POLE_LON, AMSUB.AMSUB_POLE_LAT, null, null, 25, 25, 16.0);
 
         final PixelPos[] poleLocations = RasterUtils.getPoleLocations(geoRaster);
         assertEquals(2, poleLocations.length);

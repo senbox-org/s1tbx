@@ -411,10 +411,9 @@ public class EnvisatProductReader extends AbstractProductReader {
         final double[] latitudes = RasterUtils.loadDataScaled(latBand);
         final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
 
-        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonBand.getRasterWidth(), lonBand.getRasterHeight(),
-                product.getSceneRasterWidth(), product.getSceneRasterHeight(), resolutionInKilometers,
-                0.5, 0.5,
-                1.0, 1.0);
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes,
+                EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME, EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME,
+                lonBand.getRasterWidth(), lonBand.getRasterHeight(), resolutionInKilometers);
         final String[] codingKeys = getForwardAndInverseKeys_pixelCoding();
 
         final ForwardCoding forward = ComponentFactory.getForward(codingKeys[0]);
@@ -431,7 +430,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         if (useFractAccuracy) {
             codingNames[0] = "FWD_PIXEL_INTERPOLATING";
         } else {
-            codingNames[0] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_FORWARD,"FWD_PIXEL");
+            codingNames[0] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_FORWARD, "FWD_PIXEL");
         }
 
         codingNames[1] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_INVERSE, "INV_PIXEL_QUAD_TREE");
@@ -450,9 +449,9 @@ public class EnvisatProductReader extends AbstractProductReader {
     }
 
     private ComponentGeoCoding createTiePointGeoCoding(Product product) throws IOException {
-        final TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
         final TiePointGrid lonGrid = product.getTiePointGrid(EnvisatConstants.LON_DS_NAME);
-        if (latGrid == null || lonGrid == null) {
+        final TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
+        if (lonGrid == null || latGrid == null) {
             return null;
         }
 
@@ -460,7 +459,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         final double[] latitudes = RasterUtils.loadData(latGrid);
         final double resolutionInKilometers = getResolutionInKilometers(productFile.getProductType());
 
-        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonGrid.getGridWidth(), lonGrid.getGridHeight(),
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, EnvisatConstants.LON_DS_NAME, EnvisatConstants.LAT_DS_NAME,
+                lonGrid.getGridWidth(), lonGrid.getGridHeight(),
                 product.getSceneRasterWidth(), product.getSceneRasterHeight(), resolutionInKilometers,
                 lonGrid.getOffsetX(), lonGrid.getOffsetY(),
                 lonGrid.getSubSamplingX(), lonGrid.getSubSamplingY());
@@ -475,7 +475,7 @@ public class EnvisatProductReader extends AbstractProductReader {
     /**
      * Installs an Envisat-specific pointing factory in the given product.
      */
-    public static void initPointingFactory(final Product product) {
+    private static void initPointingFactory(final Product product) {
         PointingFactoryRegistry registry = PointingFactoryRegistry.getInstance();
         PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
         product.setPointingFactory(pointingFactory);

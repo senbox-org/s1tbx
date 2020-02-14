@@ -210,7 +210,7 @@ public class PixelQuadTreeInverseTest {
 
     @Test
     public void testGetGeoPos_AMSR2() {
-        final GeoRaster geoRaster = new GeoRaster(AMSR2.AMSR2_ANTI_MERID_LON, AMSR2.AMSR2_ANTI_MERID_LAT, 32, 26,
+        final GeoRaster geoRaster = new GeoRaster(AMSR2.AMSR2_ANTI_MERID_LON, AMSR2.AMSR2_ANTI_MERID_LAT, null, null, 32, 26,
                 32, 26, 0.3, 0.5, 0.5, 1.0, 1.0);
 
         inverse.initialize(geoRaster, false, new PixelPos[0]);
@@ -235,7 +235,7 @@ public class PixelQuadTreeInverseTest {
 
     @Test
     public void testGetEpsilon_AMSR2() {
-        final GeoRaster geoRaster = new GeoRaster(AMSR2.AMSR2_ANTI_MERID_LON, AMSR2.AMSR2_ANTI_MERID_LAT, 32, 26,
+        final GeoRaster geoRaster = new GeoRaster(AMSR2.AMSR2_ANTI_MERID_LON, AMSR2.AMSR2_ANTI_MERID_LAT, null, null, 32, 26,
                 32, 26, 5.0, 0.5, 0.5, 1.0, 1.0);
 
         inverse.initialize(geoRaster, false, new PixelPos[0]);

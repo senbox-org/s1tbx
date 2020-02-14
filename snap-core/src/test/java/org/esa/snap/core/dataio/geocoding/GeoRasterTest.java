@@ -12,15 +12,19 @@ public class GeoRasterTest {
         double[] longitudes = new double[]{1, 2, 3, 4, 5, 6};
         double[] latitudes = new double[]{7, 8, 9, 10, 11, 12};
 
-        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes,
-                2, 3, 4, 5, 18.7);
+        final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, "fritz", "franz",
+                2, 3, 18.7);
 
         assertSame(longitudes, geoRaster.getLongitudes());
         assertSame(latitudes, geoRaster.getLatitudes());
+
+        assertEquals("fritz", geoRaster.getLonVariableName());
+        assertEquals("franz", geoRaster.getLatVariableName());
+
         assertEquals(2, geoRaster.getRasterWidth());
         assertEquals(3, geoRaster.getRasterHeight());
-        assertEquals(4, geoRaster.getSceneWidth());
-        assertEquals(5, geoRaster.getSceneHeight());
+        assertEquals(2, geoRaster.getSceneWidth());
+        assertEquals(3, geoRaster.getSceneHeight());
         assertEquals(18.7, geoRaster.getRasterResolutionInKm(), 1e-8);
 
         assertEquals(0.5, geoRaster.getOffsetX(), 1e-8);
@@ -35,11 +39,16 @@ public class GeoRasterTest {
         double[] latitudes = new double[]{7, 8, 9, 10, 11, 12};
 
         final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes,
+                "lon", "lati",
                 2, 3, 4, 5, 18.7,
                 6.0, 7.0, 8.0, 9.0);
 
         assertSame(longitudes, geoRaster.getLongitudes());
         assertSame(latitudes, geoRaster.getLatitudes());
+
+        assertEquals("lon", geoRaster.getLonVariableName());
+        assertEquals("lati", geoRaster.getLatVariableName());
+
         assertEquals(2, geoRaster.getRasterWidth());
         assertEquals(3, geoRaster.getRasterHeight());
         assertEquals(4, geoRaster.getSceneWidth());

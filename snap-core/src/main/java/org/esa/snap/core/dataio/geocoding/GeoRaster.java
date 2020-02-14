@@ -4,6 +4,8 @@ public class GeoRaster {
 
     private final double[] longitudes;
     private final double[] latitudes;
+    private String lonVariableName;
+    private String latVariableName;
     private final int rasterWidth;
     private final int rasterHeight;
     private final int sceneWidth;
@@ -14,16 +16,48 @@ public class GeoRaster {
     private final double subsamplingX;
     private final double subsamplingY;
 
-    public GeoRaster(double[] longitudes, double[] latitudes, int rasterWidth, int rasterHeight, int sceneWidth, int sceneHeight,
-                     double rasterResolutionInKm) {
-        this(longitudes, latitudes, rasterWidth, rasterHeight, sceneWidth, sceneHeight, rasterResolutionInKm,
+    /**
+     * Constructs a geoRaster; convenience constructor for pixel geolocation raster with the center pixel as reference location.
+     * Sets subsampling to 1.0 and offset to 0.5 for x- and y-axis. It also sets sceneWidth and height to rasterWidth and height.
+     *
+     * @param longitudes           the longitude data
+     * @param latitudes            the latitude data
+     * @param lonVariableName      variable name of data origin for longitude data
+     * @param latVariableName      variable name of data origin for latitude data
+     * @param rasterWidth          width of the data raster
+     * @param rasterHeight         height of the data raster
+     * @param rasterResolutionInKm ground resolution of pixels
+     */
+    public GeoRaster(double[] longitudes, double[] latitudes, String lonVariableName, String latVariableName,
+                     int rasterWidth, int rasterHeight, double rasterResolutionInKm) {
+        this(longitudes, latitudes, lonVariableName, latVariableName, rasterWidth, rasterHeight, rasterWidth, rasterHeight, rasterResolutionInKm,
                 0.5, 0.5, 1.0, 1.0);
     }
 
-    public GeoRaster(double[] longitudes, double[] latitudes, int rasterWidth, int rasterHeight, int sceneWidth, int sceneHeight,
+    /**
+     * Constructs a geoRaster
+     *
+     * @param longitudes           the longitude data
+     * @param latitudes            the latitude data
+     * @param lonVariableName      variable name of data origin for longitude data
+     * @param latVariableName      variable name of data origin for latitude data
+     * @param rasterWidth          width of the data raster
+     * @param rasterHeight         height of the data raster
+     * @param sceneWidth           width of the scene raster
+     * @param sceneHeight          height of the scene raster
+     * @param rasterResolutionInKm ground resolution of pixels
+     * @param offsetX              offset along x-axis
+     * @param offsetY              offset along y-axis
+     * @param subsamplingX         subsampling along x-axis
+     * @param subsamplingY         subsampling along y-axis
+     */
+    public GeoRaster(double[] longitudes, double[] latitudes, String lonVariableName, String latVariableName,
+                     int rasterWidth, int rasterHeight, int sceneWidth, int sceneHeight,
                      double rasterResolutionInKm, double offsetX, double offsetY, double subsamplingX, double subsamplingY) {
         this.longitudes = longitudes;
         this.latitudes = latitudes;
+        this.lonVariableName = lonVariableName;
+        this.latVariableName = latVariableName;
         this.rasterWidth = rasterWidth;
         this.rasterHeight = rasterHeight;
         this.sceneWidth = sceneWidth;
@@ -41,6 +75,14 @@ public class GeoRaster {
 
     public double[] getLatitudes() {
         return latitudes;
+    }
+
+    public String getLonVariableName() {
+        return lonVariableName;
+    }
+
+    public String getLatVariableName() {
+        return latVariableName;
     }
 
     public int getRasterWidth() {
