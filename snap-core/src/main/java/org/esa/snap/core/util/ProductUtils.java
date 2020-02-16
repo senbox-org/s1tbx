@@ -73,10 +73,12 @@ public class ProductUtils {
      * @param assignMissingImageInfos if {@code true}, it is ensured that to all {@code RasterDataNode}s a valid {@code ImageInfo} will be assigned.
      * @param pm                      The progress monitor.
      * @return image information
+     *
+     * @throws IOException if an I/O error occurs
      * @since BEAM 4.2
      */
     public static ImageInfo createImageInfo(RasterDataNode[] rasters, boolean assignMissingImageInfos,
-                                            ProgressMonitor pm) {
+                                            ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length > 0 && rasters.length <= 3, "rasters.length > 0 && rasters.length <= 3");
         if (rasters.length == 1) {
