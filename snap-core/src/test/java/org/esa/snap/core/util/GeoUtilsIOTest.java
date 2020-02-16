@@ -1,10 +1,8 @@
 package org.esa.snap.core.util;
 
 import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.test.LongTestRunner;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.awt.geom.*;
 import java.net.URL;
@@ -17,7 +15,6 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-@RunWith(LongTestRunner.class)
 public class GeoUtilsIOTest {
 
     private GeoPos[] geoPoints;
