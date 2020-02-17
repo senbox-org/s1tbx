@@ -79,10 +79,10 @@ public final class BandSelectOp extends Operator {
                     sourceProduct.getSceneRasterWidth(),
                     sourceProduct.getSceneRasterHeight());
 
-            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-
             addSelectedBands();
 
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+            
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
