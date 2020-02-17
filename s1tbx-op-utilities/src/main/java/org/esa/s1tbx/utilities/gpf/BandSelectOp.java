@@ -107,7 +107,7 @@ public final class BandSelectOp extends Operator {
                 }
             }
 
-            if(bandNamePattern != null && !bandNamePattern.isEmpty()) {
+            if (bandNamePattern != null && !bandNamePattern.isEmpty()) {
                 // check regular expression such as contain mst "^.*mst.*$"
 
                 Pattern pattern = Pattern.compile(bandNamePattern);
@@ -115,6 +115,10 @@ public final class BandSelectOp extends Operator {
                 if (!matcher.matches()) {
                     continue;
                 }
+            }
+
+            if (targetProduct.containsBand(srcBand.getName())) {
+                continue;
             }
 
             if (srcBand instanceof VirtualBand) {
