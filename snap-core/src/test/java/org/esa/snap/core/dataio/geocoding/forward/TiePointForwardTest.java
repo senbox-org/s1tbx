@@ -130,6 +130,11 @@ public class TiePointForwardTest {
         }
 
         @Override
+        public String getFactoryKey() {
+            return null;
+        }
+
+        @Override
         public void dispose() {
         }
     }

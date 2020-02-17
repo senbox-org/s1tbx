@@ -17,11 +17,22 @@ public interface ForwardCoding {
 
     /**
      * Initializes the ForwardCoding. Passes in the geo_raster and allows initializing.
-     * @param geoRaster the geoRaster
+     *
+     * @param geoRaster            the geoRaster
      * @param containsAntiMeridian whether the data crosses the anti-meridian or not
-     * @param poleLocations locations of the poles - o3 a leght zero array if no poles are contained in the data
+     * @param poleLocations        locations of the poles - o3 a leght zero array if no poles are contained in the data
      */
     void initialize(GeoRaster geoRaster, boolean containsAntiMeridian, PixelPos[] poleLocations);
+
+    /**
+     * A ForwardCoding shall be instanced only by {@link ComponentFactory} using a {@link String} key.
+     * Such an instance must be able to return the key, in order to persist the ForwardCoding and recreate
+     * such an instance via {@link ComponentFactory} if the {@link org.esa.snap.core.datamodel.Product} shall
+     * be opened again.
+     *
+     * @return the key String used while instantiating via {@link ComponentFactory}
+     */
+    String getFactoryKey();
 
     void dispose();
 }

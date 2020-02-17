@@ -1,5 +1,6 @@
 package org.esa.snap.core.dataio.geocoding.forward;
 
+import org.esa.snap.core.dataio.geocoding.ComponentFactory;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.dataio.geocoding.util.RasterUtils;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -28,14 +29,19 @@ public class TiePointBilinearForward extends TiePointForward {
                 RasterUtils.toFloat(geoRaster.getLongitudes()), discontinuity);
 
         latGrid = new TiePointGrid("lat", geoRaster.getRasterWidth(), geoRaster.getRasterHeight(),
-                geoRaster.getOffsetX(), geoRaster.getOffsetY(),
-                geoRaster.getSubsamplingX(), geoRaster.getSubsamplingY(),
-                RasterUtils.toFloat(geoRaster.getLatitudes()));
+                                   geoRaster.getOffsetX(), geoRaster.getOffsetY(),
+                                   geoRaster.getSubsamplingX(), geoRaster.getSubsamplingY(),
+                                   RasterUtils.toFloat(geoRaster.getLatitudes()));
 
         checkGrids(lonGrid, latGrid);
 
         this.sceneWidth = geoRaster.getSceneWidth();
         this.sceneHeight = geoRaster.getSceneHeight();
+    }
+
+    @Override
+    public String getFactoryKey() {
+        return ComponentFactory.FWD_TIE_POINT_BILINEAR;
     }
 
     @Override

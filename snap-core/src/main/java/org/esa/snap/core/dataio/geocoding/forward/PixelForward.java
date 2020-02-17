@@ -1,5 +1,6 @@
 package org.esa.snap.core.dataio.geocoding.forward;
 
+import org.esa.snap.core.dataio.geocoding.ComponentFactory;
 import org.esa.snap.core.dataio.geocoding.ForwardCoding;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -39,6 +40,11 @@ public class PixelForward implements ForwardCoding {
         sceneHeight = geoRaster.getSceneHeight();
         longitudes = geoRaster.getLongitudes();
         latitudes = geoRaster.getLatitudes();
+    }
+
+    @Override
+    public String getFactoryKey() {
+        return ComponentFactory.FWD_PIXEL;
     }
 
     @Override

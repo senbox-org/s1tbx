@@ -1,5 +1,6 @@
 package org.esa.snap.core.dataio.geocoding.forward;
 
+import org.esa.snap.core.dataio.geocoding.ComponentFactory;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.dataio.geocoding.util.SplineInterpolator;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -36,6 +37,11 @@ public class TiePointSplineForward extends TiePointForward {
 
         gridWidth = geoRaster.getRasterWidth();
         gridHeight = geoRaster.getRasterHeight();
+    }
+
+    @Override
+    public String getFactoryKey() {
+        return ComponentFactory.FWD_TIE_POINT_SPLINE;
     }
 
     @Override

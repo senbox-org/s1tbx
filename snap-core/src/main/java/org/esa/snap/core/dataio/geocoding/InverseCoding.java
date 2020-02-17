@@ -17,5 +17,15 @@ public interface InverseCoding {
 
     void initialize(GeoRaster geoRaster, boolean containsAntiMeridian, PixelPos[] poleLocations);
 
+    /**
+     * An InverseCoding shall be instanced only by {@link ComponentFactory} using a {@link String} key.
+     * Such an instance must be able to return the key, in order to persist the InverseCoding and recreate
+     * such an instance via {@link ComponentFactory} if the {@link org.esa.snap.core.datamodel.Product} shall
+     * be opened again.
+     *
+     * @return the key String used while instantiating via {@link ComponentFactory}
+     */
+    String getFactoryKey();
+
     void dispose();
 }

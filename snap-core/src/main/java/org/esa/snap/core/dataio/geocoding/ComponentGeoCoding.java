@@ -8,6 +8,8 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.stream.IntStream;
+
 public class ComponentGeoCoding extends AbstractGeoCoding {
 
     private static final GeoPos INVALID_GEO_POS = new GeoPos(Double.NaN, Double.NaN);
@@ -127,22 +129,73 @@ public class ComponentGeoCoding extends AbstractGeoCoding {
      * @return true, if the geo-coding could be transferred.
      */
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
-        // @todo 1 tb/tb check if we have pixel or tie-point geo-coding, the stuff below is only for PixelGeoCodings
+        transferRequiredRasters(srcScene, destScene, subsetDef);
 
-        final Product destProduct = destScene.getProduct();
-        Band lonBand = destProduct.getBand(geoRaster.getLonVariableName());
-        if (lonBand == null) {
-            final Band srcLonBand = srcScene.getProduct().getBand(geoRaster.getLonVariableName());
-            lonBand = GeoCodingFactory.createSubset(srcLonBand, destScene, subsetDef);
-            destProduct.addBand(lonBand);
-        }
-        Band latBand = destProduct.getBand(geoRaster.getLatVariableName());
-        if (latBand == null) {
-            final Band srcLatBand = srcScene.getProduct().getBand(geoRaster.getLatVariableName());
-            latBand = GeoCodingFactory.createSubset(srcLatBand, destScene, subsetDef);
-            destProduct.addBand(latBand);
+        final String lonVariableName = this.geoRaster.getLonVariableName();
+        final String latVariableName = this.geoRaster.getLatVariableName();
+
+        final GeoRaster geoRaster;
+        if (subsetDef == null) {
+            geoRaster = new GeoRaster(this.geoRaster.getLongitudes().clone(), this.geoRaster.getLatitudes().clone(),
+                                      lonVariableName, latVariableName,
+                                      this.geoRaster.getRasterWidth(), this.geoRaster.getRasterHeight(),
+                                      this.geoRaster.getSceneWidth(), this.geoRaster.getSceneHeight(),
+                                      this.geoRaster.getRasterResolutionInKm(),
+                                      this.geoRaster.getOffsetX(), this.geoRaster.getOffsetY(),
+                                      this.geoRaster.getSubsamplingX(), this.geoRaster.getSubsamplingY());
+        } else {
+            final RasterDataNode lonRaster = destScene.getProduct().getRasterDataNode(lonVariableName);
+            final RasterDataNode latRaster = destScene.getProduct().getRasterDataNode(latVariableName);
+            final double[] longitudes;
+            final double[] latitudes;
+            final int gridWidth;
+            final int gridHeight;
+            final double offsetX;
+            final double offsetY;
+            final double subsamplingX;
+            final double subsamplingY;
+            if (lonRaster instanceof TiePointGrid) {
+                final TiePointGrid lonTPG = (TiePointGrid) lonRaster;
+                final TiePointGrid latTPG = (TiePointGrid) latRaster;
+
+                gridWidth = lonTPG.getGridWidth();
+                gridHeight = lonTPG.getGridHeight();
+
+                final float[] lons = (float[]) lonTPG.getGridData().getElems();
+                longitudes = IntStream.range(0, lons.length).mapToDouble(i -> lons[i]).toArray();
+
+                final float[] lats = (float[]) latTPG.getGridData().getElems();
+                latitudes = IntStream.range(0, lats.length).mapToDouble(i -> lats[i]).toArray();
+
+                offsetX = lonTPG.getOffsetX();
+                offsetY = lonTPG.getOffsetY();
+                subsamplingX = lonTPG.getSubSamplingX();
+                subsamplingY = lonTPG.getSubSamplingY();
+            } else {
+                gridWidth = lonRaster.getRasterWidth();
+                gridHeight = lonRaster.getRasterHeight();
+
+                longitudes = lonRaster.getSourceImage().getImage(0).getData().getPixels(0, 0, gridWidth, gridHeight, new double[gridWidth * gridHeight]);
+                latitudes = latRaster.getSourceImage().getImage(0).getData().getPixels(0, 0, gridWidth, gridHeight, new double[gridWidth * gridHeight]);
+
+                offsetX = 0.5;
+                offsetY = 0.5;
+                subsamplingX = 1.0;
+                subsamplingY = 1.0;
+            }
+
+            geoRaster = new GeoRaster(longitudes, latitudes, lonVariableName, latVariableName,
+                                      gridWidth, gridHeight, destScene.getRasterWidth(), destScene.getRasterHeight(),
+                                      this.geoRaster.getRasterResolutionInKm() * subsetDef.getSubSamplingX(),
+                                      offsetX, offsetY, subsamplingX, subsamplingY);
         }
 
+        final ForwardCoding forwardCoding = ComponentFactory.getForward(this.forwardCoding.getFactoryKey());
+        final InverseCoding inverseCoding = ComponentFactory.getInverse(this.inverseCoding.getFactoryKey());
+
+        final CoordinateReferenceSystem geoCRS = getGeoCRS();
+        destScene.setGeoCoding(new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, geoChecks, geoCRS));
+        return true;
 
         // @todo 1 tb/tb
         // read target raster data as doubles
@@ -150,8 +203,48 @@ public class ComponentGeoCoding extends AbstractGeoCoding {
         // detect current forward and inverse
         // create new ones and assemble new GeoCoding
         // initialize new GeoCoding
-        
-        throw new NotImplementedException();
+        //
+        //        throw new
+        //
+        //                NotImplementedException();
+        //
+    }
+
+    public void transferRequiredRasters(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
+        final String lonVarName = geoRaster.getLonVariableName();
+        final String latVarName = geoRaster.getLatVariableName();
+
+        final Product srcProduct = srcScene.getProduct();
+        final Product destProduct = destScene.getProduct();
+
+        final RasterDataNode srcLonRaster = srcProduct.getRasterDataNode(lonVarName);
+        if (srcLonRaster instanceof TiePointGrid) {
+            TiePointGrid destTpgLon = destProduct.getTiePointGrid(lonVarName);
+            if (destTpgLon == null) {
+                final TiePointGrid srcTpgLon = srcProduct.getTiePointGrid(lonVarName);
+                destTpgLon = TiePointGrid.createSubset(srcTpgLon, subsetDef);
+                destProduct.addTiePointGrid(destTpgLon);
+            }
+            TiePointGrid destTpgLat = destProduct.getTiePointGrid(latVarName);
+            if (destTpgLat == null) {
+                final TiePointGrid srcTpgLat = srcProduct.getTiePointGrid(latVarName);
+                destTpgLat = TiePointGrid.createSubset(srcTpgLat, subsetDef);
+                destProduct.addTiePointGrid(destTpgLat);
+            }
+        } else {
+            Band destLonBand = destProduct.getBand(lonVarName);
+            if (destLonBand == null) {
+                final Band srcLonBand = srcProduct.getBand(lonVarName);
+                destLonBand = GeoCodingFactory.createSubset(srcLonBand, destScene, subsetDef);
+                destProduct.addBand(destLonBand);
+            }
+            Band destLatBand = destProduct.getBand(latVarName);
+            if (destLatBand == null) {
+                final Band srcLatBand = srcProduct.getBand(latVarName);
+                destLatBand = GeoCodingFactory.createSubset(srcLatBand, destScene, subsetDef);
+                destProduct.addBand(destLatBand);
+            }
+        }
     }
 
     @Override

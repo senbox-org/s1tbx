@@ -1,5 +1,6 @@
 package org.esa.snap.core.dataio.geocoding.inverse;
 
+import org.esa.snap.core.dataio.geocoding.ComponentFactory;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.dataio.geocoding.InverseCoding;
 import org.esa.snap.core.dataio.geocoding.util.Approximation;
@@ -82,9 +83,9 @@ public class TiePointInverse implements InverseCoding {
         rasterHeight = geoRaster.getSceneHeight();
 
         latGrid = new TiePointGrid("lat", geoRaster.getRasterWidth(), geoRaster.getRasterHeight(),
-                geoRaster.getOffsetX(), geoRaster.getOffsetY(),
-                geoRaster.getSubsamplingX(), geoRaster.getSubsamplingY(),
-                RasterUtils.toFloat(geoRaster.getLatitudes()));
+                                   geoRaster.getOffsetX(), geoRaster.getOffsetY(),
+                                   geoRaster.getSubsamplingX(), geoRaster.getSubsamplingY(),
+                                   RasterUtils.toFloat(geoRaster.getLatitudes()));
 
         if (containsAntiMeridian) {
             lonGrid = normalizeLonGrid(lonGrid);
@@ -92,6 +93,11 @@ public class TiePointInverse implements InverseCoding {
 
         boundaries = initLatLonMinMax(lonGrid.getTiePoints(), latGrid.getTiePoints());
         approximations = getApproximations(lonGrid, latGrid);
+    }
+
+    @Override
+    public String getFactoryKey() {
+        return ComponentFactory.INV_TIE_POINT;
     }
 
     @Override

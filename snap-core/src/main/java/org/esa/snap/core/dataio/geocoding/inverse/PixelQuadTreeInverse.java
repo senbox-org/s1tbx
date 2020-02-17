@@ -1,5 +1,6 @@
 package org.esa.snap.core.dataio.geocoding.inverse;
 
+import org.esa.snap.core.dataio.geocoding.ComponentFactory;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.dataio.geocoding.InverseCoding;
 import org.esa.snap.core.dataio.geocoding.util.InterpolationContext;
@@ -88,6 +89,15 @@ public class PixelQuadTreeInverse implements InverseCoding {
 
         offsetX = geoRaster.getOffsetX();
         offsetY = geoRaster.getOffsetY();
+    }
+
+    @Override
+    public String getFactoryKey() {
+        if (fractionalAccuracy) {
+            return ComponentFactory.INV_PIXEL_QUAD_TREE_INTERPOLATING;
+        } else {
+            return ComponentFactory.INV_PIXEL_QUAD_TREE;
+        }
     }
 
     @Override

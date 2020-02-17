@@ -428,12 +428,12 @@ public class EnvisatProductReader extends AbstractProductReader {
         final Preferences preferences = Config.instance("snap").preferences();
         final boolean useFractAccuracy = preferences.getBoolean(SYSPROP_SNAP_PIXEL_CODING_FRACTION_ACCURACY, false);
         if (useFractAccuracy) {
-            codingNames[0] = "FWD_PIXEL_INTERPOLATING";
+            codingNames[0] = ComponentFactory.FWD_PIXEL_INTERPOLATING;
         } else {
-            codingNames[0] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_FORWARD, "FWD_PIXEL");
+            codingNames[0] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_FORWARD, ComponentFactory.FWD_PIXEL);
         }
 
-        codingNames[1] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_INVERSE, "INV_PIXEL_QUAD_TREE");
+        codingNames[1] = preferences.get(SYSPROP_ENVISAT_PIXEL_CODING_INVERSE, ComponentFactory.INV_PIXEL_QUAD_TREE);
 
         return codingNames;
     }
@@ -442,8 +442,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         final String[] codingNames = new String[2];
 
         final Preferences preferences = Config.instance("snap").preferences();
-        codingNames[0] = preferences.get(SYSPROP_ENVISAT_TIE_POINT_CODING_FORWARD, "FWD_TIE_POINT_BILINEAR");
-        codingNames[1] = "INV_TIE_POINT";
+        codingNames[0] = preferences.get(SYSPROP_ENVISAT_TIE_POINT_CODING_FORWARD, ComponentFactory.FWD_TIE_POINT_BILINEAR);
+        codingNames[1] = ComponentFactory.INV_TIE_POINT;
 
         return codingNames;
     }

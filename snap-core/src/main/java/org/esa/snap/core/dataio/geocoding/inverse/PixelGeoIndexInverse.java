@@ -1,5 +1,6 @@
 package org.esa.snap.core.dataio.geocoding.inverse;
 
+import org.esa.snap.core.dataio.geocoding.ComponentFactory;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.dataio.geocoding.InverseCoding;
 import org.esa.snap.core.dataio.geocoding.util.InterpolationContext;
@@ -110,6 +111,15 @@ public class PixelGeoIndexInverse implements InverseCoding {
         }
 
         epsilon = geoRaster.getRasterResolutionInKm() * 1000 / Math.sqrt(2.0);
+    }
+
+    @Override
+    public String getFactoryKey() {
+        if (fractionalAccuracy) {
+            return ComponentFactory.INV_PIXEL_GEO_INDEX_INTERPOLATING;
+        } else {
+            return ComponentFactory.INV_PIXEL_GEO_INDEX;
+        }
     }
 
     @Override

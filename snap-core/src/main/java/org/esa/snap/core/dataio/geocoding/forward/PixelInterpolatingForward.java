@@ -1,5 +1,6 @@
 package org.esa.snap.core.dataio.geocoding.forward;
 
+import org.esa.snap.core.dataio.geocoding.ComponentFactory;
 import org.esa.snap.core.dataio.geocoding.ForwardCoding;
 import org.esa.snap.core.dataio.geocoding.GeoRaster;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -68,6 +69,11 @@ public class PixelInterpolatingForward implements ForwardCoding {
         } else {
             lonInterpolator = new StandardLonInterpolator();
         }
+    }
+
+    @Override
+    public String getFactoryKey() {
+        return ComponentFactory.FWD_PIXEL_INTERPOLATING;
     }
 
     @Override
