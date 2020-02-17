@@ -117,6 +117,10 @@ public final class BandSelectOp extends Operator {
                 }
             }
 
+            if (targetProduct.containsBand(srcBand.getName())) {
+                continue;
+            }
+
             if (srcBand instanceof VirtualBand) {
                 ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
