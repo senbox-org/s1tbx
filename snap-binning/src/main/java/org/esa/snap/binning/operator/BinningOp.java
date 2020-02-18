@@ -726,19 +726,27 @@ public class BinningOp extends Operator {
 
         final String productName = sourceProduct.getName();
         getLogger().info(String.format("Spatial binning of product '%s'...", productName));
-        getLogger().fine(String.format("Product start time: '%s'", sourceProduct.getStartTime()));
-        getLogger().fine(String.format("Product end time:   '%s'", sourceProduct.getEndTime()));
         if (region != null) {
             SubsetOp subsetOp = new SubsetOp();
             subsetOp.setSourceProduct(sourceProduct);
 
             final Rectangle subsetRectangle = SubsetOp.computePixelRegion(sourceProduct, region, 0);
             if (subsetRectangle.height <= 2 || subsetRectangle.width <= 2) {
+                // workaround for SNAP-1264
+                // PixelGeoCodings can't work on such small rasters
                 // increase rectangle size by 1 pixel to each side, making sure not to extend source product boundaries
-                final Rectangle clippingRect = new Rectangle(sourceProduct.getSceneRasterWidth(),
-                                                             sourceProduct.getSceneRasterHeight());
+                int sceneRasterWidth = sourceProduct.getSceneRasterWidth();
+                int sceneRasterHeight = sourceProduct.getSceneRasterHeight();
+                final Rectangle clippingRect = new Rectangle(sceneRasterWidth,
+                                                             sceneRasterHeight);
                 final RectangleExtender rectangleExtender = new RectangleExtender(clippingRect, 1, 1);
                 final Rectangle extendedSubsetRectangle = rectangleExtender.extend(subsetRectangle);
+                // check if rectangle is still to small
+                if(extendedSubsetRectangle.height <= 2 || extendedSubsetRectangle.width <= 2) {
+                    getLogger().warning(String.format("Skipped binning of product '%s', raster dimensions are to small [%d,%d]",
+                                                      productName, sceneRasterWidth, sceneRasterHeight));
+                    return;
+                }
                 subsetOp.setRegion(extendedSubsetRectangle);
             } else {
                 subsetOp.setGeoRegion(region);
@@ -755,6 +763,8 @@ public class BinningOp extends Operator {
                                                                 ProgressMonitor.NULL);
         stopWatch.stop();
 
+        getLogger().fine(String.format("Product start time: '%s'", sourceProduct.getStartTime()));
+        getLogger().fine(String.format("Product end time:   '%s'", sourceProduct.getEndTime()));
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s", productName, numObs, stopWatch));
 
         if (region == null && regionArea != null) {
