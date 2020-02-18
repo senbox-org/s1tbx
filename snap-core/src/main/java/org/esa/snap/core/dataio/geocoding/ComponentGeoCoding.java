@@ -194,7 +194,9 @@ public class ComponentGeoCoding extends AbstractGeoCoding {
         final InverseCoding inverseCoding = ComponentFactory.getInverse(this.inverseCoding.getFactoryKey());
 
         final CoordinateReferenceSystem geoCRS = getGeoCRS();
-        destScene.setGeoCoding(new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, geoChecks, geoCRS));
+        final ComponentGeoCoding destGeoCoding = new ComponentGeoCoding(geoRaster, forwardCoding, inverseCoding, geoChecks, geoCRS);
+        destGeoCoding.initialize();
+        destScene.setGeoCoding(destGeoCoding);
         return true;
 
         // @todo 1 tb/tb
