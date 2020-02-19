@@ -79,7 +79,7 @@
                         <configuration>
                             <name>snappy.version</name>
                             <value>${snap.version}</value>
-                            <regex></regex>
+                            <regex>-SNAPSHOT</regex>
                             <replacement>${snappy.devVersionId}</replacement>
                             <failIfNoMatch>false</failIfNoMatch>
                         </configuration>
