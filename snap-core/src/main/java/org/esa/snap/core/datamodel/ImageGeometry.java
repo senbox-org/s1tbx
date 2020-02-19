@@ -240,8 +240,7 @@ public class ImageGeometry {
     private static Rectangle2D createMapBoundary(GeoCoding geoCoding, int sourceW, int sourceH,
                                                  CoordinateReferenceSystem targetCrs) throws TransformException, FactoryException {
         final CoordinateReferenceSystem sourceCrs = geoCoding.getImageCRS();
-//        final Rectangle2D rect = XRectangle2D.createFromExtremums(0.0, 0.0, sourceW, sourceH);
-        final Rectangle2D rect = XRectangle2D.createFromExtremums(0.0, 0.0, sourceW - 1e-12, sourceH - 1e-12);
+        final Rectangle2D rect = XRectangle2D.createFromExtremums(0.0, 0.0, sourceW, sourceH);
         int pointsPerSide = Math.max(sourceH, sourceW) / 10;
         pointsPerSide = Math.max(9, pointsPerSide);
         final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);

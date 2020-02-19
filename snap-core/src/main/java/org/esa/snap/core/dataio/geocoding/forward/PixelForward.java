@@ -23,13 +23,22 @@ public class PixelForward implements ForwardCoding {
             return geoPos;
         }
 
-        final int x0 = (int) Math.floor(pixelPos.getX());
-        final int y0 = (int) Math.floor(pixelPos.getY());
-        if (x0 < 0 || x0 >= sceneWidth || y0 < 0 || y0 >= sceneHeight) {
+        final double x = pixelPos.getX();
+        final double y = pixelPos.getY();
+
+        if (x < 0 || x > sceneWidth || y < 0 || y > sceneHeight) {
             return geoPos;
         }
 
-        final int index = y0 * sceneWidth + x0;
+        int xf = (int) Math.floor(x);
+        int yf = (int) Math.floor(y);
+        if (xf == sceneWidth) {
+            xf--;
+        }
+        if (yf == sceneHeight) {
+            yf--;
+        }
+        final int index = yf * sceneWidth + xf;
         geoPos.setLocation(latitudes[index], longitudes[index]);
         return geoPos;
     }
