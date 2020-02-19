@@ -15,9 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos;
 
-import org.esa.s1tbx.io.ceos.ers.ERSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
@@ -29,7 +27,7 @@ import java.util.Locale;
 /**
  * The ReaderPlugIn for CEOS products.
  */
-public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
+public abstract class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
 
     protected CEOSConstants constants;
 
@@ -49,15 +47,7 @@ public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
         return checkProductQualification(path);
     }
 
-    protected DecodeQualification checkProductQualification(Path path) {
-        final String name = path.getFileName().toString().toUpperCase();
-        for (String prefix : constants.getVolumeFilePrefix()) {
-            if (name.startsWith(prefix)) {
-                return DecodeQualification.SUITABLE;
-            }
-        }
-        return DecodeQualification.UNABLE;
-    }
+    protected abstract DecodeQualification checkProductQualification(final Path path);
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
@@ -70,15 +60,6 @@ public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public Class[] getInputTypes() {
         return CEOSConstants.VALID_INPUT_TYPES;
-    }
-
-    /**
-     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
-     *
-     * @return a new reader instance, never <code>null</code>
-     */
-    public ProductReader createReaderInstance() {
-        return new ERSProductReader(this);
     }
 
     public SnapFileFilter getProductFileFilter() {

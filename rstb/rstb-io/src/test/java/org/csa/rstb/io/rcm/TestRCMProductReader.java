@@ -77,7 +77,7 @@ public class TestRCMProductReader extends ReaderTest {
     }
 
     @Test
-    @Ignore("failing test")
+    @Ignore("not implemented")
     public void testOpeningGRDZip() throws Exception {
         testReader(inputGRDZip.toPath());
     }
