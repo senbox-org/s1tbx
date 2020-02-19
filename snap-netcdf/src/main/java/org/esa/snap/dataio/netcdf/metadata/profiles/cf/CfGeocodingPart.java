@@ -15,10 +15,10 @@
  */
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.snap.core.dataio.geocoding.*;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoCodingFactory;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MapGeoCoding;
 import org.esa.snap.core.datamodel.PixelPos;
@@ -26,6 +26,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.math.SphericalDistance;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
@@ -37,15 +38,21 @@ import org.esa.snap.dataio.netcdf.util.DimKey;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.datum.Ellipsoid;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
-import java.awt.Dimension;
+import javax.measure.converter.UnitConverter;
+import javax.measure.quantity.Length;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 public class CfGeocodingPart extends ProfilePartIO {
 
@@ -193,7 +200,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     static boolean isGeographicCRS(final GeoCoding geoCoding) {
         return (geoCoding instanceof CrsGeoCoding || geoCoding instanceof MapGeoCoding) &&
-               CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+                CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
     private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br, String latVarName, String lonVarName) throws IOException {
@@ -368,9 +375,82 @@ public class CfGeocodingPart extends ProfilePartIO {
             latBand = product.getBand(Constants.LATITUDE_VAR_NAME);
         }
         if (latBand != null && lonBand != null) {
-            return GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
+//            return GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
+            final int width = product.getSceneRasterWidth();
+            final int height = product.getSceneRasterHeight();
+
+//            final double[] longitudes = RasterUtils.loadDataScaled(lonBand);
+//            final double[] latitudes = RasterUtils.loadDataScaled(latBand);
+            final int fullSize = width * height;
+            double[] longitudes = lonBand.getSourceImage().getData().getSamples(0, 0, width, height, 0, new double[fullSize]);
+            double[] latitudes = latBand.getSourceImage().getData().getSamples(0, 0, width, height, 0, new double[fullSize]);
+
+            final double resolutionInKm = computeResolutionInKm(lonBand, latBand);
+
+            final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes, lonBand.getName(), latBand.getName(),
+                                                      width, height, resolutionInKm);
+
+            final ForwardCoding forward = ComponentFactory.getForward(ComponentFactory.FWD_PIXEL);
+            final InverseCoding inverse = ComponentFactory.getInverse(ComponentFactory.INV_PIXEL_QUAD_TREE);
+
+            final ComponentGeoCoding geoCoding = new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
+            geoCoding.initialize();
+            return geoCoding;
         }
         return null;
+    }
+
+    private static double computeResolutionInKm(Band lonBand, Band latBand) {
+        final Product product = lonBand.getProduct();
+        final int width = product.getSceneRasterWidth();
+        final int height = product.getSceneRasterHeight();
+
+        final DefaultGeographicCRS wgs84 = DefaultGeographicCRS.WGS84;
+        final Ellipsoid ellipsoid = wgs84.getDatum().getEllipsoid();
+        final Unit<Length> axisUnit = ellipsoid.getAxisUnit();
+        final UnitConverter converterToKm = axisUnit.getConverterTo(SI.KILOMETER);
+        final double meanEarthRadiusM = (ellipsoid.getSemiMajorAxis() + ellipsoid.getSemiMinorAxis()) / 2;
+        final double meanEarthRadiusKm = converterToKm.convert(meanEarthRadiusM);
+
+        final Rectangle R = new Rectangle(0, 0, 10, 10);
+        R.width = Math.min(R.width, width);
+        R.height = Math.min(R.height, height);
+        if (width > R.width) {
+            R.x = (width - R.width) / 2;
+        }
+        if (height > R.height) {
+            R.y = (height - R.height) / 2;
+        }
+
+        final int resPixelsSize = R.width * R.height;
+        double[] resLons = lonBand.getSourceImage().getData().getSamples(R.x, R.y, R.width, R.height, 0, new double[resPixelsSize]);
+        double[] resLats = latBand.getSourceImage().getData().getSamples(R.x, R.y, R.width, R.height, 0, new double[resPixelsSize]);
+
+        int count = 0;
+        double distanceSum = 0;
+        for (int y = 0; y < R.height; y++) {
+            for (int x = 0; x < R.width; x++) {
+                final int idx = y * R.width + x;
+                final double resLon = resLons[idx];
+                final double resLat = resLats[idx];
+                final SphericalDistance spherDist = new SphericalDistance(resLon, resLat);
+                if (x < R.width - 1) {
+                    final int idxRight = idx + 1;
+                    final double distance = spherDist.distance(resLons[idxRight], resLats[idxRight]);
+                    distanceSum += distance;
+                    count++;
+                }
+                if (y < R.height - 1) {
+                    final int idxBottom = idx + R.width;
+                    final double distance = spherDist.distance(resLons[idxBottom], resLats[idxBottom]);
+                    distanceSum += distance;
+                    count++;
+                }
+            }
+        }
+
+        final double distanceMeanRadian = distanceSum / count;
+        return distanceMeanRadian * meanEarthRadiusKm;
     }
 
 }
