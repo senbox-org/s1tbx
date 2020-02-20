@@ -1,7 +1,6 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.commons.utils.ThreadExecutor;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
@@ -12,15 +11,11 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.geotools.data.shapefile.shp.xml.Metadata;
-import org.geotools.referencing.operation.projection.AzimuthalEquidistant;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -167,10 +162,10 @@ public class MultiMasterOp extends Operator{
             GeoCoding g = singleMaster_MultiSlave.getSceneGeoCoding();
             //p.setSceneGeoCoding(g);
             final int finalX = x;
-            final Runnable runnable = new Runnable() {
+            final ThreadRunnable runnable = new ThreadRunnable() {
 
                 @Override
-                public void run() {
+                public void process() {
                     try {
                         for (Band b: finalMstBands){
                             ProductUtils.copyBand(b.getName(), singleMaster_MultiSlave, p, true);
@@ -195,8 +190,6 @@ public class MultiMasterOp extends Operator{
 
             };
             te.execute(runnable);
-
-
         }
         te.complete();
 
