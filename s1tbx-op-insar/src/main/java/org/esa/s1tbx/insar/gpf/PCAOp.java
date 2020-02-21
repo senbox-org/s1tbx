@@ -32,8 +32,9 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.core.util.math.MathUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 
@@ -383,18 +384,18 @@ public class PCAOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Computing Statistics... ", tileRectangles.length);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             for (final Rectangle rectangle : tileRectangles) {
 
-                Thread worker = new Thread() {
+                ThreadRunnable worker = new ThreadRunnable() {
                     final ProductData[] bandsRawSamples = new ProductData[numOfSourceBands];
                     final double[] tileSum = new double[numOfSourceBands];
                     final double[][] tileSumCross = new double[numOfSourceBands][numOfSourceBands];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         for (int i = 0; i < numOfSourceBands; i++) {
                             bandsRawSamples[i] =
                                     getSourceTile(sourceProduct.getBand(sourceBandNames[i]), rectangle).getRawSamples();
@@ -419,11 +420,11 @@ public class PCAOp extends Operator {
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-            threadManager.finish();
+            executor.complete();
 
             completeStatistics();
 
@@ -438,18 +439,18 @@ public class PCAOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Computing Min... ", tileRectangles.length);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             initializeMin();
 
             for (final Rectangle rectangle : tileRectangles) {
-                Thread worker = new Thread() {
+                ThreadRunnable worker = new ThreadRunnable() {
                     final double[] tileMinPCA = new double[numOfSourceBands];
                     final ProductData[] bandsRawSamples = new ProductData[numOfSourceBands];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         for (int i = 0; i < numOfSourceBands; i++) {
                             bandsRawSamples[i] =
                                     getSourceTile(sourceProduct.getBand(sourceBandNames[i]), rectangle).getRawSamples();
@@ -474,12 +475,12 @@ public class PCAOp extends Operator {
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
 
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             throw new OperatorException(e);

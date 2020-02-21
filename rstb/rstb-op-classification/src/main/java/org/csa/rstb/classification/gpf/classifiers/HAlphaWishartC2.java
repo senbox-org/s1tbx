@@ -26,8 +26,9 @@ import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -208,13 +209,13 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
         final int[] counter = new int[9];
         final double noDataValue = srcBandList.srcBands[0].getNoDataValue();
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             for (final Rectangle rectangle : tileRectangles) {
                 op.checkIfCancelled();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                     final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
@@ -223,7 +224,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
                     final double[][] Ci = new double[2][2]; // imaginary part of covariance matrix
 
                     @Override
-                    public void run() {
+                    public void process() {
                         final int x0 = rectangle.x, y0 = rectangle.y;
                         final int w = rectangle.width, h = rectangle.height;
                         final int xMax = x0 + w, yMax = y0 + h;
@@ -259,12 +260,11 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-
-            threadManager.finish();
+            executor.complete();
 
             for (int z = 0; z < 9; ++z) {
                 final int count = counter[z];
@@ -310,7 +310,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Computing Final Cluster Centres... ", tileRectangles.length * maxIterations);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             for (int it = 0; (it < maxIterations && !endIteration); ++it) {
@@ -322,7 +322,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
 
                 for (final Rectangle rectangle : tileRectangles) {
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
 
                         final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                         final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
@@ -331,7 +331,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
                         final double[][] Ci = new double[2][2];
 
                         @Override
-                        public void run() {
+                        public void process() {
                             op.checkIfCancelled();
 
                             final int x0 = rectangle.x;
@@ -366,7 +366,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
                             }
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
 
                     status.worked(1);
                 }
@@ -394,13 +394,13 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier,
                     endIteration = true;
                 }
             }
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(op.getId() + " computeFinalClusterCenters ", e);
         } finally {
             status.done();
         }
-
     }
 
     /**

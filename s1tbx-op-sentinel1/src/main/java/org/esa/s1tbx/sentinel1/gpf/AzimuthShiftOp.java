@@ -31,6 +31,8 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.*;
 
@@ -406,7 +408,7 @@ public class AzimuthShiftOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating azimuth offset... ", numShifts);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         try {
             final Band mBandI = getBand(StackUtils.MST, "i_", swathIndexStr, polarizations[0]);
             final Band mBandQ = getBand(StackUtils.MST, "q_", swathIndexStr, polarizations[0]);
@@ -439,10 +441,9 @@ public class AzimuthShiftOp extends Operator {
                     final int x0 = x0BurstOne + j * w;
                     final int blockIndex = j;
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
                         @Override
-                        public void run() {
-                            try {
+                        public void process() {
                                 final Rectangle blockInBurstOneRectangle = new Rectangle(x0, y0BurstOne, w, h);
                                 final Rectangle blockInBurstTwoRectangle = new Rectangle(x0, y0BurstTwo, w, h);
 
@@ -454,18 +455,15 @@ public class AzimuthShiftOp extends Operator {
                                 synchronized(azShiftArray) {
                                     azShiftArray.add(new AzimuthShiftData(overlapIndex, blockIndex, azShift));
                                 }
-                            } catch (Throwable e) {
-                                OperatorUtils.catchOperatorException("estimateOffset", e);
-                            }
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
                     status.worked(1);
                 }
             }
 
             status.done();
-            threadManager.finish();
+            executor.complete();
 
             // todo The following simple average should be replaced by weighted average using coherence as weight
             final double[] averagedAzShiftArray = new double[numOverlaps];

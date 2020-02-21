@@ -30,9 +30,10 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.Dimension;
@@ -252,7 +253,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
         final int[] counter = new int[numClasses]; // number of pixels in each class
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         final double[][] clusterSum = new double[numClasses][numSrcBands - 1];
 
@@ -260,14 +261,14 @@ public final class ForestAreaClassificationOp extends Operator {
             for (final Rectangle rectangle : tileRectangles) {
                 checkForCancellation();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     final Tile[] sourceTiles = new Tile[numSrcBands];
                     final ProductData[] dataBuffers = new ProductData[numSrcBands];
                     final double[] u = new double[numSrcBands - 1];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         final int x0 = rectangle.x;
                         final int y0 = rectangle.y;
                         final int w = rectangle.width;
@@ -310,11 +311,11 @@ public final class ForestAreaClassificationOp extends Operator {
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId() + " computeInitialClusterCenters ", e);
@@ -382,7 +383,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
         final int numSrcBands = srcBandNames.length;
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         final double[][][] clusterCov = new double[numClasses][numSrcBands - 1][numSrcBands - 1];
 
@@ -390,7 +391,7 @@ public final class ForestAreaClassificationOp extends Operator {
             for (final Rectangle rectangle : tileRectangles) {
                 checkForCancellation();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     final Tile[] sourceTiles = new Tile[numSrcBands];
                     final ProductData[] dataBuffers = new ProductData[numSrcBands];
@@ -398,7 +399,7 @@ public final class ForestAreaClassificationOp extends Operator {
                     final double[] u = new double[numSrcBands - 1];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         final int x0 = rectangle.x;
                         final int y0 = rectangle.y;
                         final int w = rectangle.width;
@@ -437,11 +438,11 @@ public final class ForestAreaClassificationOp extends Operator {
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId() + " computeClusterCovarianceMatrices ", e);
@@ -478,7 +479,7 @@ public final class ForestAreaClassificationOp extends Operator {
         final int[] clusterPixelChangeCounter = new int[numClasses];
         final double[][] clusterSum = new double[numClasses][numSrcBands - 1];
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             for (int it = 0; it < maxIterations; ++it) {
@@ -491,7 +492,7 @@ public final class ForestAreaClassificationOp extends Operator {
 
                 for (final Rectangle rectangle : tileRectangles) {
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
 
                         final Tile[] sourceTiles = new Tile[numSrcBands];
                         final ProductData[] dataBuffers = new ProductData[numSrcBands];
@@ -499,7 +500,7 @@ public final class ForestAreaClassificationOp extends Operator {
                         final double[] u = new double[numSrcBands - 1];
 
                         @Override
-                        public void run() {
+                        public void process() {
                             checkForCancellation();
 
                             final int x0 = rectangle.x;
@@ -536,12 +537,11 @@ public final class ForestAreaClassificationOp extends Operator {
                             }
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
 
                     status.worked(1);
                 }
-                threadManager.finish();
-
+                executor.complete();
 
                 if (isConvergent(clusterList, clusterPixelChangeCounter)) {
                     break;

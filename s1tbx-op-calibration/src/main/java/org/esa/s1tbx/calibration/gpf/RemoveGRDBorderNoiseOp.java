@@ -30,12 +30,13 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
 
@@ -527,7 +528,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         borderList.add(new Border(SIDE.RIGHT, borderLimit, rightRectangles));
 
         final int totalRects = topRectangles.length + bottomRectangles.length + leftRectangles.length + rightRectangles.length;
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Detecting border... ", totalRects);
 
@@ -536,13 +537,13 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
                 for (final Rectangle rectangle : border.tileRectangles) {
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
 
                         final int xMax = rectangle.x + rectangle.width;
                         final int yMax = rectangle.y + rectangle.height;
 
                         @Override
-                        public void run() {
+                        public void process() {
                             final Tile coPolTile = getSourceTile(coPolBand, rectangle);
                             final ProductData coPolData = coPolTile.getDataBuffer();
                             final TileIndex srcIndex = new TileIndex(coPolTile);
@@ -590,11 +591,11 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                         }
                     };
 
-                    threadManager.add(worker);
+                    executor.execute(worker);
                     status.worked(1);
                 }
             }
-            threadManager.finish();
+            executor.complete();
 
         } catch (Exception e) {
             OperatorUtils.catchOperatorException(getId() + " detectBorder ", e);

@@ -32,16 +32,13 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.*;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
@@ -526,7 +523,7 @@ public class CrossCorrelationOp extends Operator {
                 determiningImageOffset(slaveBand1, slaveBand2, offset);
             }
 
-            final ThreadManager threadManager = new ThreadManager();
+            final ThreadExecutor executor = new ThreadExecutor();
 
             //final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
             //timeMonitor.start();
@@ -551,10 +548,10 @@ public class CrossCorrelationOp extends Operator {
                         continue;
                     }
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
 
                         @Override
-                        public void run() {
+                        public void process() {
                             //System.out.println("Running "+mPin.getName());
                             boolean getSlaveGCP = getCoarseSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
@@ -592,12 +589,12 @@ public class CrossCorrelationOp extends Operator {
 
                     };
 
-                    threadManager.add(worker);
+                    executor.execute(worker);
                 }
                 status.worked(1);
             }
 
-            threadManager.finish();
+            executor.complete();
 
             SystemUtils.tileCacheFreeOldTiles();
 
@@ -652,15 +649,15 @@ public class CrossCorrelationOp extends Operator {
             final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
             status.beginTask("Computing offset... ", tileRectangles.length);
 
-            final ThreadManager threadManager = new ThreadManager();
+            final ThreadExecutor executor = new ThreadExecutor();
             try {
                 for (final Rectangle rectangle : tileRectangles) {
                     checkForCancellation();
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
 
                         @Override
-                        public void run() {
+                        public void process() {
                             final int x0 = rectangle.x;
                             final int y0 = rectangle.y;
                             final int w = rectangle.width;
@@ -705,10 +702,10 @@ public class CrossCorrelationOp extends Operator {
                             status.worked(1);
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
 
                 }
-                threadManager.finish();
+                executor.complete();
 
             } catch (Throwable e) {
                 OperatorUtils.catchOperatorException("GCPSelectionOp", e);

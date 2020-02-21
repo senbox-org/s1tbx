@@ -34,12 +34,13 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.VectorUtils;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -565,14 +566,14 @@ public class OffsetTrackingOp extends Operator {
             final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
             status.beginTask("Computing slave GCPs... ", gcpList.size());
 
-            final ThreadManager threadManager = new ThreadManager();
+            final ThreadExecutor executor = new ThreadExecutor();
 
             for (GCPData gcpData : gcpList) {
                 checkForCancellation();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
                     @Override
-                    public void run() {
+                    public void process() {
                         final PixelPos sGCP = new PixelPos(gcpData.mGCP.x, gcpData.mGCP.y);
                         boolean getSlaveGCP = getOffsets(gcpData.mGCP, sGCP);
                         if (getSlaveGCP) {
@@ -585,11 +586,11 @@ public class OffsetTrackingOp extends Operator {
                         velocityData.slvGCPy[gcpData.i][gcpData.j] = sGCP.y;
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
                 status.worked(1);
             }
             status.done();
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeGCPsByXCorrelation", e);
@@ -601,7 +602,7 @@ public class OffsetTrackingOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Compute Offsets... ", numGCPsPerAzLine * numGCPsPerRgLine);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         try {
             for (int i = 0; i < numGCPsPerAzLine; i++) {
                 for (int j = 0; j < numGCPsPerRgLine; j++) {
@@ -613,9 +614,9 @@ public class OffsetTrackingOp extends Operator {
                         continue;
                     }
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
                         @Override
-                        public void run() {
+                        public void process() {
 
                             final double xShift =
                                     (velocityData.mstGCPx[iIdx][jIdx] - velocityData.slvGCPx[iIdx][jIdx]) * rangeSpacing;
@@ -640,12 +641,12 @@ public class OffsetTrackingOp extends Operator {
                             velocityData.azimuthShift[iIdx][jIdx] = yShift;
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
                     status.worked(1);
                 }
             }
             status.done();
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeGCPOffsets", e);
@@ -657,7 +658,7 @@ public class OffsetTrackingOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Average Offsets... ", numGCPsPerAzLine * numGCPsPerRgLine);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         try {
             for (int i = 0; i < numGCPsPerAzLine; i++) {
                 for (int j = 0; j < numGCPsPerRgLine; j++) {
@@ -669,9 +670,9 @@ public class OffsetTrackingOp extends Operator {
                         continue;
                     }
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
                         @Override
-                        public void run() {
+                        public void process() {
 
                             final int i0 = Math.max(iIdx - halfAvgWindowSize, 0);
                             final int iN = Math.min(iIdx + halfAvgWindowSize, numGCPsPerAzLine - 1);
@@ -713,12 +714,12 @@ public class OffsetTrackingOp extends Operator {
                             velocityData.slvGCPy[iIdx][jIdx] = slvGCPy;
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
                     status.worked(1);
                 }
             }
             status.done();
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("averageOffsets", e);
@@ -730,7 +731,7 @@ public class OffsetTrackingOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Fill Holes... ", numGCPsPerAzLine * numGCPsPerRgLine);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         try {
             final java.util.List<int[]> holeList = new ArrayList<>();
             for (int i = 0; i < numGCPsPerAzLine; i++) {
@@ -746,9 +747,9 @@ public class OffsetTrackingOp extends Operator {
                 final int iIdx = holeList.get(k)[0];
                 final int jIdx = holeList.get(k)[1];
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
                     @Override
-                    public void run() {
+                    public void process() {
 
                         final int i0 = Math.max(iIdx - radius, 0);
                         final int iN = Math.min(iIdx + radius, numGCPsPerAzLine - 1);
@@ -800,11 +801,11 @@ public class OffsetTrackingOp extends Operator {
                         velocityData.slvGCPy[iIdx][jIdx] = slvGCPy;
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
                 status.worked(1);
             }
             status.done();
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("fillHoles", e);
@@ -816,7 +817,7 @@ public class OffsetTrackingOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Compute Velocities... ", numGCPsPerAzLine * numGCPsPerRgLine);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         try {
             for (int i = 0; i < numGCPsPerAzLine; i++) {
                 for (int j = 0; j < numGCPsPerRgLine; j++) {
@@ -828,9 +829,9 @@ public class OffsetTrackingOp extends Operator {
                         continue;
                     }
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
                         @Override
-                        public void run() {
+                        public void process() {
 
                             final double xShift = velocityData.rangeShift[iIdx][jIdx];
                             final double yShift = velocityData.azimuthShift[iIdx][jIdx];
@@ -842,12 +843,12 @@ public class OffsetTrackingOp extends Operator {
                             velocityData.velocity[iIdx][jIdx] = v;
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
                     status.worked(1);
                 }
             }
             status.done();
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeGCPVelocities", e);

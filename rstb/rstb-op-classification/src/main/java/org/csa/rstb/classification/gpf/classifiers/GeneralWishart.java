@@ -26,8 +26,9 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -298,7 +299,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Creating Initial Clusters... ", tileRectangles.length);
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         final int[] counter = new int[numCategories + 1]; // number of pixels in all categories, last category for mixed
         final double[][] pwr = new double[numCategories + 1][srcHeight * srcWidth];
@@ -307,13 +308,13 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
             for (final Rectangle rectangle : tileRectangles) {
                 op.checkIfCancelled();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                     final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         final int x0 = rectangle.x;
                         final int y0 = rectangle.y;
                         final int w = rectangle.width;
@@ -378,11 +379,11 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(op.getId() + " createInitialClusters ", e);
@@ -520,13 +521,13 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Computing Initial Cluster Centres... ", tileRectangles.length);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             for (final Rectangle rectangle : tileRectangles) {
                 op.checkIfCancelled();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                     final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
@@ -535,7 +536,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
                     final double[][] Ti = new double[3][3];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         final int x0 = rectangle.x;
                         final int y0 = rectangle.y;
                         final int w = rectangle.width;
@@ -567,11 +568,11 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(op.getId() + " getClusterCenters ", e);
@@ -755,7 +756,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Computing Final Cluster Centres... ", tileRectangles.length * maxIterations);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             for (int it = 0; (it < maxIterations && !endIteration); ++it) {
@@ -776,7 +777,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
 
                 for (final Rectangle rectangle : tileRectangles) {
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
 
                         final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                         final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
@@ -785,7 +786,7 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
                         final double[][] Ti = new double[3][3];
 
                         @Override
-                        public void run() {
+                        public void process() {
                             op.checkIfCancelled();
 
                             final int x0 = rectangle.x;
@@ -826,11 +827,11 @@ public class GeneralWishart extends PolClassifierBase implements PolClassifier, 
                             }
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
 
                     status.worked(1);
                 }
-                threadManager.finish();
+                executor.complete();
 
                 /*
                 endTime = System.nanoTime();

@@ -25,8 +25,9 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -234,7 +235,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
         final int[] counter = new int[4]; // number of pixels in each of the 4 categories: vol, dbl, suf, mix
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         final double[] pv = new double[srcHeight * srcWidth];
         final double[] pd = new double[srcHeight * srcWidth];
@@ -244,7 +245,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             for (final Rectangle rectangle : tileRectangles) {
                 op.checkIfCancelled();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                     final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
@@ -253,7 +254,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                     final double[][] Ci = new double[3][3];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         final int x0 = rectangle.x;
                         final int y0 = rectangle.y;
                         final int w = rectangle.width;
@@ -302,11 +303,11 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(op.getId() + " createInitialClusters ", e);
@@ -370,7 +371,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Computing Initial Cluster Centres... ", tileRectangles.length);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         final double[][][] pvSumRe = new double[numInitialClusters][3][3];
         final double[][][] pvSumIm = new double[numInitialClusters][3][3];
@@ -386,7 +387,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
             for (final Rectangle rectangle : tileRectangles) {
                 op.checkIfCancelled();
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                     final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
@@ -395,7 +396,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                     final double[][] Ti = new double[3][3];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         final int x0 = rectangle.x;
                         final int y0 = rectangle.y;
                         final int w = rectangle.width;
@@ -433,11 +434,11 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                         }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
-            threadManager.finish();
+            executor.complete();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(op.getId() + " getClusterCenters ", e);
@@ -753,7 +754,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         final int maxNumClusters = Math.max(pvNumClusters, Math.max(pdNumClusters, psNumClusters));
         final int[][] clusterCounter = new int[3][maxNumClusters];
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
 
         try {
             for (int it = 0; (it < maxIterations && !endIteration); ++it) {
@@ -774,7 +775,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
                 for (final Rectangle rectangle : tileRectangles) {
 
-                    final Thread worker = new Thread() {
+                    final ThreadRunnable worker = new ThreadRunnable() {
 
                         final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
                         final ProductData[] dataBuffers = new ProductData[srcBandList.srcBands.length];
@@ -783,7 +784,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                         final double[][] Ti = new double[3][3];
 
                         @Override
-                        public void run() {
+                        public void process() {
                             op.checkIfCancelled();
 
                             final int x0 = rectangle.x;
@@ -863,11 +864,11 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                             }
                         }
                     };
-                    threadManager.add(worker);
+                    executor.execute(worker);
 
                     status.worked(1);
                 }
-                threadManager.finish();
+                executor.complete();
 
                 /*
                 endTime = System.nanoTime();
