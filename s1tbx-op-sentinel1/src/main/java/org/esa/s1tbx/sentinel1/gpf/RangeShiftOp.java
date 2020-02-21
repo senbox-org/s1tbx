@@ -31,6 +31,8 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.*;
@@ -371,16 +373,15 @@ public class RangeShiftOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating range offsets... ", numBursts);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         try {
             for (int i = 0; i < numBursts; i++) {
                 checkForCancellation();
                 final int burstIndex = i;
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
                     @Override
-                    public void run() {
-                        try {
+                    public void process() {
                             final double[] offset = new double[2]; // az/rg offset
 
                             estimateAzRgOffsets(burstIndex, offset);
@@ -394,16 +395,13 @@ public class RangeShiftOp extends Operator {
                                 rgOffsetArray.add(offset[1]);
                                 burstIndexArray.add(burstIndex);
                             }
-                        } catch (Throwable e) {
-                            OperatorUtils.catchOperatorException("estimateOffset", e);
-                        }
                     }
                 };
-                threadManager.add(worker);
+                executor.execute(worker);
                 status.worked(1);
             }
             status.done();
-            threadManager.finish();
+            executor.complete();
 
             double sumAzOffset = 0.0;
             double sumRgOffset = 0.0;

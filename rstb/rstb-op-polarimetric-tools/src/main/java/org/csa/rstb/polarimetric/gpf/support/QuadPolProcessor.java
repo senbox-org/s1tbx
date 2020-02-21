@@ -9,9 +9,10 @@ import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -1356,11 +1357,11 @@ public interface QuadPolProcessor extends PolarimetricProcessor, MatrixMath {
         status.beginTask("Computing min max span... ", tileRectangles.length);
 
         try {
-            final ThreadManager threadManager = new ThreadManager();
+            final ThreadExecutor executor = new ThreadExecutor();
 
             for (final Rectangle rectangle : tileRectangles) {
 
-                final Thread worker = new Thread() {
+                final ThreadRunnable worker = new ThreadRunnable() {
 
                     double span = 0.0;
                     final int xMax = rectangle.x + rectangle.width;
@@ -1374,7 +1375,7 @@ public interface QuadPolProcessor extends PolarimetricProcessor, MatrixMath {
                     final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
 
                     @Override
-                    public void run() {
+                    public void process() {
                         try {
 
                             getQuadPolDataBuffer(op, bandList.srcBands, rectangle, sourceProductType, sourceTiles, dataBuffers);
@@ -1406,12 +1407,12 @@ public interface QuadPolProcessor extends PolarimetricProcessor, MatrixMath {
                     }
                 };
 
-                threadManager.add(worker);
+                executor.execute(worker);
 
                 status.worked(1);
             }
 
-            threadManager.finish();
+            executor.complete();
 
             if (minMaxValue.min < Constants.EPS) {
                 minMaxValue.min = Constants.EPS;

@@ -16,7 +16,6 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.Sentinel1Utils;
 import org.esa.snap.core.datamodel.*;
@@ -31,16 +30,15 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.*;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
-import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.SLCImage;
-import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.core.utils.BandUtilsDoris;
 import org.jlinda.core.utils.CplxContainer;
 import org.jlinda.core.utils.ProductContainer;
-import org.jlinda.core.utils.TileUtilsDoris;
 
 import java.awt.*;
 import java.io.File;
@@ -356,7 +354,7 @@ public class AzimuthShiftEstimationUsingESDOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating azimuth offset... ", numShifts * numPolarizations);
 
-        final ThreadManager threadManager = new ThreadManager();
+        final ThreadExecutor executor = new ThreadExecutor();
         try {
             for (String key : targetMap.keySet()) {
 
@@ -394,9 +392,9 @@ public class AzimuthShiftEstimationUsingESDOp extends Operator {
                         final int x0 = x0BurstOne + j * w;
                         final int blockIndex = j;
 
-                        final Thread worker = new Thread() {
+                        final ThreadRunnable worker = new ThreadRunnable() {
                             @Override
-                            public void run() {
+                            public void process() {
                                 try {
                                     final Rectangle blockInBurstOneRectangle = new Rectangle(x0, y0BurstOne, w, h);
                                     final Rectangle blockInBurstTwoRectangle = new Rectangle(x0, y0BurstTwo, w, h);
@@ -415,13 +413,13 @@ public class AzimuthShiftEstimationUsingESDOp extends Operator {
                                 }
                             }
                         };
-                        threadManager.add(worker);
+                        executor.execute(worker);
                         status.worked(1);
                     }
                 }
 
                 status.done();
-                threadManager.finish();
+                executor.complete();
 
                 // todo The following simple average should be replaced by weighted average using coherence as weight
                 final double[] averagedAzShiftArray = new double[numOverlaps];
