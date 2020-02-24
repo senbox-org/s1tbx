@@ -1,0 +1,181 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read(2)">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Flood-Detection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>flood_detection.dim</file>
+    </parameters>
+  </node>
+  <node id="Land-Sea-Mask">
+    <operator>Land-Sea-Mask</operator>
+    <sources>
+      <sourceProduct refid="Warp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <landMask>false</landMask>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <shorelineExtension>0</shorelineExtension>
+    </parameters>
+  </node>
+  <node id="Terrain-Mask">
+    <operator>Terrain-Mask</operator>
+    <sources>
+      <sourceProduct refid="Land-Sea-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <demName>SRTM 3Sec</demName>
+      <demResamplingMethod>NEAREST_NEIGHBOUR</demResamplingMethod>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <windowSizeStr>15x15</windowSizeStr>
+      <thresholdInMeter>40.0</thresholdInMeter>
+    </parameters>
+  </node>
+  <node id="Flood-Detection">
+    <operator>Flood-Detection</operator>
+    <sources>
+      <sourceProduct refid="Terrain-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands>
+      </sourceBands>
+    </parameters>
+  </node>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Product Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="Calibration(2)">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Read(2)"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Product Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="CreateStack">
+    <operator>CreateStack</operator>
+    <sources>
+      <sourceProduct refid="Calibration"/>
+      <sourceProduct.1 refid="Calibration(2)"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <masterBands>
+      </masterBands>
+      <sourceBands>
+      </sourceBands>
+      <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
+      <extent>Master</extent>
+    </parameters>
+  </node>
+  <node id="Cross-Correlation">
+    <operator>Cross-Correlation</operator>
+    <sources>
+      <sourceProduct refid="CreateStack"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <numGCPtoGenerate>200</numGCPtoGenerate>
+      <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
+      <rowInterpFactor>2</rowInterpFactor>
+      <columnInterpFactor>2</columnInterpFactor>
+      <maxIteration>2</maxIteration>
+      <gcpTolerance>0.5</gcpTolerance>
+      <applyFineRegistration>true</applyFineRegistration>
+      <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
+      <coherenceWindowSize>3</coherenceWindowSize>
+      <coherenceThreshold>0.6</coherenceThreshold>
+      <useSlidingWindow>false</useSlidingWindow>
+      <computeOffset>false</computeOffset>
+      <onlyGCPsOnLand>false</onlyGCPsOnLand>
+    </parameters>
+  </node>
+  <node id="Warp">
+    <operator>Warp</operator>
+    <sources>
+      <sourceProduct refid="Cross-Correlation"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <rmsThreshold>1.0</rmsThreshold>
+      <warpPolynomialOrder>1</warpPolynomialOrder>
+      <interpolationMethod>Bilinear interpolation</interpolationMethod>
+      <openResidualsFile>false</openResidualsFile>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read(2)">
+      <displayPosition y="63.0" x="30.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition y="243.0" x="427.0"/>
+    </node>
+    <node id="Land-Sea-Mask">
+      <displayPosition y="97.0" x="403.0"/>
+    </node>
+    <node id="Terrain-Mask">
+      <displayPosition y="146.0" x="413.0"/>
+    </node>
+    <node id="Flood-Detection">
+      <displayPosition y="193.0" x="405.0"/>
+    </node>
+    <node id="Read">
+      <displayPosition y="20.0" x="32.0"/>
+    </node>
+    <node id="Calibration">
+      <displayPosition y="22.0" x="114.0"/>
+    </node>
+    <node id="Calibration(2)">
+      <displayPosition y="65.0" x="114.0"/>
+    </node>
+    <node id="CreateStack">
+      <displayPosition y="41.0" x="204.0"/>
+    </node>
+    <node id="Cross-Correlation">
+      <displayPosition y="42.0" x="303.0"/>
+    </node>
+    <node id="Warp">
+      <displayPosition y="46.0" x="431.0"/>
+    </node>
+  </applicationData>
+</graph>

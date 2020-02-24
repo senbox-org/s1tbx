@@ -1,0 +1,102 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>true</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+    </parameters>
+  </node>
+  <node id="Polarimetric-Matrices">
+    <operator>Polarimetric-Matrices</operator>
+    <sources>
+      <sourceProduct refid="Calibration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <matrix>T3</matrix>
+    </parameters>
+  </node>
+  <node id="Polarimetric-Speckle-Filter">
+    <operator>Polarimetric-Speckle-Filter</operator>
+    <sources>
+      <sourceProduct refid="Polarimetric-Matrices"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <filter>Refined Lee Filter</filter>
+      <filterSize>5</filterSize>
+      <numLooksStr>1</numLooksStr>
+      <windowSize>7x7</windowSize>
+      <targetWindowSizeStr>3x3</targetWindowSizeStr>
+      <anSize>50</anSize>
+      <sigmaStr>0.9</sigmaStr>
+      <searchWindowSizeStr/>
+      <patchSizeStr/>
+      <scaleSizeStr/>
+    </parameters>
+  </node>
+  <node id="Polarimetric-Decomposition">
+    <operator>Polarimetric-Decomposition</operator>
+    <sources>
+      <sourceProduct refid="Polarimetric-Speckle-Filter"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <decomposition>Yamaguchi Decomposition</decomposition>
+      <windowSize>5</windowSize>
+      <outputHAAlpha>true</outputHAAlpha>
+      <outputBetaDeltaGammaLambda>false</outputBetaDeltaGammaLambda>
+      <outputAlpha123>false</outputAlpha123>
+      <outputLambda123>false</outputLambda123>
+      <outputTouziParamSet0>true</outputTouziParamSet0>
+      <outputTouziParamSet1>false</outputTouziParamSet1>
+      <outputTouziParamSet2>false</outputTouziParamSet2>
+      <outputTouziParamSet3>false</outputTouziParamSet3>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Polarimetric-Decomposition"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+      <displayPosition x="55.0" y="25.0"/>
+    </node>
+    <node id="Calibration">
+      <displayPosition x="52.0" y="67.0"/>
+    </node>
+    <node id="Polarimetric-Matrices">
+      <displayPosition x="23.0" y="110.0"/>
+    </node>
+    <node id="Polarimetric-Speckle-Filter">
+      <displayPosition x="178.0" y="110.0"/>
+    </node>
+    <node id="Polarimetric-Decomposition">
+      <displayPosition x="370.0" y="109.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="421.0" y="160.0"/>
+    </node>
+  </applicationData>
+</graph>

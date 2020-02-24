@@ -1,0 +1,97 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="Land-Sea-Mask">
+    <operator>Land-Sea-Mask</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <landMask>true</landMask>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <shorelineExtension>10</shorelineExtension>
+    </parameters>
+  </node>
+    <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Land-Sea-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Product Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+    </parameters>
+  </node>
+  <node id="AdaptiveThresholding">
+    <operator>AdaptiveThresholding</operator>
+    <sources>
+      <sourceProduct refid="Calibration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <targetWindowSizeInMeter>50</targetWindowSizeInMeter>
+      <guardWindowSizeInMeter>500.0</guardWindowSizeInMeter>
+      <backgroundWindowSizeInMeter>800.0</backgroundWindowSizeInMeter>
+      <pfa>12.5</pfa>
+      <estimateBackground>false</estimateBackground>
+    </parameters>
+  </node>
+  <node id="Object-Discrimination">
+    <operator>Object-Discrimination</operator>
+    <sources>
+      <sourceProduct refid="AdaptiveThresholding"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <minTargetSizeInMeter>30.0</minTargetSizeInMeter>
+      <maxTargetSizeInMeter>600.0</maxTargetSizeInMeter>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Object-Discrimination"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+      <displayPosition x="30.0" y="93.0"/>
+    </node>
+    <node id="Land-Sea-Mask">
+      <displayPosition x="107.0" y="93.0"/>
+    </node>
+	<node id="Calibration">
+      <displayPosition x="227.0" y="94.0"/>
+    </node>
+    <node id="AdaptiveThresholding">
+      <displayPosition x="192.0" y="145.0"/>
+    </node>
+    <node id="Object-Discrimination">
+      <displayPosition x="196.0" y="187.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="382.0" y="187.0"/>
+    </node>
+  </applicationData>
+</graph>

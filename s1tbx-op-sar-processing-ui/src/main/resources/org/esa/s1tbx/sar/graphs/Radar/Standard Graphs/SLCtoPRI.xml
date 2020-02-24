@@ -1,0 +1,78 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters>
+      <file></file>
+    </parameters>
+  </node>
+  <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters>
+      <sourceBands>Intensity</sourceBands>
+      <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="SRGR">
+    <operator>SRGR</operator>
+    <sources>
+      <sourceProduct refid="Calibration"/>
+    </sources>
+    <parameters>
+      <sourceBands>
+      </sourceBands>
+      <warpPolynomialOrder>4</warpPolynomialOrder>
+	  <interpolationMethod>Linear interpolation</interpolationMethod>
+    </parameters>
+  </node>
+  <node id="Multilook">
+    <operator>Multilook</operator>
+    <sources>
+      <sourceProduct refid="SRGR"/>
+    </sources>
+    <parameters>
+	  <sourceBands>
+      </sourceBands>
+      <nRgLooks>1</nRgLooks>
+      <nAzLooks>1</nAzLooks>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Multilook"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>pri_ml_gr.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+	<node id="Calibration">
+      <displayPosition y="135.0" x="135.0"/>
+    </node>
+    <node id="SRGR">
+      <displayPosition y="204.0" x="138.0"/>
+    </node>
+    <node id="Multilook">
+      <displayPosition y="203.0" x="250.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition y="203.0" x="360.0"/>
+    </node>
+  </applicationData>
+</graph>
