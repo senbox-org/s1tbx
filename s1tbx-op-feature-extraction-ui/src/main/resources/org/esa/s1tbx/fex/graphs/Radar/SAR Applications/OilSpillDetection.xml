@@ -1,0 +1,94 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="Land-Sea-Mask">
+    <operator>Land-Sea-Mask</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <landMask>true</landMask>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <shorelineExtension>10</shorelineExtension>
+    </parameters>
+  </node>
+    <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Land-Sea-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+    </parameters>
+  </node>
+  <node id="Oil-Spill-Detection">
+    <operator>Oil-Spill-Detection</operator>
+    <sources>
+      <sourceProduct refid="Calibration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands></sourceBands>
+      <backgroundWindowSize>61</backgroundWindowSize>
+      <k>2.0</k>
+    </parameters>
+  </node>
+  <node id="Oil-Spill-Clustering">
+    <operator>Oil-Spill-Clustering</operator>
+    <sources>
+      <sourceProduct refid="Oil-Spill-Detection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <minClusterSizeInKm2>0.1</minClusterSizeInKm2>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Oil-Spill-Clustering"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>oil_spill_detection.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+      <displayPosition x="30.0" y="93.0"/>
+    </node>
+    <node id="Land-Sea-Mask">
+      <displayPosition x="134.0" y="94.0"/>
+    </node>
+    <node id="Calibration">
+      <displayPosition x="261.0" y="93.0"/>
+    </node>
+    <node id="Oil-Spill-Detection">
+      <displayPosition x="237.0" y="139.0"/>
+    </node>
+    <node id="Oil-Spill-Clustering">
+      <displayPosition x="239.0" y="184.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="402.0" y="184.0"/>
+    </node>
+  </applicationData>
+</graph>
