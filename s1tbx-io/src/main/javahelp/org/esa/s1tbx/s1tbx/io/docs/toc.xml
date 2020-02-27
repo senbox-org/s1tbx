@@ -23,6 +23,7 @@
                     <tocitem text="SAR Sensors">
 					    <tocitem text="ALOS PALSAR 1" target="ImportAlosPalsar"/>
 						<tocitem text="ALOS PALSAR 2" target="ImportAlos2"/>
+						<tocitem text="Capella" target="ImportCapella"/>
                         <tocitem text="Cosmo-Skymed" target="ImportCosmoSkymed"/>
                         <tocitem text="ENVISAT ASAR" target="importEnvisatProduct"/>
                         <tocitem text="ERS-1" target="importErsProduct"/>
@@ -31,6 +32,7 @@
                         <tocitem text="Kompsat-5" target="ImportKompsat5"/>
                         <tocitem text="Paz" target="ImportPaz"/>
                         <tocitem text="RISAT-1" target="ImportRISAT"/>
+						<tocitem text="SAOCOM" target="ImportSAOCOM"/>
                         <tocitem text="SeaSat" target="ImportSeaSat"/>
 						<tocitem text="Sentinel-1" target="importSentinel1Product"/>
 						<tocitem text="TerraSAR-X" target="ImportTerraSarX"/>
