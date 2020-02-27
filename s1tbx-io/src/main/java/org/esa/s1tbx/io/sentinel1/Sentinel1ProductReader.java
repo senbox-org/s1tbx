@@ -24,7 +24,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -43,7 +42,8 @@ import java.nio.file.Path;
 public class Sentinel1ProductReader extends SARReader {
 
     protected Sentinel1Directory dataDir = null;
-    private DataCache cache = new DataCache();
+    private final DataCache cache;
+    private final boolean useCache = false;
 
     /**
      * Constructs a new abstract product reader.
@@ -53,6 +53,7 @@ public class Sentinel1ProductReader extends SARReader {
      */
     public Sentinel1ProductReader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
+        cache = useCache ? new DataCache() : null;
     }
 
     /**
@@ -181,26 +182,32 @@ public class Sentinel1ProductReader extends SARReader {
                                   int destWidth, int destHeight,
                                   final ImageIOFile.BandInfo bandInfo) {
 
-        int length;
-        int[] srcArray;
-
-        //System.out.println(cache.stats()+", size="+cache.size());
-
+        final int length;
+        final int[] srcArray;
         final Rectangle destRect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
-        final DataCache.DataKey datakey = new DataCache.DataKey(bandInfo.img, destRect);
-        DataCache.Data cachedData = cache.get(datakey);
-        if (cachedData != null && cachedData.valid) {
-            srcArray = cachedData.intArray;
-            length = srcArray.length;
+
+        if(useCache) {
+            final DataCache.DataKey datakey = new DataCache.DataKey(bandInfo.img, destRect);
+            DataCache.Data cachedData = cache.get(datakey);
+            if (cachedData != null && cachedData.valid) {
+                srcArray = cachedData.intArray;
+                length = srcArray.length;
+            } else {
+                cachedData = readRect(datakey, bandInfo,
+                        sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                        destRect);
+
+                srcArray = cachedData.intArray;
+                length = srcArray.length;
+            }
         } else {
-            cachedData = readRect(datakey, bandInfo,
-                                         sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                         destRect);
+
+            DataCache.Data cachedData = readRect(null, bandInfo,
+                    sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY, destRect);
 
             srcArray = cachedData.intArray;
             length = srcArray.length;
         }
-
         final short[] destArray = (short[]) destBuffer.getElems();
         if (!bandInfo.isImaginary) {
             if (sourceStepX == 1) {
@@ -251,14 +258,16 @@ public class Sentinel1ProductReader extends SARReader {
             sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
 
             DataCache.Data cachedData = new DataCache.Data(srcArray);
-            cache.put(datakey, cachedData);
-
+            if(datakey != null) {
+                cache.put(datakey, cachedData);
+            }
             return cachedData;
         } catch (Exception e) {
             final int[] srcArray = new int[(int)destRect.getWidth()*(int)destRect.getHeight()];
             DataCache.Data cachedData = new DataCache.Data(srcArray);
-            cache.put(datakey, cachedData);
-
+            if(datakey != null) {
+                cache.put(datakey, cachedData);
+            }
             return cachedData;
         }
     }
