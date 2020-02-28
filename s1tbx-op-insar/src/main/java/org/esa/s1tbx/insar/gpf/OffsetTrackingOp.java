@@ -16,9 +16,9 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.esa.s1tbx.insar.gpf.coregistration.CrossCorrelationOp;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;

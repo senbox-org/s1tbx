@@ -1,7 +1,7 @@
 package org.jlinda.core.delaunay;
 
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Collections;
 import java.util.List;

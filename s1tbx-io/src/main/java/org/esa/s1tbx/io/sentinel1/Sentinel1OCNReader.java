@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.esa.s1tbx.io.netcdf.NetCDFUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.SystemUtils;
@@ -428,7 +428,7 @@ public class Sentinel1OCNReader {
                 // com.vividsolutions.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x, y));
                 final int x1 = getScaledValue(x, productRasterW, rasterW);
                 final int y1 = getScaledValue(y, productRasterH, rasterH);
-                com.vividsolutions.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x1, y1));
+                org.locationtech.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x1, y1));
 
                 //System.out.println("Sentinel1OCNReader.addWindToVectorNodes: (" + x + ", " + y + ") -> (" + x1 + ", " + y1 + ")");
 

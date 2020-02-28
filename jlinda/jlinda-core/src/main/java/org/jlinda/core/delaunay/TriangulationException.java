@@ -1,6 +1,6 @@
 package org.jlinda.core.delaunay;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Triangulator is the interface implemented by all the tools performing

@@ -17,8 +17,8 @@ package org.esa.s1tbx.fex.gpf.oceantools;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.collections.list.SynchronizedList;
 import org.apache.commons.math3.util.FastMath;
