@@ -33,6 +33,7 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.esa.snap.core.util.io.FileUtils;
 
 import java.awt.*;
@@ -122,9 +123,9 @@ public class TileWriterOp extends Operator {
                     final ProductSubsetDef subsetDef = new ProductSubsetDef();
                     subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
                     subsetDef.addNodeNames(sourceProduct.getBandNames());
-                    subsetDef.setRegion(Math.max(0, c * width - overlap),
+                    subsetDef.setSubsetRegion(new PixelSubsetRegion(Math.max(0, c * width - overlap),
                                         Math.max(0, r * height - overlap),
-                                        width+overlap+overlap, height+overlap+overlap);
+                                        width+overlap+overlap, height+overlap+overlap, 0));
                     subsetDef.setSubSampling(1, 1);
                     subsetDef.setIgnoreMetadata(false);
 

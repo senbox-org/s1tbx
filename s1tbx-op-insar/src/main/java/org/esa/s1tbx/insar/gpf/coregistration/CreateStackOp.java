@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.esa.s1tbx.insar.gpf.InSARStackOverview;
@@ -646,7 +647,7 @@ public class CreateStackOp extends Operator {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         subsetDef.addNodeNames(masterProduct.getTiePointGridNames());
 
-        subsetDef.setRegion((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
+        subsetDef.setSubsetRegion(new PixelSubsetRegion((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY), 0));
         subsetDef.setSubSampling(1, 1);
         subsetDef.setIgnoreMetadata(false);
 

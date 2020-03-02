@@ -425,7 +425,7 @@ public class Sentinel1OCNReader {
                 // TODO The problem is that productRasterW and productRasterH can be wrong and equal to 99999 which messes
                 // TODO up the geocoding. getScaledValue() will decide if scaling is needed.
 
-                // com.vividsolutions.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x, y));
+                // org.locationtech.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x, y));
                 final int x1 = getScaledValue(x, productRasterW, rasterW);
                 final int y1 = getScaledValue(y, productRasterH, rasterH);
                 org.locationtech.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(x1, y1));

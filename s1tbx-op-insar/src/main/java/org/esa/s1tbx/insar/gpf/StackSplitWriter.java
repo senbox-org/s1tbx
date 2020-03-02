@@ -29,6 +29,7 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
@@ -132,7 +133,7 @@ public class StackSplitWriter extends Operator {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
         subsetDef.addNodeNames(bandNames);
-        subsetDef.setRegion(0, 0, width, height);
+        subsetDef.setSubsetRegion(new PixelSubsetRegion(0, 0, width, height, 0));
         subsetDef.setSubSampling(1, 1);
         subsetDef.setIgnoreMetadata(true);
 

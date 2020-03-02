@@ -16,6 +16,7 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -174,7 +175,7 @@ public final class TOPSARSplitOp extends Operator {
             final int y = (firstBurstIndex - 1) * subSwathInfo[subSwathIndex - 1].linesPerBurst;
             final int w = selectedBands.get(0).getRasterWidth();
             final int h = (lastBurstIndex - firstBurstIndex + 1) * subSwathInfo[subSwathIndex - 1].linesPerBurst;
-            subsetDef.setRegion(x, y, w, h);
+            subsetDef.setSubsetRegion(new PixelSubsetRegion(x, y, w, h, 0));
 
             subsetDef.setSubSampling(1, 1);
             subsetDef.setIgnoreMetadata(false);
