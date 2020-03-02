@@ -18,6 +18,7 @@ package org.csa.rstb.io.radarsat2;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -67,16 +68,31 @@ public class TestRadarsat2ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningFolder() throws Exception {
-        testReader(folderSLC.toPath());
+        Product prod = testReader(folderSLC.toPath());
+        validateBands(prod, new String[] {
+                "i_HH","q_HH","Intensity_HH",
+                "i_HV","q_HV","Intensity_HV",
+                "i_VV","q_VV","Intensity_VV",
+                "i_VH","q_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningMetadataFile() throws Exception {
-        testReader(metadataSLC.toPath());
+        Product prod = testReader(metadataSLC.toPath());
+        validateBands(prod, new String[] {
+                "i_HH","q_HH","Intensity_HH",
+                "i_HV","q_HV","Intensity_HV",
+                "i_VV","q_VV","Intensity_VV",
+                "i_VH","q_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(inputRS2_SQuadFile.toPath());
+        Product prod = testReader(inputRS2_SQuadFile.toPath());
+        validateBands(prod, new String[] {
+                "i_HH","q_HH","Intensity_HH",
+                "i_HV","q_HV","Intensity_HV",
+                "i_VV","q_VV","Intensity_VV",
+                "i_VH","q_VH","Intensity_VH"});
     }
 }

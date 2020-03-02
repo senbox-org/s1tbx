@@ -3,6 +3,7 @@ package org.csa.rstb.io.radarsat1;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +36,8 @@ public class TestRadarsatProductReader extends ReaderTest  {
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(zipFile.toPath());
+        Product prod = testReader(zipFile.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
 //    @Test
@@ -45,6 +47,7 @@ public class TestRadarsatProductReader extends ReaderTest  {
 
     @Test
     public void testOpeningVolFile() throws Exception {
-        testReader(metaFile.toPath());
+        Product prod = testReader(metaFile.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 }

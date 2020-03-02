@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.kompsat5;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,16 +52,18 @@ public class TestKompsat5ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningFolder() throws Exception {
-        testReader(inputFolder.toPath());
+        Product prod = testReader(inputFolder.toPath());
+        validateBands(prod, new String[] {"GIM","Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningMetadata() throws Exception {
-        testReader(inputMetaXML.toPath());
+        Product prod = testReader(inputMetaXML.toPath());
+        validateBands(prod, new String[] {"GIM", "Amplitude_HH","Intensity_HH"});
     }
 
 //    @Test
 //    public void testOpeningZip() throws Exception {
-//        testReader(inputZip);
+//        Product prod = testReader(inputZip);
 //    }
 }

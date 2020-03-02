@@ -108,6 +108,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
     public Product createProduct() throws IOException {
         assert (productType != null);
         productType = extractProductType(productType);
+        final String pol = "HH";
 
         final Product product = new Product(getProductName(), productType, sceneWidth, sceneHeight);
 
@@ -128,12 +129,12 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         } else {
             final RadarsatImageFile imageFile = imageFiles[0];
             if (isProductSLC) {
-                final Band bandI = createBand(product, "i", Unit.REAL, imageFile);
-                final Band bandQ = createBand(product, "q", Unit.IMAGINARY, imageFile);
-                ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "");
+                final Band bandI = createBand(product, "i_" + pol, Unit.REAL, imageFile);
+                final Band bandQ = createBand(product, "q_" + pol, Unit.IMAGINARY, imageFile);
+                ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, "_"+pol);
             } else {
-                final Band band = createBand(product, "Amplitude", Unit.AMPLITUDE, imageFile);
-                SARReader.createVirtualIntensityBand(product, band, "");
+                final Band band = createBand(product, "Amplitude_" + pol, Unit.AMPLITUDE, imageFile);
+                SARReader.createVirtualIntensityBand(product, band, "_"+pol);
             }
         }
 

@@ -17,6 +17,7 @@ package org.csa.rstb.io.rcm;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -57,27 +58,32 @@ public class TestEODMSRCMProductReader extends ReaderTest {
 
     @Test
     public void testOpeningGRDManifest() throws Exception {
-        testReader(inputGRDManifest.toPath());
+        Product prod = testReader(inputGRDManifest.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     @Ignore("not implemented")
     public void testOpeningGRDZip() throws Exception {
-        testReader(inputGRDZip.toPath());
+        Product prod = testReader(inputGRDZip.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRDFolder() throws Exception {
-        testReader(inputGRDFolder.toPath());
+        Product prod = testReader(inputGRDFolder.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRCManifest() throws Exception {
-        testReader(inputGRCManifest.toPath());
+        Product prod = testReader(inputGRCManifest.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRCFolder() throws Exception {
-        testReader(inputGRCFolder.toPath());
+        Product prod = testReader(inputGRCFolder.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 }

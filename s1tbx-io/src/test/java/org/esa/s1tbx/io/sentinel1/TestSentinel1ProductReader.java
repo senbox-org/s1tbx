@@ -18,6 +18,7 @@ package org.esa.s1tbx.io.sentinel1;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +63,6 @@ public class TestSentinel1ProductReader extends ReaderTest {
         }
     }
 
-
     public TestSentinel1ProductReader() {
         super(new Sentinel1ProductReaderPlugIn());
     }
@@ -80,36 +80,43 @@ public class TestSentinel1ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningFile() throws Exception {
-        testReader(inputS1_AnnotGRD.toPath().resolve("manifest.safe"));
+        Product prod = testReader(inputS1_AnnotGRD.toPath().resolve("manifest.safe"));
+        validateBands(prod, new String[] {});
     }
 
     @Test
     public void testOpeningBandlessMetadataFile1() throws Exception {
-        testReader(inputS1_meta1GRD.toPath());
+        Product prod = testReader(inputS1_meta1GRD.toPath());
+        validateBands(prod, new String[] {});
     }
 
     @Test
     public void testOpeningBandlessMetadataFile2() throws Exception {
-        testReader(inputS1_meta2GRD.toPath());
+        Product prod = testReader(inputS1_meta2GRD.toPath());
+        validateBands(prod, new String[] {});
     }
 
     @Test
     public void testOpeningAnnotFolder() throws Exception {
-        testReader(inputS1_AnnotGRD.toPath());
+        Product prod = testReader(inputS1_AnnotGRD.toPath());
+        validateBands(prod, new String[] {});
     }
 
     @Test
     public void testOpeningZip() throws Exception {
-        testReader(inputS1_GRDFile.toPath());
+        Product prod = testReader(inputS1_GRDFile.toPath());
+        validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningAnnotationProduct() throws Exception {
-        testReader(inputS1_AnnotGRDZip.toPath());
+        Product prod = testReader(inputS1_AnnotGRDZip.toPath());
+        validateBands(prod, new String[] {});
     }
 
     @Test
     public void testOpeningFolder() throws Exception {
-        testReader(inputGRDFolder.toPath());
+        Product prod = testReader(inputGRDFolder.toPath());
+        validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 }
