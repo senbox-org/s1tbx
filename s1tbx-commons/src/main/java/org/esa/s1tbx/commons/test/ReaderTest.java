@@ -3,6 +3,7 @@ package org.esa.s1tbx.commons.test;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -61,6 +62,25 @@ public class ReaderTest {
 
         for(MetadataAttribute attrib : attribs) {
             System.out.println(attrib.getName() +"= "+ attrib.getData().toString());
+        }
+    }
+
+    protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
+        final Band[] bands = trgProduct.getBands();
+        if(bandNames.length != bands.length) {
+            throw new Exception("Expecting "+bandNames.length + " bands but found "+ bands.length);
+        }
+        for(String bandName : bandNames) {
+            Band band = trgProduct.getBand(bandName);
+            if(band == null) {
+                throw new Exception("Band "+ bandName +" not found");
+            }
+            if(band.getUnit() == null) {
+                throw new Exception("Band "+ bandName +" is missing a unit");
+            }
+            if(!band.isNoDataValueUsed()) {
+                throw new Exception("Band "+ bandName +" is not using a nodata value");
+            }
         }
     }
 }

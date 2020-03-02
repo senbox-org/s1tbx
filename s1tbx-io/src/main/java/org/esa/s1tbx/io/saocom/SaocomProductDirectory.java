@@ -16,14 +16,13 @@
 package org.esa.s1tbx.io.saocom;
 
 import Jama.Matrix;
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
-import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -43,21 +42,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class represents a product directory.
  */
 public class SaocomProductDirectory extends XMLProductDirectory {
 
-    private final File headerFile;
-    private String productName = null;
-    private String productType = null;
-    private String productDescription = "";
+    private File headerFile;
+    private String productName;
+    private String productType;
     private int width, height;
+    private VirtualDir dataDir;
 
     private final double[] latCorners = new double[4];
     private final double[] lonCorners = new double[4];
@@ -67,23 +63,68 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private final Map<String, ImageInputStream> imageBandMap = new HashMap<>();
-    private final List<Product> bandProducts = new ArrayList<>();
 
     public SaocomProductDirectory(final File inputFile) {
         super(inputFile);
-        headerFile = inputFile;
     }
 
     @Override
     public void close() throws IOException {
         super.close();
-        for (Product bandProduct : bandProducts) {
-            if (bandProduct != null) {
-                bandProduct.dispose();
-            }
+        if(dataDir != null) {
+            dataDir.close();
         }
-        bandProducts.clear();
+    }
+
+    @Override
+    protected void createProductDir(final File inputFile) {
+        headerFile = inputFile;
+        productName = headerFile.getName().replace(".xemt", "");
+
+        if (ZipUtils.isZip(inputFile)) {
+            baseDir = inputFile;
+            productDir = VirtualDir.create(baseDir);
+            baseName = baseDir.getName();
+            if(baseName.endsWith(".zip")) {
+                baseName = baseName.substring(0, baseName.lastIndexOf(".zip"));
+            }
+        } else {
+            if(inputFile.isDirectory()) {
+                baseDir = inputFile;
+            } else {
+                baseDir = inputFile.getParentFile();
+            }
+            final String imgFolderStr = getRelativePathToImageFolder();
+            final File imgFolder = new File(baseDir, imgFolderStr);
+            if(!imgFolder.exists()) {
+                final File zipFile = new File(baseDir, productName+".zip");
+                if(zipFile.exists()) {
+                    dataDir = VirtualDir.create(zipFile);
+                }
+            }
+
+            productDir = VirtualDir.create(baseDir);
+            baseName = baseDir.getName();
+        }
+    }
+
+    @Override
+    public void readProductDirectory() throws IOException {
+        try (final InputStream is = productDir.getInputStream(getRootFolder() + getHeaderFileName())) {
+            xmlDoc = XMLSupport.LoadXML(is);
+        }
+    }
+
+    @Override
+    protected String getRelativePathToImageFolder() {
+        if(dataDir == null) {
+            final File dataFolder = new File(baseDir, "Data");
+            if(dataFolder.exists()) {
+                return "Data/";
+            }
+            return productName + "/Data/";
+        }
+        return "Data/";
     }
 
     @Override
@@ -102,26 +143,33 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
         AbstractMetadataIO.AddXMLMetadata(rootElement, origProdRoot);
 
-        productName = headerFile.getName().replace(".xemt", "");
-        addMetadataFiles(getRootFolder() + productName + "/Data", origProdRoot);
+        addMetadataFiles(getRelativePathToImageFolder(), origProdRoot);
 
         addAbstractedMetadataHeader(root);
 
         return root;
     }
 
+    @Override
+    protected VirtualDir getProductDir() {
+        return dataDir != null ? dataDir : productDir;
+    }
+
     private void addMetadataFiles(final String internalPath, final MetadataElement destElem) throws IOException {
-        if (!productDir.exists(internalPath))
-            return;
-        String[] metaFiles = productDir.list(internalPath);
+        final VirtualDir virtualDir = getProductDir();
+
+        final String[] metaFiles = virtualDir.list(internalPath);
         for (String file : metaFiles) {
             if (file.endsWith(".xml")) {
                 try {
                     if (productType == null) {
                         productType = file.substring(0, file.indexOf("-")).toUpperCase();
+                        if(productType.equals("SLC")) {
+                            setSLC(true);
+                        }
                     }
 
-                    final File metaFile = getFile(internalPath + "/" + file);
+                    final File metaFile = getFile(internalPath + file);
                     final Document xmlDoc = XMLSupport.LoadXML(metaFile.getAbsolutePath());
                     final Element metaFileElement = xmlDoc.getRootElement();
 
@@ -149,9 +197,10 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataElement imageAttributes = features.getElement("imageAttributes");
         final MetadataElement bands = imageAttributes.getElement("bands");
         final MetadataElement[] bandElems = bands.getElements();
+        final MetadataElement bandElem = bandElems[0];
 
-        width = bandElems[0].getAttributeInt("nCols", defInt);
-        height = bandElems[0].getAttributeInt("nRows", defInt);
+        width = bandElem.getAttributeInt("nCols", defInt);
+        height = bandElem.getAttributeInt("nRows", defInt);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
 
@@ -163,6 +212,17 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataElement timeFrame = scene.getElement("timeFrame");
         final MetadataElement timePeriod = timeFrame.getElement("timePeriod");
         setStartStopTime(absRoot, timePeriod, height);
+
+        final MetadataElement frame = scene.getElement("frame");
+        final MetadataElement[] vertices = frame.getElements();
+        latCorners[0] = vertices[0].getAttributeDouble("lat", defInt);
+        lonCorners[0] = vertices[0].getAttributeDouble("lon", defInt);
+        latCorners[1] = vertices[3].getAttributeDouble("lat", defInt);
+        lonCorners[1] = vertices[3].getAttributeDouble("lon", defInt);
+        latCorners[2] = vertices[1].getAttributeDouble("lat", defInt);
+        lonCorners[2] = vertices[1].getAttributeDouble("lon", defInt);
+        latCorners[3] = vertices[2].getAttributeDouble("lat", defInt);
+        lonCorners[3] = vertices[2].getAttributeDouble("lon", defInt);
 
         final MetadataElement production = features.getElement("production");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, production.getAttributeString("facilityID"));
@@ -208,11 +268,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     }
 
     @Override
-    protected String getRelativePathToImageFolder() {
-        return getRootFolder() + productName + "/Data/";
-    }
-
-    @Override
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) {
         if (!imgPath.toLowerCase().endsWith(".xml")) {
             try {
@@ -225,8 +280,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                             1, 1, ProductData.TYPE_INT32, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
 
-                    ProductReader reader = geoTiffPlugIn.createReaderInstance();
-                    bandProducts.add(reader.readProductNodes(productDir.getFile(imgPath), null));
+                    //ProductReader reader = geoTiffPlugIn.createReaderInstance();
+                    //bandProducts.add(reader.readProductNodes(inStream, null));
                 }
             } catch (Exception e) {
                 SystemUtils.LOG.severe(imgPath + " not found");
@@ -234,14 +289,23 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         }
     }
 
+    private static String getImageName(final String name) {
+        String n = name.toLowerCase();
+        if(n.endsWith("-v") || n.endsWith("-l") || n.endsWith("-m") || n.endsWith("-h")) {
+            // remove resolution
+            return name.substring(0, name.length()-2);
+        }
+        return name;
+    }
+
     @Override
     protected void addBands(final Product product) {
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             int numImages = img.getNumImages();
+            final String imgName = getImageName(img.getName());
 
-            final String pol = SARReader.findPolarizationInBandName(img.getName());
-            String suffix = pol;
+            final String suffix = SARReader.findPolarizationInBandName(imgName);
             if (isSLC()) {
                 numImages *= 2; // real + imaginary
             }
@@ -298,9 +362,9 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             }
         }
 
-        if(!bandProducts.isEmpty()) {
-            ProductUtils.copyGeoCoding(bandProducts.get(0), product);
-        }
+//        if(!bandProducts.isEmpty()) {
+//            ProductUtils.copyGeoCoding(bandProducts.get(0), product);
+//        }
     }
 
     @Override
@@ -611,26 +675,11 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
     @Override
     protected String getProductDescription() {
-        return productDescription;
+        return "";
     }
 
     @Override
     protected String getProductType() {
         return productType;
-    }
-
-    private static class CornerCoord {
-        final int refRow, refCol;
-        final double lat, lon;
-        final double rangeTime, incidenceAngle;
-
-        CornerCoord(int row, int col, double lt, double ln, double range, double angle) {
-            refRow = row;
-            refCol = col;
-            lat = lt;
-            lon = ln;
-            rangeTime = range;
-            incidenceAngle = angle;
-        }
     }
 }

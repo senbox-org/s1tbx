@@ -16,7 +16,6 @@
 package org.esa.s1tbx.commons.io;
 
 import com.bc.ceres.core.VirtualDir;
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -28,9 +27,6 @@ import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -95,13 +91,17 @@ public abstract class AbstractProductDirectory {
     protected String findRootFolder() {
         String rootFolder = "";
         try {
-            if (productDir.isCompressed()) {
+            if (productDir != null && productDir.isCompressed()) {
                 rootFolder = ZipUtils.getRootFolder(baseDir, getHeaderFileName());
             }
         } catch (IOException e) {
             SystemUtils.LOG.severe("Unable to get root path from zip file " + e.getMessage());
         }
         return rootFolder;
+    }
+
+    protected VirtualDir getProductDir() {
+        return productDir;
     }
 
     protected String getRelativePathToImageFolder() {
@@ -142,7 +142,7 @@ public abstract class AbstractProductDirectory {
     protected final void findImages(final String parentPath, final MetadataElement newRoot) throws IOException {
         String[] listing;
         try {
-            listing = productDir.list(parentPath);
+            listing = getProductDir().list(parentPath);
         } catch (FileNotFoundException e) {
             listing = null;
         }
@@ -158,7 +158,7 @@ public abstract class AbstractProductDirectory {
 
     protected String getBandFileNameFromImage(final String imgPath) {
         if(imgPath.contains("/"))
-            return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
+            return imgPath.substring(imgPath.lastIndexOf('/') + 1).toLowerCase();
         return imgPath;
     }
 
@@ -236,7 +236,7 @@ public abstract class AbstractProductDirectory {
                     files.add(listEntry);
                 }
             }
-            return files.toArray(new String[files.size()]);
+            return files.toArray(new String[0]);
         } catch (Exception e) {
             throw new IOException("Product is corrupt or incomplete\n"+e.getMessage());
         }
@@ -254,7 +254,7 @@ public abstract class AbstractProductDirectory {
         } catch (IOException e) {
             SystemUtils.LOG.severe("Error listing files in " + path);
         }
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 
     private boolean isDirectory(final String path) throws IOException {
@@ -276,15 +276,15 @@ public abstract class AbstractProductDirectory {
     }
 
     public File getFile(final String path) throws IOException {
-        return productDir.getFile(path);
+        return getProductDir().getFile(path);
     }
 
     public boolean exists(final String path) {
-        return productDir.exists(path);
+        return getProductDir().exists(path);
     }
 
     public InputStream getInputStream(final String path) throws IOException {
-        InputStream inStream = productDir.getInputStream(path);
+        InputStream inStream = getProductDir().getInputStream(path);
         if(inStream == null) {
             throw new IOException("Product is corrupt or incomplete: unreadable "+path);
         }
@@ -349,13 +349,12 @@ public abstract class AbstractProductDirectory {
     }
 
     protected static float[][] getBoundingBox(float [][] coordinateList){
-        float [][] boundingBox = new float[4][2];
+        final float [][] boundingBox = new float[4][2];
         float minX, minY, maxX, maxY;
         minX = coordinateList[0][0];
         minY = coordinateList[0][1];
         maxX = coordinateList[0][0];
         maxY = coordinateList[0][1];
-
 
         for(float [] coordinate: coordinateList){
             if (coordinate[0] < minX){
@@ -377,7 +376,6 @@ public abstract class AbstractProductDirectory {
         boundingBox[1] = new float[]{maxX, maxY}; // UR
         boundingBox[2] = new float[]{minX, minY}; // LL
         boundingBox[3] = new float[]{maxX, minY}; // LR
-
 
         return boundingBox;
     }
