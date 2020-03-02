@@ -4,6 +4,7 @@ package org.esa.s1tbx.io.risat1;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,16 +40,18 @@ public class TestRisat1ProductReader extends ReaderTest {
 
     @Test
     public void testOpeningCEOSFolder() throws Exception {
-        testReader(inputCEOSFolder.toPath());
+        Product prod = testReader(inputCEOSFolder.toPath());
+        validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH","Amplitude_RCV","Intensity_RCV"});
     }
 
     @Test
     public void testOpeningCEOSMetadata() throws Exception {
-        testReader(inputCEOSMetaXML.toPath());
+        Product prod = testReader(inputCEOSMetaXML.toPath());
+        validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH","Amplitude_RCV","Intensity_RCV"});
     }
 
 //    @Test
 //    public void testGeoTiffFolder() throws Exception {
-//        testReader(inputGeoTiffFolder);
+//        Product prod = testReader(inputGeoTiffFolder);
 //    }
 }

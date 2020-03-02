@@ -1028,6 +1028,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     final String pol = SARReader.findPolarizationInBandName(img.getName());
                     final Band band = new Band("Amplitude_" + pol, img.getDataType(), width, height);
                     band.setUnit(Unit.AMPLITUDE);
+                    band.setNoDataValue(0);
+                    band.setNoDataValueUsed(true);
                     product.addBand(band);
 
                     SARReader.createVirtualIntensityBand(product, band, '_' + pol);
@@ -1069,6 +1071,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
                 final Band realBand = new Band("i_" + pol + extraInfo, bandDataType, width, height);
                 realBand.setUnit(Unit.REAL);
+                realBand.setNoDataValue(0);
+                realBand.setNoDataValueUsed(true);
                 product.addBand(realBand);
 
                 masterBands = appendIfMatch(realBand, "mst", masterBands);
@@ -1076,6 +1080,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
                 final Band imaginaryBand = new Band("q_" + pol + extraInfo, bandDataType, width, height);
                 imaginaryBand.setUnit(Unit.IMAGINARY);
+                imaginaryBand.setNoDataValue(0);
+                imaginaryBand.setNoDataValueUsed(true);
                 product.addBand(imaginaryBand);
 
                 masterBands = appendIfMatch(imaginaryBand, "mst", masterBands);

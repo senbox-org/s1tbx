@@ -179,6 +179,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
                         final Band band = new Band(bandName, img.getDataType(), width, height);
                         band.setUnit(unit);
+                        band.setNoDataValue(0);
+                        band.setNoDataValueUsed(true);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
@@ -196,6 +198,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         bandName = "Amplitude_" + getPol(imgName);
                         final Band band = new Band(bandName, ProductData.TYPE_UINT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
+                        band.setNoDataValue(0);
+                        band.setNoDataValueUsed(true);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));

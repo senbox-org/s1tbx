@@ -17,8 +17,8 @@ package org.esa.s1tbx.io.paz;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -60,22 +60,24 @@ public class TestPazProductReader extends ReaderTest {
 
     @Test
     public void testOpeningMGDMetadata() throws Exception {
-        testReader(inputMGDMetaXML.toPath());
+        Product prod = testReader(inputMGDMetaXML.toPath());
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
 //    @Test
 //    public void testOpeningSSCFolder() throws Exception {
-//        testReader(inputSSCFolder);
+//        Product prod = testReader(inputSSCFolder);
 //    }
 
     @Test
     public void testOpeningSSCMetadata() throws Exception {
-        testReader(inputSSCMetaXML.toPath());
+        Product prod = testReader(inputSSCMetaXML.toPath());
+        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 
 //    @Test
 //    @Ignore
 //    public void testOpeningZip() throws Exception {
-//        //testReader(inputZip);
+//        Product prod = testReader(inputZip);
 //    }
 }
