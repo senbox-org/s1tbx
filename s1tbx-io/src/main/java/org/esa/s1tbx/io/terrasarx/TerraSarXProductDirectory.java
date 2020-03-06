@@ -512,13 +512,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private static String getAcquisitionMode(final String mode) {
-        if (mode.equalsIgnoreCase("SM"))
+        if (mode.equalsIgnoreCase("SM") || mode.equalsIgnoreCase("ST"))
             return "Stripmap";
         else if (mode.equalsIgnoreCase("SL") || mode.equalsIgnoreCase("HS"))
             return "Spotlight";
         else if (mode.equalsIgnoreCase("SC"))
             return "ScanSAR";
-        return " ";
+        return mode;
     }
 
     private static void setFlag(MetadataElement elem, String attribTag, String trueValue,
