@@ -3,6 +3,7 @@ package org.esa.s1tbx.commons.test;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
@@ -56,5 +57,29 @@ public class ReaderTest {
     protected void validateMetadata(final Product product) throws Exception {
         final MetadataValidator metadataValidator = new MetadataValidator(product);
         metadataValidator.validate();
+    }
+
+    protected void validateMetadata(final Product product, final MetadataValidator.ValidationOptions options) throws Exception {
+        final MetadataValidator metadataValidator = new MetadataValidator(product, options);
+        metadataValidator.validate();
+    }
+
+    protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
+        final Band[] bands = trgProduct.getBands();
+        if(bandNames.length != bands.length) {
+            throw new Exception("Expecting "+bandNames.length + " bands but found "+ bands.length);
+        }
+        for(String bandName : bandNames) {
+            Band band = trgProduct.getBand(bandName);
+            if(band == null) {
+                throw new Exception("Band "+ bandName +" not found");
+            }
+            if(band.getUnit() == null) {
+                throw new Exception("Band "+ bandName +" is missing a unit");
+            }
+            if(!band.isNoDataValueUsed()) {
+                throw new Exception("Band "+ bandName +" is not using a nodata value");
+            }
+        }
     }
 }

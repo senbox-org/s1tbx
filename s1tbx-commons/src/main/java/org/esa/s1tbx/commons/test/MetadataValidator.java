@@ -9,13 +9,23 @@ public class MetadataValidator {
 
     private final Product product;
     private final MetadataElement absRoot;
+    private final ValidationOptions validationOptions;
 
     private final static String defStr = AbstractMetadata.NO_METADATA_STRING;
     private final static int defInt = AbstractMetadata.NO_METADATA;
 
+    public static class ValidationOptions {
+        public boolean validateOrbitStateVectors = true;
+    }
+
     public MetadataValidator(final Product product) {
+        this(product, null);
+    }
+
+    public MetadataValidator(final Product product, final ValidationOptions options) {
         this.product = product;
         this.absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        this.validationOptions = options == null ? new ValidationOptions() : options;
     }
 
     public void validate() throws Exception {
@@ -93,6 +103,9 @@ public class MetadataValidator {
     }
 
     private void verifyOrbitStateVectors() throws Exception {
+        if(!validationOptions.validateOrbitStateVectors)
+            return;
+
         final MetadataElement orbitElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
         if(orbitElem != null) {
             MetadataElement[] elems = orbitElem.getElements();
