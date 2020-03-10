@@ -62,6 +62,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     private final double[] incidenceCorners = new double[4];
 
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("dd-MMM-yyyy HH:mm:ss");
 
     public SaocomProductDirectory(final File inputFile) {
         super(inputFile);
@@ -211,10 +212,18 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataElement parameters = acquisition.getElement("parameters");
         mode = getAcquisitionMode(parameters.getAttributeString("acqMode"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, parameters.getAttributeString("sideLooking").toLowerCase());
 
         String desc = features.getAttributeString("abstract");
         productDescription = desc.replace("XML Annotated ", "");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, productDescription);
+
+        final MetadataElement production = features.getElement("production");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, production.getAttributeString("facilityID"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType());
+
+        final MetadataElement StateVectorData = features.getElement("StateVectorData");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, StateVectorData.getAttributeString("OrbitDirection"));
 
         final MetadataElement scene = features.getElement("scene");
         final MetadataElement timeFrame = scene.getElement("timeFrame");
@@ -232,13 +241,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         latCorners[3] = vertices[2].getAttributeDouble("lat", defInt);
         lonCorners[3] = vertices[2].getAttributeDouble("lon", defInt);
 
-        final MetadataElement production = features.getElement("production");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, production.getAttributeString("facilityID"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType());
-
-        final MetadataElement StateVectorData = features.getElement("StateVectorData");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, StateVectorData.getAttributeString("OrbitDirection"));
-
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latCorners[0]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonCorners[0]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latCorners[1]);
@@ -251,8 +253,44 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
         final MetadataElement channel = origProdRoot.getElement("Channel");
         final MetadataElement datasetInfo = channel.getElement("DataSetInfo");
+        final MetadataElement swathInfo = channel.getElement("SwathInfo");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, datasetInfo.getAttributeDouble("fc_hz") / Constants.oneMillion);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, getTime(datasetInfo, "ProcessingDate", dateFormat2));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, swathInfo.getAttributeDouble("AcquisitionPRF"));
+
+        if(swathInfo.containsElement("NominalResolution")) {
+            final MetadataElement nominalResolution = swathInfo.getElement("NominalResolution");
+            final MetadataElement range = nominalResolution.getElement("Range");
+            final MetadataElement azimuth = nominalResolution.getElement("Azimuth");
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, range.getAttributeDouble("Range"));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, azimuth.getAttributeDouble("Azimuth"));
+        } else {
+            final MetadataElement rasterInfo = channel.getElement("RasterInfo");
+            final MetadataElement samplesStep = rasterInfo.getElement("SamplesStep");
+            double spacing = samplesStep.getAttributeDouble("SamplesStep");
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, spacing);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, spacing);
+        }
+
+        if(isSLC()) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1.0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 1.0);
+        } else {
+            if(mode.equals("Stripmap")) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1.0);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 2.0);
+            }
+        }
+
+        addOrbitStateVectors(absRoot, features.getElement("StateVectorData"));
+    }
+
+    private static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
+        if (elem == null)
+            return AbstractMetadata.NO_METADATA_UTC;
+        final String timeStr = elem.getAttributeString(tag, " ").toUpperCase();
+        return AbstractMetadata.parseUTC(timeStr, timeFormat);
     }
 
     private void setStartStopTime(final MetadataElement absRoot, final MetadataElement elem, final int height) {
@@ -291,9 +329,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     final ImageIOFile img = new ImageIOFile(imgPath, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_INT32, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
-
-                    //ProductReader reader = geoTiffPlugIn.createReaderInstance();
-                    //bandProducts.add(reader.readProductNodes(inStream, null));
                 }
             } catch (Exception e) {
                 SystemUtils.LOG.severe(imgPath + " not found");
@@ -349,7 +384,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(unit);
                         band.setNoDataValueUsed(true);
-                        //band.setNoDataValue(NoDataValue);
+                        band.setNoDataValue(0);
 
                         product.addBand(band);
                         final ImageIOFile.BandInfo bandInfo = new ImageIOFile.BandInfo(band, img, 0, b);
@@ -370,7 +405,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
-                        //band.setNoDataValue(NoDataValue);
+                        band.setNoDataValue(0);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
@@ -380,10 +415,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                 }
             }
         }
-
-//        if(!bandProducts.isEmpty()) {
-//            ProductUtils.copyGeoCoding(bandProducts.get(0), product);
-//        }
     }
 
     @Override
@@ -393,7 +424,9 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             return;
         }
 
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
+
+   /*     MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
 
         if (isMapProjected() || sampleType.contains("COMPLEX")) {
@@ -430,7 +463,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             }
 
             ReaderUtils.addGeoCoding(product, flippedLatCorners, flippedLonCorners);
-        }
+        }*/
     }
 
     @Override
@@ -516,42 +549,45 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     private void addOrbitStateVectors(MetadataElement absRoot, MetadataElement orbitInformation) {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
-        final MetadataElement[] stateVectorElems = orbitInformation.getElements();
-        for (int i = 1; i < stateVectorElems.length; ++i) {
-            // first stateVectorElem is orbitHeader therefore skip it
-            addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, stateVectorElems[i], i);
-        }
+        final ProductData.UTC utc = ReaderUtils.getTime(orbitInformation, "t_ref_Utc", standardDateFormat);
+        final Double delta = orbitInformation.getAttributeDouble("dtSV_s");
 
-        // set state vector time
-        if (absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
-                equalElems(AbstractMetadata.NO_METADATA_UTC)) {
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, utc);
 
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    ReaderUtils.getTime(stateVectorElems[1], "timeUTC", standardDateFormat));
+        final MetadataElement pSV_m = orbitInformation.getElement("pSV_m");
+        final MetadataElement vSV_mOs = orbitInformation.getElement("vSV_mOs");
+        final MetadataAttribute[] pos = pSV_m.getAttributes();
+        final MetadataAttribute[] vel = vSV_mOs.getAttributes();
+
+        int cnt = 0;
+        ProductData.UTC time = utc;
+        for (int i = 0; i < pos.length; i+=3) {
+            final MetadataElement orbitVectorElem = new MetadataElement(AbstractMetadata.orbit_vector + cnt);
+
+            orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time, time);
+            addVector(orbitVectorElem, pos, vel, i);
+
+            orbitVectorListElem.addElement(orbitVectorElem);
+            time = new ProductData.UTC((int)time.getMJD(), (int)(time.getSecondsFraction() + delta), (int)time.getMicroSecondsFraction());
+            ++cnt;
         }
     }
 
-    private void addVector(String name, MetadataElement orbitVectorListElem,
-                           MetadataElement srcElem, int num) {
-        final MetadataElement orbitVectorElem = new MetadataElement(name + num);
-
-        orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(srcElem, "timeUTC", standardDateFormat));
+    private void addVector(final MetadataElement orbitVectorElem,
+                           final MetadataAttribute[] pos, final MetadataAttribute[] vel, int i) {
 
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                srcElem.getAttributeDouble("posX", 0));
+                Double.parseDouble(pos[i].getData().getElemString()));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                srcElem.getAttributeDouble("posY", 0));
+                Double.parseDouble(pos[i+1].getData().getElemString()));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                srcElem.getAttributeDouble("posZ", 0));
+                Double.parseDouble(pos[i+2].getData().getElemString()));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                srcElem.getAttributeDouble("velX", 0));
+                Double.parseDouble(vel[i].getData().getElemString()));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                srcElem.getAttributeDouble("velY", 0));
+                Double.parseDouble(vel[i+1].getData().getElemString()));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                srcElem.getAttributeDouble("velZ", 0));
-
-        orbitVectorListElem.addElement(orbitVectorElem);
+                Double.parseDouble(vel[i+2].getData().getElemString()));
     }
 
     private static void addSRGRCoefficients(

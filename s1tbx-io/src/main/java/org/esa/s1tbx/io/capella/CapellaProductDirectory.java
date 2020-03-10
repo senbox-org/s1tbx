@@ -49,7 +49,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
     private Product bandProduct;
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
-    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
     private final static Double NoDataValue = 65535.0;
 
     public CapellaProductDirectory(final File inputFile) {
@@ -80,10 +80,17 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, getProductDescription());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getProductType().equals("SLC") ? "COMPLEX" : "DETECTED");
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, getTime(productMetadata, "processing_time", standardDateFormat));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, ReaderUtils.getTime(productMetadata, "processing_time", standardDateFormat));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, collect.getAttributeString("mode"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, getTime(collect, "start_timestamp", standardDateFormat));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, getTime(collect, "stop_timestamp", standardDateFormat));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, "--");
+
+        final ProductData.UTC startTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
+        final ProductData.UTC stopTime = ReaderUtils.getTime(collect, "stop_timestamp", standardDateFormat);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
 
         final MetadataElement image = collect.getElement("image");
 

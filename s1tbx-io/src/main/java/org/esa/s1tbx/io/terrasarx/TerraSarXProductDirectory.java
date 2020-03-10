@@ -330,7 +330,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final String imagingMode = getAcquisitionMode(acquisitionInfo.getAttributeString("imagingMode", defStr));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, imagingMode);
             final String lookDirection = acquisitionInfo.getAttributeString("lookDirection", defStr);
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, lookDirection);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, lookDirection.toLowerCase());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS,
                     acquisitionInfo.getAttributeString("elevationBeamConfiguration", defStr));
             productDescription = productType + ' ' + imagingMode;

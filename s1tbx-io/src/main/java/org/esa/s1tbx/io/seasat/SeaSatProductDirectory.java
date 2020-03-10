@@ -183,7 +183,7 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, productDescription);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, acquisitionInfo.getAttributeString("imagingMode"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, acquisitionInfo.getAttributeString("lookDirection"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, acquisitionInfo.getAttributeString("lookDirection").toLowerCase());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar, getPol());
 
         final MetadataElement productVariantInfo = productInfo.getElement("productVariantInfo");
