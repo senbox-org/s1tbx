@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.io.ceos.alos;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.dataio.DecodeQualification;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Assert;
@@ -27,7 +27,6 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -35,12 +34,7 @@ import static org.junit.Assume.assumeTrue;
  *
  * @author lveci
  */
-public class TestAlosPalsarProductReader {
-
-
-
-    private AlosPalsarProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
+public class TestAlosPalsarProductReader extends ReaderTest {
 
     private String[] exceptionExemptions = {"geocoding is null", "not supported"};
 
@@ -61,14 +55,13 @@ public class TestAlosPalsarProductReader {
     }
 
     public TestAlosPalsarProductReader() {
-        readerPlugin = new AlosPalsarProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new AlosPalsarProductReaderPlugIn());
     }
 
     @Test
     public void testOpeningZip() throws Exception {
 
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
+        final DecodeQualification canRead = readerPlugIn.getDecodeQualification(inputFile);
         Assert.assertTrue(canRead == DecodeQualification.INTENDED);
 
         final Product product = reader.readProductNodes(inputFile, null);
@@ -83,6 +76,6 @@ public class TestAlosPalsarProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, rootPathsALOS, readerPlugin, reader, null, exceptionExemptions);
+        testProcessor.recurseReadFolder(this, rootPathsALOS, readerPlugIn, reader, null, exceptionExemptions);
     }
 }

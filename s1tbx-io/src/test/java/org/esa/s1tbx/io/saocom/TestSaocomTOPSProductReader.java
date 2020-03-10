@@ -58,22 +58,24 @@ public class TestSaocomTOPSProductReader extends ReaderTest {
     @Test
     public void testReadTS_GEC_QP_Metadata2() throws Exception {
         Product prod = testReader(TS_GEC_QP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testReadTS_DI_QP_FolderMetadata() throws Exception {
         Product prod = testReader(TS_DI_QP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testReadTS_SLC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(TS_SLC_QP_MetadataFile.toPath());
-        validateBands(prod, new String[] {
-                "i_HH","q_HH","Intensity_HH",
-                "i_HV","q_HV","Intensity_HV",
-                "i_VV","q_VV","Intensity_VV",
-                "i_VH","q_VH","Intensity_VH"});
+        validateProduct(prod);
+        validateMetadata(prod);
+
     }
 }

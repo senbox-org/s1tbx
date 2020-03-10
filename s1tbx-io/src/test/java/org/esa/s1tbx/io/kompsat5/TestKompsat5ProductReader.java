@@ -53,17 +53,23 @@ public class TestKompsat5ProductReader extends ReaderTest {
     @Test
     public void testOpeningFolder() throws Exception {
         Product prod = testReader(inputFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"GIM","Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningMetadata() throws Exception {
         Product prod = testReader(inputMetaXML.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"GIM", "Amplitude_HH","Intensity_HH"});
     }
 
 //    @Test
 //    public void testOpeningZip() throws Exception {
 //        Product prod = testReader(inputZip);
+//    validateProduct(prod);
+//    validateMetadata(prod);
 //    }
 }

@@ -15,8 +15,10 @@
  */
 package org.esa.s1tbx.io.cosmo;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.snap.core.dataio.ProductReader;
+import org.esa.s1tbx.commons.test.TestData;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,27 +32,35 @@ import static org.junit.Assume.assumeTrue;
  *
  * @author lveci
  */
-public class TestCosmoSkymedReader {
+public class TestCosmoSkymedReader extends ReaderTest {
 
-    private CosmoSkymedReaderPlugIn readerPlugin;
-    private ProductReader reader;
+    private final static File inputH5 = new File(TestData.inputSAR + "Cosmo/level 1B/hdf5/EL20141029_928699_3776081.6.2/CSKS4_DGM_B_WR_03_VV_RA_SF_20141001061215_20141001061230.h5");
+
+    private final static String inputCosmo = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "Cosmo" + S1TBXTests.sep ;
+    private final static File[] rootPathsCosmoSkymed = S1TBXTests.loadFilePath(inputCosmo);
 
     private String[] exceptionExemptions = {"not supported"};
-
-    public final static String inputCosmo = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "Cosmo" + S1TBXTests.sep ;
-    public final static File[] rootPathsCosmoSkymed = S1TBXTests.loadFilePath(inputCosmo);
 
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
+        assumeTrue(inputH5 + " not found", inputH5.exists());
+
         for (File file : rootPathsCosmoSkymed) {
             assumeTrue(file + " not found", file.exists());
         }
     }
 
     public TestCosmoSkymedReader() {
-        readerPlugin = new CosmoSkymedReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new CosmoSkymedReaderPlugIn());
+    }
+
+    @Test
+    public void testOpeningH5() throws Exception {
+        Product prod = testReader(inputH5.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude","Intensity"});
     }
 
     /**
@@ -61,6 +71,6 @@ public class TestCosmoSkymedReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
+        testProcessor.recurseReadFolder(this, rootPathsCosmoSkymed, readerPlugIn, reader, null, exceptionExemptions);
     }
 }

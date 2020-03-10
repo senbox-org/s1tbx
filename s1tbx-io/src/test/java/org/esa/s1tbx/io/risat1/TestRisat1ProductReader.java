@@ -21,9 +21,8 @@ public class TestRisat1ProductReader extends ReaderTest {
 
     private final static String sep = S1TBXTests.sep;
 
-    //private final static File inputCEOSZip = new File("D:\\EO\\RISAT\\SampleData\\CEOS\\FRS1_LEVEL1_GROUND_RANGE.zip");
-    private final static File inputCEOSFolder = new File(TestData.inputSAR  + sep +  "RISAT1" + sep + "FRS-1" + sep + "9441sd1_s33_GroundRange");
-    private final static File inputCEOSMetaXML = new File(TestData.inputSAR + sep + "RISAT1" + sep + "FRS-1" + sep + "9441sd1_s33_GroundRange" + sep + "BAND_META.txt");
+    private final static File inputCEOSFolder = new File(TestData.inputSAR  + sep +  "RISAT1/FRS-1/9441sd1_s33_GroundRange");
+    private final static File inputCEOSMetaXML = new File(TestData.inputSAR + sep + "RISAT1/FRS-1/9441sd1_s33_GroundRange/BAND_META.txt");
 
     //private final static File inputGeoTiffFolder = new File("D:\\EO\\RISAT\\SampleData\\GeoTiff\\L2A_154074911_FRS1_Geotiff");
 
@@ -41,17 +40,16 @@ public class TestRisat1ProductReader extends ReaderTest {
     @Test
     public void testOpeningCEOSFolder() throws Exception {
         Product prod = testReader(inputCEOSFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH","Amplitude_RCV","Intensity_RCV"});
     }
 
     @Test
     public void testOpeningCEOSMetadata() throws Exception {
         Product prod = testReader(inputCEOSMetaXML.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH","Amplitude_RCV","Intensity_RCV"});
     }
-
-//    @Test
-//    public void testGeoTiffFolder() throws Exception {
-//        Product prod = testReader(inputGeoTiffFolder);
-//    }
 }

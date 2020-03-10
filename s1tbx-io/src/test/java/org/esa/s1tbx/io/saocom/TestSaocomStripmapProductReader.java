@@ -77,66 +77,88 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
     @Test
     public void testReadSM_GEC_SP_Metadata2() throws Exception {
         Product prod = testReader(SM_GEC_SP_MetadataFile2.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV"});
     }
 
     @Test
     public void testReadSM_GEC_SP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_GEC_SP_Folder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV"});
     }
 
     @Test
     public void testReadSM_GEC_DP_Metadata() throws Exception {
         Product prod = testReader(SM_GEC_DP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testReadSM_GEC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_GEC_QP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testReadSM_GTC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_GTC_QP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testReadSM_DI_SP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_DI_SP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV"});
     }
 
     @Test
     public void testReadSM_DI_DP_Metadata() throws Exception {
         Product prod = testReader(SM_DI_DP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testReadSM_DI_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_DI_QP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testReadSM_SLC_SP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_SLC_SP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testReadSM_SLC_DP_Metadata() throws Exception {
         Product prod = testReader(SM_SLC_DP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH","i_HV","q_HV","Intensity_HV"});
     }
 
     @Test
     public void testReadSM_SLC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_SLC_QP_MetadataFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {
                 "i_HH","q_HH","Intensity_HH",
                 "i_HV","q_HV","Intensity_HV",

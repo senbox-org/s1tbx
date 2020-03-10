@@ -24,7 +24,6 @@ import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
@@ -52,6 +51,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     private File headerFile;
     private String productName;
     private String productType;
+    private String productDescription;
+    private String mode;
     private int width, height;
     private VirtualDir dataDir;
 
@@ -60,9 +61,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     private final double[] slantRangeCorners = new double[4];
     private final double[] incidenceCorners = new double[4];
 
-    private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-
 
     public SaocomProductDirectory(final File inputFile) {
         super(inputFile);
@@ -139,9 +138,10 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     @Override
     protected MetadataElement addMetaData() throws IOException {
         final MetadataElement root = new MetadataElement(Product.METADATA_ROOT_NAME);
-        final Element rootElement = xmlDoc.getRootElement();
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
-        AbstractMetadataIO.AddXMLMetadata(rootElement, origProdRoot);
+
+        final Element rootElement = xmlDoc.getRootElement();
+        AbstractMetadataIO.AddXMLMetadata(rootElement.getChild("product"), origProdRoot);
 
         addMetadataFiles(getRelativePathToImageFolder(), origProdRoot);
 
@@ -173,7 +173,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     final Document xmlDoc = XMLSupport.LoadXML(metaFile.getAbsolutePath());
                     final Element metaFileElement = xmlDoc.getRootElement();
 
-                    AbstractMetadataIO.AddXMLMetadata(metaFileElement, destElem);
+                    AbstractMetadataIO.AddXMLMetadata(metaFileElement.getChild("Channel"), destElem);
                 } catch (IOException e) {
                     SystemUtils.LOG.severe("Unable to read metadata " + file);
                 }
@@ -190,9 +190,12 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement xemtElem = origProdRoot.getElement("xemt");
-        final MetadataElement product = xemtElem.getElement("product");
+        final MetadataElement product = origProdRoot.getElement("product");
         final MetadataElement features = product.getElement("features");
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
 
         final MetadataElement imageAttributes = features.getElement("imageAttributes");
         final MetadataElement bands = imageAttributes.getElement("bands");
@@ -206,7 +209,12 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
         final MetadataElement acquisition = features.getElement("acquisition");
         final MetadataElement parameters = acquisition.getElement("parameters");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, getAcquisitionMode(parameters.getAttributeString("acqMode")));
+        mode = getAcquisitionMode(parameters.getAttributeString("acqMode"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
+
+        String desc = features.getAttributeString("abstract");
+        productDescription = desc.replace("XML Annotated ", "");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, productDescription);
 
         final MetadataElement scene = features.getElement("scene");
         final MetadataElement timeFrame = scene.getElement("timeFrame");
@@ -226,6 +234,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
         final MetadataElement production = features.getElement("production");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, production.getAttributeString("facilityID"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType());
 
         final MetadataElement StateVectorData = features.getElement("StateVectorData");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, StateVectorData.getAttributeString("OrbitDirection"));
@@ -240,7 +249,10 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latCorners[3]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonCorners[3]);
 
+        final MetadataElement channel = origProdRoot.getElement("Channel");
+        final MetadataElement datasetInfo = channel.getElement("DataSetInfo");
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, datasetInfo.getAttributeDouble("fc_hz") / Constants.oneMillion);
     }
 
     private void setStartStopTime(final MetadataElement absRoot, final MetadataElement elem, final int height) {
@@ -317,13 +329,20 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
                 if (isSLC()) {
                     String unit;
+                    String swath = "";
+
+                    if(mode.equals("TOPSARNarrow") || mode.equals("TOPSARWide")) {
+                        int swathPos = imgName.lastIndexOf("-s");
+                        String swathNum = imgName.substring(swathPos+1, swathPos+3).toUpperCase();
+                        swath = '_' + swathNum;
+                    }
 
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         if (real) {
-                            bandName = "i" + '_' + suffix;
+                            bandName = "i" + swath + '_' + suffix;
                             unit = Unit.REAL;
                         } else {
-                            bandName = "q" + '_' + suffix;
+                            bandName = "q" + swath + '_' + suffix;
                             unit = Unit.IMAGINARY;
                         }
 
@@ -339,7 +358,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                         if (real) {
                             lastRealBand = band;
                         } else {
-                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_' + suffix);
+                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, swath + '_' + suffix);
                             bandInfo.setRealBand(lastRealBand);
                             bandMap.get(lastRealBand).setImaginaryBand(band);
                         }
@@ -664,6 +683,10 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         }
     }
 
+    private String getSampleType() {
+        return isSLC() ? "COMPLEX" : "DETECTED";
+    }
+
     protected String getMission() {
         return "SAOCOM";
     }
@@ -675,7 +698,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
     @Override
     protected String getProductDescription() {
-        return "";
+        return productDescription;
     }
 
     @Override

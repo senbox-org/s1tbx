@@ -56,24 +56,32 @@ public class TestCapellaProductReader extends ReaderTest {
     @Test
     public void testOpeningGEOFolder() throws Exception {
         Product prod = testReader(inputGEOFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningGEOMetadata() throws Exception {
         Product prod = testReader(inputGEOMeta.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningSLCFolder() throws Exception {
         Product prod = testReader(inputSLCFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningSLCMetadata() throws Exception {
         Product prod = testReader(inputSLCMeta.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 }
