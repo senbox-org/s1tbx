@@ -602,12 +602,16 @@ public class CosmoSkymedReader extends SARReader {
                 final Band bandI = NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandI, "i" + cntStr);
                 bandI.setUnit(Unit.REAL);
+                bandI.setNoDataValue(0);
+                bandI.setNoDataValueUsed(true);
                 product.addBand(bandI);
                 bandMap.put(bandI, variable);
 
                 final Band bandQ = NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandQ, "q" + cntStr);
                 bandQ.setUnit(Unit.IMAGINARY);
+                bandQ.setNoDataValue(0);
+                bandQ.setNoDataValueUsed(true);
                 product.addBand(bandQ);
                 bandMap.put(bandQ, variable);
 
@@ -616,6 +620,8 @@ public class CosmoSkymedReader extends SARReader {
                 final Band band = NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, band, "Amplitude" + cntStr);
                 band.setUnit(Unit.AMPLITUDE);
+                band.setNoDataValue(0);
+                band.setNoDataValueUsed(true);
                 product.addBand(band);
                 bandMap.put(band, variable);
 
