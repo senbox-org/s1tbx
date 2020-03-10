@@ -518,6 +518,8 @@ public class IceyeGRDProductReader extends SARReader {
                 String bandName = "Amplitude_" + polarization;
                 final Band band = new Band(bandName, ProductData.TYPE_UINT32, rasterWidth, rasterHeight);
                 band.setUnit(Unit.AMPLITUDE);
+                band.setNoDataValue(0);
+                band.setNoDataValueUsed(true);
                 product.addBand(band);
                 bandMap.put(band, new ImageIOFile.BandInfo(band, img, 0, 0));
                 SARReader.createVirtualIntensityBand(product, band, '_' + polarization);
