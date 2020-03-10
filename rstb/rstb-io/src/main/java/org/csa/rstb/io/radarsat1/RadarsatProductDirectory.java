@@ -301,8 +301,9 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         //mph
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, getProductType());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
-                                      sceneRec.getAttributeString("Product type descriptor"));
+        String descriptor = sceneRec.getAttributeString("Product type descriptor").trim();
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, descriptor);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, getMode(descriptor));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "RS1");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
@@ -462,6 +463,13 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             level = sceneRecord.getAttributeString("Scene reference number").trim();
         }
         return RadarsatConstants.PRODUCT_DESCRIPTION_PREFIX + level;
+    }
+
+    private static String getMode(final String descriptor) {
+        if(descriptor.toLowerCase().contains("scan")) {
+            return "ScanSAR";
+        }
+        return "Stripmap";
     }
 
     private static void addGeoCodingFromSceneLabel(Product product) {
