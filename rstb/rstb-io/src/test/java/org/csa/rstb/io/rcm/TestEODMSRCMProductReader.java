@@ -59,6 +59,8 @@ public class TestEODMSRCMProductReader extends ReaderTest {
     @Test
     public void testOpeningGRDManifest() throws Exception {
         Product prod = testReader(inputGRDManifest.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
@@ -66,24 +68,32 @@ public class TestEODMSRCMProductReader extends ReaderTest {
     @Ignore("not implemented")
     public void testOpeningGRDZip() throws Exception {
         Product prod = testReader(inputGRDZip.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRDFolder() throws Exception {
         Product prod = testReader(inputGRDFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRCManifest() throws Exception {
         Product prod = testReader(inputGRCManifest.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRCFolder() throws Exception {
         Product prod = testReader(inputGRCFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 }

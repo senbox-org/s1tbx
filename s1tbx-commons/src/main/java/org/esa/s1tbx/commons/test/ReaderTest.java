@@ -3,10 +3,7 @@ package org.esa.s1tbx.commons.test;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
 import java.nio.file.Files;
@@ -49,18 +46,15 @@ public class ReaderTest {
             throw new Exception("Unable to read product");
         }
 
-        TestUtils.verifyProduct(product, verifyTime, verifyGeocoding);
-        validateMetadata(product);
-
         return product;
     }
 
-    protected void validateMetadata(final Product trgProduct) throws Exception {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(trgProduct);
-        final MetadataAttribute[] attribs = absRoot.getAttributes();
+    protected void validateProduct(final Product product) throws Exception {
+        TestUtils.verifyProduct(product, verifyTime, verifyGeocoding);
+    }
 
-        for(MetadataAttribute attrib : attribs) {
-            System.out.println(attrib.getName() +"= "+ attrib.getData().toString());
-        }
+    protected void validateMetadata(final Product product) throws Exception {
+        final MetadataValidator metadataValidator = new MetadataValidator(product);
+        metadataValidator.validate();
     }
 }

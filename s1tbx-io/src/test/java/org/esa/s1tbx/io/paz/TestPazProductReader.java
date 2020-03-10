@@ -34,11 +34,11 @@ public class TestPazProductReader extends ReaderTest {
 
     private final static String sep = S1TBXTests.sep;
 
-    private final static File inputMGDMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "NewDelhi/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712.xml");
-    private final static File inputMGDFolder = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "NewDelhi/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712");
+    private final static File inputMGDMetaXML = new File(S1TBXTests.inputPathProperty + sep + "SAR/PAZ/NewDelhi/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712.xml");
+    private final static File inputMGDFolder = new File(S1TBXTests.inputPathProperty + sep + "SAR/PAZ/NewDelhi/PAZ1_SAR__MGD_RE___SC_S_SRA_20180616T004650_20180616T004712");
 
-    private final static File inputSSCMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "Mojave Interferometric pair/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228.xml");
-    private final static File inputSSCFolder = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "PAZ" + sep + "Mojave Interferometric pair/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228");
+    private final static File inputSSCMetaXML = new File(S1TBXTests.inputPathProperty + sep + "SAR/PAZ/Mojave Interferometric pair/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228.xml");
+    private final static File inputSSCFolder = new File(S1TBXTests.inputPathProperty + sep + "SAR/PAZ/Mojave Interferometric pair/PAZ1_SAR__SSC______SM_S_SRA_20180520T014220_20180520T014228");
 
     public TestPazProductReader() {
         super(new PazProductReaderPlugIn());
@@ -53,31 +53,19 @@ public class TestPazProductReader extends ReaderTest {
         assumeTrue(inputSSCFolder + " not found", inputSSCFolder.exists());
     }
 
-//    @Test
-//    public void testOpeningMGDFolder() throws Exception {
-//        testReader(inputMGDFolder);
-//    }
-
     @Test
     public void testOpeningMGDMetadata() throws Exception {
         Product prod = testReader(inputMGDMetaXML.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
-
-//    @Test
-//    public void testOpeningSSCFolder() throws Exception {
-//        Product prod = testReader(inputSSCFolder);
-//    }
 
     @Test
     public void testOpeningSSCMetadata() throws Exception {
         Product prod = testReader(inputSSCMetaXML.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
     }
-
-//    @Test
-//    @Ignore
-//    public void testOpeningZip() throws Exception {
-//        Product prod = testReader(inputZip);
-//    }
 }

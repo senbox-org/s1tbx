@@ -37,6 +37,8 @@ public class TestRadarsatProductReader extends ReaderTest  {
     @Test
     public void testOpeningZip() throws Exception {
         Product prod = testReader(zipFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
@@ -48,6 +50,8 @@ public class TestRadarsatProductReader extends ReaderTest  {
     @Test
     public void testOpeningVolFile() throws Exception {
         Product prod = testReader(metaFile.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 }

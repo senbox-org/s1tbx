@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.io.ceos.alos2;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +30,7 @@ import static org.junit.Assume.assumeTrue;
  *
  * @author lveci
  */
-public class TestAlos2ProductReader {
-
-    private Alos2ProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
+public class TestAlos2ProductReader extends ReaderTest {
 
     private String[] exceptionExemptions = {"geocoding is null", "not supported"};
 
@@ -49,8 +46,7 @@ public class TestAlos2ProductReader {
     }
 
     public TestAlos2ProductReader() {
-        readerPlugin = new Alos2ProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new Alos2ProductReaderPlugIn());
     }
 
     /**
@@ -61,6 +57,6 @@ public class TestAlos2ProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, rootPathsALOS2, readerPlugin, reader, null, exceptionExemptions);
+        testProcessor.recurseReadFolder(this, rootPathsALOS2, readerPlugIn, reader, null, exceptionExemptions);
     }
 }

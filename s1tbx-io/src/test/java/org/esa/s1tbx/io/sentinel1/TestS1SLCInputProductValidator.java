@@ -35,7 +35,6 @@ public class TestS1SLCInputProductValidator extends ReaderTest {
         super(new DimapProductReaderPlugIn());
     }
 
-
     @Before
     public void setUp() {
         // If any of the file does not exist: the test will be ignored

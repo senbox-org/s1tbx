@@ -17,6 +17,7 @@ package org.csa.rstb.io.rcm;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -73,58 +74,90 @@ public class TestRCMProductReader extends ReaderTest {
 
     @Test
     public void testOpeningGRDManifest() throws Exception {
-        testReader(inputGRDManifest.toPath());
+        Product prod = testReader(inputGRDManifest.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV", "Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     @Ignore("not implemented")
     public void testOpeningGRDZip() throws Exception {
-        testReader(inputGRDZip.toPath());
+        Product prod = testReader(inputGRDZip.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRDFolder() throws Exception {
-        testReader(inputGRDFolder.toPath());
+        Product prod = testReader(inputGRDFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV", "Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningGRCManifest() throws Exception {
-        testReader(inputGRCManifest.toPath());
+        Product prod = testReader(inputGRCManifest.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV","i_VV","q_VV","Intensity_VV", "i_VH","q_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningGRCFolder() throws Exception {
-        testReader(inputGRCFolder.toPath());
+        Product prod = testReader(inputGRCFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV","i_VV","q_VV","Intensity_VV", "i_VH","q_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningSLCManifest() throws Exception {
-        testReader(inputSLCManifest.toPath());
+        Product prod = testReader(inputSLCManifest.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV","i_VV","q_VV","Intensity_VV", "i_VH","q_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningSLCFolder() throws Exception {
-        testReader(inputSLCFolder.toPath());
+        Product prod = testReader(inputSLCFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        //validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningCPSLC() throws Exception {
-        testReader(inputCPSLC.toPath());
+        Product prod = testReader(inputCPSLC.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        //validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningCPGRC() throws Exception {
-        testReader(inputCPGRC.toPath());
+        Product prod = testReader(inputCPGRC.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        //validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningCPGRD() throws Exception {
-        testReader(inputCPGRD.toPath());
+        Product prod = testReader(inputCPGRD.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH", "Amplitude_RCV","Intensity_RCV"});
     }
 
     @Test
     @Ignore("not implemented")
     public void testOpeningCPGRCZip() throws Exception {
-        testReader(inputCPGRCZip.toPath());
+        Product prod = testReader(inputCPGRCZip.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
     }
 }

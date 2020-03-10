@@ -31,42 +31,32 @@ import static org.junit.Assume.assumeTrue;
  *
  * @author lveci
  */
-public class TestTerraSarXProductReader extends ReaderTest {
+public class TestTanDEMXProductReader extends ReaderTest {
 
-    private final static File mgdMetadataFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR/TerraSAR-X/Oslo_StaringSpotlight/TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446/TSX1_SAR__MGD_SE___ST_S_SRA_20130410T165445_20130410T165446.xml");
-    private final static File sscMetadataFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR/TerraSAR-X/Sendai_D_Orbit042_20101020/dims_op_oc_dfd2_338933326_1/TSX-1.SAR.L1B/TSX1_SAR__SSC______SM_S_SRA_20101020T204312_20101020T204320\\TSX1_SAR__SSC______SM_S_SRA_20101020T204312_20101020T204320.xml");
-
-    private final static String inputTerraSarX = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR/TerraSAR-X/";
-    private final static File[] rootPathsTerraSarX = S1TBXTests.loadFilePath(inputTerraSarX);
+    private final static File metadataFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR/TanDEM-X/HintonTDX_20110829/TDM1_SAR__COS_BIST_SM_S_SRA_20110829T013013_20110829T013021.xml");
+    private final static String inputTanDEMX = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR/TanDEM-X/";
+    private final static File[] rootPathsTanDEMX = S1TBXTests.loadFilePath(inputTanDEMX);
 
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
-        for (File file : rootPathsTerraSarX) {
+        for (File file : rootPathsTanDEMX) {
             assumeTrue(file + " not found", file.exists());
         }
-        assumeTrue(mgdMetadataFile + " not found", mgdMetadataFile.exists());
-        assumeTrue(sscMetadataFile + " not found", sscMetadataFile.exists());
     }
 
-    public TestTerraSarXProductReader() {
+    public TestTanDEMXProductReader() {
         super(new TerraSarXProductReaderPlugIn());
     }
 
     @Test
-    public void testOpenMGDMetadata() throws Exception {
-        Product prod = testReader(mgdMetadataFile.toPath());
+    public void testOpenMetadata() throws Exception {
+        Product prod = testReader(metadataFile.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
-    }
-
-    @Test
-    public void testOpenSSCMetadata() throws Exception {
-        Product prod = testReader(sscMetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+        validateBands(prod, new String[] {
+                "i_HH_mst_29Aug2011","q_HH_mst_29Aug2011","Intensity_HH_mst_29Aug2011",
+                "i_HH_slv1_29Aug2011","q_HH_slv1_29Aug2011","Intensity_HH_slv1_29Aug2011"});
     }
 
     /**
@@ -77,6 +67,6 @@ public class TestTerraSarXProductReader extends ReaderTest {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, rootPathsTerraSarX, readerPlugIn, reader, null, null);
+        testProcessor.recurseReadFolder(this, rootPathsTanDEMX, readerPlugIn, reader, null, null);
     }
 }

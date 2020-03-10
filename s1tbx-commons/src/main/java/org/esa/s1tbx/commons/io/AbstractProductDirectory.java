@@ -132,13 +132,6 @@ public abstract class AbstractProductDirectory {
         return productDir.isCompressed();
     }
 
-    protected static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat dateFormat) {
-        String start = elem.getAttributeString(tag, NO_METADATA_STRING);
-        start = start.replace("T", "_");
-
-        return AbstractMetadata.parseUTC(start, dateFormat);
-    }
-
     protected final void findImages(final String parentPath, final MetadataElement newRoot) throws IOException {
         String[] listing;
         try {

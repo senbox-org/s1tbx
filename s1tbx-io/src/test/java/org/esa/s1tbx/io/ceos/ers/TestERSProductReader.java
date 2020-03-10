@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.io.ceos.ers;
 
+import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +30,7 @@ import static org.junit.Assume.assumeTrue;
  *
  * @author lveci
  */
-public class TestERSProductReader {
-
-    private ERSProductReaderPlugIn readerPlugin;
-    private ProductReader reader;
+public class TestERSProductReader extends ReaderTest {
 
     public final static String inputERS = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "ERS" + S1TBXTests.sep ;
     public final static File[] rootPathsERS = S1TBXTests.loadFilePath(inputERS);
@@ -48,8 +45,7 @@ public class TestERSProductReader {
     }
 
     public TestERSProductReader() {
-        readerPlugin = new ERSProductReaderPlugIn();
-        reader = readerPlugin.createReaderInstance();
+        super(new ERSProductReaderPlugIn());
     }
 
     /**
@@ -60,6 +56,6 @@ public class TestERSProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, rootPathsERS, readerPlugin, reader, null, null);
+        testProcessor.recurseReadFolder(this, rootPathsERS, readerPlugIn, reader, null, null);
     }
 }

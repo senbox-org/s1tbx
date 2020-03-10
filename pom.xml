@@ -422,11 +422,6 @@
                 <artifactId>commons-math3</artifactId>
                 <version>3.6.1</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity</artifactId>
-                <version>1.7</version>
-            </dependency>
 
             <!-- Jama Matrix Algebra Library ############################################# -->
 
@@ -492,7 +487,7 @@
 				
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.7</version>
+                    <version>3.1.0</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                     </configuration>
@@ -693,34 +688,6 @@
                 <version>1.19</version>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>file-manifest</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/nbm</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/nbm</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>manifest.mf</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -776,19 +743,10 @@
 
     <developers>
         <developer>
-            <id>rajesh</id>
-            <name>Rajesh Jha</name>
-            <email>rajesh@array.ca</email>
-            <organization>Array Systems Computing Inc</organization>
-            <roles>
-                <role>Project Manager</role>
-            </roles>
-        </developer>
-        <developer>
             <id>lveci</id>
             <name>Luis Veci</name>
-            <email>lveci@array.ca</email>
-            <organization>Array Systems Computing Inc</organization>
+            <email>luis@skywatch.com</email>
+            <organization>SkyWatch Space Applications Inc</organization>
             <roles>
                 <role>Software Engineering Lead</role>
             </roles>
@@ -796,10 +754,19 @@
         <developer>
             <id>junlu</id>
             <name>Jun Lu</name>
-            <email>junlu@array.ca</email>
-            <organization>Array Systems Computing Inc</organization>
+            <email>jun@skywatch.com</email>
+            <organization>SkyWatch Space Applications Inc</organization>
             <roles>
 				<role>SAR Scientist</role>
+                <role>Software Engineering</role>
+            </roles>
+        </developer>
+		<developer>
+            <id>alex</id>
+            <name>Alex McVittie</name>
+            <email>alex@skywatch.com</email>
+            <organization>SkyWatch Space Applications Inc</organization>
+            <roles>
                 <role>Software Engineering</role>
             </roles>
         </developer>

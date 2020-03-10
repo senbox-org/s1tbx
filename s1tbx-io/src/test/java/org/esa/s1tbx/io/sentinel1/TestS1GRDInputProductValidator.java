@@ -41,15 +41,16 @@ public class TestS1GRDInputProductValidator extends ReaderTest {
 
     @Test
     public void TestSentinel1GRDProduct() throws Exception {
-        final Product sourceProduct = testReader(TestData.inputS1_GRD.toPath());
-        if(sourceProduct != null) {
-            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+        final Product prod = testReader(TestData.inputS1_GRD.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
 
-            validator.checkIfSentinel1Product();
-            validator.checkProductType(new String[]{"GRD"});
-            validator.checkIfTOPSARBurstProduct(false);
-            validator.checkAcquisitionMode(new String[]{"SM"});
-        }
+        final InputProductValidator validator = new InputProductValidator(prod);
+
+        validator.checkIfSentinel1Product();
+        validator.checkProductType(new String[]{"GRD"});
+        validator.checkIfTOPSARBurstProduct(false);
+        validator.checkAcquisitionMode(new String[]{"SM"});
     }
 }
 
