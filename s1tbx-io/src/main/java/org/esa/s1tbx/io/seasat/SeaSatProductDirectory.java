@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.io.seasat;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
@@ -30,15 +29,12 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -115,7 +111,6 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
 
                 if (isSLC()) {
                     for (int b = 0; b < img.getNumBands(); ++b) {
-                        final String imgName = img.getName().toLowerCase();
                         if (real) {
                             bandName = "i_" + getPol();
                             unit = Unit.REAL;
@@ -126,6 +121,8 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
 
                         final Band band = new Band(bandName, img.getDataType(), width, height);
                         band.setUnit(unit);
+                        band.setNoDataValue(0);
+                        band.setNoDataValueUsed(true);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
@@ -139,10 +136,11 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
                     }
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
-                        final String imgName = img.getName().toLowerCase();
                         bandName = "Amplitude_" + getPol();
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
+                        band.setNoDataValue(0);
+                        band.setNoDataValueUsed(true);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
@@ -155,7 +153,7 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
@@ -210,6 +208,13 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, imageRaster.getAttributeDouble("azimuthLooks"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, imageRaster.getAttributeDouble("rangeLooks"));
 
+        final MetadataElement sceneInfo = productInfo.getElement("sceneInfo");
+        final MetadataElement start = sceneInfo.getElement("start");
+        final MetadataElement stop = sceneInfo.getElement("stop");
+        final ProductData.UTC startTime = ReaderUtils.getTime(start, "timeUTC", standardDateFormat);
+        final ProductData.UTC stopTime = ReaderUtils.getTime(stop, "timeUTC", standardDateFormat);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
         final MetadataElement setup = level1Product.getElement("setup");
         final MetadataElement orderInfo = setup.getElement("orderInfo");
