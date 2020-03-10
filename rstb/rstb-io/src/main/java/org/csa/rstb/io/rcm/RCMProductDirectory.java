@@ -166,7 +166,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
                         addBand(product, img, width, height, "RCV");
                     }
                 } catch (IOException e) {
-                    SystemUtils.LOG.severe("Unable to read band " + name);
+                    SystemUtils.LOG.severe("Unable to read band " + name +" "+ e);
                 }
             }
         }
@@ -297,6 +297,8 @@ public class RCMProductDirectory extends XMLProductDirectory {
         final MetadataElement radarParameters = sourceAttributes.getElement("radarParameters");
         final MetadataElement orbitAndAttitude = sourceAttributes.getElement("orbitAndAttitude");
         final MetadataElement orbitInformation = orbitAndAttitude.getElement("orbitInformation");
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, sourceAttributes.getAttributeString("beamMode"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, imageAttributes.getAttributeInt("samplesPerLine"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, imageAttributes.getAttributeInt("numLines"));
