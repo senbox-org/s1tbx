@@ -2,6 +2,7 @@ package org.esa.s1tbx.commons.test;
 
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 
@@ -10,9 +11,6 @@ public class MetadataValidator {
     private final Product product;
     private final MetadataElement absRoot;
     private final ValidationOptions validationOptions;
-
-    private final static String defStr = AbstractMetadata.NO_METADATA_STRING;
-    private final static int defInt = AbstractMetadata.NO_METADATA;
 
     public static class ValidationOptions {
         public boolean validateOrbitStateVectors = true;
@@ -55,22 +53,25 @@ public class MetadataValidator {
 
     public void validateSAR() throws Exception {
 
-        verifyStr(AbstractMetadata.SAMPLE_TYPE);
+        verifyStr(AbstractMetadata.SAMPLE_TYPE, new String[]{"COMPLEX","DETECTED"});
+        verifyStr(AbstractMetadata.antenna_pointing, new String[]{"right","left"});
 
         verifyDouble(AbstractMetadata.radar_frequency);
-        verifyDouble(AbstractMetadata.pulse_repetition_frequency);
-        verifyDouble(AbstractMetadata.range_spacing);
-        verifyDouble(AbstractMetadata.azimuth_spacing);
-        verifyDouble(AbstractMetadata.range_looks);
-        verifyDouble(AbstractMetadata.azimuth_looks);
+        //verifyDouble(AbstractMetadata.pulse_repetition_frequency);
+        //verifyDouble(AbstractMetadata.range_spacing);
+        //verifyDouble(AbstractMetadata.azimuth_spacing);
+        //verifyDouble(AbstractMetadata.range_looks);
+        //verifyDouble(AbstractMetadata.azimuth_looks);
         verifyDouble(AbstractMetadata.line_time_interval);
-        verifyDouble(AbstractMetadata.slant_range_to_first_pixel);
+        //verifyDouble(AbstractMetadata.slant_range_to_first_pixel);
 
         verifyInt(AbstractMetadata.num_output_lines);
         verifyInt(AbstractMetadata.num_samples_per_line);
 
+        verifyUTC(AbstractMetadata.STATE_VECTOR_TIME);
+
         //verifySRGR();
-        //verifyOrbitStateVectors();
+        verifyOrbitStateVectors();
         //verifyDopplerCentroids();
     }
 
@@ -138,21 +139,39 @@ public class MetadataValidator {
 
     private void verifyStr(final String tag) throws Exception {
         String value = absRoot.getAttributeString(tag);
-        if(value == null || value.trim().isEmpty() || value.equals(defStr)) {
+        if(value == null || value.trim().isEmpty() || value.equals(AbstractMetadata.NO_METADATA_STRING)) {
             throw new Exception("Metadata " + tag + " is invalid " + value);
         }
     }
 
+    private void verifyStr(final String tag, final String[] allowedStr) throws Exception {
+        verifyStr(tag);
+
+        String value = absRoot.getAttributeString(tag);
+        for(String allowed : allowedStr) {
+            if(value.equals(allowed))
+                return;
+        }
+        throw new Exception("Metadata " + tag + " is invalid " + value);
+    }
+
     private void verifyDouble(final String tag) throws Exception {
         Double value = absRoot.getAttributeDouble(tag);
-        if(value == null || value.equals(defInt)) {
+        if(value == null || value.equals((double)AbstractMetadata.NO_METADATA)) {
             throw new Exception("Metadata " + tag + " is invalid " + value);
         }
     }
 
     private void verifyInt(final String tag) throws Exception {
         Integer value = absRoot.getAttributeInt(tag);
-        if(value == null || value.equals(defInt)) {
+        if(value == null || value.equals(AbstractMetadata.NO_METADATA)) {
+            throw new Exception("Metadata " + tag + " is invalid " + value);
+        }
+    }
+
+    private void verifyUTC(final String tag) throws Exception {
+        ProductData.UTC value = absRoot.getAttributeUTC(tag);
+        if(value == null || value.equals(AbstractMetadata.NO_METADATA_UTC)) {
             throw new Exception("Metadata " + tag + " is invalid " + value);
         }
     }

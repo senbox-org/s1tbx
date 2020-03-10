@@ -82,9 +82,15 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, ReaderUtils.getTime(productMetadata, "processing_time", standardDateFormat));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, collect.getAttributeString("mode"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, ReaderUtils.getTime(collect, "stop_timestamp", standardDateFormat));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, "--");
+
+        final ProductData.UTC startTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
+        final ProductData.UTC stopTime = ReaderUtils.getTime(collect, "stop_timestamp", standardDateFormat);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
 
         final MetadataElement image = collect.getElement("image");
 
