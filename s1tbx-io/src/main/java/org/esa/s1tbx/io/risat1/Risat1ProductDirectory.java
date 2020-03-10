@@ -437,6 +437,13 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 //        addDopplerCentroidCoefficients(absRoot, productElem);
     }
 
+    private static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
+        if (elem == null)
+            return AbstractMetadata.NO_METADATA_UTC;
+        final String timeStr = elem.getAttributeString(tag, " ").toUpperCase();
+        return AbstractMetadata.parseUTC(timeStr, timeFormat);
+    }
+
     private static int getFlag(final MetadataElement elem, String tag) {
         String valStr = elem.getAttributeString(tag, " ").toUpperCase();
         if (valStr.equals("FALSE") || valStr.equals("0"))
