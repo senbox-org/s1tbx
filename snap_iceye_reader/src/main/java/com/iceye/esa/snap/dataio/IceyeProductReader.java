@@ -488,12 +488,16 @@ public class IceyeProductReader extends SARReader {
                 final Band bandI = NetCDFUtils.createBand(variables.get(IceyeXConstants.S_I), width, height);
                 createUniqueBandName(product, bandI, "i" + cntStr);
                 bandI.setUnit(Unit.REAL);
+                bandI.setNoDataValue(0);
+                bandI.setNoDataValueUsed(true);
                 product.addBand(bandI);
                 bandMap.put(bandI, variables.get(IceyeXConstants.S_I));
 
                 final Band bandQ = NetCDFUtils.createBand(variables.get(IceyeXConstants.S_Q), width, height);
                 createUniqueBandName(product, bandQ, "q" + cntStr);
                 bandQ.setUnit(Unit.IMAGINARY);
+                bandQ.setNoDataValue(0);
+                bandQ.setNoDataValueUsed(true);
                 product.addBand(bandQ);
                 bandMap.put(bandQ, variables.get(IceyeXConstants.S_Q));
 
@@ -502,6 +506,8 @@ public class IceyeProductReader extends SARReader {
                 final Band band = NetCDFUtils.createBand(variables.get(IceyeXConstants.S_AMPLITUDE), width, height);
                 createUniqueBandName(product, band, "Amplitude" + cntStr);
                 band.setUnit(Unit.AMPLITUDE);
+                band.setNoDataValue(0);
+                band.setNoDataValueUsed(true);
                 product.addBand(band);
                 bandMap.put(band, variables.get(IceyeXConstants.S_AMPLITUDE));
 
