@@ -59,6 +59,11 @@ public class ReaderTest {
         metadataValidator.validate();
     }
 
+    protected void validateMetadata(final Product product, final MetadataValidator.ValidationOptions options) throws Exception {
+        final MetadataValidator metadataValidator = new MetadataValidator(product, options);
+        metadataValidator.validate();
+    }
+
     protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
         final Band[] bands = trgProduct.getBands();
         if(bandNames.length != bands.length) {

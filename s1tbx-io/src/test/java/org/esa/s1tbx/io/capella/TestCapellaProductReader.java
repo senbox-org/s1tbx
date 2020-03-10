@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.capella;
 
+import org.esa.s1tbx.commons.test.MetadataValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -40,6 +41,8 @@ public class TestCapellaProductReader extends ReaderTest {
     private final static File inputSLCMeta = new File("E:\\data\\Capella\\Airborne\\SLC\\ARL_SM_SLC_HH_20190823162315_20190823162606_extended.json");
     private final static File inputSLCFolder = new File("E:\\data\\Capella\\Airborne\\SLC\\");
 
+    final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
+
     public TestCapellaProductReader() {
         super(new CapellaProductReaderPlugIn());
     }
@@ -51,13 +54,15 @@ public class TestCapellaProductReader extends ReaderTest {
         assumeTrue(inputGEOFolder + " not found", inputGEOFolder.exists());
         assumeTrue(inputSLCMeta + " not found", inputSLCMeta.exists());
         assumeTrue(inputSLCFolder + " not found", inputSLCFolder.exists());
+
+        options.validateOrbitStateVectors = false;
     }
 
     @Test
     public void testOpeningGEOFolder() throws Exception {
         Product prod = testReader(inputGEOFolder.toPath());
         validateProduct(prod);
-        validateMetadata(prod);
+        validateMetadata(prod, options);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
@@ -65,7 +70,7 @@ public class TestCapellaProductReader extends ReaderTest {
     public void testOpeningGEOMetadata() throws Exception {
         Product prod = testReader(inputGEOMeta.toPath());
         validateProduct(prod);
-        validateMetadata(prod);
+        validateMetadata(prod, options);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
@@ -73,7 +78,7 @@ public class TestCapellaProductReader extends ReaderTest {
     public void testOpeningSLCFolder() throws Exception {
         Product prod = testReader(inputSLCFolder.toPath());
         validateProduct(prod);
-        validateMetadata(prod);
+        validateMetadata(prod, options);
         validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 
@@ -81,7 +86,7 @@ public class TestCapellaProductReader extends ReaderTest {
     public void testOpeningSLCMetadata() throws Exception {
         Product prod = testReader(inputSLCMeta.toPath());
         validateProduct(prod);
-        validateMetadata(prod);
+        validateMetadata(prod, options);
         validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 }
