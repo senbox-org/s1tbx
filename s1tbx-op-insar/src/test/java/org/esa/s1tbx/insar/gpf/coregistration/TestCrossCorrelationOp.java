@@ -42,7 +42,7 @@ public class TestCrossCorrelationOp {
     @Test
     public void testOperator() throws Exception {
 
-        final Product product = createTestMasterProduct(40, 40);
+        final Product product = createTestMasterProduct(200, 200);
 
         final ProductNodeGroup<Placemark> masterGcpGroup = GCPManager.instance().getGcpGroup(product.getBandAt(0));
         assertTrue(masterGcpGroup.getNodeCount() == 1);

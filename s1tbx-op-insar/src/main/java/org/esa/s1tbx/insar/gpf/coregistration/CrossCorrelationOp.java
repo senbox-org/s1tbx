@@ -919,7 +919,6 @@ public class CrossCorrelationOp extends Operator {
 
     private boolean getCoarseSlaveGCPPosition(final Band slaveBand, final Band slaveBand2,
                                               final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
-
         try {
             final double[] mI = new double[cWindowWidth * cWindowHeight];
             final double[] sI = new double[cWindowWidth * cWindowHeight];
@@ -1035,8 +1034,8 @@ public class CrossCorrelationOp extends Operator {
 
         final double xx = gcpPixelPos.x;
         final double yy = gcpPixelPos.y;
-        final int xul = (int) xx - cHalfWindowWidth;
-        final int yul = (int) yy - cHalfWindowHeight;
+        final int xul = Math.max(0, (int) xx - cHalfWindowWidth);
+        final int yul = Math.max(0, (int) yy - cHalfWindowHeight);
         final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, cWindowWidth + 3, cWindowHeight + 3);
         int k = 0;
 
