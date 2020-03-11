@@ -22,6 +22,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -143,6 +144,7 @@ public class TestCalibrationOp {
     }
 
     @Test
+    @Ignore("Disable for now. Problem with GeoTiff reader")
     public void testProcessAllALOS2() throws Exception {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsALOS2, "ALOS-2", productTypeExemptions, exceptionExemptions);
     }
