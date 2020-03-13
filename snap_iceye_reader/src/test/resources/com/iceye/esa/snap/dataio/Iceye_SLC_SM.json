@@ -146,7 +146,7 @@
 		"bands": [
 			{
 				"bandWidth": 19941,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 43820,
 				"expectedPixels": [
 					{
@@ -168,7 +168,7 @@
 			},
 			{
 				"bandWidth": 19941,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 43820,
 				"expectedPixels": [
 					{
