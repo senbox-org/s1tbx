@@ -63,12 +63,12 @@
 			],
 			"reverseAccuracy": 7.095513865351677e-8
 		},
-		"startTime": "01-JAN-2000 00:00:00.000000",
+		"startTime": "15-JUL-1978 09:51:40.846077",
 		"endTime": "01-JAN-2000 00:00:00.000000",
 		"bands": [
 			{
 				"bandWidth": 8000,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 8000,
 				"expectedPixels": [
 					{

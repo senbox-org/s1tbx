@@ -222,7 +222,7 @@
 		"bands": [
 			{
 				"bandWidth": 16342,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 27862,
 				"expectedPixels": [
 					{
@@ -244,7 +244,7 @@
 			},
 			{
 				"bandWidth": 16342,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 27862,
 				"expectedPixels": [
 					{
@@ -289,7 +289,7 @@
 			},
 			{
 				"bandWidth": 16342,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 27862,
 				"expectedPixels": [
 					{
@@ -311,7 +311,7 @@
 			},
 			{
 				"bandWidth": 16342,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 27862,
 				"expectedPixels": [
 					{

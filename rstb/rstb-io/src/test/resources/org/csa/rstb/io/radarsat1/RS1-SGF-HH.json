@@ -103,8 +103,8 @@
         ],
         "bands": [
             {
-                "name": "Amplitude",
-                "description": "Amplitude",
+                "name": "Amplitude_HH",
+                "description": "Amplitude_HH",
                 "bandWidth": 9019,
                 "bandHeight": 9322,
                 "geophysicalUnit": "amplitude",
@@ -126,7 +126,7 @@
                 ]
             },
             {
-                "name": "Intensity",
+                "name": "Intensity_HH",
                 "description": "Intensity from complex data",
                 "bandWidth": 9019,
                 "bandHeight": 9322,

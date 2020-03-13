@@ -108,7 +108,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "real",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
@@ -130,7 +130,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "imaginary",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
@@ -175,7 +175,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "real",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
@@ -197,7 +197,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "imaginary",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
@@ -242,7 +242,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "real",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
@@ -264,7 +264,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "imaginary",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
@@ -309,7 +309,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "real",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
@@ -331,7 +331,7 @@
                 "bandHeight": 7863,
                 "geophysicalUnit": "imaginary",
                 "noDataValue": "0.0",
-                "noDataValueUsed": "false",
+                "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
