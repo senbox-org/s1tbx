@@ -116,7 +116,7 @@
 		"bands": [
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -139,7 +139,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -162,7 +162,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -185,7 +185,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -208,7 +208,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -231,7 +231,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -254,7 +254,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -277,7 +277,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -300,7 +300,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -323,7 +323,7 @@
 			},
 			{
 				"bandWidth": 390,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 6058,
 				"expectedPixels": [
 					{
@@ -346,7 +346,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -369,7 +369,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -392,7 +392,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -415,7 +415,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -438,7 +438,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -461,7 +461,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -484,7 +484,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -507,7 +507,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -530,7 +530,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -553,7 +553,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -576,7 +576,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -599,7 +599,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -622,7 +622,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -645,7 +645,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -668,7 +668,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -691,7 +691,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -714,7 +714,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -737,7 +737,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -760,7 +760,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -783,7 +783,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -806,7 +806,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -829,7 +829,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -852,7 +852,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -875,7 +875,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -898,7 +898,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -921,7 +921,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -944,7 +944,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -967,7 +967,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -990,7 +990,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1013,7 +1013,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1036,7 +1036,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1059,7 +1059,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1082,7 +1082,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1105,7 +1105,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1128,7 +1128,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1151,7 +1151,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1174,7 +1174,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1197,7 +1197,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1220,7 +1220,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1243,7 +1243,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1266,7 +1266,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1289,7 +1289,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1312,7 +1312,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1335,7 +1335,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1358,7 +1358,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1381,7 +1381,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1404,7 +1404,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1427,7 +1427,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1450,7 +1450,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1473,7 +1473,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1496,7 +1496,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1519,7 +1519,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1542,7 +1542,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1565,7 +1565,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1588,7 +1588,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1611,7 +1611,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1634,7 +1634,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1657,7 +1657,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1680,7 +1680,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1703,7 +1703,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1726,7 +1726,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1749,7 +1749,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1772,7 +1772,7 @@
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1795,7 +1795,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1818,7 +1818,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1841,7 +1841,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1864,7 +1864,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1887,7 +1887,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1910,7 +1910,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1933,7 +1933,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1956,7 +1956,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1979,7 +1979,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2002,7 +2002,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2025,7 +2025,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2048,7 +2048,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2071,7 +2071,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2093,7 +2093,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2115,7 +2115,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2138,7 +2138,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2160,7 +2160,7 @@
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "true",
+				"noDataValueUsed": "false",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
