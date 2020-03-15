@@ -35,7 +35,7 @@
         <s1tbx.version>8.0.0-SNAPSHOT</s1tbx.version>
         <rstb.version>8.0.0-SNAPSHOT</rstb.version>
         <jlinda.version>8.0.0-SNAPSHOT</jlinda.version>
-        <iceye.version>2.0.7</iceye.version>
+        <iceye.version>2.0.8-SNAPSHOT</iceye.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <buildDate>${maven.build.timestamp}</buildDate>
 
@@ -425,6 +425,12 @@
                 <artifactId>commons-math3</artifactId>
                 <version>3.6.1</version>
             </dependency>
+			
+			<dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>23.0</version>
+            </dependency>
 
             <!-- Jama Matrix Algebra Library ############################################# -->
 
@@ -493,6 +499,9 @@
 	                    <debug>true</debug>
 	                    <encoding>UTF-8</encoding>
 						<optimize>true</optimize>
+						<excludes>
+                            <exclude>.gitignore</exclude>
+                        </excludes>
 	                </configuration>
 	            </plugin>
 				
