@@ -113,7 +113,7 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
 
             setIO(graphExecutorList.get(graphIndex),
                   "Read", masterFile,
-                  "Write", targetFile, targetFormat);
+                  "Write", targetFile, name, targetFormat);
             setSlaveIO(graphExecutorList.get(graphIndex),
                        "ProductSet-Reader", masterFile, new File[]{slaveFile});
             ++graphIndex;
