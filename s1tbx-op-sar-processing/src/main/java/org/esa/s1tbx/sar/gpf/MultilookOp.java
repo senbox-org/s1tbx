@@ -132,7 +132,7 @@ public final class MultilookOp extends Operator {
 
             getSourceImageDimension();
 
-            if(grSquarePixel) {
+            if(grSquarePixel != null && grSquarePixel) {
                 MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
                 param.nRgLooks = nRgLooks;
                 getDerivedParameters(sourceProduct, param);
