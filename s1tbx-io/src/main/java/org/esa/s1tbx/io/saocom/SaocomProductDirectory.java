@@ -381,7 +381,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                             unit = Unit.IMAGINARY;
                         }
 
-                        final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_FLOAT64, width, height);
                         band.setUnit(unit);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(0);
@@ -393,7 +393,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                         if (real) {
                             lastRealBand = band;
                         } else {
-                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, swath + '_' + suffix);
+                            createVirtualIntensityBand(product, lastRealBand, band, ReaderUtils.createName(band.getName(),
+                                    "Intensity"), swath + '_' + suffix);
                             bandInfo.setRealBand(lastRealBand);
                             bandMap.get(lastRealBand).setImaginaryBand(band);
                         }
@@ -415,6 +416,39 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                 }
             }
         }
+    }
+
+    public static Band createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
+                                                  final String bandName, final String suffix) {
+        final String bandNameI = bandI.getName();
+        final double nodatavalueI = bandI.getNoDataValue();
+        final String bandNameQ = bandQ.getName();
+        final String expression = bandNameI +" == " + nodatavalueI +" ? " + nodatavalueI +" : " +
+                bandNameI + " * " + bandNameI + " + " + bandNameQ + " * " + bandNameQ;
+
+        String name = bandName;
+        if (!name.endsWith(suffix)) {
+            name += suffix;
+        }
+        final VirtualBand virtBand = new VirtualBand(name,
+                ProductData.TYPE_FLOAT64,
+                bandI.getRasterWidth(),
+                bandI.getRasterHeight(),
+                expression);
+        virtBand.setUnit(Unit.INTENSITY);
+        virtBand.setDescription("Intensity from complex data");
+        virtBand.setNoDataValueUsed(true);
+        virtBand.setNoDataValue(nodatavalueI);
+        virtBand.setOwner(product);
+        product.addBand(virtBand);
+
+        if (bandI.getGeoCoding() != product.getSceneGeoCoding()) {
+            virtBand.setGeoCoding(bandI.getGeoCoding());
+        }
+        // set as band to use for quicklook
+        product.setQuicklookBandName(virtBand.getName());
+
+        return virtBand;
     }
 
     @Override
