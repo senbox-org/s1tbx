@@ -43,11 +43,9 @@ public class BasicCeosProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final Path path) {
         final String name = path.getFileName().toString().toUpperCase();
-        for (String prefix : constants.getVolumeFilePrefix()) {
-            if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
-                final BasicCeosProductReader reader = new BasicCeosProductReader(this);
-                return reader.checkProductQualification(path);
-            }
+        if (isVolumeFile(name)) {
+            final BasicCeosProductReader reader = new BasicCeosProductReader(this);
+            return reader.checkProductQualification(path);
         }
         return DecodeQualification.UNABLE;
     }

@@ -49,6 +49,20 @@ public abstract class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
 
     protected abstract DecodeQualification checkProductQualification(final Path path);
 
+    protected boolean isVolumeFile(final String name) {
+        for (String prefix : constants.getVolumeFilePrefix()) {
+            if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
+                for (String ext : constants.getVolumeFileExcludedExtension()) {
+                    if (name.endsWith(ext)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
      * <p/>
