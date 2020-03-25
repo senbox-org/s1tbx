@@ -133,7 +133,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLon",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "longitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
@@ -156,7 +156,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLon",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "longitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
@@ -179,7 +179,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLon",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "longitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
@@ -202,7 +202,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLat",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "latitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
@@ -225,7 +225,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLat",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "latitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
@@ -237,7 +237,7 @@
 					{
 						"x": 126,
 						"y": 140,
-						"value": "NaN"
+						"value": "-999"
 					},
 					{
 						"x": 74,
@@ -248,7 +248,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLat",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "latitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
@@ -271,7 +271,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlSlantRangeTime",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "two way slant range time to cell centre",
 				"geophysicalUnit": "s"
 			},
@@ -294,7 +294,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlSlantRangeTime",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "two way slant range time to cell centre",
 				"geophysicalUnit": "s"
 			},
@@ -317,7 +317,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlSlantRangeTime",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "two way slant range time to cell centre",
 				"geophysicalUnit": "s"
 			},
@@ -363,7 +363,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlGroundRngSize",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "ground range size of estimation area",
 				"geophysicalUnit": "m"
 			},
@@ -386,7 +386,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlGroundRngSize",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "ground range size of estimation area",
 				"geophysicalUnit": "m"
 			},
@@ -409,7 +409,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlGroundRngSize",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "ground range size of estimation area",
 				"geophysicalUnit": "m"
 			},
@@ -432,7 +432,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlAziSize",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "azimuth size of estimation area",
 				"geophysicalUnit": "m"
 			},
@@ -455,7 +455,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlAziSize",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "azimuth size of estimation area",
 				"geophysicalUnit": "m"
 			},
@@ -478,7 +478,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlAziSize",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "azimuth size of estimation area",
 				"geophysicalUnit": "m"
 			},
@@ -501,7 +501,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlIncidenceAngle",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "incidence angle",
 				"geophysicalUnit": "degree"
 			},
@@ -524,7 +524,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlIncidenceAngle",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "incidence angle",
 				"geophysicalUnit": "degree"
 			},
@@ -547,7 +547,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlIncidenceAngle",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "incidence angle",
 				"geophysicalUnit": "degree"
 			},
@@ -559,7 +559,7 @@
 					{
 						"x": 125,
 						"y": 88,
-						"value": "NaN"
+						"value": "-999"
 					},
 					{
 						"x": 11,
@@ -570,7 +570,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlHeading",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "platform heading",
 				"geophysicalUnit": "degree"
 			},
@@ -593,7 +593,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlHeading",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "platform heading",
 				"geophysicalUnit": "degree"
 			},
@@ -616,7 +616,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlHeading",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "platform heading",
 				"geophysicalUnit": "degree"
 			},
@@ -639,7 +639,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcObs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
@@ -662,7 +662,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcObs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
@@ -685,7 +685,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcObs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
@@ -708,7 +708,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlNrcs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "normalized radar cross-section",
 				"geophysicalUnit": "adimentional"
 			},
@@ -731,7 +731,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlNrcs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "normalized radar cross-section",
 				"geophysicalUnit": "adimentional"
 			},
@@ -754,7 +754,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlNrcs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "normalized radar cross-section",
 				"geophysicalUnit": "adimentional"
 			},
@@ -777,7 +777,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcObsStd",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency std",
 				"geophysicalUnit": "Hz"
 			},
@@ -800,7 +800,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcObsStd",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency std",
 				"geophysicalUnit": "Hz"
 			},
@@ -823,7 +823,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcObsStd",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency std",
 				"geophysicalUnit": "Hz"
 			},
@@ -846,7 +846,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlRadVel",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			},
@@ -869,7 +869,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlRadVel",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			},
@@ -892,7 +892,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlRadVel",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			},
@@ -915,7 +915,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlRadVelStd",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "radial velocity std",
 				"geophysicalUnit": "m/s"
 			},
@@ -938,7 +938,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlRadVelStd",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "radial velocity std",
 				"geophysicalUnit": "m/s"
 			},
@@ -955,13 +955,13 @@
 					{
 						"x": 129,
 						"y": 17,
-						"value": "NaN"
+						"value": "-999"
 					}
 				],
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlRadVelStd",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "radial velocity std",
 				"geophysicalUnit": "m/s"
 			},
@@ -984,7 +984,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcGeo",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "predicted (geometric) doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
@@ -1007,7 +1007,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcGeo",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "predicted (geometric) doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
@@ -1030,7 +1030,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcGeo",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "predicted (geometric) doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
@@ -1053,7 +1053,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcMiss",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency from antenna mispointing at cell centre",
 				"geophysicalUnit": "Hz"
 			},
@@ -1076,7 +1076,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcMiss",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency from antenna mispointing at cell centre",
 				"geophysicalUnit": "Hz"
 			},
@@ -1099,7 +1099,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcMiss",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "doppler frequency from antenna mispointing at cell centre",
 				"geophysicalUnit": "Hz"
 			},
@@ -1122,7 +1122,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlSweepAngle",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "sweep angle of antenna",
 				"geophysicalUnit": "deg"
 			},
@@ -1145,7 +1145,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlSweepAngle",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "sweep angle of antenna",
 				"geophysicalUnit": "deg"
 			},
@@ -1168,7 +1168,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlSweepAngle",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "sweep angle of antenna",
 				"geophysicalUnit": "deg"
 			},
@@ -1180,7 +1180,7 @@
 					{
 						"x": 127,
 						"y": 75,
-						"value": "NaN"
+						"value": "-999"
 					},
 					{
 						"x": 46,
@@ -1191,7 +1191,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlYaw",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite yaw at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1214,7 +1214,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlYaw",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite yaw at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1237,7 +1237,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlYaw",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite yaw at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1249,7 +1249,7 @@
 					{
 						"x": 122,
 						"y": 67,
-						"value": "NaN"
+						"value": "-999"
 					},
 					{
 						"x": 40,
@@ -1260,7 +1260,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlPitch",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite pitch at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1283,7 +1283,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlPitch",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite pitch at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1306,7 +1306,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlPitch",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite pitch at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1329,7 +1329,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlRoll",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite roll at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1352,7 +1352,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlRoll",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite roll at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1375,7 +1375,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlRoll",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "satellite roll at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
@@ -1387,7 +1387,7 @@
 					{
 						"x": 126,
 						"y": 158,
-						"value": "NaN"
+						"value": "-999"
 					},
 					{
 						"x": 94,
@@ -1398,7 +1398,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlSnr",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "signal to noise ratio",
 				"geophysicalUnit": "adimentional"
 			},
@@ -1421,7 +1421,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlSnr",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "signal to noise ratio",
 				"geophysicalUnit": "adimentional"
 			},
@@ -1444,7 +1444,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlSnr",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "signal to noise ratio",
 				"geophysicalUnit": "adimentional"
 			},
@@ -1467,7 +1467,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlConfDcObs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "confidence level of Doppler estimate",
 				"geophysicalUnit": "adimentional"
 			},
@@ -1490,7 +1490,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlConfDcObs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "confidence level of Doppler estimate",
 				"geophysicalUnit": "adimentional"
 			},
@@ -1513,7 +1513,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlConfDcObs",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "confidence level of Doppler estimate",
 				"geophysicalUnit": "adimentional"
 			},
@@ -1536,7 +1536,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlUssX",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "zonal Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
@@ -1559,7 +1559,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlUssX",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "zonal Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
@@ -1582,7 +1582,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlUssX",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "zonal Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
@@ -1605,7 +1605,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlUssY",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "meridional Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
@@ -1628,7 +1628,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlUssY",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "meridional Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
@@ -1651,7 +1651,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlUssY",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "meridional Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
@@ -1674,7 +1674,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLandCoverage",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "percentage of land coverage within a cell",
 				"geophysicalUnit": "%"
 			},
@@ -1697,7 +1697,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLandCoverage",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "percentage of land coverage within a cell",
 				"geophysicalUnit": "%"
 			},
@@ -1720,7 +1720,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLandCoverage",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "percentage of land coverage within a cell",
 				"geophysicalUnit": "%"
 			},
@@ -1743,7 +1743,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLandFlag",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "land flag : 1 if presence of more than 10% of land coverage, 0 instead",
 				"geophysicalUnit": "adimentinoal"
 			},
@@ -1766,7 +1766,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLandFlag",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "land flag : 1 if presence of more than 10% of land coverage, 0 instead",
 				"geophysicalUnit": "adimentinoal"
 			},
@@ -1789,7 +1789,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLandFlag",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "land flag : 1 if presence of more than 10% of land coverage, 0 instead",
 				"geophysicalUnit": "adimentinoal"
 			},
@@ -2177,7 +2177,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiRadVel",
-				"noDataValue": "-999.0",
+				"noDataValue": "0.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			}
