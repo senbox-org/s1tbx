@@ -46,11 +46,9 @@ public class JERSProductReaderPlugIn extends CEOSProductReaderPlugIn {
         if(name.endsWith(".ZIP") && (name.startsWith("J1"))) {
             return DecodeQualification.INTENDED;
         }
-        for (String prefix : constants.getVolumeFilePrefix()) {
-            if (name.startsWith(prefix)) {
-                final JERSProductReader reader = new JERSProductReader(this);
-                return reader.checkProductQualification(path);
-            }
+        if (isVolumeFile(name)) {
+            final JERSProductReader reader = new JERSProductReader(this);
+            return reader.checkProductQualification(path);
         }
         if(name.startsWith("J1") && name.endsWith(".01")) {
             final JERSProductReader reader = new JERSProductReader(this);

@@ -40,4 +40,8 @@ public interface CEOSConstants {
     String[] getFormatFileExtensions();
 
     String getMission();
+
+    default String[] getVolumeFileExcludedExtension() {
+        return new String[] {".XML",".TXT"};
+    }
 }

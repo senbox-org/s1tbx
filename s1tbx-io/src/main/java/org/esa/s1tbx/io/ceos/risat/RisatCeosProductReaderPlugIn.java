@@ -43,11 +43,9 @@ public class RisatCeosProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final Path path) {
         final String name = path.getFileName().toString().toUpperCase();
-        for (String prefix : constants.getVolumeFilePrefix()) {
-            if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
-                final RisatCeosProductReader reader = new RisatCeosProductReader(this);
-                return reader.checkProductQualification(path);
-            }
+        if (isVolumeFile(name)) {
+            final RisatCeosProductReader reader = new RisatCeosProductReader(this);
+            return reader.checkProductQualification(path);
         }
         return DecodeQualification.UNABLE;
     }

@@ -46,11 +46,9 @@ public class RadarsatProductReaderPlugIn extends CEOSProductReaderPlugIn {
         if(name.endsWith(".ZIP") && (name.startsWith("R1_") || name.startsWith("RS1_"))) {
             return DecodeQualification.INTENDED;
         }
-        for (String prefix : constants.getVolumeFilePrefix()) {
-            if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
-                final RadarsatProductReader reader = new RadarsatProductReader(this);
-                return reader.checkProductQualification(path);
-            }
+        if (isVolumeFile(name)) {
+            final RadarsatProductReader reader = new RadarsatProductReader(this);
+            return reader.checkProductQualification(path);
         }
         return DecodeQualification.UNABLE;
     }
