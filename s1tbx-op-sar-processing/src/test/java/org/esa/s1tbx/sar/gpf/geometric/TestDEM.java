@@ -48,6 +48,7 @@ public class TestDEM {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
+        op.doExecute(ProgressMonitor.NULL);
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
         final Band elevBand = targetProduct.getBand("elevation");
