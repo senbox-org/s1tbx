@@ -1,21 +1,18 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.s1tbx.commons.test.TestData;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.dem.gpf.AddElevationOp;
-import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
-import java.io.File;
-import java.util.Arrays;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by lveci on 24/10/2014.
@@ -48,6 +45,7 @@ public class TestDEM {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
+        op.doExecute(ProgressMonitor.NULL);
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
         final Band elevBand = targetProduct.getBand("elevation");
