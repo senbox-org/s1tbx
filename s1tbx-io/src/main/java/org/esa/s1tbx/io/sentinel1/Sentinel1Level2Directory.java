@@ -155,8 +155,6 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
             sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
         }
 
-        System.out.println("Sentinel1Level2Directory.createProduct: sceneWidth = " + sceneWidth + " sceneHeight = " + sceneHeight);
-
         final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
         updateProduct(product, newRoot);
 
@@ -170,8 +168,6 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
 
         OCNReader.addWindDataToVectorNodes(product);
         //OCNReader.addOSWDataToVectorNode(product);
-
-        //System.out.println("Sentinel1Level2Directory.createProduct: product w and h = " + product.getSceneRasterWidth() + ", " + product.getSceneRasterHeight());
 
         return product;
     }

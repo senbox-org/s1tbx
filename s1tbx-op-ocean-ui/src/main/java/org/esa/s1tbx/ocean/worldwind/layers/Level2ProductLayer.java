@@ -306,7 +306,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
                     // find no data value edge
                     for(int cnt=w-1; cnt>0; --cnt) {
-                        System.out.println(cnt+"="+currRVLLonValues[cnt]);
                         if(currRVLLonValues[cnt] != currRVLLatBand.getNoDataValue()) {
                             w = cnt;
                             break;
@@ -318,7 +317,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
                     // find no data value edge
                     for(int cnt=h-1; cnt>0; --cnt) {
-                        System.out.println(cnt+"="+currRVLLonValues[cnt]);
                         if(currRVLLonValues[cnt] != currRVLLatBand.getNoDataValue()) {
                             h = cnt;
                             break;
