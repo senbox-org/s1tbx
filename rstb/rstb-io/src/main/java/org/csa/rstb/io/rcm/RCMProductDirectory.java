@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.io.rcm;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
@@ -38,8 +37,6 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.ImageLayout;
 import java.awt.*;

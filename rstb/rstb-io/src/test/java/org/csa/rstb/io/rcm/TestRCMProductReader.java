@@ -126,7 +126,7 @@ public class TestRCMProductReader extends ReaderTest {
         Product prod = testReader(inputSLCFolder.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        //validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV"});
+        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV","i_VV","q_VV","Intensity_VV", "i_VH","q_VH","Intensity_VH"});
     }
 
     @Test
@@ -134,7 +134,7 @@ public class TestRCMProductReader extends ReaderTest {
         Product prod = testReader(inputCPSLC.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        //validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+        validateBands(prod, new String[] {"i_RCH","q_RCH","Intensity_RCH", "i_RCV","q_RCV","Intensity_RCV"});
     }
 
     @Test
@@ -142,7 +142,7 @@ public class TestRCMProductReader extends ReaderTest {
         Product prod = testReader(inputCPGRC.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        //validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+        validateBands(prod, new String[] {"i_RCH","q_RCH","Intensity_RCH", "i_RCV","q_RCV","Intensity_RCV"});
     }
 
     @Test
