@@ -116,7 +116,7 @@
 		"bands": [
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -133,13 +133,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLon",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "longitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -156,13 +156,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLon",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "longitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -179,13 +179,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLon",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "longitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -202,13 +202,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLat",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "latitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -225,19 +225,19 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLat",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "latitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
 						"x": 126,
 						"y": 140,
-						"value": "-999"
+						"value": "NaN"
 					},
 					{
 						"x": 74,
@@ -248,13 +248,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLat",
-				"noDataValue": "0.0",
+				"noDataValue": "-999",
 				"description": "latitude",
 				"geophysicalUnit": "degree (decimal)"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -271,13 +271,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlSlantRangeTime",
-				"noDataValue": "0.0",
+				"noDataValue": "-999",
 				"description": "two way slant range time to cell centre",
 				"geophysicalUnit": "s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -294,13 +294,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlSlantRangeTime",
-				"noDataValue": "0.0",
+				"noDataValue": "-999",
 				"description": "two way slant range time to cell centre",
 				"geophysicalUnit": "s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -317,13 +317,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlSlantRangeTime",
-				"noDataValue": "0.0",
+				"noDataValue": "-999",
 				"description": "two way slant range time to cell centre",
 				"geophysicalUnit": "s"
 			},
 			{
 				"bandWidth": 390,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 6058,
 				"expectedPixels": [
 					{
@@ -340,13 +340,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_rvlZeroDopplerTime",
-				"noDataValue": "0.0",
+				"noDataValue": "25.0",
 				"description": "zero doppler time at cell centre",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -363,13 +363,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlGroundRngSize",
-				"noDataValue": "0.0",
+				"noDataValue": "-999",
 				"description": "ground range size of estimation area",
 				"geophysicalUnit": "m"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -386,13 +386,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlGroundRngSize",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "ground range size of estimation area",
 				"geophysicalUnit": "m"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -409,13 +409,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlGroundRngSize",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "ground range size of estimation area",
 				"geophysicalUnit": "m"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -432,13 +432,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlAziSize",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "azimuth size of estimation area",
 				"geophysicalUnit": "m"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -455,13 +455,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlAziSize",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "azimuth size of estimation area",
 				"geophysicalUnit": "m"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -478,13 +478,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlAziSize",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "azimuth size of estimation area",
 				"geophysicalUnit": "m"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -501,13 +501,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlIncidenceAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "incidence angle",
 				"geophysicalUnit": "degree"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -524,13 +524,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlIncidenceAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "incidence angle",
 				"geophysicalUnit": "degree"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -547,19 +547,19 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlIncidenceAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "incidence angle",
 				"geophysicalUnit": "degree"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
 						"x": 125,
 						"y": 88,
-						"value": "-999"
+						"value": "NaN"
 					},
 					{
 						"x": 11,
@@ -570,13 +570,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlHeading",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "platform heading",
 				"geophysicalUnit": "degree"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -593,13 +593,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlHeading",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "platform heading",
 				"geophysicalUnit": "degree"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -616,13 +616,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlHeading",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "platform heading",
 				"geophysicalUnit": "degree"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -639,13 +639,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcObs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -662,13 +662,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcObs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -685,13 +685,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcObs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -708,13 +708,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlNrcs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "normalized radar cross-section",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -731,13 +731,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlNrcs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "normalized radar cross-section",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -754,13 +754,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlNrcs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "normalized radar cross-section",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -777,13 +777,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcObsStd",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency std",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -800,13 +800,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcObsStd",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency std",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -823,13 +823,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcObsStd",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency std",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -846,13 +846,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlRadVel",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -869,13 +869,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlRadVel",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -892,13 +892,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlRadVel",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -915,13 +915,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlRadVelStd",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "radial velocity std",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -938,13 +938,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlRadVelStd",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "radial velocity std",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -955,19 +955,19 @@
 					{
 						"x": 129,
 						"y": 17,
-						"value": "-999"
+						"value": "NaN"
 					}
 				],
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlRadVelStd",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "radial velocity std",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -984,13 +984,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcGeo",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "predicted (geometric) doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1007,13 +1007,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcGeo",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "predicted (geometric) doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1030,13 +1030,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcGeo",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "predicted (geometric) doppler frequency",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1053,13 +1053,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlDcMiss",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency from antenna mispointing at cell centre",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1076,13 +1076,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlDcMiss",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency from antenna mispointing at cell centre",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1099,13 +1099,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlDcMiss",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "doppler frequency from antenna mispointing at cell centre",
 				"geophysicalUnit": "Hz"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1122,13 +1122,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlSweepAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "sweep angle of antenna",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1145,13 +1145,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlSweepAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "sweep angle of antenna",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1168,19 +1168,19 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlSweepAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "sweep angle of antenna",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
 						"x": 127,
 						"y": 75,
-						"value": "-999"
+						"value": "NaN"
 					},
 					{
 						"x": 46,
@@ -1191,13 +1191,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlYaw",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite yaw at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1214,13 +1214,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlYaw",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite yaw at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1237,19 +1237,19 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlYaw",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite yaw at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
 						"x": 122,
 						"y": 67,
-						"value": "-999"
+						"value": "NaN"
 					},
 					{
 						"x": 40,
@@ -1260,13 +1260,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlPitch",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite pitch at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1283,13 +1283,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlPitch",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite pitch at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1306,13 +1306,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlPitch",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite pitch at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1329,13 +1329,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlRoll",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite roll at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1352,13 +1352,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlRoll",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite roll at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1375,19 +1375,19 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlRoll",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "satellite roll at zero Doppler time",
 				"geophysicalUnit": "deg"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
 						"x": 126,
 						"y": 158,
-						"value": "-999"
+						"value": "NaN"
 					},
 					{
 						"x": 94,
@@ -1398,13 +1398,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlSnr",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "signal to noise ratio",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1421,13 +1421,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlSnr",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "signal to noise ratio",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1444,13 +1444,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlSnr",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "signal to noise ratio",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1467,13 +1467,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlConfDcObs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "confidence level of Doppler estimate",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1490,13 +1490,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlConfDcObs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "confidence level of Doppler estimate",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1513,13 +1513,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlConfDcObs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "confidence level of Doppler estimate",
 				"geophysicalUnit": "adimentional"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1536,13 +1536,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlUssX",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "zonal Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1559,13 +1559,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlUssX",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "zonal Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1582,13 +1582,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlUssX",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "zonal Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1605,13 +1605,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlUssY",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "meridional Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1628,13 +1628,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlUssY",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "meridional Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1651,13 +1651,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlUssY",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "meridional Stokes drift",
 				"geophysicalUnit": "m/s"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1674,13 +1674,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLandCoverage",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "percentage of land coverage within a cell",
 				"geophysicalUnit": "%"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1697,13 +1697,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLandCoverage",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "percentage of land coverage within a cell",
 				"geophysicalUnit": "%"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1720,13 +1720,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLandCoverage",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "percentage of land coverage within a cell",
 				"geophysicalUnit": "%"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1743,13 +1743,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW1_rvlLandFlag",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "land flag : 1 if presence of more than 10% of land coverage, 0 instead",
 				"geophysicalUnit": "adimentinoal"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1766,13 +1766,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW2_rvlLandFlag",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "land flag : 1 if presence of more than 10% of land coverage, 0 instead",
 				"geophysicalUnit": "adimentinoal"
 			},
 			{
 				"bandWidth": 130,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 233,
 				"expectedPixels": [
 					{
@@ -1789,13 +1789,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_IW3_rvlLandFlag",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "land flag : 1 if presence of more than 10% of land coverage, 0 instead",
 				"geophysicalUnit": "adimentinoal"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1812,13 +1812,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiLon",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Longitude at wind cell center",
 				"geophysicalUnit": "degrees_east"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1835,13 +1835,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiLat",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Latitude at wind cell center",
 				"geophysicalUnit": "degrees_north"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1858,13 +1858,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiIncidenceAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Incidence angle at wind cell center",
 				"geophysicalUnit": "degrees"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1881,13 +1881,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiElevationAngle",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Elevation Angle at wind cell center",
 				"geophysicalUnit": "degrees"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1904,13 +1904,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiWindSpeed",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Wind speed",
 				"geophysicalUnit": "m s^-1"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1927,13 +1927,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiWindDirection",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Wind direction (meteorological convention)",
 				"geophysicalUnit": "degrees_north"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1950,13 +1950,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiEcmwfWindSpeed",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "ECMWF Wind speed",
 				"geophysicalUnit": "m s^-1"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1973,13 +1973,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiEcmwfWindDirection",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "ECMWF Wind direction (meteorological convention)",
 				"geophysicalUnit": "degrees_north"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -1996,13 +1996,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiNrcs",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Normalized Radar Cross Section",
 				"geophysicalUnit": "m^2 / m^2"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2019,13 +2019,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiNesz",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "Noise Equivalent SigmaNaught",
 				"geophysicalUnit": "m^2 / m^2"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2042,13 +2042,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiPBright",
-				"noDataValue": "999.989990234375",
+				"noDataValue": "-999.0",
 				"description": "Percentage of bright targets pixels detectied in cell",
 				"geophysicalUnit": "%"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2065,13 +2065,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiNrcsCmod",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "predicted Normalized Radar Cross Section from CMOD and ECMWF",
 				"geophysicalUnit": "m^2 / m^2"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2088,12 +2088,12 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiInversionQuality",
-				"noDataValue": "0.0",
+				"noDataValue": "25.0",
 				"description": "inversion quality flag"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2110,12 +2110,12 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiLandFlag",
-				"noDataValue": "0.0",
+				"noDataValue": "25.0",
 				"description": "Mask of data"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2132,13 +2132,13 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiHeading",
-				"noDataValue": "9999.990234375",
+				"noDataValue": "-999.0",
 				"description": "Platform heading (azimuth from North)",
 				"geophysicalUnit": "degrees"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2155,12 +2155,12 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiWindQuality",
-				"noDataValue": "255.0",
+				"noDataValue": "25.0",
 				"description": "Quality flag taking into account the consistency_between_wind_inverted_and_NRCS_and_Doppler_measured"
 			},
 			{
 				"bandWidth": 257,
-				"noDataValueUsed": "false",
+				"noDataValueUsed": "true",
 				"bandHeight": 166,
 				"expectedPixels": [
 					{
@@ -2177,7 +2177,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "vv_001_owiRadVel",
-				"noDataValue": "0.0",
+				"noDataValue": "-999.0",
 				"description": "radial velocity",
 				"geophysicalUnit": "m/s"
 			}

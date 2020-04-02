@@ -522,7 +522,7 @@ public class Sentinel1OCNReader {
         final Band band = NetCDFUtils.createBand(variable, width, height);
         band.setName(bandName);
         band.setNoDataValueUsed(true);
-        band.setNoDataValue(0);
+        band.setNoDataValue(-999);
         product.addBand(band);
     }
 
