@@ -40,6 +40,12 @@ public class TestEODMSRCMProductReader extends ReaderTest {
     private final static File inputGRCFolder = new File(S1TBXTests.TEST_ROOT +"RCM/EODMS/GCD/RCM2_OK1028884_PK1029284_2_16M12_20191214_111155_HH_HV_GCD");
     private final static File inputGRCManifest = new File(S1TBXTests.TEST_ROOT +"RCM/EODMS/GCD/RCM2_OK1028884_PK1029284_2_16M12_20191214_111155_HH_HV_GCD/manifest.safe");
 
+    private final static File inputQP_SLC = new File(S1TBXTests.TEST_ROOT + "RCM/OpenData/Quebec City/RCM3_OK1050546_PK1050547_1_QP8_20191229_110339_HH_VV_HV_VH_SLC");
+
+    private final static File inputCP_SLC = new File(S1TBXTests.TEST_ROOT + "RCM/OpenData/Winnipeg/RCM1_OK1050595_PK1051816_1_3MCP24_20200219_123901_CH_CV_SLC");
+    private final static File inputCP_GCC = new File(S1TBXTests.TEST_ROOT + "RCM/OpenData/Winnipeg/RCM1_OK1052791_PK1052794_1_3MCP24_20200219_123901_CH_CV_GCC");
+    private final static File inputCP_GRC = new File(S1TBXTests.TEST_ROOT + "RCM/OpenData/Winnipeg/RCM1_OK1052791_PK1052795_1_3MCP24_20200219_123901_CH_CV_GRC");
+    private final static File inputCP_GRD = new File(S1TBXTests.TEST_ROOT + "RCM/OpenData/Winnipeg/RCM1_OK1052791_PK1052796_1_3MCP24_20200219_123901_CH_CV_GCD");
 
     public TestEODMSRCMProductReader() {
         super(new RCMProductReaderPlugIn());
@@ -54,6 +60,12 @@ public class TestEODMSRCMProductReader extends ReaderTest {
 
         assumeTrue(inputGRCFolder + " not found", inputGRCFolder.exists());
         assumeTrue(inputGRCManifest + " not found", inputGRCManifest.exists());
+
+        assumeTrue(inputQP_SLC + " not found", inputQP_SLC.exists());
+        assumeTrue(inputCP_SLC + " not found", inputCP_SLC.exists());
+        assumeTrue(inputCP_GCC + " not found", inputCP_GCC.exists());
+        assumeTrue(inputCP_GRC + " not found", inputCP_GRC.exists());
+        assumeTrue(inputCP_GRD + " not found", inputCP_GRD.exists());
     }
 
     @Test
@@ -95,5 +107,45 @@ public class TestEODMSRCMProductReader extends ReaderTest {
         validateProduct(prod);
         validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+    }
+
+    @Test
+    public void testOpeningQP_SLC() throws Exception {
+        Product prod = testReader(inputQP_SLC.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV","i_VV","q_VV","Intensity_VV", "i_VH","q_VH","Intensity_VH"});
+    }
+
+    @Test
+    public void testOpeningCP_SLC() throws Exception {
+        Product prod = testReader(inputCP_SLC.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"i_RCH","q_RCH","Intensity_RCH","i_RCV","q_RCV","Intensity_RCV"});
+    }
+
+    @Test
+    public void testOpeningCP_GCC() throws Exception {
+        Product prod = testReader(inputCP_GCC.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH","Amplitude_RCV","Intensity_RCV"});
+    }
+
+    @Test
+    public void testOpeningCP_GRC() throws Exception {
+        Product prod = testReader(inputCP_GRC.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"i_RCH","q_RCH","Intensity_RCH","i_RCV","q_RCV","Intensity_RCV"});
+    }
+
+    @Test
+    public void testOpeningCP_GRD() throws Exception {
+        Product prod = testReader(inputCP_GRD.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH", "Amplitude_RCV","Intensity_RCV"});
     }
 }
