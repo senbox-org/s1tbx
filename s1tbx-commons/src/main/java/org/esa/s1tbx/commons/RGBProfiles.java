@@ -38,19 +38,23 @@ public class RGBProfiles {
         manager.addProfile(createDPProfile(profileType, "Intensity", "HH", "HV", ""));
         manager.addProfile(createDPProfile(profileType, "Intensity", "VV", "VH", ""));
         manager.addProfile(createDPProfile(profileType, "Intensity", "HH", "VV", ""));
+        manager.addProfile(createDPProfile(profileType, "Intensity", "RCH", "RCV", ""));
         // Intensity dB
         manager.addProfile(createDPProfile(profileType, "Intensity", "HH", "HV", "_db"));
         manager.addProfile(createDPProfile(profileType, "Intensity", "VV", "VH", "_db"));
         manager.addProfile(createDPProfile(profileType, "Intensity", "HH", "VV", "_db"));
+        manager.addProfile(createDPProfile(profileType, "Intensity", "RCH", "RCV", "_db"));
 
         // Sigma0
         manager.addProfile(createDPProfile(profileType, "Sigma0", "HH", "HV", ""));
         manager.addProfile(createDPProfile(profileType, "Sigma0", "VV", "VH", ""));
         manager.addProfile(createDPProfile(profileType, "Sigma0", "HH", "VV", ""));
+        manager.addProfile(createDPProfile(profileType, "Sigma0", "RCH", "RCV", ""));
         // Sigma0 dB
         manager.addProfile(createDPProfile(profileType, "Sigma0", "HH", "HV", "_db"));
         manager.addProfile(createDPProfile(profileType, "Sigma0", "VV", "VH", "_db"));
         manager.addProfile(createDPProfile(profileType, "Sigma0", "HH", "VV", "_db"));
+        manager.addProfile(createDPProfile(profileType, "Sigma0", "RCH", "RCV", "_db"));
     }
 
     private static RGBImageProfile createDPProfile(final TYPE profileType,
