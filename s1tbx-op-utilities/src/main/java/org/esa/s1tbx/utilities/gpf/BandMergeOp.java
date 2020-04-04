@@ -28,6 +28,10 @@ import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * The merge operator allows copying raster data from other products to a specified product. The first product provided
  * is considered the 'master product', into which the raster data coming from the other products is copied. Existing
@@ -45,12 +49,10 @@ import org.esa.snap.core.util.ProductUtils;
  */
 @OperatorMetadata(alias = "BandMerge",
                   category = "Raster",
-                  description = "Allows copying raster data from any number of source products to a specified 'master'" +
-                          " product.",
-                  authors = "BEAM team",
+                  description = "Allows copying raster data from any number of source products to a specified 'master' product.",
+                  authors = "SNAP team",
                   version = "1.0",
-                  copyright = "(c) 2012 by Brockmann Consult",
-                  internal = false)
+                  copyright = "(c) 2012 by Brockmann Consult")
 public class BandMergeOp extends Operator {
 
     @SourceProducts(description = "The products to be merged into the master product.")
@@ -59,8 +61,7 @@ public class BandMergeOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands",
-            label = "Source Bands")
+    @Parameter(description = "The list of source bands.", alias = "sourceBands", label = "Source Bands")
     private String[] sourceBandNames;
 
     @Parameter(defaultValue = "1.0E-5f",
@@ -69,15 +70,23 @@ public class BandMergeOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        targetProduct = new Product(sourceProducts[0].getName(),
-                                                  sourceProducts[0].getProductType(),
-                                                  sourceProducts[0].getSceneRasterWidth(),
-                                                  sourceProducts[0].getSceneRasterHeight());
+        final Product mstProduct = sourceProducts[0];
+        targetProduct = new Product(mstProduct.getName(),
+                mstProduct.getProductType(),
+                mstProduct.getSceneRasterWidth(),
+                mstProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProducts[0], targetProduct);
 
+        final List<String> existingBands = new ArrayList<>();
+        Collections.addAll(existingBands, targetProduct.getBandNames());
+
+
         for (Product prod : sourceProducts) {
             for (Band band : prod.getBands()) {
+                if(prod.equals(mstProduct) && existingBands.contains(band.getName())) {
+                    continue;
+                }
                 final Band sourceBand = targetProduct.getBand(band.getName());
                 String targetBandName = band.getName();
                 if (sourceBand != null) {
@@ -95,11 +104,9 @@ public class BandMergeOp extends Operator {
         validateSourceProducts();
 
         for (Product srcProduct : sourceProducts) {
-            //if (srcProduct != sourceProducts[0]) {  // why is this here?
-                mergeAutoGrouping(srcProduct);
-                ProductUtils.copyMasks(srcProduct, targetProduct);
-                ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
-            //}
+            mergeAutoGrouping(srcProduct);
+            ProductUtils.copyMasks(srcProduct, targetProduct);
+            ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
         }
     }
 
@@ -117,20 +124,6 @@ public class BandMergeOp extends Operator {
                 }
             }
         }
-    }
-
-    private void copyBandWithFeatures(Product sourceProduct, String oldBandName, String newBandName) {
-        Band sourceBand = sourceProduct.getBand(oldBandName);
-        if (sourceBand == null) {
-            final String msg = String.format("Source product [%s] does not contain a band with name [%s]",
-                                             sourceProduct.getName(), oldBandName);
-            throw new OperatorException(msg);
-        }
-
-        if (targetProduct.containsBand(newBandName)) {
-            return;
-        }
-        ProductUtils.copyBand(oldBandName, sourceProduct, newBandName, targetProduct, true);
     }
 
     private void validateSourceProducts() {
