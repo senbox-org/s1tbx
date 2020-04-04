@@ -323,13 +323,6 @@ public class CosmoSkymedReader extends SARReader {
                     globalElem.getAttributeString("Projection_ID", defStr));
         }
 
-        // Global calibration attributes
-        /*
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag,
-        		globalElem.getAttributeInt("Calibration_Constant_Compensation_Flag"));
-        */
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
-
         final String rngSpreadComp = globalElem.getAttributeString(
                 "Range_Spreading_Loss_Compensation_Geometry", defStr);
         if (rngSpreadComp.equals("NONE"))
