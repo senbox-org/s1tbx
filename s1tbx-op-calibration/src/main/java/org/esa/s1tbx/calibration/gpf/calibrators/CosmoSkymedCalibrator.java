@@ -155,7 +155,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         }
 
         final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
-        final boolean constantCompFlag = AbstractMetadata.getAttributeBoolean(globalElem, "Calibration_Constant_Compensation_Flag");
+        final boolean constantCompFlag = globalElem.getAttributeInt("Calibration_Constant_Compensation_Flag", 0) == 1;
         if (!constantCompFlag) {
             applyConstantCorrection = true;
         }
