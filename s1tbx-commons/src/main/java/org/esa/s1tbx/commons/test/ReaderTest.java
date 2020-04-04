@@ -67,7 +67,13 @@ public class ReaderTest {
     protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
         final Band[] bands = trgProduct.getBands();
         if(bandNames.length != bands.length) {
-            throw new Exception("Expecting "+bandNames.length + " bands but found "+ bands.length);
+            String msg = "";
+            for(String bandName : bandNames) {
+                if(!msg.isEmpty())
+                    msg += ", ";
+                msg += bandName;
+            }
+            throw new Exception("Expecting "+bandNames.length + " bands but found "+ bands.length +" "+ msg);
         }
         for(String bandName : bandNames) {
             Band band = trgProduct.getBand(bandName);
