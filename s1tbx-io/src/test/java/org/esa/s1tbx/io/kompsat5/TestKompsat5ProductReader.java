@@ -32,12 +32,11 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestKompsat5ProductReader extends ReaderTest {
 
-    private final static String sep = S1TBXTests.sep;
-    private final static File inputZip = null;
-    private static final File inputFolder = new File(S1TBXTests.inputPathProperty + sep + "SAR" + sep + "K5" + sep + "HDF" + sep + "K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D");
-    //private final static File inputFolder = new File("E:\\data\\K5\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D");
-    private final static File inputMetaXML = new File(S1TBXTests.inputPathProperty + sep +  "SAR" + sep + "K5" + sep + "HDF" + sep + "K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D" + sep + "K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
-    //private final static File inputMetaXML = new File("E:\\data\\K5\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D\\K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
+    private static final File inputFolder = new File(S1TBXTests.inputPathProperty + "/SAR/K5/HDF/K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D");
+    private final static File inputMetaXML = new File(S1TBXTests.inputPathProperty + "/SAR/K5/HDF/K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D/K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml");
+
+    private final static File inputGeoTiffFolder = new File(S1TBXTests.inputPathProperty + "/SAR/K5/GeoTiff/K5_20190215223304_000000_30122_A_UH27_HH_GEC_B_L1C");
+    private final static File inputGeoTiffMetaXML = new File(S1TBXTests.inputPathProperty + "/SAR/K5/GeoTiff/K5_20190215223304_000000_30122_A_UH27_HH_GEC_B_L1C/K5_20190215223304_000000_30122_A_UH27_HH_GEC_B_L1C_Aux.xml");
 
     public TestKompsat5ProductReader() {
         super(new Kompsat5ReaderPlugIn());
@@ -46,12 +45,12 @@ public class TestKompsat5ProductReader extends ReaderTest {
     @Before
     public void setUp() {
         // If any of the file does not exist: the test will be ignored
-        assumeTrue(inputFolder + " not found", inputFolder.exists());
         assumeTrue(inputMetaXML + " not found", inputMetaXML.exists());
+        assumeTrue(inputGeoTiffMetaXML + " not found", inputGeoTiffMetaXML.exists());
     }
 
     @Test
-    public void testOpeningFolder() throws Exception {
+    public void testOpeningHDFFolder() throws Exception {
         Product prod = testReader(inputFolder.toPath());
         validateProduct(prod);
         validateMetadata(prod);
@@ -59,7 +58,7 @@ public class TestKompsat5ProductReader extends ReaderTest {
     }
 
     @Test
-    public void testOpeningMetadata() throws Exception {
+    public void testOpeningHDFMetadata() throws Exception {
         Product prod = testReader(inputMetaXML.toPath());
         validateProduct(prod);
         validateMetadata(prod);
@@ -72,4 +71,20 @@ public class TestKompsat5ProductReader extends ReaderTest {
 //    validateProduct(prod);
 //    validateMetadata(prod);
 //    }
+
+    @Test
+    public void testOpeningGeoTiffFolder() throws Exception {
+        Product prod = testReader(inputGeoTiffFolder.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+    }
+
+    @Test
+    public void testOpeningGeotiffMetadata() throws Exception {
+        Product prod = testReader(inputGeoTiffMetaXML.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+    }
 }

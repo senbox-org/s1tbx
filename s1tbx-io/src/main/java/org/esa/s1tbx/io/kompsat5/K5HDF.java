@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.kompsat5;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.ArrayCopy;
 import org.esa.s1tbx.io.netcdf.NcAttributeMap;
 import org.esa.s1tbx.io.netcdf.NcRasterDim;
@@ -106,23 +107,19 @@ public class K5HDF implements K5Format {
         final int rasterWidth = rasterDim.getDimX().getLength();
         final int rasterHeight = rasterDim.getDimY().getLength();
 
-        product = new Product(inputFile.getName(),
-                              productType,
-                              rasterWidth, rasterHeight,
-                              reader);
+        product = new Product(inputFile.getName(), productType, rasterWidth, rasterHeight, reader);
         product.setFileLocation(inputFile);
         product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
-        product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
-        product.setEndTime(NetCDFUtils.getSceneRasterStopTime(globalAttributes));
 
         addMetadataToProduct();
         addBandsToProduct(rasterVariables);
+
+        addSlantRangeToFirstPixel();
+        addFirstLastLineTimes(product);
+        addSRGRCoefficients(product);
+
         addTiePointGridsToProduct(tiePointGridVariables, gimVariable);
         addGeoCodingToProduct(product, rasterDim);
-        addSlantRangeToFirstPixel();
-        addFirstLastLineTimes(product, rasterHeight);
-        addSRGRCoefficients(product);
-        addDopplerCentroidCoefficients(product);
 
         return product;
     }
@@ -137,20 +134,14 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private static Variable[] getRasterVariables(Map<NcRasterDim, List<Variable>> variableLists,
-                                                 NcRasterDim rasterDim) {
-        final List<Variable> varList = variableLists.get(rasterDim);
+    private static Variable[] getRasterVariables(final Map<NcRasterDim, List<Variable>> variableLists, final NcRasterDim rasterDim) {
         final List<Variable> list = new ArrayList<>(5);
-        for (Variable var : varList) {
-            //if (!var.getShortName().equals("GIM")) {
-                list.add(var);
-            //}
-        }
-        return list.toArray(new Variable[list.size()]);
+        list.addAll(variableLists.get(rasterDim));
+        return list.toArray(new Variable[0]);
     }
 
-    private static Variable getGIMVariable(Map<NcRasterDim, List<Variable>> variableLists,
-                                                 NcRasterDim rasterDim) {
+    private static Variable getGIMVariable(final Map<NcRasterDim, List<Variable>> variableLists,
+                                           final NcRasterDim rasterDim) {
         final List<Variable> varList = variableLists.get(rasterDim);
         for (Variable var : varList) {
             if (var.getShortName().equals("GIM")) {
@@ -160,9 +151,9 @@ public class K5HDF implements K5Format {
         return null;
     }
 
-    private static void removeQuickLooks(Map<NcRasterDim, List<Variable>> variableListMap) {
+    private static void removeQuickLooks(final Map<NcRasterDim, List<Variable>> variableListMap) {
         final String[] excludeList = {"qlk"};
-        final NcRasterDim[] keys = variableListMap.keySet().toArray(new NcRasterDim[variableListMap.keySet().size()]);
+        final NcRasterDim[] keys = variableListMap.keySet().toArray(new NcRasterDim[0]);
         final List<NcRasterDim> removeList = new ArrayList<>();
 
         for (final NcRasterDim rasterDim : keys) {
@@ -229,7 +220,6 @@ public class K5HDF implements K5Format {
 
         final MetadataElement origRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
         final MetadataElement globalElem = origRoot.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
-        final MetadataElement auxElem = origRoot.getElement("Auxiliary").getElement("Root");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename", defStr));
         final String productType = globalElem.getAttributeString("Product_Type", defStr);
@@ -254,14 +244,14 @@ public class K5HDF implements K5Format {
 
         useFloatBands = globalElem.getAttributeString("Sample_Format", defStr).equals("FLOAT");
 
-//        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
-//        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-//        product.setStartTime(startTime);
-//        product.setEndTime(stopTime);
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-        //                              ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
+        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
+        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+        product.setStartTime(startTime);
+        product.setEndTime(stopTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                                      ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                                       product.getSceneRasterHeight());
@@ -287,33 +277,17 @@ public class K5HDF implements K5Format {
                                           globalElem.getAttributeString("Projection_ID", defStr));
         }
 
-        // Global calibration attributes
-        /*
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag,
-        		globalElem.getAttributeInt("Calibration_Constant_Compensation_Flag"));
-        */
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
-
         final String rngSpreadComp = globalElem.getAttributeString(
                 "Range_Spreading_Loss_Compensation_Geometry", defStr);
-        if (rngSpreadComp.equals("NONE"))
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 0);
-        else
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, rngSpreadComp.equals("NONE") ? 0 : 1);
 
         final String incAngComp = globalElem.getAttributeString(
                 "Incidence_Angle_Compensation_Geometry", defStr);
-        if (incAngComp.equals("NONE"))
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 0);
-        else
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, incAngComp.equals("NONE") ? 0 : 1);
 
         final String antElevComp = globalElem.getAttributeString(
                 "Range_Antenna_Pattern_Compensation_Geometry", defStr);
-        if (antElevComp.equals("NONE"))
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 0);
-        else
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, antElevComp.equals("NONE") ? 0 : 1);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_inc_angle,
                                       globalElem.getAttributeDouble("Reference_Incidence_Angle", defInt));
@@ -323,6 +297,8 @@ public class K5HDF implements K5Format {
                                       globalElem.getAttributeDouble("Reference_Slant_Range_Exponent", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.rescaling_factor,
                                       globalElem.getAttributeDouble("Rescaling_Factor", defInt));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isComplex ? 0 : 1);
 
         final MetadataElement s01Elem = globalElem.getElement("S01");
         if (s01Elem != null) {
@@ -368,13 +344,8 @@ public class K5HDF implements K5Format {
                                           globalElem.getAttributeString(prefix + "Polarisation", defStr));
         }
 
-        if (isComplex) {
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 0);
-        } else {
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
-        }
-
         addOrbitStateVectors(absRoot, globalElem);
+        addDopplerCentroidCoefficients(absRoot, globalElem);
     }
 
     private Band getNonGIMBand() {
@@ -433,11 +404,7 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private static void addDopplerCentroidCoefficients(final Product product) {
-
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
-        final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+    private static void addDopplerCentroidCoefficients(final MetadataElement absRoot, final MetadataElement globalElem) {
 
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
         final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + ".1");
@@ -461,7 +428,8 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private void addFirstLastLineTimes(final Product product, final int rasterHeight) {
+    private void addFirstLastLineTimes(final Product product) {
+        final int rasterHeight = product.getSceneRasterHeight();
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
@@ -498,14 +466,12 @@ public class K5HDF implements K5Format {
             if (lineTimeInterval == 0 || lastLineTime == AbstractMetadata.NO_METADATA) {
                 lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             }
-            double lineTimeInterval2 = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);
         }
     }
 
     private void addSRGRCoefficients(final Product product) {
 
-        // For detail of ground range to slant range conversion, please see P80 in COSMO-SkyMed SAR Products Handbook.
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
@@ -618,7 +584,7 @@ public class K5HDF implements K5Format {
                 product.addBand(band);
                 bandMap.put(band, variable);
 
-                reader.createVirtualIntensityBand(product, band, cntStr);
+                SARReader.createVirtualIntensityBand(product, band, cntStr);
             }
         }
     }
@@ -810,9 +776,7 @@ public class K5HDF implements K5Format {
                 pm.worked(1);
             }
         } catch (InvalidRangeException e) {
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
+            throw new IOException(e.getMessage(), e);
         } finally {
             pm.done();
         }
