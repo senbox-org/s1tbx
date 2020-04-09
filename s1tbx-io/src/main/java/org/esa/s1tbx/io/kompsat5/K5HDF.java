@@ -202,9 +202,6 @@ public class K5HDF implements K5Format {
                 NetCDFUtils.addAttributes(origMetadataRoot, variable.getShortName(), variable.getAttributes());
             }
 
-            //final Group rootGroup = netcdfFile.getRootGroup();
-            //NetCDFUtils.addGroups(product.getMetadataRoot(), rootGroup);
-
             addAbstractedMetadataHeader(product, product.getMetadataRoot());
         } catch (Exception e) {
             SystemUtils.LOG.severe("Error reading metadata for " + product.getName() + ": " + e.getMessage());
@@ -215,16 +212,16 @@ public class K5HDF implements K5Format {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
-        final String defStr = AbstractMetadata.NO_METADATA_STRING;
-        final int defInt = AbstractMetadata.NO_METADATA;
-
         final MetadataElement origRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
         final MetadataElement globalElem = origRoot.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename", defStr));
-        final String productType = globalElem.getAttributeString("Product_Type", defStr);
+        final MetadataElement aux = origRoot.getElement("Auxiliary");
+        final MetadataElement auxRoot = aux.getElement("Root");
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename"));
+        final String productType = globalElem.getAttributeString("Product_Type");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-        final String mode = globalElem.getAttributeString("Acquisition_Mode", defStr);
+        final String mode = globalElem.getAttributeString("Acquisition_Mode");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, mode);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
 
@@ -233,16 +230,16 @@ public class K5HDF implements K5Format {
                                       ReaderUtils.getTime(globalElem, "Product_Generation_UTC", standardDateFormat));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                                      globalElem.getAttributeString("Processing_Centre", defStr));
+                                      globalElem.getAttributeString("Processing_Centre"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,
-                                      globalElem.getAttributeString("Look_Side", defStr).toLowerCase());
+                                      globalElem.getAttributeString("Look_Side").toLowerCase());
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction", defStr));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(productType));
 
-        useFloatBands = globalElem.getAttributeString("Sample_Format", defStr).equals("FLOAT");
+        useFloatBands = globalElem.getAttributeString("Sample_Format").equals("FLOAT");
 
         final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
         final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
@@ -260,54 +257,54 @@ public class K5HDF implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                                      globalElem.getAttributeDouble("Radar_Frequency", defInt) / Constants.oneMillion);
+                                      globalElem.getAttributeDouble("Radar_Frequency") / Constants.oneMillion);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
-                                      globalElem.getAttributeString("Focusing_Algorithm_ID", defStr));
+                                      globalElem.getAttributeString("Focusing_Algorithm_ID"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
-                                      globalElem.getAttributeString("Ellipsoid_Designator", defStr));
+                                      globalElem.getAttributeString("Ellipsoid_Designator"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                                      globalElem.getAttributeDouble("Range_Processing_Number_of_Looks", defInt));
+                auxRoot.getAttributeDouble("RangeProcessingNumberofLooks", 1));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                                      globalElem.getAttributeDouble("Azimuth_Processing_Number_of_Looks", defInt));
+                auxRoot.getAttributeDouble("AzimuthProcessingNumberofLooks", 1));
 
         if (productType.contains("GEC")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection,
-                                          globalElem.getAttributeString("Projection_ID", defStr));
+                                          globalElem.getAttributeString("Projection_ID"));
         }
 
         final String rngSpreadComp = globalElem.getAttributeString(
-                "Range_Spreading_Loss_Compensation_Geometry", defStr);
+                "Range_Spreading_Loss_Compensation_Geometry");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spread_comp_flag, rngSpreadComp.equals("NONE") ? 0 : 1);
 
         final String incAngComp = globalElem.getAttributeString(
-                "Incidence_Angle_Compensation_Geometry", defStr);
+                "Incidence_Angle_Compensation_Geometry");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.inc_angle_comp_flag, incAngComp.equals("NONE") ? 0 : 1);
 
         final String antElevComp = globalElem.getAttributeString(
-                "Range_Antenna_Pattern_Compensation_Geometry", defStr);
+                "Range_Antenna_Pattern_Compensation_Geometry");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, antElevComp.equals("NONE") ? 0 : 1);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_inc_angle,
-                                      globalElem.getAttributeDouble("Reference_Incidence_Angle", defInt));
+                                      globalElem.getAttributeDouble("Reference_Incidence_Angle"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_slant_range,
-                                      globalElem.getAttributeDouble("Reference_Slant_Range", defInt));
+                                      globalElem.getAttributeDouble("Reference_Slant_Range"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_slant_range_exp,
-                                      globalElem.getAttributeDouble("Reference_Slant_Range_Exponent", defInt));
+                                      globalElem.getAttributeDouble("Reference_Slant_Range_Exponent"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.rescaling_factor,
-                                      globalElem.getAttributeDouble("Rescaling_Factor", defInt));
+                                      globalElem.getAttributeDouble("Rescaling_Factor"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isComplex ? 0 : 1);
 
         final MetadataElement s01Elem = globalElem.getElement("S01");
         if (s01Elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                                          s01Elem.getAttributeDouble("PRF", defInt));
+                                          s01Elem.getAttributeDouble("PRF"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                                          s01Elem.getAttributeDouble("Sampling_Rate", defInt) / Constants.oneMillion);
+                                          s01Elem.getAttributeDouble("Sampling_Rate") / Constants.oneMillion);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
-                                          s01Elem.getAttributeString("Polarisation", defStr));
+                                          s01Elem.getAttributeString("Polarisation"));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = s01Elem.getAttributeDouble("Range_Focusing_Bandwidth"); // Hz
@@ -320,11 +317,11 @@ public class K5HDF implements K5Format {
         } else {
             final String prefix = "S01_";
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                                          globalElem.getAttributeDouble(prefix + "PRF", defInt));
+                                          globalElem.getAttributeDouble(prefix + "PRF"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                                          globalElem.getAttributeDouble(prefix + "Sampling_Rate", defInt) / Constants.oneMillion);
+                                          globalElem.getAttributeDouble(prefix + "Sampling_Rate") / Constants.oneMillion);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
-                                          globalElem.getAttributeString(prefix + "Polarisation", defStr));
+                                          globalElem.getAttributeString(prefix + "Polarisation"));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = globalElem.getAttributeDouble(prefix + "Range_Focusing_Bandwidth"); // Hz
@@ -337,11 +334,10 @@ public class K5HDF implements K5Format {
         final MetadataElement s02Elem = globalElem.getElement("S02");
         if (s02Elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
-                                          s02Elem.getAttributeString("Polarisation", defStr));
-        } else {
-            final String prefix = "S02_";
+                                          s02Elem.getAttributeString("Polarisation"));
+        } else if(globalElem.containsAttribute("S02_Polarisation")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
-                                          globalElem.getAttributeString(prefix + "Polarisation", defStr));
+                                          globalElem.getAttributeString("S02_Polarisation"));
         }
 
         addOrbitStateVectors(absRoot, globalElem);
@@ -515,8 +511,8 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private String getSampleType(final MetadataElement globalElem) {
-        if (globalElem.getAttributeInt("Samples_per_Pixel", 0) > 1) {
+    private String getSampleType(final String productType) {
+        if (productType.contains("SCS")) {
             isComplex = true;
             return "COMPLEX";
         }

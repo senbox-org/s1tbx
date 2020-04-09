@@ -125,6 +125,7 @@ public class Kompsat5Reader extends SARReader {
 
             product.getGcpGroup();
             product.setModified(false);
+            product.setProductReader(this);
 
             return product;
         } catch (Exception e) {

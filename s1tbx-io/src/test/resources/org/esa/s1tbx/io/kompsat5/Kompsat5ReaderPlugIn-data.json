@@ -4,6 +4,16 @@
       "id": "Kompsat-5_SCS_HDF",
       "relativePath": "SAR/K5/HDF/K5_20170125111222_000000_18823_A_UH28_HH_SCS_B_L1A/K5_20170125111222_000000_18823_A_UH28_HH_SCS_B_L1A_Aux.xml",
       "description": "Kompsat-5 SCS HDF product"
+    },
+    {
+      "id": "Kompsat-5_GTC_HDF",
+      "relativePath": "SAR/K5/HDF/K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D/K5_20170125111222_000000_18823_A_UH28_HH_GTC_B_L1D_Aux.xml",
+      "description": "Kompsat-5 GTC HDF product"
+    },
+    {
+      "id": "Kompsat-5_GEC_GeoTiff",
+      "relativePath": "SAR/K5/GeoTiff/K5_20190215223304_000000_30122_A_UH27_HH_GEC_B_L1C/K5_20190215223304_000000_30122_A_UH27_HH_GEC_B_L1C_Aux.xml",
+      "description": "Kompsat-5 GEC GeoTiff product"
     }
   ]
 }
