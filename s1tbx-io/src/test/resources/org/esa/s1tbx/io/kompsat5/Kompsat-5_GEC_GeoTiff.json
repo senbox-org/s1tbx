@@ -1,0 +1,116 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "Kompsat-5_GEC_GeoTiff",
+	"expectedContent": {
+		"metadata": [
+			{
+				"path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/ProjLinearUnitsGeoKey",
+				"value": "Linear_Meter"
+			},
+			{
+				"path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTCitationGeoKey",
+				"value": "GeoTiff 1.0"
+			},
+			{
+				"path": "Auxiliary/Root/SubSwaths/SubSwath/BurstsPerSubswaths/BurstsPerSubswath/ElevationRampCode",
+				"value": "1"
+			},
+			{
+				"path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector1/z_vel",
+				"value": "51.0"
+			},
+			{
+				"path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTRasterTypeGeoKey",
+				"value": "RasterPixelIsPoint"
+			},
+			{
+				"path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTCitationGeoKey",
+				"value": "GeoTiff 1.0"
+			},
+			{
+				"path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/ProjectedCSTypeGeoKey",
+				"value": "PCS_WGS84_UTM_zone_49N"
+			},
+			{
+				"path": "Abstracted_Metadata/Doppler_Centroid_Coefficients/dop_coef_list.1/coefficient.6/dop_coef",
+				"value": "55.0"
+			},
+			{
+				"path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/ProjectedCSTypeGeoKey",
+				"value": "PCS_WGS84_UTM_zone_49N"
+			},
+			{
+				"path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTCitationGeoKey",
+				"value": "GeoTiff 1.0"
+			}
+		],
+		"sceneHeight": 17989,
+		"sceneWidth": 18055,
+		"geoCoding": {
+			"coordinates": [
+				{
+					"x": 7787.0,
+					"y": 9670.0,
+					"lon": 112.32598748979518,
+					"lat": 16.828784419915853
+				},
+				{
+					"x": 13404.0,
+					"y": 11673.0,
+					"lon": 112.34351424724219,
+					"lat": 16.822636437374287
+				}
+			],
+			"reverseAccuracy": 1.487787812948227e-7
+		},
+		"startTime": "15-FEB-2019 22:33:04.000000",
+		"endTime": "15-FEB-2019 22:33:09.000000",
+		"bands": [
+			{
+				"bandWidth": 18055,
+				"noDataValueUsed": "true",
+				"bandHeight": 17989,
+				"expectedPixels": [
+					{
+						"x": 942,
+						"y": 3205,
+						"value": 19.0
+					},
+					{
+						"x": 12369,
+						"y": 15301,
+						"value": 18.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Amplitude_HH",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "amplitude"
+			},
+			{
+				"bandWidth": 18055,
+				"noDataValueUsed": "true",
+				"bandHeight": 17989,
+				"expectedPixels": [
+					{
+						"x": 5252,
+						"y": 4620,
+						"value": 1.0
+					},
+					{
+						"x": 11022,
+						"y": 6570,
+						"value": 3025.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity_HH",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}
