@@ -1,3 +1,15 @@
+#New in S1TBX 8.0
+
+* Updated support for RCM 
+* Support for Capella
+* Support for SAOCOM
+* PyRate export
+* Soil Moisture Toolkit for Radarsat-2/RCM 
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/projects/SITBX/versions/12725/tab/release-report-all-issues
+
 #New in S1TBX 7.0
 
 * Support for S-1 on AWS
