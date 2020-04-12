@@ -48,7 +48,6 @@ public class MetadataValidator {
     }
 
     public void validateOptical() throws Exception {
-        throw new Exception("Is this SAR");
     }
 
     public void validateSAR() throws Exception {
