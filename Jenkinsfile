@@ -28,7 +28,7 @@ pipeline {
     agent { label 'snap-test' }
     parameters {
         booleanParam(name: 'launchTests', defaultValue: true, description: 'When true all stages are launched, When false only stages "Package", "Deploy" and "Save installer data" are launched.')
-        booleanParam(name: 'runLongUnitTests', defaultValue: false, description: 'When true the option -Denable.long.tests=true is added to maven command so the long unit tests will be executed')
+        booleanParam(name: 'runLongUnitTests', defaultValue: true, description: 'When true the option -Denable.long.tests=true is added to maven command so the long unit tests will be executed')
     }
     stages {
         stage('Package and deploy') {
