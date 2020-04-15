@@ -1,156 +1,179 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>S1TBX Help</title>
+<html>
+<head><title>S1TBX Help</title>
 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="../style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <table class="header" width="100%">
-<tbody>
-<tr class="header">
-<td class="header">&nbsp; S1TBX Overview</td>
-<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
-</tr>
-</tbody>
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; S1TBX Overview</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
 </table>
 <h3>SENTINEL-1 Toolbox</h3>
 <h4>Overview</h4>
 
 <p>The
-Sentinel-1 Toolbox (S1TBX) is an open source (<a href="http://www.gnu.org/copyleft/gpl.html">GNU GPL</a>)
-toolbox consisting of a collection of processing tools, data
-product
-readers and writers and a display and analysis applications to support
-the
-large archive of data from ESA SAR missions including Sentinel-1, ERS1 &amp; 2
-and ENVISAT,
-as well as third party SAR-data from ALOS PALSAR, TerraSAR-X,
-Cosmo-Skymed and
-RADARSAT-2. S1TBX
-has been built using the SeNtinels Application Platform (SNAP) making it compatible with the SENTINEL-2 and
-SENTINEL-3 Toolboxes and incorporating tools for multispectral optical
-products. The
-Toolbox is composed of a Display and Analysis Tool (DAT) and various
-processing
-tools that could be run independently from the command-line and also
-integrated
-within the graphical user interface. The Toolbox includes tools for calibration, speckle
-filtering,
-coregistration, orthorectification, mosaicking, data conversion,
-polarimetry
-and interferometry.</p>
+    Sentinel-1 Toolbox (S1TBX) is an open source (<a href="http://www.gnu.org/copyleft/gpl.html">GNU GPL</a>)
+    toolbox consisting of a collection of processing tools, data
+    product
+    readers and writers and a display and analysis applications to support
+    the
+    large archive of data from ESA SAR missions including Sentinel-1, ERS1 &amp; 2
+    and ENVISAT,
+    as well as third party SAR-data from ALOS PALSAR, TerraSAR-X,
+    Cosmo-Skymed and
+    RADARSAT-2. S1TBX
+    has been built using the SeNtinels Application Platform (SNAP) making it compatible with the SENTINEL-2 and
+    SENTINEL-3 Toolboxes and incorporating tools for multispectral optical
+    products. The
+    Toolbox is composed of a Display and Analysis Tool (DAT) and various
+    processing
+    tools that could be run independently from the command-line and also
+    integrated
+    within the graphical user interface. The Toolbox includes tools for calibration, speckle
+    filtering,
+    coregistration, orthorectification, mosaicking, data conversion,
+    polarimetry
+    and interferometry.</p>
 <h4>Architecture Highlights</h4>
 <ul>
-<big> </big>
-<big> </big><li><big><span style="font-size: smaller;">Graph Processing Framework
+    <big> </big>
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Graph Processing Framework
 (GPF): user-defined processing chains</span></big></li>
-<big> </big><li><big><span style="font-size: smaller;">Graphical or command-line
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Graphical or command-line
 execution</span></big></li>
-<big> </big><li><big><span style="font-size: smaller;">Tiled memory management for
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Tiled memory management for
 working with very large data products</span></big></li>
-<big> </big><li><big><span style="font-size: smaller;">Data abstraction models to
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Data abstraction models to
 handle all SAR missions in a common way</span></big></li>
-<big> </big><li><big><span style="font-size: smaller;">Modular design for easy
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Modular design for easy
 modifications and upgrades</span></big></li>
-<big> </big><li><big><span style="font-size: smaller;">Users are able&nbsp; to add
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Users are able&nbsp; to add
 their own modules via APIs</span></big></li>
-<big> </big><li><big><span style="font-size: smaller;">Multithreading and Multi-core
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Multithreading and Multi-core
 processor support</span></big></li>
-<big> </big><li><big><span style="font-size: smaller;">Integrated WorldWind
+    <big> </big>
+    <li><big><span style="font-size: smaller;">Integrated WorldWind
 visualisation</span></big></li>
 </ul>
 <h4>Main Features</h4>
 <ul>
-<li>Statistics &amp; Data Analysis </li>
-<li>Metadata handling</li>
-<li>Subset, Resample and Band Arithmetic </li>
-<li>Export to GeoTiff, HDF 4 &amp; 5, NetCDF, Binary, Envi,
-Kmz&nbsp;formats </li>
-<li>LUT and Layer Management</li>
-<li>ROI tools, layer stacking</li>
-<li>Absolute calibration (Envisat ASAR, ERS 1&amp;2, ALOS,
-RADARSAT-2, TerraSAR-X, Cosmo-SkyMed) </li>
-<li>Multilooking &amp; speckle (single and multitemporal)
-filtering </li>
-<li>ERS-ASAR precise orbit handling (Doris, Prare and Delft
-orb.) </li>
-<li>Coregistration of detected and complex products </li>
-<li>Debursting of ASAR WSS</li>
-<li>Range-Doppler&nbsp;Terrain Correction&nbsp;</li>
-<li>Radiometric normalization during Terrain Correction </li>
-<li>SAR simulation&nbsp;</li>
-<li>Layover and shadow masks</li>
-<li>Simulated SAR Terrain Correction&nbsp;</li>
-<li>Ellipsoid correction, Map Reprojection, Mosaicking </li>
-<li>Automatic SRTM DEM download and tile selection&nbsp;</li>
-<li>Product library for scanning and cataloguing large archives
-efficiently </li>
-<li>Ocean tools: basic routines for oil spill detection, ship
-detection and wind field estimation from SAR data </li>
-<li>Fully integrated and featured <span style="font-weight: bold;">InSAR</span> processor
-(JLinda) for Stripmap and Zero-Doppler focused data</li><li>Polarimetric tools for decompositions and classification</li>
-<li>Compatibility with <a href="http://earth.eo.esa.int/polsarpro/">PolSARpro</a>
-Toolbox &nbsp;(Reader, Writer) </li>
+    <li>Statistics &amp; Data Analysis</li>
+    <li>Metadata handling</li>
+    <li>Subset, Resample and Band Arithmetic</li>
+    <li>Export to GeoTiff, HDF 4 &amp; 5, NetCDF, Binary, Envi,
+        Kmz&nbsp;formats
+    </li>
+    <li>LUT and Layer Management</li>
+    <li>ROI tools, layer stacking</li>
+    <li>Absolute calibration (Envisat ASAR, ERS 1&amp;2, ALOS,
+        RADARSAT-2, TerraSAR-X, Cosmo-SkyMed)
+    </li>
+    <li>Multilooking &amp; speckle (single and multitemporal)
+        filtering
+    </li>
+    <li>ERS-ASAR precise orbit handling (Doris, Prare and Delft
+        orb.)
+    </li>
+    <li>Coregistration of detected and complex products</li>
+    <li>Debursting of ASAR WSS</li>
+    <li>Range-Doppler&nbsp;Terrain Correction&nbsp;</li>
+    <li>Radiometric normalization during Terrain Correction</li>
+    <li>SAR simulation&nbsp;</li>
+    <li>Layover and shadow masks</li>
+    <li>Simulated SAR Terrain Correction&nbsp;</li>
+    <li>Ellipsoid correction, Map Reprojection, Mosaicking</li>
+    <li>Automatic SRTM DEM download and tile selection&nbsp;</li>
+    <li>Product library for scanning and cataloguing large archives
+        efficiently
+    </li>
+    <li>Ocean tools: basic routines for oil spill detection, ship
+        detection and wind field estimation from SAR data
+    </li>
+    <li>Fully integrated and featured <span style="font-weight: bold;">InSAR</span> processor
+        (JLinda) for Stripmap and Zero-Doppler focused data
+    </li>
+    <li>Polarimetric tools for decompositions and classification</li>
+    <li>Compatibility with <a href="http://earth.eo.esa.int/polsarpro/">PolSARpro</a>
+        Toolbox &nbsp;(Reader, Writer)
+    </li>
 </ul>
 <ul>
 </ul>
 <h2>Supported Product Formats:</h2>
 <h4 style="margin-left: 40px;">SAR Data Products</h4>
 <ul>
-<ul>
-<li>Sentinel-1</li><li>ENVISAT ASAR,&nbsp;MERIS, AATSR</li>
-<li>ERS AMI 1 &amp; 2 (CEOS &amp; Envisat format from
-PGS and VMP) </li>
-<li>JERS SAR</li>
-<li>ALOS PALSAR</li>
-<li>ASAR Wave Products</li>
-<li>RADARSAT&nbsp;1</li>
-<li>RADARSAT&nbsp;2</li>
-<li>TerraSar-X</li>
-<li>Cosmo-Skymed</li>
-</ul>
+    <ul>
+        <li>Sentinel-1</li>
+        <li>ENVISAT ASAR,&nbsp;MERIS, AATSR</li>
+        <li>ERS AMI 1 &amp; 2 (CEOS &amp; Envisat format from
+            PGS and VMP)
+        </li>
+        <li>JERS SAR</li>
+        <li>ALOS PALSAR</li>
+        <li>ASAR Wave Products</li>
+        <li>RADARSAT&nbsp;1</li>
+        <li>RADARSAT&nbsp;2</li>
+        <li>TerraSar-X</li>
+        <li>Cosmo-Skymed</li>
+    </ul>
 </ul>
 <h4 style="margin-left: 40px;">Common EO Data Formats</h4>
 <ul>
-<ul>
-<li>DIMAP</li>
-<li>GeoTIFF</li>
-<li>HDF 4 &amp; HDF 5</li>
-<li>NetCDF</li>
-<li>ENVI</li>
-<li>PolsarPro</li>
-<li>Generic Binary&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;</li>
-</ul>
+    <ul>
+        <li>DIMAP</li>
+        <li>GeoTIFF</li>
+        <li>HDF 4 &amp; HDF 5</li>
+        <li>NetCDF</li>
+        <li>ENVI</li>
+        <li>PolsarPro</li>
+        <li>Generic Binary&nbsp; &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;
+        </li>
+    </ul>
 </ul>
 <h4 style="margin-left: 40px;">Digital Elevation Models</h4>
 <ul>
-<ul>
-<li>SRTM</li>
-<li>ASTER Global DEM</li>
-<li>ACE</li>
-<li>GETASSE30</li>
-<li>GTOPO30 tiles</li>
-</ul>
+    <ul>
+        <li>SRTM</li>
+        <li>ASTER Global DEM</li>
+        <li>ACE</li>
+        <li>GETASSE30</li>
+        <li>GTOPO30 tiles</li>
+    </ul>
 </ul>
 
 <ul>
 </ul>
 <h4>Source Code</h4>
 <p>The complete&nbsp;S1TBX software has been developed under
-the GNU public license and comes with full source code in Java.</p>
+    the GNU public license and comes with full source code in Java.</p>
 <p>An Application Programming Interface (API) is provided
-with&nbsp;S1TBX to allow easy extension by users to add new data
-readers/writers of other formats and to support data formats of future
-missions. Plug-in modules can be developed separately and shared by the
-user community. Processors can be easily extended without needing to
-know about the complexities of the whole software.</p>
+    with&nbsp;S1TBX to allow easy extension by users to add new data
+    readers/writers of other formats and to support data formats of future
+    missions. Plug-in modules can be developed separately and shared by the
+    user community. Processors can be easily extended without needing to
+    know about the complexities of the whole software.</p>
 <h4>Supported Platforms</h4>
 <p>S1TBX&nbsp;is programmed in Java&#8482; to allow a maximum
-portability. The&nbsp;S1TBX software has been successfully tested
-under MS Windows&#8482;&nbsp;XP<sup>®</sup>, Vista, 7 and 8 as
-well as under Linux,&nbsp;and Mac OS X
-operating systems.</p>
+    portability. The&nbsp;S1TBX software has been successfully tested
+    under MS Windows&#8482;&nbsp;XP<sup>®</sup>, Vista, 7 and 8 as
+    well as under Linux,&nbsp;and Mac OS X
+    operating systems.</p>
 <hr>
-</body></html>
+</body>
+</html>
