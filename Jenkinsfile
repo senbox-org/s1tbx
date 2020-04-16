@@ -155,10 +155,10 @@ pipeline {
                     }
                     steps {
                         echo "Launch snap-gpt-tests using docker image snap:${branchVersion} and scope REGULAR"
-                        build job: "snap-gpt-tests/${branchVersion}", parameters: [
-                            [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
-                            [$class: 'StringParameterValue', name: 'testScope', value: "REGULAR"]
-                        ]
+                        // build job: "snap-gpt-tests/${branchVersion}", parameters: [
+                        //    [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
+                        //    [$class: 'StringParameterValue', name: 'testScope', value: "REGULAR"]
+                        //]
                     }
                 }
                 stage ('Starting GUI Tests') {
