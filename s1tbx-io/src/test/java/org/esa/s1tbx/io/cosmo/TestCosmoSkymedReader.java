@@ -34,7 +34,8 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestCosmoSkymedReader extends ReaderTest {
 
-    private final static File inputH5 = new File(TestData.inputSAR + "Cosmo/level 1B/hdf5/EL20141029_928699_3776081.6.2/CSKS4_DGM_B_WR_03_VV_RA_SF_20141001061215_20141001061230.h5");
+    private final static File inputSCS_H5 = new File(TestData.inputSAR + "Cosmo/level 1B/hdf5/EL20100624_102783_1129476.6.2/CSKS2_SCS_B_S2_01_VV_RA_SF_20100623045532_20100623045540.h5");
+    private final static File inputDGM_H5 = new File(TestData.inputSAR + "Cosmo/level 1B/hdf5/EL20141029_928699_3776081.6.2/CSKS4_DGM_B_WR_03_VV_RA_SF_20141001061215_20141001061230.h5");
 
     private final static String inputCosmo = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "Cosmo" + S1TBXTests.sep ;
     private final static File[] rootPathsCosmoSkymed = S1TBXTests.loadFilePath(inputCosmo);
@@ -44,7 +45,8 @@ public class TestCosmoSkymedReader extends ReaderTest {
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
-        assumeTrue(inputH5 + " not found", inputH5.exists());
+        assumeTrue(inputSCS_H5 + " not found", inputSCS_H5.exists());
+        assumeTrue(inputDGM_H5 + " not found", inputDGM_H5.exists());
 
         for (File file : rootPathsCosmoSkymed) {
             assumeTrue(file + " not found", file.exists());
@@ -56,8 +58,16 @@ public class TestCosmoSkymedReader extends ReaderTest {
     }
 
     @Test
-    public void testOpeningH5() throws Exception {
-        Product prod = testReader(inputH5.toPath());
+    public void testOpeningSCS_H5() throws Exception {
+        Product prod = testReader(inputSCS_H5.toPath());
+        validateProduct(prod);
+        validateMetadata(prod);
+        validateBands(prod, new String[] {"i","q","Intensity"});
+    }
+
+    @Test
+    public void testOpeningDGM_H5() throws Exception {
+        Product prod = testReader(inputDGM_H5.toPath());
         validateProduct(prod);
         validateMetadata(prod);
         validateBands(prod, new String[] {"Amplitude","Intensity"});

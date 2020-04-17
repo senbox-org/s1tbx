@@ -1,0 +1,183 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "CSKS4_SCS",
+	"expectedContent": {
+		"metadata": [{
+				"path": "Original_Product_Metadata\/SBI\/Line_Time_Interval",
+				"value": "1.0147097042898792E-4"
+			}, {
+				"path": "Original_Product_Metadata\/Global_Attributes\/Product_Type",
+				"value": "SCS_B"
+			}, {
+				"path": "Abstracted_Metadata\/Doppler_Centroid_Coefficients\/dop_coef_list.1\/coefficient.3\/dop_coef",
+				"value": "-5.4364575630277716E11"
+			}, {
+				"path": "Abstracted_Metadata\/Doppler_Centroid_Coefficients\/dop_coef_list.1\/coefficient.6\/dop_coef",
+				"value": "0.0"
+			}, {
+				"path": "Original_Product_Metadata\/SBI\/Line_Spacing",
+				"value": "0.7014329991876418"
+			}, {
+				"path": "Original_Product_Metadata\/Global_Attributes\/Range_Focusing_Weighting_Coefficient",
+				"value": "0.68"
+			}, {
+				"path": "Abstracted_Metadata\/Doppler_Centroid_Coefficients\/dop_coef_list.1\/coefficient.5\/dop_coef",
+				"value": "0.0"
+			}, {
+				"path": "Original_Product_Metadata\/SBI\/Column_Spacing",
+				"value": "0.3123600701994302"
+			}, {
+				"path": "Original_Product_Metadata\/Global_Attributes\/RAW_Phase_Uniformity_Threshold",
+				"value": "1.0"
+			}, {
+				"path": "Original_Product_Metadata\/Global_Attributes\/S01_Range_Chirp_Samples",
+				"value": "15600"
+			}
+		],
+		"tiePointGrids": [{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 731,
+						"y": 2565,
+						"value": 24.860203
+					}, {
+						"x": 9599,
+						"y": 12247,
+						"value": 25.40807
+					}
+				],
+				"name": "incident_angle",
+				"subSamplingY": "1439.9000244140625",
+				"subSamplingX": "1401.199951171875"
+			}, {
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 4075,
+						"y": 3698,
+						"value": 4579171.0
+					}, {
+						"x": 8554,
+						"y": 5259,
+						"value": 4588504.0
+					}
+				],
+				"name": "slant_range_time",
+				"subSamplingY": "1439.9000244140625",
+				"subSamplingX": "1401.199951171875"
+			}, {
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [{
+						"x": 7707,
+						"y": 10732,
+						"value": 41.88146
+					}, {
+						"x": 8523,
+						"y": 13368,
+						"value": 41.89883
+					}
+				],
+				"name": "latitude",
+				"subSamplingY": "1599.0",
+				"subSamplingX": "1556.0"
+			}, {
+				"offsetX": "0.5",
+				"offsetY": "0.5",
+				"expectedPixels": [{
+						"x": 2217,
+						"y": 9590,
+						"value": 12.57794
+					}, {
+						"x": 7274,
+						"y": 13153,
+						"value": 12.615736
+					}
+				],
+				"name": "longitude",
+				"subSamplingY": "1599.0",
+				"subSamplingX": "1556.0"
+			}
+		],
+		"sceneHeight": 14399,
+		"sceneWidth": 14012,
+		"geoCoding": {
+			"coordinates": [{
+					"x": 6043.0,
+					"y": 7740.0,
+					"lon": 12.614164053706954,
+					"lat": 41.86078724302658
+				}, {
+					"x": 10403.0,
+					"y": 9343.0,
+					"lon": 12.649214491688529,
+					"lat": 41.87632189556918
+				}
+			],
+			"reverseAccuracy": 0.14740783734850993
+		},
+		"startTime": "23-JUN-2010 04:55:35.294757",
+		"endTime": "23-JUN-2010 04:55:36.755736",
+		"bands": [{
+				"bandWidth": 14012,
+				"noDataValueUsed": "true",
+				"bandHeight": 14399,
+				"expectedPixels": [{
+						"x": 10595,
+						"y": 6977,
+						"value": -18.0
+					}, {
+						"x": 13322,
+						"y": 6995,
+						"value": 9.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "i",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "real"
+			}, {
+				"bandWidth": 14012,
+				"noDataValueUsed": "true",
+				"bandHeight": 14399,
+				"expectedPixels": [{
+						"x": 4770,
+						"y": 12950,
+						"value": 4.0
+					}, {
+						"x": 139,
+						"y": 6778,
+						"value": 11.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "q",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "imaginary"
+			}, {
+				"bandWidth": 14012,
+				"noDataValueUsed": "true",
+				"bandHeight": 14399,
+				"expectedPixels": [{
+						"x": 4588,
+						"y": 2838,
+						"value": 841.0
+					}, {
+						"x": 3827,
+						"y": 621,
+						"value": 144.0
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}
