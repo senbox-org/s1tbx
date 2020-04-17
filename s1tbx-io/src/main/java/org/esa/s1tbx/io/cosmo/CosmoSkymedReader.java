@@ -288,7 +288,7 @@ public class CosmoSkymedReader extends SARReader {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction", defStr));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(productType));
         /*
         final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", timeFormat);
         final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", timeFormat);
@@ -566,8 +566,8 @@ public class CosmoSkymedReader extends SARReader {
         }
     }
 
-    private String getSampleType(final MetadataElement globalElem) {
-        if (globalElem.getAttributeInt("Samples_per_Pixel", 0) > 1) {
+    private String getSampleType(final String productType) {
+        if (productType.toUpperCase().contains("SCS")) {
             isComplex = true;
             return "COMPLEX";
         }
