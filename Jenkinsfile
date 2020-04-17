@@ -161,21 +161,22 @@ pipeline {
                         //]
                     }
                 }
-                stage ('Starting GUI Tests') {
-                    agent { label 'snap-test' }
-                    when {
-                        expression {
-                            return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/) && "${params.launchTests}" == "true";
-                        }
-                    }
-                    steps {
-                        echo "Launch snap-gui-tests using docker image snap:${branchVersion}"
-                        build job: "snap-gui-tests/${branchVersion}", parameters: [
-                            [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
-                            [$class: 'StringParameterValue', name: 'testFileList', value: "qftests.lst"]
-                        ]
-                    }
-                }
+                // Disabled gui testing
+                // stage ('Starting GUI Tests') {
+                //     agent { label 'snap-test' }
+                //     when {
+                //         expression {
+                //             return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/) && "${params.launchTests}" == "true";
+                //         }
+                //     }
+                //     steps {
+                //         echo "Launch snap-gui-tests using docker image snap:${branchVersion}"
+                //         build job: "snap-gui-tests/${branchVersion}", parameters: [
+                //             [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
+                //             [$class: 'StringParameterValue', name: 'testFileList', value: "qftests.lst"]
+                //         ]
+                //     }
+                // }
             }
         }
     }
