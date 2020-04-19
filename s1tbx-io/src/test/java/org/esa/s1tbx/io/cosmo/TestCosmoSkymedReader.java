@@ -34,8 +34,8 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestCosmoSkymedReader extends ReaderTest {
 
-    private final static File inputSCS_H5 = new File(TestData.inputSAR + "Cosmo/level 1B/hdf5/EL20100624_102783_1129476.6.2/CSKS2_SCS_B_S2_01_VV_RA_SF_20100623045532_20100623045540.h5");
-    private final static File inputDGM_H5 = new File(TestData.inputSAR + "Cosmo/level 1B/hdf5/EL20141029_928699_3776081.6.2/CSKS4_DGM_B_WR_03_VV_RA_SF_20141001061215_20141001061230.h5");
+    private final static File inputSCS_H5 = new File(TestData.inputSAR + "Cosmo/level1B/hdf5/EL20100624_102783_1129476.6.2/CSKS2_SCS_B_S2_01_VV_RA_SF_20100623045532_20100623045540.h5");
+    private final static File inputDGM_H5 = new File(TestData.inputSAR + "Cosmo/level1B/hdf5/EL20141029_928699_3776081.6.2/CSKS4_DGM_B_WR_03_VV_RA_SF_20141001061215_20141001061230.h5");
 
     private final static String inputCosmo = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "Cosmo" + S1TBXTests.sep ;
     private final static File[] rootPathsCosmoSkymed = S1TBXTests.loadFilePath(inputCosmo);

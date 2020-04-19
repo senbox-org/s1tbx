@@ -2,12 +2,12 @@
   "testProducts": [
     {
       "id": "CSKS4_DGM",
-      "relativePath": "SAR/Cosmo/level 1B/hdf5/EL20141029_928699_3776081.6.2/CSKS4_DGM_B_WR_03_VV_RA_SF_20141001061215_20141001061230.h5",
+      "relativePath": "SAR/Cosmo/level1B/hdf5/EL20141029_928699_3776081.6.2/CSKS4_DGM_B_WR_03_VV_RA_SF_20141001061215_20141001061230.h5",
       "description": "Cosmo-Skymed DGM product"
     },
     {
       "id": "CSKS4_SCS",
-      "relativePath": "SSAR/Cosmo/level 1B/hdf5/EL20100624_102783_1129476.6.2/CSKS2_SCS_B_S2_01_VV_RA_SF_20100623045532_20100623045540.h5",
+      "relativePath": "SSAR/Cosmo/level1B/hdf5/EL20100624_102783_1129476.6.2/CSKS2_SCS_B_S2_01_VV_RA_SF_20100623045532_20100623045540.h5",
       "description": "Cosmo-Skymed SCS product"
     }
   ]
