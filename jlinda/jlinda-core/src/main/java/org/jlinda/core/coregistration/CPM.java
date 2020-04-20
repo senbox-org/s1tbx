@@ -3,11 +3,11 @@ package org.jlinda.core.coregistration;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.math3.util.FastMath;
-import org.ejml.data.DenseMatrix64F;
-import org.ejml.data.RowD1Matrix64F;
-import org.ejml.factory.LinearSolverFactory;
-import org.ejml.interfaces.linsol.LinearSolver;
-import org.ejml.ops.CommonOps;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.data.DMatrix1Row;
+import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
+import org.ejml.dense.row.CommonOps_DDRM;
+import org.ejml.interfaces.linsol.LinearSolverDense;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Placemark;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
@@ -366,10 +366,10 @@ public class CPM implements PolynomialModel {
         numIterations = 0;
         boolean estimationDone = false;
 
-        DenseMatrix64F eL_hat = null;
-        DenseMatrix64F eP_hat = null;
-        DenseMatrix64F rhsL = null;
-        DenseMatrix64F rhsP = null;
+        DMatrixRMaj eL_hat = null;
+        DMatrixRMaj eP_hat = null;
+        DMatrixRMaj rhsL = null;
+        DMatrixRMaj rhsP = null;
 
         // normalize master coordinates for stability -- only master!
         TDoubleArrayList yMasterNorm = new TDoubleArrayList();
@@ -424,29 +424,29 @@ public class CPM implements PolynomialModel {
             }
 
             // work with normalized values
-            DenseMatrix64F A = new DenseMatrix64F(SystemOfEquations.constructDesignMatrix_loop(yMasterNorm.toArray(), xMasterNorm.toArray(), cpmDegree));
+            DMatrixRMaj A = new DMatrixRMaj(SystemOfEquations.constructDesignMatrix_loop(yMasterNorm.toArray(), xMasterNorm.toArray(), cpmDegree));
 
             //logger.info("TIME FOR SETUP of SYSTEM : {}"+ stopWatch.lap("setup"));
 
-            RowD1Matrix64F Qy_1; // vector
+            DMatrix1Row  Qy_1; // vector
             double meanValue;
             switch (cpmWeight) {
                 case "linear":
                     logger.info("Using sqrt(coherence) as weights");
-                    Qy_1 = DenseMatrix64F.wrap(numObservations, 1, coherence.toArray());
+                    Qy_1 = DMatrixRMaj.wrap(numObservations, 1, coherence.toArray());
                     // Normalize weights to avoid influence on estimated var.factor
                     logger.info("Normalizing covariance matrix for LS estimation");
-                    meanValue = CommonOps.elementSum(Qy_1) / numObservations;
-                    CommonOps.divide(meanValue, Qy_1); // normalize vector
+                    meanValue = CommonOps_DDRM.elementSum(Qy_1) / numObservations;
+                    CommonOps_DDRM.divide(meanValue, Qy_1); // normalize vector
                     break;
                 case "quadratic":
                     logger.info("Using coherence as weights.");
-                    Qy_1 = DenseMatrix64F.wrap(numObservations, 1, coherence.toArray());
-                    CommonOps.elementMult(Qy_1, Qy_1);
+                    Qy_1 = DMatrixRMaj.wrap(numObservations, 1, coherence.toArray());
+                    CommonOps_DDRM.elementMult(Qy_1, Qy_1);
                     // Normalize weights to avoid influence on estimated var.factor
-                    meanValue = CommonOps.elementSum(Qy_1) / numObservations;
+                    meanValue = CommonOps_DDRM.elementSum(Qy_1) / numObservations;
                     logger.info("Normalizing covariance matrix for LS estimation.");
-                    CommonOps.divide(meanValue, Qy_1); // normalize vector
+                    CommonOps_DDRM.divide(meanValue, Qy_1); // normalize vector
                     break;
                 case "bamler":
                     // TODO: see Bamler papers IGARSS 2000 and 2004
@@ -465,11 +465,11 @@ public class CPM implements PolynomialModel {
             //logger.info("TIME FOR SETUP of VC diag matrix: {}"+ stopWatch.lap("diag VC matrix"));
 
             /** tempMatrix_1 matrices */
-            final DenseMatrix64F yL_matrix = DenseMatrix64F.wrap(numObservations, 1, yOffset.toArray());
-            final DenseMatrix64F yP_matrix = DenseMatrix64F.wrap(numObservations, 1, xOffset.toArray());
+            final DMatrixRMaj yL_matrix = DMatrixRMaj.wrap(numObservations, 1, yOffset.toArray());
+            final DMatrixRMaj yP_matrix = DMatrixRMaj.wrap(numObservations, 1, xOffset.toArray());
 
             /** normal matrix */
-            final DenseMatrix64F N = new DenseMatrix64F(numUnknowns, numUnknowns); // = A_transpose.mmul(Qy_1_diag.mmul(A));
+            final DMatrixRMaj N = new DMatrixRMaj(numUnknowns, numUnknowns); // = A_transpose.mmul(Qy_1_diag.mmul(A));
 
     /*
                 // fork/join parallel implementation
@@ -480,21 +480,21 @@ public class CPM implements PolynomialModel {
                 CommonOps.multAddTransA(A, dd.result, N);
     */
 
-            CommonOps.multAddTransA(A, diagxmat(Qy_1, A), N);
-            DenseMatrix64F Qx_hat = N.copy();
+            CommonOps_DDRM.multAddTransA(A, diagxmat(Qy_1, A), N);
+            DMatrixRMaj Qx_hat = N.copy();
 
             //logger.info("TIME FOR SETUP of NORMAL MATRIX: {}"+ stopWatch.lap("Normal matrix"));
 
             /** right hand sides */
             // azimuth
-            rhsL = new DenseMatrix64F(numUnknowns, 1);// A_transpose.mmul(Qy_1_diag.mmul(yL_matrix));
-            CommonOps.multAddTransA(1d, A, diagxmat(Qy_1, yL_matrix), rhsL);
+            rhsL = new DMatrixRMaj(numUnknowns, 1);// A_transpose.mmul(Qy_1_diag.mmul(yL_matrix));
+            CommonOps_DDRM.multAddTransA(1d, A, diagxmat(Qy_1, yL_matrix), rhsL);
             // range
-            rhsP = new DenseMatrix64F(numUnknowns, 1); // A_transpose.mmul(Qy_1_diag.mmul(yP_matrix));
-            CommonOps.multAddTransA(1d, A, diagxmat(Qy_1, yP_matrix), rhsP);
+            rhsP = new DMatrixRMaj(numUnknowns, 1); // A_transpose.mmul(Qy_1_diag.mmul(yP_matrix));
+            CommonOps_DDRM.multAddTransA(1d, A, diagxmat(Qy_1, yP_matrix), rhsP);
             //logger.info("TIME FOR SETUP of RightHand Side: {}"+ stopWatch.lap("Right-hand-side"));
 
-            LinearSolver<DenseMatrix64F> solver = LinearSolverFactory.leastSquares(100, 100);
+            LinearSolverDense<DMatrixRMaj> solver = LinearSolverFactory_DDRM.leastSquares(100, 100);
             /** compute solution */
             if (!solver.setA(Qx_hat)) {
                 throw new IllegalArgumentException("Singular Matrix");
@@ -509,10 +509,10 @@ public class CPM implements PolynomialModel {
             //logger.info("TIME FOR INVERSION OF N: {}"+ stopWatch.lap("Inversion of N"));
 
             /** test inversion and check stability: max(abs([N*inv(N) - E)) ?= 0 */
-            DenseMatrix64F tempMatrix_1 = new DenseMatrix64F(N.numRows, N.numCols);
-            CommonOps.mult(N, Qx_hat, tempMatrix_1);
-            CommonOps.subtractEquals(tempMatrix_1, CommonOps.identity(tempMatrix_1.numRows, tempMatrix_1.numCols));
-            double maxDeviation = CommonOps.elementMaxAbs(tempMatrix_1);
+            DMatrixRMaj tempMatrix_1 = new DMatrixRMaj(N.numRows, N.numCols);
+            CommonOps_DDRM.mult(N, Qx_hat, tempMatrix_1);
+            CommonOps_DDRM.subtractEquals(tempMatrix_1, CommonOps_DDRM.identity(tempMatrix_1.numRows, tempMatrix_1.numCols));
+            double maxDeviation = CommonOps_DDRM.elementMaxAbs(tempMatrix_1);
             if (maxDeviation > .01) {
                 logger.severe("COREGPM: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01"+ maxDeviation);
                 throw new IllegalStateException("COREGPM: maximum deviation N*inv(N) from unity)");
@@ -527,24 +527,24 @@ public class CPM implements PolynomialModel {
             //logger.info("System Quality: {}"+ solver.quality());
 
             /** some other stuff if the scale is okay */
-            DenseMatrix64F Qe_hat = new DenseMatrix64F(numObservations, numObservations);
-            DenseMatrix64F tempMatrix_2 = new DenseMatrix64F(numObservations, numUnknowns);
+            DMatrixRMaj Qe_hat = new DMatrixRMaj(numObservations, numObservations);
+            DMatrixRMaj tempMatrix_2 = new DMatrixRMaj(numObservations, numUnknowns);
 
-            CommonOps.mult(A, Qx_hat, tempMatrix_2);
-            CommonOps.multTransB(-1, tempMatrix_2, A, Qe_hat);
+            CommonOps_DDRM.mult(A, Qx_hat, tempMatrix_2);
+            CommonOps_DDRM.multTransB(-1, tempMatrix_2, A, Qe_hat);
             scaleInputDiag(Qe_hat, Qy_1);
 
             // solution: Azimuth
-            DenseMatrix64F yL_hat = new DenseMatrix64F(numObservations, 1);
-            eL_hat = new DenseMatrix64F(numObservations, 1);
-            CommonOps.mult(A, rhsL, yL_hat);
-            CommonOps.subtract(yL_matrix, yL_hat, eL_hat);
+            DMatrixRMaj yL_hat = new DMatrixRMaj(numObservations, 1);
+            eL_hat = new DMatrixRMaj(numObservations, 1);
+            CommonOps_DDRM.mult(A, rhsL, yL_hat);
+            CommonOps_DDRM.subtract(yL_matrix, yL_hat, eL_hat);
 
             // solution: Range
-            DenseMatrix64F yP_hat = new DenseMatrix64F(numObservations, 1);
-            eP_hat = new DenseMatrix64F(numObservations, 1);
-            CommonOps.mult(A, rhsP, yP_hat);
-            CommonOps.subtract(yP_matrix, yP_hat, eP_hat);
+            DMatrixRMaj yP_hat = new DMatrixRMaj(numObservations, 1);
+            eP_hat = new DMatrixRMaj(numObservations, 1);
+            CommonOps_DDRM.mult(A, rhsP, yP_hat);
+            CommonOps_DDRM.subtract(yP_matrix, yP_hat, eP_hat);
 
             //logger.info("TIME FOR DATA preparation for TESTING: {}"+ stopWatch.lap("Testing Setup"));
 
@@ -569,8 +569,8 @@ public class CPM implements PolynomialModel {
             /** Assumed Qy diag */
 
             /** initialize */
-            DenseMatrix64F wTest_L = new DenseMatrix64F(numObservations, 1);
-            DenseMatrix64F wTest_P = new DenseMatrix64F(numObservations, 1);
+            DMatrixRMaj wTest_L = new DMatrixRMaj(numObservations, 1);
+            DMatrixRMaj wTest_P = new DMatrixRMaj(numObservations, 1);
 
             for (int i = 0; i < numObservations; i++) {
                 wTest_L.set(i, eL_hat.get(i) / (Math.sqrt(Qe_hat.get(i, i)) * SIGMA_L));
@@ -589,7 +589,7 @@ public class CPM implements PolynomialModel {
             //logger.info("maximum wtest statistic range = {} for window number: {} "+ maxWinP+ index.getQuick(winP));
 
             /** use summed wTest in Azimuth and Range direction for outlier detection */
-            DenseMatrix64F wTestSum = new DenseMatrix64F(numObservations);
+            DMatrixRMaj wTestSum = new DMatrixRMaj(numObservations);
             for (int i = 0; i < numObservations; i++) {
                 wTestSum.set(i, FastMath.pow(wTest_L.get(i), 2) + FastMath.pow(wTest_P.get(i), 2));
             }

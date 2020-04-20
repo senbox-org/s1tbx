@@ -63,12 +63,6 @@
             <artifactId>jlinda-core</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
-            <artifactId>core</artifactId>
-            <version>0.26</version>
-        </dependency>
     </dependencies>
 
     <build>

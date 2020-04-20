@@ -1,19 +1,19 @@
 package org.jlinda.core.coregistration.utils;
 
-import org.ejml.data.DenseMatrix64F;
-import org.ejml.data.RowD1Matrix64F;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.data.DMatrix1Row;
 
 public class CPMUtils {
 
     /**
      * C=diagxmat(vec,B) C=diag(vec) * B
      */
-    public static DenseMatrix64F diagxmat(final RowD1Matrix64F diag, final RowD1Matrix64F B) {
+    public static DMatrixRMaj diagxmat(final DMatrix1Row diag, final DMatrix1Row B) {
 
         //if (!MatrixFeatures.isVector(diag))
             //logger.info("diagXMat: sizes A,B: diag is NOT vector.");
 
-        DenseMatrix64F result = B.copy();
+        DMatrixRMaj result = B.copy();
         for (int i = 0; i < result.numRows; i++) {
             for (int j = 0; j < result.numCols; j++) {
                 result.unsafe_set(i, j, result.unsafe_get(i, j) * diag.get(i));
@@ -22,21 +22,21 @@ public class CPMUtils {
         return result;
     } // END diagxmat
 
-    public static void scaleInputDiag(final RowD1Matrix64F matrix, final RowD1Matrix64F diag) {
+    public static void scaleInputDiag(final DMatrix1Row matrix, final DMatrix1Row diag) {
         for (int i = 0; i < matrix.numRows; i++) {
             matrix.unsafe_set(i, i, matrix.unsafe_get(i, i) + 1 / diag.get(i));
         }
     }
 
-    public static RowD1Matrix64F onesEJML(int rows, int columns) {
-        DenseMatrix64F m = new DenseMatrix64F(rows, columns);
+    public static DMatrix1Row onesEJML(int rows, int columns) {
+        DMatrixRMaj m = new DMatrixRMaj(rows, columns);
         for (int i = 0; i < rows * columns; i++) {
             m.set(i, 1);
         }
         return m;
     }
 
-    public static RowD1Matrix64F onesEJML(int length) {
+    public static DMatrix1Row onesEJML(int length) {
         return onesEJML(length, 1);
     }
 
@@ -45,7 +45,7 @@ public class CPMUtils {
      * matrix. If there are more than one elements with this value,
      * the first one is returned.
      */
-    public static int absArgmax(RowD1Matrix64F matrix) {
+    public static int absArgmax(DMatrix1Row matrix) {
         int numElements = matrix.getNumElements();
         if (numElements == 0) {
             return -1;

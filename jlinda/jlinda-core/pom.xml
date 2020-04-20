@@ -33,12 +33,6 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
             <version>${snap.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ejml</groupId>
-                    <artifactId>ejml-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -65,10 +59,10 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
-		<dependency>
-            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
-            <artifactId>core</artifactId>
-            <version>0.26</version>
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-ddense</artifactId>
+            <version>0.39</version>
         </dependency>
     </dependencies>
     
