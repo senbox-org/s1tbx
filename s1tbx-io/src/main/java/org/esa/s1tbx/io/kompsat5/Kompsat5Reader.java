@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.kompsat5;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.io.AbstractProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -126,6 +127,8 @@ public class Kompsat5Reader extends SARReader {
             product.getGcpGroup();
             product.setModified(false);
             product.setProductReader(this);
+
+            AbstractProductDirectory.updateProduct(product, null);
 
             return product;
         } catch (Exception e) {

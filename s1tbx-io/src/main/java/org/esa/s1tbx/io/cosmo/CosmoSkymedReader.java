@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.cosmo;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.commons.io.AbstractProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.netcdf.NcAttributeMap;
 import org.esa.s1tbx.io.netcdf.NcRasterDim;
@@ -133,13 +134,8 @@ public class CosmoSkymedReader extends SARReader {
             final int rasterHeight = rasterDim.getDimY().getLength();
 
             product = new Product(inputPath.getFileName().toString(),
-                    productType,
-                    rasterWidth, rasterHeight,
-                    this);
+                    productType, rasterWidth, rasterHeight, this);
             product.setFileLocation(inputPath.toFile());
-            product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
-            product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
-            product.setEndTime(NetCDFUtils.getSceneRasterStopTime(globalAttributes));
 
             addMetadataToProduct();
             addBandsToProduct(rasterVariables);
@@ -151,8 +147,13 @@ public class CosmoSkymedReader extends SARReader {
             addDopplerCentroidCoefficients();
             setQuicklookBandName(product);
 
+            //product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
+            //product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
+            //product.setEndTime(NetCDFUtils.getSceneRasterStopTime(globalAttributes));
             product.getGcpGroup();
             product.setModified(false);
+
+            AbstractProductDirectory.updateProduct(product, null);
 
             return product;
         } catch(Exception e) {

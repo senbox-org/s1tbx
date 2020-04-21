@@ -15,7 +15,7 @@ public class ReaderTest {
     protected final ProductReaderPlugIn readerPlugIn;
     protected final ProductReader reader;
     protected boolean verifyTime = true;
-    protected boolean verifyGeocoding = true;
+    protected boolean verifyGeoCoding = true;
 
     static {
         TestUtils.initTestEnvironment();
@@ -51,7 +51,13 @@ public class ReaderTest {
     }
 
     protected void validateProduct(final Product product) throws Exception {
-        TestUtils.verifyProduct(product, verifyTime, verifyGeocoding);
+        final ProductValidator productValidator = new ProductValidator(product);
+        productValidator.validate();
+    }
+
+    protected void validateProduct(final Product product, final ProductValidator.ValidationOptions options) throws Exception {
+        final ProductValidator productValidator = new ProductValidator(product, options);
+        productValidator.validate();
     }
 
     protected void validateMetadata(final Product product) throws Exception {
