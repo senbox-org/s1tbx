@@ -15,9 +15,7 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import org.esa.s1tbx.commons.test.ReaderTest;
-import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.s1tbx.commons.test.TestData;
+import org.esa.s1tbx.commons.test.*;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.junit.Before;
@@ -48,6 +46,8 @@ public class TestSentinel1ProductReader extends ReaderTest {
 
     private final static File inputS1_GRDFile = TestData.inputS1_GRD;
 
+    final static ProductValidator.ValidationOptions productOptions = new ProductValidator.ValidationOptions();
+
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
@@ -61,6 +61,8 @@ public class TestSentinel1ProductReader extends ReaderTest {
         for (File file : rootPathsSentinel1) {
             assumeTrue(file + " not found", file.exists());
         }
+
+        productOptions.verifyBands = false;
     }
 
     public TestSentinel1ProductReader() {
@@ -81,7 +83,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpeningFile() throws Exception {
         Product prod = testReader(inputS1_AnnotGRD.toPath().resolve("manifest.safe"));
-        validateProduct(prod);
+        validateProduct(prod, productOptions);
         validateMetadata(prod);
         validateBands(prod, new String[] {});
     }
@@ -89,7 +91,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpeningBandlessMetadataFile1() throws Exception {
         Product prod = testReader(inputS1_meta1GRD.toPath());
-        validateProduct(prod);
+        validateProduct(prod, productOptions);
         validateMetadata(prod);
         validateBands(prod, new String[] {});
     }
@@ -97,7 +99,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpeningBandlessMetadataFile2() throws Exception {
         Product prod = testReader(inputS1_meta2GRD.toPath());
-        validateProduct(prod);
+        validateProduct(prod, productOptions);
         validateMetadata(prod);
         validateBands(prod, new String[] {});
     }
@@ -105,7 +107,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpeningAnnotFolder() throws Exception {
         Product prod = testReader(inputS1_AnnotGRD.toPath());
-        validateProduct(prod);
+        validateProduct(prod, productOptions);
         validateMetadata(prod);
         validateBands(prod, new String[] {});
     }
@@ -121,7 +123,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpeningAnnotationProduct() throws Exception {
         Product prod = testReader(inputS1_AnnotGRDZip.toPath());
-        validateProduct(prod);
+        validateProduct(prod, productOptions);
         validateMetadata(prod);
         validateBands(prod, new String[] {});
     }

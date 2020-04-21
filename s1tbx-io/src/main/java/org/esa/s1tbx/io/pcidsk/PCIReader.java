@@ -180,6 +180,7 @@ public class PCIReader extends SARReader {
 
         addMetaData(product, fileHeaderRecord, imgHdrList, segmentList);
 
+        product.setDescription("PCIDSK");
         product.setProductReader(this);
         product.setModified(false);
         product.setFileLocation(inputPath.toFile());

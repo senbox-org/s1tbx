@@ -161,9 +161,6 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         addBands(product);
         addGeoCoding(product);
 
-        product.setName(getProductName());
-        product.setDescription(getProductDescription());
-
         ReaderUtils.addMetadataProductSize(product);
 
         OCNReader.addWindDataToVectorNodes(product);

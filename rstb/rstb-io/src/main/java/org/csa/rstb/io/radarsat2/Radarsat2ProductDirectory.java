@@ -231,9 +231,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement sourceAttributes = productElem.getElement("sourceAttributes");
 
         final MetadataElement radarParameters = sourceAttributes.getElement("radarParameters");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
-                                      radarParameters.getAttributeString("acquisitionType", defStr));
+
         final String aquisitionMode = radarParameters.getAttributeString("acquisitionType", defStr);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, aquisitionMode);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, aquisitionMode);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,
                                       radarParameters.getAttributeString("antennaPointing", defStr).toLowerCase());

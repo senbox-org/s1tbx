@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.pcidsk;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -35,9 +36,13 @@ public class TestPCIReader extends ReaderTest {
     private final static String sep = S1TBXTests.sep;
     private final static File file = new File(S1TBXTests.inputPathProperty + sep +  "SAR/pcidsk/kompsat2_pcidsk_msc.pix");
 
+    final static ProductValidator.ValidationOptions productOptions = new ProductValidator.ValidationOptions();
+
     @Before
     public void setup() {
         assumeTrue(file + " not found", file.exists());
+        productOptions.verifyTimes = false;
+        productOptions.verifyBands = false;
     }
 
     public TestPCIReader() {
@@ -48,6 +53,6 @@ public class TestPCIReader extends ReaderTest {
     public void testOpeningFile() throws Exception {
         verifyTime = false;
         Product prod = testReader(file.toPath());
-        validateProduct(prod);
+        validateProduct(prod, productOptions);
     }
 }

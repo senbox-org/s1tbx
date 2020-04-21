@@ -1099,10 +1099,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         addBands(product);
         addGeoCoding(product);
 
-        product.setName(getProductName());
-        //product.setProductType(getProductType());
-        product.setDescription(getProductDescription());
-
         ReaderUtils.addMetadataIncidenceAngles(product);
         ReaderUtils.addMetadataProductSize(product);
 

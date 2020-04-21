@@ -19,7 +19,6 @@ import com.bc.ceres.core.VirtualDir;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -32,12 +31,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.zip.ZipFile;
-
-import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.NO_METADATA_STRING;
 
 /**
  * This class represents a product directory.
@@ -309,10 +305,6 @@ public abstract class AbstractProductDirectory {
         addGeoCoding(product);
         addTiePointGrids(product);
 
-        product.setName(getProductName());
-        product.setProductType(getProductType());
-        product.setDescription(getProductDescription());
-
         ReaderUtils.addMetadataIncidenceAngles(product);
         ReaderUtils.addMetadataProductSize(product);
 
@@ -326,10 +318,12 @@ public abstract class AbstractProductDirectory {
         return new Dimension(sceneWidth, sceneHeight);
     }
 
-    protected static void updateProduct(final Product product, final MetadataElement newRoot) {
-        final MetadataElement root = product.getMetadataRoot();
-        for(MetadataElement elem : newRoot.getElements()) {
-            root.addElement(elem);
+    public static void updateProduct(final Product product, final MetadataElement newRoot) {
+        if(newRoot != null) {
+            final MetadataElement root = product.getMetadataRoot();
+            for (MetadataElement elem : newRoot.getElements()) {
+                root.addElement(elem);
+            }
         }
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
