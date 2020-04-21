@@ -7,7 +7,7 @@
     },
     {
       "id": "CSKS4_SCS",
-      "relativePath": "SSAR/Cosmo/level1B/hdf5/EL20100624_102783_1129476.6.2/CSKS2_SCS_B_S2_01_VV_RA_SF_20100623045532_20100623045540.h5",
+      "relativePath": "SAR/Cosmo/level1B/hdf5/EL20100624_102783_1129476.6.2/CSKS2_SCS_B_S2_01_VV_RA_SF_20100623045532_20100623045540.h5",
       "description": "Cosmo-Skymed SCS product"
     }
   ]
