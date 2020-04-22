@@ -76,14 +76,14 @@ public class TestEODMSRCMProductReader extends ReaderTest {
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
-    @Test
-    @Ignore("not implemented")
-    public void testOpeningGRDZip() throws Exception {
-        Product prod = testReader(inputGRDZip.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
-    }
+//    @Test
+//    @Ignore("not implemented")
+//    public void testOpeningGRDZip() throws Exception {
+//        Product prod = testReader(inputGRDZip.toPath());
+//        validateProduct(prod);
+//        validateMetadata(prod);
+//        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+//    }
 
     @Test
     public void testOpeningGRDFolder() throws Exception {
