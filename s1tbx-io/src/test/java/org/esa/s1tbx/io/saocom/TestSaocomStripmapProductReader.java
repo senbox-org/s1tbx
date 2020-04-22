@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.saocom;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
+import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,23 +33,23 @@ import static org.junit.Assume.assumeTrue;
 public class TestSaocomStripmapProductReader extends ReaderTest {
 
     // GEC
-    private final static File SM_GEC_DP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\GEC\\DualPol\\10793-EOL1CSARSAO1A185028\\S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190801T145831.xemt");
-    private final static File SM_GEC_SP_MetadataFile2 = new File("E:\\data\\SAOCOM\\Stripmap\\GEC\\SinglePol\\11245-EOL1CSARSAO1A198523\\S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190814T135710.xemt");
-    private final static File SM_GEC_SP_Folder = new File("E:\\data\\SAOCOM\\Stripmap\\GEC\\SinglePol\\32895-EOL1CSARSAO1A329562\\S1A_OPER_SAR_EOSSP__CORE_L1C_OLF_20191120T234028.xemt");
-    private final static File SM_GEC_QP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\GEC\\QuadPol\\11248-EOL1CSARSAO1A198533\\S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190814T135731.xemt");
+    private final static File SM_GEC_DP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/GEC/DualPol/10793-EOL1CSARSAO1A185028/S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190801T145831.xemt");
+    private final static File SM_GEC_SP_MetadataFile2 = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/GEC/SinglePol/11245-EOL1CSARSAO1A198523/S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190814T135710.xemt");
+    private final static File SM_GEC_SP_Folder = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/GEC/SinglePol/32895-EOL1CSARSAO1A329562/S1A_OPER_SAR_EOSSP__CORE_L1C_OLF_20191120T234028.xemt");
+    private final static File SM_GEC_QP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/GEC/QuadPol/11248-EOL1CSARSAO1A198533/S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190814T135731.xemt");
 
     //GTC
-    private final static File SM_GTC_QP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\GTC\\QuadPol\\EOL1DSARSAO1A198541\\11250-EOL1DSARSAO1A198541\\S1A_OPER_SAR_EOSSP__CORE_L1D_OLVF_20190814T135724.xemt");
+    private final static File SM_GTC_QP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/GTC/QuadPol/EOL1DSARSAO1A198541/11250-EOL1DSARSAO1A198541/S1A_OPER_SAR_EOSSP__CORE_L1D_OLVF_20190814T135724.xemt");
 
     //DI
-    private final static File SM_DI_SP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\DI\\SinglePol\\32897-EOL1BSARSAO1A329557\\S1A_OPER_SAR_EOSSP__CORE_L1B_OLF_20191120T233614.xemt");
-    private final static File SM_DI_DP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\DI\\DualPol\\36579-EOL1BSARSAO1A339522\\S1A_OPER_SAR_EOSSP__CORE_L1B_OLVF_20191128T135208.xemt");
-    private final static File SM_DI_QP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\DI\\QuadPol\\45116-EOL1BSARSAO1A403377\\S1A_OPER_SAR_EOSSP__CORE_L1B_OLVF_20200103T183600.xemt");
+    private final static File SM_DI_SP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/DI/SinglePol/32897-EOL1BSARSAO1A329557/S1A_OPER_SAR_EOSSP__CORE_L1B_OLF_20191120T233614.xemt");
+    private final static File SM_DI_DP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/DI/DualPol/36579-EOL1BSARSAO1A339522/S1A_OPER_SAR_EOSSP__CORE_L1B_OLVF_20191128T135208.xemt");
+    private final static File SM_DI_QP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/DI/QuadPol/45116-EOL1BSARSAO1A403377/S1A_OPER_SAR_EOSSP__CORE_L1B_OLVF_20200103T183600.xemt");
 
     //SLC
-    private final static File SM_SLC_SP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\SLC\\SinglePol\\33481-EOL1ASARSAO1A339416\\S1A_OPER_SAR_EOSSP__CORE_L1A_OLF_20191128T125338.xemt");
-    private final static File SM_SLC_DP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\SLC\\DualPol\\36587-EOL1ASARSAO1A339528\\S1A_OPER_SAR_EOSSP__CORE_L1A_OLVF_20191128T135208.xemt");
-    private final static File SM_SLC_QP_MetadataFile = new File("E:\\data\\SAOCOM\\Stripmap\\SLC\\QuadPol\\45086-EOL1ASARSAO1A382215\\S1A_OPER_SAR_EOSSP__CORE_L1A_OLVF_20191225T214531.xemt");
+    private final static File SM_SLC_SP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/SLC/SinglePol/33481-EOL1ASARSAO1A339416/S1A_OPER_SAR_EOSSP__CORE_L1A_OLF_20191128T125338.xemt");
+    private final static File SM_SLC_DP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/SLC/DualPol/36587-EOL1ASARSAO1A339528/S1A_OPER_SAR_EOSSP__CORE_L1A_OLVF_20191128T135208.xemt");
+    private final static File SM_SLC_QP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/Stripmap/SLC/QuadPol/45086-EOL1ASARSAO1A382215/S1A_OPER_SAR_EOSSP__CORE_L1A_OLVF_20191225T214531.xemt");
 
 
     @Before
