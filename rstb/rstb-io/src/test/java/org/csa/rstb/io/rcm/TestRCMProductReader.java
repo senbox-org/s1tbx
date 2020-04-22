@@ -80,14 +80,14 @@ public class TestRCMProductReader extends ReaderTest {
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV", "Amplitude_VH","Intensity_VH"});
     }
 
-    @Test
-    @Ignore("not implemented")
-    public void testOpeningGRDZip() throws Exception {
-        Product prod = testReader(inputGRDZip.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
-    }
+//    @Test
+//    @Ignore("not implemented")
+//    public void testOpeningGRDZip() throws Exception {
+//        Product prod = testReader(inputGRDZip.toPath());
+//        validateProduct(prod);
+//        validateMetadata(prod);
+//        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+//    }
 
     @Test
     public void testOpeningGRDFolder() throws Exception {
@@ -153,11 +153,11 @@ public class TestRCMProductReader extends ReaderTest {
         validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH", "Amplitude_RCV","Intensity_RCV"});
     }
 
-    @Test
-    @Ignore("not implemented")
-    public void testOpeningCPGRCZip() throws Exception {
-        Product prod = testReader(inputCPGRCZip.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-    }
+//    @Test
+//    @Ignore("not implemented")
+//    public void testOpeningCPGRCZip() throws Exception {
+//        Product prod = testReader(inputCPGRCZip.toPath());
+//        validateProduct(prod);
+//        validateMetadata(prod);
+//    }
 }
