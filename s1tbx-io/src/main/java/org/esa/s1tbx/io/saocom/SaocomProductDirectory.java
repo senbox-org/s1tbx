@@ -273,6 +273,12 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, spacing);
         }
 
+        final MetadataElement slantToGround = channel.getElement("SlantToGround");
+        if(slantToGround != null) {
+            double trg0_s = slantToGround.getAttributeDouble("trg0_s", 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel, trg0_s * Constants.halfLightSpeed);
+        }
+
         if(isSLC()) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1.0);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 1.0);
@@ -593,7 +599,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataAttribute[] pos = pSV_m.getAttributes();
         final MetadataAttribute[] vel = vSV_mOs.getAttributes();
 
-        int cnt = 0;
+        int cnt = 1;
         ProductData.UTC time = utc;
         for (int i = 0; i < pos.length; i+=3) {
             final MetadataElement orbitVectorElem = new MetadataElement(AbstractMetadata.orbit_vector + cnt);

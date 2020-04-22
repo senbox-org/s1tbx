@@ -238,7 +238,7 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
 
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
-        int i = 0;
+        int i = 1;
         final MetadataElement[] elems = orbit.getElements();
         for(MetadataElement stateVec : elems) {
             if(stateVec.getName().equals("stateVec")) {

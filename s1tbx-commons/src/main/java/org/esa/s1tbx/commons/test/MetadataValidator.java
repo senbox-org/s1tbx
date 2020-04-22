@@ -112,6 +112,10 @@ public class MetadataValidator {
             if(elems.length == 0) {
                 throw new Exception("Orbit State Vectors not found");
             }
+            final MetadataElement orbit_vector0 = orbitElem.getElement(AbstractMetadata.orbit_vector +0);
+            if(orbit_vector0 != null) {
+                throw new Exception("Orbit State Vectors should start from 1");
+            }
         } else {
             throw new Exception("Orbit State Vectors not found");
         }
