@@ -327,7 +327,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
 
                     final ImageIOFile img = new ImageIOFile(imgPath, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
-                            1, 1, ProductData.TYPE_INT32, productInputFile);
+                            1, 1, ProductData.TYPE_FLOAT64, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
                 }
             } catch (Exception e) {
@@ -381,7 +381,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                             unit = Unit.IMAGINARY;
                         }
 
-                        final Band band = new Band(bandName, ProductData.TYPE_FLOAT64, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(unit);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(0);
@@ -431,7 +431,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             name += suffix;
         }
         final VirtualBand virtBand = new VirtualBand(name,
-                ProductData.TYPE_FLOAT64,
+                ProductData.TYPE_FLOAT32,
                 bandI.getRasterWidth(),
                 bandI.getRasterHeight(),
                 expression);

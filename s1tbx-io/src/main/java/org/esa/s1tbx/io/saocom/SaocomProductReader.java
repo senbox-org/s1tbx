@@ -24,7 +24,14 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 
+import javax.imageio.ImageReadParam;
+import java.awt.*;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -123,34 +130,76 @@ public class SaocomProductReader extends SARReader {
      * {@inheritDoc}
      */
     @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
+        try {
+            final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
 
-        bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                bandInfo.imageID, bandInfo.bandSampleOffset);
+            final boolean isSLC = dataDir.isSLC();
+            final boolean isImaginary = destBand.getUnit().contains(Unit.IMAGINARY);
 
-//        final boolean isSLC = dataDir.isSLC();
-//        final boolean isImaginary = destBand.getUnit().contains(Unit.IMAGINARY);
-//        final double nodatavalue = destBand.getNoDataValue();
-//        for(int i=0; i< destBuffer.getNumElems(); ++i) {
-//            int val = destBuffer.getElemIntAt(i);
-//            if(isSLC) {
-//                if(isImaginary) {
-//                    double secondHalf = (short) (val & 0xffff);
-//                    destBuffer.setElemDoubleAt(i, secondHalf);
-//                } else {
-//                    double firstHalf = (short) (val >> 16);
-//                    destBuffer.setElemDoubleAt(i, firstHalf);
-//                }
-//            } else {
-//                if (val != nodatavalue) {
-//                    destBuffer.setElemDoubleAt(i, Math.sqrt(val));
-//                }
-//            }
-//        }
+            final ImageReadParam param = bandInfo.img.getReader().getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY,
+                    sourceOffsetX % sourceStepX,
+                    sourceOffsetY % sourceStepY);
+
+            final RenderedImage image = bandInfo.img.getReader().readAsRenderedImage(0, param);
+            final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+
+            final DataBuffer dataBuffer = data.getDataBuffer();
+            final SampleModel sampleModel = data.getSampleModel();
+            final int dataBufferType = dataBuffer.getDataType();
+            final int sampleOffset = bandInfo.imageID + bandInfo.bandSampleOffset;
+            final Object dest = destBuffer.getElems();
+
+            try {
+                if (dest instanceof int[] && (dataBufferType == DataBuffer.TYPE_USHORT || dataBufferType == DataBuffer.TYPE_SHORT
+                        || dataBufferType == DataBuffer.TYPE_INT)) {
+                    sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[]) dest, dataBuffer);
+                } else if (dataBufferType == DataBuffer.TYPE_FLOAT && dest instanceof float[]) {
+                    sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[]) dest, dataBuffer);
+                    //} else if (dataBufferType == DataBuffer.TYPE_DOUBLE && dest instanceof double[]) {
+                    //    sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (double[]) dest, dataBuffer);
+                } else {
+                    final double[] dArray = new double[destWidth * destHeight];
+                    sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), sampleOffset, dArray, dataBuffer);
+
+                    int i = 0;
+                    for (double value : dArray) {
+                        if (isSLC) {
+                            long bits = Double.doubleToLongBits(value);
+                            if (isImaginary) {
+                                int secondHalf = (int) (bits & 0xffffffff);
+                                destBuffer.setElemDoubleAt(i, Float.intBitsToFloat(secondHalf));
+                            } else {
+                                int firstHalf = (int) (bits >> 32);
+                                destBuffer.setElemDoubleAt(i, Float.intBitsToFloat(firstHalf));
+                            }
+                            ++i;
+                        } else {
+                            destBuffer.setElemDoubleAt(i++, value);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Error reading " +destBand.getName()+" "+ e.getMessage());
+
+                final double[] dArray = new double[destWidth * destHeight];
+                sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), sampleOffset, dArray, dataBuffer);
+
+                int i = 0;
+                for (double value : dArray) {
+                    destBuffer.setElemDoubleAt(i++, value);
+                }
+            }
+        } catch (Exception e2) {
+            System.out.println("Error reading " +destBand.getName()+" "+ e2.getMessage());
+            int size = destWidth * destHeight;
+            for (int i = 0; i < size; ++i) {
+                destBuffer.setElemDoubleAt(i++, 0);
+            }
+        }
     }
 }
