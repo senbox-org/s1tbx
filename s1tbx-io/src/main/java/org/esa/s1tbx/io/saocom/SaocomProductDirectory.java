@@ -211,6 +211,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataElement acquisition = features.getElement("acquisition");
         final MetadataElement parameters = acquisition.getElement("parameters");
         mode = getAcquisitionMode(parameters.getAttributeString("acqMode"));
+        String polMode = parameters.getAttributeString("polMode");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, parameters.getAttributeString("sideLooking").toLowerCase());
 
@@ -279,13 +280,24 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel, trg0_s * Constants.halfLightSpeed);
         }
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1.0);
         if(isSLC()) {
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1.0);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 1.0);
         } else {
             if(mode.equals("Stripmap")) {
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1.0);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 2.0);
+            } else if(mode.equals("TOPSARNarrow")) {
+                if(polMode.equals("QP")) {
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 5.0);
+                } else {
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 3.0);
+                }
+            } else if(mode.equals("TOPSARWide")) {
+                if(polMode.equals("QP")) {
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 10.0);
+                } else {
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 5.0);
+                }
             }
         }
 
