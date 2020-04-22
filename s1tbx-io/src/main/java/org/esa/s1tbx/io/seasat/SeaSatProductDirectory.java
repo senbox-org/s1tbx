@@ -225,6 +225,13 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
         final MetadataElement centerFrequency = radarParameters.getElement("centerFrequency");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, centerFrequency.getAttributeDouble("centerFrequency"));
 
+        final MetadataElement productSpecific = level1Product.getElement("productSpecific");
+        final MetadataElement complexImageInfo = productSpecific.getElement("complexImageInfo");
+        if(complexImageInfo != null) {
+            final MetadataElement commonPRF = complexImageInfo.getElement("commonPRF");
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, commonPRF.getAttributeDouble("commonPRF"));
+        }
+
         final MetadataElement platform = level1Product.getElement("platform");
         final MetadataElement orbit = platform.getElement("orbit");
         addOrbitStateVectors(absRoot, orbit);

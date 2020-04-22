@@ -56,13 +56,16 @@ public class MetadataValidator {
         verifyStr(AbstractMetadata.antenna_pointing, new String[]{"right","left"});
 
         verifyDouble(AbstractMetadata.radar_frequency);
-        //verifyDouble(AbstractMetadata.pulse_repetition_frequency);
-        //verifyDouble(AbstractMetadata.range_spacing);
-        //verifyDouble(AbstractMetadata.azimuth_spacing);
-        //verifyDouble(AbstractMetadata.range_looks);
-        //verifyDouble(AbstractMetadata.azimuth_looks);
         verifyDouble(AbstractMetadata.line_time_interval);
-        //verifyDouble(AbstractMetadata.slant_range_to_first_pixel);
+        verifyDouble(AbstractMetadata.pulse_repetition_frequency);
+        verifyDouble(AbstractMetadata.range_spacing);
+        verifyDouble(AbstractMetadata.azimuth_spacing);
+        
+//        verifyDouble(AbstractMetadata.range_looks);
+//        verifyDouble(AbstractMetadata.azimuth_looks);
+//        verifyDouble(AbstractMetadata.slant_range_to_first_pixel);
+//        verifyDouble(AbstractMetadata.range_bandwidth);
+//        verifyDouble(AbstractMetadata.azimuth_bandwidth);
 
         verifyInt(AbstractMetadata.num_output_lines);
         verifyInt(AbstractMetadata.num_samples_per_line);
@@ -75,6 +78,11 @@ public class MetadataValidator {
     }
 
     private void verifySRGR() throws Exception {
+        String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
+        if(sampleType.equals("COMPLEX")) {
+            return;
+        }
+
         final MetadataElement srgrElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
         if(srgrElem != null) {
             MetadataElement[] elems = srgrElem.getElements();

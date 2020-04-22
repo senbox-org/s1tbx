@@ -118,10 +118,15 @@ public class K5GeoTiff implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
                 globalElem.getAttributeString("EllipsoidDesignator", defStr));
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
                 globalElem.getAttributeDouble("RangeProcessingNumberOfLooks", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                 globalElem.getAttributeDouble("AzimuthProcessingNumberOfLooks", defInt));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                globalElem.getAttributeDouble("GroundRangeGeometricResolution", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                globalElem.getAttributeDouble("AzimuthGeometricResolution", defInt));
 
         if (productType.contains("GEC")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection,

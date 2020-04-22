@@ -117,6 +117,10 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, radar.getAttributeDouble("center_frequency") / Constants.oneMillion);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, radar.getAttributeString("pointing"));
 
+        final MetadataElement prfElem = radar.getElement("prf");
+        final MetadataElement prf = prfElem.getElement("prf");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, prf.getAttributeDouble("prf"));
+
         final String transmit_polarization = radar.getAttributeString("transmit_polarization");
         final String receive_polarization = radar.getAttributeString("receive_polarization");
         pol = (transmit_polarization + receive_polarization).toUpperCase();
