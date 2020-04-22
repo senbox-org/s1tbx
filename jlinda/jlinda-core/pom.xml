@@ -59,11 +59,6 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
-        <dependency>
-            <groupId>org.ejml</groupId>
-            <artifactId>ejml-ddense</artifactId>
-            <version>0.39</version>
-        </dependency>
     </dependencies>
     
     <build>
