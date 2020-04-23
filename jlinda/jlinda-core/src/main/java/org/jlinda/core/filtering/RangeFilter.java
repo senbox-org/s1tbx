@@ -154,7 +154,7 @@ public class RangeFilter extends ProductDataFilter {
             if (SNR < SNRthreshold) {
                 notFiltered++; // update notFiltered counter
                 shift = lastShift;
-                logger.warning("using last shift for filter");
+                //logger.warning("using last shift for filter");
             }
 
             meanShift += shift;
@@ -200,7 +200,7 @@ public class RangeFilter extends ProductDataFilter {
     public void applyFilter() {
 
         /// Average power to reduce noise : fft.ing in-place over data rows ///
-        logger.info("Took FFT over rows of master, slave.");
+        //logger.info("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data, 2);
         SpectralUtils.fft_inplace(data1, 2);
 
@@ -216,7 +216,7 @@ public class RangeFilter extends ProductDataFilter {
 
     public void applyFilterMaster() {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
-        logger.info("Took FFT over rows of master, slave.");
+        //logger.info("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data, 2);
         LinearAlgebraUtils.dotmult_inplace(data, new ComplexDoubleMatrix(this.filter));
         // IFFT of spectrally filtered data, and return these
@@ -225,7 +225,7 @@ public class RangeFilter extends ProductDataFilter {
 
     public void applyFilterSlave() {
 
-        logger.info("Took FFT over rows of master, slave.");
+        //logger.info("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data1, 2);
         LinearAlgebraUtils.fliplr_inplace(filter);
         LinearAlgebraUtils.dotmult_inplace(data1, new ComplexDoubleMatrix(this.filter));
@@ -371,7 +371,7 @@ public class RangeFilter extends ProductDataFilter {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
         SpectralUtils.fft_inplace(data, 2);
         SpectralUtils.fft_inplace(data1, 2);
-        logger.info("Took FFT over rows of master, slave.");
+        //logger.info("Took FFT over rows of master, slave.");
 
         DoubleMatrix nlMeanPower = computeNlMeanPower(nlMean, fftLength, power);
 
@@ -457,13 +457,13 @@ public class RangeFilter extends ProductDataFilter {
 
         // Some info for this data block
         final double meanFrFreq = meanShift * deltaF;    // Hz?
-        logger.info("mean SHIFT for block"
-                + ": " + meanShift
-                + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
-
-        logger.info("mean SNR for block: " + meanSNR);
-        logger.info("filtered for block"
-                + ": " + (100.00 - percentNotFiltered) + "%");
+//        logger.info("mean SHIFT for block"
+//                + ": " + meanShift
+//                + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
+//
+//        logger.info("mean SNR for block: " + meanSNR);
+//        logger.info("filtered for block"
+//                + ": " + (100.00 - percentNotFiltered) + "%");
 
         if (percentNotFiltered > 60.0) {
             logger.warning("more then 60% of signal filtered?!?");
@@ -572,7 +572,7 @@ public class RangeFilter extends ProductDataFilter {
 
         long fftLength = cplxIfg.columns;
 
-        logger.info("is real4 accurate enough? it seems so!");
+        //logger.info("is real4 accurate enough? it seems so!");
 
         SpectralUtils.fft_inplace(cplxIfg, 2);             // cplxIfg = fft over rows
         DoubleMatrix power = SarUtils.intensity(cplxIfg);  // power   = cplxIfg.*conj(cplxIfg);
@@ -587,7 +587,7 @@ public class RangeFilter extends ProductDataFilter {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
         SpectralUtils.fft_inplace(masterDataBlock, 2);
         SpectralUtils.fft_inplace(slaveDataBlock, 2);
-        logger.info("Took FFT over rows of master, slave.");
+        //logger.info("Took FFT over rows of master, slave.");
 
         DoubleMatrix nlMeanPower = computeNlMeanPower(nlMean, fftLength, power);
 
@@ -674,13 +674,13 @@ public class RangeFilter extends ProductDataFilter {
 
         // Some info for this data block
         final double meanFrFreq = meanShift * deltaF;    // Hz?
-        logger.info("mean SHIFT for block"
-                + ": " + meanShift
-               + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
-
-        logger.info("mean SNR for block: " + meanSNR);
-        logger.info("filtered for block"
-                + ": " + (100.00 - percentNotFiltered) + "%");
+//        logger.info("mean SHIFT for block"
+//                + ": " + meanShift
+//               + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
+//
+//        logger.info("mean SNR for block: " + meanSNR);
+//        logger.info("filtered for block"
+//                + ": " + (100.00 - percentNotFiltered) + "%");
 
         if (percentNotFiltered > 60.0) {
             logger.warning("more then 60% of signal filtered?!?");

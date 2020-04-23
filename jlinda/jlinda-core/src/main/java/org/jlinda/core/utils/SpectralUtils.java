@@ -60,7 +60,6 @@ public class SpectralUtils {
 
         switch (dimension) {
             case 1: {
-                logger.info("1d ifft over columns");
                 for (i = 0; i < columns; ++i) {
                     ComplexDoubleMatrix VECTOR = cplxData.getColumn(i);
                     fftTransform1D_inplace(VECTOR, rows, flag);
@@ -69,7 +68,6 @@ public class SpectralUtils {
                 break;
             }
             case 2: {
-                logger.info("1d ifft over rows");
                 for (i = 0; i < rows; ++i) {
                     ComplexDoubleMatrix VECTOR = cplxData.getRow(i);
                     fftTransform1D_inplace(VECTOR, columns, flag);
