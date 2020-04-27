@@ -21,7 +21,7 @@
 			},
 			{
 				"path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector2/y_pos",
-				"value": "-5127052.788"
+				"value": "-5157142.309"
 			},
 			{
 				"path": "Original_Product_Metadata/level1Product/setup/inputData/level0ProductID",
@@ -30,10 +30,6 @@
 			{
 				"path": "Original_Product_Metadata/level1Product/setup/inputData/logicalDataTakeID",
 				"value": "???"
-			},
-			{
-				"path": "Abstracted_Metadata/Orbit_State_Vectors/orbit_vector2/y_pos",
-				"value": "-5127052.788"
 			},
 			{
 				"path": "Original_Product_Metadata/level1Product/instrument/settings/settingRecords/dataSegment/numberOfRows",
