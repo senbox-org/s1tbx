@@ -173,7 +173,7 @@ public class IDAN implements SpeckleFilter {
                     final int idx = srcIndex.getIndex(x);
                     final double I = srcData1.getElemDoubleAt(idx);
                     final double Q = srcData2.getElemDoubleAt(idx);
-                    if (I != noDataValue && Q != noDataValue) {
+                    if (Double.compare(I, noDataValue) != 0 && Double.compare(Q, noDataValue) != 0) {
                         srcTileData[yy][x - sx0] = I * I + Q * Q;
                     } else {
                         srcTileData[yy][x - sx0] = noDataValue;
@@ -231,7 +231,7 @@ public class IDAN implements SpeckleFilter {
             final int yy = y - sy0;
             for (int x = xMin; x <= xMax; x++) {
                 final double v = srcTileIntensity[yy][x - sx0];
-                if (v != noDataValue) {
+                if (Double.compare(v, noDataValue) != 0) {
                     validSamples[k] = v;
                     k++;
                 }
@@ -316,7 +316,8 @@ public class IDAN implements SpeckleFilter {
         final Map<Integer, Boolean> visited = new HashMap<>(anSize + 8);
         final java.util.List<Pix> bgPixelList = new ArrayList<>(anSize);
 
-        if (srcTileIntensity[rc][cc] != noDataValue && Math.abs((srcTileIntensity[rc][cc] - seed) / seed) < threshold) {
+        if (Double.compare(srcTileIntensity[rc][cc], noDataValue) != 0 &&
+                Math.abs((srcTileIntensity[rc][cc] - seed) / seed) < threshold) {
             anPixelList.add(new Pix(xc, yc));
         } else {
             bgPixelList.add(new Pix(xc, yc));
@@ -349,7 +350,7 @@ public class IDAN implements SpeckleFilter {
                         if (visited.get(index) == null) {
                             visited.put(index, true);
                             final Pix newPos = new Pix(x[i], y[i]);
-                            if (srcTileIntensity[r][c] != noDataValue &&
+                            if (Double.compare(srcTileIntensity[r][c], noDataValue) != 0 &&
                                     Math.abs((srcTileIntensity[r][c] - seed) / seed) < threshold) {
                                 anPixelList.add(newPos);
                                 newfront.add(newPos);

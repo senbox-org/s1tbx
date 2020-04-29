@@ -161,7 +161,7 @@ public class Median implements SpeckleFilter {
         double[] tmp = new double[numSamples];
         int k = 0;
         for (double v : neighborValues) {
-            if (v != noDataValue) {
+            if (Double.compare(v, noDataValue) != 0) {
                 tmp[k++] = v;
             }
         }
