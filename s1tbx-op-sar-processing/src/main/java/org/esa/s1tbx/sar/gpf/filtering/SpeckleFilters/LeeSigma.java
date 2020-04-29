@@ -512,7 +512,7 @@ public class LeeSigma implements SpeckleFilter {
         if (unit == Unit.UnitType.REAL || unit == Unit.UnitType.IMAGINARY) {
             final double I = srcData1.getElemDoubleAt(index);
             final double Q = srcData2.getElemDoubleAt(index);
-            if (I != noDataValue && Q != noDataValue) {
+            if (Double.compare(I, noDataValue) != 0 && Double.compare(Q, noDataValue) != 0) {
                 return I * I + Q * Q;
             } else {
                 return noDataValue;
@@ -551,7 +551,7 @@ public class LeeSigma implements SpeckleFilter {
         final int nCols = filterWindow[0].length;
         for (double[] aFilterWindow : filterWindow) {
             for (int i = 0; i < nCols; i++) {
-                if (aFilterWindow[i] != noDataValue) {
+                if (Double.compare(aFilterWindow[i], noDataValue) != 0) {
                     pixelsSelected.add(aFilterWindow[i]);
                 }
             }
@@ -582,7 +582,7 @@ public class LeeSigma implements SpeckleFilter {
         int clusterSize = 0;
         for (int j = 0; j < targetWindowSize; j++) {
             for (int i = 0; i < targetWindowSize; i++) {
-                if (targetWindow[j][i] != noDataValue && targetWindow[j][i] > threshold) {
+                if (Double.compare(targetWindow[j][i], noDataValue) != 0 && targetWindow[j][i] > threshold) {
                     clusterSize++;
                 }
             }
@@ -602,7 +602,7 @@ public class LeeSigma implements SpeckleFilter {
             yy = y - halfWindowSize + j;
             for (int i = 0; i < targetWindowSize; i++) {
                 xx = x - halfWindowSize + i;
-                if (targetWindow[j][i] != noDataValue && targetWindow[j][i] > threshold &&
+                if (Double.compare(targetWindow[j][i], noDataValue) != 0 && targetWindow[j][i] > threshold &&
                         yy >= y0 && yy < y0 + h && xx >= x0 && xx < x0 + w) {
                     isPointTarget[yy - y0][xx - x0] = true;
                 }
@@ -632,7 +632,7 @@ public class LeeSigma implements SpeckleFilter {
         final List<Double> pixelsSelected = new ArrayList<>();
         for (int j = 0; j < filterSize; j++) {
             for (int i = 0; i < filterSize; i++) {
-                if (filterWindow[j][i] != noDataValue && filterWindow[j][i] >= sigmaRange[0] &&
+                if (Double.compare(filterWindow[j][i], noDataValue) != 0 && filterWindow[j][i] >= sigmaRange[0] &&
                         filterWindow[j][i] <= sigmaRange[1]) {
                     pixelsSelected.add(filterWindow[j][i]);
                 }

@@ -227,7 +227,7 @@ public class RefinedLee implements SpeckleFilter {
         double mean = 0;
         for (double[] neighborPixelValue : neighborPixelValues) {
             for (int i = 0; i < neighborPixelValues[0].length; ++i) {
-                if (neighborPixelValue[i] != noDataValue) {
+                if (Double.compare(neighborPixelValue[i], noDataValue) != 0) {
                     mean += neighborPixelValue[i];
                     k++;
                 }
@@ -256,7 +256,7 @@ public class RefinedLee implements SpeckleFilter {
         double var = 0.0;
         for (double[] neighborPixelValue : neighborPixelValues) {
             for (int i = 0; i < neighborPixelValues[0].length; ++i) {
-                if (neighborPixelValue[i] != noDataValue) {
+                if (Double.compare(neighborPixelValue[i], noDataValue) != 0) {
                     final double diff = neighborPixelValue[i] - mean;
                     var += diff * diff;
                     k++;
@@ -399,7 +399,7 @@ public class RefinedLee implements SpeckleFilter {
                 for (int y = y0; y < y0 + 3; y++) {
                     final int yy = (y - y0) * 3;
                     for (int x = x0; x < x0 + 3; x++) {
-                        if (neighborPixelValues[y][x] != noDataValue) {
+                        if (Double.compare(neighborPixelValues[y][x], noDataValue) != 0) {
                             subArea[yy + (x - x0)] = neighborPixelValues[y][x];
                             k++;
                         }

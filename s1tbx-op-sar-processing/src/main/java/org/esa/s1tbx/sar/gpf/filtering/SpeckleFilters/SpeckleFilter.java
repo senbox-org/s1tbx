@@ -107,7 +107,7 @@ public interface SpeckleFilter {
                             final int idx = srcIndex.getIndex(x);
                             final double I = srcData1.getElemDoubleAt(idx);
                             final double Q = srcData2.getElemDoubleAt(idx);
-                            if (I != noDataValue && Q != noDataValue) {
+                            if (Double.compare(I, noDataValue) != 0 && Double.compare(Q, noDataValue) != 0) {
                                 neighborValues[k++] = I * I + Q * Q;
                                 numValidSamples++;
                             } else {
@@ -133,7 +133,7 @@ public interface SpeckleFilter {
                         } else {
                             final double v = srcData1.getElemDoubleAt(srcIndex.getIndex(x));
                             neighborValues[k++] = v;
-                            if (v != noDataValue) {
+                            if (Double.compare(v, noDataValue) != 0) {
                                 numValidSamples++;
                             }
                         }
