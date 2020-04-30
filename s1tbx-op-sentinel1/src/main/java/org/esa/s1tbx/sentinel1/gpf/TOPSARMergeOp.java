@@ -46,7 +46,7 @@ import java.util.Map;
  */
 @OperatorMetadata(alias = "TOPSAR-Merge",
         category = "Radar/Sentinel-1 TOPS",
-        authors = "Jun Lu, Luis Veci",
+        authors = "Jun Lu, Luis Veci, Reinier Oost, Esteban Aguilera, David A. Monge",
         version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Merge subswaths of a Sentinel-1 TOPSAR product")
@@ -539,11 +539,11 @@ public final class TOPSARMergeOp extends Operator {
         }
         absTgt.addElement(burstBoundaryTgt);
 
-        absTgt.removeElement(absTgt.getElement("ESD_Measurement"));
-        final MetadataElement ESDMeasurementTgt = new MetadataElement("ESD_Measurement");
+        absTgt.removeElement(absTgt.getElement("ESD Measurement"));
+        final MetadataElement ESDMeasurementTgt = new MetadataElement("ESD Measurement");
         for (int p = 0; p < numOfSubSwath; p++) {
             MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[p]);
-            final MetadataElement ESDMeasurementSrc = absRoot.getElement("ESD_Measurement");
+            final MetadataElement ESDMeasurementSrc = absRoot.getElement("ESD Measurement");
             if (ESDMeasurementSrc != null) {
                 final MetadataElement element = ESDMeasurementSrc.getElementAt(0);
                 if (element != null) {

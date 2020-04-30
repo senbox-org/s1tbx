@@ -161,6 +161,16 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="AzimuthShiftEstimationUsingESDOp"/>
             </file>
+            <file name="org-esa-s1tbx-sentinel1-gpf-NetworkESDOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 Network ESD"/>
+                <attr name="dialogTitle" stringvalue="Network ESD"/>
+                <attr name="operatorName" stringvalue="Network ESD"/>
+                <attr name="helpId" stringvalue="NetworkESD"/>
+                <attr name="shortDescription" stringvalue="Azimuth Offset Estimation using Network ESD"/>
+                <attr name="targetProductNameSuffix" stringvalue="_nesd"/>
+            </file>
         </folder>
     </folder>
 
@@ -206,6 +216,10 @@
                     <file name="org-esa-s1tbx-sentinel1-gpf-AzimuthShiftEstimationUsingESDOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-AzimuthShiftEstimationUsingESDOp-Action.instance"/>
                         <attr name="position" intvalue="320"/>
+                    </file>
+                    <file name="org-esa-s1tbx-sentinel1-gpf-NetworkESDOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-NetworkESDOp-Action.instance"/>
+                        <attr name="position" intvalue="305"/>
                     </file>
                 </folder>
             </folder>
