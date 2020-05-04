@@ -117,7 +117,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
                     throw new IOException("Unable to open " + imgPath);
 
                 final ImageIOFile img;
-                if(productType.equals("GRD")) {
+                if(productType.equals("GRD") || productType.equals("GCD")) {
                     img = new ImageIOFile(imgPath, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, dataType, productInputFile);
                 } else {
