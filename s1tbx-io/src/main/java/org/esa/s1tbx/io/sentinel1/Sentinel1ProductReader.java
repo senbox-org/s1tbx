@@ -208,28 +208,49 @@ public class Sentinel1ProductReader extends SARReader {
             srcArray = cachedData.intArray;
             length = srcArray.length;
         }
-        final short[] destArray = (short[]) destBuffer.getElems();
-        if (!bandInfo.isImaginary) {
-            if (sourceStepX == 1) {
-                //System.arraycopy(srcArray, 0, destArray, 0, length);
-                int i = 0;
-                for (int srcVal : srcArray) {
-                    destArray[i++] = (short) srcVal;
+
+        if(destBuffer.getElemSize() > 2) {
+            final int[] destArray = (int[]) destBuffer.getElems();
+            if (!bandInfo.isImaginary) {
+                if (sourceStepX == 1) {
+                    System.arraycopy(srcArray, 0, destArray, 0, length);
+                } else {
+                    for (int i = 0; i < length; i += sourceStepX) {
+                        destArray[i] = srcArray[i];
+                    }
                 }
             } else {
-                for (int i = 0; i < length; i += sourceStepX) {
-                    destArray[i] = (short) srcArray[i];
+                if (sourceStepX == 1) {
+                    int i = 0;
+                    for (int srcVal : srcArray) {
+                        destArray[i++] = srcVal >> 32;
+                    }
+                } else {
+                    for (int i = 0; i < length; i += sourceStepX) {
+                        destArray[i] = srcArray[i] >> 32;
+                    }
                 }
             }
         } else {
-            if (sourceStepX == 1) {
-                int i = 0;
-                for (int srcVal : srcArray) {
-                    destArray[i++] = (short) (srcVal >> 16);
+            final short[] destArray = (short[]) destBuffer.getElems();
+            if (!bandInfo.isImaginary) {
+                if (sourceStepX == 1) {
+                    System.arraycopy(srcArray, 0, destArray, 0, length);
+                } else {
+                    for (int i = 0; i < length; i += sourceStepX) {
+                        destArray[i] = (short) srcArray[i];
+                    }
                 }
             } else {
-                for (int i = 0; i < length; i += sourceStepX) {
-                    destArray[i] = (short) (srcArray[i] >> 16);
+                if (sourceStepX == 1) {
+                    int i = 0;
+                    for (int srcVal : srcArray) {
+                        destArray[i++] = (short) (srcVal >> 16);
+                    }
+                } else {
+                    for (int i = 0; i < length; i += sourceStepX) {
+                        destArray[i] = (short) (srcArray[i] >> 16);
+                    }
                 }
             }
         }

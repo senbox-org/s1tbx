@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.JSONProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
@@ -45,14 +44,11 @@ import org.jdom2.Element;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
 import java.io.*;
 import java.text.DateFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -90,14 +86,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 if(inStream.available() > 0) {
                     final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
 
-                    final ImageIOFile img;
-                    if (isSLC()) {
-                        img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
+                    final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                                 1, 1, ProductData.TYPE_INT32, productInputFile);
-                    } else {
-                        img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
-                                1, 1, ProductData.TYPE_INT32, productInputFile);
-                    }
                     bandImageFileMap.put(img.getName(), img);
                 }
             } catch (Exception e) {
@@ -119,6 +109,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             final String pol = bandMetadata.getAttributeString(AbstractMetadata.polarization);
             final int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             final int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
+            final String mode = absRoot.getAttributeString(ACQUISITION_MODE);
             int numImages = img.getNumImages();
 
             String tpgPrefix = "";
@@ -151,7 +142,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                             unit = Unit.IMAGINARY;
                         }
 
-                        final Band band = new Band(bandName, ProductData.TYPE_INT16, width, height);
+                        int dataType = mode.equals("SM") ? ProductData.TYPE_INT32 : ProductData.TYPE_INT16;
+                        final Band band = new Band(bandName, dataType, width, height);
                         band.setUnit(unit);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
@@ -179,7 +171,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         bandName = "Amplitude" + '_' + suffix;
-                        final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_INT16, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
