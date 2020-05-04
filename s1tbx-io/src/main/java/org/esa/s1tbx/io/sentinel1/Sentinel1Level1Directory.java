@@ -142,8 +142,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                             unit = Unit.IMAGINARY;
                         }
 
-                        int dataType = mode.equals("SM") ? ProductData.TYPE_INT32 : ProductData.TYPE_INT16;
-                        final Band band = new Band(bandName, dataType, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_INT16, width, height);
                         band.setUnit(unit);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);

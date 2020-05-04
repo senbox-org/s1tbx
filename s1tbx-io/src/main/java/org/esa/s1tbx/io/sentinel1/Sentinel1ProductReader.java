@@ -43,7 +43,7 @@ public class Sentinel1ProductReader extends SARReader {
 
     protected Sentinel1Directory dataDir = null;
     private final DataCache cache;
-    private final boolean useCache = false;
+    private final boolean useCache = true;
 
     /**
      * Constructs a new abstract product reader.
@@ -213,33 +213,33 @@ public class Sentinel1ProductReader extends SARReader {
             final int[] destArray = (int[]) destBuffer.getElems();
             if (!bandInfo.isImaginary) {
                 if (sourceStepX == 1) {
-                    System.arraycopy(srcArray, 0, destArray, 0, length);
+                    int i = 0;
+                    for (int srcVal : srcArray) {
+                        destArray[i++] = (short)srcVal;
+                    }
                 } else {
                     for (int i = 0; i < length; i += sourceStepX) {
-                        destArray[i] = srcArray[i];
+                        destArray[i] = (short)srcArray[i];
                     }
                 }
             } else {
                 if (sourceStepX == 1) {
                     int i = 0;
                     for (int srcVal : srcArray) {
-                        destArray[i++] = srcVal >> 32;
+                        destArray[i++] = (short)(srcVal >> 16);
                     }
                 } else {
                     for (int i = 0; i < length; i += sourceStepX) {
-                        destArray[i] = srcArray[i] >> 32;
+                        destArray[i] = (short)(srcArray[i] >> 16);
                     }
                 }
             }
         } else {
             final short[] destArray = (short[]) destBuffer.getElems();
             if (!bandInfo.isImaginary) {
-                if (sourceStepX == 1) {
-                    System.arraycopy(srcArray, 0, destArray, 0, length);
-                } else {
-                    for (int i = 0; i < length; i += sourceStepX) {
-                        destArray[i] = (short) srcArray[i];
-                    }
+                int i = 0;
+                for (int srcVal : srcArray) {
+                    destArray[i++] = (short)srcVal;
                 }
             } else {
                 if (sourceStepX == 1) {
