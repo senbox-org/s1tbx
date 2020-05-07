@@ -8,7 +8,7 @@
 
 ###Bugs fixed 
 
-https://senbox.atlassian.net/projects/SITBX/versions/12725/tab/release-report-all-issues
+https://senbox.atlassian.net/browse/SITBX-765?filter=11944
 
 #New in S1TBX 7.0
 

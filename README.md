@@ -4,6 +4,8 @@ The SENTINEL-1 Toolbox
 [![Build Status](https://travis-ci.org/senbox-org/s1tbx.svg?branch=master)](https://travis-ci.org/senbox-org/s1tbx) 
 [![Coverity Scan Status](https://scan.coverity.com/projects/7248/badge.svg)](https://scan.coverity.com/projects/senbox-org-s1tbx)
 
+The project page of SNAP and the sentinel toolboxes can be found at http://step.esa.int. There you will find a tutorial about the usage of the application, a forum where you can ask questions and lots of other interesting things.
+
 Building S1TBX from the source
 ------------------------------
 
