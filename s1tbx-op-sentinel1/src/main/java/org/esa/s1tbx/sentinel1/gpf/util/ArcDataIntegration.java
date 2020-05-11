@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Sensar B.V. http://www.sensar.nl
+ * Copyright (C) 2020 by SENSAR B.V. http://www.sensar.nl
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -58,15 +58,15 @@ public class ArcDataIntegration {
 
     /**
      * Integrates arc data to node data using weighted least squares (L2 norm).
-     *     This function integrates `arc_data` by finding `point_data` (the returned
+     *     This function integrates arc `data` by finding `point_data` (the returned
      *     value), such that `point_data` minimizes:
-     *         ||diag(arc_weights) * (A * point_data - arc_data)||_2
+     *         ||diag(weights) * (A * point_data - data)||_2
      *     where `A` is an incidence matrix of dimensions 'number of arcs' by
      *     'number of nodes'.
      *     Description of the algorithm:
      *         1. Apply weights
-     *             A = diag(arc_weights) * A
-     *             b = diag(arc_weights) * arc_data
+     *             A = diag(weights) * A
+     *             b = diag(weights) * data
      *         2. Minimize
      *             ||A*x - b||_2
      *
@@ -145,15 +145,15 @@ public class ArcDataIntegration {
 
     /**
      * Integrates arc data to node data using L1 norm.
-     *     This function integrates `arc_data` by finding `point_data` (the returned
+     *     This function integrates arc `data` by finding `point_data` (the returned
      *     value), such that `point_data` minimizes:
-     *         ||diag(weights) * (P * point_data - arc_data)||_1
+     *         ||diag(weights) * (P * point_data - data)||_1
      *     where `P` is an incidence matrix of dimensions 'number of arcs' by
      *     'number of nodes'.
      *     Description of the algorithm:
      *         1. Apply weights
      *             P = diag(weights) * P
-     *             q = diag(weights) * arc_data
+     *             q = diag(weights) * data
      *         2. Minimize
      *             ||P*u - q||_1
      *            by recasting it as

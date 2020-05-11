@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Sensar B.V. http://www.sensar.nl
+ * Copyright (C) 2020 by SENSAR B.V. http://www.sensar.nl
  * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
