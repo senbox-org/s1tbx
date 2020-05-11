@@ -19,8 +19,9 @@ import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.ui.UIUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -29,7 +30,7 @@ import java.awt.image.BufferedImage;
  */
 public class LogoComponent implements MapToolsComponent {
 
-    private static final ImageIcon logoIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/dat/icons/SNAP_Icon_128.jpg", LogoComponent.class);
+    private static final ImageIcon logoIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/dat/icons/SNAP_icon_128.jpg", LogoComponent.class);
     private final BufferedImage image;
     private final static double marginPct = 0.05;
     private final double scale;
