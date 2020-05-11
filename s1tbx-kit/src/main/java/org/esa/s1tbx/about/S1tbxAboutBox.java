@@ -37,7 +37,7 @@ public class S1tbxAboutBox extends JPanel {
     public S1tbxAboutBox() {
         super(new BorderLayout(4, 4));
         setBorder(new EmptyBorder(4, 4, 4, 4));
-        ImageIcon aboutImage = new ImageIcon(S1tbxAboutBox.class.getResource("about_s1tbx.jpg"));
+        ImageIcon aboutImage = new ImageIcon(S1tbxAboutBox.class.getResource("S1_Toolbox.jpg"));
         JLabel iconLabel = new JLabel(aboutImage);
         add(iconLabel, BorderLayout.CENTER);
         add(createVersionPanel(), BorderLayout.SOUTH);
