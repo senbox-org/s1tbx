@@ -682,13 +682,13 @@ public class NetworkESDOp extends Operator {
 
         // validate graph
         if (pairs.size() < 1) {
-            throw new OperatorException("Generated network of images does not contain any pair. Max temporal baseline provided: "
-                                                + maxTemporalBaseline);
+            throw new OperatorException("Generated network of images does not contain any pair. " +
+                                                "Max temporal baseline provided: " + maxTemporalBaseline);
         }
 
         if (!GraphUtils.isConnectedGraph(pairs, noOfImages)) {
-            throw new OperatorException("Generated graph is not connected. Max temporal baseline provided: "
-                                                + maxTemporalBaseline);
+            throw new OperatorException("Generated graph is not connected. Max temporal baseline provided: " +
+                                                maxTemporalBaseline);
         }
 
         return pairs.toArray(new int[][]{});
@@ -802,7 +802,8 @@ public class NetworkESDOp extends Operator {
                 double rgOffset = useSuppliedRangeShift ? overallRangeShift : azRgOffsets.rgOffset;
                 double azOffset = useSuppliedAzimuthShift ? overallAzimuthShift : azRgOffsets.azOffset;
 
-                performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle, targetTileMap);
+                performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle,
+                                         targetTileMap);
             }
 
         } catch (Throwable e) {
@@ -950,9 +951,6 @@ public class NetworkESDOp extends Operator {
             final double coherence = CoregistrationUtils.crossCorrelateFFT(
                     fineOffset, mI, sI, fineWinOvsFactor, fineWinAccY, fineWinAccX);
 
-//            final double coherence = CoregistrationUtils.normalizedCrossCorrelation(
-//                    fineOffset, mI, sI, fineWinOvsFactor, fineWinAccY, fineWinAccX);
-
             if (coherence < xCorrThreshold) {
                 offset[0] = noDataValue;
                 offset[1] = noDataValue;
@@ -1014,8 +1012,10 @@ public class NetworkESDOp extends Operator {
                         CplxContainer image1 = complexImages.get(arcs[arcIndex][0]);
                         CplxContainer image2 = complexImages.get(arcs[arcIndex][1]);
                         String pairKey = getCanonicalId(image1) + "_" + getCanonicalId(image2);
-                        SystemUtils.LOG.fine("Applying ESD on pair " + pairKey + "\t arc:" + arcs[arcIndex][0] + " -> " + arcs[arcIndex][1]);
-                        AzimuthShiftData azimuthShift = performESD(image1, image2, usePeriodogram, numBlocksPerOverlap, pairKey);
+                        SystemUtils.LOG.fine("Applying ESD on pair " + pairKey +
+                                                     "\t arc:" + arcs[arcIndex][0] + " -> " + arcs[arcIndex][1]);
+                        AzimuthShiftData azimuthShift =
+                                performESD(image1, image2, usePeriodogram, numBlocksPerOverlap, pairKey);
 
                         // save network data
                         arcsList.add(arcs[arcIndex]);
@@ -1060,7 +1060,8 @@ public class NetworkESDOp extends Operator {
                 }
 
                 // save integration network
-                saveIntegrationNetwork(extendedArcs, relativeAzimuthShifts, weights, complexImages, imageShifts, arcPolarizationsList);
+                saveIntegrationNetwork(extendedArcs, relativeAzimuthShifts, weights, complexImages, imageShifts,
+                                       arcPolarizationsList);
             }
 
         } catch (Throwable e) {
@@ -1127,7 +1128,8 @@ public class NetworkESDOp extends Operator {
      * @param image2 second image to which apply ESD, .
      * @return azimuth shift and weights for each pair of images.
      */
-    public synchronized AzimuthShiftData performESD(CplxContainer image1, CplxContainer image2, boolean usePeriodogram, int numBlocksPerOverlap, String pairKey) {
+    public synchronized AzimuthShiftData performESD(CplxContainer image1, CplxContainer image2, boolean usePeriodogram,
+                                                    int numBlocksPerOverlap, String pairKey) {
 
         double totalOffset = 0.0;
         double totalWeight = 0.0;
@@ -1159,7 +1161,8 @@ public class NetworkESDOp extends Operator {
                 final Rectangle overlapInBurstOneRectangle = new Rectangle();
                 final Rectangle overlapInBurstTwoRectangle = new Rectangle();
 
-                OverlapUtils.getOverlappedRectangles(i, overlapInBurstOneRectangle, overlapInBurstTwoRectangle, subSwath[subSwathIndex - 1]);
+                OverlapUtils.getOverlappedRectangles(i, overlapInBurstOneRectangle, overlapInBurstTwoRectangle,
+                                                     subSwath[subSwathIndex - 1]);
 
                 final double[][] coherence = computeCoherence(
                         overlapInBurstOneRectangle, mBandI, mBandQ, sBandI, sBandQ, cohWin);
@@ -1323,7 +1326,8 @@ public class NetworkESDOp extends Operator {
         return  0.5 / (azimuthTimeInterval * maxSpectralSeparation);
     }
 
-    private double[] chopSpectralSeparation(int blockIndex, int blockWidth, int blockHeight, double[] spectralSeparation){
+    private double[] chopSpectralSeparation(int blockIndex, int blockWidth, int blockHeight,
+                                            double[] spectralSeparation){
         double[] choppedSpectralSeparation = new double[blockWidth * blockHeight];
 
         for (int i = 0; i < choppedSpectralSeparation.length; i++) {
@@ -1606,7 +1610,8 @@ public class NetworkESDOp extends Operator {
      * Reference:
      * N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
      * R. Bamler. “Interferometric Processing of Sentinel-1 TOPS Data”. In: IEEE Transactions on
-     * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892. DOI:10.1109/TGRS.2015.2497902
+     * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892.
+     * DOI:10.1109/TGRS.2015.2497902
      *
      * Computes:
      * <code>
@@ -1661,7 +1666,8 @@ public class NetworkESDOp extends Operator {
      * Reference:
      * N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
      * R. Bamler. “Interferometric Processing of Sentinel-1 TOPS Data”. In: IEEE Transactions on
-     * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892. DOI:10.1109/TGRS.2015.2497902
+     * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892.
+     * DOI:10.1109/TGRS.2015.2497902
      *
      * Computes:
      * <code>
@@ -1669,11 +1675,13 @@ public class NetworkESDOp extends Operator {
      *     \frac{\arg{\left \{ \left \langle e^{j\phi_{\textup{ESD},p}} \right \rangle \right \}}}
      *          {\left \langle \Delta f^{\textup{ovl}}_{\textup{DC},p} \right \rangle},
      * </code>
-     * where <code>\left \langle \cdot \right \rangle</code> is the weighted average using the weight vector <code>w</code>
+     * where <code>\left \langle \cdot \right \rangle</code> is the weighted average using the weight vector
+     * <code>w</code>
      *
      * @param esdPhase ESD phase per pixel. (<code>\phi_{\textup{ESD},p}</code>)
      * @param weight Weights for the estimation. (<code>w</code>)
-     * @param spectralSeparation Doppler centroid frequency difference. (<code>\Delta f^{\textup{ovl}}_{\textup{DC},p}</code>)
+     * @param spectralSeparation Doppler centroid frequency difference.
+     *                           (<code>\Delta f^{\textup{ovl}}_{\textup{DC},p}</code>)
      * @return Azimuth shift estimation.
      */
     public double estimateAzimuthShiftWithAverage(double[] esdPhase, double[] weight, double[] spectralSeparation){
@@ -1707,7 +1715,8 @@ public class NetworkESDOp extends Operator {
      * Reference:
      * N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
      * R. Bamler. “Interferometric Processing of Sentinel-1 TOPS Data”. In: IEEE Transactions on
-     * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892. DOI:10.1109/TGRS.2015.2497902
+     * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892.
+     * DOI:10.1109/TGRS.2015.2497902
      *
      * The azimuth shift is estimated by solving:
      * <code>
@@ -1731,7 +1740,8 @@ public class NetworkESDOp extends Operator {
      *                 out in the space <code>[-b, b]</code>.
      * @return Azimuth shift estimation.
      */
-    public double estimateAzimuthShiftWithPeriodogram(double[] esdPhase, double[] weight, double[] spectralSeparation, double boundary){
+    public double estimateAzimuthShiftWithPeriodogram(double[] esdPhase, double[] weight, double[] spectralSeparation,
+                                                      double boundary){
         double azShift;
         boolean findMinArgument;  // flag for the optimization criterion
         double initialBestValue;
@@ -2167,7 +2177,7 @@ public class NetworkESDOp extends Operator {
     public enum WeightFunction {
         linear(WEIGHT_FN_LINEAR, (coherence, threshold) -> (coherence > threshold) ? coherence : 0),
         quadratic(WEIGHT_FN_QUAD, (coherence, threshold) -> (coherence > threshold) ? coherence * coherence: 0),
-        inverseQuadratic(WEIGHT_FN_INVQUAD, (coherence, threshold) -> (coherence > threshold) ? FastMath.sqrt(coherence) : 0) ,
+        inverseQuadratic(WEIGHT_FN_INVQUAD, (coherence, threshold) -> (coherence > threshold) ? FastMath.sqrt(coherence) : 0),
         none(WEIGHT_FN_NONE, (coherence, threshold) -> (coherence > threshold) ? 1 : 0);
 
         final private String caption;
@@ -2175,7 +2185,7 @@ public class NetworkESDOp extends Operator {
 
         private static final Map<String, WeightFunction> lookup = new HashMap<>();
 
-        //Populate the lookup table
+        // Populate the lookup table
         static {
             for(WeightFunction env : WeightFunction.values()) {
                 lookup.put(env.getCaption(), env);
