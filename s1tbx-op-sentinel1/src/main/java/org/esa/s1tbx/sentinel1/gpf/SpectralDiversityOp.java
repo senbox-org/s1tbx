@@ -69,7 +69,7 @@ import java.util.Map;
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci, Reinier Oost, Esteban Aguilera, David A. Monge",
         version = "1.0",
-        copyright = "Copyright (C) 2020 Sensar B.V.\nCopyright (C) 2016 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2020 by SENSAR B.V.\nCopyright (C) 2016 by Array Systems Computing Inc.",
         description = "Estimate constant range and azimuth offsets for the whole image")
 public class SpectralDiversityOp extends Operator {
 
@@ -125,28 +125,41 @@ public class SpectralDiversityOp extends Operator {
             label = "Number of Windows Per Overlap for ESD")
     private int numBlocksPerOverlap = 10;
 
-    @Parameter(label = "ESD Estimator", valueSet = {ESD_AVERAGE, ESD_PERIODOGRAM},
-            defaultValue = ESD_PERIODOGRAM, description = "ESD estimator used for azimuth shift computation")
+    @Parameter(label = "ESD Estimator",
+            valueSet = {ESD_AVERAGE, ESD_PERIODOGRAM},
+            defaultValue = ESD_PERIODOGRAM,
+            description = "ESD estimator used for azimuth shift computation")
     private String esdEstimator = ESD_PERIODOGRAM;
 
-    @Parameter(label = "Weight function", valueSet = {WEIGHT_FN_NONE, WEIGHT_FN_LINEAR, WEIGHT_FN_QUAD, WEIGHT_FN_INVQUAD},
-            defaultValue = WEIGHT_FN_NONE, description = "Weight function of the coherence to use for azimuth shift estimation")
+    @Parameter(label = "Weight function",
+            valueSet = {WEIGHT_FN_NONE, WEIGHT_FN_LINEAR, WEIGHT_FN_QUAD, WEIGHT_FN_INVQUAD},
+            defaultValue = WEIGHT_FN_NONE,
+            description = "Weight function of the coherence to use for azimuth shift estimation")
     private String weightFunc = WEIGHT_FN_NONE;
 
-//    @Parameter(description = "Optimization criterion for azimuth shift estimation", valueSet = {OPT_CRITERION_MIN_ARG,
-//            OPT_CRITERION_MAX_REAL}, defaultValue = OPT_CRITERION_MAX_REAL, label = "Optimization criterion")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Optimization criterion",
+//            valueSet = {OPT_CRITERION_MIN_ARG, OPT_CRITERION_MAX_REAL},
+//            defaultValue = OPT_CRITERION_MAX_REAL,
+//            description = "Optimization criterion for azimuth shift estimation")
     private String optObjective = OPT_CRITERION_MAX_REAL;
 
-//    @Parameter(description = "Number of solutions to consider at each iteration in the optimization process", defaultValue = "9",
-//            label = "Number of candidate solutions")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Number of candidate solutions",
+//            defaultValue = "9",
+//            description = "Number of solutions to consider at each iteration in the optimization process")
     private int noOfCandidateSolutions = 9;
 
-//    @Parameter(description = "Tolerance used by the optimization method to consider that solution has enough quality", defaultValue = "0.0001",
-//            label = "Optimization method tolerance")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Optimization method tolerance",
+//            defaultValue = "0.0001",
+//            description = "Tolerance used by the optimization method to consider that solution has enough quality")
     private double optTolerance = 0.0001;
 
-//    @Parameter(description = "Maximum number of iterations for the optimization method", defaultValue = "10000",
-//            label = "Maximum number of iterations")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Maximum number of iterations",
+//            description = "Maximum number of iterations for the optimization method",
+//            defaultValue = "10000")
     private int optMaxIterations = 10000;
 
     @Parameter(description = "Use user supplied range shift", defaultValue = "false",
@@ -715,7 +728,7 @@ public class SpectralDiversityOp extends Operator {
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating azimuth offset... ", numShifts);
 
-        final ThreadExecutor executor = new ThreadExecutor();
+
         try {
             for (String key : targetMap.keySet()) {
 
@@ -731,6 +744,7 @@ public class SpectralDiversityOp extends Operator {
                 final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
                 final double[][] shiftLUT = new double[numOverlaps][numBlocksPerOverlap];
 
+                final ThreadExecutor executor = new ThreadExecutor();
                 for (int i = 0; i < numOverlaps; i++) {
 
                     final double[] spectralSeparation = computeSpectralSeparation(i);
@@ -819,7 +833,13 @@ public class SpectralDiversityOp extends Operator {
                         }
                     }
                     // average for this overlap
-                    averagedAzShiftArray[i] = sumAzOffset / sumWeight;
+                    if (sumWeight != 0) {
+                        averagedAzShiftArray[i] = sumAzOffset / sumWeight;
+                    } else {
+                        averagedAzShiftArray[i] = 0.0;
+                        SystemUtils.LOG.warning("AzimuthShiftOp: band = " + key + " overlap area = " + i +
+                                                        ", weight for this overlap is 0.0");
+                    }
                     averagedWeight[i] = sumWeight / numBlocksPerOverlap;
                     overlapSearchBoundary[i] = blockSearchBoundary;
 
@@ -827,11 +847,18 @@ public class SpectralDiversityOp extends Operator {
                     totalOffset += sumAzOffset;
                     totalWeight += sumWeight;
 
-                    SystemUtils.LOG.fine(
-                            "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
+                    SystemUtils.LOG.fine("AzimuthShiftOp: band = " + key + " overlap area = " + i +
+                                                 ", azimuth offset = " + averagedAzShiftArray[i]);
                 }
 
-                final double azOffset = -totalOffset / totalWeight;
+                final double azOffset;
+                if (totalWeight != 0) {
+                    azOffset = -totalOffset / totalWeight;
+                } else {  // weight for the whole band is 0
+                    azOffset = 0.0;
+                    SystemUtils.LOG.warning("AzimuthShiftOp: band = " + key +
+                                                    ", weight for this band is 0.0, setting azimuth offset to 0.0");
+                }
                 SystemUtils.LOG.fine("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
 
                 if (targetOffsetMap.get(key) == null) {

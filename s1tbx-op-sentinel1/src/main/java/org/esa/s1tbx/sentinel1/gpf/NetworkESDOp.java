@@ -104,7 +104,7 @@ import java.util.concurrent.TimeUnit;
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "David A. Monge, Reinier Oost, Esteban Aguilera, Jun Lu, Luis Veci",
         version = "1.0",
-        copyright = "Copyright (C) 2020 Sensar B.V.\nCopyright (C) 2016 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2020 by SENSAR B.V.\nCopyright (C) 2016 by Array Systems Computing Inc.",
         description = "Estimate constant range and azimuth offsets for the whole image")
 public class NetworkESDOp extends Operator {
 
@@ -170,42 +170,60 @@ public class NetworkESDOp extends Operator {
             label = "Number of Windows Per Overlap for ESD")
     private int numBlocksPerOverlap = 10;
 
-    @Parameter(label = "ESD Estimator", valueSet = {ESD_AVERAGE, ESD_PERIODOGRAM},
-            defaultValue = ESD_PERIODOGRAM, description = "ESD estimator used for azimuth shift computation")
+    @Parameter(label = "ESD Estimator",
+            valueSet = {ESD_AVERAGE, ESD_PERIODOGRAM},
+            defaultValue = ESD_PERIODOGRAM,
+            description = "ESD estimator used for azimuth shift computation")
     private String esdEstimator = ESD_PERIODOGRAM;
 
-    @Parameter(label = "Weight function", valueSet = {WEIGHT_FN_NONE, WEIGHT_FN_LINEAR, WEIGHT_FN_QUAD, WEIGHT_FN_INVQUAD},
-            defaultValue = WEIGHT_FN_NONE, description = "Weight function of the coherence to use for azimuth shift estimation")
+    @Parameter(label = "Weight function",
+            valueSet = {WEIGHT_FN_NONE, WEIGHT_FN_LINEAR, WEIGHT_FN_QUAD, WEIGHT_FN_INVQUAD},
+            defaultValue = WEIGHT_FN_NONE,
+            description = "Weight function of the coherence to use for azimuth shift estimation")
     private String weightFunc = WEIGHT_FN_NONE;
 
-    @Parameter(label = "Temporal baseline type", valueSet = {INT_NETWORK_IMAGES_BASELINE, INT_NETWORK_DAYS_BASELINE},
-            defaultValue = INT_NETWORK_IMAGES_BASELINE, description = "Weight function of the coherence to use for azimuth shift estimation")
+    @Parameter(label = "Temporal baseline type",
+            valueSet = {INT_NETWORK_IMAGES_BASELINE, INT_NETWORK_DAYS_BASELINE},
+            defaultValue = INT_NETWORK_IMAGES_BASELINE,
+            description = "Weight function of the coherence to use for azimuth shift estimation")
     private String temporalBaselineType = INT_NETWORK_IMAGES_BASELINE;
 
-    @Parameter(description = "Maximum temporal baseline (in days or number of images depending on the Temporal baseline " +
-            "type) between pairs of images to construct the network. Any number < 1 will generate a network with all of " +
-            "the possible pairs.", defaultValue = "4",
-            label = "Maximum temporal baseline (inclusive)")
+    @Parameter(label = "Maximum temporal baseline (inclusive)",
+            defaultValue = "4",
+            description = "Maximum temporal baseline (in days or number of images depending on the Temporal " +
+            "baseline type) between pairs of images to construct the network. Any number < 1 will generate a network " +
+            "with all of the possible pairs.")
     private int maxTemporalBaseline = 4;
 
-    @Parameter(label = "Integration method", valueSet = {INT_METHOD_L1, INT_METHOD_L2, INT_METHOD_L1_AND_L2},
-            defaultValue = INT_METHOD_L1_AND_L2, description = "Method used for integrating the shifts network.")
+    @Parameter(label = "Integration method",
+            valueSet = {INT_METHOD_L1, INT_METHOD_L2, INT_METHOD_L1_AND_L2},
+            defaultValue = INT_METHOD_L1_AND_L2,
+            description = "Method used for integrating the shifts network.")
     private String integrationMethod = INT_METHOD_L1_AND_L2;
 
-//    @Parameter(description = "Optimization criterion for azimuth shift estimation", valueSet = {OPT_CRITERION_MIN_ARG,
-//            OPT_CRITERION_MAX_REAL}, defaultValue = OPT_CRITERION_MAX_REAL, label = "Optimization criterion")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Optimization criterion",
+//            valueSet = {OPT_CRITERION_MIN_ARG, OPT_CRITERION_MAX_REAL},
+//            defaultValue = OPT_CRITERION_MAX_REAL,
+//            description = "Optimization criterion for azimuth shift estimation")
     private String optObjective = OPT_CRITERION_MAX_REAL;
 
-//    @Parameter(description = "Number of solutions to consider at each iteration in the optimization process", defaultValue = "9",
-//            label = "Number of candidate solutions")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Number of candidate solutions",
+//            defaultValue = "9",
+//            description = "Number of solutions to consider at each iteration in the optimization process")
     private int noOfCandidateSolutions = 9;
 
-//    @Parameter(description = "Tolerance used by the optimization method to consider that solution has enough quality", defaultValue = "0.0001",
-//            label = "Optimization method tolerance")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Optimization method tolerance",
+//            defaultValue = "0.0001",
+//            description = "Tolerance used by the optimization method to consider that solution has enough quality")
     private double optTolerance = 0.0001;
 
-//    @Parameter(description = "Maximum number of iterations for the optimization method", defaultValue = "10000",
-//            label = "Maximum number of iterations")  // TODO(David): uncomment for showing in the GUI
+    // TODO(David): uncomment for showing in the GUI
+//    @Parameter(label = "Maximum number of iterations",
+//            description = "Maximum number of iterations for the optimization method",
+//            defaultValue = "10000")
     private int optMaxIterations = 10000;
 
     @Parameter(description = "Use user supplied range shift", defaultValue = "false",
@@ -517,7 +535,7 @@ public class NetworkESDOp extends Operator {
         for (String key : targetMap.keySet()) {
             final CplxContainer master = targetMap.get(key).sourceMaster;
             final CplxContainer slave = targetMap.get(key).sourceSlave;
-            final String mstSlvTag = getMasterSlavePairTag(master, slave);
+            final String mstSlvTag = getImagePairTag(master, slave);
             //System.out.println("NetworkESD.updateTargetMetadata: mstSlvTag = " + mstSlvTag);
             final MetadataElement mstSlvTagElem = new MetadataElement(mstSlvTag);
             esdMeasurement.addElement(mstSlvTagElem);
@@ -547,7 +565,7 @@ public class NetworkESDOp extends Operator {
                 for (int i = 0; i < arcs.length; i++) {
                     final CplxContainer image1 = imagesList.get(arcs[i][0]);
                     final CplxContainer image2 = imagesList.get(arcs[i][1]);
-                    final String imagePairTag = getMasterSlavePairTag(image1, image2);
+                    final String imagePairTag = getImagePairTag(image1, image2);
                     //System.out.println("NetworkESD.updateTargetMetadata: imagePairTag = " + imagePairTag);
 
                     final MetadataElement imagePairTagElem;  // get or create element
@@ -575,7 +593,7 @@ public class NetworkESDOp extends Operator {
             for (String key : targetMap.keySet()) {
                 final CplxContainer master = targetMap.get(key).sourceMaster;
                 final CplxContainer slave = targetMap.get(key).sourceSlave;
-                final String mstSlvTag = getMasterSlavePairTag(master, slave);
+                final String mstSlvTag = getImagePairTag(master, slave);
                 saveOverallRangeShift(mstSlvTag, overallRangeShift);
             }
         }
@@ -584,14 +602,14 @@ public class NetworkESDOp extends Operator {
             for (String key : targetMap.keySet()) {
                 final CplxContainer master = targetMap.get(key).sourceMaster;
                 final CplxContainer slave = targetMap.get(key).sourceSlave;
-                final String mstSlvTag = getMasterSlavePairTag(master, slave);
+                final String mstSlvTag = getImagePairTag(master, slave);
                 saveOverallAzimuthShift(mstSlvTag, overallAzimuthShift);
             }
         }
     }
 
-    private String getMasterSlavePairTag(final CplxContainer master, final CplxContainer slave) {
-        return getImageTag(master) + "_" + getImageTag(slave);
+    private String getImagePairTag(final CplxContainer image1, final CplxContainer image2) {
+        return getImageTag(image1) + "_" + getImageTag(image2);
     }
 
     private String getImageTag(final CplxContainer image) {
@@ -856,8 +874,8 @@ public class NetworkESDOp extends Operator {
                     final double azShift = azOffsetArray.get(i);
                     final double rgShift = rgOffsetArray.get(i);
 
-                    SystemUtils.LOG.fine("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
-                            + ", azimuth offset = " + azShift);
+                    SystemUtils.LOG.fine("NetworkESD (range shift): burst = " + burstIndexArray.get(i) +
+                                                 ", range offset = " + rgShift + ", azimuth offset = " + azShift);
 
                     if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
                         continue;
@@ -877,7 +895,8 @@ public class NetworkESDOp extends Operator {
                     rgOffset = sumRgOffset / (double)count;
                 } else {
                     rgOffset = 0.0;
-                    SystemUtils.LOG.warning("RangeShiftOp: Cross-correlation failed for all bursts, set range shift to 0");
+                    SystemUtils.LOG.warning("NetworkESD (range shift): Cross-correlation failed for all bursts, " +
+                                                    "set range shift to 0");
                 }
 
                 if (targetOffsetMap.get(key) == null) {
@@ -886,7 +905,7 @@ public class NetworkESDOp extends Operator {
                     targetOffsetMap.get(key).setRgOffset(rgOffset);
                 }
 
-                final String mstSlvTag = getMasterSlavePairTag(master, slave);
+                final String mstSlvTag = getImagePairTag(master, slave);
 
                 saveOverallRangeShift(mstSlvTag, rgOffset);
 
@@ -894,7 +913,7 @@ public class NetworkESDOp extends Operator {
 
                 saveAzimuthShiftPerBurst(mstSlvTag, azOffsetArray, burstIndexArray);
 
-                SystemUtils.LOG.fine("RangeShiftOp: Overall range shift = " + rgOffset);
+                SystemUtils.LOG.fine("NetworkESD (range shift): Overall range shift = " + rgOffset);
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -1035,7 +1054,7 @@ public class NetworkESDOp extends Operator {
                         // the same old structure (master-slave) for backward compatibility with ESD generated metadata
                         CplxContainer master = complexImages.get(0);
                         CplxContainer slave = complexImages.get(i);
-                        String mstSlvTag = getMasterSlavePairTag(master, slave);
+                        String mstSlvTag = getImagePairTag(master, slave);
                         saveOverallAzimuthShift(mstSlvTag, imageShifts[i]);
                     }
                 }
@@ -1119,7 +1138,8 @@ public class NetworkESDOp extends Operator {
 
         //SystemUtils.LOG.info("performESD numOverlaps = " + numOverlaps);
 
-        final ThreadExecutor executor = new ThreadExecutor();
+        final String imagePairTag = getImagePairTag(image1, image2);
+
         try {
 
             final Band mBandI = image1.realBand;
@@ -1130,6 +1150,7 @@ public class NetworkESDOp extends Operator {
             final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
             final double[][] shiftLUT = new double[numOverlaps][numBlocksPerOverlap];
 
+            final ThreadExecutor executor = new ThreadExecutor();
             for (int i = 0; i < numOverlaps; i++) {
 
                 final double[] spectralSeparation = computeSpectralSeparation(i);
@@ -1218,7 +1239,13 @@ public class NetworkESDOp extends Operator {
                     }
                 }
                 // average for this overlap
-                averagedAzShiftArray[i] = sumAzOffset / sumWeight;
+                if (sumWeight != 0) {
+                    averagedAzShiftArray[i] = sumAzOffset / sumWeight;
+                } else {
+                    averagedAzShiftArray[i] = 0.0;
+                    SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                                                    " overlap area = " + i + ", weight for this overlap is 0.0");
+                }
                 averagedWeight[i] = sumWeight / numBlocksPerOverlap;
                 overlapSearchBoundary[i] = blockSearchBoundary;
 
@@ -1226,17 +1253,23 @@ public class NetworkESDOp extends Operator {
                 totalOffset += sumAzOffset;
                 totalWeight += sumWeight;
 
-                SystemUtils.LOG.fine(
-                        "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
+                SystemUtils.LOG.fine("NetworkESD (azimuth shift): arc = " + imagePairTag + " overlap area = " + i +
+                                             ", azimuth offset = " + averagedAzShiftArray[i]);
             }
 
             // overall average shift
-            azOffset = -totalOffset / totalWeight;
-            SystemUtils.LOG.fine("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
+            if (totalWeight != 0) {
+                azOffset = -totalOffset / totalWeight;
+            } else {  // weight for the whole band is 0
+                azOffset = 0.0;
+                SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                                                ", weight for this band is 0.0, setting azimuth offset to 0.0");
+            }
+
+            SystemUtils.LOG.fine("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                                         ", overall azimuth shift for this arc = " + azOffset);
 
             // save metadata
-            final String imagePairTag = getMasterSlavePairTag(image1, image2);
-
             saveAzimuthShiftPerOverlap(imagePairTag, averagedAzShiftArray, averagedWeight, overlapSearchBoundary);
 
             saveAzimuthShiftPerBlock(imagePairTag, azShiftArray);
@@ -1247,9 +1280,15 @@ public class NetworkESDOp extends Operator {
             }
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("estimateAzimuthOffset (averaging)", e);
+            OperatorUtils.catchOperatorException("estimateAzimuthOffset (performESD)", e);
         }
 
+        // validate and return azimuth shift
+        if (Double.isNaN(azOffset)) {
+            azOffset = 0.0;
+            SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                                            ", azimuth offset is NaN, setting to 0.0");
+        }
         return new AzimuthShiftData(-1, -1, azOffset, totalWeight, -1);
     }
 
