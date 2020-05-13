@@ -124,6 +124,9 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         final String transmit_polarization = radar.getAttributeString("transmit_polarization");
         final String receive_polarization = radar.getAttributeString("receive_polarization");
         pol = (transmit_polarization + receive_polarization).toUpperCase();
+
+        final MetadataElement state = collect.getElement("state");
+        addOrbitStateVectors(absRoot, state.getElement("state_vectors"));
     }
 
     @Override
@@ -250,8 +253,9 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         if (absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
-            //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-            //                              ReaderUtils.getTime(stateVectorElems[0], "time", sentinelDateFormat));
+            DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
+                                          ReaderUtils.getTime(stateVectorElems[0], "time", dateFormat));
         }
     }
 
