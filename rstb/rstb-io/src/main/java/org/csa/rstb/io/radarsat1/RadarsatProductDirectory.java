@@ -440,6 +440,10 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             addSRGRCoefficients(absRoot, facilityRec);
         else
             addSRGRCoefficients(absRoot, detProcRec);
+
+        if(sceneRec != null) {
+            addDopplerCentroidCoefficients(absRoot, sceneRec);
+        }
     }
 
     private String getMapProjection(final BinaryRecord mapProjRec) {

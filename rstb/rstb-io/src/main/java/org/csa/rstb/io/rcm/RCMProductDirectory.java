@@ -400,7 +400,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
 
         addOrbitStateVectors(absRoot, orbitInformation);
         addSRGRCoefficients(absRoot, imageGenerationParameters);
-        addDopplerCentroidCoefficients(absRoot, imageGenerationParameters);
+        addDopplerCentroidCoefficients(absRoot, productElem.getElement("dopplerCentroid"));
     }
 
     private ProductData.UTC getTime(final MetadataElement elem, final String tag) {
@@ -531,13 +531,13 @@ public class RCMProductDirectory extends XMLProductDirectory {
     }
 
     private void addDopplerCentroidCoefficients(
-            final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
+            final MetadataElement absRoot, final MetadataElement dopllerCentroidElem) {
 
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
         int listCnt = 1;
-        for (MetadataElement elem : imageGenerationParameters.getElements()) {
-            if (elem.getName().equalsIgnoreCase("dopplerCentroid")) {
+        for (MetadataElement elem : dopllerCentroidElem.getElements()) {
+            if (elem.getName().equalsIgnoreCase("dopplerCentroidEstimate")) {
                 final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
                 dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
                 ++listCnt;
