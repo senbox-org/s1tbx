@@ -262,8 +262,8 @@ public class CosmoSkymedReader extends SARReader {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement globalElem = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot()).
-                getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+        final MetadataElement origMeta = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement globalElem = origMeta.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename", defStr));
         final String productType = globalElem.getAttributeString("Product_Type", defStr);
@@ -400,8 +400,15 @@ public class CosmoSkymedReader extends SARReader {
 
         if (isComplex) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 0);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 1);
         } else {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
+            if(origMeta.containsElement("MBI")) {
+                final MetadataElement mbiElem = origMeta.getElement("MBI");
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, mbiElem.getAttributeDouble("Equivalent_Number_of_Looks"));
+            }
         }
 
         AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
