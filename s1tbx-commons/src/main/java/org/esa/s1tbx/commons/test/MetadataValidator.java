@@ -3,6 +3,7 @@ package org.esa.s1tbx.commons.test;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 
@@ -14,6 +15,8 @@ public class MetadataValidator {
 
     public static class ValidationOptions {
         public boolean validateOrbitStateVectors = true;
+        public boolean validateSRGR = true;
+        public boolean validateDopplerCentroids = true;
     }
 
     public MetadataValidator(final Product product) {
@@ -27,10 +30,6 @@ public class MetadataValidator {
     }
 
     public void validate() throws Exception {
-//        final MetadataAttribute[] attribs = absRoot.getAttributes();
-//        for(MetadataAttribute attrib : attribs) {
-//            System.out.println(attrib.getName() +" = "+ attrib.getData().toString());
-//        }
 
         verifyStr(AbstractMetadata.PRODUCT);
         verifyStr(AbstractMetadata.PRODUCT_TYPE);
@@ -61,11 +60,11 @@ public class MetadataValidator {
         verifyDouble(AbstractMetadata.range_spacing);
         verifyDouble(AbstractMetadata.azimuth_spacing);
         
-//        verifyDouble(AbstractMetadata.range_looks);
-//        verifyDouble(AbstractMetadata.azimuth_looks);
-//        verifyDouble(AbstractMetadata.slant_range_to_first_pixel);
-//        verifyDouble(AbstractMetadata.range_bandwidth);
-//        verifyDouble(AbstractMetadata.azimuth_bandwidth);
+        verifyDouble(AbstractMetadata.range_looks);
+        verifyDouble(AbstractMetadata.azimuth_looks);
+        //verifyDouble(AbstractMetadata.slant_range_to_first_pixel);
+        //verifyDouble(AbstractMetadata.range_bandwidth);
+        //verifyDouble(AbstractMetadata.azimuth_bandwidth);
 
         verifyInt(AbstractMetadata.num_output_lines);
         verifyInt(AbstractMetadata.num_samples_per_line);
@@ -77,9 +76,17 @@ public class MetadataValidator {
         //verifyDopplerCentroids();
     }
 
-    private void verifySRGR() throws Exception {
+    private boolean isSLC() {
         String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
-        if(sampleType.equals("COMPLEX")) {
+        return sampleType.equals("COMPLEX");
+    }
+
+    private void verifySRGR() throws Exception {
+        if(!validationOptions.validateSRGR) {
+            SystemUtils.LOG.warning("Skipping SRGR validation");
+            return;
+        }
+        if(isSLC()) {
             return;
         }
 
@@ -111,8 +118,10 @@ public class MetadataValidator {
     }
 
     private void verifyOrbitStateVectors() throws Exception {
-        if(!validationOptions.validateOrbitStateVectors)
+        if(!validationOptions.validateOrbitStateVectors) {
+            SystemUtils.LOG.warning("Skipping orbit state vector validation");
             return;
+        }
 
         final MetadataElement orbitElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
         if(orbitElem != null) {
@@ -130,6 +139,11 @@ public class MetadataValidator {
     }
 
     private void verifyDopplerCentroids() throws Exception {
+        if(!validationOptions.validateDopplerCentroids) {
+            SystemUtils.LOG.warning("Skipping doppler centroid validation");
+            return;
+        }
+
         final MetadataElement dopElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
         if(dopElem != null) {
             MetadataElement[] elems = dopElem.getElements();
@@ -141,7 +155,7 @@ public class MetadataValidator {
                 throw new Exception("Doppler Centroids "+AbstractMetadata.dop_coef_time+" not found");
             }
             if(!coefList.containsAttribute(AbstractMetadata.slant_range_time)) {
-                throw new Exception("Doppler Centroids "+AbstractMetadata.slant_range_time+" not found");
+                SystemUtils.LOG.warning("Doppler Centroids "+AbstractMetadata.slant_range_time+" not found");
             }
         } else {
             throw new Exception("Doppler Centroids not found");

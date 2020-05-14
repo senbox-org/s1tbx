@@ -55,7 +55,8 @@ public class TestCapellaProductReader extends ReaderTest {
         assumeTrue(inputSLCMeta + " not found", inputSLCMeta.exists());
         assumeTrue(inputSLCFolder + " not found", inputSLCFolder.exists());
 
-        options.validateOrbitStateVectors = false;
+        options.validateSRGR = false;
+        options.validateDopplerCentroids = false;
     }
 
     @Test

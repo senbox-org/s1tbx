@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.seasat;
 
+import org.esa.s1tbx.commons.test.MetadataValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -35,10 +36,14 @@ public class TestSeaSatProductReader extends ReaderTest {
     private final static File metadataFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR/Seasat/SS_00263_STD_F0886_tif/SS_00263_STD_F0886.xml");
     private final static File zipFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR/Seasat/SS_00263_STD_F0886_tif.zip");
 
+    final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
+
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
         assumeTrue(metadataFile + " not found", metadataFile.exists());
+
+        options.validateSRGR = false;
     }
 
     public TestSeaSatProductReader() {
@@ -49,7 +54,7 @@ public class TestSeaSatProductReader extends ReaderTest {
     public void testOpenMetadata() throws Exception {
         Product prod = testReader(metadataFile.toPath());
         validateProduct(prod);
-        validateMetadata(prod);
+        validateMetadata(prod, options);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
@@ -57,7 +62,7 @@ public class TestSeaSatProductReader extends ReaderTest {
     public void testOpenZip() throws Exception {
         Product prod = testReader(zipFile.toPath());
         validateProduct(prod);
-        validateMetadata(prod);
+        validateMetadata(prod, options);
         validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
     }
 }
