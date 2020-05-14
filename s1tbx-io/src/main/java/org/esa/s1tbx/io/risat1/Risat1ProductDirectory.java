@@ -256,14 +256,15 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                 }
             }
         }
-
-        if (compactPolMode) {
-            absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
-            absRoot.setAttributeString(AbstractMetadata.compact_mode, "Right Circular Hybrid Mode");
-        }
     }
 
     private void updateMetadataFromBandProduct(final Product product, final Product bandProduct) {
+        final MetadataElement trgAbsMeta = AbstractMetadata.getAbstractedMetadata(product);
+        if (compactPolMode) {
+            trgAbsMeta.setAttributeInt(AbstractMetadata.polsarData, 1);
+            trgAbsMeta.setAttributeString(AbstractMetadata.compact_mode, "Right Circular Hybrid Mode");
+        }
+
         if(bandProduct.getProductReader() instanceof RisatCeosProductReader) {
             final MetadataElement trgOrigProdElem = AbstractMetadata.getOriginalProductMetadata(product);
 
@@ -276,7 +277,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             }
 
             final MetadataElement bandAbsMeta = AbstractMetadata.getAbstractedMetadata(bandProduct);
-            final MetadataElement trgAbsMeta = AbstractMetadata.getAbstractedMetadata(product);
 
             MetadataElement osv = bandAbsMeta.getElement(AbstractMetadata.orbit_state_vectors).createDeepClone();
             trgAbsMeta.removeElement(trgAbsMeta.getElement(AbstractMetadata.orbit_state_vectors));
@@ -306,6 +306,11 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                     bandAbsMeta.getAttributeDouble(AbstractMetadata.range_bandwidth));
             trgAbsMeta.setAttributeDouble(AbstractMetadata.azimuth_bandwidth,
                     bandAbsMeta.getAttributeDouble(AbstractMetadata.azimuth_bandwidth));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.range_looks,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.range_looks));
+            trgAbsMeta.setAttributeDouble(AbstractMetadata.azimuth_looks,
+                    bandAbsMeta.getAttributeDouble(AbstractMetadata.azimuth_looks));
+
 
             trgAbsMeta.setAttributeDouble(AbstractMetadata.first_near_lat,
                     bandAbsMeta.getAttributeDouble(AbstractMetadata.first_near_lat));
@@ -325,13 +330,18 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
             trgAbsMeta.setAttributeDouble(AbstractMetadata.last_far_long,
                     bandAbsMeta.getAttributeDouble(AbstractMetadata.last_far_long));
 
+
+            final MetadataElement origMeta = AbstractMetadata.getOriginalProductMetadata(bandProduct);
+            //final MetadataElement imageGenerationParameters = origMeta.getElement("wah");
+            //addSRGRCoefficients(trgAbsMeta, imageGenerationParameters);
+
             // for debugging
             //trgOrigProdElem.addElement(bandAbsMeta);
         }
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
@@ -425,7 +435,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                                       ReaderUtils.getLineTimeInterval(startTime, stopTime,
                                                                       absRoot.getAttributeInt(AbstractMetadata.num_output_lines)));
 
-
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
                 productElem.getAttributeDouble("OutputPixelSpacing", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
@@ -433,8 +442,6 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
 
         // polarizations
         getPolarizations(absRoot, productElem);
-//        addSRGRCoefficients(absRoot, productElem);
-//        addDopplerCentroidCoefficients(absRoot, productElem);
     }
 
     private static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
@@ -453,20 +460,24 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
         return -1;
     }
 
-    private void getPolarizations(final MetadataElement absRoot, final MetadataElement prodElem) {
+    private String[] getPolarizations(final MetadataElement absRoot, final MetadataElement prodElem) {
+        final List<String> pols = new ArrayList<>();
         int i = 0;
         String pol = prodElem.getAttributeString("TxRxPol1", null);
         if (pol != null) {
             pol = pol.toUpperCase();
+            pols.add(getPol(pol));
             absRoot.setAttributeString(AbstractMetadata.polarTags[i], pol);
             ++i;
         }
         pol = prodElem.getAttributeString("TxRxPol2", null);
         if (pol != null) {
             pol = pol.toUpperCase();
+            pols.add(getPol(pol));
             absRoot.setAttributeString(AbstractMetadata.polarTags[i], pol);
             ++i;
         }
+        return pols.toArray(new String[0]);
     }
 
     private void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
