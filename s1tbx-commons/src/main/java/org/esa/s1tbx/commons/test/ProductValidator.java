@@ -33,7 +33,6 @@ public class ProductValidator {
             throw new Exception("product is null");
         }
         if (validationOptions.verifyGeoCoding && product.getSceneGeoCoding() == null) {
-            //SystemUtils.LOG.warning("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
             throw new Exception("geocoding is null");
         }
         if (product.getMetadataRoot() == null) {
