@@ -302,6 +302,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         }
 
         addOrbitStateVectors(absRoot, features.getElement("StateVectorData"));
+
+        addDopplerCentroidCoefficients(absRoot, channel);
     }
 
     private static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
@@ -729,36 +731,32 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private void addDopplerCentroidCoefficients(
-            final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
-
-        final MetadataElement[] dopplerElems = dopplerCentroid.getElements();
+    private void addDopplerCentroidCoefficients(final MetadataElement absRoot, final MetadataElement channel) {
+        final MetadataElement[] channelElements = channel.getElements();
 
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
         int listCnt = 1;
-        for (MetadataElement dopplerEstimate : dopplerElems) {
-            if (dopplerEstimate.getName().equalsIgnoreCase("dopplerEstimate")) {
+        for (MetadataElement channelElement : channelElements) {
+            if (channelElement.getName().equalsIgnoreCase("DopplerCentroid")) {
                 final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
                 dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
                 ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(dopplerEstimate, "timeUTC", standardDateFormat);
+                final ProductData.UTC utcTime = ReaderUtils.getTime(channelElement, "taz0_Utc", dateFormat2);
                 dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
-                final MetadataElement combinedDoppler = dopplerEstimate.getElement("combinedDoppler");
-                final MetadataElement[] coefficients = combinedDoppler.getElements();
-
-                /*final double refTime = elem.getElement("dopplerCentroidReferenceTime").
-                       getAttributeDouble("dopplerCentroidReferenceTime", 0)*1e9; // s to ns
-               AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
+                final double refTime = channelElement.getAttributeDouble("trg0_s", 0)*1e9; // s to ns
+                AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
                        ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
-               AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
-                */
+                AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
+
+                final MetadataElement pol = channelElement.getElement("pol");
+                final MetadataElement[] coefficients = pol.getElements();
 
                 int cnt = 1;
                 for (MetadataElement coefficient : coefficients) {
-                    final double coefValue = coefficient.getAttributeDouble("coefficient", 0);
+                    final double coefValue = coefficient.getAttributeDouble("val", 0);
                     final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
                     dopplerListElem.addElement(coefElem);
                     ++cnt;
