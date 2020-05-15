@@ -302,7 +302,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         }
 
         addOrbitStateVectors(absRoot, features.getElement("StateVectorData"));
-
+        addSRGRCoefficients(absRoot, channel.getElement("SlantToGround"));
         addDopplerCentroidCoefficients(absRoot, channel);
     }
 
@@ -644,90 +644,30 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                 Double.parseDouble(vel[i+2].getData().getElemString()));
     }
 
-    private static void addSRGRCoefficients(
-            final MetadataElement absRoot, final MetadataElement productSpecific, final MetadataElement productInfo) {
-
-        // get swath begin time and swath end time
-        final MetadataElement sceneInfo = productInfo.getElement("sceneInfo");
-        if (sceneInfo == null) {
+    private void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement slantToGround) {
+        if(slantToGround == null)
             return;
-        }
 
-        final MetadataElement rangeTime = sceneInfo.getElement("rangeTime");
-        if (rangeTime == null) {
-            return;
-        }
-
-        final double firstPixelTime = rangeTime.getAttributeDouble("firstPixel");
-        final double lastPixelTime = rangeTime.getAttributeDouble("lastPixel");
-
-        // get slant range time to ground rang conversion coefficients
-        final MetadataElement projectedImageInfo = productSpecific.getElement("projectedImageInfo");
-        if (projectedImageInfo == null) {
-            return;
-        }
-
-        final MetadataElement slantToGroundRangeProjection = projectedImageInfo.getElement("slantToGroundRangeProjection");
-        if (slantToGroundRangeProjection == null) {
-            return;
-        }
-
-        // final double validityRangeMin = slantToGroundRangeProjection.getAttributeDouble("validityRangeMin");
-        // final double validityRangeMax = slantToGroundRangeProjection.getAttributeDouble("validityRangeMax");
-        final double referencePoint = slantToGroundRangeProjection.getAttributeDouble("referencePoint");
-        final int polynomialDegree = slantToGroundRangeProjection.getAttributeInt("polynomialDegree");
-
-        final double[] s2gCoef = new double[polynomialDegree + 1];
-        int cnt = 0;
-        for (MetadataElement elem : slantToGroundRangeProjection.getElements()) {
-            s2gCoef[cnt++] = elem.getAttributeDouble("coefficient", 0);
-        }
-
-        // compute ground range to slant range conversion coefficients
-        final int m = 11; // order of ground to slant polynomial
-        double[] sltRgTime = new double[m + 1];
-        double[] groundRange = new double[m + 1];
-        for (int i = 0; i <= m; i++) {
-            sltRgTime[i] = firstPixelTime + (lastPixelTime - firstPixelTime) * i / m;
-            groundRange[i] = Maths.computePolynomialValue(sltRgTime[i] - referencePoint, s2gCoef);
-        }
-
-        // final double groundRangeRef = (groundRange[0] + groundRange[m]) / 2;
-        final double groundRangeRef = 0.0; // set ground range ref to 0 because when g2sCoef are used in computing
-        // slant range from ground range, the ground range origin is assumed to be 0
-        final double[] deltaGroundRange = new double[m + 1];
-        final double deltaMax = groundRange[m] - groundRangeRef;
-        for (int i = 0; i <= m; i++) {
-            deltaGroundRange[i] = (groundRange[i] - groundRangeRef) / deltaMax;
-        }
-
-        final Matrix G = Maths.createVandermondeMatrix(deltaGroundRange, m);
-        final Matrix tau = new Matrix(sltRgTime, m + 1);
-        final Matrix s = G.solve(tau);
-        final double[] g2sCoef = s.getColumnPackedCopy();
-
-        double tmp = 1;
-        for (int i = 0; i <= m; i++) {
-            g2sCoef[i] *= Constants.halfLightSpeed / tmp;
-            tmp *= deltaMax;
-        }
+        final MetadataElement pol = slantToGround.getElement("pol");
 
         // save ground range to slant range conversion coefficients in abstract metadata
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
         final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list);
         srgrCoefficientsElem.addElement(srgrListElem);
-        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
-        srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
+
+        srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, getTime(slantToGround, "taz0_Utc", dateFormat2));
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
                 ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
         AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
-        for (int i = 0; i <= m; i++) {
-            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
+        int cnt = 1;
+        for (MetadataElement val : pol.getElements()) {
+            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
             srgrListElem.addElement(coefElem);
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
                     ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
-            AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, g2sCoef[i]);
+            AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, val.getAttributeDouble("val"));
+            ++cnt;
         }
     }
 
