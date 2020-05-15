@@ -73,7 +73,7 @@ public class MetadataValidator {
 
         //verifySRGR();
         verifyOrbitStateVectors();
-        //verifyDopplerCentroids();
+        verifyDopplerCentroids();
     }
 
     private boolean isSLC() {
@@ -141,6 +141,9 @@ public class MetadataValidator {
     private void verifyDopplerCentroids() throws Exception {
         if(!validationOptions.validateDopplerCentroids) {
             SystemUtils.LOG.warning("Skipping doppler centroid validation");
+            return;
+        }
+        if(!isSLC()) {
             return;
         }
 
