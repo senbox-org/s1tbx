@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * This class represents a product directory.
@@ -235,6 +236,10 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
         final MetadataElement platform = level1Product.getElement("platform");
         final MetadataElement orbit = platform.getElement("orbit");
         addOrbitStateVectors(absRoot, orbit);
+
+        final MetadataElement processing = level1Product.getElement("processing");
+        final MetadataElement doppler = processing.getElement("doppler");
+        addDopplerCentroidCoefficients(absRoot, doppler.getElement("dopplerCentroid"));
     }
 
     private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbit) {
@@ -281,6 +286,42 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
                                            zvel.getAttributeDouble("velZ", 0));
 
         orbitVectorListElem.addElement(orbitVectorElem);
+    }
+
+    private void addDopplerCentroidCoefficients(final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
+        if (dopplerCentroid == null) return;
+
+        final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
+        final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        int listCnt = 1;
+        for (MetadataElement elem : dopplerCentroid.getElements()) {
+            final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
+            dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
+            ++listCnt;
+
+            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "timeUTC", dateFormat);
+            dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
+
+//            final double refTime = elem.getAttributeDouble("t0", 0) * 1e9; // s to ns
+//            AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
+//                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+//            AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
+
+            final MetadataElement basebandDoppler = elem.getElement("basebandDoppler");
+            int cnt = 1;
+            for (MetadataElement coef : basebandDoppler.getElements()) {
+                if(coef.getName().equals("coefficient")) {
+
+                    final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
+                    dopplerListElem.addElement(coefElem);
+                    ++cnt;
+                    AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
+                                ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                    AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coef.getAttributeDouble("coefficient"));
+                }
+            }
+        }
     }
 
     @Override
