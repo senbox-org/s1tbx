@@ -1,15 +1,20 @@
 package org.esa.s1tbx.commons.test;
 
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 public class ProductValidator {
 
     private final Product product;
     private final ValidationOptions validationOptions;
+    private final InputProductValidator inputProductValidator;
 
     private static final ProductData.UTC NO_TIME = new ProductData.UTC();
 
@@ -17,6 +22,7 @@ public class ProductValidator {
         public boolean verifyGeoCoding = true;
         public boolean verifyBands = true;
         public boolean verifyTimes = true;
+        public boolean verifyTiePointGrids = true;
     }
 
     public ProductValidator(final Product product) {
@@ -26,6 +32,7 @@ public class ProductValidator {
     public ProductValidator(final Product product, final ValidationOptions options) {
         this.product = product;
         this.validationOptions = options == null ? new ValidationOptions() : options;
+        this.inputProductValidator = new InputProductValidator(product);
     }
 
     public void validate() throws Exception {
@@ -54,6 +61,7 @@ public class ProductValidator {
 
         verifyTimes();
         verifyBands();
+        verifyTiePointGrids();
     }
 
     private boolean isNotValid(final String str) {
@@ -61,44 +69,44 @@ public class ProductValidator {
     }
 
     private void verifyTimes() throws Exception {
-        if (validationOptions.verifyTimes) {
-            if (product.getStartTime() == null || product.getStartTime().getMJD() == NO_TIME.getMJD()) {
-                throw new Exception("startTime is null");
-            }
-            if (product.getEndTime() == null || product.getEndTime().getMJD() == NO_TIME.getMJD()) {
-                throw new Exception("endTime is null");
-            }
+        if (!validationOptions.verifyTimes) {
+            return;
+        }
+        if (product.getStartTime() == null || product.getStartTime().getMJD() == NO_TIME.getMJD()) {
+            throw new Exception("startTime is null");
+        }
+        if (product.getEndTime() == null || product.getEndTime().getMJD() == NO_TIME.getMJD()) {
+            throw new Exception("endTime is null");
         }
     }
 
     private void verifyBands() throws Exception {
-        if (validationOptions.verifyBands) {
-            if(product.getNumBands() == 0) {
-                throw new Exception("number of bands are zero");
+        if (!validationOptions.verifyBands) {
+            return;
+        }
+        if (product.getNumBands() == 0) {
+            throw new Exception("number of bands are zero");
+        }
+
+        for (Band band : product.getBands()) {
+            if (isNotValid(band.getName())) {
+                throw new Exception("band " + band.getName() + " has invalid name");
+            }
+            if (isNotValid(band.getUnit())) {
+                throw new Exception("band " + band.getName() + " has invalid unit " + band.getUnit());
+            }
+            if (!band.isNoDataValueUsed()) {
+                throw new Exception("Band " + band.getName() + " is not using a nodata value");
+            }
+            if (band.getRasterWidth() == 0 || band.getRasterHeight() == 0) {
+                throw new Exception("band " + band.getName() + " raster dimensions are "
+                        + band.getRasterWidth() + " x " + band.getRasterHeight());
             }
 
-            final InputProductValidator validator = new InputProductValidator(product);
-
-            for (Band band : product.getBands()) {
-                if (isNotValid(band.getName())) {
-                    throw new Exception("band " + band.getName() + " has invalid name");
-                }
-                if (isNotValid(band.getUnit())) {
-                    throw new Exception("band " + band.getName() + " has invalid unit " + band.getUnit());
-                }
-                if(!band.isNoDataValueUsed()) {
-                    throw new Exception("Band "+ band.getName() +" is not using a nodata value");
-                }
-                if (band.getRasterWidth() == 0 || band.getRasterHeight() == 0) {
-                    throw new Exception("band " + band.getName() + " raster dimensions are "
-                            + band.getRasterWidth() +" x "+ band.getRasterHeight());
-                }
-
-                if(validator.isSARProduct()) {
-                    validateSARBand(band);
-                } else {
-                    validateOpticalBand(band);
-                }
+            if (inputProductValidator.isSARProduct()) {
+                validateSARBand(band);
+            } else {
+                validateOpticalBand(band);
             }
         }
     }
@@ -109,5 +117,23 @@ public class ProductValidator {
 
     private void validateOpticalBand(final Band band) throws Exception {
 
+    }
+
+    private void verifyTiePointGrids() throws Exception {
+        if (!validationOptions.verifyTiePointGrids) {
+            return;
+        }
+
+        if (inputProductValidator.isSARProduct()) {
+            TiePointGrid incidenceAngleTPG = product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE);
+            if(incidenceAngleTPG == null) {
+                //throw new Exception(OperatorUtils.TPG_INCIDENT_ANGLE + " tie point grid is missing");
+            }
+            // only used by GG EC
+//            TiePointGrid slantRangeTimeTPG = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
+//            if(slantRangeTimeTPG == null) {
+//                throw new Exception(OperatorUtils.TPG_SLANT_RANGE_TIME + " tie point grid is missing");
+//            }
+        }
     }
 }
