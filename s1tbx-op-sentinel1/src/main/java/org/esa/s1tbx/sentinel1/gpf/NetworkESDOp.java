@@ -185,7 +185,7 @@ public class NetworkESDOp extends Operator {
     @Parameter(label = "Temporal baseline type",
             valueSet = {INT_NETWORK_IMAGES_BASELINE, INT_NETWORK_DAYS_BASELINE},
             defaultValue = INT_NETWORK_IMAGES_BASELINE,
-            description = "Weight function of the coherence to use for azimuth shift estimation")
+            description = "Baseline type for building the integration network")
     private String temporalBaselineType = INT_NETWORK_IMAGES_BASELINE;
 
     @Parameter(label = "Maximum temporal baseline (inclusive)",
@@ -277,8 +277,7 @@ public class NetworkESDOp extends Operator {
     // integration network
     private Map<String, List<CplxContainer>> complexImages = new HashMap<>(); // map with lists of complex images (master is first), indexed by swath-polarization
     private int[][] arcs;
-    private double[] relativeAzimuthShifts;
-    private double[] weights;
+
 
     /**
      * Default constructor. The graph processing framework
@@ -543,16 +542,6 @@ public class NetworkESDOp extends Operator {
             final MetadataElement overallRgAzShiftElem = new MetadataElement("Overall_Range_Azimuth_Shift");
             overallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
             mstSlvTagElem.addElement(overallRgAzShiftElem);
-
-            if (!useSuppliedRangeShift) {
-                final MetadataElement rgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
-                rgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
-                mstSlvTagElem.addElement(rgShiftPerBurstElem);
-
-                final MetadataElement azShiftPerBurstElem = new MetadataElement("Azimuth_Shift_Per_Burst");
-                azShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
-                mstSlvTagElem.addElement(azShiftPerBurstElem);
-            }
         }
         absTgt.addElement(esdMeasurement);
 
@@ -568,12 +557,16 @@ public class NetworkESDOp extends Operator {
                     final String imagePairTag = getImagePairTag(image1, image2);
                     //System.out.println("NetworkESD.updateTargetMetadata: imagePairTag = " + imagePairTag);
 
-                    final MetadataElement imagePairTagElem;  // get or create element
-                    if (esdMeasurement.containsElement(imagePairTag)) {
-                        imagePairTagElem = esdMeasurement.getElement(imagePairTag);  // master-slave
-                    } else {
-                        imagePairTagElem = new MetadataElement(imagePairTag);  // slave-slave
-                        esdMeasurement.addElement(imagePairTagElem);
+                    final MetadataElement imagePairTagElem = getOrCreateElement(esdMeasurement, imagePairTag);
+
+                    if (!useSuppliedRangeShift) {
+                        final MetadataElement rgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
+                        rgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
+                        imagePairTagElem.addElement(rgShiftPerBurstElem);
+
+                        final MetadataElement azShiftPerBurstElem = new MetadataElement("Azimuth_Shift_Per_Burst");
+                        azShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
+                        imagePairTagElem.addElement(azShiftPerBurstElem);
                     }
 
                     if (!useSuppliedAzimuthShift) {
@@ -808,11 +801,20 @@ public class NetworkESDOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
         }
     }
 
     /**
      * Estimate range and azimuth offset using cross-correlation.
+     *
+     * Steps:
+     * <ol>
+     *     <li>estimate range shifts for each arc (including all polarizations) using cross-correlation,</li>
+     *     <li>integrate range shifts for each image using the network, and</li>
+     *     <li>save shifts and network metadata.</li>
+     * </ol>
      */
     private synchronized void estimateRangeOffset() {
 
@@ -820,104 +822,92 @@ public class NetworkESDOp extends Operator {
             return;
         }
 
-        // Each subswath can have its own number of bursts but we are dealing with only one subswath anyways
-        final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
-
-        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Estimating range offsets... ", numBursts);
-
-
         try {
-            // for each slave and pol combination
-            for (String key : targetMap.keySet()) {
-                final List<Double> azOffsetArray = new ArrayList<>(numBursts);
-                final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
-                final List<Integer> burstIndexArray = new ArrayList<>(numBursts);
+            final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
 
-                final ProductContainer container = targetMap.get(key);
-                final CplxContainer master = container.sourceMaster;
-                final CplxContainer slave = container.sourceSlave;
+            // compute range shift for every subswath
+            for (String swath : subSwathNames) {
+                // 1. estimate shift for each arc
+                int noOfPolarizations = polarizations.length;
+                List<int[]> arcsList = new ArrayList<>(arcs.length * noOfPolarizations);
+                List<ShiftData> arcShiftsList = new ArrayList<>(arcs.length * noOfPolarizations);
+                List<String> arcPolarizationsList = new ArrayList<>(arcs.length * noOfPolarizations);
 
-                final ThreadExecutor executor = new ThreadExecutor();
-                for (int i = 0; i < numBursts; i++) {
-                    checkForCancellation();
-                    final int burstIndex = i;
+                for (String polarization : polarizations) {
+                    // get list of complex images
+                    String imagesKey = polarization.toUpperCase() + "_" + swath.toUpperCase();
+                    List<CplxContainer> complexImages = this.complexImages.get(imagesKey);
+                    SystemUtils.LOG.fine("Estimating range offset for: " + imagesKey);
 
-                    final ThreadRunnable worker = new ThreadRunnable() {
-                        @Override
-                        public void process() {
-                            try {
-                                final double[] offset = new double[2]; // az/rg offset
+                    // estimate range shift image pair
+                    status.beginTask("Range shift: Cross-correlation for image pairs (" + imagesKey + ")...", arcs.length);
+                    for (int arcIndex = 0; arcIndex < arcs.length; arcIndex++) {  // for each pair
+                        // estimate range shift for each pair using cross-correlation
+                        CplxContainer image1 = complexImages.get(arcs[arcIndex][0]);
+                        CplxContainer image2 = complexImages.get(arcs[arcIndex][1]);
+                        String pairKey = getCanonicalId(image1) + "_" + getCanonicalId(image2);
+                        SystemUtils.LOG.fine("Estimating range shift for pair " + pairKey +
+                                                     "\t arc:" + arcs[arcIndex][0] + " -> " + arcs[arcIndex][1]);
+                        ShiftData rangeShift = crossCorrelatePair(image1, image2);
 
-                                estimateAzRgOffsets(master.realBand, master.imagBand, slave.realBand, slave.imagBand,
-                                        burstIndex, offset);
+                        // save network data
+                        arcsList.add(arcs[arcIndex]);
+                        arcShiftsList.add(rangeShift);
+                        arcPolarizationsList.add(polarization);
 
-                                synchronized(azOffsetArray) {
-                                    azOffsetArray.add(offset[0]);
-                                    rgOffsetArray.add(offset[1]);
-                                    burstIndexArray.add(burstIndex);
-                                }
-                            } catch (Throwable e) {
-                                OperatorUtils.catchOperatorException("estimateOffset", e);
-                            }
+                        status.worked(1);
+                    }
+                    status.done();
+                }
+
+                // 2. integration of arcs
+                int[][] extendedArcs = arcsList.toArray(new int[0][]);
+                double[] relativeRangeShifts = new double[extendedArcs.length];
+                double[] rangeWeights = new double[extendedArcs.length];
+
+                // get range shifts and weights
+                for (int i = 0; i < relativeRangeShifts.length; i++) {
+                    ShiftData rangeShift = arcShiftsList.get(i);
+                    relativeRangeShifts[i] = rangeShift.shift;
+                    rangeWeights[i] = rangeShift.weight;
+                }
+
+                double[] imageShifts = integrateImageShifts(extendedArcs, relativeRangeShifts, rangeWeights);
+
+                // 3. save shifts
+                for (String polarization : polarizations) {
+                    // get list of complex images
+                    String imagesKey = polarization.toUpperCase() + "_" + swath.toUpperCase();
+                    List<CplxContainer> complexImages = this.complexImages.get(imagesKey);
+                    SystemUtils.LOG.fine("Saving range offset for: " + imagesKey);
+
+                    CplxContainer masterImage = complexImages.get(0);
+                    for (int i = 1; i < imageShifts.length; i++) {
+                        CplxContainer slaveImage = complexImages.get(i);
+
+                        String pairKey = getCanonicalId(masterImage) + "_" + getCanonicalId(slaveImage);
+                        if (targetOffsetMap.get(pairKey) == null) {
+                            targetOffsetMap.put(pairKey, new AzRgOffsets(0.0, imageShifts[i]));
+                        } else {
+                            targetOffsetMap.get(pairKey).setRgOffset(imageShifts[i]);
                         }
-                    };
-                    executor.execute(worker);
-                    status.worked(1);
-                }
-                status.done();
-                executor.complete();
 
-                double sumAzOffset = 0.0;
-                double sumRgOffset = 0.0;
-                int count = 0;
-                for (int i = 0; i < azOffsetArray.size(); i++) {
-                    final double azShift = azOffsetArray.get(i);
-                    final double rgShift = rgOffsetArray.get(i);
-
-                    SystemUtils.LOG.fine("NetworkESD (range shift): burst = " + burstIndexArray.get(i) +
-                                                 ", range offset = " + rgShift + ", azimuth offset = " + azShift);
-
-                    if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
-                        continue;
+                        // Although shifts are computed considering all pairs in the network, tag names are kept with
+                        // the same old structure (master-slave) for backward compatibility with ESD generated metadata
+                        CplxContainer master = complexImages.get(0);
+                        CplxContainer slave = complexImages.get(i);
+                        String mstSlvTag = getImagePairTag(master, slave);
+                        saveOverallRangeShift(mstSlvTag, imageShifts[i]);
                     }
-
-                    if (Math.abs(rgShift) > maxRangeShift) {
-                        continue;
-                    }
-
-                    sumAzOffset += azShift;
-                    sumRgOffset += rgShift;
-                    count++;
                 }
 
-                double rgOffset;
-                if (count > 0) {
-                    rgOffset = sumRgOffset / (double)count;
-                } else {
-                    rgOffset = 0.0;
-                    SystemUtils.LOG.warning("NetworkESD (range shift): Cross-correlation failed for all bursts, " +
-                                                    "set range shift to 0");
-                }
-
-                if (targetOffsetMap.get(key) == null) {
-                    targetOffsetMap.put(key, new AzRgOffsets(0.0, rgOffset));
-                } else {
-                    targetOffsetMap.get(key).setRgOffset(rgOffset);
-                }
-
-                final String mstSlvTag = getImagePairTag(master, slave);
-
-                saveOverallRangeShift(mstSlvTag, rgOffset);
-
-                saveRangeShiftPerBurst(mstSlvTag, rgOffsetArray, burstIndexArray);
-
-                saveAzimuthShiftPerBurst(mstSlvTag, azOffsetArray, burstIndexArray);
-
-                SystemUtils.LOG.fine("NetworkESD (range shift): Overall range shift = " + rgOffset);
+                // save integration network
+                saveIntegrationNetwork(extendedArcs, relativeRangeShifts, rangeWeights, complexImages, imageShifts,
+                                       arcPolarizationsList, false);
             }
+
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("estimateOffset", e);
+            OperatorUtils.catchOperatorException("estimateAzimuthOffset", e);
         }
 
         isRangeOffsetAvailable = true;
@@ -982,6 +972,13 @@ public class NetworkESDOp extends Operator {
 
     /**
      * Estimate azimuth offset using Network ESD approach.
+     *
+     * Steps:
+     * <ol>
+     *     <li>estimate azimuth shifts for each arc (including all polarizations) using ESD,</li>
+     *     <li>integrate azimuth shifts for each image using the network, and</li>
+     *     <li>save shifts and network metadata.</li>
+     * </ol>
      */
     private synchronized void estimateAzimuthOffset() {
 
@@ -994,9 +991,10 @@ public class NetworkESDOp extends Operator {
 
             // compute azimuth shift for every subswath
             for (String swath : subSwathNames) {
+                // 1. estimate azimuth shifts for each arc
                 int noOfPolarizations = polarizations.length;
                 List<int[]> arcsList = new ArrayList<>(arcs.length * noOfPolarizations);
-                List<AzimuthShiftData> arcShiftsList = new ArrayList<>(arcs.length * noOfPolarizations);
+                List<ShiftData> arcShiftsList = new ArrayList<>(arcs.length * noOfPolarizations);
                 List<String> arcPolarizationsList = new ArrayList<>(arcs.length * noOfPolarizations);
 
                 for (String polarization : polarizations) {
@@ -1006,7 +1004,7 @@ public class NetworkESDOp extends Operator {
                     SystemUtils.LOG.fine("Estimating azimuth offset for: " + imagesKey);
 
                     // apply ESD to each image pair
-                    status.beginTask("Applying ESD to image pairs (" + imagesKey + ")...", arcs.length);
+                    status.beginTask("Azimuth shift: applying ESD to image pairs (" + imagesKey + ")...", arcs.length);
                     for (int arcIndex = 0; arcIndex < arcs.length; arcIndex++) {  // for each pair
                         // perform ESD On each pair
                         CplxContainer image1 = complexImages.get(arcs[arcIndex][0]);
@@ -1014,8 +1012,7 @@ public class NetworkESDOp extends Operator {
                         String pairKey = getCanonicalId(image1) + "_" + getCanonicalId(image2);
                         SystemUtils.LOG.fine("Applying ESD on pair " + pairKey +
                                                      "\t arc:" + arcs[arcIndex][0] + " -> " + arcs[arcIndex][1]);
-                        AzimuthShiftData azimuthShift =
-                                performESD(image1, image2, usePeriodogram, numBlocksPerOverlap, pairKey);
+                        ShiftData azimuthShift = applyESDToPair(image1, image2, usePeriodogram);
 
                         // save network data
                         arcsList.add(arcs[arcIndex]);
@@ -1025,14 +1022,23 @@ public class NetworkESDOp extends Operator {
                         status.worked(1);
                     }
                     status.done();
-
                 }
                 
-                // integration of arcs
+                // 2. integration of arcs
                 int[][] extendedArcs = arcsList.toArray(new int[0][]);
-                double[] imageShifts = integrateImageShifts(extendedArcs, arcShiftsList);
+                double[] relativeAzimuthShifts = new double[extendedArcs.length];
+                double[] azimuthWeights = new double[extendedArcs.length];
 
-                // save shifts
+                // get azimuth shifts and weights
+                for (int i = 0; i < relativeAzimuthShifts.length; i++) {
+                    ShiftData azimuthShift = arcShiftsList.get(i);
+                    relativeAzimuthShifts[i] = azimuthShift.shift;
+                    azimuthWeights[i] = azimuthShift.weight;
+                }
+
+                double[] imageShifts = integrateImageShifts(extendedArcs, relativeAzimuthShifts, azimuthWeights);
+
+                // 3. save shifts
                 for (String polarization : polarizations) {
                     // get list of complex images
                     String imagesKey = polarization.toUpperCase() + "_" + swath.toUpperCase();
@@ -1047,7 +1053,7 @@ public class NetworkESDOp extends Operator {
                         if (targetOffsetMap.get(pairKey) == null) {
                             targetOffsetMap.put(pairKey, new AzRgOffsets(imageShifts[i], 0.0));
                         } else {
-                            targetOffsetMap.get(pairKey).setRgOffset(imageShifts[i]);
+                            targetOffsetMap.get(pairKey).setAzOffset(imageShifts[i]);
                         }
 
                         // Although shifts are computed considering all pairs in the network, tag names are kept with
@@ -1060,8 +1066,8 @@ public class NetworkESDOp extends Operator {
                 }
 
                 // save integration network
-                saveIntegrationNetwork(extendedArcs, relativeAzimuthShifts, weights, complexImages, imageShifts,
-                                       arcPolarizationsList);
+                saveIntegrationNetwork(extendedArcs, relativeAzimuthShifts, azimuthWeights, complexImages, imageShifts,
+                                       arcPolarizationsList, true);
             }
 
         } catch (Throwable e) {
@@ -1072,7 +1078,7 @@ public class NetworkESDOp extends Operator {
     }
 
     /**
-     * Gets the canoical id from a complex image container.
+     * Gets the canonical id from a complex image container.
      * @param container
      * @return
      */
@@ -1081,35 +1087,28 @@ public class NetworkESDOp extends Operator {
     }
 
     /**
-     * Computes the azimuth shifts for each image according to the graph, relative azimuth shifts between images and
-     * weights.
+     * Computes the azimuth or range shifts for each image according to the graph, relative azimuth shifts between
+     * images and weights.
      *
      * @param arcs description of the graph of images.
-     * @param azimuthShitsData contains the relative azimuth shifts and weights.
-     * @return an array of shifts per image.
+     * @param shifts contains the relative (azimuth or range) shifts per arc.
+     * @param weights contains the shift weights per arc.
+     * @return an array of integrated shifts per image.
      */
-    public double[] integrateImageShifts(int[][] arcs, List<AzimuthShiftData> azimuthShitsData) {
-        // get azimuth shifts and weights
-        relativeAzimuthShifts = new double[arcs.length];
-        weights = new double[arcs.length];
-        for (int i = 0; i < relativeAzimuthShifts.length; i++) {
-            AzimuthShiftData azimuthShift = azimuthShitsData.get(i);
-            relativeAzimuthShifts[i] = azimuthShift.shift;
-            weights[i] = azimuthShift.weight;
-        }
+    public double[] integrateImageShifts(int[][] arcs, double[] shifts, double[] weights) {
 
         // integrate
-        double[] azimuthShifs;
+        double[] integratedShifts;
 
         try {
             if (integrationMethod.equals(INT_METHOD_L1)) {
-                azimuthShifs = ArcDataIntegration.integrateArcsL1(arcs, relativeAzimuthShifts, weights);
+                integratedShifts = ArcDataIntegration.integrateArcsL1(arcs, shifts, weights);
 
             } else if (integrationMethod.equals(INT_METHOD_L2)) {
-                azimuthShifs = ArcDataIntegration.integrateArcsL2(arcs, relativeAzimuthShifts, weights);
+                integratedShifts = ArcDataIntegration.integrateArcsL2(arcs, shifts, weights);
 
             } else if (integrationMethod.equals(INT_METHOD_L1_AND_L2)) {
-                azimuthShifs = ArcDataIntegration.integrateArcsL1AndL2(arcs, relativeAzimuthShifts, weights);
+                integratedShifts = ArcDataIntegration.integrateArcsL1AndL2(arcs, shifts, weights);
 
             } else {
                 throw new OperatorException("Unrecognized integration method: " + integrationMethod);
@@ -1118,18 +1117,117 @@ public class NetworkESDOp extends Operator {
             throw new OperatorException("Integration problem using method: " + integrationMethod, e);
         }
 
-        return azimuthShifs;
+        return integratedShifts;
+    }
+
+
+    /**
+     * Estimate range offset of the second image with respect to the first one using the average cross-correlation.
+     *
+     * @param image1 first image used as reference.
+     * @param image2 second image.
+     * @return range shift and weights for each pair of images.
+     */
+    private ShiftData crossCorrelatePair(CplxContainer image1, CplxContainer image2) {
+
+        double rgOffset = Double.NaN;
+
+        final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
+
+        //SystemUtils.LOG.info("crossCorrelatePair numBursts = " + numBursts);
+
+        final String imagePairTag = getImagePairTag(image1, image2);
+
+        try {
+            final List<Double> azOffsetArray = new ArrayList<>(numBursts);
+            final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
+            final List<Integer> burstIndexArray = new ArrayList<>(numBursts);
+
+            final ThreadExecutor executor = new ThreadExecutor();
+            for (int i = 0; i < numBursts; i++) {
+                checkForCancellation();
+                final int burstIndex = i;
+
+                final ThreadRunnable worker = new ThreadRunnable() {
+                    @Override
+                    public void process() {
+                        try {
+                            final double[] offset = new double[2]; // az/rg offset
+
+                            estimateAzRgOffsets(image1.realBand, image1.imagBand, image2.realBand, image2.imagBand,
+                                                burstIndex, offset);
+
+                            synchronized(azOffsetArray) {
+                                azOffsetArray.add(offset[0]);
+                                rgOffsetArray.add(offset[1]);
+                                burstIndexArray.add(burstIndex);
+                            }
+                        } catch (Throwable e) {
+                            OperatorUtils.catchOperatorException("estimateOffset", e);
+                        }
+                    }
+                };
+                executor.execute(worker);
+            }
+            executor.complete();
+
+            double sumRgOffset = 0.0;
+            int count = 0;
+            for (int i = 0; i < azOffsetArray.size(); i++) {
+                final double azShift = azOffsetArray.get(i);
+                final double rgShift = rgOffsetArray.get(i);
+
+                SystemUtils.LOG.fine("NetworkESD (range shift): burst = " + burstIndexArray.get(i) +
+                                             ", range offset = " + rgShift + ", azimuth offset = " + azShift);
+
+                if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
+                    continue;
+                }
+
+                if (Math.abs(rgShift) > maxRangeShift) {
+                    continue;
+                }
+
+                sumRgOffset += rgShift;
+                count++;
+            }
+
+            if (count > 0) {
+                rgOffset = sumRgOffset / (double)count;
+            } else {
+                rgOffset = 0.0;
+                SystemUtils.LOG.warning("NetworkESD (range shift): Cross-correlation failed for all bursts, " +
+                                                "set range shift to 0.0");
+            }
+
+            // save metadata
+            saveRangeShiftPerBurst(imagePairTag, rgOffsetArray, burstIndexArray);
+
+            saveAzimuthShiftPerBurst(imagePairTag, azOffsetArray, burstIndexArray);
+
+            SystemUtils.LOG.fine("NetworkESD (range shift): Overall range shift = " + rgOffset);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("estimateRangeOffset (crossCorrelatePair)", e);
+        }
+
+        // validate and return azimuth shift
+        if (Double.isNaN(rgOffset)) {
+            rgOffset = 0.0;
+            SystemUtils.LOG.warning("NetworkESD (range shift): arc = " + imagePairTag +
+                                            ", range offset is NaN, setting to 0.0");
+        }
+        return new ShiftData(-1, -1, rgOffset, 1, -1);
     }
 
     /**
      * Estimate azimuth offset of the second image with respect to the first one using the ESD approach.
      *
      * @param image1 first image to which apply ESD, used as reference.
-     * @param image2 second image to which apply ESD, .
-     * @return azimuth shift and weights for each pair of images.
+     * @param image2 second image to which apply ESD.
+     * @param usePeriodogram flag to indicate the ESD estimation method: Periodogram (true) | Average (false).
+     * @return azimuth shift and azimuthWeights for each pair of images.
      */
-    public synchronized AzimuthShiftData performESD(CplxContainer image1, CplxContainer image2, boolean usePeriodogram,
-                                                    int numBlocksPerOverlap, String pairKey) {
+    public synchronized ShiftData applyESDToPair(CplxContainer image1, CplxContainer image2, boolean usePeriodogram) {
 
         double totalOffset = 0.0;
         double totalWeight = 0.0;
@@ -1138,7 +1236,7 @@ public class NetworkESDOp extends Operator {
         final int numOverlaps = subSwath[subSwathIndex - 1].numOfBursts - 1;
         final int numShifts = numOverlaps * numBlocksPerOverlap;
 
-        //SystemUtils.LOG.info("performESD numOverlaps = " + numOverlaps);
+        //SystemUtils.LOG.info("applyESDToPair numOverlaps = " + numOverlaps);
 
         final String imagePairTag = getImagePairTag(image1, image2);
 
@@ -1149,7 +1247,7 @@ public class NetworkESDOp extends Operator {
             final Band sBandI = image2.realBand;
             final Band sBandQ = image2.imagBand;
 
-            final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
+            final List<ShiftData> azShiftArray = new ArrayList<>(numShifts);
             final double[][] shiftLUT = new double[numOverlaps][numBlocksPerOverlap];
 
             final ThreadExecutor executor = new ThreadExecutor();
@@ -1204,15 +1302,20 @@ public class NetworkESDOp extends Operator {
                                 double azShift;
                                 if (usePeriodogram) {
                                     // Apply the azimuth shift retrieval estimator
-                                    azShift = estimateAzimuthShiftWithPeriodogram(esdPhase, blockWeight, blockSpectralSeparation, searchBoundary);
+                                    azShift = estimateAzimuthShiftWithPeriodogram(esdPhase,
+                                                                                  blockWeight,
+                                                                                  blockSpectralSeparation,
+                                                                                  searchBoundary);
                                 } else {
                                     // Apply an estimator based on the average esd
-                                    azShift = estimateAzimuthShiftWithAverage(esdPhase, blockWeight, blockSpectralSeparation);
+                                    azShift = estimateAzimuthShiftWithAverage(esdPhase,
+                                                                              blockWeight,
+                                                                              blockSpectralSeparation);
                                 }
 
                                 // Save shift to azShiftArray
                                 synchronized (azShiftArray) {
-                                    azShiftArray.add(new AzimuthShiftData(overlapIndex, blockIndex, azShift, avgBlockWeight, searchBoundary));
+                                    azShiftArray.add(new ShiftData(overlapIndex, blockIndex, azShift, avgBlockWeight, searchBoundary));
                                     shiftLUT[overlapIndex][blockIndex] = azShift;
                                 }
                             } catch (Throwable e) {
@@ -1283,7 +1386,7 @@ public class NetworkESDOp extends Operator {
             }
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("estimateAzimuthOffset (performESD)", e);
+            OperatorUtils.catchOperatorException("estimateAzimuthOffset (applyESDToPair)", e);
         }
 
         // validate and return azimuth shift
@@ -1292,7 +1395,7 @@ public class NetworkESDOp extends Operator {
             SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
                                             ", azimuth offset is NaN, setting to 0.0");
         }
-        return new AzimuthShiftData(-1, -1, azOffset, totalWeight, -1);
+        return new ShiftData(-1, -1, azOffset, totalWeight, -1);
     }
 
     private double[] computeSpectralSeparation(int overlapIndex) {
@@ -1495,7 +1598,7 @@ public class NetworkESDOp extends Operator {
         }
     }
 
-    private void saveAzimuthShiftPerBlock(final String mstSlvPairTag, final List<AzimuthShiftData> azShiftArray) {
+    private void saveAzimuthShiftPerBlock(final String mstSlvPairTag, final List<ShiftData> azShiftArray) {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absTgt == null) {
@@ -1534,8 +1637,15 @@ public class NetworkESDOp extends Operator {
      * @param complexImages list of complex images for each polarization.
      * @param integratedShifts results of the integration process.
      */
-    private void saveIntegrationNetwork(int[][] arcs, double[] relativeShifts, double[] weights, Map<String,
-            List<CplxContainer>> complexImages, double[] integratedShifts, List<String> arcPolarizations) {
+    private void saveIntegrationNetwork(int[][] arcs, double[] relativeShifts, double[] weights,
+                                        Map<String, List<CplxContainer>> complexImages, double[] integratedShifts,
+                                        List<String> arcPolarizations, boolean isAzimuthShift) {
+
+        String shiftType = isAzimuthShift ? "azimuthShift" : "rangeShift";
+        String weightType = isAzimuthShift ? "azimuthWeight" : "rangeWeight";
+        String shiftDescription = isAzimuthShift ?
+                "Computed using ESD" :
+                "Computed using Cross-correlation";
 
         int noOfNodes = complexImages.values().iterator().next().size();
         int noOfArcs = arcs.length;
@@ -1549,34 +1659,33 @@ public class NetworkESDOp extends Operator {
         final MetadataElement esdMeasurement = absTgt.getElement("ESD Measurement");
 
         // network
-        final MetadataElement networkRootElem;
-        networkRootElem = new MetadataElement("Network");
+        final MetadataElement networkRootElem = getOrCreateElement(esdMeasurement, "Network");
         networkRootElem.setAttributeString("temporalBaselineType", temporalBaselineType);
         networkRootElem.setAttributeInt("maxTemporalBaseline", maxTemporalBaseline);
         networkRootElem.setAttributeInt("noOfNodes", noOfNodes);
         networkRootElem.setAttributeInt("noOfArcs", noOfArcs);
-        esdMeasurement.addElement(networkRootElem);
 
         // arcs
-        final MetadataElement arcsElem = new MetadataElement("Arcs");
+        final MetadataElement arcsElem = getOrCreateElement(networkRootElem, "Arcs");
         arcsElem.setAttributeInt("count", noOfArcs);
         for (int i = 0; i < arcs.length; i++) {
-            final MetadataElement arcElem = new MetadataElement("Arcs." + i);
+            final MetadataElement arcElem = getOrCreateElement(arcsElem, "Arcs." + i);
             arcElem.setAttributeInt("index", i);
             arcElem.setAttributeInt("sourceNodeIndex", arcs[i][0]);
             arcElem.setAttributeInt("targetNodeIndex", arcs[i][1]);
             arcElem.setAttributeString("polarization", arcPolarizations.get(i));
-            arcElem.setAttributeDouble("azimuthShift", relativeShifts[i]);
-            arcElem.setAttributeDouble("weight", weights[i]);
-            arcsElem.addElement(arcElem);
+
+            arcElem.setAttributeDouble(shiftType, relativeShifts[i]);
+            arcElem.getAttribute(shiftType).setDescription(shiftDescription);
+            arcElem.setAttributeDouble(weightType, weights[i]);
+            arcElem.getAttribute(weightType).setDescription("Arc weight");
         }
-        networkRootElem.addElement(arcsElem);
 
         // nodes
-        final MetadataElement nodesElem = new MetadataElement("Nodes");
+        final MetadataElement nodesElem = getOrCreateElement(networkRootElem, "Nodes");
         nodesElem.setAttributeInt("count", noOfNodes);
         for (int i = 0; i < noOfNodes; i++) {
-            final MetadataElement nodeElem = new MetadataElement("Node." + i);
+            final MetadataElement nodeElem = getOrCreateElement(nodesElem, "Node." + i);
             nodeElem.setAttributeInt("nodeIndex", i);
             int j = 0;
             for (String swath: subSwathNames) {
@@ -1587,10 +1696,24 @@ public class NetworkESDOp extends Operator {
                 }
 
             }
-            nodeElem.setAttributeDouble("azimuthShift", integratedShifts[i]);
-            nodesElem.addElement(nodeElem);
+            nodeElem.setAttributeDouble(shiftType, integratedShifts[i]);
+            nodeElem.getAttribute(shiftType).setDescription("Integrated shift");
         }
-        networkRootElem.addElement(nodesElem);
+    }
+
+    /**
+     * Get or create a sub-element in the provided element.
+     * @param element the root element.
+     * @param name the name of the element to retrieve or create.
+     * @return the sub-element.
+     */
+    private MetadataElement getOrCreateElement(MetadataElement element, String name) {
+        MetadataElement subElement = element.getElement(name);
+        if (subElement == null) {
+            subElement = new MetadataElement(name);
+            element.addElement(subElement);
+        }
+        return subElement;
     }
 
     /**
@@ -2214,15 +2337,19 @@ public class NetworkESDOp extends Operator {
         }
     }
 
-    private static class AzimuthShiftData {
+    /**
+     * Class for handling azimuth and range shift data.
+     * For range, only <code>shift</code> and <code>weight</code> attributes are meaningful.
+     */
+    private static class ShiftData {
         int overlapIndex;
         int blockIndex;
         double shift;
         double weight;
         double searchBoundary;
 
-        public AzimuthShiftData(final int overlapIndex, final int blockIndex, final double shift,
-                                final double weight, final double searchBoundary) {
+        public ShiftData(final int overlapIndex, final int blockIndex, final double shift,
+                         final double weight, final double searchBoundary) {
             this.overlapIndex = overlapIndex;
             this.blockIndex = blockIndex;
             this.shift = shift;
