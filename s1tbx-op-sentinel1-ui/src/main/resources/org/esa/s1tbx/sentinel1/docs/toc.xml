@@ -12,6 +12,7 @@
                     <tocitem text="Range Shift" target="RangeShiftOp"/>
                     <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
                     <tocitem text="Spectral Diversity" target="SpectralDiversityOp"/>
+                    <tocitem text="Network ESD" target="NetworkESDOp"/>
                     <tocitem text="Double Difference Interferogram" target="DoubleDifferenceInterferogramOp"/>
                     <tocitem text="Azimuth Shift Estimation using ESD" target="AzimuthShiftEstimationUsingESDOp"/>
                 </tocitem>
