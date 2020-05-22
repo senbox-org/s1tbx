@@ -55,7 +55,7 @@
             <sourceProduct refid="Network ESD"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <file>/home/dmonge/data/processing/kk/target.dim</file>
+            <file></file>
             <formatName>BEAM-DIMAP</formatName>
         </parameters>
     </node>
