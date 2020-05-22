@@ -13,11 +13,11 @@
             <sourceProduct refid="ProductSet-Reader"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <demName>SRTM 3Sec</demName>
+            <demName>SRTM 1Sec HGT</demName>
             <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
             <externalDEMFile/>
             <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
-            <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
+            <resamplingType>BISINC_21_POINT_INTERPOLATION</resamplingType>
             <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
             <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
             <outputDerampDemodPhase>false</outputDerampDemodPhase>
@@ -39,7 +39,7 @@
             <cohThreshold>0.15</cohThreshold>
             <numBlocksPerOverlap>10</numBlocksPerOverlap>
             <esdEstimator>Periodogram</esdEstimator>
-            <weightFunc>None</weightFunc>
+            <weightFunc>Inv Quadratic</weightFunc>
             <temporalBaselineType>Number of images</temporalBaselineType>
             <maxTemporalBaseline>4</maxTemporalBaseline>
             <integrationMethod>L1 and L2</integrationMethod>
@@ -55,7 +55,7 @@
             <sourceProduct refid="Network ESD"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <file></file>
+            <file/>
             <formatName>BEAM-DIMAP</formatName>
         </parameters>
     </node>
