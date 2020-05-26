@@ -512,9 +512,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private static String getAcquisitionMode(final String mode) {
-        if (mode.equalsIgnoreCase("SM") || mode.equalsIgnoreCase("ST"))
+        if (mode.equalsIgnoreCase("SM"))
             return "Stripmap";
-        else if (mode.equalsIgnoreCase("SL") || mode.equalsIgnoreCase("HS"))
+        else if (mode.equalsIgnoreCase("SL") || mode.equalsIgnoreCase("HS") || mode.equalsIgnoreCase("ST"))
             return "Spotlight";
         else if (mode.equalsIgnoreCase("SC"))
             return "ScanSAR";
