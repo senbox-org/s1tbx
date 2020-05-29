@@ -326,15 +326,15 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geo00.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, geo00.getLon());
 
-        final GeoPos geo01 = geoCoding.getGeoPos(new PixelPos(w, 0), null);
+        final GeoPos geo01 = geoCoding.getGeoPos(new PixelPos(w-1, 0), null);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, geo01.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, geo01.getLon());
 
-        final GeoPos geo10 = geoCoding.getGeoPos(new PixelPos(0, h), null);
+        final GeoPos geo10 = geoCoding.getGeoPos(new PixelPos(0, h-1), null);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, geo10.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, geo10.getLon());
 
-        final GeoPos geo11 = geoCoding.getGeoPos(new PixelPos(w, h), null);
+        final GeoPos geo11 = geoCoding.getGeoPos(new PixelPos(w-1, h-1), null);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, geo11.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, geo11.getLon());
 
