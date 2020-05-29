@@ -74,6 +74,15 @@
                 <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration with Enhanced Spectral Diversity"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
+            <file name="org-esa-s1tbx-sentinel1-gpf-TOPSNESDCoregistration-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="S-1 TOPS BackGeocoding and NESD"/>
+                <attr name="graphFile" stringvalue="sentinel1/Sentinel1-BackGeocoding-NESD.xml"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS BackGeocoding and NESD"/>
+                <attr name="ShortDescription" stringvalue="S1 TOPS BackGeocoding and NESD"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
             <file name="org-esa-s1tbx-sentinel1-gpf-BackGeocodingOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
@@ -189,9 +198,13 @@
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-TOPSESDCoregistration-Action.instance"/>
                         <attr name="position" intvalue="110"/>
                     </file>
+                    <file name="org-esa-s1tbx-sentinel1-gpf-TOPSNESDCoregistration-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-TOPSNESDCoregistration-Action.instance"/>
+                        <attr name="position" intvalue="120"/>
+                    </file>
                     <file name="separator.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                        <attr name="position" intvalue="125"/>
+                        <attr name="position" intvalue="135"/>
                     </file>
                     <file name="org-esa-s1tbx-sentinel1-gpf-BackGeocodingOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-BackGeocodingOp-Action.instance"/>

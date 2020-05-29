@@ -226,6 +226,10 @@ public class NetworkESDOp extends Operator {
 //            defaultValue = "10000")
     private int optMaxIterations = 10000;
 
+    @Parameter(description = "Do not write target bands", defaultValue = "false",
+            label = "Do not write target bands (only keep range and azimuth offsets in the metadata).")
+    private boolean doNotWriteTargetBands = false;
+
     @Parameter(description = "Use user supplied range shift", defaultValue = "false",
             label = "Use user supplied range shift (please enter it below)")
     private boolean useSuppliedRangeShift = false;
@@ -301,13 +305,18 @@ public class NetworkESDOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
-        usePeriodogram = esdEstimator.equals(ESD_PERIODOGRAM);
+        usePeriodogram = esdEstimator.equalsIgnoreCase(ESD_PERIODOGRAM);
         weightFunction = WeightFunction.fromString(weightFunc);
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
             validator.checkIfSentinel1Product();
+
+            if (doNotWriteTargetBands && useSuppliedRangeShift && useSuppliedAzimuthShift) {
+                throw new OperatorException("If you choose not to write the target bands you should let the operator " +
+                                                    "estimate range shift, azimuth shift or both.");
+            }
 
             su = new Sentinel1Utils(sourceProduct);
             su.computeDopplerRate();
@@ -489,32 +498,34 @@ public class NetworkESDOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        final String[] srcBandNames = sourceProduct.getBandNames();
-        for (String srcBandName : srcBandNames) {
-            final Band band = sourceProduct.getBand(srcBandName);
-            if (band instanceof VirtualBand) {
-                continue;
-            }
+        if (!doNotWriteTargetBands) {
+            final String[] srcBandNames = sourceProduct.getBandNames();
+            for (String srcBandName : srcBandNames) {
+                final Band band = sourceProduct.getBand(srcBandName);
+                if (band instanceof VirtualBand) {
+                    continue;
+                }
 
-            Band targetBand;
-            if (StackUtils.isMasterBand(srcBandName, sourceProduct)) {
-                targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
-            } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset") ||
-                    srcBandName.contains("derampDemod")) {
-                continue;
-            } else {
-                targetBand = new Band(srcBandName,
-                        band.getDataType(),
-                        band.getRasterWidth(),
-                        band.getRasterHeight());
+                Band targetBand;
+                if (StackUtils.isMasterBand(srcBandName, sourceProduct)) {
+                    targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+                } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset") ||
+                        srcBandName.contains("derampDemod")) {
+                    continue;
+                } else {
+                    targetBand = new Band(srcBandName,
+                                          band.getDataType(),
+                                          band.getRasterWidth(),
+                                          band.getRasterHeight());
 
-                targetBand.setUnit(band.getUnit());
-                targetProduct.addBand(targetBand);
-            }
+                    targetBand.setUnit(band.getUnit());
+                    targetProduct.addBand(targetBand);
+                }
 
-            if(targetBand != null && srcBandName.startsWith("q_")) {
-                final String suffix = srcBandName.substring(1);
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand('i' + suffix), targetBand, suffix);
+                if(targetBand != null && srcBandName.startsWith("q_")) {
+                    final String suffix = srcBandName.substring(1);
+                    ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand('i' + suffix), targetBand, suffix);
+                }
             }
         }
 
@@ -618,6 +629,11 @@ public class NetworkESDOp extends Operator {
         SystemUtils.LOG.fine("Arcs\n" + Arrays.deepToString(arcs));
 
         updateTargetMetadata(arcs);
+
+        if (doNotWriteTargetBands) {  // as we are not going to write any target band we must force the execution of the range/azimuth shift estimation
+            System.out.println("Starting computeTileStack (no target bands)");
+            computeTileStack(null, new Rectangle(), ProgressMonitor.NULL);
+        }
     }
 
     /**
@@ -639,10 +655,10 @@ public class NetworkESDOp extends Operator {
         List<CplxContainer> complexImages = this.complexImages.values().iterator().next();  // get any of the list of images to build the images graph
 
         // temporal baseline
-        if (temporalBaselineType.equals(INT_NETWORK_IMAGES_BASELINE)) {
+        if (temporalBaselineType.equalsIgnoreCase(INT_NETWORK_IMAGES_BASELINE)) {
             imagesOrder = mapIndicesOfSortedImages(complexImages);
             baselineInDays = false;
-        } else if (temporalBaselineType.equals(INT_NETWORK_DAYS_BASELINE)) {
+        } else if (temporalBaselineType.equalsIgnoreCase(INT_NETWORK_DAYS_BASELINE)) {
             baselineInDays = true;
         } else {
             throw new OperatorException("Unrecognized temporal baseline type: " + temporalBaselineType);
@@ -788,15 +804,26 @@ public class NetworkESDOp extends Operator {
             }
 
             // apply offsets to target tiles
-            for (String key : targetMap.keySet()) {
-                final CplxContainer slave = targetMap.get(key).sourceSlave;
+            if (!doNotWriteTargetBands) {
+                for (String key : targetMap.keySet()) {
+                    final CplxContainer slave = targetMap.get(key).sourceSlave;
 
-                final AzRgOffsets azRgOffsets = targetOffsetMap.get(key);
-                double rgOffset = useSuppliedRangeShift ? overallRangeShift : azRgOffsets.rgOffset;
-                double azOffset = useSuppliedAzimuthShift ? overallAzimuthShift : azRgOffsets.azOffset;
+                    final AzRgOffsets azRgOffsets = targetOffsetMap.get(key);
+                    double rgOffset = useSuppliedRangeShift ? overallRangeShift : azRgOffsets.rgOffset;
+                    double azOffset = useSuppliedAzimuthShift ? overallAzimuthShift : azRgOffsets.azOffset;
 
-                performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle,
-                                         targetTileMap);
+                    performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle,
+                                             targetTileMap);
+                }
+            } else {  // only when target bands are not written
+                // export offsets to file
+                for (String key : targetOffsetMap.keySet()) {
+                    AzRgOffsets offsets = targetOffsetMap.get(key);
+
+                    // todo write a file in the target product dir
+                    System.out.println(key + ".rangeOffset=" + offsets.rgOffset);
+                    System.out.println(key + ".azimuthOffset=" + offsets.azOffset);
+                }
             }
 
         } catch (Throwable e) {
@@ -907,7 +934,7 @@ public class NetworkESDOp extends Operator {
             }
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("estimateAzimuthOffset", e);
+            OperatorUtils.catchOperatorException("estimateRangeOffset", e);
         }
 
         isRangeOffsetAvailable = true;
@@ -1101,13 +1128,13 @@ public class NetworkESDOp extends Operator {
         double[] integratedShifts;
 
         try {
-            if (integrationMethod.equals(INT_METHOD_L1)) {
+            if (integrationMethod.equalsIgnoreCase(INT_METHOD_L1)) {
                 integratedShifts = ArcDataIntegration.integrateArcsL1(arcs, shifts, weights);
 
-            } else if (integrationMethod.equals(INT_METHOD_L2)) {
+            } else if (integrationMethod.equalsIgnoreCase(INT_METHOD_L2)) {
                 integratedShifts = ArcDataIntegration.integrateArcsL2(arcs, shifts, weights);
 
-            } else if (integrationMethod.equals(INT_METHOD_L1_AND_L2)) {
+            } else if (integrationMethod.equalsIgnoreCase(INT_METHOD_L1_AND_L2)) {
                 integratedShifts = ArcDataIntegration.integrateArcsL1AndL2(arcs, shifts, weights);
 
             } else {
@@ -1876,10 +1903,10 @@ public class NetworkESDOp extends Operator {
         }
 
         // Check optimization criterion
-        if (optObjective.equals(OPT_CRITERION_MAX_REAL)) {  // maximize real part
+        if (optObjective.equalsIgnoreCase(OPT_CRITERION_MAX_REAL)) {  // maximize real part
             findMinArgument = false;
             initialBestValue = Double.MIN_VALUE;  // will be overwritten in the first comparison
-        } else if (optObjective.equals(OPT_CRITERION_MIN_ARG)) {  // minimize phase
+        } else if (optObjective.equalsIgnoreCase(OPT_CRITERION_MIN_ARG)) {  // minimize phase
             findMinArgument = true;
             initialBestValue = Double.MAX_VALUE;  // will be overwritten in the first comparison
         } else {
