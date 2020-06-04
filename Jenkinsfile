@@ -35,7 +35,7 @@ pipeline {
             agent {
                 docker {
                     label 'snap-test'
-                    image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
+                    image 'snap-build-server.tilaa.cloud/maven:oracle'
                     args '-e MAVEN_CONFIG=/var/maven/.m2 -v /data/ssd/testData/:/data/ssd/testData/ -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
                 }
             }
@@ -73,25 +73,6 @@ pipeline {
                 }
             }
         }
-        /*stage('Deploy') {
-            agent {
-                docker {
-                    label 'snap-test'
-                    image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
-                    args '-e MAVEN_CONFIG=/var/maven/.m2 -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
-                }
-            }
-            when {
-                expression {
-                    return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/;
-                }
-            }
-            steps {
-                echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap deploy -U -DskipTests=true"
-                sh "/opt/scripts/saveToLocalUpdateCenter.sh *-kit/target/netbeans_site/ ${deployDirName} ${branchVersion} ${toolName}"
-            }
-        }*/
         stage('Save installer data') {
             agent {
                 docker {
