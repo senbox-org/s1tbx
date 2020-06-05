@@ -26,8 +26,6 @@ pipeline {
         longTestsOption = ""
     }
     agent { label 'snap-test' }
-    parameters {
-    }
     stages {
         stage('Package and deploy') {
             agent {
