@@ -74,6 +74,7 @@ public class IceyeXConstants {
     public static final String ACQUISITION_END_UTC = "acquisition_end_utc";
     public static final String NUMBER_OF_STATE_VECTORS = "number_of_state_vectors";
     public static final String DC_ESTIMATE_COEFFS = "dc_estimate_coeffs";
+    public static final String DR_COEFFS = "doppler_rate_coeffs";
     public static final String S_I = "s_i";
     public static final String S_Q = "s_q";
     public static final String S_AMPLITUDE = "s_amplitude";
