@@ -159,6 +159,11 @@ public class WarpOp extends Operator {
 
     private int maxIterations = 20;
 
+    // demodulation related attributes
+    private static final String DEMOD_PHASE_PREFIX = "DemodPhase";
+    private Interpolation interpDemodPhase = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
+    private final Map<Band, Band> demodPhaseMap = new HashMap<>(10);
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -341,8 +346,22 @@ public class WarpOp extends Operator {
                 }
                 targetBand = targetProduct.addBand(targetBandName, ProductData.TYPE_FLOAT32);
                 ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+
+                // find demodulation band for slave corresponding to srcBand
+                for (Band band : sourceBands) {
+                    if (band.getName().equals(DEMOD_PHASE_PREFIX + StackUtils.getBandSuffix(srcBand.getName()))
+                            && srcBand.getUnit().equals(Unit.REAL)) {
+                        demodPhaseMap.put(band, srcBand);
+                        break;
+                    }
+                }
             }
             sourceRasterMap.put(targetBand, srcBand);
+
+            // continue if band corresponds to demodulation band, as it's not complex valued.
+            if (srcBandName.startsWith(DEMOD_PHASE_PREFIX)) {
+                continue;
+            }
 
             if (complexCoregistration) {
                 final Band srcBandQ = sourceProduct.getBandAt(i + 1);
@@ -438,9 +457,17 @@ public class WarpOp extends Operator {
             final Band srcBand = sourceRasterMap.get(targetBand);
             if (srcBand == null)
                 return;
-            Band realSrcBand = complexSrcMap.get(srcBand);
-            if (realSrcBand == null)
-                realSrcBand = srcBand;
+
+            Band realSrcBand;
+            if (srcBand.getName().startsWith(DEMOD_PHASE_PREFIX)) {
+                realSrcBand = demodPhaseMap.get(srcBand);
+            } else {
+                // get real part, assuming srcBand is imaginary
+                realSrcBand = complexSrcMap.get(srcBand);
+                // if srcBand was the real part (and hence not found in map)
+                if (realSrcBand == null)
+                    realSrcBand = srcBand;
+            }
 
             // create source image
             final Tile sourceRaster = getSourceTile(srcBand, targetRectangle);
@@ -454,9 +481,15 @@ public class WarpOp extends Operator {
 
             final RenderedImage srcImage = sourceRaster.getRasterDataNode().getSourceImage();
 
-            // get warped image
-            final RenderedOp warpedImage = JAIFunctions.createWarpImage(warpData.getJAIWarp(), srcImage,
-                                                                        interp, interpTable);
+            // get warped image (demodulation bands can be interpolated linearly)
+            RenderedOp warpedImage;
+            if (srcBand.getName().startsWith(DEMOD_PHASE_PREFIX)) {
+                warpedImage = JAIFunctions.createWarpImage(warpData.getJAIWarp(), srcImage,
+                                                           interpDemodPhase, null);
+            } else {
+                warpedImage = JAIFunctions.createWarpImage(warpData.getJAIWarp(), srcImage,
+                                                           interp, interpTable);
+            }
 
             // copy warped image data to target
             final float[] dataArray = warpedImage.getData(targetRectangle).getSamples(x0, y0, w, h, 0, (float[]) null);
