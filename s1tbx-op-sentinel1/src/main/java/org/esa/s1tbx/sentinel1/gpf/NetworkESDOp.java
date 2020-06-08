@@ -58,10 +58,12 @@ import org.jlinda.core.utils.BandUtilsDoris;
 import org.jlinda.core.utils.CplxContainer;
 import org.jlinda.core.utils.ProductContainer;
 import org.jlinda.core.utils.TileUtilsDoris;
+import org.json.simple.JSONObject;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
@@ -631,7 +633,7 @@ public class NetworkESDOp extends Operator {
         updateTargetMetadata(arcs);
 
         if (doNotWriteTargetBands) {  // as we are not going to write any target band we must force the execution of the range/azimuth shift estimation
-            System.out.println("Starting computeTileStack (no target bands)");
+            SystemUtils.LOG.info("Starting NetworkESD.computeTileStack (target bands won't be written)");
             computeTileStack(null, new Rectangle(), ProgressMonitor.NULL);
         }
     }
@@ -854,6 +856,8 @@ public class NetworkESDOp extends Operator {
 
             // compute range shift for every subswath
             for (String swath : subSwathNames) {
+                JSONObject rangeShifts = new JSONObject();
+
                 // 1. estimate shift for each arc
                 int noOfPolarizations = polarizations.length;
                 List<int[]> arcsList = new ArrayList<>(arcs.length * noOfPolarizations);
@@ -925,8 +929,14 @@ public class NetworkESDOp extends Operator {
                         CplxContainer slave = complexImages.get(i);
                         String mstSlvTag = getImagePairTag(master, slave);
                         saveOverallRangeShift(mstSlvTag, imageShifts[i]);
+
+                        // add to json object for writing to a file
+                        rangeShifts.put(mstSlvTag, imageShifts[i]);
                     }
                 }
+
+                // save shifts to file
+                saveShiftsToFile(rangeShifts, swath + "_range_shifts.json");
 
                 // save integration network
                 saveIntegrationNetwork(extendedArcs, relativeRangeShifts, rangeWeights, complexImages, imageShifts,
@@ -1018,6 +1028,8 @@ public class NetworkESDOp extends Operator {
 
             // compute azimuth shift for every subswath
             for (String swath : subSwathNames) {
+                JSONObject azimuthShifts = new JSONObject();
+
                 // 1. estimate azimuth shifts for each arc
                 int noOfPolarizations = polarizations.length;
                 List<int[]> arcsList = new ArrayList<>(arcs.length * noOfPolarizations);
@@ -1089,8 +1101,14 @@ public class NetworkESDOp extends Operator {
                         CplxContainer slave = complexImages.get(i);
                         String mstSlvTag = getImagePairTag(master, slave);
                         saveOverallAzimuthShift(mstSlvTag, imageShifts[i]);
+
+                        // add to json object for writing to a file
+                        azimuthShifts.put(mstSlvTag, imageShifts[i]);
                     }
                 }
+
+                // save shifts to file
+                saveShiftsToFile(azimuthShifts, swath + "_azimuth_shifts.json");
 
                 // save integration network
                 saveIntegrationNetwork(extendedArcs, relativeAzimuthShifts, azimuthWeights, complexImages, imageShifts,
@@ -1102,6 +1120,26 @@ public class NetworkESDOp extends Operator {
         }
 
         isAzimuthOffsetAvailable = true;
+    }
+
+    /**
+     * Writes a json file in the SNAP reports directory.
+     *
+     * @param shifts json object to save.
+     * @param fileName file name.
+     */
+    private void saveShiftsToFile(JSONObject shifts, String fileName) {
+
+        File file = new File(ResourceUtils.getReportFolder(), fileName);
+
+        try (FileWriter writer = new FileWriter(new File(ResourceUtils.getReportFolder(), fileName))) {
+            writer.write(shifts.toJSONString());
+            writer.flush();
+
+            SystemUtils.LOG.info("Shifts written to file: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            SystemUtils.LOG.warning("Error trying to write shifts to file: " + file.getAbsolutePath());
+        }
     }
 
     /**
