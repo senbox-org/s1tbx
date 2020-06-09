@@ -43,6 +43,7 @@
             <temporalBaselineType>Number of images</temporalBaselineType>
             <maxTemporalBaseline>4</maxTemporalBaseline>
             <integrationMethod>L1 and L2</integrationMethod>
+            <doNotWriteTargetBands>false</doNotWriteTargetBands>
             <useSuppliedRangeShift>false</useSuppliedRangeShift>
             <overallRangeShift>0.0</overallRangeShift>
             <useSuppliedAzimuthShift>false</useSuppliedAzimuthShift>
