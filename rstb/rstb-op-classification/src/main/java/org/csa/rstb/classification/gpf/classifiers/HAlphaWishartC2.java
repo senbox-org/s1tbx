@@ -16,8 +16,8 @@
 package org.csa.rstb.classification.gpf.classifiers;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
-import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
+import org.csa.rstb.polarimetric.gpf.support.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.HaAlphaDescriptor;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;

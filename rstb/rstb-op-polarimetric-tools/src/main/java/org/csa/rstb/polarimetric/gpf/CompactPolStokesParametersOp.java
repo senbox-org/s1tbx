@@ -16,6 +16,8 @@
 package org.csa.rstb.polarimetric.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.polarimetric.gpf.support.CompactPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.StokesParameters;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;

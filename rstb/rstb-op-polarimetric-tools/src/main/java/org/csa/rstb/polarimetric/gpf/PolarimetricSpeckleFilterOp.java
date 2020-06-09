@@ -17,6 +17,7 @@ package org.csa.rstb.polarimetric.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.polarimetric.gpf.specklefilters.*;
+import org.csa.rstb.polarimetric.gpf.support.PolarimetricSpeckleFilter;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -109,7 +110,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     public static final String NUM_LOOKS_3 = "3";
     public static final String NUM_LOOKS_4 = "4";
 
-    private SpeckleFilter speckleFilter;
+    private PolarimetricSpeckleFilter speckleFilter;
     private static final String PRODUCT_SUFFIX = "_Spk";
 
     /**
@@ -182,7 +183,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         }
     }
 
-    private SpeckleFilter createFilter() {
+    private PolarimetricSpeckleFilter createFilter() {
         final int numLooks = Integer.parseInt(numLooksStr);
 
         switch (filter) {

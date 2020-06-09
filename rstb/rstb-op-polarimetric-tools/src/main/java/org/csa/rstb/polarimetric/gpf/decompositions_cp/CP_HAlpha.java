@@ -15,8 +15,8 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions_cp;
 
-import org.csa.rstb.polarimetric.gpf.CompactPolProcessor;
-import org.csa.rstb.polarimetric.gpf.StokesParameters;
+import org.csa.rstb.polarimetric.gpf.support.CompactPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.StokesParameters;
 import org.csa.rstb.polarimetric.gpf.decompositions.EigenDecomposition;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;

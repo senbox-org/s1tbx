@@ -15,9 +15,10 @@
  */
 package org.csa.rstb.polarimetric.gpf.specklefilters;
 
-import org.csa.rstb.polarimetric.gpf.DualPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.DualPolProcessor;
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
-import org.csa.rstb.polarimetric.gpf.QuadPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.PolarimetricSpeckleFilter;
+import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.csa.rstb.polarimetric.gpf.specklefilters.covariance.Covariance;
 import org.csa.rstb.polarimetric.gpf.specklefilters.covariance.CovarianceMatrix;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
@@ -34,7 +35,7 @@ import java.util.Map;
 /**
  * Non-Local Speckle Filter for SAR/InSAR/PolInSAR data
  */
-public class NonLocal implements SpeckleFilter, DualPolProcessor, QuadPolProcessor {
+public class NonLocal implements PolarimetricSpeckleFilter, DualPolProcessor, QuadPolProcessor {
 
     private final PolarimetricSpeckleFilterOp operator;
     private final Product sourceProduct;

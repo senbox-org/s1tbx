@@ -15,8 +15,8 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions_cp;
 
-import org.csa.rstb.polarimetric.gpf.CompactPolProcessor;
-import org.csa.rstb.polarimetric.gpf.StokesParameters;
+import org.csa.rstb.polarimetric.gpf.support.CompactPolProcessor;
+import org.csa.rstb.polarimetric.gpf.support.StokesParameters;
 import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.decompositions.Decomposition;
 import org.csa.rstb.polarimetric.gpf.decompositions.DecompositionBase;
