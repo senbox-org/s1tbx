@@ -182,7 +182,7 @@ public class NetworkESDOp extends Operator {
             valueSet = {WEIGHT_FN_NONE, WEIGHT_FN_LINEAR, WEIGHT_FN_QUAD, WEIGHT_FN_INVQUAD},
             defaultValue = WEIGHT_FN_NONE,
             description = "Weight function of the coherence to use for azimuth shift estimation")
-    private String weightFunc = WEIGHT_FN_NONE;
+    private String weightFunc = WEIGHT_FN_INVQUAD;
 
     @Parameter(label = "Temporal baseline type",
             valueSet = {INT_NETWORK_IMAGES_BASELINE, INT_NETWORK_DAYS_BASELINE},
