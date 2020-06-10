@@ -516,7 +516,7 @@ public class SRGROp extends Operator {
             final float y = Math.min(j * subSamplingY, targetImageHeight - 1);
             for (int i = 0; i < gridWidth; i++) {
                 final float tx = Math.min(i * subSamplingX, targetImageWidth - 1);
-                final float x = (float) getSlantRangePixelPosition((double) tx);
+                final float x = Math.min((float) getSlantRangePixelPosition((double) tx), sourceImageWidth - 1);
                 newTiePointPos[k] = new PixelPos(x, y);
                 k++;
             }
