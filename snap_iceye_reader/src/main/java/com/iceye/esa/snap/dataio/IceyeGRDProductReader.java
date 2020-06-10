@@ -518,6 +518,8 @@ public class IceyeGRDProductReader extends SARReader {
                 String bandName = "Amplitude_" + polarization;
                 final Band band = new Band(bandName, ProductData.TYPE_UINT32, rasterWidth, rasterHeight);
                 band.setUnit(Unit.AMPLITUDE);
+                band.setNoDataValue(0);
+                band.setNoDataValueUsed(true);
                 product.addBand(band);
                 bandMap.put(band, new ImageIOFile.BandInfo(band, img, 0, 0));
                 SARReader.createVirtualIntensityBand(product, band, '_' + polarization);
@@ -693,6 +695,14 @@ public class IceyeGRDProductReader extends SARReader {
 
     private void addGeoCodingToProduct() {
         addGeoCodingFromMetadata(product, this.tiffFeilds);
+    }
+
+    void callReadBandRasterData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+                            int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                            int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
+                            ProgressMonitor pm) throws IOException {
+        readBandRasterDataImpl(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+                sourceStepX, sourceStepY, destBand, destOffsetX, destOffsetY, destWidth, destHeight, destBuffer, pm);
     }
 
     @Override
