@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.saocom;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
+import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,14 +32,14 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestSaocomTOPSProductReader extends ReaderTest {
 
-    // GEC
-    private final static File TS_GEC_QP_MetadataFile = new File("E:\\data\\SAOCOM\\TOPSAR\\GEC\\41363-EOL1CSARSAO1A387058\\S1A_OPER_SAR_EOSSP__CORE_L1C_OLF_20191228T014911.xemt");
+    //GEC
+    private final static File TS_GEC_QP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/TOPSAR/GEC/41363-EOL1CSARSAO1A387058/S1A_OPER_SAR_EOSSP__CORE_L1C_OLF_20191228T014911.xemt");
 
     //DI
-    private final static File TS_DI_QP_MetadataFile = new File("E:\\data\\SAOCOM\\TOPSAR\\DI\\42029-EOL1BSARSAO1A390515\\S1A_OPER_SAR_EOSSP__CORE_L1B_OLF_20191228T014903.xemt");
+    private final static File TS_DI_QP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/TOPSAR/DI/42029-EOL1BSARSAO1A390515/S1A_OPER_SAR_EOSSP__CORE_L1B_OLF_20191228T014903.xemt");
 
     //SLC
-    private final static File TS_SLC_QP_MetadataFile = new File("E:\\data\\SAOCOM\\TOPSAR\\SLC\\41365-EOL1ASARSAO1A387069\\S1A_OPER_SAR_EOSSP__CORE_L1A_OLF_20191228T014855.xemt");
+    private final static File TS_SLC_QP_MetadataFile = new File(S1TBXTests.inputPathProperty + "/SAR/SAOCOM/TOPSAR/SLC/41365-EOL1ASARSAO1A387069/S1A_OPER_SAR_EOSSP__CORE_L1A_OLF_20191228T014855.xemt");
 
 
     @Before
