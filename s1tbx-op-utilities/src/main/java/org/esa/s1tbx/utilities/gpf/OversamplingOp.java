@@ -428,16 +428,6 @@ public class OversamplingOp extends Operator {
 
     private void addGeoCoding() {
 
-        final TiePointGrid lat = OperatorUtils.getLatitude(sourceProduct);
-        final TiePointGrid lon = OperatorUtils.getLongitude(sourceProduct);
-        final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        final TiePointGrid slantRgTime = OperatorUtils.getSlantRangeTime(sourceProduct);
-        if (lat == null || lon == null || incidenceAngle == null || slantRgTime == null) { // for unit test
-            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-            return;
-        }
-
         final int gridWidth = 11;
         final int gridHeight = 11;
         final float subSamplingX = targetImageWidth / (gridWidth - 1.0f);
