@@ -12,22 +12,46 @@ public class TestBenchmark_PolSARFilters extends TestBenchmarks {
 
     @Test
     public void testQP_specklefilter_Boxcar() throws Exception {
-        specklefilter("Box Car Filter");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                specklefilter("Box Car Filter");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testQP_specklefilter_RefinedLee() throws Exception {
-        specklefilter("Refined Lee Filter");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                specklefilter("Refined Lee Filter");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testQP_specklefilter_IDAN() throws Exception {
-        specklefilter("IDAN Filter");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                specklefilter("IDAN Filter");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testQP_specklefilter_LeeSigma() throws Exception {
-        specklefilter("Improved Lee Sigma Filter");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                specklefilter("Improved Lee Sigma Filter");
+            }
+        };
+        b.run();
     }
 
     @Test

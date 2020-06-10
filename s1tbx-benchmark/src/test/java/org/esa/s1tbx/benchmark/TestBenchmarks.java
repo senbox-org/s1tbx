@@ -16,7 +16,11 @@ public class TestBenchmarks {
     protected final static File qpFile = new File("E:\\TestData\\s1tbx\\SAR\\RS2\\RS2_OK2084_PK24911_DK25857_FQ14_20080802_225909_HH_VV_HV_VH_SLC\\product.xml");
 
     protected final static File outputFolder = new File("e:\\out");
-    protected final static Rectangle rect = new Rectangle(1000, 1000, 3000, 3000);
+    protected final static Rectangle rect = new Rectangle(0, 0, 5000, 5000);
+
+    protected Product read(final File file) throws IOException {
+        return ProductIO.readProduct(file);
+    }
 
     protected Product subset(final File file, final Rectangle rect) throws IOException {
         final Product srcProduct = ProductIO.readProduct(file);

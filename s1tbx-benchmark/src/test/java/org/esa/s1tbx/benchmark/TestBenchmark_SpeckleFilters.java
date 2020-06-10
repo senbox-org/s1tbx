@@ -10,42 +10,90 @@ public class TestBenchmark_SpeckleFilters extends TestBenchmarks {
 
     @Test
     public void testGRD_specklefilter_Boxcar() throws Exception {
-        process("Boxcar");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("Boxcar");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testGRD_specklefilter_Median() throws Exception {
-        process("Median");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("Median");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testGRD_specklefilter_Frost() throws Exception {
-        process("Frost");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("Frost");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testGRD_specklefilter_GammaMap() throws Exception {
-        process("Gamma Map");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("Gamma Map");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testGRD_specklefilter_Lee() throws Exception {
-        process("Lee");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("Lee");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testGRD_specklefilter_RefinedLee() throws Exception {
-        process("Refined Lee");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("Refined Lee");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testGRD_specklefilter_LeeSigma() throws Exception {
-        process("Lee Sigma");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("Lee Sigma");
+            }
+        };
+        b.run();
     }
 
     @Test
     public void testGRD_specklefilter_IDAN() throws Exception {
-        process("IDAN");
+        Benchmark b = new Benchmark() {
+            @Override
+            protected void execute() throws Exception {
+                process("IDAN");
+            }
+        };
+        b.run();
     }
 
     private void process(final String name) throws IOException {

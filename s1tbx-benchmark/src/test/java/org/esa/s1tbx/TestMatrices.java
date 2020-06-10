@@ -13,17 +13,19 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package array.rstb.utils;
+package org.esa.s1tbx;
 
 import Jama.Matrix;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.jblas.DoubleMatrix;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Unit test for PolOpUtils.
  */
+@Ignore
 public class TestMatrices {
 
     private static final int iterations = 1;//200000;
