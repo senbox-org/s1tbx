@@ -33,13 +33,11 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestCapellaProductReader extends ReaderTest {
 
-    private final static String sep = S1TBXTests.sep;
+    private final static File inputGEOMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/GEO/ARL_SM_GEO_HH_20190823162315_20190823162606_extended.json");
+    private final static File inputGEOFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/GEO");
 
-    private final static File inputGEOMeta = new File("E:\\data\\Capella\\Airborne\\GEO\\ARL_SM_GEO_HH_20190823162315_20190823162606_extended.json");
-    private final static File inputGEOFolder = new File("E:\\data\\Capella\\Airborne\\GEO");
-
-    private final static File inputSLCMeta = new File("E:\\data\\Capella\\Airborne\\SLC\\ARL_SM_SLC_HH_20190823162315_20190823162606_extended.json");
-    private final static File inputSLCFolder = new File("E:\\data\\Capella\\Airborne\\SLC\\");
+    private final static File inputSLCMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/SLC/ARL_SM_SLC_HH_20190823162315_20190823162606_extended.json");
+    private final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/SLC");
 
     final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
 

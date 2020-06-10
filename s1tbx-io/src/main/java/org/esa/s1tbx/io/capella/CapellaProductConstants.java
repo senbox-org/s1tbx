@@ -17,7 +17,7 @@ package org.esa.s1tbx.io.capella;
 
 public class CapellaProductConstants {
 
-    public static final String[] PRODUCT_PREFIX = new String[] {"ARL"};
+    public static final String[] PRODUCT_PREFIX = new String[] {"CAPELLA_", "ARL_"};
     public static final String PRODUCT_FORMAT = "Capella";
     public static final String PRODUCT_EXT = "_extended.json";
 

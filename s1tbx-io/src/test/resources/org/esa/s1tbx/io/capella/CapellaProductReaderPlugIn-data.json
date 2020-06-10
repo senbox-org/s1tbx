@@ -1,0 +1,14 @@
+{
+  "testProducts": [
+    {
+      "id": "Capella_GEO",
+      "relativePath": "SAR/Capella/Airborne/GEO/ARL_SM_GEO_HH_20190823160819_20190823161113_extended.json",
+      "description": "Capella Airborne GEO product"
+    },
+    {
+      "id": "Capella_SLC",
+      "relativePath": "SAR/Capella/Airborne/SLC/ARL_SM_SLC_HH_20190823160819_20190823161113_extended.json",
+      "description": "Capella Airborne SLC product"
+    }
+  ]
+}
