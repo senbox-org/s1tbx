@@ -15,33 +15,37 @@
  */
 package org.esa.s1tbx.io.saocom;
 
-import Jama.Matrix;
 import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
+import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
-import org.esa.snap.engine_utilities.util.Maths;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
 import javax.imageio.stream.ImageInputStream;
+import javax.media.jai.ImageLayout;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * This class represents a product directory.
@@ -61,6 +65,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     private final double[] slantRangeCorners = new double[4];
     private final double[] incidenceCorners = new double[4];
 
+    private static final GeoTiffProductReaderPlugIn geotiffPlugIn = new GeoTiffProductReaderPlugIn();
+
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
     private final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("dd-MMM-yyyy HH:mm:ss");
 
@@ -70,10 +76,10 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
     @Override
     public void close() throws IOException {
-        super.close();
         if(dataDir != null) {
             dataDir.close();
         }
+        super.close();
     }
 
     @Override
@@ -364,7 +370,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     }
 
     @Override
-    protected void addBands(final Product product) {
+    protected void addBands(final Product product) throws IOException {
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             int numImages = img.getNumImages();
@@ -431,6 +437,30 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
                         SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
                     }
+                }
+            }
+
+            if(productType.equals("GEC") || productType.equals("GTC")) {
+                final File bandFile = getFile(img.getName());
+                final ProductReader reader = geotiffPlugIn.createReaderInstance();
+                final Product bandProduct = reader.readProductNodes(bandFile, null);
+                if (bandProduct != null) {
+                    if (product.getSceneGeoCoding() == null &&
+                            product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
+                            product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
+                        ProductUtils.copyGeoCoding(bandProduct, product);
+                        Dimension tileSize = bandProduct.getPreferredTileSize();
+                        if (tileSize == null) {
+                            tileSize = ImageManager.getPreferredTileSize(bandProduct);
+                        }
+                        product.setPreferredTileSize(tileSize);
+                        ImageLayout imageLayout = new ImageLayout();
+                        imageLayout.setTileWidth(tileSize.width);
+                        imageLayout.setTileHeight(tileSize.height);
+                        break;
+                    }
+                    bandProduct.closeIO();
+                    bandProduct.dispose();
                 }
             }
         }
