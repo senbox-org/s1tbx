@@ -52,7 +52,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
     private String productName;
     private String productType;
     private String productDescription;
-    private String mode;
+    private String mode, polMode, beamId;
     private int width, height;
     private VirtualDir dataDir;
 
@@ -211,7 +211,9 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataElement acquisition = features.getElement("acquisition");
         final MetadataElement parameters = acquisition.getElement("parameters");
         mode = getAcquisitionMode(parameters.getAttributeString("acqMode"));
-        String polMode = parameters.getAttributeString("polMode");
+        polMode = parameters.getAttributeString("polMode");
+        beamId = parameters.getAttributeString("beamID").replace("QP","").replace("DP","").replace("SD","");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS, beamId);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, parameters.getAttributeString("sideLooking").toLowerCase());
 
@@ -330,10 +332,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             return "TOPSARWide";
         else if (mode.equalsIgnoreCase("TN"))
             return "TOPSARNarrow";
-        else if (mode.equalsIgnoreCase("SL"))
-            return "Spotlight";
-        else if (mode.equalsIgnoreCase("SC"))
-            return "ScanSAR";
         return " ";
     }
 
@@ -413,7 +411,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                         if (real) {
                             lastRealBand = band;
                         } else {
-                            createVirtualIntensityBand(product, lastRealBand, band, ReaderUtils.createName(band.getName(),
+                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, ReaderUtils.createName(band.getName(),
                                     "Intensity"), swath + '_' + suffix);
                             bandInfo.setRealBand(lastRealBand);
                             bandMap.get(lastRealBand).setImaginaryBand(band);
@@ -436,39 +434,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                 }
             }
         }
-    }
-
-    public static Band createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
-                                                  final String bandName, final String suffix) {
-        final String bandNameI = bandI.getName();
-        final double nodatavalueI = bandI.getNoDataValue();
-        final String bandNameQ = bandQ.getName();
-        final String expression = bandNameI +" == " + nodatavalueI +" ? " + nodatavalueI +" : " +
-                bandNameI + " * " + bandNameI + " + " + bandNameQ + " * " + bandNameQ;
-
-        String name = bandName;
-        if (!name.endsWith(suffix)) {
-            name += suffix;
-        }
-        final VirtualBand virtBand = new VirtualBand(name,
-                ProductData.TYPE_FLOAT32,
-                bandI.getRasterWidth(),
-                bandI.getRasterHeight(),
-                expression);
-        virtBand.setUnit(Unit.INTENSITY);
-        virtBand.setDescription("Intensity from complex data");
-        virtBand.setNoDataValueUsed(true);
-        virtBand.setNoDataValue(nodatavalueI);
-        virtBand.setOwner(product);
-        product.addBand(virtBand);
-
-        if (bandI.getGeoCoding() != product.getSceneGeoCoding()) {
-            virtBand.setGeoCoding(bandI.getGeoCoding());
-        }
-        // set as band to use for quicklook
-        product.setQuicklookBandName(virtBand.getName());
-
-        return virtBand;
     }
 
     @Override
@@ -530,13 +495,15 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         if (subSamplingX == 0 || subSamplingY == 0)
             return;
 
-        final float[] flippedSlantRangeCorners = new float[4];
-        final float[] flippedIncidenceCorners = new float[4];
-        getFlippedCorners(product, flippedSlantRangeCorners, flippedIncidenceCorners);
+        populateIncidenceAngles();
+
+        //final float[] flippedSlantRangeCorners = new float[4];
+        //final float[] flippedIncidenceCorners = new float[4];
+        //getFlippedCorners(product, flippedSlantRangeCorners, flippedIncidenceCorners);
 
         if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
             final float[] fineAngles = new float[gridWidth * gridHeight];
-            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedIncidenceCorners, fineAngles);
+            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
 
             final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
                     subSamplingX, subSamplingY, fineAngles);
@@ -544,13 +511,112 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             product.addTiePointGrid(incidentAngleGrid);
         }
 
-        final float[] fineSlantRange = new float[gridWidth * gridHeight];
-        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
+//        final float[] fineSlantRange = new float[gridWidth * gridHeight];
+//        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
+//
+//        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
+//                subSamplingX, subSamplingY, fineSlantRange);
+//        slantRangeGrid.setUnit(Unit.NANOSECONDS);
+//        product.addTiePointGrid(slantRangeGrid);
+    }
 
-        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, fineSlantRange);
-        slantRangeGrid.setUnit(Unit.NANOSECONDS);
-        product.addTiePointGrid(slantRangeGrid);
+    private void populateIncidenceAngles() {
+        switch (mode) {
+            case "Stripmap":
+                if(polMode.equals("QP")) {
+                    if(beamId.equals("S1")) {
+                        incidenceCorners[0] = 17.6;
+                        incidenceCorners[1] = 19.6;
+                    } else if(beamId.equals("S2")) {
+                        incidenceCorners[0] = 19.5;
+                        incidenceCorners[1] = 21.5;
+                    } else if(beamId.equals("S3")) {
+                        incidenceCorners[0] = 21.4;
+                        incidenceCorners[1] = 23.3;
+                    } else if(beamId.equals("S4")) {
+                        incidenceCorners[0] = 23.2;
+                        incidenceCorners[1] = 25.4;
+                    } else if(beamId.equals("S5")) {
+                        incidenceCorners[0] = 25.3;
+                        incidenceCorners[1] = 27.3;
+                    } else if(beamId.equals("S6")) {
+                        incidenceCorners[0] = 27.2;
+                        incidenceCorners[1] = 29.6;
+                    } else if(beamId.equals("S7")) {
+                        incidenceCorners[0] = 29.6;
+                        incidenceCorners[1] = 31.2;
+                    } else if(beamId.equals("S8")) {
+                        incidenceCorners[0] = 31.2;
+                        incidenceCorners[1] = 33.0;
+                    } else if(beamId.equals("S9")) {
+                        incidenceCorners[0] = 33.0;
+                        incidenceCorners[1] = 34.6;
+                    } else if(beamId.equals("S10")) {
+                        incidenceCorners[0] = 34.6;
+                        incidenceCorners[1] = 35.5;
+                    }
+                } else {
+                    if(beamId.equals("S1")) {
+                        incidenceCorners[0] = 20.7;
+                        incidenceCorners[1] = 25.0;
+                    } else if(beamId.equals("S2")) {
+                        incidenceCorners[0] = 24.9;
+                        incidenceCorners[1] = 29.2;
+                    } else if(beamId.equals("S3")) {
+                        incidenceCorners[0] = 29.1;
+                        incidenceCorners[1] = 33.8;
+                    } else if(beamId.equals("S4")) {
+                        incidenceCorners[0] = 33.7;
+                        incidenceCorners[1] = 38.3;
+                    } else if(beamId.equals("S5")) {
+                        incidenceCorners[0] = 38.2;
+                        incidenceCorners[1] = 41.3;
+                    } else if(beamId.equals("S6")) {
+                        incidenceCorners[0] = 41.3;
+                        incidenceCorners[1] = 44.5;
+                    } else if(beamId.equals("S7")) {
+                        incidenceCorners[0] = 44.6;
+                        incidenceCorners[1] = 47.1;
+                    } else if(beamId.equals("S8")) {
+                        incidenceCorners[0] = 47.2;
+                        incidenceCorners[1] = 48.7;
+                    } else if(beamId.equals("S9")) {
+                        incidenceCorners[0] = 48.8;
+                        incidenceCorners[1] = 50.2;
+                    }
+                }
+                break;
+            case "TOPSARNarrow":
+                if(polMode.equals("QP")) {
+                    if(beamId.equals("TNA")) {
+                        incidenceCorners[0] = 17.6;
+                        incidenceCorners[1] = 27.3;
+                    } else {
+                        incidenceCorners[0] = 27.2;
+                        incidenceCorners[1] = 35.5;
+                    }
+                } else {
+                    if(beamId.equals("TNA")) {
+                        incidenceCorners[0] = 24.9;
+                        incidenceCorners[1] = 38.3;
+                    } else {
+                        incidenceCorners[0] = 38.2;
+                        incidenceCorners[1] = 47.1;
+                    }
+                }
+                break;
+            case "TOPSARWide":
+                if(polMode.equals("QP")) {
+                    incidenceCorners[0] = 17.6;
+                    incidenceCorners[1] = 35.5;
+                } else {
+                    incidenceCorners[0] = 24.9;
+                    incidenceCorners[1] = 48.7;
+                }
+                break;
+        }
+        incidenceCorners[2] = incidenceCorners[0];
+        incidenceCorners[3] = incidenceCorners[1];
     }
 
     private void getFlippedCorners(Product product,
