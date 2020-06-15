@@ -1,131 +1,234 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Help - Spectral Diversity</title>
+<html>
+<head><title>Help - Enhanced Spectral Diversity</title>
 
 
-
-
-
-
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="../style.css"></head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
 <body>
 <table class="header">
-<tbody>
-<tr class="header">
-<td class="header">&nbsp; Enhanced Spectral Diversity<br>
-</td>
-<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
-</tr>
-</tbody>
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Enhanced Spectral Diversity<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
 </table>
 <h3>Sentinel-1 Enhanced Spectral Diversity<br>
 </h3>
-<p class="MsoNormal"><span>This operator follows the S-1 Back Geocoding
-operator in the TOPS InSAR processing chain. It first estimates a
-constant range offset for the whole sub-swath of the split S-1 SLC
-image using incoherent cross-correlation. The estimation is done for
-each burst using a small block of data in the center of the burst. The
-estimates from all bursts are then averaged to get the final constant
-range offset for the whole&nbsp;</span><span>sub-swath</span><span>.<br>
+<p class="MsoNormal"><span>
+  This operator implements the Network Enhanced Spectral Diversity (NESD) method for TOPS coregistration [1]. It
+  performs the joint coregistration of a Sentinel-1 stack by creating a network (graph) of images and then estimating
+  range and azimuth offsets by solving an optimization problem.
+  This operator estimates constant azimuth and range offsets for whole images with respect to a master
+  image considering the offsets of slave-slave pairs.
+  Note that in this context, an <i>image</i> is the whole sub-swath of a split S-1 SLC.
 </span></p>
-<p class="MsoNormal"><span>The operator then estimates a constant
-azimuth offset for the whole sub-swath using the Enhanced Spectral
-Diversity (ESD) method. The ESD
-approach exploits the data at the overlapped area of the adjacent
-bursts. The estimation is done for a number of windows in every overlapped area and the final
-azimuth offset is obtained by one of the following two estimation methods: a periodogram or by averaging
-all the estimations. Both estimation methods are presented in:
-N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
-R. Bamler. "Interferometric Processing of Sentinel-1 TOPS Data". In: IEEE Transactions on
-Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220-2234, April 2016. ISSN:0196-2892. DOI:10.1109/TGRS.2015.2497902 <br>
+
+<h4>Operation<br>
+</h4>
+
+<p class="MsoNormal"><span>
+  NESD first creates a network of images in which nodes represent the images in the stack and
+  arcs represent image-pair offsets (either range or azimuth). Then, whole image offsets are computed by integrating the
+  image-pair offsets.
 </span></p>
-<p class="MsoNormal"><span>The estimated range and azimuth shifts are
-saved in both the metadata of the output product and in an ASCII file
-with master acquisition date and "_azimuth_shift" in the file name. The
-file can be found at user's \.snap\var\log folder. <br>
+
+<p class="MsoNormal"><span>
+  For the <i>range integration network</i>, image-pair offsets are computed by using incoherent Cross-correlation. The
+  estimation is done for each burst using a small block of data in the center of the burst. The estimates from all
+  bursts are then averaged to get the final constant range offset for the whole&nbsp;</span><span>sub-swath</span><span>.<br>
+</span></p>
+
+<p class="MsoNormal"><span>
+  For the <i>azimuth integration network</i>, image-pair offsets are computed by using the Enhanced Spectral Diversity (ESD)
+  method [2]. The ESD approach exploits the data at the overlapped area of the adjacent bursts. The estimation is done
+  for a number of windows in
+  every overlapped area and the final azimuth offset is obtained by one of the following two estimation methods:
+  a <i>periodogram</i> or by <i>averaging</i> all the estimations. Both estimation methods are presented in [2].<br>
+</span></p>
+
+<p class="MsoNormal"><span>The estimated range and azimuth shifts are saved in both the metadata of the output product
+    and in a pair of json files <b>[swath]_range_shifts.json</b> and <b>[swath]_azimuth_shifts.json</b>, where [swath]
+    is the name of the corresponding swath for this stack. Also, azimuth shifts for each image pair are stored in
+    ASCII files named with the suffix <b>_azimuth_shift.txt</b>. These files can be found at the user's
+    <b>\.snap\var\log</b> directory. <br>
 </span>
 </p>
 
-<p class="MsoNormal"><span>Finally, the operator performs range and
-azimuth corrections for every burst using the range and azimuth offsets
-estimated above with a phase
-ramp method in the frequency domain</span>.</p><p class="MsoNormal">Users
-can skip the range and azimuth shift estimations by providing their own
-range and azimuth shifts in the UI. The shifts can be previously
-estimated by running the S-1 Azimuth Shift Estimation operator with
-data of current sub-swath or other sub-swath. </p><h4>Input <br>
+<p class="MsoNormal"><span>Finally, the operator performs range and azimuth corrections for every burst using the range
+    and azimuth offsets estimated above with a phase ramp method in the frequency domain</span>.</p>
+
+<p class="MsoNormal">Users can skip the range and azimuth shift estimations by providing their own range and azimuth
+    shifts in the UI. The shifts can be previously estimated by running the S-1 Azimuth Shift Estimation operator with
+    data of current sub-swath or other sub-swath. </p>
+
+
+<h4>Input <br>
 </h4>
 
-
-
 <ul>
-<li>The input to this operator is the resulting product from the
-S-1 Back Geocoding operator. It is the co-registered master and slave images
-for the same
-sub-swath and same polarization (e.g. IW1 -
-VV). <br>
-  </li>
+    <li>The input to this operator is the resulting product from the S-1 Back Geocoding operator. It is the
+        co-registered master and slave images for the same sub-swath and same polarization (e.g. IW1 - VV). <br>
+    </li>
 </ul>
+
 
 <h4>Output <br>
 </h4>
 
-
-
-
 <ul>
-<li>The output of the operator are the co-registered master and slave
-bands in I/Q format with the range and azimuth shift corrections being performed to the slave bands. <br>
+    <li>The output of the operator are the co-registered master and slave bands in I/Q format with the range and azimuth
+        shift corrections being performed to the slave bands. <br>
 
-  </li>
+    </li>
 </ul>
 
 
 <h4>Parameters Used<br>
 </h4>
 
-
-
-
 <ul>
-  <li>Registration Window Width: Width of the sub-set of image used
-for cross-correlation. <br>
-  </li>
-  <li>Registration Window Height: Height of the sub-set of image used
-for cross-correlation. Larger window generally implies accurate
-estimation of the range shift and also means larger memory and longer
-processing time.</li>
-  <li>Search Window Accuracy in Azimuth Direction: The search accuracy
-in azimuth direction for the maximum correlation. The search window
-height is 2*Acc.</li>
-  <li>Search
-Window Accuracy in Range Direction: The search accuracy in range
-direction for the maximum correlation. The search window width is
-2*Acc. .</li>
-  <li>Window Oversampling Factor: The oversampling factor for the
-search window. The larger the factor, the better the achievable
-accuracy, and the larger the computation cost.<br>
-  </li>
-  <li>Cross-Correlation Threshold: Threshold
-for normalized cross-correlation value. If the cross-correlation value
-is greater than the threshold, then the estimated range offset is
-considered valid, otherwise invalid.</li>
-  <li>Coherence
-Threshold for Outlier Removal: Pixels with coherence higher than the
-threshold are used for the azimuth shift estimation.<br>
-  </li>
-  <li>Number of Windows Per Overlap for ESD: The number of windows for azimuth offset estimation using ESD for each overlap area.</li>
-  <li>ESD Estimator: ESD estimator used for azimuth shift computation. Either Average or Periodogram are available.</li>
-  <li>Weight function: Weight function of the coherence to use for azimuth shift estimation.</li>
+    <!--  Cross-correlation -->
+    <li>Registration Window Width: Width of the sub-set of image used
+        for cross-correlation. <br>
+    </li>
+    <li>Registration Window Height: Height of the sub-set of image used
+        for cross-correlation. Larger window generally implies accurate
+        estimation of the range shift and also means larger memory and longer
+        processing time.
+    </li>
+    <li>Search Window Accuracy in Azimuth Direction: The search accuracy
+        in azimuth direction for the maximum correlation. The search window
+        height is 2*Acc.
+    </li>
+    <li>Search
+        Window Accuracy in Range Direction: The search accuracy in range
+        direction for the maximum correlation. The search window width is
+        2*Acc. .
+    </li>
+    <li>Window Oversampling Factor: The oversampling factor for the
+        search window. The larger the factor, the better the achievable
+        accuracy, and the larger the computation cost.<br>
+    </li>
+    <li>Cross-Correlation Threshold: Threshold
+        for normalized cross-correlation value. If the cross-correlation value
+        is greater than the threshold, then the estimated range offset is
+        considered valid, otherwise invalid.
+    </li>
+    <li>Coherence
+        Threshold for Outlier Removal: Pixels with coherence higher than the
+        threshold are used for the azimuth shift estimation.<br>
+    </li>
 
+    <!-- ESD -->
+    <li>Number of Windows Per Overlap for ESD: The number of windows for azimuth offset estimation using ESD for each
+        overlap area.
+    </li>
+    <li>ESD Estimator: ESD estimator used for azimuth shift computation. Either Average or Periodogram are available.
+    </li>
+    <li>Weight function: Weight function of the coherence to use for azimuth shift estimation.</li>
 
-  <li>Use user supplied shifts: If the checkbox is selected, then user
-supplied azimuth and range shifts will be used in the correction.&nbsp;</li>
-  <li>The overall azimuth shift in pixels: The user provided azimuth shift in pixels. <br>
-  </li>
-  <li>The overall range shift in pixels: The user provided range shift in pixels. <br>
-  </li>
+    <!-- Integration network (NESD) -->
+    <li>Temporal baseline type: Baseline type for building the integration network: number of images (default) or number
+        of days.<br>
+    </li>
+    <li>Maximum temporal baseline: This parameter controls which arcs are considered as part of the network.
+        In particular it sets the maximum number of days or images allowed between pairs of images to construct the
+        network. Any number smaller than 1 will generate a network with all of the possible pairs.<br>
+    </li>
+    <li>Integration method: This is the procedure used to integrate the shifts. Available options are: L1, L2 or a
+        combination of both (L1 and L2).<br>
+    </li>
+
+    <!--  Other-->
+    <li>Do not write target bands: If the checkbox is selected, then the product will not be written but you can still
+        get the range and azimuth shift from the json files.
+    </li>
+    <li>Use user supplied shifts: If the checkbox is selected, then user supplied azimuth and range shifts will be used
+        in the correction.&nbsp;
+    </li>
+    <li>The overall azimuth shift in pixels: The user provided azimuth shift in pixels. <br>
+    </li>
+    <li>The overall range shift in pixels: The user provided range shift in pixels. <br>
+    </li>
 </ul>
-<img style="width: 436px; height: 443px;" alt="" src="images/ESD.jpg"><br>
+<img alt="" src="images/ESD.jpg"><br>
 
-<hr></body></html>
+
+<h4>Execution Options</h4>
+
+<p class="MsoNormal"><span>
+    Depending on the amount of images considered and your computational resources there are two possible workflows for
+    applying the joint coregistration.<br>
+</span></p>
+
+
+<h5>Sequential workflow</h5>
+<p class="MsoNormal"><span>
+    This workflow will generate a coregistered stack in straightforward way. This method should be preferred for a small
+    stacks of images. Here, small depends on your computational resources. <br>
+</span></p>
+
+<img alt="" src="images/sequential_ESD.jpg"><br>
+<p class="MsoNormal"><span> If your resources are not enough to complete the execution you might want to try the
+    distributed workflow.
+</span></p>
+
+
+<h5>Distributed workflow</h5>
+
+<p class="MsoNormal"><span>
+This worklfow has two stages.
+</span></p>
+
+<h6>1. Compute range and azimuth shifts</h6>
+<p class="MsoNormal"><span> For this stage you have to execute Enhanced Spectral Diversity without writing the target bands. In the GUI
+    you can do this by setting:
+</span></p>
+<img alt="" src="images/distributed_ESD1.jpg"><br>
+
+<p class="MsoNormal"><span>Or using graphs by setting <b>doNotWriteTargetBands</b> to <b>false</b>. The example graph
+    <b>...</b> can be used for this purpose.
+</span></p>
+
+
+<p class="MsoNormal"><span>Once the NetworkESD operator finishes the range and azimuth shifts will be available in the
+    <b>[swath]_range_shifts.json</b> and <b>[swath]_azimuth_shifts.json</b> files.
+</span></p>
+
+
+<h6>2. Apply range and azimuth shifts</h6>
+<p class="MsoNormal"><span>
+    Apply Backgeocoding+Enhanced Spectral Diversity for each master-image specifying the range and azimuth shifts
+    computed in stage 1. You can look for them in the <b>json</b> files. Please note that you must use the <b>same
+    master image as in stage 1</b>. In the GUI you can specify the shifts by:
+</span></p>
+<img alt="" src="images/distributed_ESD2.jpg"><br>
+
+<p class="MsoNormal"><span>Or using graphs by setting <b>useSuppliedRangeShift</b> and <b>useSuppliedAzimuthShift</b>
+    to <b>false</b>; and <b>useSuppliedRangeShift</b> and <b>useSuppliedAzimuthShift</b> to the corresponding shifts.
+    The example graph <b>...</b> can be used for this purpose.
+</span></p>
+
+
+<h4>References</h4>
+
+<ol>
+    <li>H. Fattahi, P. Agram, and M. Simons. "A network-based enhanced spectral diversity approach for TOPS time-series
+        analysis". In: IEEE Transactions on Geoscience and Remote Sensing, vol. 55, no. 2, pp. 777-786. February 2017.
+        DOI:10.1109/TGRS.2016.2614925
+    </li>
+    <li>N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
+        R. Bamler. "Interferometric Processing of Sentinel-1 TOPS Data". In: IEEE Transactions on
+        Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220-2234, April 2016. ISSN:0196-2892.
+        DOI:10.1109/TGRS.2015.2497902
+    </li>
+</ol>
+
+<hr>
+</body>
+</html>

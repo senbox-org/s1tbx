@@ -74,15 +74,6 @@
                 <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration with Enhanced Spectral Diversity"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
-            <file name="org-esa-s1tbx-sentinel1-gpf-TOPSNESDCoregistration-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                <attr name="displayName" stringvalue="S-1 TOPS BackGeocoding and NESD"/>
-                <attr name="graphFile" stringvalue="sentinel1/Sentinel1-BackGeocoding-NESD.xml"/>
-                <attr name="dialogTitle" stringvalue="S-1 TOPS BackGeocoding and NESD"/>
-                <attr name="ShortDescription" stringvalue="S1 TOPS BackGeocoding and NESD"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-            </file>
             <file name="org-esa-s1tbx-sentinel1-gpf-BackGeocodingOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
@@ -170,16 +161,6 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="AzimuthShiftEstimationUsingESDOp"/>
             </file>
-            <file name="org-esa-s1tbx-sentinel1-gpf-NetworkESDOp-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
-                <attr name="displayName" stringvalue="S-1 Network ESD"/>
-                <attr name="dialogTitle" stringvalue="Network ESD"/>
-                <attr name="operatorName" stringvalue="Network ESD"/>
-                <attr name="helpId" stringvalue="NetworkESD"/>
-                <attr name="shortDescription" stringvalue="Azimuth Offset Estimation using Network ESD"/>
-                <attr name="targetProductNameSuffix" stringvalue="_nesd"/>
-            </file>
         </folder>
     </folder>
 
@@ -197,10 +178,6 @@
                     <file name="org-esa-s1tbx-sentinel1-gpf-TOPSESDCoregistration-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-TOPSESDCoregistration-Action.instance"/>
                         <attr name="position" intvalue="110"/>
-                    </file>
-                    <file name="org-esa-s1tbx-sentinel1-gpf-TOPSNESDCoregistration-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-TOPSNESDCoregistration-Action.instance"/>
-                        <attr name="position" intvalue="120"/>
                     </file>
                     <file name="separator.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
@@ -229,10 +206,6 @@
                     <file name="org-esa-s1tbx-sentinel1-gpf-AzimuthShiftEstimationUsingESDOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-AzimuthShiftEstimationUsingESDOp-Action.instance"/>
                         <attr name="position" intvalue="320"/>
-                    </file>
-                    <file name="org-esa-s1tbx-sentinel1-gpf-NetworkESDOp-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-NetworkESDOp-Action.instance"/>
-                        <attr name="position" intvalue="305"/>
                     </file>
                 </folder>
             </folder>
