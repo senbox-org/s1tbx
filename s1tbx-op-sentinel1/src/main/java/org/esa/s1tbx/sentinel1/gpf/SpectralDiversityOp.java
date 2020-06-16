@@ -102,7 +102,7 @@ import java.util.concurrent.TimeUnit;
  * DOI:10.1109/TGRS.2015.2497902
  *
  */
-@OperatorMetadata(alias = "Network ESD",
+@OperatorMetadata(alias = "Enhanced-Spectral-Diversity",
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "David A. Monge, Reinier Oost, Esteban Aguilera, Jun Lu, Luis Veci",
         version = "1.0",
@@ -164,9 +164,9 @@ public class SpectralDiversityOp extends Operator {
             label = "Cross-Correlation Threshold")
     private double xCorrThreshold = 0.1;
 
-    @Parameter(description = "The coherence threshold for outlier removal", interval = "(0, 1]", defaultValue = "0.15",
+    @Parameter(description = "The coherence threshold for outlier removal", interval = "(0, 1]", defaultValue = "0.3",
             label = "Coherence Threshold for Outlier Removal")
-    private double cohThreshold = 0.15;
+    private double cohThreshold = 0.3;
 
     @Parameter(description = "The number of windows per overlap for ESD", interval = "[1, 20]", defaultValue = "10",
             label = "Number of Windows Per Overlap for ESD")
@@ -180,7 +180,7 @@ public class SpectralDiversityOp extends Operator {
 
     @Parameter(label = "Weight function",
             valueSet = {WEIGHT_FN_NONE, WEIGHT_FN_LINEAR, WEIGHT_FN_QUAD, WEIGHT_FN_INVQUAD},
-            defaultValue = WEIGHT_FN_NONE,
+            defaultValue = WEIGHT_FN_INVQUAD,
             description = "Weight function of the coherence to use for azimuth shift estimation")
     private String weightFunc = WEIGHT_FN_INVQUAD;
 
@@ -362,7 +362,7 @@ public class SpectralDiversityOp extends Operator {
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
-            //System.out.println("NetworkESD.initialize: targetProduct name = " + targetProduct.getName());
+            //System.out.println("SpectralDiversity.initialize: targetProduct name = " + targetProduct.getName());
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -424,7 +424,7 @@ public class SpectralDiversityOp extends Operator {
 //                String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
                 final String date = OperatorUtils.getAcquisitionDate(root);
                 String mapKey = date + subswath + pol;
-                //System.out.println("NetworkESD.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey);
+                //System.out.println("SpectralDiversity.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey);
 
 //                final String date = OperatorUtils.getAcquisitionDate(root);
                 final SLCImage meta = new SLCImage(root, product);
@@ -452,7 +452,7 @@ public class SpectralDiversityOp extends Operator {
                     }
                 }
                 if(bandReal != null && bandImag != null) {
-                    //System.out.println("NetworkESD.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey + " add to map");
+                    //System.out.println("SpectralDiversity.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey + " add to map");
 //                    map.put(mapKey, new CplxContainer(date, meta, null, bandReal, bandImag));
 
                     // add to map
@@ -481,7 +481,7 @@ public class SpectralDiversityOp extends Operator {
                 if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
                     final String productName = keyMaster + '_' + keySlave;
                     final ProductContainer product = new ProductContainer(productName, master, slave, true);
-                    //System.out.println("NetworkESD.constructTargetMetadata: productName = " + productName + " add to map");
+                    //System.out.println("SpectralDiversity.constructTargetMetadata: productName = " + productName + " add to map");
                     targetMap.put(productName, product);
                 }
             }
@@ -548,7 +548,7 @@ public class SpectralDiversityOp extends Operator {
             final CplxContainer master = targetMap.get(key).sourceMaster;
             final CplxContainer slave = targetMap.get(key).sourceSlave;
             final String mstSlvTag = getImagePairTag(master, slave);
-            //System.out.println("NetworkESD.updateTargetMetadata: mstSlvTag = " + mstSlvTag);
+            //System.out.println("SpectralDiversity.updateTargetMetadata: mstSlvTag = " + mstSlvTag);
             final MetadataElement mstSlvTagElem = new MetadataElement(mstSlvTag);
             esdMeasurement.addElement(mstSlvTagElem);
 
@@ -568,7 +568,7 @@ public class SpectralDiversityOp extends Operator {
                     final CplxContainer image1 = imagesList.get(arcs[i][0]);
                     final CplxContainer image2 = imagesList.get(arcs[i][1]);
                     final String imagePairTag = getImagePairTag(image1, image2);
-                    //System.out.println("NetworkESD.updateTargetMetadata: imagePairTag = " + imagePairTag);
+                    //System.out.println("SpectralDiversity.updateTargetMetadata: imagePairTag = " + imagePairTag);
 
                     final MetadataElement imagePairTagElem = getOrCreateElement(esdMeasurement, imagePairTag);
 
@@ -632,9 +632,12 @@ public class SpectralDiversityOp extends Operator {
 
         updateTargetMetadata(arcs);
 
-        if (doNotWriteTargetBands) {  // as we are not going to write any target band we must force the execution of the range/azimuth shift estimation
-            SystemUtils.LOG.info("Starting NetworkESD.computeTileStack (target bands won't be written)");
-            computeTileStack(null, new Rectangle(), ProgressMonitor.NULL);
+        if (doNotWriteTargetBands) {  // if we choose not to write the target bands, we must perform the range/azimuth shift estimation here
+            SystemUtils.LOG.info("Starting SpectralDiversity.computeTileStack (target bands won't be written)");
+
+            estimateRangeOffset();
+
+            estimateAzimuthOffset();
         }
     }
 
@@ -1242,7 +1245,7 @@ public class SpectralDiversityOp extends Operator {
                 final double azShift = azOffsetArray.get(i);
                 final double rgShift = rgOffsetArray.get(i);
 
-                SystemUtils.LOG.fine("NetworkESD (range shift): burst = " + burstIndexArray.get(i) +
+                SystemUtils.LOG.fine("SpectralDiversity (range shift): burst = " + burstIndexArray.get(i) +
                                              ", range offset = " + rgShift + ", azimuth offset = " + azShift);
 
                 if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
@@ -1261,7 +1264,7 @@ public class SpectralDiversityOp extends Operator {
                 rgOffset = sumRgOffset / (double)count;
             } else {
                 rgOffset = 0.0;
-                SystemUtils.LOG.warning("NetworkESD (range shift): Cross-correlation failed for all bursts, " +
+                SystemUtils.LOG.warning("SpectralDiversity (range shift): Cross-correlation failed for all bursts, " +
                                                 "set range shift to 0.0");
             }
 
@@ -1270,7 +1273,7 @@ public class SpectralDiversityOp extends Operator {
 
             saveAzimuthShiftPerBurst(imagePairTag, azOffsetArray, burstIndexArray);
 
-            SystemUtils.LOG.fine("NetworkESD (range shift): Overall range shift = " + rgOffset);
+            SystemUtils.LOG.fine("SpectralDiversity (range shift): Overall range shift = " + rgOffset);
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateRangeOffset (crossCorrelatePair)", e);
         }
@@ -1278,7 +1281,7 @@ public class SpectralDiversityOp extends Operator {
         // validate and return azimuth shift
         if (Double.isNaN(rgOffset)) {
             rgOffset = 0.0;
-            SystemUtils.LOG.warning("NetworkESD (range shift): arc = " + imagePairTag +
+            SystemUtils.LOG.warning("SpectralDiversity (range shift): arc = " + imagePairTag +
                                             ", range offset is NaN, setting to 0.0");
         }
         return new ShiftData(-1, -1, rgOffset, 1, -1);
@@ -1414,7 +1417,7 @@ public class SpectralDiversityOp extends Operator {
                     averagedAzShiftArray[i] = sumAzOffset / sumWeight;
                 } else {
                     averagedAzShiftArray[i] = 0.0;
-                    SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                    SystemUtils.LOG.warning("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
                                                     " overlap area = " + i + ", weight for this overlap is 0.0");
                 }
                 averagedWeight[i] = sumWeight / numBlocksPerOverlap;
@@ -1424,7 +1427,7 @@ public class SpectralDiversityOp extends Operator {
                 totalOffset += sumAzOffset;
                 totalWeight += sumWeight;
 
-                SystemUtils.LOG.fine("NetworkESD (azimuth shift): arc = " + imagePairTag + " overlap area = " + i +
+                SystemUtils.LOG.fine("SpectralDiversity (azimuth shift): arc = " + imagePairTag + " overlap area = " + i +
                                              ", azimuth offset = " + averagedAzShiftArray[i]);
             }
 
@@ -1433,11 +1436,11 @@ public class SpectralDiversityOp extends Operator {
                 azOffset = -totalOffset / totalWeight;
             } else {  // weight for the whole band is 0
                 azOffset = 0.0;
-                SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                SystemUtils.LOG.warning("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
                                                 ", weight for this band is 0.0, setting azimuth offset to 0.0");
             }
 
-            SystemUtils.LOG.fine("NetworkESD (azimuth shift): arc = " + imagePairTag +
+            SystemUtils.LOG.fine("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
                                          ", overall azimuth shift for this arc = " + azOffset);
 
             // save metadata
@@ -1457,7 +1460,7 @@ public class SpectralDiversityOp extends Operator {
         // validate and return azimuth shift
         if (Double.isNaN(azOffset)) {
             azOffset = 0.0;
-            SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+            SystemUtils.LOG.warning("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
                                             ", azimuth offset is NaN, setting to 0.0");
         }
         return new ShiftData(-1, -1, azOffset, totalWeight, -1);
