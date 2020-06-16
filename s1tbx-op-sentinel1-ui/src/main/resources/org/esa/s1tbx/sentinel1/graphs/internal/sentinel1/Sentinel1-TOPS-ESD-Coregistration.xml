@@ -83,7 +83,7 @@
       <fineWinAccRange>16</fineWinAccRange>
       <fineWinOversampling>128</fineWinOversampling>
       <xCorrThreshold>0.1</xCorrThreshold>
-      <cohThreshold>0.15</cohThreshold>
+      <cohThreshold>0.3</cohThreshold>
       <numBlocksPerOverlap>10</numBlocksPerOverlap>
       <useSuppliedShifts>false</useSuppliedShifts>
       <overallAzimuthShift>0.0</overallAzimuthShift>
