@@ -107,7 +107,7 @@ import java.util.concurrent.TimeUnit;
         authors = "David A. Monge, Reinier Oost, Esteban Aguilera, Jun Lu, Luis Veci",
         version = "1.0",
         copyright = "Copyright (C) 2020 by SENSAR B.V.\nCopyright (C) 2016 by Array Systems Computing Inc.",
-        description = "Estimate constant range and azimuth offsets for the whole image")
+        description = "Estimate constant range and azimuth offsets for a stack of images")
 public class NetworkESDOp extends Operator {
 
     // ESD estimators
@@ -229,7 +229,7 @@ public class NetworkESDOp extends Operator {
     private int optMaxIterations = 10000;
 
     @Parameter(description = "Do not write target bands", defaultValue = "false",
-            label = "Do not write target bands (only keep range and azimuth offsets in the metadata).")
+            label = "Do not write target bands (store range and azimuth offsets in json files).")
     private boolean doNotWriteTargetBands = false;
 
     @Parameter(description = "Use user supplied range shift", defaultValue = "false",
