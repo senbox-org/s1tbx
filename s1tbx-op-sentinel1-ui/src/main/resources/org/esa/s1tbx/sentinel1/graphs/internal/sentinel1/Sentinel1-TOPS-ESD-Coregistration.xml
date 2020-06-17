@@ -85,9 +85,16 @@
       <xCorrThreshold>0.1</xCorrThreshold>
       <cohThreshold>0.3</cohThreshold>
       <numBlocksPerOverlap>10</numBlocksPerOverlap>
-      <useSuppliedShifts>false</useSuppliedShifts>
-      <overallAzimuthShift>0.0</overallAzimuthShift>
+      <esdEstimator>Periodogram</esdEstimator>
+      <weightFunc>Inv Quadratic</weightFunc>
+      <temporalBaselineType>Number of images</temporalBaselineType>
+      <maxTemporalBaseline>4</maxTemporalBaseline>
+      <integrationMethod>L1 and L2</integrationMethod>
+      <doNotWriteTargetBands>false</doNotWriteTargetBands>
+      <useSuppliedRangeShift>false</useSuppliedRangeShift>
       <overallRangeShift>0.0</overallRangeShift>
+      <useSuppliedAzimuthShift>false</useSuppliedAzimuthShift>
+      <overallAzimuthShift>0.0</overallAzimuthShift>
     </parameters>
   </node>
   <node id="Write">
