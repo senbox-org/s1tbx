@@ -25,7 +25,7 @@
   range and azimuth offsets by solving an optimization problem.
   This operator estimates rigid azimuth and range offsets (i.e., constant for each image) with respect to a master
   image considering the offsets of multiple slave-slave pairs.
-  Note that, in this context, an <i>image</i> is the whole sub-swath of a split S-1 SLC.
+  Note that, in this context, an <i>image</i> corresponds to the whole sub-swath of a split S-1 SLC.
 </span></p>
 
 <h4>Operation<br>
@@ -51,8 +51,8 @@
   a <i>periodogram</i> or by <i>averaging</i> all the estimations. Both estimation methods are presented in [2].<br>
 </span></p>
 
-<p class="MsoNormal"><span>The estimated range and azimuth shifts are saved in both the metadata of the output product
-    and in a pair of json files <b>[swath]_range_shifts.json</b> and <b>[swath]_azimuth_shifts.json</b>, where [swath]
+<p class="MsoNormal"><span>The integrated range and azimuth shifts are saved in both the metadata of the output product
+	and in a pair of json files <b>[swath]_range_shifts.json</b> and <b>[swath]_azimuth_shifts.json</b>, where <b>[swath]</b>
     is the name of the corresponding swath for a stack. Also, azimuth shifts for each image pair are stored in
     ASCII files named with the suffix <b>_azimuth_shift.txt</b>. These files can be found in the user's
     <b>\.snap\var\log</b> directory. <br>
@@ -67,7 +67,7 @@
 </h4>
 
 <ul>
-    <li>The input to this operator is the resulting product from the S-1 Back Geocoding operator. It is the
+    <li>The input to this operator is the resulting product created by the S-1 Back Geocoding operator. It is a stack of
         coregistered master and slave images for the same sub-swath and same polarization (e.g. IW1 - VV). <br>
     </li>
 </ul>
@@ -185,10 +185,12 @@
 </span></p>
 
 
+<p class="MsoNormal"><span>
+    It is recommended to use the ProductSet-Reader in combination with Back Geocoding and Enhanced Spectral Diversity.
+</span></p>
 
 <p class="MsoNormal"><span>
-    This method should be preferred for a small stacks.
-    Here, small depends on your computational resources.
+    This method should be preferred for small stacks, where the meaning of small will depend on your computational resources.
     If your resources are not enough to (timely) complete the execution, you might want to try the distributed workflow.
 </span></p>
 
@@ -200,18 +202,21 @@ This worklfow has two stages.
 </span></p>
 
 <h6>1. Compute range and azimuth shifts</h6>
-<p class="MsoNormal"><span> For this stage, you have to execute Enhanced Spectral Diversity without writing the target bands. In the GUI
+<p class="MsoNormal"><span> For this stage, you have to execute Back Geocoding followed by Enhanced Spectral Diversity without writing the target bands. In the GUI
     you can do this through the menu: <br>
     &emsp;<i>Radar > Coregistration > S1 TOPS Coregistration > S-1 TOPS Joint Coregistration (write shifts to file)</i>.
     Make sure that the option <i>Do not write target bands</i> is selected:<br>
     <img alt="" src="images/distributed_ESD1.jpg"><br>
 </span></p>
 
-<p class="MsoNormal"><span>If you editing the graph' xml file, set <b>doNotWriteTargetBands</b> to <b>false</b>.
+<p class="MsoNormal"><span>It is recommended to use a smaller tile size in the azimuth direction (i.e., the tile height) so that wasteful processing is minimized when Back Geocoding is applied to burst overlaps (note that we are assuming Back Geocoding and Enhanced Spectral Diversity are included in the same graph). For example, this can be configured when calling GPT by passing <b>-Dsnap.dataio.reader.tileWidth=500 -Dsnap.dataio.reader.tileHeight=75</b> as parameters.
+</span></p>
+
+<p class="MsoNormal"><span>If you are editing the graph' xml file, set <b>doNotWriteTargetBands</b> to <b>false</b>.
 </span></p>
 
 
-<p class="MsoNormal"><span>Once the NetworkESD operator finishes, the range and azimuth shifts will be available in the
+<p class="MsoNormal"><span>Once the Enhanced Spectral Diversity operator finishes, the range and azimuth shifts will be available in the
     <b>[swath]_range_shifts.json</b> and <b>[swath]_azimuth_shifts.json</b> files.
 </span></p>
 
@@ -219,7 +224,7 @@ This worklfow has two stages.
 <h6>2. Apply range and azimuth shifts</h6>
 <p class="MsoNormal"><span>
     Apply Back Geocoding and Enhanced Spectral Diversity for each master-image specifying the range and azimuth shifts
-    computed in stage 1. You can look for them in the <b>json</b> files. Please note that you must use the <b>same
+    computed in stage 1. You can look them up in the <b>json</b> files. Please note that you must use the <b>same
     master image as in stage 1</b>. In the, GUI you can specify the shifts as follows:<br>
     <img alt="" src="images/distributed_ESD2.jpg"><br>
 </span></p>
