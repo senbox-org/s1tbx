@@ -80,27 +80,26 @@ import java.util.concurrent.TimeUnit;
  * Estimate range and azimuth offsets for each burst using cross-correlation with a 512x512 block in
  * the center of the burst. Then average the offsets computed for all bursts in the same sub-swath to
  * get one constant offset for the whole sub-swath.
- *
+ * <p>
  * Perform range shift for all bursts in a sub-swath with the constant range offset computed above using
  * a frequency domain method.
- *
- *
+ * <p>
+ * <p>
  * For the azimuth shift estimation, this operator uses the Network Enhanced Spectral Diversity (NESD) method.
- *
+ * <p>
  * Reference:
  * H. Fattahi, P. Agram, and M. Simons. "A network-based enhanced spectral diversity approach for TOPS time-series
  * analysis". In: IEEE Transactions on Geoscience and Remote Sensing, vol. 55, no. 2, pp. 777-786. February 2017.
  * DOI:10.1109/TGRS.2016.2614925
- *
- *
+ * <p>
+ * <p>
  * ESD between pairs can be computed with one of two methods: Weighted average or Periodogram. Both are described in:
- *
+ * <p>
  * Reference:
  * N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
  * R. Bamler. “Interferometric Processing of Sentinel-1 TOPS Data”. In: IEEE Transactions on
  * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892.
  * DOI:10.1109/TGRS.2015.2497902
- *
  */
 @OperatorMetadata(alias = "Enhanced-Spectral-Diversity",
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
@@ -140,11 +139,11 @@ public class SpectralDiversityOp extends Operator {
     @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct = null;
 
-    @Parameter(valueSet = {"32", "64", "128","256", "512", "1024", "2048"}, defaultValue = "512",
+    @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "512",
             label = "Registration Window Width")
     private String fineWinWidthStr = "512";
 
-    @Parameter(valueSet = {"32", "64", "128","256", "512", "1024", "2048"}, defaultValue = "512",
+    @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "512",
             label = "Registration Window Height")
     private String fineWinHeightStr = "512";
 
@@ -193,8 +192,8 @@ public class SpectralDiversityOp extends Operator {
     @Parameter(label = "Maximum temporal baseline (inclusive)",
             defaultValue = "4",
             description = "Maximum temporal baseline (in days or number of images depending on the Temporal " +
-            "baseline type) between pairs of images to construct the network. Any number < 1 will generate a network " +
-            "with all of the possible pairs.")
+                    "baseline type) between pairs of images to construct the network. Any number < 1 will generate a network " +
+                    "with all of the possible pairs.")
     private int maxTemporalBaseline = 4;
 
     @Parameter(label = "Integration method",
@@ -346,12 +345,12 @@ public class SpectralDiversityOp extends Operator {
 
                 if (subSwath[subSwathIndex - 1].samplesPerBurst < fineWinWidth) {
                     throw new OperatorException("Registration window width should not be grater than burst width " +
-                            subSwath[subSwathIndex - 1].samplesPerBurst);
+                                                        subSwath[subSwathIndex - 1].samplesPerBurst);
                 }
 
                 if (subSwath[subSwathIndex - 1].linesPerBurst < fineWinHeight) {
                     throw new OperatorException("Registration window height should not be grater than burst height " +
-                            subSwath[subSwathIndex - 1].linesPerBurst);
+                                                        subSwath[subSwathIndex - 1].linesPerBurst);
                 }
             }
 
@@ -362,7 +361,7 @@ public class SpectralDiversityOp extends Operator {
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
-            //System.out.println("SpectralDiversity.initialize: targetProduct name = " + targetProduct.getName());
+            // System.out.println("SpectralDiversity.initialize: targetProduct name = " + targetProduct.getName());
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -395,10 +394,10 @@ public class SpectralDiversityOp extends Operator {
     /**
      * Fills the map with the product's metadata and adds the complex image(s) to a list.
      *
-     * @param tag either  "_mst" or "_slv". For differentiating master and slave bands in the product.
-     * @param root Abstracted_Metadata for tag "_mst" and one of the slave meta data under Slave_Metadata for tag "_slv".
-     * @param product source product.
-     * @param map map of complex images.
+     * @param tag           either  "_mst" or "_slv". For differentiating master and slave bands in the product.
+     * @param root          Abstracted_Metadata for tag "_mst" and one of the slave meta data under Slave_Metadata for tag "_slv".
+     * @param product       source product.
+     * @param map           map of complex images.
      * @param complexImages list of complex images for each polarization-swath combination.
      * @throws Exception
      */
@@ -421,12 +420,12 @@ public class SpectralDiversityOp extends Operator {
             for (String polarization : polarizations) {
                 final String pol = polarization.isEmpty() ? "" : '_' + polarization.toUpperCase();
 
-//                String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
+                // String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
                 final String date = OperatorUtils.getAcquisitionDate(root);
                 String mapKey = date + subswath + pol;
-                //System.out.println("SpectralDiversity.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey);
+                // System.out.println("SpectralDiversity.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey);
 
-//                final String date = OperatorUtils.getAcquisitionDate(root);
+                // final String date = OperatorUtils.getAcquisitionDate(root);
                 final SLCImage meta = new SLCImage(root, product);
 
                 // Set Multilook factor
@@ -451,9 +450,9 @@ public class SpectralDiversityOp extends Operator {
                         }
                     }
                 }
-                if(bandReal != null && bandImag != null) {
-                    //System.out.println("SpectralDiversity.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey + " add to map");
-//                    map.put(mapKey, new CplxContainer(date, meta, null, bandReal, bandImag));
+                if (bandReal != null && bandImag != null) {
+                    // System.out.println("SpectralDiversity.metadataMapPut: tag = " + tag + "; mapKey = " + mapKey + " add to map");
+                    // map.put(mapKey, new CplxContainer(date, meta, null, bandReal, bandImag));
 
                     // add to map
                     CplxContainer container = new CplxContainer(date, meta, null, bandReal, bandImag);
@@ -481,7 +480,7 @@ public class SpectralDiversityOp extends Operator {
                 if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
                     final String productName = keyMaster + '_' + keySlave;
                     final ProductContainer product = new ProductContainer(productName, master, slave, true);
-                    //System.out.println("SpectralDiversity.constructTargetMetadata: productName = " + productName + " add to map");
+                    // System.out.println("SpectralDiversity.constructTargetMetadata: productName = " + productName + " add to map");
                     targetMap.put(productName, product);
                 }
             }
@@ -494,9 +493,9 @@ public class SpectralDiversityOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
+                                    sourceProduct.getProductType(),
+                                    sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -524,7 +523,7 @@ public class SpectralDiversityOp extends Operator {
                     targetProduct.addBand(targetBand);
                 }
 
-                if(targetBand != null && srcBandName.startsWith("q_")) {
+                if (targetBand != null && srcBandName.startsWith("q_")) {
                     final String suffix = srcBandName.substring(1);
                     ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand('i' + suffix), targetBand, suffix);
                 }
@@ -548,7 +547,7 @@ public class SpectralDiversityOp extends Operator {
             final CplxContainer master = targetMap.get(key).sourceMaster;
             final CplxContainer slave = targetMap.get(key).sourceSlave;
             final String mstSlvTag = getImagePairTag(master, slave);
-            //System.out.println("SpectralDiversity.updateTargetMetadata: mstSlvTag = " + mstSlvTag);
+            // System.out.println("SpectralDiversity.updateTargetMetadata: mstSlvTag = " + mstSlvTag);
             final MetadataElement mstSlvTagElem = new MetadataElement(mstSlvTag);
             esdMeasurement.addElement(mstSlvTagElem);
 
@@ -568,7 +567,7 @@ public class SpectralDiversityOp extends Operator {
                     final CplxContainer image1 = imagesList.get(arcs[i][0]);
                     final CplxContainer image2 = imagesList.get(arcs[i][1]);
                     final String imagePairTag = getImagePairTag(image1, image2);
-                    //System.out.println("SpectralDiversity.updateTargetMetadata: imagePairTag = " + imagePairTag);
+                    // System.out.println("SpectralDiversity.updateTargetMetadata: imagePairTag = " + imagePairTag);
 
                     final MetadataElement imagePairTagElem = getOrCreateElement(esdMeasurement, imagePairTag);
 
@@ -633,7 +632,7 @@ public class SpectralDiversityOp extends Operator {
         updateTargetMetadata(arcs);
 
         if (doNotWriteTargetBands) {  // if we choose not to write the target bands, we must perform the range/azimuth shift estimation here
-            SystemUtils.LOG.info("Starting SpectralDiversity.computeTileStack (target bands won't be written)");
+            SystemUtils.LOG.info("Starting SpectralDiversity processing (target bands won't be written)");
 
             estimateRangeOffset();
 
@@ -643,7 +642,7 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Creates a graph of images whose temporal baseline is less or equal to the supplied max temporal baseline.
-     *
+     * <p>
      * Given `N` images, the maximum number of arcs is: `N (N - 1) / 2`.
      *
      * @param maxTemporalBaseline the maximum amount of days between pairs of images or the number of images apart
@@ -711,6 +710,7 @@ public class SpectralDiversityOp extends Operator {
     /**
      * Builds a mapping from complex images to indices. Index of an image corresponds to the ordering number of such
      * image in the list of images sorted by date.
+     *
      * @param images list of images.
      * @return the map of indices for each image.
      */
@@ -743,6 +743,7 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Computes the temporal baseline, between two images, in number of days.
+     *
      * @param image1
      * @param image2
      * @return
@@ -765,6 +766,7 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Computes the temporal baseline between two images, in number of images.
+     *
      * @param image1
      * @param image2
      * @param imageOrder A map of the chronological order number for each image.
@@ -792,12 +794,11 @@ public class SpectralDiversityOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancellation requests.
-     * @throws OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
-     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
-             throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
 
         try {
             // offset estimations
@@ -820,15 +821,6 @@ public class SpectralDiversityOp extends Operator {
                     performRangeAzimuthShift(azOffset, rgOffset, slave.realBand, slave.imagBand, targetRectangle,
                                              targetTileMap);
                 }
-            } else {  // only when target bands are not written
-                // export offsets to file
-                for (String key : targetOffsetMap.keySet()) {
-                    AzRgOffsets offsets = targetOffsetMap.get(key);
-
-                    // todo write a file in the target product dir
-                    System.out.println(key + ".rangeOffset=" + offsets.rgOffset);
-                    System.out.println(key + ".azimuthOffset=" + offsets.azOffset);
-                }
             }
 
         } catch (Throwable e) {
@@ -840,12 +832,12 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Estimate range and azimuth offset using cross-correlation.
-     *
+     * <p>
      * Steps:
      * <ol>
-     *     <li>estimate range shifts for each arc (including all polarizations) using cross-correlation,</li>
-     *     <li>integrate range shifts for each image using the network, and</li>
-     *     <li>save shifts and network metadata.</li>
+     * <li>estimate range shifts for each arc (including all polarizations) using cross-correlation,</li>
+     * <li>integrate range shifts for each image using the network, and</li>
+     * <li>save shifts and network metadata.</li>
      * </ol>
      */
     private synchronized void estimateRangeOffset() {
@@ -1003,21 +995,21 @@ public class SpectralDiversityOp extends Operator {
     }
 
     private static Rectangle defineRectangleMask(final PixelPos pixelPos, final int fineWinWidth, final int fineWinHeight) {
-        int l0 = (int) (pixelPos.y - fineWinHeight/2);
-        int lN = (int) (pixelPos.y + fineWinHeight/2 - 1);
-        int p0 = (int) (pixelPos.x - fineWinWidth/2);
-        int pN = (int) (pixelPos.x + fineWinWidth/2 - 1);
+        int l0 = (int) (pixelPos.y - fineWinHeight / 2);
+        int lN = (int) (pixelPos.y + fineWinHeight / 2 - 1);
+        int p0 = (int) (pixelPos.x - fineWinWidth / 2);
+        int pN = (int) (pixelPos.x + fineWinWidth / 2 - 1);
         return new Rectangle(p0, l0, pN - p0 + 1, lN - l0 + 1);
     }
 
     /**
      * Estimate azimuth offset using Network ESD approach.
-     *
+     * <p>
      * Steps:
      * <ol>
-     *     <li>estimate azimuth shifts for each arc (including all polarizations) using ESD,</li>
-     *     <li>integrate azimuth shifts for each image using the network, and</li>
-     *     <li>save shifts and network metadata.</li>
+     * <li>estimate azimuth shifts for each block stack (including all polarizations) using ESD,</li>
+     * <li>integrate azimuth shifts for each image using the network, and</li>
+     * <li>save shifts and network metadata.</li>
      * </ol>
      */
     private synchronized void estimateAzimuthOffset() {
@@ -1029,43 +1021,171 @@ public class SpectralDiversityOp extends Operator {
         try {
             final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
 
-            // compute azimuth shift for every subswath
+            final int numOverlaps = subSwath[subSwathIndex - 1].numOfBursts - 1;
+
+            // shifts for each block, shape: (overlaps, blocks, arcs)
+            ShiftData[][][] shiftAllBlocks = new ShiftData[numOverlaps][numBlocksPerOverlap][arcs.length];
+
+            // compute azimuth shift for every sub-swath
             for (String swath : subSwathNames) {
                 JSONObject azimuthShifts = new JSONObject();
 
-                // 1. estimate azimuth shifts for each arc
+                // 1. estimate azimuth shifts for each block
                 int noOfPolarizations = polarizations.length;
                 List<int[]> arcsList = new ArrayList<>(arcs.length * noOfPolarizations);
                 List<ShiftData> arcShiftsList = new ArrayList<>(arcs.length * noOfPolarizations);
                 List<String> arcPolarizationsList = new ArrayList<>(arcs.length * noOfPolarizations);
 
+                // compute azimuth shift for every polarization
                 for (String polarization : polarizations) {
+                    double[] totalOffsets = new double[arcs.length];
+                    double[] totalWeights = new double[arcs.length];
+
                     // get list of complex images
                     String imagesKey = polarization.toUpperCase() + "_" + swath.toUpperCase();
                     List<CplxContainer> complexImages = this.complexImages.get(imagesKey);
                     SystemUtils.LOG.fine("Estimating azimuth offset for: " + imagesKey);
 
-                    // apply ESD to each image pair
-                    status.beginTask("Azimuth shift: applying ESD to image pairs (" + imagesKey + ")...", arcs.length);
-                    for (int arcIndex = 0; arcIndex < arcs.length; arcIndex++) {  // for each pair
-                        // perform ESD On each pair
+                    // estimate shift for each overlap
+                    status.beginTask("Azimuth shift: ESD for overlap blocks (" + imagesKey + ")...", numOverlaps * numBlocksPerOverlap);
+                    for (int i = 0; i < numOverlaps; i++) {
+                        final ThreadExecutor executor = new ThreadExecutor();
+                        SystemUtils.LOG.info("Estimating azimuth offset for blocks in overlap: " +
+                                                     (i + 1) + "/" + numOverlaps);
+                        final Rectangle overlapInBurstOneRectangle = new Rectangle();
+                        final Rectangle overlapInBurstTwoRectangle = new Rectangle();
+
+                        OverlapUtils.getOverlappedRectangles(i, overlapInBurstOneRectangle, overlapInBurstTwoRectangle,
+                                                             subSwath[subSwathIndex - 1]);
+
+                        final int w = overlapInBurstOneRectangle.width / numBlocksPerOverlap;  // block width
+                        final int h = overlapInBurstOneRectangle.height;
+                        final int x0BurstOne = overlapInBurstOneRectangle.x;
+                        final int y0BurstOne = overlapInBurstOneRectangle.y;
+                        final int y0BurstTwo = overlapInBurstTwoRectangle.y;
+                        final int overlapIndex = i;
+
+                        final double[] spectralSeparation = computeSpectralSeparation(i);
+                        final double searchBoundary = getSearchSpaceBoundary(spectralSeparation);
+
+                        // estimate shift for each block stack
+                        for (int j = 0; j < numBlocksPerOverlap; j++) {
+                            final int x0 = x0BurstOne + j * w;
+                            final int blockIndex = j;
+                            final Rectangle blockRectangle1 = new Rectangle(x0, y0BurstOne, w, h);
+                            final Rectangle blockRectangle2 = new Rectangle(x0, y0BurstTwo, w, h);
+
+                            // apply ESD for pairs in this block stack
+                            final ThreadRunnable worker = new ThreadRunnable() {
+                                @Override
+                                public void process() {
+                                    ShiftData[] azimuthShiftsPerBlock = applyESDToBlockStack(
+                                            swath,
+                                            polarization,
+                                            overlapIndex,
+                                            blockIndex,
+                                            blockRectangle1,
+                                            blockRectangle2,
+                                            spectralSeparation,
+                                            searchBoundary,
+                                            usePeriodogram);
+                                    synchronized (shiftAllBlocks) {
+                                        shiftAllBlocks[overlapIndex][blockIndex] = azimuthShiftsPerBlock;
+                                    }
+                                }
+                            };
+                            executor.execute(worker);
+                            status.worked(1);
+                        }
+                        executor.complete();
+                    }
+                    status.done();
+
+                    // compute average offset for images of this polarization
+                    double[] azOffsets = new double[arcs.length];
+                    for (int arcIndex = 0; arcIndex < arcs.length; arcIndex++) {
                         CplxContainer image1 = complexImages.get(arcs[arcIndex][0]);
                         CplxContainer image2 = complexImages.get(arcs[arcIndex][1]);
-                        String pairKey = getCanonicalId(image1) + "_" + getCanonicalId(image2);
-                        SystemUtils.LOG.fine("Applying ESD on pair " + pairKey +
-                                                     "\t arc:" + arcs[arcIndex][0] + " -> " + arcs[arcIndex][1]);
-                        ShiftData azimuthShift = applyESDToPair(image1, image2, usePeriodogram);
+                        final String imagePairTag = getImagePairTag(image1, image2);
+
+                        // all block shifts for this overlap
+                        List<ShiftData> azShiftArray = new ArrayList<>();
+                        final double[][] shiftLUT = new double[numOverlaps][numBlocksPerOverlap];
+                        for (int i = 0; i < numOverlaps; i++) {
+                            for (int j = 0; j < numBlocksPerOverlap; j++) {
+                                azShiftArray.add(shiftAllBlocks[i][j][arcIndex]);
+                                shiftLUT[i][j] = shiftAllBlocks[i][j][arcIndex].shift;
+                            }
+                        }
+
+                        // Find average shift per block, using average block weights
+                        final double[] averagedAzShiftArray = new double[numOverlaps];
+                        final double[] averagedWeight = new double[numOverlaps];
+                        final double[] overlapSearchBoundary = new double[numOverlaps];
+                        for (int i = 0; i < numOverlaps; i++) {
+                            double sumAzOffset = 0.0;
+                            double sumWeight = 0.0;
+                            double blockSearchBoundary = 0.0;
+
+                            // for each block in this overlap
+                            for (int j = 0; j < numBlocksPerOverlap; j++) {
+                                sumAzOffset += azShiftArray.get(j).shift * azShiftArray.get(j).weight;
+                                sumWeight += azShiftArray.get(j).weight;
+                                blockSearchBoundary = azShiftArray.get(j).searchBoundary;
+
+                            }
+                            // average for this overlap
+                            if (sumWeight != 0) {
+                                averagedAzShiftArray[i] = sumAzOffset / sumWeight;
+                            } else {
+                                averagedAzShiftArray[i] = 0.0;
+                                SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                                                                " overlap area = " + i + ", weight for this overlap is 0.0");
+                            }
+                            averagedWeight[i] = sumWeight / numBlocksPerOverlap;
+                            overlapSearchBoundary[i] = blockSearchBoundary;
+
+                            // sum to compute overall average shift
+                            totalOffsets[arcIndex] += sumAzOffset;
+                            totalWeights[arcIndex] += sumWeight;
+
+                            SystemUtils.LOG.fine("NetworkESD (azimuth shift): arc = " + imagePairTag + " overlap area = " + i +
+                                                         ", azimuth offset = " + averagedAzShiftArray[i]);
+                        }
+
+                        // overall average shift
+                        if (totalWeights[arcIndex] != 0) {
+                            azOffsets[arcIndex] = -totalOffsets[arcIndex] / totalWeights[arcIndex];
+                            SystemUtils.LOG.fine("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                                                         ", overall azimuth shift for this arc = " +
+                                                         azOffsets[arcIndex]);
+                        } else {
+                            azOffsets[arcIndex] = 0.0;
+                            SystemUtils.LOG.warning("NetworkESD (azimuth shift): arc = " + imagePairTag +
+                                                            ", weight for this band is 0.0, setting azimuth offset " +
+                                                            "to 0.0");
+                        }
+
+
+                        // save overlap metadata
+                        saveAzimuthShiftPerOverlap(imagePairTag, averagedAzShiftArray, averagedWeight, overlapSearchBoundary);
+
+                        // save block metadata
+                        saveAzimuthShiftPerBlock(imagePairTag, azShiftArray);
+
+                        // save to file
+                        if (outputESDEstimationToFile) {
+                            final String fileName = imagePairTag + "_azimuth_shift.txt";
+                            outputESDEstimationToFile(fileName, shiftLUT, azOffsets[arcIndex]);
+                        }
 
                         // save network data
                         arcsList.add(arcs[arcIndex]);
-                        arcShiftsList.add(azimuthShift);
+                        arcShiftsList.add(new ShiftData(-1, -1, azOffsets[arcIndex], totalWeights[arcIndex], -1));
                         arcPolarizationsList.add(polarization);
-
-                        status.worked(1);
                     }
-                    status.done();
                 }
-                
+
                 // 2. integration of arcs
                 int[][] extendedArcs = arcsList.toArray(new int[0][]);
                 double[] relativeAzimuthShifts = new double[extendedArcs.length];
@@ -1128,7 +1248,7 @@ public class SpectralDiversityOp extends Operator {
     /**
      * Writes a json file in the SNAP reports directory.
      *
-     * @param shifts json object to save.
+     * @param shifts   json object to save.
      * @param fileName file name.
      */
     private void saveShiftsToFile(JSONObject shifts, String fileName) {
@@ -1146,7 +1266,98 @@ public class SpectralDiversityOp extends Operator {
     }
 
     /**
+     * Estimate azimuth offset of a block in the second image with respect to the same block in the first one using the
+     * ESD approach. This method is applied to all the pairs of images (blocks) according to the arcs in the integration
+     * network.
+     *
+     * @param swath              swath name.
+     * @param polarization       polarization name.
+     * @param overlapIndex       index of this overlap.
+     * @param blockIndex         index of this block in the overlap.
+     * @param blockRectangle1    rectangle for this block in the first burst.
+     * @param blockRectangle2    rectangle for this block in the second burst.
+     * @param spectralSeparation spectral separation.
+     * @param searchBoundary     boundaries of the search space for the azimuth shift estimation.
+     * @param usePeriodogram     flag to indicate the ESD estimation method: Periodogram (true) | Average (false).
+     * @return an array of ShiftData objects describing the offsets for all the image (block) pairs
+     */
+    private ShiftData[] applyESDToBlockStack(String swath, String polarization, int overlapIndex, int blockIndex, Rectangle blockRectangle1, Rectangle blockRectangle2, double[] spectralSeparation, double searchBoundary, boolean usePeriodogram) {
+        ShiftData[] azimuthShifts = new ShiftData[arcs.length];
+        final int w = blockRectangle1.width;
+        final int h = blockRectangle1.height;
+
+        try {
+            for (int i = 0; i < arcs.length; i++) {  // for each pair
+                final int arcIndex = i;
+
+                checkForCancellation();
+
+                // get images and bands for this arc
+                String imagesKey = polarization.toUpperCase() + "_" + swath.toUpperCase();
+                List<CplxContainer> complexImages = this.complexImages.get(imagesKey);
+                CplxContainer image1 = complexImages.get(arcs[i][0]);
+                CplxContainer image2 = complexImages.get(arcs[i][1]);
+
+                final Band mBandI = image1.realBand;
+                final Band mBandQ = image1.imagBand;
+                final Band sBandI = image2.realBand;
+                final Band sBandQ = image2.imagBand;
+
+                try {
+
+                    // Chop spectralSeparation to fit the block
+                    double[] blockSpectralSeparation = chopSpectralSeparation(blockIndex,
+                                                                              w, h,
+                                                                              spectralSeparation);
+
+                    // Transform 2D coherence to 1D coherence only for the block
+                    final double[] blockCoherence = ravel(computeCoherence(blockRectangle1,
+                                                                           mBandI, mBandQ, sBandI, sBandQ,
+                                                                           cohWin));
+
+                    // Transform coherence into weights
+                    final double[] blockWeight = getBlockWeight(blockCoherence, weightFunction);
+                    double avgBlockWeight = getAverageBlockWeight(blockWeight);
+
+                    // Calculate ESD phase
+                    final double[] esdPhase = estimateESDPhase(mBandI, mBandQ, sBandI, sBandQ,
+                                                               blockRectangle2, blockRectangle1);
+
+                    // Estimate the shift
+                    double azShift;
+                    if (usePeriodogram) {
+                        // Apply the azimuth shift retrieval estimator
+                        azShift = estimateAzimuthShiftWithPeriodogram(esdPhase,
+                                                                      blockWeight,
+                                                                      blockSpectralSeparation,
+                                                                      searchBoundary);
+                    } else {
+                        // Apply an estimator based on the average esd
+                        azShift = estimateAzimuthShiftWithAverage(esdPhase,
+                                                                  blockWeight,
+                                                                  blockSpectralSeparation);
+                    }
+
+                    // Save shift to azShiftArray
+                    ShiftData shiftData =
+                            new ShiftData(overlapIndex, blockIndex, azShift, avgBlockWeight, searchBoundary);
+                    azimuthShifts[arcIndex] = shiftData;
+
+                } catch (Throwable e) {
+                    OperatorUtils.catchOperatorException("estimateOffset", e);
+                }
+            }
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("estimateAzimuthOffset (applyESDToBlockStack)", e);
+        }
+
+        return azimuthShifts;
+    }
+
+    /**
      * Gets the canonical id from a complex image container.
+     *
      * @param container
      * @return
      */
@@ -1158,8 +1369,8 @@ public class SpectralDiversityOp extends Operator {
      * Computes the azimuth or range shifts for each image according to the graph, relative azimuth shifts between
      * images and weights.
      *
-     * @param arcs description of the graph of images.
-     * @param shifts contains the relative (azimuth or range) shifts per arc.
+     * @param arcs    description of the graph of images.
+     * @param shifts  contains the relative (azimuth or range) shifts per arc.
      * @param weights contains the shift weights per arc.
      * @return an array of integrated shifts per image.
      */
@@ -1202,7 +1413,7 @@ public class SpectralDiversityOp extends Operator {
 
         final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
 
-        //SystemUtils.LOG.info("crossCorrelatePair numBursts = " + numBursts);
+        // SystemUtils.LOG.info("crossCorrelatePair numBursts = " + numBursts);
 
         final String imagePairTag = getImagePairTag(image1, image2);
 
@@ -1225,7 +1436,7 @@ public class SpectralDiversityOp extends Operator {
                             estimateAzRgOffsets(image1.realBand, image1.imagBand, image2.realBand, image2.imagBand,
                                                 burstIndex, offset);
 
-                            synchronized(azOffsetArray) {
+                            synchronized (azOffsetArray) {
                                 azOffsetArray.add(offset[0]);
                                 rgOffsetArray.add(offset[1]);
                                 burstIndexArray.add(burstIndex);
@@ -1261,7 +1472,7 @@ public class SpectralDiversityOp extends Operator {
             }
 
             if (count > 0) {
-                rgOffset = sumRgOffset / (double)count;
+                rgOffset = sumRgOffset / (double) count;
             } else {
                 rgOffset = 0.0;
                 SystemUtils.LOG.warning("SpectralDiversity (range shift): Cross-correlation failed for all bursts, " +
@@ -1287,185 +1498,6 @@ public class SpectralDiversityOp extends Operator {
         return new ShiftData(-1, -1, rgOffset, 1, -1);
     }
 
-    /**
-     * Estimate azimuth offset of the second image with respect to the first one using the ESD approach.
-     *
-     * @param image1 first image to which apply ESD, used as reference.
-     * @param image2 second image to which apply ESD.
-     * @param usePeriodogram flag to indicate the ESD estimation method: Periodogram (true) | Average (false).
-     * @return azimuth shift and azimuthWeights for each pair of images.
-     */
-    public synchronized ShiftData applyESDToPair(CplxContainer image1, CplxContainer image2, boolean usePeriodogram) {
-
-        double totalOffset = 0.0;
-        double totalWeight = 0.0;
-        double azOffset = Double.NaN;
-
-        final int numOverlaps = subSwath[subSwathIndex - 1].numOfBursts - 1;
-        final int numShifts = numOverlaps * numBlocksPerOverlap;
-
-        //SystemUtils.LOG.info("applyESDToPair numOverlaps = " + numOverlaps);
-
-        final String imagePairTag = getImagePairTag(image1, image2);
-
-        try {
-
-            final Band mBandI = image1.realBand;
-            final Band mBandQ = image1.imagBand;
-            final Band sBandI = image2.realBand;
-            final Band sBandQ = image2.imagBand;
-
-            final List<ShiftData> azShiftArray = new ArrayList<>(numShifts);
-            final double[][] shiftLUT = new double[numOverlaps][numBlocksPerOverlap];
-
-            final ThreadExecutor executor = new ThreadExecutor();
-            for (int i = 0; i < numOverlaps; i++) {
-
-                final double[] spectralSeparation = computeSpectralSeparation(i);
-                final double searchBoundary = getSearchSpaceBoundary(spectralSeparation);
-
-                final Rectangle overlapInBurstOneRectangle = new Rectangle();
-                final Rectangle overlapInBurstTwoRectangle = new Rectangle();
-
-                OverlapUtils.getOverlappedRectangles(i, overlapInBurstOneRectangle, overlapInBurstTwoRectangle,
-                                                     subSwath[subSwathIndex - 1]);
-
-                final double[][] coherence = computeCoherence(
-                        overlapInBurstOneRectangle, mBandI, mBandQ, sBandI, sBandQ, cohWin);
-
-                final int w = overlapInBurstOneRectangle.width / numBlocksPerOverlap; // block width
-                final int h = overlapInBurstOneRectangle.height;
-                final int x0BurstOne = overlapInBurstOneRectangle.x;
-                final int y0BurstOne = overlapInBurstOneRectangle.y;
-                final int y0BurstTwo = overlapInBurstTwoRectangle.y;
-                final int overlapIndex = i;
-
-                for (int j = 0; j < numBlocksPerOverlap; j++) {
-                    checkForCancellation();
-                    final int x0 = x0BurstOne + j * w;
-                    final int blockIndex = j;
-
-                    final ThreadRunnable worker = new ThreadRunnable() {
-                        @Override
-                        public void process() {
-                            try {
-                                final Rectangle blockInBurstOneRectangle = new Rectangle(x0, y0BurstOne, w, h);
-                                final Rectangle blockInBurstTwoRectangle = new Rectangle(x0, y0BurstTwo, w, h);
-
-                                // Chop spectralSeparation to fit the block
-                                double[] blockSpectralSeparation = chopSpectralSeparation(blockIndex, w, h, spectralSeparation);
-
-                                // Transform 2D coherence to 1D coherence only for the block
-                                final double[] blockCoherence = getBlockCoherence(blockIndex, w, h, coherence);
-
-                                // Transform coherence into weights
-                                final double[] blockWeight = getBlockWeight(blockCoherence, weightFunction);
-                                double avgBlockWeight = getAverageBlockWeight(blockWeight);
-
-                                // Calculate ESD phase
-                                final double[] esdPhase = estimateESDPhase(mBandI, mBandQ, sBandI, sBandQ,
-                                                                           blockInBurstTwoRectangle, blockInBurstOneRectangle);
-
-                                // Estimate the shift
-                                double azShift;
-                                if (usePeriodogram) {
-                                    // Apply the azimuth shift retrieval estimator
-                                    azShift = estimateAzimuthShiftWithPeriodogram(esdPhase,
-                                                                                  blockWeight,
-                                                                                  blockSpectralSeparation,
-                                                                                  searchBoundary);
-                                } else {
-                                    // Apply an estimator based on the average esd
-                                    azShift = estimateAzimuthShiftWithAverage(esdPhase,
-                                                                              blockWeight,
-                                                                              blockSpectralSeparation);
-                                }
-
-                                // Save shift to azShiftArray
-                                synchronized (azShiftArray) {
-                                    azShiftArray.add(new ShiftData(overlapIndex, blockIndex, azShift, avgBlockWeight, searchBoundary));
-                                    shiftLUT[overlapIndex][blockIndex] = azShift;
-                                }
-                            } catch (Throwable e) {
-                                OperatorUtils.catchOperatorException("estimateOffset", e);
-                            }
-                        }
-                    };
-                    executor.execute(worker);
-                }
-            }
-            executor.complete();
-
-            // Find average shift per block, using average block weights
-            final double[] averagedAzShiftArray = new double[numOverlaps];
-            final double[] averagedWeight = new double[numOverlaps];
-            final double[] overlapSearchBoundary = new double[numOverlaps];
-            for (int i = 0; i < numOverlaps; i++) {  // for each overlap
-                double sumAzOffset = 0.0;
-                double sumWeight = 0.0;
-                double blockSearchBoundary = 0.0;
-                // for each block of this overlap
-                for (int j = 0; j < numShifts; j++) {
-                    if (azShiftArray.get(j).overlapIndex == i) {
-                        sumAzOffset += azShiftArray.get(j).shift * azShiftArray.get(j).weight;
-                        sumWeight += azShiftArray.get(j).weight;
-                        blockSearchBoundary = azShiftArray.get(j).searchBoundary;
-                    }
-                }
-                // average for this overlap
-                if (sumWeight != 0) {
-                    averagedAzShiftArray[i] = sumAzOffset / sumWeight;
-                } else {
-                    averagedAzShiftArray[i] = 0.0;
-                    SystemUtils.LOG.warning("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
-                                                    " overlap area = " + i + ", weight for this overlap is 0.0");
-                }
-                averagedWeight[i] = sumWeight / numBlocksPerOverlap;
-                overlapSearchBoundary[i] = blockSearchBoundary;
-
-                // sum to compute overall average shift
-                totalOffset += sumAzOffset;
-                totalWeight += sumWeight;
-
-                SystemUtils.LOG.fine("SpectralDiversity (azimuth shift): arc = " + imagePairTag + " overlap area = " + i +
-                                             ", azimuth offset = " + averagedAzShiftArray[i]);
-            }
-
-            // overall average shift
-            if (totalWeight != 0) {
-                azOffset = -totalOffset / totalWeight;
-            } else {  // weight for the whole band is 0
-                azOffset = 0.0;
-                SystemUtils.LOG.warning("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
-                                                ", weight for this band is 0.0, setting azimuth offset to 0.0");
-            }
-
-            SystemUtils.LOG.fine("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
-                                         ", overall azimuth shift for this arc = " + azOffset);
-
-            // save metadata
-            saveAzimuthShiftPerOverlap(imagePairTag, averagedAzShiftArray, averagedWeight, overlapSearchBoundary);
-
-            saveAzimuthShiftPerBlock(imagePairTag, azShiftArray);
-
-            if (outputESDEstimationToFile) {
-              final String fileName = imagePairTag + "_azimuth_shift.txt";
-              outputESDEstimationToFile(fileName, shiftLUT, azOffset);
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("estimateAzimuthOffset (applyESDToPair)", e);
-        }
-
-        // validate and return azimuth shift
-        if (Double.isNaN(azOffset)) {
-            azOffset = 0.0;
-            SystemUtils.LOG.warning("SpectralDiversity (azimuth shift): arc = " + imagePairTag +
-                                            ", azimuth offset is NaN, setting to 0.0");
-        }
-        return new ShiftData(-1, -1, azOffset, totalWeight, -1);
-    }
-
     private double[] computeSpectralSeparation(int overlapIndex) {
         final int numOverlappedLines = computeBurstOverlapSize(overlapIndex);
         int burstIndex = overlapIndex;  // Approximation: consider only the doppler rate of the first burst per overlap
@@ -1486,19 +1518,19 @@ public class SpectralDiversityOp extends Operator {
      * @param spectralSeparation
      * @return Half of the ambiguity band.
      */
-    private double getSearchSpaceBoundary(double[] spectralSeparation){
+    private double getSearchSpaceBoundary(double[] spectralSeparation) {
         double maxSpectralSeparation = 0.0;
 
-        for (int i = 0; i < spectralSeparation.length; i++){
+        for (int i = 0; i < spectralSeparation.length; i++) {
             maxSpectralSeparation = FastMath.max(spectralSeparation[i], maxSpectralSeparation);
         }
 
         // Calculate boundary of the search space
-        return  0.5 / (azimuthTimeInterval * maxSpectralSeparation);
+        return 0.5 / (azimuthTimeInterval * maxSpectralSeparation);
     }
 
     private double[] chopSpectralSeparation(int blockIndex, int blockWidth, int blockHeight,
-                                            double[] spectralSeparation){
+                                            double[] spectralSeparation) {
         double[] choppedSpectralSeparation = new double[blockWidth * blockHeight];
 
         for (int i = 0; i < choppedSpectralSeparation.length; i++) {
@@ -1508,6 +1540,20 @@ public class SpectralDiversityOp extends Operator {
         }
 
         return choppedSpectralSeparation;
+    }
+
+    private static double[] ravel(double[][] matrix) {
+        int height = matrix.length;
+        int width = matrix[0].length;
+        final double[] vector = new double[height * width];
+
+        for (int i = 0; i < vector.length; i++) {
+            final int r = i / width;
+            final int c = i - r * width;
+            vector[i] = matrix[r][c];
+        }
+
+        return vector;
     }
 
     private static double[] getBlockCoherence(final int blockIndex, final int blockWidth, final int blockHeight,
@@ -1532,7 +1578,7 @@ public class SpectralDiversityOp extends Operator {
         return weight;
     }
 
-    private double getAverageBlockWeight(double[] blockWeight){
+    private double getAverageBlockWeight(double[] blockWeight) {
         double sum = 0;
         for (int i = 0; i < blockWeight.length; i++) {
             sum += blockWeight[i];
@@ -1699,10 +1745,11 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Saves the integration network to the metadata.
-     * @param arcs arcs in the network.
-     * @param relativeShifts shift per pair.
-     * @param weights weight of the arc.
-     * @param complexImages list of complex images for each polarization.
+     *
+     * @param arcs             arcs in the network.
+     * @param relativeShifts   shift per pair.
+     * @param weights          weight of the arc.
+     * @param complexImages    list of complex images for each polarization.
      * @param integratedShifts results of the integration process.
      */
     private void saveIntegrationNetwork(int[][] arcs, double[] relativeShifts, double[] weights,
@@ -1756,8 +1803,8 @@ public class SpectralDiversityOp extends Operator {
             final MetadataElement nodeElem = getOrCreateElement(nodesElem, "Node." + i);
             nodeElem.setAttributeInt("nodeIndex", i);
             int j = 0;
-            for (String swath: subSwathNames) {
-                for (String polarization: polarizations) {
+            for (String swath : subSwathNames) {
+                for (String polarization : polarizations) {
                     String imagesKey = polarization.toUpperCase() + "_" + swath.toUpperCase();
                     nodeElem.setAttributeString("imageName." + j++,
                                                 getImageTag(complexImages.get(imagesKey).get(i)));
@@ -1771,8 +1818,9 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Get or create a sub-element in the provided element.
+     *
      * @param element the root element.
-     * @param name the name of the element to retrieve or create.
+     * @param name    the name of the element to retrieve or create.
      * @return the sub-element.
      */
     private MetadataElement getOrCreateElement(MetadataElement element, String name) {
@@ -1786,35 +1834,36 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Compute the number of lines in the overlapped area of given adjacent bursts.
+     *
      * @return The number of lines in the overlapped area.
      */
     private int computeBurstOverlapSize(final int overlapIndex) {
 
         final double endTime = subSwath[subSwathIndex - 1].burstLastLineTime[overlapIndex];
         final double startTime = subSwath[subSwathIndex - 1].burstFirstLineTime[overlapIndex + 1];
-        return (int)((endTime - startTime) / subSwath[subSwathIndex - 1].azimuthTimeInterval);
+        return (int) ((endTime - startTime) / subSwath[subSwathIndex - 1].azimuthTimeInterval);
     }
 
     /**
      * Estimates the ESD phase per pixel for the overlap of two bursts.
-     *
+     * <p>
      * Reference:
      * N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
      * R. Bamler. “Interferometric Processing of Sentinel-1 TOPS Data”. In: IEEE Transactions on
      * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892.
      * DOI:10.1109/TGRS.2015.2497902
-     *
+     * <p>
      * Computes:
      * <code>
      * \phi_\textup{ESD} = \arg{\left \{ (m_i \cdot s^*_i) (m_{i+1} \cdot s^*_{i+1})^* \right \}}
      * </code>
      *
-     * @param mBandI The band with the real part of the master image.
-     * @param mBandQ The band with the imaginary part of the master image.
-     * @param sBandI The band with the real part of the slave image.
-     * @param sBandQ The band with the imaginary part of the slave image.
+     * @param mBandI            The band with the real part of the master image.
+     * @param mBandQ            The band with the imaginary part of the master image.
+     * @param sBandI            The band with the real part of the slave image.
+     * @param sBandQ            The band with the imaginary part of the slave image.
      * @param backwardRectangle First burst rectangle.
-     * @param forwardRectangle Second burst rectangle.
+     * @param forwardRectangle  Second burst rectangle.
      * @return ESD phase.
      */
     private double[] estimateESDPhase(final Band mBandI, final Band mBandQ, final Band sBandI, final Band sBandQ,
@@ -1853,29 +1902,29 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Estimates azimuth shift as a weighted average.
-     *
+     * <p>
      * Reference:
      * N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
      * R. Bamler. “Interferometric Processing of Sentinel-1 TOPS Data”. In: IEEE Transactions on
      * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892.
      * DOI:10.1109/TGRS.2015.2497902
-     *
+     * <p>
      * Computes:
      * <code>
      * \widehat{\Delta y} = \frac{f_\textup{az}}{2 \pi} \cdot
-     *     \frac{\arg{\left \{ \left \langle e^{j\phi_{\textup{ESD},p}} \right \rangle \right \}}}
-     *          {\left \langle \Delta f^{\textup{ovl}}_{\textup{DC},p} \right \rangle},
+     * \frac{\arg{\left \{ \left \langle e^{j\phi_{\textup{ESD},p}} \right \rangle \right \}}}
+     * {\left \langle \Delta f^{\textup{ovl}}_{\textup{DC},p} \right \rangle},
      * </code>
      * where <code>\left \langle \cdot \right \rangle</code> is the weighted average using the weight vector
      * <code>w</code>
      *
-     * @param esdPhase ESD phase per pixel. (<code>\phi_{\textup{ESD},p}</code>)
-     * @param weight Weights for the estimation. (<code>w</code>)
+     * @param esdPhase           ESD phase per pixel. (<code>\phi_{\textup{ESD},p}</code>)
+     * @param weight             Weights for the estimation. (<code>w</code>)
      * @param spectralSeparation Doppler centroid frequency difference.
      *                           (<code>\Delta f^{\textup{ovl}}_{\textup{DC},p}</code>)
      * @return Azimuth shift estimation.
      */
-    public double estimateAzimuthShiftWithAverage(double[] esdPhase, double[] weight, double[] spectralSeparation){
+    public double estimateAzimuthShiftWithAverage(double[] esdPhase, double[] weight, double[] spectralSeparation) {
         double sumDCFrequencyDiffs = 0;  // sum of Doppler centroid frequency differences
         double sumReal = 0;
         double sumImaginary = 0;
@@ -1902,37 +1951,37 @@ public class SpectralDiversityOp extends Operator {
 
     /**
      * Estimates the azimuth shift using Periodogram.
-     *
+     * <p>
      * Reference:
      * N. Yague-Martinez, P. Prats-Iraola, F. Rodriguez Gonzalez, R. Brcic, R. Shau, D. Geudtner, M. Eineder, and
      * R. Bamler. “Interferometric Processing of Sentinel-1 TOPS Data”. In: IEEE Transactions on
      * Geoscience and Remote Sensing, vol. 54, no. 4, pp. 2220–2234, April 2016. ISSN:0196-2892.
      * DOI:10.1109/TGRS.2015.2497902
-     *
+     * <p>
      * The azimuth shift is estimated by solving:
      * <code>
      * \widehat{\Delta y} = {\arg \min}_{\Delta y}
-     *   \left \{
-     *     \left |
-     *       \sum_{p}
-     *         w_p \cdot e^{j(\phi_{\textup{ESD},p}
-     *                        - 2 \pi \Delta f^{\textup{ovl}}_{\textup{DC},p}
-     *                          \frac{\Delta y}{f_\textup{az}}
-     *                      )}
-     *     \right |
-     *   \right \}
+     * \left \{
+     * \left |
+     * \sum_{p}
+     * w_p \cdot e^{j(\phi_{\textup{ESD},p}
+     * - 2 \pi \Delta f^{\textup{ovl}}_{\textup{DC},p}
+     * \frac{\Delta y}{f_\textup{az}}
+     * )}
+     * \right |
+     * \right \}
      * </code>
      *
-     * @param esdPhase ESD phase. (<code> \phi_{\textup{ESD},p}</code>)
-     * @param weight Weights for computing the simulated ESD phase (w).
+     * @param esdPhase           ESD phase. (<code> \phi_{\textup{ESD},p}</code>)
+     * @param weight             Weights for computing the simulated ESD phase (w).
      * @param spectralSeparation Doppler centroid frequency difference in the overlap area for each burst
      *                           (<code>\Delta f^{\textup{ovl}}_{\textup{DC},p}</code>)
-     * @param boundary The value of boundary, <code>b</code>, determines that the search for the shift will be carried
-     *                 out in the space <code>[-b, b]</code>.
+     * @param boundary           The value of boundary, <code>b</code>, determines that the search for the shift will be carried
+     *                           out in the space <code>[-b, b]</code>.
      * @return Azimuth shift estimation.
      */
     public double estimateAzimuthShiftWithPeriodogram(double[] esdPhase, double[] weight, double[] spectralSeparation,
-                                                      double boundary){
+                                                      double boundary) {
         double azShift;
         boolean findMinArgument;  // flag for the optimization criterion
         double initialBestValue;
@@ -2059,13 +2108,13 @@ public class SpectralDiversityOp extends Operator {
             final short[] dataArrayShort = (short[]) srcTile.getDataBuffer().getElems();
             dataArray = new double[dataArrayShort.length];
             for (int i = 0; i < dataArrayShort.length; i++) {
-                dataArray[i] = (double)dataArrayShort[i];
+                dataArray[i] = (double) dataArrayShort[i];
             }
         } else if (dataType == ProductData.TYPE_FLOAT32) {
-            final float[] dataArrayFloat = (float[])srcTile.getDataBuffer().getElems();
+            final float[] dataArrayFloat = (float[]) srcTile.getDataBuffer().getElems();
             dataArray = new double[dataArrayFloat.length];
             for (int i = 0; i < dataArrayFloat.length; i++) {
-                dataArray[i] = (double)dataArrayFloat[i];
+                dataArray[i] = (double) dataArrayFloat[i];
             }
         } else {
             dataArray = (double[]) srcTile.getDataBuffer().getElems();
@@ -2075,8 +2124,8 @@ public class SpectralDiversityOp extends Operator {
     }
 
     private static void complexArrayMultiplication(final double[] realArray1, final double[] imagArray1,
-                                            final double[] realArray2, final double[] imagArray2,
-                                            final double[] realOutput, final double[] imagOutput) {
+                                                   final double[] realArray2, final double[] imagArray2,
+                                                   final double[] realOutput, final double[] imagOutput) {
 
         final int arrayLength = realArray1.length;
         if (imagArray1.length != arrayLength || realArray2.length != arrayLength || imagArray2.length != arrayLength ||
@@ -2106,7 +2155,7 @@ public class SpectralDiversityOp extends Operator {
 
         int k2;
         double phaseK;
-        final double phase = -2.0 * Math.PI * shift / (double)signalLength;
+        final double phase = -2.0 * Math.PI * shift / (double) signalLength;
         final int halfSignalLength = (int) (signalLength * 0.5 + 0.5);
 
         for (int k = 0; k < signalLength; ++k) {
@@ -2208,12 +2257,12 @@ public class SpectralDiversityOp extends Operator {
                 }
 
                 if (count > 0 && mstPowerSum != 0.0 && slvPowerSum != 0.0) {
-                    final double cohRealMean = cohRealSum / (double)count;
-                    final double cohImagMean = cohImagSum / (double)count;
-                    final double mstPowerMean = mstPowerSum / (double)count;
-                    final double slvPowerMean = slvPowerSum / (double)count;
+                    final double cohRealMean = cohRealSum / (double) count;
+                    final double cohImagMean = cohImagSum / (double) count;
+                    final double mstPowerMean = mstPowerSum / (double) count;
+                    final double slvPowerMean = slvPowerSum / (double) count;
                     coherence[yy][xx] = Math.sqrt((cohRealMean * cohRealMean + cohImagMean * cohImagMean) /
-                            (mstPowerMean * slvPowerMean));
+                                                          (mstPowerMean * slvPowerMean));
                 }
             }
         }
@@ -2230,7 +2279,7 @@ public class SpectralDiversityOp extends Operator {
         final int h = targetRectangle.height;
         final int burstIndex = y0 / subSwath[subSwathIndex - 1].linesPerBurst;
 
-        final float noDataValue = (float)slvBandI.getNoDataValue();
+        final float noDataValue = (float) slvBandI.getNoDataValue();
         final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
         final Tile slvTileQ = getSourceTile(slvBandQ, targetRectangle);
         final float[] slvArrayI = (float[]) slvTileI.getDataBuffer().getElems();
@@ -2238,8 +2287,8 @@ public class SpectralDiversityOp extends Operator {
 
         // Perform range shift
 
-        final double[] line = new double[2*w];
-        final double[] phaseRg = new double[2*w];
+        final double[] line = new double[2 * w];
+        final double[] phaseRg = new double[2 * w];
         final DoubleFFT_1D row_fft = new DoubleFFT_1D(w);
         final double[][] rangeShiftedI = new double[h][w];
         final double[][] rangeShiftedQ = new double[h][w];
@@ -2277,13 +2326,13 @@ public class SpectralDiversityOp extends Operator {
             for (int c = 0; c < w; c++) {
                 final double cosPhase = FastMath.cos(derampDemodPhase[r][c]);
                 final double sinPhase = FastMath.sin(derampDemodPhase[r][c]);
-                derampDemodI[r][c] = rangeShiftedI[r][c]*cosPhase - rangeShiftedQ[r][c]*sinPhase;
-                derampDemodQ[r][c] = rangeShiftedI[r][c]*sinPhase + rangeShiftedQ[r][c]*cosPhase;
+                derampDemodI[r][c] = rangeShiftedI[r][c] * cosPhase - rangeShiftedQ[r][c] * sinPhase;
+                derampDemodQ[r][c] = rangeShiftedI[r][c] * sinPhase + rangeShiftedQ[r][c] * cosPhase;
             }
         }
 
         // compute shift phase
-        final double[] phaseAz = new double[2*h];
+        final double[] phaseAz = new double[2 * h];
         computeShiftPhaseArray(azOffset, h, phaseAz);
 
         // perform azimuth shift using FFT, and perform reramp and remodulation
@@ -2318,7 +2367,7 @@ public class SpectralDiversityOp extends Operator {
             col_fft.complexInverse(col2, true);
 
             for (int r = 0; r < h; r++) {
-                if (slvArrayI[r*w + c] != noDataValue) {
+                if (slvArrayI[r * w + c] != noDataValue) {
                     int r2 = r * 2;
                     final int y = y0 + r;
                     final int idx = tgtTileI.getDataBufferIndex(x, y);
@@ -2367,7 +2416,7 @@ public class SpectralDiversityOp extends Operator {
 
     public enum WeightFunction {
         linear(WEIGHT_FN_LINEAR, (coherence, threshold) -> (coherence > threshold) ? coherence : 0),
-        quadratic(WEIGHT_FN_QUAD, (coherence, threshold) -> (coherence > threshold) ? coherence * coherence: 0),
+        quadratic(WEIGHT_FN_QUAD, (coherence, threshold) -> (coherence > threshold) ? coherence * coherence : 0),
         inverseQuadratic(WEIGHT_FN_INVQUAD, (coherence, threshold) -> (coherence > threshold) ? FastMath.sqrt(coherence) : 0),
         none(WEIGHT_FN_NONE, (coherence, threshold) -> (coherence > threshold) ? 1 : 0);
 
@@ -2378,7 +2427,7 @@ public class SpectralDiversityOp extends Operator {
 
         // Populate the lookup table
         static {
-            for(WeightFunction env : WeightFunction.values()) {
+            for (WeightFunction env : WeightFunction.values()) {
                 lookup.put(env.getCaption(), env);
             }
         }
