@@ -309,8 +309,14 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             }
         }
 
+        if (productType.equals("SLC")) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 0);
+        } else { // DI
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
+        }
+
         addOrbitStateVectors(absRoot, features.getElement("StateVectorData"));
-        addSRGRCoefficients(absRoot, channel.getElement("SlantToGround"));
+        addSRGRCoefficients(absRoot, channel.getElement("GroundToSlant"));
         addDopplerCentroidCoefficients(absRoot, channel);
     }
 
@@ -740,29 +746,35 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                 Double.parseDouble(vel[i+2].getData().getElemString()));
     }
 
-    private void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement slantToGround) {
-        if(slantToGround == null)
+    private void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement GroundToSlant) {
+
+        if(GroundToSlant == null)
             return;
 
-        final MetadataElement pol = slantToGround.getElement("pol");
+        final MetadataElement pol = GroundToSlant.getElement("pol");
 
         // save ground range to slant range conversion coefficients in abstract metadata
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
         final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list);
         srgrCoefficientsElem.addElement(srgrListElem);
 
-        srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, getTime(slantToGround, "taz0_Utc", dateFormat2));
+        srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, getTime(GroundToSlant, "taz0_Utc", dateFormat2));
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
                 ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
         AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
         int cnt = 1;
-        for (MetadataElement val : pol.getElements()) {
+        for (int i = 0; i < pol.getElements().length; ++i) {
+            if (i == 2 || i == 3) {
+                continue;
+            }
+            final MetadataElement val = pol.getElementAt(i);
             final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
             srgrListElem.addElement(coefElem);
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
                     ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
-            AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, val.getAttributeDouble("val"));
+            AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef,
+                    val.getAttributeDouble("val")*Constants.halfLightSpeed);
             ++cnt;
         }
     }
