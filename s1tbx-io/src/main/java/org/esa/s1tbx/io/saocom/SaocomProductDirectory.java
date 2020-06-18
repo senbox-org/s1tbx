@@ -446,14 +446,14 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                 }
             }
 
-            if(productType.equals("GEC") || productType.equals("GTC")) {
+            if(product.getSceneGeoCoding() == null && (productType.equals("GEC") || productType.equals("GTC"))) {
                 final File bandFile = getFile(img.getName());
                 final ProductReader reader = geotiffPlugIn.createReaderInstance();
                 final Product bandProduct = reader.readProductNodes(bandFile, null);
                 if (bandProduct != null) {
-                    if (product.getSceneGeoCoding() == null &&
-                            product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
-                            product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
+                    if (product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
+                        product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
+
                         ProductUtils.copyGeoCoding(bandProduct, product);
                         Dimension tileSize = bandProduct.getPreferredTileSize();
                         if (tileSize == null) {
@@ -463,7 +463,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                         ImageLayout imageLayout = new ImageLayout();
                         imageLayout.setTileWidth(tileSize.width);
                         imageLayout.setTileHeight(tileSize.height);
-                        break;
                     }
                     bandProduct.closeIO();
                     bandProduct.dispose();
