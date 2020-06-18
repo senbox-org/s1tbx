@@ -58,6 +58,7 @@ import java.util.*;
 
 /**
  * This class represents a product directory.
+ * @author Luis Veci, Carlos Hernandez, Esteban Aguilera
  */
 public class TerraSarXProductDirectory extends XMLProductDirectory {
 
@@ -325,8 +326,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         final MetadataElement acquisitionInfo = productInfo.getElement("acquisitionInfo");
+        final String imagingMode = getAcquisitionMode(acquisitionInfo.getAttributeString("imagingMode", defStr));
         if (acquisitionInfo != null) {
-            final String imagingMode = getAcquisitionMode(acquisitionInfo.getAttributeString("imagingMode", defStr));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, imagingMode);
             final String lookDirection = acquisitionInfo.getAttributeString("lookDirection", defStr);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, lookDirection.toLowerCase());
@@ -456,6 +457,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if (doppler != null) {
             final MetadataElement dopplerCentroid = doppler.getElement("dopplerCentroid");
             addDopplerCentroidCoefficients(absRoot, dopplerCentroid);
+        }
+
+        // Add metadata for Spotlight
+        if (imagingMode.equalsIgnoreCase("spotlight")) {
+            final MetadataElement dopplerSpotlightElem = new MetadataElement("dopplerSpotlight");
+            absRoot.addElement(dopplerSpotlightElem);
+            addDopplerRateAndCentroidSpotlight(dopplerSpotlightElem, origProdRoot);
+            addAzimuthTimeZpSpotlight(dopplerSpotlightElem);
         }
 
         // handle ATI products by copying abs metadata to slv metadata
@@ -1349,5 +1358,171 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             rangeTime = range;
             incidenceAngle = angle;
         }
+    }
+
+    private void addDopplerRateAndCentroidSpotlight(MetadataElement elem, MetadataElement origProdRoot) {
+        // Compute doppler rate and centroid
+        final double[] metadata = getMetadataSpotlight(origProdRoot);
+
+        final double[] dcRangePolyCoeffsFirst = new double[]{metadata[4], metadata[5]};
+        final double[] dcRangePolyCoeffsLast = new double[]{metadata[6], metadata[7]};
+        final double dcRangePolyAzTimeRawFirst = metadata[1];
+        final double dcRangePolyAzTimeRawLast = metadata[8];
+        final double fmRangePolyCoeffsFirst = metadata[9];
+        final double fmRangePolyCoeffsLast = metadata[10];
+        final double firstRangeTime = metadata[2];
+        final double lastRangeTime = metadata[13];
+        final double refRangeTime = metadata[3];
+        final double refAzimuthTimeZp = metadata[0];
+
+        int w = (int) metadata[12];
+
+        final double[] rangeTime = new double[w];
+        final double[] dopplerCentroidFirst = new double[w];
+        final double[] dopplerCentroidLast = new double[w];
+        final double[] dcRangePolyAzTimeZpFirst = new double[w];
+        final double[] dcRangePolyAzTimeZpLast = new double[w];
+        final double[] dopplerCentroidSpotlight = new double[w];
+
+        final double fmRate = 0.5 * (fmRangePolyCoeffsFirst + fmRangePolyCoeffsLast);
+
+        for (int i = 0; i < w; i++) {
+            rangeTime[i] = firstRangeTime + i * (lastRangeTime - firstRangeTime) / (double) (w - 1) - refRangeTime;
+        }
+
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < 2; j++) {
+                dopplerCentroidFirst[i] += dcRangePolyCoeffsFirst[j] * Math.pow(rangeTime[i], j);
+            }
+        }
+
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < 2; j++) {
+                dopplerCentroidLast[i] += dcRangePolyCoeffsLast[j] * Math.pow(rangeTime[i], j);
+            }
+        }
+
+        for (int i = 0; i < w; i++) {
+            dcRangePolyAzTimeZpFirst[i] = dcRangePolyAzTimeRawFirst - dopplerCentroidFirst[i] / fmRate;
+        }
+
+        for (int i = 0; i < w; i++) {
+            dcRangePolyAzTimeZpLast[i] = dcRangePolyAzTimeRawLast - dopplerCentroidLast[i] / fmRate;
+        }
+
+        final double[] dopplerRateSpotlight = new double[w];
+        for (int i = 0; i < w; i++) {
+            dopplerRateSpotlight[i] = (dopplerCentroidLast[i] - dopplerCentroidFirst[i]) / (dcRangePolyAzTimeZpLast[i] - dcRangePolyAzTimeZpFirst[i]);
+        }
+
+        for (int i = 0; i < w; i++) {
+            dopplerCentroidSpotlight[i] = dopplerCentroidFirst[i] - dopplerRateSpotlight[i] * (dcRangePolyAzTimeZpFirst[i] - refAzimuthTimeZp);
+        }
+
+        // Save in metadata
+        String dopplerRateSpotlightStr = Arrays.toString(dopplerRateSpotlight).replace("]", "").replace("[", "");
+        String dopplerCentroidSpotlightStr = Arrays.toString(dopplerCentroidSpotlight).replace("]", "").replace("[", "");
+
+        AbstractMetadata.addAbstractedAttribute(elem, "dopplerRateSpotlight",
+                                                ProductData.TYPE_ASCII, "", "Doppler Rate Spotlight");
+        AbstractMetadata.setAttribute(elem, "dopplerRateSpotlight", dopplerRateSpotlightStr );
+
+        AbstractMetadata.addAbstractedAttribute(elem, "dopplerCentroidSpotlight",
+                                                ProductData.TYPE_ASCII, "", "Doppler Centroid Spotlight");
+        AbstractMetadata.setAttribute(elem, "dopplerCentroidSpotlight", dopplerCentroidSpotlightStr);
+    }
+
+    private void addAzimuthTimeZpSpotlight(MetadataElement elem) {
+        // Compute azimuth time
+        final double AzimuthTimeZpOffset = 0;
+
+        // Save in metadata
+        final MetadataElement azimuthTimeZd = new MetadataElement("azimuthTimeZdSpotlight");
+        elem.addElement(azimuthTimeZd);
+        AbstractMetadata.addAbstractedAttribute(azimuthTimeZd, "AzimuthTimeZdOffset",
+                                                ProductData.TYPE_FLOAT64, "", "Azimuth Time Zero Doppler Offset");
+        AbstractMetadata.setAttribute(azimuthTimeZd, "AzimuthTimeZdOffset", AzimuthTimeZpOffset);
+    }
+
+    private double[] getMetadataSpotlight(MetadataElement origProdRoot) {
+
+        List<Integer> index;
+        final double[] metadata = new double[15];
+
+        MetadataElement rootLevel1ProductElem = origProdRoot.getElement("level1Product");
+
+        MetadataElement productInfoElem = rootLevel1ProductElem.getElement("productInfo");
+        MetadataElement imageDataInfoElem = productInfoElem.getElement("imageDataInfo");
+        MetadataElement imageRasterElem = imageDataInfoElem.getElement("imageRaster");
+        MetadataElement sceneInfoElem = productInfoElem.getElement("sceneInfo");
+        MetadataElement startElem = sceneInfoElem.getElement("start");
+        MetadataElement stopElem = sceneInfoElem.getElement("stop");
+        MetadataElement processingElem = rootLevel1ProductElem.getElement("processing");
+        MetadataElement dopplerElem = processingElem.getElement("doppler");
+        MetadataElement dopplerCentroidElem = dopplerElem.getElement("dopplerCentroid");
+        index = lookForIndex(dopplerCentroidElem, "dopplerEstimate");
+        MetadataElement dopplerEstimateFirstElem = dopplerCentroidElem.getElements()[index.get(0)];
+        MetadataElement combinedDopplerFirstElem = dopplerEstimateFirstElem.getElement("combinedDoppler");
+        MetadataElement coefficientFirst0Elem = combinedDopplerFirstElem.getElements()[0];
+        MetadataElement coefficientFirst1Elem = combinedDopplerFirstElem.getElements()[1];
+        MetadataElement dopplerEstimateLastElem = dopplerCentroidElem.getElements()[index.get(1)];
+        MetadataElement combinedDopplerLastElem = dopplerEstimateLastElem.getElement("combinedDoppler");
+        MetadataElement coefficientLast0Elem = combinedDopplerLastElem.getElements()[0];
+        MetadataElement coefficientLast1Elem = combinedDopplerLastElem.getElements()[1];
+        MetadataElement geometryElem = processingElem.getElement("geometry");
+        index = lookForIndex(geometryElem, "dopplerRate");
+        MetadataElement dopplerRateFirstElem = geometryElem.getElements()[index.get(0)];
+        MetadataElement dopplerRatePolynomialFirst = dopplerRateFirstElem.getElement("dopplerRatePolynomial");
+        MetadataElement coefficientFirstElem = dopplerRatePolynomialFirst.getElements()[0];
+        MetadataElement dopplerRateLastElem = geometryElem.getElements()[index.get(1)];
+        MetadataElement dopplerRatePolynomialLast = dopplerRateLastElem.getElement("dopplerRatePolynomial");
+        MetadataElement coefficientLastElem = dopplerRatePolynomialLast.getElements()[0];
+
+        metadata[0] = timeUTCtoSecs(startElem);
+        metadata[1] = timeUTCtoSecs(dopplerEstimateFirstElem);
+        metadata[2] = combinedDopplerFirstElem.getAttributeDouble("validityRangeMin");
+        metadata[3] = combinedDopplerFirstElem.getAttributeDouble("referencePoint");
+        metadata[4] = coefficientFirst0Elem.getAttributeDouble("coefficient");
+        metadata[5] = coefficientFirst1Elem.getAttributeDouble("coefficient");
+        metadata[6] = coefficientLast0Elem.getAttributeDouble("coefficient");
+        metadata[7] = coefficientLast1Elem.getAttributeDouble("coefficient");
+        metadata[8] = timeUTCtoSecs(dopplerEstimateLastElem);
+        metadata[9] = coefficientFirstElem.getAttributeDouble("coefficient");
+        metadata[10] = coefficientLastElem.getAttributeDouble("coefficient");
+        metadata[11] = imageRasterElem.getAttributeInt("numberOfRows");
+        metadata[12] = imageRasterElem.getAttributeInt("numberOfColumns");
+        metadata[13] = combinedDopplerFirstElem.getAttributeDouble("validityRangeMax");
+        metadata[14] = timeUTCtoSecs(stopElem);
+
+        return metadata;
+    }
+
+    private double timeUTCtoSecs(MetadataElement myDate) {
+
+        ProductData.UTC localDateTime = ReaderUtils.getTime(myDate, "timeUTC", standardDateFormat);
+        return localDateTime.getMJD() * 24.0 * 3600.0;
+    }
+
+    private static List<Integer> lookForIndex(MetadataElement lookForElements, String elemName) {
+
+        String[] indexElem = lookForElements.getElementNames();
+        int totalElem = indexElem.length;
+        boolean first = false;
+        List<Integer> index = new ArrayList<>();
+
+        for (int i = 0; i < totalElem; i++) {
+
+            if (indexElem[i].equals(elemName)) {
+                if (!first) {
+
+                    index.add(i);
+                    first = true;
+                } else if (i == totalElem - 1) {
+
+                    index.add(i);
+                }
+            }
+        }
+        return index;
     }
 }

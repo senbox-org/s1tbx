@@ -789,6 +789,9 @@ public class CreateStackOp extends Operator {
             // Reference point in Master radar geometry
             Point tgtLP = metaMaster.getApproxRadarCentreOriginal();
 
+            MetadataElement orbitOffsets = new MetadataElement("Orbit_Offsets");
+            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+            absRoot.addElement(orbitOffsets);
             for (final Product slvProd : sourceProduct) {
 
                 if (slvProd == masterProduct) {
@@ -814,6 +817,19 @@ public class CreateStackOp extends Operator {
 
                 int offsetX = (int) Math.floor(offsetLP.x + .5);
                 int offsetY = (int) Math.floor(offsetLP.y + .5);
+
+                // Add to metadata
+                String timeStamp = StackUtils.createBandTimeStamp(slvProd).substring(1);
+                MetadataElement bandElem = null;
+                for (String bandName : targetProduct.getBandNames()){
+                    String bandTimeStamp = bandName.split("_")[bandName.split("_").length - 1];
+                    if (bandTimeStamp.equals(timeStamp)){
+                        bandElem = new MetadataElement("init_offsets" + StackUtils.getBandSuffix(bandName));
+                        bandElem.setAttributeInt("init_offset_X", offsetX);
+                        bandElem.setAttributeInt("init_offset_Y", offsetY);
+                    }
+                }
+                orbitOffsets.addElement(bandElem);
 
                 addOffset(slvProd, offsetX, offsetY);
 

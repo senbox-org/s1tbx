@@ -45,6 +45,27 @@
                 <attr name="helpId" stringvalue="SetNoDataValueOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
+            <file name="org-esa-s1tbx-utilities-gpf-DemodulateOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Demodulate"/>
+                <attr name="operatorName" stringvalue="Demodulate"/>
+                <attr name="dialogTitle" stringvalue="Demodulate"/>
+                <attr name="targetProductNameSuffix" stringvalue="_demod"/>
+                <attr name="ShortDescription" stringvalue="Demodulation of an SLC"/>
+                <attr name="helpId" stringvalue="DemodulateOp"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-utilities-gpf-RemodulateOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Remodulate"/>
+                <attr name="operatorName" stringvalue="Remodulate"/>
+                <attr name="dialogTitle" stringvalue="Remodulate"/>
+                <attr name="targetProductNameSuffix" stringvalue="_remod"/>
+                <attr name="ShortDescription" stringvalue="Remodulation of an SLC"/>
+                <attr name="helpId" stringvalue="RemodulateOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -63,6 +84,16 @@
                         <attr name="originalFile"
                               stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.instance"/>
                         <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-esa-s1tbx-utilities-gpf-DemodulateOp-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-DemodulateOp-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-esa-s1tbx-utilities-gpf-RemodulateOp-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-RemodulateOp-Action.instance"/>
+                        <attr name="position" intvalue="400"/>
                     </file>
                 </folder>
             </folder>

@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Ahmad Hamouda
+ * @author Ahmad Hamouda, Carlos Hernandez, Esteban Aguilera
  */
 public class IceyeSLCProductReader extends SARReader {
 
@@ -216,7 +216,7 @@ public class IceyeSLCProductReader extends SARReader {
             addTiePointGridsToProduct();
             addGeoCodingToProduct();
             addCommonSARMetadata(product);
-            addDopplerCentroidCoefficients();
+            addDopplerMetadata();
             setQuicklookBandName(product);
 
             product.getGcpGroup();
@@ -441,6 +441,74 @@ public class IceyeSLCProductReader extends SARReader {
         }
     }
 
+    private void addDopplerMetadata() {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final String imagingMode = absRoot.getAttributeString("ACQUISITION_MODE");
+
+        if (imagingMode.equalsIgnoreCase("spotlight"))  {
+            final MetadataElement dopplerSpotlightElem = new MetadataElement("dopplerSpotlight");
+            absRoot.addElement(dopplerSpotlightElem);
+            addDopplerRateAndCentroidSpotlight(dopplerSpotlightElem);
+            addAzimuthTimeZpSpotlight(dopplerSpotlightElem);
+        }
+        addDopplerCentroidCoefficients();
+    }
+
+    private void addDopplerRateAndCentroidSpotlight(MetadataElement elem) {
+        // Compute doppler rate and centroid
+        MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        MetadataElement dopplerRateCoeffs = origProdRoot.getElement(IceyeXConstants.DR_COEFFS);
+        String dopplerRate = dopplerRateCoeffs.getAttributeString("data").split(",")[0]; // take first coefficient
+        final double fmRate = Double.parseDouble(dopplerRate);
+        final double dopplerCentroid = 0.0; // TODO: load from original metadata once it's accurate
+
+        final int rasterWidth = product.getSceneRasterWidth();
+        final double[] dopplerRateSpotlight = new double[rasterWidth];
+        final double[] dopplerCentroidSpotlight = new double[rasterWidth];
+
+        for(int i = 0; i < rasterWidth; i++) {
+            dopplerRateSpotlight[i] = fmRate;
+            dopplerCentroidSpotlight[i] = dopplerCentroid;
+        }
+
+        // Save in metadata
+        String dopplerRateSpotlightStr = Arrays.toString(dopplerRateSpotlight).replace("]", "").replace("[", "");
+        String dopplerCentroidSpotlightStr = Arrays.toString(dopplerCentroidSpotlight).replace("]", "").replace("[", "");
+
+        AbstractMetadata.addAbstractedAttribute(elem, "dopplerRateSpotlight",
+               ProductData.TYPE_ASCII, "", "Doppler Rate Spotlight");
+        AbstractMetadata.setAttribute(elem, "dopplerRateSpotlight", dopplerRateSpotlightStr);
+
+        AbstractMetadata.addAbstractedAttribute(elem, "dopplerCentroidSpotlight",
+                ProductData.TYPE_ASCII, "", "Doppler Centroid Spotlight");
+        AbstractMetadata.setAttribute(elem, "dopplerCentroidSpotlight", dopplerCentroidSpotlightStr);
+    }
+
+    private void addAzimuthTimeZpSpotlight(MetadataElement elem) {
+        // Compute azimuth time
+        MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final double firstAzimuthTimeZp = timeUTCtoSecs(origProdRoot.getAttributeString(IceyeXConstants.FIRST_LINE_TIME));
+        final double lastAzimuthTimeZp = timeUTCtoSecs(origProdRoot.getAttributeString(IceyeXConstants.LAST_LINE_TIME));
+        final double AzimuthTimeZpOffset = firstAzimuthTimeZp - 0.5 * (firstAzimuthTimeZp + lastAzimuthTimeZp);
+
+        // Save in metadata
+        final MetadataElement azimuthTimeZd = new MetadataElement("azimuthTimeZdSpotlight");
+        elem.addElement(azimuthTimeZd);
+        AbstractMetadata.addAbstractedAttribute(azimuthTimeZd, "AzimuthTimeZdOffset",
+                                                ProductData.TYPE_FLOAT64, "", "Azimuth Time Zero Doppler Offset");
+        AbstractMetadata.setAttribute(azimuthTimeZd, "AzimuthTimeZdOffset", AzimuthTimeZpOffset);
+    }
+
+    private double timeUTCtoSecs(String myDate) {
+        ProductData.UTC localDateTime = null;
+        try {
+            localDateTime = ProductData.UTC.parse(myDate, standardDateFormat);
+        } catch (ParseException e) {
+            SystemUtils.LOG.severe(e.getMessage());
+        }
+        return localDateTime.getMJD() * 24.0 * 3600.0;
+    }
+
     private String getSampleType() {
         try {
             if (IceyeXConstants.SLC.equalsIgnoreCase(netcdfFile.getRootGroup().findVariable(IceyeXConstants.SPH_DESCRIPTOR).readScalarString())) {
@@ -551,9 +619,9 @@ public class IceyeSLCProductReader extends SARReader {
     }
 
     void callReadBandRasterData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                                          int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
-                                          ProgressMonitor pm) throws IOException {
+                                int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                                int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
+                                ProgressMonitor pm) throws IOException {
         readBandRasterDataImpl(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
                 sourceStepX, sourceStepY, destBand, destOffsetX, destOffsetY, destWidth, destHeight, destBuffer, pm);
     }
