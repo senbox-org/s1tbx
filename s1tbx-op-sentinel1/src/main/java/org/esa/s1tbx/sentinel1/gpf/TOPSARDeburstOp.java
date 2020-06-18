@@ -48,7 +48,7 @@ import java.util.StringTokenizer;
  */
 @OperatorMetadata(alias = "TOPSAR-Deburst",
         category = "Radar/Sentinel-1 TOPS",
-        authors = "Jun Lu, Luis Veci",
+        authors = "Jun Lu, Luis Veci, Reinier Oost, Esteban Aguilera, David A. Monge",
         version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Debursts a Sentinel-1 TOPSAR product")
@@ -533,6 +533,16 @@ public final class TOPSARDeburstOp extends Operator {
 
                     lastLineElem.addElement(lastLinePointElem);
                 }
+
+                burstElem.setAttributeDouble("FirstLineDeburst", (firstLineTime - subSwath[i].burstFirstLineTime[0]) / subSwath[i].azimuthTimeInterval);
+                burstElem.setAttributeDouble("LastLineDeburst", (lastLineTime - subSwath[i].burstFirstLineTime[0]) / subSwath[i].azimuthTimeInterval);
+                burstElem.setAttributeDouble("FirstLineTime", subSwath[i].burstFirstLineTime[b]);
+                burstElem.setAttributeDouble("LastLineTime", subSwath[i].burstLastLineTime[b]);
+                burstElem.setAttributeDouble("FirstPixelTime", subSwath[i].slrTimeToFirstPixel);
+                burstElem.setAttributeDouble("LastPixelTime", subSwath[i].slrTimeToLastPixel);
+                burstElem.setAttributeDouble("FirstValidPixelTime", subSwath[i].slrTimeToFirstValidPixel);
+                burstElem.setAttributeDouble("LastValidPixelTime", subSwath[i].slrTimeToLastValidPixel);
+
                 burstElem.addElement(firstLineElem);
                 burstElem.addElement(lastLineElem);
                 swathElem.addElement(burstElem);
@@ -698,7 +708,6 @@ public final class TOPSARDeburstOp extends Operator {
         }
         return mergedVectorStr.toString();
     }
-
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.

@@ -1,0 +1,78 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="ProductSet-Reader">
+        <operator>ProductSet-Reader</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <fileList/>
+        </parameters>
+    </node>
+    <node id="Back-Geocoding">
+        <operator>Back-Geocoding</operator>
+        <sources>
+            <sourceProduct refid="ProductSet-Reader"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <demName>SRTM 3Sec</demName>
+            <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
+            <externalDEMFile/>
+            <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+            <resamplingType>BISINC_21_POINT_INTERPOLATION</resamplingType>
+            <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
+            <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
+            <outputDerampDemodPhase>false</outputDerampDemodPhase>
+            <disableReramp>false</disableReramp>
+        </parameters>
+    </node>
+    <node id="Enhanced-Spectral-Diversity">
+        <operator>Enhanced-Spectral-Diversity</operator>
+        <sources>
+            <sourceProduct refid="Back-Geocoding"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <fineWinWidthStr>512</fineWinWidthStr>
+            <fineWinHeightStr>512</fineWinHeightStr>
+            <fineWinAccAzimuth>16</fineWinAccAzimuth>
+            <fineWinAccRange>16</fineWinAccRange>
+            <fineWinOversampling>128</fineWinOversampling>
+            <xCorrThreshold>0.1</xCorrThreshold>
+            <cohThreshold>0.3</cohThreshold>
+            <numBlocksPerOverlap>10</numBlocksPerOverlap>
+            <esdEstimator>Periodogram</esdEstimator>
+            <weightFunc>Inv Quadratic</weightFunc>
+            <temporalBaselineType>Number of images</temporalBaselineType>
+            <maxTemporalBaseline>4</maxTemporalBaseline>
+            <integrationMethod>L1 and L2</integrationMethod>
+            <doNotWriteTargetBands>true</doNotWriteTargetBands>
+            <useSuppliedRangeShift>false</useSuppliedRangeShift>
+            <overallRangeShift>0.0</overallRangeShift>
+            <useSuppliedAzimuthShift>false</useSuppliedAzimuthShift>
+            <overallAzimuthShift>0.0</overallAzimuthShift>
+        </parameters>
+    </node>
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="Enhanced-Spectral-Diversity"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file></file>
+            <formatName>BEAM-DIMAP</formatName>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="ProductSet-Reader">
+            <displayPosition x="51.0" y="125.0"/>
+        </node>
+        <node id="Back-Geocoding">
+            <displayPosition x="246.0" y="127.0"/>
+        </node>
+        <node id="Enhanced-Spectral-Diversity">
+            <displayPosition x="431.0" y="129.0"/>
+        </node>
+        <node id="Write">
+            <displayPosition x="559.0" y="130.0"/>
+        </node>
+    </applicationData>
+</graph>
