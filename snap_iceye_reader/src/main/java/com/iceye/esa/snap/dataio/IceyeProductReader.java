@@ -9,6 +9,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
@@ -44,17 +45,30 @@ public class IceyeProductReader extends SARReader {
     protected Product readProductNodesImpl() {
         try {
             final Path inputPath = ReaderUtils.getPathFromInput(getInput());
-            final File inputFile = inputPath.toFile();
-            final String fileName = inputFile.getName().toLowerCase();
-
-            if (fileName.endsWith(".h5") && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
-                isTiff.set(false);
-                reader = new IceyeSLCProductReader(getReaderPlugIn());
-            } else if ((fileName.endsWith(".tif") || fileName.endsWith(".tiff")) && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
-                isTiff.set(true);
-                reader = new IceyeGRDProductReader(getReaderPlugIn());
+            if(inputPath == null) {
+                throw new Exception("Unable to read " + getInput());
             }
-            return reader.readProductNodes(getInput(), getSubsetDef());
+            File inputFile = inputPath.toFile();
+            String fileName = inputFile.getName().toLowerCase();
+
+            if(fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
+                if (fileName.endsWith(".xml")) {
+                    inputFile = FileUtils.exchangeExtension(inputFile, ".h5");
+                    if(!inputFile.exists()) {
+                        inputFile = FileUtils.exchangeExtension(inputFile, ".tif");
+                    }
+                    fileName = inputFile.getName().toLowerCase();
+                }
+
+                if (fileName.endsWith(".h5")) {
+                    isTiff.set(false);
+                    reader = new IceyeSLCProductReader(getReaderPlugIn());
+                } else if (fileName.endsWith(".tif")) {
+                    isTiff.set(true);
+                    reader = new IceyeGRDProductReader(getReaderPlugIn());
+                }
+            }
+            return reader.readProductNodes(inputFile, getSubsetDef());
         } catch (Exception e) {
             SystemUtils.LOG.severe(e.getMessage());
         }
