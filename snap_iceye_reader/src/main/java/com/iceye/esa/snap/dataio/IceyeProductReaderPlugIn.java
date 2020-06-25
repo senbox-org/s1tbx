@@ -28,11 +28,11 @@ public class IceyeProductReaderPlugIn extends NetCDFReaderPlugIn {
      */
     @Override
     protected DecodeQualification checkProductQualification(final Path path) {
-        final String fileName = path.getFileName().toString().toLowerCase();
-        if (fileName.endsWith(".h5") && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
-            return DecodeQualification.INTENDED;
-        } else if ((fileName.endsWith(".tif") || fileName.endsWith(".tiff")) && fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX.toLowerCase())) {
-            return DecodeQualification.INTENDED;
+        final String fileName = path.getFileName().toString().toUpperCase();
+        if(fileName.startsWith(IceyeXConstants.ICEYE_FILE_PREFIX)) {
+            if (fileName.endsWith(".H5") || fileName.endsWith(".TIF") || fileName.endsWith(".XML")) {
+                return DecodeQualification.INTENDED;
+            }
         }
         return DecodeQualification.UNABLE;
     }
