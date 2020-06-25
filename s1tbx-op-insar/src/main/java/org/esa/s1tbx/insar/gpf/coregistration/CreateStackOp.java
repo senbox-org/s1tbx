@@ -122,7 +122,6 @@ public class CreateStackOp extends Operator {
     private final Map<Product, int[]> slaveOffsetMap = new HashMap<>(10);
 
     private boolean appendToMaster = false;
-    private boolean productPixelSpacingChecked = false;
 
     private static final String PRODUCT_SUFFIX = "_Stack";
 
@@ -864,10 +863,6 @@ public class CreateStackOp extends Operator {
 
             if (resamplingType.contains("NONE")) { // without resampling
 
-                if (!productPixelSpacingChecked) {
-                    checkProductPixelSpacings();
-                }
-
                 final float noDataValue = (float) targetBand.getGeophysicalNoDataValue();
                 final Rectangle targetRectangle = targetTile.getRectangle();
                 final ProductData trgData = targetTile.getDataBuffer();
@@ -929,15 +924,6 @@ public class CreateStackOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    private synchronized void checkProductPixelSpacings() throws OperatorException {
-
-        if (productPixelSpacingChecked) {
-            return;
-        }
-
-        productPixelSpacingChecked = true;
     }
 
     public static void checkPixelSpacing(final Product[] sourceProducts) throws Exception {

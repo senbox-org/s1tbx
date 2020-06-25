@@ -79,11 +79,11 @@ public class Slant2Height {
 
     }
 
-    public synchronized void setTile(DoubleMatrix tile) {
+    public void setTile(DoubleMatrix tile) {
         this.tile = tile;
     }
 
-    public synchronized void setTileWindow(Window window) {
+    public void setTileWindow(Window window) {
         this.tileWindow = window;
     }
 
