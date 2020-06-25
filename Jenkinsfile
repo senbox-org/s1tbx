@@ -94,12 +94,6 @@ pipeline {
                     args '-v docker_snap-installer:/snap-installer'
                 }
             }
-            when {
-                expression {
-                    // We save snap installer data on master branch and branch x.x.x (Ex: 8.0.0) or branch x.x.x-rcx (ex: 8.0.0-rc1) when we want to create a release
-                    return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/);
-                }
-            }
             steps {
                 echo "Save data for SNAP Installer ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
                 sh "/opt/scripts/saveInstallData.sh ${toolName} ${env.GIT_BRANCH}"
@@ -107,11 +101,6 @@ pipeline {
         }
         stage('Create SNAP Installer') {
             agent { label 'snap-test' }
-            when {
-                expression {
-                    return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/) && "${params.launchTests}" == "true";
-                }
-            }
             steps {
                 echo "Launch snap-installer"
                 build job: "snap-installer/${env.GIT_BRANCH}"
@@ -119,11 +108,6 @@ pipeline {
         }
         stage('Create docker image') {
             agent { label 'snap-test' }
-            when {
-                expression {
-                    return "${params.launchTests}" == "true";
-                }
-            }
             steps {
                 echo "Launch snap-installer"
                 build job: "create-snap-docker-image", parameters: [
