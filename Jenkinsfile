@@ -33,7 +33,7 @@ pipeline {
             agent {
                 docker {
                     label 'snap-test'
-                    image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
+                    image 'snap-build-server.tilaa.cloud/maven:openjdk-7.x'
                     args '-e MAVEN_CONFIG=/var/maven/.m2 -v /data/ssd/testData/:/data/ssd/testData/ -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
                 }
             }
@@ -152,21 +152,6 @@ pipeline {
                         build job: "snap-gpt-tests/${branchVersion}", parameters: [
                             [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
                             [$class: 'StringParameterValue', name: 'testScope', value: "REGULAR"]
-                        ]
-                    }
-                }
-                stage ('Starting GUI Tests') {
-                    agent { label 'snap-test' }
-                    when {
-                        expression {
-                            return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/) && "${params.launchTests}" == "true";
-                        }
-                    }
-                    steps {
-                        echo "Launch snap-gui-tests using docker image snap:${branchVersion}"
-                        build job: "snap-gui-tests/${branchVersion}", parameters: [
-                            [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
-                            [$class: 'StringParameterValue', name: 'testFileList', value: "qftests.lst"]
                         ]
                     }
                 }
