@@ -10,40 +10,11 @@ import org.esa.snap.raster.gpf.texture.GLCMOp;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class TestBenchmark_SAR extends TestBenchmarks {
-
-    @Test
-    public void testQP_read_write() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                final Product srcProduct = read(grdFile);
-                writeGPF(srcProduct);
-            }
-        };
-        b.run();
-    }
-
-    @Test
-    public void testGRD_calibrate() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                final Product srcProduct = subset(grdFile, rect);
-
-                CalibrationOp op = new CalibrationOp();
-                op.setSourceProduct(srcProduct);
-                Product trgProduct = op.getTargetProduct();
-
-                writeGPF(trgProduct);
-            }
-        };
-        b.run();
-    }
+public class TestBenchmark_SAR extends BaseBenchmarks {
 
     @Test
     public void testGRD_multilook() throws Exception {
-        Benchmark b = new Benchmark() {
+        Benchmark b = new Benchmark("GRD_multilook") {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = subset(grdFile, rect);
@@ -52,7 +23,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
                 op.setSourceProduct(srcProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct);
+                writeGPF(trgProduct, DIMAP);
             }
         };
         b.run();
@@ -60,7 +31,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
 
     @Test
     public void testGRD_terraincorrect() throws Exception {
-        Benchmark b = new Benchmark() {
+        Benchmark b = new Benchmark("GRD_terraincorrect") {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = subset(grdFile, rect);
@@ -69,7 +40,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
                 op.setSourceProduct(srcProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct);
+                writeGPF(trgProduct, DIMAP);
             }
         };
         b.run();
@@ -77,7 +48,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
 
     @Test
     public void testGRD_ellipsoidcorrect() throws Exception {
-        Benchmark b = new Benchmark() {
+        Benchmark b = new Benchmark("GRD_ellipsoidcorrect") {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = subset(grdFile, rect);
@@ -86,7 +57,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
                 op.setSourceProduct(srcProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct);
+                writeGPF(trgProduct, DIMAP);
             }
         };
         b.run();
@@ -94,7 +65,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
 
     @Test
     public void testGRD_terrainflatten() throws Exception {
-        Benchmark b = new Benchmark() {
+        Benchmark b = new Benchmark("GRD_terrainflatten") {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = subset(grdFile, rect);
@@ -108,7 +79,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
                 op.setSourceProduct(calProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct);
+                writeGPF(trgProduct, DIMAP);
             }
         };
         b.run();
@@ -117,7 +88,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
     @Test
     @Ignore
     public void testGRD_glcm() throws Exception {
-        Benchmark b = new Benchmark() {
+        Benchmark b = new Benchmark("GRD_glcm") {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = subset(grdFile, rect);
@@ -127,7 +98,7 @@ public class TestBenchmark_SAR extends TestBenchmarks {
                 op.setParameter("quantizationLevelsStr", "16");
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct);
+                writeGPF(trgProduct, DIMAP);
             }
         };
         b.run();

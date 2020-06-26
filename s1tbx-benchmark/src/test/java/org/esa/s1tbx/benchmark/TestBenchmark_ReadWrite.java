@@ -1,0 +1,108 @@
+package org.esa.s1tbx.benchmark;
+
+import com.bc.ceres.binding.dom.DefaultDomElement;
+import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphProcessor;
+import org.esa.snap.core.gpf.graph.Node;
+import org.esa.snap.core.gpf.graph.NodeSource;
+import org.junit.Test;
+
+import java.io.File;
+
+public class TestBenchmark_ReadWrite extends BaseBenchmarks {
+
+    @Test
+    public void testGRD_read_write() throws Exception {
+        Benchmark b = new Benchmark("GRD_read_write") {
+            @Override
+            protected void execute() throws Exception {
+                final Product srcProduct = read(grdFile);
+                write(srcProduct, DIMAP);
+            }
+        };
+        b.run();
+    }
+
+    @Test
+    public void testGRD_read_writeGPF() throws Exception {
+        Benchmark b = new Benchmark("GRD_read_writeGPF") {
+            @Override
+            protected void execute() throws Exception {
+                final Product srcProduct = read(grdFile);
+                writeGPF(srcProduct, DIMAP);
+            }
+        };
+        b.run();
+    }
+
+    @Test
+    public void testGRD_read_writeGraph() throws Exception {
+        Benchmark b = new Benchmark("GRD_read_write Graph") {
+            @Override
+            protected void execute() throws Exception {
+                processReadWriteGraph(grdFile);
+            }
+        };
+        b.run();
+    }
+
+    @Test
+    public void testQP_read_write() throws Exception {
+        Benchmark b = new Benchmark("QP Read/ProductIO.Write") {
+            @Override
+            protected void execute() throws Exception {
+                final Product srcProduct = read(qpFile);
+                write(srcProduct, DIMAP);
+            }
+        };
+        b.run();
+    }
+
+    @Test
+    public void testQP_read_writeGPF() throws Exception {
+        Benchmark b = new Benchmark("QP Read/WriteGPF") {
+            @Override
+            protected void execute() throws Exception {
+                final Product srcProduct = read(qpFile);
+                writeGPF(srcProduct, DIMAP);
+            }
+        };
+        b.run();
+    }
+
+    @Test
+    public void testQP_read_writeGraph() throws Exception {
+        Benchmark b = new Benchmark("QP_read_write Graph") {
+            @Override
+            protected void execute() throws Exception {
+                processReadWriteGraph(qpFile);
+            }
+        };
+        b.run();
+    }
+
+    public static void processReadWriteGraph(final File file) throws Exception {
+
+        final Graph graph = new Graph("graph");
+
+        final Node readNode = new Node("read", "read");
+        final DomElement readParameters = new DefaultDomElement("parameters");
+        readParameters.createChild("file").setValue(file.getAbsolutePath());
+        readNode.setConfiguration(readParameters);
+        graph.addNode(readNode);
+
+        final Node writeNode = new Node("write", "write");
+        final DomElement writeParameters = new DefaultDomElement("parameters");
+        final File outFile = new File(outputFolder, file.getName());
+        writeParameters.createChild("file").setValue(outFile.getAbsolutePath());
+        writeNode.setConfiguration(writeParameters);
+        writeNode.addSource(new NodeSource("source", "read"));
+        graph.addNode(writeNode);
+
+        final GraphProcessor processor = new GraphProcessor();
+        processor.executeGraph(graph, ProgressMonitor.NULL);
+    }
+}

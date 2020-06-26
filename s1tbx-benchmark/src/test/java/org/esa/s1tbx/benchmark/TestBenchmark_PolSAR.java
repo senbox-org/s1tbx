@@ -1,138 +1,109 @@
 package org.esa.s1tbx.benchmark;
 
+import com.bc.ceres.binding.dom.DefaultDomElement;
+import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.polarimetric.gpf.PolarimetricDecompositionOp;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphProcessor;
+import org.esa.snap.core.gpf.graph.Node;
+import org.esa.snap.core.gpf.graph.NodeSource;
 import org.junit.Test;
 
-import java.io.IOException;
+import java.io.File;
 
-public class TestBenchmark_PolSAR extends TestBenchmarks {
-
-    @Test
-    public void testQP_read_write() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                final Product srcProduct = read(qpFile);
-                writeGPF(srcProduct);
-            }
-        };
-        b.run();
-    }
+public class TestBenchmark_PolSAR extends BaseBenchmarks {
 
     @Test
     public void testQP_decomposition_pauli() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("Pauli Decomposition");
-            }
-        };
-        b.run();
+        decomposition("Pauli Decomposition", null);
+    }
+
+    @Test
+    public void testQP_decomposition_pauli_writeOp() throws Exception {
+        decompositionWriteOp("Pauli Decomposition", null);
+    }
+
+    @Test
+    public void testQP_decomposition_pauli_graph() throws Exception {
+        decompositionGraph("Pauli Decomposition", null);
     }
 
     @Test
     public void testQP_decomposition_sinclair() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("Sinclair Decomposition");
-            }
-        };
-        b.run();
+        decomposition("Sinclair Decomposition", null);
     }
 
     @Test
     public void testQP_decomposition_FreemanDurden() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("Freeman-Durden Decomposition");
-            }
-        };
-        b.run();
+        decomposition("Freeman-Durden Decomposition", null);
     }
 
     @Test
     public void testQP_decomposition_GeneralizedFreemanDurden() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("Generalized Freeman-Durden Decomposition");
-            }
-        };
-        b.run();
+        decomposition("Generalized Freeman-Durden Decomposition", null);
     }
 
     @Test
     public void testQP_decomposition_Yamaguchi() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("Yamaguchi Decomposition");
-            }
-        };
-        b.run();
+        decomposition("Yamaguchi Decomposition", null);
     }
 
     @Test
     public void testQP_decomposition_vanZyl() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("van Zyl Decomposition");
-            }
-        };
-        b.run();
+        decomposition("van Zyl Decomposition", null);
     }
 
     @Test
     public void testQP_decomposition_Cloude() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("Cloude Decomposition");
-            }
-        };
-        b.run();
+        decomposition("Cloude Decomposition", null);
     }
 
     @Test
     public void testQP_decomposition_Touzi() throws Exception {
-        Benchmark b = new Benchmark() {
-            @Override
-            protected void execute() throws Exception {
-                decomposition("Touzi Decomposition", "outputTouziParamSet0");
-            }
-        };
-        b.run();
+        decomposition("Touzi Decomposition", "outputTouziParamSet0");
     }
 
     @Test
     public void testQP_decomposition_HAAlphaQuadPol() throws Exception {
-        Benchmark b = new Benchmark() {
+        decomposition("H-A-Alpha Quad Pol Decomposition", "outputHAAlpha");
+    }
+
+    private void decomposition(final String name, final String param) throws Exception {
+        Benchmark b = new Benchmark(name + " productIO.write") {
             @Override
             protected void execute() throws Exception {
-                decomposition("H-A-Alpha Quad Pol Decomposition", "outputHAAlpha");
+                process(name, param, false);
             }
         };
         b.run();
     }
 
-    private void decomposition(final String name) throws Exception {
-        Benchmark b = new Benchmark() {
+    private void decompositionWriteOp(final String name, final String param) throws Exception {
+        Benchmark b = new Benchmark(name + " GPF.write") {
             @Override
             protected void execute() throws Exception {
-                decomposition(name, null);
+                process(name, param, true);
             }
         };
         b.run();
     }
 
-    private void decomposition(final String name, final String param) throws IOException {
+    private void decompositionGraph(final String name, final String param) throws Exception {
+        Benchmark b = new Benchmark(name + " GraphProcessor") {
+            @Override
+            protected void execute() throws Exception {
+                processGraph(qpFile, name, param);
+            }
+        };
+        b.run();
+    }
+
+    private void process(final String name, final String param, final boolean useWriteOp) throws Exception {
         final Product srcProduct = read(qpFile);
 
-        PolarimetricDecompositionOp op = new PolarimetricDecompositionOp();
+        final PolarimetricDecompositionOp op = new PolarimetricDecompositionOp();
         op.setSourceProduct(srcProduct);
         op.setParameter("decomposition", name);
         if(param != null) {
@@ -140,6 +111,42 @@ public class TestBenchmark_PolSAR extends TestBenchmarks {
         }
         Product trgProduct = op.getTargetProduct();
 
-        writeGPF(trgProduct);
+        if(useWriteOp) {
+            writeGPF(trgProduct, DIMAP);
+        } else {
+            write(trgProduct, DIMAP);
+        }
+    }
+
+    private void processGraph(final File file, final String name, final String param) throws Exception {
+
+        final Graph graph = new Graph("graph");
+
+        final Node readNode = new Node("read", "read");
+        final DomElement readParameters = new DefaultDomElement("parameters");
+        readParameters.createChild("file").setValue(file.getAbsolutePath());
+        readNode.setConfiguration(readParameters);
+        graph.addNode(readNode);
+
+        final Node decompNode = new Node("Polarimetric-Decomposition", "Polarimetric-Decomposition");
+        final DomElement decompParameters = new DefaultDomElement("parameters");
+        decompParameters.createChild("decomposition").setValue(name);
+        if(param != null) {
+            decompParameters.createChild(param).setValue("true");
+        }
+        decompNode.setConfiguration(decompParameters);
+        decompNode.addSource(new NodeSource("source", "read"));
+        graph.addNode(decompNode);
+
+        final Node writeNode = new Node("write", "write");
+        final DomElement writeParameters = new DefaultDomElement("parameters");
+        final File outFile = new File(outputFolder, file.getName());
+        writeParameters.createChild("file").setValue(outFile.getAbsolutePath());
+        writeNode.setConfiguration(writeParameters);
+        writeNode.addSource(new NodeSource("source", "Polarimetric-Decomposition"));
+        graph.addNode(writeNode);
+
+        final GraphProcessor processor = new GraphProcessor();
+        processor.executeGraph(graph, ProgressMonitor.NULL);
     }
 }
