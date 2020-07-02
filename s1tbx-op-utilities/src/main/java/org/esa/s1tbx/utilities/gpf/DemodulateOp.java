@@ -122,7 +122,7 @@ public class DemodulateOp extends Operator {
         Band targetBandQ;
 
         // Master
-        String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
         for (String bandName : masterBandNames) {
             if (bandName.contains("i_")) {
                 sourceBandI = sourceProduct.getBand(bandName);
@@ -178,11 +178,12 @@ public class DemodulateOp extends Operator {
             for (String bandName : slvBandNames) {
                 if (bandName.contains("i_")) {
                     sourceBandI = sourceProduct.getBand(bandName);
+                    break;
                 }
             }
 
             // Get slave's metadata element
-            MetadataElement abs = AbstractMetadata.getSlaveMetadata(sourceProduct.getMetadataRoot())
+            final MetadataElement abs = AbstractMetadata.getSlaveMetadata(sourceProduct.getMetadataRoot())
                     .getElement(slaveProductName);
 
             // Validate acquisition mode
@@ -192,18 +193,18 @@ public class DemodulateOp extends Operator {
             }
 
             // Load dopplerSpotlight element
-            MetadataElement dopplerSpotlight = abs.getElement("dopplerSpotlight");
+            final MetadataElement dopplerSpotlight = abs.getElement("dopplerSpotlight");
 
             // Load azimuthTimeZdSpotlight element and attribute related to azimuth time
-            MetadataElement azimuthTimeZd = dopplerSpotlight.getElement("azimuthTimeZdSpotlight");
+            final MetadataElement azimuthTimeZd = dopplerSpotlight.getElement("azimuthTimeZdSpotlight");
             final double azimuthTimeZdOffset = azimuthTimeZd.getAttributeDouble("AzimuthTimeZdOffset");
 
             // Load Doppler-related attributes
-            String[] dopplerCentroidSpotlight = dopplerSpotlight.getAttributeString("dopplerCentroidSpotlight").split(",");
-            String[] dopplerRateSpotlight = dopplerSpotlight.getAttributeString("dopplerRateSpotlight").split(",");
-            int sourceImageWidth = sourceBandI.getRasterWidth();
-            double[] dopplerCentroidArray = new double[sourceImageWidth];
-            double[] dopplerRateArray = new double[sourceImageWidth];
+            final String[] dopplerCentroidSpotlight = dopplerSpotlight.getAttributeString("dopplerCentroidSpotlight").split(",");
+            final String[] dopplerRateSpotlight = dopplerSpotlight.getAttributeString("dopplerRateSpotlight").split(",");
+            final int sourceImageWidth = sourceBandI.getRasterWidth();
+            final double[] dopplerCentroidArray = new double[sourceImageWidth];
+            final double[] dopplerRateArray = new double[sourceImageWidth];
             for (int i = 0; i < sourceImageWidth; i++) {
                 dopplerCentroidArray[i] = Double.parseDouble(dopplerCentroidSpotlight[i]);
                 dopplerRateArray[i] = Double.parseDouble(dopplerRateSpotlight[i]);
@@ -218,9 +219,9 @@ public class DemodulateOp extends Operator {
         }
     }
 
-    private int[] getInitOffset(Band sourceBand) {
+    private int[] getInitOffset(final Band sourceBand) {
 
-        int[] offset = {0, 0};
+        final int[] offset = {0, 0};
 
         // Define orbit offsets name
         final String suffix = StackUtils.getBandSuffix(sourceBand.getName());
@@ -267,12 +268,12 @@ public class DemodulateOp extends Operator {
             final Tile targetDemodPhaseTile = targetTileMap.get(targetDemodPhaseBand);
 
             // Calculate demodulation phase
-            double[][] demodPhase = computeDemodulationPhase(targetRectangle,
-                                                             azimuthTimeZdOffsetMap.get(sourceBandI),
-                                                             azimuthTimeIntervalMap.get(sourceBandI),
-                                                             dopplerCentroidArrayMap.get(sourceBandI),
-                                                             dopplerRateArrayMap.get(sourceBandI),
-                                                             offsetMap.get(sourceBandI));
+            final double[][] demodPhase = computeDemodulationPhase(targetRectangle,
+                                                                   azimuthTimeZdOffsetMap.get(sourceBandI),
+                                                                   azimuthTimeIntervalMap.get(sourceBandI),
+                                                                   dopplerCentroidArrayMap.get(sourceBandI),
+                                                                   dopplerRateArrayMap.get(sourceBandI),
+                                                                   offsetMap.get(sourceBandI));
 
             // Demodulate and write demodulation phase
             demodulate(sourceTileI, sourceTileQ, targetTileI, targetTileQ,
@@ -281,9 +282,9 @@ public class DemodulateOp extends Operator {
 
     }
 
-    private double[][] computeDemodulationPhase(final Rectangle rectangle, double azimuthTimeZdOffset,
-                                                double azimuthTimeInterval, double[] dopplerCentroidArray,
-                                                double[] dopplerRateArray, int[] offset) {
+    private double[][] computeDemodulationPhase(final Rectangle rectangle, final double azimuthTimeZdOffset,
+                                                final double azimuthTimeInterval, final double[] dopplerCentroidArray,
+                                                final double[] dopplerRateArray, final int[] offset) {
 
         final int x0 = rectangle.x;
         final int y0 = rectangle.y;
@@ -295,10 +296,10 @@ public class DemodulateOp extends Operator {
         final double[][] phase = new double[h][w];
 
         for (int y = y0; y < yMax; y++) {
-            int line = y - offset[1];
-            double ta = azimuthTimeZdOffset + line * azimuthTimeInterval;
+            final int line = y - offset[1];
+            final double ta = azimuthTimeZdOffset + line * azimuthTimeInterval;
             for (int x = x0; x < xMax; x++) {
-                int pixel = Math.min(Math.max(0, x - offset[0]), dopplerCentroidArray.length - 1);
+                final int pixel = Math.min(Math.max(0, x - offset[0]), dopplerCentroidArray.length - 1);
                 phase[y - y0][x - x0] = -Constants.TWO_PI * dopplerCentroidArray[pixel] * ta;
                 phase[y - y0][x - x0] += -Constants.PI * dopplerRateArray[pixel] * FastMath.pow(ta, 2);
             }
@@ -310,7 +311,7 @@ public class DemodulateOp extends Operator {
     private void demodulate(final Tile sourceTileI, final Tile sourceTileQ,
                             final Tile targetTileI, final Tile targetTileQ,
                             final Tile targetDemodPhaseTile, final Rectangle rectangle,
-                            double[][] demodPhase) {
+                            final double[][] demodPhase) {
 
         final int x0 = rectangle.x;
         final int y0 = rectangle.y;

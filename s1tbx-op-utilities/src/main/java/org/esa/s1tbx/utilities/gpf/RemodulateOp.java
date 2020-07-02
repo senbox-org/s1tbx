@@ -110,7 +110,7 @@ public class RemodulateOp extends Operator {
         Band targetBandQ;
 
         // Master
-        String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
         for (String bandName : masterBandNames) {
             if (bandName.contains("i_")) {
                 sourceBandI = sourceProduct.getBand(bandName);
@@ -140,9 +140,9 @@ public class RemodulateOp extends Operator {
             targetBandQ = targetProduct.addBand(sourceBandQ.getName(), ProductData.TYPE_FLOAT32);
             ProductUtils.copyRasterDataNodeProperties(sourceBandQ, targetBandQ);
 
-            // Add slave (demodulation phase) band to targetProduct
+            // Get slave (demodulation phase) band from sourceProduct
             final String demodBandName = DEMOD_PHASE_PREFIX + StackUtils.getBandSuffix(sourceBandQ.getName());
-            Band sourceDemodPhaseBand = sourceProduct.getBand(demodBandName);
+            final Band sourceDemodPhaseBand = sourceProduct.getBand(demodBandName);
 
             // Store source and target bands in HashMaps
             sourceRasterMap.put(targetBandI, sourceBandI); // (target I: source I) band pairs
