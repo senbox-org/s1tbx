@@ -296,10 +296,10 @@ public class DemodulateOp extends Operator {
         final double[][] phase = new double[h][w];
 
         for (int y = y0; y < yMax; y++) {
-            final int line = y - offset[1];
+            final int line = y + offset[1];
             final double ta = azimuthTimeZdOffset + line * azimuthTimeInterval;
             for (int x = x0; x < xMax; x++) {
-                final int pixel = Math.min(Math.max(0, x - offset[0]), dopplerCentroidArray.length - 1);
+                final int pixel = Math.min(Math.max(0, x + offset[0]), dopplerCentroidArray.length - 1);
                 phase[y - y0][x - x0] = -Constants.TWO_PI * dopplerCentroidArray[pixel] * ta;
                 phase[y - y0][x - x0] += -Constants.PI * dopplerRateArray[pixel] * FastMath.pow(ta, 2);
             }
