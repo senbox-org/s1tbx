@@ -101,8 +101,8 @@ public final class TerrainFlatteningOp extends Operator {
     private Double additionalOverlap = 0.1;
 
     @Parameter(description = "The oversampling factor", interval = "[1, 4]", label = "Oversampling Multiple",
-            defaultValue = "1.5")
-    private Double oversamplingMultiple = 1.5;
+            defaultValue = "1.0")
+    private Double oversamplingMultiple = 1.0;
 
     private Product newSourceProduct = null;
     private ElevationModel dem = null;
@@ -128,13 +128,11 @@ public final class TerrainFlatteningOp extends Operator {
     private OrbitStateVectors orbit = null;
     private Resampling selectedResampling = null;
     private Double noDataValue = 0.0;
-    private double beta0 = 0;
+    private double aBeta = 0.0;
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private Band simulatedImageBand = null;
-    private Band gamma0Band = null;
-    private Band sigma0Band = null;
     private Band[] targetBands = null;
     private final HashMap<Band, Band> targetBandToSourceBandMap = new HashMap<>(2);
     private boolean nearRangeOnLeft = true;
@@ -206,7 +204,7 @@ public final class TerrainFlatteningOp extends Operator {
                 additionalOverlap = 0.1;
             }
             if(oversamplingMultiple == null) {
-                oversamplingMultiple = 1.5;
+                oversamplingMultiple = 1.0;
             }
 
             getMetadata();
@@ -227,7 +225,7 @@ public final class TerrainFlatteningOp extends Operator {
 
             noDataValue = newSourceProduct.getBands()[0].getNoDataValue();
 
-            beta0 = azimuthSpacing * rangeSpacing;
+            aBeta = azimuthSpacing * rangeSpacing;
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -259,19 +257,19 @@ public final class TerrainFlatteningOp extends Operator {
 
         if (externalDEMFile == null) {
             if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
-                overSamplingFactor = Math.round(90.0 / minSpacing);
+                overSamplingFactor = Math.ceil(90.0 / minSpacing);
             } else if (demName.contains("SRTM 1Sec HGT") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-                overSamplingFactor = Math.round(30.0 / minSpacing);
+                overSamplingFactor = Math.ceil(30.0 / minSpacing);
             } else if (demName.contains("SRTM 1Sec Grid") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-                overSamplingFactor = Math.round(30.0 / minSpacing);
+                overSamplingFactor = Math.ceil(30.0 / minSpacing);
             } else if (demName.contains("ASTER 1sec GDEM") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-                overSamplingFactor = Math.round(30.0 / minSpacing);
+                overSamplingFactor = Math.ceil(30.0 / minSpacing);
             } else if (demName.contains("ACE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
-                overSamplingFactor = Math.round(1000.0 / minSpacing);
+                overSamplingFactor = Math.ceil(1000.0 / minSpacing);
             } else if (demName.contains("ACE2_5Min") && (rangeSpacing < 10000.0 || azimuthSpacing < 10000.0)) {
-                overSamplingFactor = Math.round(1000.0 / minSpacing);
+                overSamplingFactor = Math.ceil(1000.0 / minSpacing);
             } else if (demName.contains("GETASSE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
-                overSamplingFactor = Math.round(1000.0 / minSpacing);
+                overSamplingFactor = Math.ceil(1000.0 / minSpacing);
             }
             overSamplingFactor *= oversamplingMultiple;
         }
@@ -329,7 +327,7 @@ public final class TerrainFlatteningOp extends Operator {
     private void getTiePointGrid() {
         incidenceAngleTPG = OperatorUtils.getIncidenceAngle(newSourceProduct);
         if (incidenceAngleTPG == null) {
-            throw new OperatorException("Product without incidence angle tie point grid");
+            throw new OperatorException("Cannot find the incidence angle tie point grid in the source product");
         }
     }
 
@@ -396,30 +394,28 @@ public final class TerrainFlatteningOp extends Operator {
                 }
             } else {
 
-                final String unit = srcBand.getUnit();
-                if (unit == null) {
-                    throw new OperatorException("band " + srcBandName + " requires a unit");
-                } else if (!unit.contains(Unit.INTENSITY)) {
-                    throw new OperatorException("Only band in intensity is supported");
+                if (!srcBandName.contains("Beta0")) {
+                    throw new OperatorException("TerrainFlattening requires beta0 as input");
                 }
 
                 final String gamma0BandName = srcBandName.replaceFirst("Beta0", "Gamma0");
                 final String sigma0BandName = srcBandName.replaceFirst("Beta0", "Sigma0");
 
+                Band targetBand;
                 if (targetProduct.getBand(gamma0BandName) == null) {
-                    gamma0Band = targetProduct.addBand(gamma0BandName, ProductData.TYPE_FLOAT32);
-                    gamma0Band.setUnit(Unit.INTENSITY);
-                    gamma0Band.setNoDataValue(srcBand.getNoDataValue());
-                    gamma0Band.setNoDataValueUsed(srcBand.isNoDataValueUsed());
-                    targetBandToSourceBandMap.put(gamma0Band, srcBand);
+                    targetBand = targetProduct.addBand(gamma0BandName, ProductData.TYPE_FLOAT32);
+                    targetBand.setUnit(Unit.INTENSITY);
+                    targetBand.setNoDataValue(srcBand.getNoDataValue());
+                    targetBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+                    targetBandToSourceBandMap.put(targetBand, srcBand);
                 }
 
                 if (outputSigma0 && targetProduct.getBand(sigma0BandName) == null) {
-                    sigma0Band = targetProduct.addBand(sigma0BandName, ProductData.TYPE_FLOAT32);
-                    sigma0Band.setUnit(Unit.INTENSITY);
-                    sigma0Band.setNoDataValue(srcBand.getNoDataValue());
-                    sigma0Band.setNoDataValueUsed(srcBand.isNoDataValueUsed());
-                    targetBandToSourceBandMap.put(sigma0Band, srcBand);
+                    targetBand = targetProduct.addBand(sigma0BandName, ProductData.TYPE_FLOAT32);
+                    targetBand.setUnit(Unit.INTENSITY);
+                    targetBand.setNoDataValue(srcBand.getNoDataValue());
+                    targetBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+                    targetBandToSourceBandMap.put(targetBand, srcBand);
                 }
             }
         }
@@ -503,9 +499,9 @@ public final class TerrainFlatteningOp extends Operator {
             if (isPolSar) {
                 outputNormalizedT3(x0, y0, w, h, gamma0ReferenceArea, targetTiles, targetRectangle);
             } else {
-                outputNormalizedImage(x0, y0, w, h, gamma0ReferenceArea, gamma0Band, targetTiles, targetRectangle);
+                outputNormalizedImage(x0, y0, w, h, gamma0ReferenceArea, "Gamma0", targetTiles, targetRectangle);
                 if (outputSigma0) {
-                    outputNormalizedImage(x0, y0, w, h, sigma0ReferenceArea, sigma0Band, targetTiles, targetRectangle);
+                    outputNormalizedImage(x0, y0, w, h, sigma0ReferenceArea, "Sigma0", targetTiles, targetRectangle);
                 }
             }
 
@@ -553,7 +549,7 @@ public final class TerrainFlatteningOp extends Operator {
                 FileElevationModel filedem = (FileElevationModel)dem;
                 demResolution = filedem.getPixelWidthInDegrees();
                 final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
-                overSamplingFactor = Math.round(filedem.getPixelWidthInMeters() / minSpacing) * oversamplingMultiple;
+                overSamplingFactor = Math.ceil(filedem.getPixelWidthInMeters() / minSpacing) * oversamplingMultiple;
             }
 
             final double extralat = 20 * demResolution;
@@ -684,7 +680,7 @@ public final class TerrainFlatteningOp extends Operator {
 
         final GeoCoding geoCoding = newSourceProduct.getSceneGeoCoding();
         if (geoCoding == null) {
-            throw new OperatorException("Product does not contain a geocoding");
+            throw new OperatorException("Source product does not have a geocoding");
         }
         final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(xmin, ymin), null);
         final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(xmax, ymin), null);
@@ -805,7 +801,7 @@ public final class TerrainFlatteningOp extends Operator {
                 final int tgtIdx = tgtIndex.getIndex(x);
                 double simVal = simulatedImage[yy][xx];
                 if (simVal != noDataValue && simVal != 0.0) {
-                    simVal /= beta0;
+                    simVal /= aBeta;
                     if (isGRD) {
                         simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
                     }
@@ -826,48 +822,54 @@ public final class TerrainFlatteningOp extends Operator {
      * @param w                   Width of given tile.
      * @param h                   Height of given tile.
      * @param simulatedImage      The simulated image for flattened gamma0 generation.
-     * @param targetBand          The target band.
+     * @param bandNamePrefix      The target band namr prefix.
      * @param targetTiles         The current tiles to be computed for each target band.
      * @param targetRectangle     The area in pixel coordinates to be computed.
      */
     private void outputNormalizedImage(final int x0, final int y0, final int w, final int h,
-                                       final double[][] simulatedImage, final Band targetBand,
+                                       final double[][] simulatedImage, final String bandNamePrefix,
                                        final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
 
         try {
-            final Tile targetTile = targetTiles.get(targetBand);
-            final ProductData targetData = targetTile.getDataBuffer();
-            final TileIndex tgtIndex = new TileIndex(targetTile);
+            for (Band tgtBand : targetBands) {
+                if (tgtBand.getName().equals(SIMULATED_IMAGE) || !tgtBand.getName().startsWith(bandNamePrefix)) {
+                    continue;
+                }
 
-            final Band srcBand = targetBandToSourceBandMap.get(targetBand);
-            final Tile sourceTile = getSourceTile(srcBand, targetRectangle);
-            final ProductData sourceData = sourceTile.getDataBuffer();
-            final TileIndex srcIndex = new TileIndex(sourceTile);
+                final Tile targetTile = targetTiles.get(tgtBand);
+                final ProductData targetData = targetTile.getDataBuffer();
+                final TileIndex tgtIndex = new TileIndex(targetTile);
 
-            double v, simVal;
-            for (int y = y0; y < y0 + h; y++) {
-                final int yy = y - y0;
-                tgtIndex.calculateStride(y);
-                srcIndex.calculateStride(y);
+                final Band srcBand = targetBandToSourceBandMap.get(tgtBand);
+                final Tile sourceTile = getSourceTile(srcBand, targetRectangle);
+                final ProductData sourceData = sourceTile.getDataBuffer();
+                final TileIndex srcIndex = new TileIndex(sourceTile);
 
-                for (int x = x0; x < x0 + w; x++) {
-                    final int xx = x - x0;
-                    final int tgtIdx = tgtIndex.getIndex(x);
-                    final int srcIdx = srcIndex.getIndex(x);
-                    simVal = simulatedImage[yy][xx];
+                double v, simVal;
+                for (int y = y0; y < y0 + h; y++) {
+                    final int yy = y - y0;
+                    tgtIndex.calculateStride(y);
+                    srcIndex.calculateStride(y);
 
-                    if (simVal != noDataValue) {
-                        simVal /= beta0;
-                        if (isGRD) {
-                            simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
+                    for (int x = x0; x < x0 + w; x++) {
+                        final int xx = x - x0;
+                        final int tgtIdx = tgtIndex.getIndex(x);
+                        final int srcIdx = srcIndex.getIndex(x);
+                        simVal = simulatedImage[yy][xx];
+
+                        if (simVal != noDataValue) {
+                            final double aGamma = aBeta / FastMath.tan(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
+                            if (simVal > threshold * aGamma) {
+                                simVal /= aBeta;
+                                if (isGRD) {
+                                    simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
+                                }
+                                v = sourceData.getElemDoubleAt(srcIdx);
+                                targetData.setElemDoubleAt(tgtIdx, v / simVal);
+                            }
+                        } else {
+                            targetData.setElemDoubleAt(tgtIdx, noDataValue);
                         }
-
-                        if (simVal > threshold) {
-                            v = sourceData.getElemDoubleAt(srcIdx);
-                            targetData.setElemDoubleAt(tgtIdx, v / simVal);
-                        }
-                    } else {
-                        targetData.setElemDoubleAt(tgtIdx, noDataValue);
                     }
                 }
             }
@@ -910,8 +912,9 @@ public final class TerrainFlatteningOp extends Operator {
                         simVal = simulatedImage[yy][xx];
 
                         if (simVal != noDataValue) {
-                            simVal /= beta0;
-                            if (simVal > threshold) {
+                            final double aGamma = aBeta / FastMath.tan(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
+                            if (simVal > threshold * aGamma) {
+                                simVal /= aBeta;
                                 v = sourceData.getElemDoubleAt(srcIdx);
                                 targetData.setElemDoubleAt(tgtIdx, v / simVal);
                             }
@@ -1121,6 +1124,54 @@ public final class TerrainFlatteningOp extends Operator {
                 if(outputSigma0) {
                     sigma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * sigma0Area;
                 }
+            }
+        }
+    }
+
+    private void saveIlluminationArea2(final int x0, final int y0, final int w, final int h,
+                                       final double azimuthIndex, final double rangeIndex,
+                                       final double gamma0Area, final double[][] gamma0ReferenceArea,
+                                       final double sigma0Area, final double[][] sigma0ReferenceArea) {
+
+        final int ia0 = (int) azimuthIndex;
+        final int ir0 = (int) rangeIndex;
+        if (azimuthIndex - ia0 == 0.0 && rangeIndex - ir0 == 0.0) {
+            gamma0ReferenceArea[ia0 - y0][ir0 - x0] = gamma0Area;
+            return;
+        }
+
+        final int[] y = new int[4];
+        y[0] = ia0 - 1;
+        y[1] = ia0;
+        y[2] = ia0 + 1;
+        y[3] = ia0 + 2;
+
+        final int[] x = new int[4];
+        x[0] = ir0 - 1;
+        x[1] = ir0;
+        x[2] = ir0 + 1;
+        x[3] = ir0 + 2;
+
+        double[][] weight = new double[4][4];
+        double totalWeight = 0.0;
+        for (int i = 0; i < 4; ++i) {
+            final double dy = y[i] - azimuthIndex;
+            for (int j = 0; j < 4; ++j) {
+                final double dx = x[j] - rangeIndex;
+                weight[i][j] = 1.0 / (dx*dx + dy*dy);
+                totalWeight += weight[i][j];
+            }
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            if (y[i] < y0 || y[i] >= y0 + h) {
+                continue;
+            }
+            for (int j = 0; j < 4; ++j) {
+                if (x[j] < x0 || x[j] >= x0 + w) {
+                    continue;
+                }
+                gamma0ReferenceArea[y[i] - y0][x[j] - x0] += weight[i][j] / totalWeight * gamma0Area;
             }
         }
     }
