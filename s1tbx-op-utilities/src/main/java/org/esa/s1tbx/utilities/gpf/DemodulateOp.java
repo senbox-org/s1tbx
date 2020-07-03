@@ -202,10 +202,9 @@ public class DemodulateOp extends Operator {
             // Load Doppler-related attributes
             final String[] dopplerCentroidSpotlight = dopplerSpotlight.getAttributeString("dopplerCentroidSpotlight").split(",");
             final String[] dopplerRateSpotlight = dopplerSpotlight.getAttributeString("dopplerRateSpotlight").split(",");
-            final int sourceImageWidth = sourceBandI.getRasterWidth();
-            final double[] dopplerCentroidArray = new double[sourceImageWidth];
-            final double[] dopplerRateArray = new double[sourceImageWidth];
-            for (int i = 0; i < sourceImageWidth; i++) {
+            final double[] dopplerCentroidArray = new double[dopplerCentroidSpotlight.length];
+            final double[] dopplerRateArray = new double[dopplerRateSpotlight.length];
+            for (int i = 0; i < dopplerCentroidArray.length; i++) {
                 dopplerCentroidArray[i] = Double.parseDouble(dopplerCentroidSpotlight[i]);
                 dopplerRateArray[i] = Double.parseDouble(dopplerRateSpotlight[i]);
             }
