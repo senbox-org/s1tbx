@@ -432,6 +432,8 @@ public class CosmoSkymedReader extends SARReader {
         final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat);
         final int numPoints = globalElem.getAttributeInt("Number_of_State_Vectors");
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, referenceUTC);
+
         for (int i = 0; i < numPoints; i++) {
             final double stateVectorTime = globalElem.getAttribute("State_Vectors_Times").getData().getElemDoubleAt(i);
             final ProductData.UTC orbitTime =
@@ -474,9 +476,10 @@ public class CosmoSkymedReader extends SARReader {
         final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
+        final double refTime = globalElem.getAttributeDouble("Range_Polynomial_Reference_Time", 0) * 1e9; // s to ns
         AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
                 ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
-        AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, 0.0);
+        AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
         for (int i = 0; i < 6; i++) {
             final double coefValue =

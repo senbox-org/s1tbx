@@ -1283,12 +1283,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final MetadataElement combinedDoppler = dopplerEstimate.getElement("combinedDoppler");
                 final MetadataElement[] coefficients = combinedDoppler.getElements();
 
-                /*final double refTime = elem.getElement("dopplerCentroidReferenceTime").
-                       getAttributeDouble("dopplerCentroidReferenceTime", 0)*1e9; // s to ns
-               AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
-                       ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
-               AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
-                */
+                final double refTime = combinedDoppler.getAttributeDouble("referencePoint", 0) * 1e9; // s to ns
+                AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
+                                                        ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+                AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
                 int cnt = 1;
                 for (MetadataElement coefficient : coefficients) {
