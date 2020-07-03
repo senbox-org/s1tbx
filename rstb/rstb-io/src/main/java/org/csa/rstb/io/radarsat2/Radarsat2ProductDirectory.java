@@ -62,6 +62,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
+
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
                                                                                 ".flip.to.sar.geometry", "false").equals("true");
 
@@ -378,7 +379,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         addOrbitStateVectors(absRoot, orbitInformation);
         addSRGRCoefficients(absRoot, imageGenerationParameters);
-        addDopplerCentroidCoefficients(absRoot, imageGenerationParameters);
+        addDopplerMetadata(origProdRoot, absRoot, imageGenerationParameters);
+
     }
 
     protected void verifyProductFormat(final MetadataElement imageAttributes) throws IOException {
@@ -539,6 +541,74 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 }
             }
         }
+    }
+
+    private void addDopplerMetadata(final MetadataElement origProdRoot,
+                                    final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
+
+        final String imagingMode = absRoot.getAttributeString("ACQUISITION_MODE");
+
+        if (imagingMode.equalsIgnoreCase("spotlighta")) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, "spotlight");
+            final MetadataElement dopplerSpotlightElem = new MetadataElement("dopplerSpotlight");
+            absRoot.addElement(dopplerSpotlightElem);
+            addDopplerRateAndCentroidSpotlight(origProdRoot, absRoot, dopplerSpotlightElem);
+            addAzimuthTimeZpSpotlight(dopplerSpotlightElem);
+        }
+        addDopplerCentroidCoefficients(absRoot, imageGenerationParameters);
+    }
+
+    private void addDopplerRateAndCentroidSpotlight(final MetadataElement origProdRoot, final MetadataElement absRoot,
+                                                    final MetadataElement elem) {
+        // Compute doppler rate and centroid
+        final MetadataElement productElem = origProdRoot.getElement("product");
+        final MetadataElement imageGenerationParametersElem = productElem.getElement("imageGenerationParameters");
+        final MetadataElement sarProcessingInformationElem = imageGenerationParametersElem.getElement("sarProcessingInformation");
+        final MetadataElement dopplerCentroidElem = imageGenerationParametersElem.getElement("dopplerCentroid");
+        final MetadataElement dopplerRateValuesElem = imageGenerationParametersElem.getElement("dopplerRateValues");
+
+        final String fmRateCoeff = dopplerRateValuesElem.getAttributeString("dopplerRateValuesCoefficients");
+        final String[] rateCoeff = fmRateCoeff.split(" ");
+        final double fmRate = -Double.parseDouble(rateCoeff[0]);
+
+        final String dopplerCentroidCoefficients = dopplerCentroidElem.getAttributeString("dopplerCentroidCoefficients");
+        final double dopplerCentroid = Double.parseDouble(dopplerCentroidCoefficients.split(" ")[0]);
+
+        final double zeroDopplerAzimuthTime = ReaderUtils.getTime(dopplerCentroidElem, "timeOfDopplerCentroidEstimate", standardDateFormat).getMJD() * 24 * 3600;
+        final double refAzimuthTimeZp = ReaderUtils.getTime(sarProcessingInformationElem, "zeroDopplerTimeFirstLine", standardDateFormat).getMJD() * 24 * 3600;
+
+        final int rasterWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final double[] dopplerRateSpotlight = new double[rasterWidth];
+        final double[] dopplerCentroidSpotlight = new double[rasterWidth];
+
+        for (int i = 0; i < rasterWidth; i++) {
+            dopplerRateSpotlight[i] = fmRate;
+            dopplerCentroidSpotlight[i] = dopplerCentroid - fmRate * (zeroDopplerAzimuthTime - refAzimuthTimeZp);
+        }
+
+        // Save in metadata
+        final String dopplerRateSpotlightStr = Arrays.toString(dopplerRateSpotlight).replace("]", "").replace("[", "");
+        final String dopplerCentroidSpotlightStr = Arrays.toString(dopplerCentroidSpotlight).replace("]", "").replace("[", "");
+
+        AbstractMetadata.addAbstractedAttribute(elem, "dopplerRateSpotlight",
+                                                ProductData.TYPE_ASCII, "", "Doppler Rate Spotlight");
+        AbstractMetadata.setAttribute(elem, "dopplerRateSpotlight", dopplerRateSpotlightStr);
+
+        AbstractMetadata.addAbstractedAttribute(elem, "dopplerCentroidSpotlight",
+                                                ProductData.TYPE_ASCII, "", "Doppler Centroid Spotlight");
+        AbstractMetadata.setAttribute(elem, "dopplerCentroidSpotlight", dopplerCentroidSpotlightStr);
+    }
+
+    private void addAzimuthTimeZpSpotlight(final MetadataElement elem) {
+        // Compute azimuth time
+        final double AzimuthTimeZpOffset = 0;
+
+        // Save in metadata
+        final MetadataElement azimuthTimeZd = new MetadataElement("azimuthTimeZdSpotlight");
+        elem.addElement(azimuthTimeZd);
+        AbstractMetadata.addAbstractedAttribute(azimuthTimeZd, "AzimuthTimeZdOffset",
+                                                ProductData.TYPE_FLOAT64, "", "Azimuth Time Zero Doppler Offset");
+        AbstractMetadata.setAttribute(azimuthTimeZd, "AzimuthTimeZdOffset", AzimuthTimeZpOffset);
     }
 
     @Override
