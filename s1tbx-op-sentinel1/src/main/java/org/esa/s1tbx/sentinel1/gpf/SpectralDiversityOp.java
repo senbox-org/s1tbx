@@ -1129,9 +1129,10 @@ public class SpectralDiversityOp extends Operator {
 
                             // for each block in this overlap
                             for (int j = 0; j < numBlocksPerOverlap; j++) {
-                                sumAzOffset += azShiftArray.get(j).shift * azShiftArray.get(j).weight;
-                                sumWeight += azShiftArray.get(j).weight;
-                                blockSearchBoundary = azShiftArray.get(j).searchBoundary;
+                                ShiftData shiftData = shiftAllBlocks[i][j][arcIndex];
+                                sumAzOffset += shiftData.shift * shiftData.weight;
+                                sumWeight += shiftData.weight;
+                                blockSearchBoundary = shiftData.searchBoundary;
 
                             }
                             // average for this overlap
