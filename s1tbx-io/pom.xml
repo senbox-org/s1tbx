@@ -60,11 +60,6 @@
             <artifactId>commons-math3</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>23.0</version>
-        </dependency>
-        <dependency>
             <groupId>uk.me.jstott</groupId>
             <artifactId>jcoord</artifactId>
             <version>1.0</version>
