@@ -9,7 +9,6 @@ import org.esa.s1tbx.io.netcdf.NetcdfConstants;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.*;
-import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -635,16 +634,11 @@ public class IceyeSLCProductReader extends SARReader {
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
 
-        Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
-        Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
-        Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
-
         final int sceneHeight = product.getSceneRasterHeight();
         final int sceneWidth = product.getSceneRasterWidth();
 
         final Variable variable = bandMap.get(destBand);
 
-        sourceHeight = Math.min(sourceHeight, sceneHeight - sourceOffsetY);
         destHeight = Math.min(destHeight, sceneHeight - sourceOffsetY);
         sourceWidth = Math.min(sourceWidth, sceneWidth - sourceOffsetX);
         destWidth = Math.min(destWidth, sceneWidth - destOffsetX);

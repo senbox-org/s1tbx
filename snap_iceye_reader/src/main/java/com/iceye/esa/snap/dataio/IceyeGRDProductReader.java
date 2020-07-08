@@ -12,7 +12,6 @@ import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.*;
-import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -710,10 +709,6 @@ public class IceyeGRDProductReader extends SARReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-
-        Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
-        Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
-        Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final ImageIOFile.BandInfo bandInfo = bandMap.get(destBand);
         if (bandInfo != null && bandInfo.img != null) {
