@@ -34,6 +34,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.Guardian;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
@@ -791,6 +792,10 @@ public class CosmoSkymedReader extends SARReader {
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
 
+        Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
+        Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
+        Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
+
         final int sceneHeight = product.getSceneRasterHeight();
         final int sceneWidth = product.getSceneRasterWidth();
         destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
@@ -807,7 +812,7 @@ public class CosmoSkymedReader extends SARReader {
             origin[i] = 0;
         }
         shape[0] = 1;
-        shape[1] = Math.min(sceneWidth-1 - sourceOffsetX, sourceWidth);
+        shape[1] = destWidth;
         origin[1] = sourceOffsetX;
         if (isComplex && destBand.getUnit().equals(Unit.IMAGINARY)) {
             origin[2] = 1;
@@ -815,28 +820,14 @@ public class CosmoSkymedReader extends SARReader {
 
         pm.beginTask("Reading data from band " + destBand.getName(), destHeight);
         try {
-            if(sourceStepX == 1) {
-                for (int y = 0; y < destHeight; y++) {
-                    origin[0] = yFlipped ? y0 - y : y0 + y;
-                    final Array array;
-                    synchronized (netcdfFile) {
-                        array = variable.read(origin, shape);
-                    }
-                    System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
-                    pm.worked(1);
+            for (int y = 0; y < destHeight; y++) {
+                origin[0] = yFlipped ? y0 - y : y0 + y;
+                final Array array;
+                synchronized (netcdfFile) {
+                    array = variable.read(origin, shape);
                 }
-            } else {
-                int dstIdx=0;
-                for (int y = sourceOffsetY; y < Math.min(sceneHeight-1,sourceOffsetY + sourceHeight); y+=sourceStepY) {
-                    origin[0] = yFlipped ? y0 - y : y;
-                    final short[] array;
-                    synchronized (netcdfFile) {
-                        array = (short[])variable.read(origin, shape).copyTo1DJavaArray();
-                    }
-                    for (int x = 0; x < array.length; x+=sourceStepX) {
-                        destBuffer.setElemDoubleAt(dstIdx++, array[x]);
-                    }
-                }
+                System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
+                pm.worked(1);
             }
         } catch (InvalidRangeException e) {
             final IOException ioException = new IOException(e.getMessage());

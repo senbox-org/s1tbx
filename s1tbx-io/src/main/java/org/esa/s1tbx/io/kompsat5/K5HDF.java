@@ -33,6 +33,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -726,6 +727,10 @@ public class K5HDF implements K5Format {
                                        int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                        ProgressMonitor pm) throws IOException {
 
+        Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
+        Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
+        Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
+
         final int sceneHeight = product.getSceneRasterHeight();
         final int sceneWidth = product.getSceneRasterWidth();
         destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
@@ -742,44 +747,29 @@ public class K5HDF implements K5Format {
             origin[i] = 0;
         }
         shape[0] = 1;
-        shape[1] = Math.min(sceneWidth-1 - sourceOffsetX, sourceWidth);
+        shape[1] = destWidth;
         origin[1] = sourceOffsetX;
         if (isComplex && destBand.getUnit().equals(Unit.IMAGINARY)) {
             origin[2] = 1;
         }
-        final boolean destIsFloat = destBand.getDataType() == ProductData.TYPE_FLOAT32;
 
         pm.beginTask("Reading data from band " + destBand.getName(), destHeight);
         try {
-            if(sourceStepX == 1) {
-                for (int y = 0; y < destHeight; y++) {
-                    origin[0] = yFlipped ? y0 - y : y0 + y;
-                    final Array array;
-                    synchronized (netcdfFile) {
-                        array = variable.read(origin, shape);
-                    }
+            for (int y = 0; y < destHeight; y++) {
+                origin[0] = yFlipped ? y0 - y : y0 + y;
+                final Array array;
+                synchronized (netcdfFile) {
+                    array = variable.read(origin, shape);
+                }
 
-                    if (destIsFloat) {
-                        for (int x = 0; x < destWidth; x++) {
-                            destBuffer.setElemFloatAt(y * destWidth + x, ArrayCopy.toFloat(array.getShort(x)));
-                        }
-                    } else {
-                        System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
+                if (destBand.getDataType() == ProductData.TYPE_FLOAT32) {
+                    for (int x = 0; x < destWidth; x++) {
+                        destBuffer.setElemFloatAt(y * destWidth + x, ArrayCopy.toFloat(array.getShort(x)));
                     }
-                    pm.worked(1);
+                } else {
+                    System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
                 }
-            } else {
-                int dstIdx=0;
-                for (int y = sourceOffsetY; y < Math.min(sceneHeight-1,sourceOffsetY + sourceHeight); y+=sourceStepY) {
-                    origin[0] = yFlipped ? y0 - y : y;
-                    final short[] array;
-                    synchronized (netcdfFile) {
-                        array = (short[])variable.read(origin, shape).copyTo1DJavaArray();
-                    }
-                    for (int x = 0; x < array.length; x += sourceStepX) {
-                        destBuffer.setElemFloatAt(dstIdx++, array[x]);
-                    }
-                }
+                pm.worked(1);
             }
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage(), e);

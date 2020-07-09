@@ -20,6 +20,7 @@ import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import ucar.ma2.Array;
@@ -256,6 +257,10 @@ public class NetCDFReader extends SARReader {
                                                        int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                                        int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                                        ProgressMonitor pm) throws IOException {
+
+        Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
+        Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
+        Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final int sceneHeight = product.getSceneRasterHeight();
         final int y0 = yFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
