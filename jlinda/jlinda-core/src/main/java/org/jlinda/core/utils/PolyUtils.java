@@ -12,15 +12,11 @@ import static org.jblas.MatrixFunctions.pow;
 
 public class PolyUtils {
 
-    // TODO: Major clean-up and open sourcing of Polynomial and PolyFit classess from ppolabs.commons
+    // TODO: Major clean-up and open sourcing of Polynomial and PolyFit classes from ppolabs.commons
 
     // ToDo: polyfit and polyval are in conflict
     // Description: Polynomial I fit using coeffs=polyfit(x,y), I have to evaluate using polyval(y,x,coeffs)
     private static final Logger logger = SystemUtils.LOG;
-
-    private static void setLoggerLevel() {
-        //logger.setLevel(Level.WARNING);
-    }
 
     public static double normalize2(double data, final int min, final int max) {
         data -= (0.5 * (min + max));
@@ -39,7 +35,7 @@ public class PolyUtils {
     }
 
     public static int degreeFromCoefficients(int numOfCoefficients) {
-        return (int) (0.5 * (-1 + (int) (Math.sqrt((double) (1 + 8 * numOfCoefficients))))) - 1;
+        return (int) (0.5 * (-1 + (int) (Math.sqrt((1 + 8 * numOfCoefficients))))) - 1;
     }
 
     public static int numberOfCoefficients(final int degree) {
@@ -68,8 +64,6 @@ public class PolyUtils {
 
     public static double[] polyFit2D(final DoubleMatrix x, final DoubleMatrix y, final DoubleMatrix z, final int degree) throws IllegalArgumentException {
 
-        setLoggerLevel();
-
         if (x.length != y.length || !x.isVector() || !y.isVector()) {
             logger.severe("polyfit: require same size vectors.");
             throw new IllegalArgumentException("polyfit: require same size vectors.");
@@ -79,7 +73,7 @@ public class PolyUtils {
         DoubleMatrix A = new DoubleMatrix(); // designmatrix
         DoubleMatrix mul;
 
-        /** Set up design-matrix */
+        // Set up design-matrix
         for (int p = 0; p <= degree; p++) {
             for (int q = 0; q <= p; q++) {
                 mul = pow(y, (p - q)).mul(pow(x, q));
@@ -131,8 +125,6 @@ public class PolyUtils {
     }
 
     public static double[] polyFit(DoubleMatrix t, DoubleMatrix y, final int degree) throws IllegalArgumentException {
-
-        setLoggerLevel();
 
         if (t.length != y.length || !t.isVector() || !y.isVector()) {
             logger.severe("polyfit: require same size vectors.");
@@ -221,8 +213,6 @@ public class PolyUtils {
     }
 
     public static double[][] polyval(final double[] x, final double[] y, final double coeff[], int degree) {
-
-        setLoggerLevel();
 
         if (degree < -1) {
             logger.warning("polyValGrid: degree < -1 ????");
@@ -449,8 +439,6 @@ public class PolyUtils {
     }
 
     public static DoubleMatrix polyval(final DoubleMatrix x, final DoubleMatrix y, final DoubleMatrix coeff, int degree) {
-
-        setLoggerLevel();
 
         if (!x.isColumnVector()) {
             logger.warning("polyValGrid: require (x) standing data vectors!");
@@ -699,8 +687,6 @@ public class PolyUtils {
 
     public static double polyval(final double x, final double y, final double[] coeff, int degree) {
 
-        setLoggerLevel();
-
         if (degree < 0 || degree > 1000) {
             logger.warning("polyval: degree value [" + degree + "] not realistic!");
             throw new IllegalArgumentException("polyval: degree not realistic!");
@@ -795,7 +781,5 @@ public class PolyUtils {
         }
 
         return sum;
-
     }
-
 }

@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import static org.jblas.MatrixFunctions.abs;
 import static org.jlinda.core.utils.LinearAlgebraUtils.matTxmat;
 import static org.jlinda.core.utils.MathUtils.rad2deg;
-import static org.jlinda.core.utils.MathUtils.sqr;
 import static org.jlinda.core.utils.PolyUtils.normalize2;
 
 /**
@@ -98,11 +97,13 @@ public class Baseline {
         if (C.length != 10) {
             throw new Exception();
         } else {
-            return
-                    C.get(0, 0) +
+            double line2 = line*line;
+            double pixel2 = pixel*pixel;
+            double height2 = height*height;
+            return C.get(0, 0) +
                             C.get(1, 0) * line + C.get(2, 0) * pixel + C.get(3, 0) * height +
                             C.get(4, 0) * line * pixel + C.get(5, 0) * line * height + C.get(6, 0) * pixel * height +
-                            C.get(7, 0) * sqr(line) + C.get(8, 0) * sqr(pixel) + C.get(9, 0) * sqr(height);
+                            C.get(7, 0) * line2 + C.get(8, 0) * pixel2 + C.get(9, 0) * height2;
         }
     }
 
@@ -119,7 +120,7 @@ public class Baseline {
         final Point r1 = master.min(point);// points from P to M
         final Point r2 = slave.min(point);
         BBparBperptheta.theta = master.angle(r1);// viewing angle
-        BBparBperptheta.bperp = sqr(BBparBperptheta.b) - sqr(BBparBperptheta.bpar);
+        BBparBperptheta.bperp = (BBparBperptheta.b*BBparBperptheta.b) - (BBparBperptheta.bpar*BBparBperptheta.bpar);
 
         // check for the sign of Bperp
         if (BBparBperptheta.bperp < 0.0) {
@@ -277,9 +278,12 @@ public class Baseline {
                     aMatrix.put(cnt, 4, normalize2(line, linMin, linMax) * normalize2(pixel, pixMin, pixMax));
                     aMatrix.put(cnt, 5, normalize2(line, linMin, linMax) * normalize2(height, hMin, hMax));
                     aMatrix.put(cnt, 6, normalize2(pixel, pixMin, pixMax) * normalize2(height, hMin, hMax));
-                    aMatrix.put(cnt, 7, sqr(normalize2(line, linMin, linMax)));
-                    aMatrix.put(cnt, 8, sqr(normalize2(pixel, pixMin, pixMax)));
-                    aMatrix.put(cnt, 9, sqr(normalize2(height, hMin, hMax)));
+                    double line2 = normalize2(line, linMin, linMax);
+                    aMatrix.put(cnt, 7, line2*line2);
+                    double pixel2 = normalize2(pixel, pixMin, pixMax);
+                    aMatrix.put(cnt, 8, pixel2*pixel2);
+                    double height2 = normalize2(height, hMin, hMax);
+                    aMatrix.put(cnt, 9, height2*height2);
                     cnt++;
 
                     // b/alpha representation of baseline
@@ -478,7 +482,9 @@ public class Baseline {
     // ----------------------------------------------------------------
     // Return B
     public double getB(final double line, final double pixel, final double height) throws Exception {
-        return Math.sqrt(sqr(getBpar(line, pixel, height)) + sqr(getBperp(line, pixel, height)));
+        double bpar = getBpar(line, pixel, height);
+        double bperp = getBperp(line, pixel, height);
+        return Math.sqrt((bpar * bpar) + (bperp * bperp));
     }
 
     public double getB(final Point p) throws Exception {

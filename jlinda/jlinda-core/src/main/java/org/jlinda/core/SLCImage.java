@@ -16,19 +16,11 @@ import static org.jlinda.core.Constants.*;
 
 public final class SLCImage {
 
-    // TODO: refactor to BuilderPattern
-
-    // file & format
-    private File resFileName;
-    private String fileName;
-    private int formatFlag; // not used
-
     private MetadataElement abstractedMetadata;
 
     // sensor
     private String mission;
     private String sensor;
-    private String sarProcessor;
     private double radar_wavelength; // TODO: close this modifier
 
     // orbit
@@ -36,7 +28,7 @@ public final class SLCImage {
 
     // geo & orientation
     private Point approxRadarCentreOriginal = new Point(); // use PixelPos as double!
-    private GeoPoint approxGeoCentreOriginal = new GeoPoint();
+    private final GeoPoint approxGeoCentreOriginal = new GeoPoint();
     private Point approxXYZCentreOriginal = new Point();
     private boolean nearRangeOnLeft = true;
 
@@ -63,9 +55,6 @@ public final class SLCImage {
     // ______ Where l,p are in the local slave coordinate system and ______
     // ______ where L,P are in the local master coordinate system ______
     // ______ These variables are stored in the slaveinfo variable only ______
-    private int coarseOrbitOffsetL;     // orbit offset in line (azimuth) direction
-    private int coarseOrbitOffsetP;     // orbit offset in pixel (range) direction
-    private int coarseOffsetL;          // offset in line (azimuth) direction
     private int coarseOffsetP;          // offset in pixel (range) direction
 
     // oversampling factors
@@ -100,9 +89,6 @@ public final class SLCImage {
     public SLCImage() {
 
         this.sensor = "SLC_ERS";                    // default (vs. SLC_ASAR, JERS, RSAT)
-        this.sarProcessor = "SARPR_VMP";            // (VMP (esa paf) or ATLANTIS or TUDELFT) // TODO PGS update?
-        this.formatFlag = 0;                        // format of file on disk
-
         this.orbitNumber = 0;
 
         this.approxXYZCentreOriginal.x = 0.0;
@@ -123,10 +109,7 @@ public final class SLCImage {
 
         this.rsr2x = 18.9624680 * 2.0e6;            // [Hz] default ERS2
 
-        this.coarseOffsetL = 0;                     // by default
         this.coarseOffsetP = 0;                     // by default
-        this.coarseOrbitOffsetL = 0;                // by default
-        this.coarseOrbitOffsetP = 0;                // by default
 
         this.ovsRg = 1;                             // by default
         this.ovsAz = 1;                             // by default
@@ -137,14 +120,6 @@ public final class SLCImage {
 
         this.currentWindow = new Window(1, 25000, 1, 5000);
         this.originalWindow = new Window(1, 25000, 1, 5000);
-//        slavemasteroffsets.l00  = 0;               // window in master coordinates
-//        slavemasteroffsets.p00  = 0;
-//        slavemasteroffsets.l0N  = 0;
-//        slavemasteroffsets.p0N  = 0;
-//        slavemasteroffsets.lN0  = 0;
-//        slavemasteroffsets.pN0  = 0;
-//        slavemasteroffsets.lNN  = 0;
-//        slavemasteroffsets.pNN  = 0;
 
         this.doppler = new Doppler();
         this.doppler.f_DC_a0 = 0.0;
@@ -278,11 +253,6 @@ public final class SLCImage {
         resFile.setSubBuffer("_Start_readfiles", "End_readfiles");
 
         this.orbitNumber = Long.parseLong(resFile.parseStringValue("Scene identification:").trim().split("\\s")[1]);
-
-//        this.orbitNumber = new Long(resFile.parseStringValue("Scene identification:").split(" ")[1]);
-
-//        this.sensor = resFile.parseStringValue("Sensor platform mission identifer");
-//        this.sarProcessor = resFile.parseStringValue("SAR_PROCESSOR");
         this.radar_wavelength = resFile.parseDoubleValue("Radar_wavelength \\(m\\)");
 
         this.approxGeoCentreOriginal.lat = (float) resFile.parseDoubleValue("Scene_centre_latitude");
@@ -295,8 +265,6 @@ public final class SLCImage {
         // azimuth annotations
         this.PRF = resFile.parseDoubleValue("Pulse_Repetition_Frequency \\(computed, Hz\\)");
         this.azimuthBandwidth = resFile.parseDoubleValue("Total_azimuth_band_width \\(Hz\\)");
-//        ProductData.UTC tAzi1_UTC = resFile.parseDatTimeValue("First_pixel_azimuth_time \\(UTC\\)");
-//        this.tAzi1 = (tAzi1_UTC.getMJD() - tAzi1_UTC.getDaysFraction()) * 24 * 3600;
         this.tAzi1 = resFile.parseTimeValue("First_pixel_azimuth_time \\(UTC\\)");
         this.azimuthWeightingWindow = resFile.parseStringValue("Weighting_azimuth");
 
@@ -459,10 +427,6 @@ public final class SLCImage {
 
     public void setCoarseOffsetP(int offsetP) {
         this.coarseOffsetP = offsetP;
-    }
-
-    public void setCoarseOffsetL(int offsetL) {
-        this.coarseOffsetL = offsetL;
     }
 
     public int getMlAz() {

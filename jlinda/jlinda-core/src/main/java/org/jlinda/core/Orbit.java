@@ -18,10 +18,7 @@ public final class Orbit {
 
     private static final Logger logger = SystemUtils.LOG;
 
-    private String interpMethod;
-
     private boolean isInterpolated = false;
-    private boolean isPropagated = false;
 
     private int numStateVectors;
 
@@ -37,11 +34,6 @@ public final class Orbit {
     private static final int MAXITER = 10;
     private final static double CRITERPOS = FastMath.pow(10, -6);
     private final static double CRITERTIM = FastMath.pow(10, -10);
-    private final static int refHeight = 0;
-
-//    // for SPLINE interpolator
-//    private long klo; // index in timevector correct
-//    private long khi; // +part picewize polynomial
 
     // ellipsoid axes
     private final static double ell_a = Constants.WGS84_A;
@@ -51,7 +43,7 @@ public final class Orbit {
     public Orbit() {
     }
 
-    public Orbit(double[] timeVector, double[] xVector, double[] yVector, double[] zVector, int degree) throws Exception {
+    public Orbit(double[] timeVector, double[] xVector, double[] yVector, double[] zVector, int degree) {
 
         numStateVectors = time.length;
 
@@ -66,7 +58,7 @@ public final class Orbit {
         computeCoefficients();
     }
 
-    public Orbit(double[][] stateVectors, int degree) throws Exception {
+    public Orbit(double[][] stateVectors, int degree) {
 
         setOrbit(stateVectors);
 
@@ -80,7 +72,7 @@ public final class Orbit {
     }
 
     // TODO: refactor this one, split in definition and interpolation
-    public Orbit(MetadataElement nestMetadataElement, int degree) throws Exception {
+    public Orbit(MetadataElement nestMetadataElement, int degree) {
 
         final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(nestMetadataElement);
 
@@ -121,7 +113,7 @@ public final class Orbit {
     }
 
     // TODO: switch on interpolation method, either spline method or degree of polynomial
-    private void computeCoefficients() throws Exception {
+    private void computeCoefficients() {
 
         this.coeff_X = PolyUtils.polyFitNormalized(new DoubleMatrix(time), new DoubleMatrix(data_X), poly_degree);
         this.coeff_Y = PolyUtils.polyFitNormalized(new DoubleMatrix(time), new DoubleMatrix(data_Y), poly_degree);
@@ -130,13 +122,9 @@ public final class Orbit {
         isInterpolated = true;
     }
 
-    public void computeCoefficients(int degree) throws Exception {
+    public void computeCoefficients(int degree) {
         poly_degree = degree;
         computeCoefficients();
-    }
-
-    // TODO: for splines!
-    private void getKloKhi() {
     }
 
     // TODO: make generic so it can work with arrays of lines as well: see matlab implementation
@@ -385,7 +373,7 @@ public final class Orbit {
         return new Point(slcimage.tr2pix(time.x), slcimage.ta2line(time.y));
     }
 
-    public Point ell2lp(final double[] phi_lam_height, final SLCImage slcimage) throws Exception {
+    public Point ell2lp(final double[] phi_lam_height, final SLCImage slcimage) {
         return xyz2lp(Ellipsoid.ell2xyz(phi_lam_height), slcimage);
     }
 
@@ -593,18 +581,18 @@ public final class Orbit {
         return this.lp2xyz(p, metadata).norm();
     }
 
-    public double computeOrbitRadius(Point p, SLCImage metadata) throws Exception {
+    public double computeOrbitRadius(Point p, SLCImage metadata) {
         double azimuthTime = metadata.line2ta(p.y);
         return this.getXYZ(azimuthTime).norm();
     }
 
-    public double computeAzimuthDelta(Point sarPixel, SLCImage metadata) throws Exception {
+    public double computeAzimuthDelta(Point sarPixel, SLCImage metadata) {
         Point pointOnOrbit = this.getXYZ(metadata.line2ta(sarPixel.y));
         Point pointOnOrbitPlusOne = this.getXYZ(metadata.line2ta(sarPixel.y + 1));
         return Math.abs(metadata.getMlAz() * pointOnOrbit.distance(pointOnOrbitPlusOne));
     }
 
-    public double computeAzimuthResolution(Point sarPixel, SLCImage metadata) throws Exception {
+    public double computeAzimuthResolution(Point sarPixel, SLCImage metadata) {
         return (metadata.getPRF() / metadata.getAzimuthBandwidth()) * (this.computeAzimuthDelta(sarPixel, metadata) / metadata.getMlAz());
     }
 }

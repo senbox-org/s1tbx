@@ -37,7 +37,7 @@ public class MathUtils {
         final float lines = window.lines();
         final float pixels = window.pixels();
 
-        int[][] result = new int[numOfPoints][2];
+        final int[][] result = new int[numOfPoints][2];
 
         // Distribution for dl=dp
         float winP = (float) Math.sqrt(numOfPoints / (lines / pixels));   // wl: #windows in line direction
@@ -72,13 +72,13 @@ public class MathUtils {
 
     public static double[][] distributePointsDoubles(final int numOfPoints, final Window window) {
 
-        double[][] doublePoints = new double[numOfPoints][2];
-        int[][] intPoints = distributePoints(numOfPoints, window);
+        final double[][] doublePoints = new double[numOfPoints][2];
+        final int[][] intPoints = distributePoints(numOfPoints, window);
 
         // cast to double
         for (int i = 0; i < numOfPoints; i++) {
-            doublePoints[i][0] = (double) intPoints[i][0];
-            doublePoints[i][1] = (double) intPoints[i][1];
+            doublePoints[i][0] = intPoints[i][0];
+            doublePoints[i][1] = intPoints[i][1];
         }
 
         return doublePoints;
@@ -86,7 +86,7 @@ public class MathUtils {
 
     // 1D increment
     public static double[] increment(int m, double begin, double pitch) {
-        double[] array = new double[m];
+        final double[] array = new double[m];
         for (int i = 0; i < m; i++) {
             array[i] = begin + i * pitch;
         }
@@ -95,7 +95,7 @@ public class MathUtils {
 
     // 2D increment
     public static double[][] increment(int m, int n, double begin, double pitch) {
-        double[][] array = new double[m][n];
+        final double[][] array = new double[m][n];
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 array[i][j] = begin + i * pitch;
@@ -116,22 +116,5 @@ public class MathUtils {
     public static DoubleMatrix lying(DoubleMatrix inMatrix) {
         return new DoubleMatrix(inMatrix.toArray()).transpose();
     }
-
-    public static int randomIntInRange(int min, int max) {
-        Random rand = new Random();
-        return rand.nextInt(max - min + 1) + min;
-    }
-
-    /// only for legacy support ///
-    @Deprecated
-    public static double sqrt(double value) {
-        return Math.sqrt(value);
-    }
-
-    @Deprecated
-    public static double sqr(double value) {
-        return value*value;
-    }
-
 }
 

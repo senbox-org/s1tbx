@@ -1,10 +1,6 @@
 package org.jlinda.core.delaunay;
 
-
 import org.locationtech.jts.geom.Coordinate;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A triangle in a triangulation defined by its 3 vertices A, B, C.
@@ -274,22 +270,6 @@ public final class Triangle {
       */
     public String toString() {
         return "Triangle " + A + " - " + B + " - " +C;
-    }
-
-    /**
-     * String representation of this Triangle as a set of indices in a
-     * {@link Coordinate}s list.
-     * @param pts the coordinates list
-     */
-    public String toString(List<Coordinate> pts) {
-        StringBuilder sb = new StringBuilder("T:");
-        if (A!=null) sb.append(Collections.binarySearch(pts, A, COORD2DCOMP) + "-");
-        else sb.append("null-");
-        if (B!=null) sb.append(Collections.binarySearch(pts, B, COORD2DCOMP) + "-");
-        else sb.append("null-");
-        if (C!=null) sb.append(Collections.binarySearch(pts, C, COORD2DCOMP));
-        else sb.append("null");
-        return sb.toString();
     }
 
     /**

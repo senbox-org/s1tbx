@@ -1,7 +1,5 @@
 package org.jlinda.core.coregistration;
 
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.math3.util.FastMath;
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.data.DMatrix1Row;
@@ -31,48 +29,41 @@ public class CPM implements PolynomialModel {
 
     private static final Logger logger = SystemUtils.LOG;
 
-    final public List<Placemark> slaveGCPList = new ArrayList<>();
+    private final List<Placemark> slaveGCPList = new ArrayList<>();
 
-    public int cpmDegree;
-    public int numUnknowns;
-    public int numObservations;
-    public int maxIterations;
-    public int numIterations;
+    private final int cpmDegree;
+    private final int numUnknowns;
+    private int numObservations;
+    private int maxIterations;
     public double criticalValue;
-    public String cpmWeight;
+    private String cpmWeight;
 
     // control flags
-    public boolean doEstimation = true;
+    private boolean doEstimation = true;
     public boolean noRedundancy = false;
-    public boolean demRefinement = false;
 
     /** Empirically pre-calculated values - See lecture series on 'estimation theory' of PT */
     private final static double SIGMA_L = 0.15;
     private final static double SIGMA_P = 0.10;
 
-    public Window normWin; // used for normalization in estimation for numerical stability
+    private Window normWin; // used for normalization in estimation for numerical stability
 
     // allocate arrays and collections
-    TIntArrayList index = new TIntArrayList();
-    public TDoubleArrayList yMaster = new TDoubleArrayList();
-    public TDoubleArrayList xMaster = new TDoubleArrayList();
-    public TDoubleArrayList ySlave = new TDoubleArrayList();
-    public TDoubleArrayList xSlave = new TDoubleArrayList();
-//    TDoubleArrayList ySlaveGeometry = new TDoubleArrayList();
-//    TDoubleArrayList xSlaveGeometry = new TDoubleArrayList();
-    public TDoubleArrayList yOffset = new TDoubleArrayList();
-    public TDoubleArrayList xOffset = new TDoubleArrayList();
-    TDoubleArrayList yOffsetGeometry = new TDoubleArrayList();
-    TDoubleArrayList xOffsetGeometry = new TDoubleArrayList();
-    double[] yError;
-    double[] xError;
-    TDoubleArrayList coherence = new TDoubleArrayList();
+    private final List<Integer> index = new ArrayList<>();
+    private final List<Double> yMaster = new ArrayList<>();
+    private final List<Double> xMaster = new ArrayList<>();
+    private final List<Double> ySlave = new ArrayList<>();
+    private final List<Double> xSlave = new ArrayList<>();
+    private final List<Double> yOffset = new ArrayList<>();
+    private final List<Double> xOffset = new ArrayList<>();
+    private double[] yError;
+    private double[] xError;
+    private final List<Double> coherence = new ArrayList<>();
 
-    private TDoubleArrayList heightMaster = new TDoubleArrayList();
-    private double heightMean;
+    private double[] heightMaster;
 
     // statistics -- for legacy
-    public TDoubleArrayList rms = new TDoubleArrayList();
+    private final List<Double> rms = new ArrayList<>();
     private double rmsStd = 0;
     private double rmsMean = 0;
     private double rowResidualStd = 0;
@@ -83,8 +74,6 @@ public class CPM implements PolynomialModel {
     // JAI polynomial -- for legacy
 
     private WarpPolynomial jaiWarp = null;
-    public double[] xCoefJai = null;
-    public double[] yCoefJai = null;
 
     // allocated cpm arrays
     private double[] xCoef;
@@ -119,8 +108,6 @@ public class CPM implements PolynomialModel {
 
             this.xCoef = new double[numUnknowns];
             this.yCoef = new double[numUnknowns];
-            this.xCoefJai = new double[numUnknowns];
-            this.yCoefJai = new double[numUnknowns];
 
             this.normWin = normalWindow; // master dimensions
 
@@ -145,12 +132,12 @@ public class CPM implements PolynomialModel {
                 xSlave.add(sGCPPos.x);
                 yOffset.add(sGCPPos.y - mGCPPos.y);
                 xOffset.add(sGCPPos.x - mGCPPos.x);
-                coherence.add(1);
+                coherence.add(1d);
 
                 // check if master and slave coordinates are identical, if yes CPM coefficients will be set
                 // directly, no need to compute them using estimators because most likely they would produce
                 // incorrect result due to ill conditioned matrix.
-                tempSum += Math.abs(xOffset.getQuick(i) + yOffset.getQuick(i));
+                tempSum += Math.abs(xOffset.get(i) + yOffset.get(i));
             }
 
             if (tempSum < 0.01) {
@@ -236,12 +223,8 @@ public class CPM implements PolynomialModel {
         this.masterOrbit = masterOrbit;
     }
 
-    public void setDemRefinement(boolean flag) {
-        this.demRefinement = flag;
-    }
-
-    public void setHeightMaster(double[] heightArray) {
-        heightMaster.addAll(heightArray);
+    public void setHeightMaster(final double[] heightArray) {
+        heightMaster = heightArray;
     }
 
     public void setDemNoDataValue(float demNoDataValue) {
@@ -249,8 +232,6 @@ public class CPM implements PolynomialModel {
     }
 
     public void setUpDEMRefinement(SLCImage masterMeta, Orbit masterOrbit, SLCImage slaveMeta, Orbit slaveOrbit, double[] heightArray) {
-
-        demRefinement = true;
 
         // master metadata
         setMasterMeta(masterMeta);
@@ -262,16 +243,13 @@ public class CPM implements PolynomialModel {
 
         // reference height for master acquistion
         setHeightMaster(heightArray);
-
-        heightMean = heightMaster.sum() / heightMaster.size();
-
     }
 
     public void setUpDemOffset() throws Exception {
 
         for (int i = 0; i < numObservations; i++) {
 
-            Double height = heightMaster.getQuick(i);
+            Double height = heightMaster[i];
 
             Point delta;
             if (height.equals(demNoDataValue)) {
@@ -281,8 +259,8 @@ public class CPM implements PolynomialModel {
 
             } else {
 
-                double line = yMaster.getQuick(i);
-                double pixel = xMaster.getQuick(i);
+                double line = yMaster.get(i);
+                double pixel = xMaster.get(i);
 
                 // reference
                 Point refXYZ_0 = masterOrbit.lph2xyz(line, pixel, 0, masterMeta);
@@ -311,14 +289,11 @@ public class CPM implements PolynomialModel {
             double deltaY = delta.y;
             double deltaX = delta.x;
 
-            yOffsetGeometry.add(delta.y);
-            xOffsetGeometry.add(delta.x);
+            yOffset.set(i, yOffset.get(i) - deltaY);
+            xOffset.set(i, xOffset.get(i) - deltaX);
 
-            yOffset.replace(i, yOffset.getQuick(i) - deltaY);
-            xOffset.replace(i, xOffset.getQuick(i) - deltaX);
-
-            ySlave.replace(i, ySlave.getQuick(i) - deltaY);
-            xSlave.replace(i, xSlave.getQuick(i) - deltaX);
+            ySlave.set(i, ySlave.get(i) - deltaY);
+            xSlave.set(i, xSlave.get(i) - deltaX);
         }
     }
 
@@ -363,7 +338,7 @@ public class CPM implements PolynomialModel {
 
         //logger.info("Start EJML Estimation");
 
-        numIterations = 0;
+        int numIterations = 0;
         boolean estimationDone = false;
 
         DMatrixRMaj eL_hat = null;
@@ -372,13 +347,12 @@ public class CPM implements PolynomialModel {
         DMatrixRMaj rhsP = null;
 
         // normalize master coordinates for stability -- only master!
-        TDoubleArrayList yMasterNorm = new TDoubleArrayList();
-        TDoubleArrayList xMasterNorm = new TDoubleArrayList();
+        final List<Double> yMasterNorm = new ArrayList<>();
+        final List<Double>  xMasterNorm = new ArrayList<>();
         for (int i = 0; i < yMaster.size(); i++) {
-            yMasterNorm.add(PolyUtils.normalize2(yMaster.getQuick(i), normWin.linelo, normWin.linehi));
-            xMasterNorm.add(PolyUtils.normalize2(xMaster.getQuick(i), normWin.pixlo, normWin.pixhi));
+            yMasterNorm.add(PolyUtils.normalize2(yMaster.get(i), normWin.linelo, normWin.linehi));
+            xMasterNorm.add(PolyUtils.normalize2(xMaster.get(i), normWin.pixlo, normWin.pixhi));
         }
-
 
         // helper variables
         int winL;
@@ -393,27 +367,21 @@ public class CPM implements PolynomialModel {
             if (numIterations != 0) {
                 //logger.info("Removing observation {}, idxList {},  from observation vector."+ index.getQuick(maxWSum_idx)+ maxWSum_idx);
 
-                index.removeAt(maxWSum_idx);
-                yMasterNorm.removeAt(maxWSum_idx);
-                xMasterNorm.removeAt(maxWSum_idx);
-                yOffset.removeAt(maxWSum_idx);
-                xOffset.removeAt(maxWSum_idx);
+                index.remove(maxWSum_idx);
+                yMasterNorm.remove(maxWSum_idx);
+                xMasterNorm.remove(maxWSum_idx);
+                yOffset.remove(maxWSum_idx);
+                xOffset.remove(maxWSum_idx);
 
                 // only for outlier removal
-                yMaster.removeAt(maxWSum_idx);
-                xMaster.removeAt(maxWSum_idx);
-                ySlave.removeAt(maxWSum_idx);
-                xSlave.removeAt(maxWSum_idx);
-                coherence.removeAt(maxWSum_idx);
+                yMaster.remove(maxWSum_idx);
+                xMaster.remove(maxWSum_idx);
+                ySlave.remove(maxWSum_idx);
+                xSlave.remove(maxWSum_idx);
+                coherence.remove(maxWSum_idx);
 
                 // also take care of slave pins
                 slaveGCPList.remove(maxWSum_idx);
-
-//                if (demRefinement) {
-//                    ySlaveGeometry.removeAt(maxWSum_idx);
-//                    xSlaveGeometry.removeAt(maxWSum_idx);
-//                }
-
             }
 
             /** Check redundancy */
@@ -424,16 +392,21 @@ public class CPM implements PolynomialModel {
             }
 
             // work with normalized values
-            DMatrixRMaj A = new DMatrixRMaj(SystemOfEquations.constructDesignMatrix_loop(yMasterNorm.toArray(), xMasterNorm.toArray(), cpmDegree));
+            DMatrixRMaj A = new DMatrixRMaj(SystemOfEquations.constructDesignMatrix_loop(yMasterNorm, xMasterNorm, cpmDegree));
 
             //logger.info("TIME FOR SETUP of SYSTEM : {}"+ stopWatch.lap("setup"));
+
+            final double[] coherenceArray = new double[coherence.size()];
+            for (int i = 0; i < coherenceArray.length; i++) {
+                coherenceArray[i] = coherence.get(i);
+            }
 
             DMatrix1Row  Qy_1; // vector
             double meanValue;
             switch (cpmWeight) {
                 case "linear":
                     logger.info("Using sqrt(coherence) as weights");
-                    Qy_1 = DMatrixRMaj.wrap(numObservations, 1, coherence.toArray());
+                    Qy_1 = DMatrixRMaj.wrap(numObservations, 1, coherenceArray);
                     // Normalize weights to avoid influence on estimated var.factor
                     logger.info("Normalizing covariance matrix for LS estimation");
                     meanValue = CommonOps_DDRM.elementSum(Qy_1) / numObservations;
@@ -441,7 +414,7 @@ public class CPM implements PolynomialModel {
                     break;
                 case "quadratic":
                     logger.info("Using coherence as weights.");
-                    Qy_1 = DMatrixRMaj.wrap(numObservations, 1, coherence.toArray());
+                    Qy_1 = DMatrixRMaj.wrap(numObservations, 1, coherenceArray);
                     CommonOps_DDRM.elementMult(Qy_1, Qy_1);
                     // Normalize weights to avoid influence on estimated var.factor
                     meanValue = CommonOps_DDRM.elementSum(Qy_1) / numObservations;
@@ -464,11 +437,20 @@ public class CPM implements PolynomialModel {
 
             //logger.info("TIME FOR SETUP of VC diag matrix: {}"+ stopWatch.lap("diag VC matrix"));
 
-            /** tempMatrix_1 matrices */
-            final DMatrixRMaj yL_matrix = DMatrixRMaj.wrap(numObservations, 1, yOffset.toArray());
-            final DMatrixRMaj yP_matrix = DMatrixRMaj.wrap(numObservations, 1, xOffset.toArray());
+            final double[] yOffsetArray = new double[yOffset.size()];
+            for (int i = 0; i < coherenceArray.length; i++) {
+                yOffsetArray[i] = yOffset.get(i);
+            }
+            final double[] xOffsetArray = new double[xOffset.size()];
+            for (int i = 0; i < coherenceArray.length; i++) {
+                xOffsetArray[i] = xOffset.get(i);
+            }
 
-            /** normal matrix */
+            // tempMatrix_1 matrices
+            final DMatrixRMaj yL_matrix = DMatrixRMaj.wrap(numObservations, 1, yOffsetArray);
+            final DMatrixRMaj yP_matrix = DMatrixRMaj.wrap(numObservations, 1, xOffsetArray);
+
+            // normal matrix
             final DMatrixRMaj N = new DMatrixRMaj(numUnknowns, numUnknowns); // = A_transpose.mmul(Qy_1_diag.mmul(A));
 
     /*
@@ -651,39 +633,20 @@ public class CPM implements PolynomialModel {
 
     public void wrapJaiWarpPolynomial() {
 
-        //logger.info("Start JAI wrapper");
-
-        float[] xyMaster = new float[2 * numObservations];
-        float[] xySlave = new float[2 * numObservations];
+        final float[] xyMaster = new float[2 * numObservations];
+        final float[] xySlave = new float[2 * numObservations];
 
         // work only with survived points!
         for (int i = 0; i < numObservations; i++) {
             final int j = 2 * i;
-            xyMaster[j] = (float) xMaster.getQuick(i);
-            xyMaster[j + 1] = (float) yMaster.getQuick(i);
+            xyMaster[j] = xMaster.get(i).floatValue();
+            xyMaster[j + 1] = yMaster.get(i).floatValue();
 
-//            if (!demRefinement) {
-                xySlave[j] = (float) (xSlave.getQuick(i));
-                xySlave[j + 1] = (float) (ySlave.getQuick(i));
-//            } else {
-//                xySlave[j] = (float) (xSlaveGeometry.getQuick(i));
-//                xySlave[j + 1] = (float) (ySlaveGeometry.getQuick(i));
-//            }
+            xySlave[j] = xSlave.get(i).floatValue();
+            xySlave[j + 1] = ySlave.get(i).floatValue();
         }
 
         jaiWarp = WarpPolynomial.createWarp(xySlave, 0, xyMaster, 0, 2 * numObservations, 1f, 1f, 1f, 1f, cpmDegree);
-
-        float[] xCoefJai_TEMP = jaiWarp.getXCoeffs();
-        float[] yCoefJai_TEMP = jaiWarp.getYCoeffs();
-        final int size = xCoefJai_TEMP.length;
-        xCoefJai = new double[size];
-        yCoefJai = new double[size];
-
-        for (int i = 0; i < size; ++i) {
-            xCoefJai[i] = xCoefJai_TEMP[i];
-            yCoefJai[i] = yCoefJai_TEMP[i];
-        }
-
     }
 
     public void computeEstimationStats() {
@@ -699,12 +662,13 @@ public class CPM implements PolynomialModel {
                 double dY = yError[i];
                 double dX = xError[i];
                 rms.add(Math.sqrt(dY * dY + dX * dX));
+                double rmsVal = rms.get(i);
 
-                rmsMean += rms.get(i);
+                rmsMean += rmsVal;
                 rowResidualMean += yError[i];
                 colResidualMean += xError[i];
 
-                rms2Mean += rms.getQuick(i) * rms.getQuick(i);
+                rms2Mean += rmsVal * rmsVal;
                 yError2Mean += yError[i] * yError[i];
                 xError2Mean += xError[i] * xError[i];
             }

@@ -112,7 +112,6 @@ public class MathUtilsTest {
     }
 
     @Test
-
     public void testIncrement2D() throws Exception {
         double[][] increment_2D_ACTUAL = MathUtils.increment(5, 2, 0, 0.25);
         for (int i = 0; i < increment_2D_ACTUAL.length; i++) {
@@ -120,17 +119,6 @@ public class MathUtilsTest {
         }
 
     }
-
-    @Test
-    public void testSqr() throws Exception {
-        Assert.assertEquals(FastMath.pow(VALUE, 2), MathUtils.sqr(VALUE), DELTA);
-    }
-
-    @Test
-    public void testSqrt() throws Exception {
-        Assert.assertEquals(Math.sqrt(VALUE), MathUtils.sqrt(VALUE), DELTA);
-    }
-
 
     @Test
     public void testLying() throws Exception{
@@ -144,8 +132,6 @@ public class MathUtilsTest {
         Assert.assertEquals(lying_EXPECTED, MathUtils.lying(inMatrix));
 
     }
-
-
 
     @Before
     public void setUpTestDataForRamp() {

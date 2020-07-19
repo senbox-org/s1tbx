@@ -186,16 +186,14 @@ public class Window implements Comparable, Cloneable, Serializable {
                 (pixlo == other.pixlo) && (pixhi == other.pixhi);
     }
 
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone() {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
             return null;
-//        throw new InternalError();
         }
     }
-
 
     /**
      * Computes extend of window in AZIMUTH direction ~ height.
@@ -207,7 +205,6 @@ public class Window implements Comparable, Cloneable, Serializable {
      */
     public static long lines(final Window w) {
         return w.linehi - w.linelo + 1;
-
     }
 
     /**
@@ -219,7 +216,6 @@ public class Window implements Comparable, Cloneable, Serializable {
      */
     public long lines() {
         return linehi - linelo + 1;
-
     }
 
     /**
@@ -271,33 +267,4 @@ public class Window implements Comparable, Cloneable, Serializable {
         result = 37 * result + hashCode(pixhi);
         return result;
     }
-
-//    /**
-//     * Compares two {@link Window}s along to the number of
-//     * dimensions specified.
-//     *
-//     * @param o1 a {@link Window}
-//     * @param o2 a {@link Window}
-//     * @return -1, 0, or 1 depending on whether o1 is less than, equal to,
-//     *         or greater than o2
-//     */
-//    public int compare(Object o1, Object o2) {
-//        Window c1 = (Window) o1;
-//        Window c2 = (Window) o2;
-//
-//        int compLineLo = compare(c1.linelo, c2.linelo);
-//        if (compLineLo != 0) return compLineLo;
-//
-//        int compLineHi = compare(c1.linehi, c2.linehi);
-//        if (compLineHi != 0) return compLineHi;
-//
-//        int compPixLo = compare(c1.pixlo, c2.pixlo);
-//        if (compPixLo != 0) return compPixLo;
-//
-//        int compPixHi = compare(c1.linehi, c2.linehi);
-//        if (compPixHi != 0) return compPixHi;
-//
-//        return 0;
-//    }
-
 }
