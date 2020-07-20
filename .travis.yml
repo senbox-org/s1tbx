@@ -1,9 +1,11 @@
 language: java
 
+dist: xenial
+
 sudo: false
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 env:
   global:
@@ -17,8 +19,8 @@ addons:
       name: "senbox-org/s1tbx"
       description: "Build submitted via Travis CI"
     notification_email: stb-coverity@thor.si.c-s.fr
-    build_command_prepend: "mvn clean"
-    build_command:   "mvn -DskipTests=true compile"
+    # build_command_prepend: "mvn clean"
+    build_command:   "mvn -DskipTests=true clean compile"
     branch_pattern: coverity_scan
 
 before_install:
@@ -26,10 +28,9 @@ before_install:
   # For building, everything is available in nexus.senbox.net, which is stored in pom.xml,
   # so we just completely remove the default repositories settings
   - sed -i -n '/<repositories>/{p; :a; N; /<\/repositories>/!ba; s/.*\n//}; p' ~/.m2/settings.xml
-
+  
 install:
   - true
 
 script:
-  - mvn clean 
-  - mvn install -B -V
+  - mvn clean install -B -V
