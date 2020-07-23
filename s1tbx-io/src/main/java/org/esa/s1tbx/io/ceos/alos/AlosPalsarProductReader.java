@@ -26,7 +26,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
-import java.io.File;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -72,7 +72,8 @@ public class AlosPalsarProductReader extends CEOSProductReader {
                                            final ProductData destBuffer, final ProgressMonitor pm)
             throws IOException {
         final AlosPalsarProductDirectory alosDataDir = (AlosPalsarProductDirectory) this.dataDir;
-        alosDataDir.readTiePointGridRasterData(tpg, destBuffer, pm);
+        Rectangle destRect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
+        alosDataDir.readTiePointGridRasterData(tpg, destRect, destBuffer, pm);
     }
 
     /**
