@@ -46,6 +46,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.Maths;
 
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -413,11 +414,10 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         }
     }
 
-    public void readTiePointGridRasterData(final TiePointGrid tpg, ProductData destBuffer, ProgressMonitor pm)
-            throws IOException {
+    public void readTiePointGridRasterData(final TiePointGrid tpg, Rectangle destRect, ProductData destBuffer, ProgressMonitor pm) {
 
-        final int gridWidth = 11;
-        final int gridHeight = 11;
+        final int gridWidth = destRect.width;
+        final int gridHeight = destRect.height;
         final int subSamplingX = (int) tpg.getSubSamplingX();
         final float[] rangeTime = new float[gridWidth * gridHeight];
 
@@ -434,8 +434,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 final double rangePixelSpacing = subSamplingX * Constants.halfLightSpeed / samplingRate;
                 final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(0);
                 int k = 0;
-                for (int j = 0; j < gridHeight; j++) {
-                    for (int i = 0; i < gridWidth; i++) {
+                for (int j = destRect.y; j < gridHeight; j++) {
+                    for (int i = destRect.x; i < gridWidth; i++) {
                         rangeDist[k++] = (float) (slantRangeToFirstPixel + i * rangePixelSpacing);
                     }
                 }
@@ -447,13 +447,13 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 final double slantRangeToLastPixel = imageFiles[0].getSlantRangeToLastPixel(0);
 
                 int k = 0;
-                for (int j = 0; j < gridHeight; j++) {
+                for (int j = destRect.y; j < gridHeight; j++) {
                     final double[] polyCoef = computePolynomialCoefficients(slantRangeToFirstPixel,
-                            slantRangeToMidPixel,
-                            slantRangeToLastPixel,
-                            sceneWidth);
+                                                                            slantRangeToMidPixel,
+                                                                            slantRangeToLastPixel,
+                                                                            sceneWidth);
 
-                    for (int i = 0; i < gridWidth; i++) {
+                    for (int i = destRect.x; i < gridWidth; i++) {
                         final int x = i * subSamplingX;
                         rangeDist[k++] = (float) (polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
                     }
@@ -467,7 +467,6 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 rangeTime[k] = (float) (rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
             }
 
-            tpg.setDataElems(rangeTime);
             destBuffer.setElems(rangeTime);
         } else if (tpg.getName().equals(OperatorUtils.TPG_INCIDENT_ANGLE)) {
 
@@ -481,8 +480,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
                 final float[] angles = new float[gridWidth * gridHeight];
                 int k = 0;
-                for (int j = 0; j < gridHeight; j++) {
-                    for (int i = 0; i < gridWidth; i++) {
+                for (int j = destRect.y; j < gridHeight; j++) {
+                    for (int i = destRect.x; i < gridWidth; i++) {
                         angles[k] = (float) ((a0 + a1 * rangeDist[k] / 1000.0 +
                                 a2 * FastMath.pow(rangeDist[k] / 1000.0, 2.0) +
                                 a3 * FastMath.pow(rangeDist[k] / 1000.0, 3.0) +
@@ -492,7 +491,6 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                tpg.setDataElems(angles);
                 destBuffer.setElems(angles);
             }
         }
