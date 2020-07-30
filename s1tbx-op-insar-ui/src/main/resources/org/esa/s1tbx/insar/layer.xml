@@ -333,4 +333,15 @@
         </file>
     </folder>
 
+    <folder name="ProductLibraryV2LocalRepositoryActions">
+        <file name="FindSlicesActionV2">
+            <attr name="actionClass" stringvalue="org.esa.s1tbx.insar.rcp.actions.FindSlicesActionProductLibraryV2"/>
+            <attr name="position" intvalue="1100"/>
+        </file>
+        <file name="InSARStackOverviewActionV2">
+            <attr name="actionClass" stringvalue="org.esa.s1tbx.insar.rcp.actions.InSARStackOverviewActionProductLibraryV2"/>
+            <attr name="position" intvalue="1200"/>
+        </file>
+    </folder>
+
 </filesystem>
