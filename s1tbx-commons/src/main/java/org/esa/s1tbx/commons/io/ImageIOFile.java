@@ -334,7 +334,7 @@ public class ImageIOFile {
     public static ImageInputStream createImageInputStream(final InputStream inStream, final Dimension bandDimensions) throws IOException {
         final double freeMemory = Runtime.getRuntime().freeMemory() * 0.000001D;
         final double size = bandDimensions.width*bandDimensions.height * 0.000001D;
-        if(useFileCache || freeMemory < 200L || size > 700L) {
+        if(useFileCache || freeMemory < 100L || size > 800L) {
             SystemUtils.LOG.info("Using FileCacheImageInputStream");
             return new FileCacheImageInputStream(inStream, createCacheDir());
         }
