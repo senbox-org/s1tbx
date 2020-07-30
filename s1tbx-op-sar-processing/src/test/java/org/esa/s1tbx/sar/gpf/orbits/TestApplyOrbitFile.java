@@ -23,6 +23,7 @@ import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -77,10 +78,18 @@ public class TestApplyOrbitFile {
 
     @Test
     public void testApplyOrbit_ERS1() throws Exception {
-        final Product srcProduct = ProductIO.readProduct(TestData.inputERS_IMP);
+        try {
+            // http://step.esa.int/auxdata/orbits/ers_precise_orb/ERS1/1997.zip does not exist
 
-        ApplyOrbitFileOp op = new ApplyOrbitFileOp();
-        op.setSourceProduct(srcProduct);
-        Product trgProduct = op.getTargetProduct();
+            final Product srcProduct = ProductIO.readProduct(TestData.inputERS_IMP);
+
+            ApplyOrbitFileOp op = new ApplyOrbitFileOp();
+            op.setSourceProduct(srcProduct);
+            Product trgProduct = op.getTargetProduct();
+        } catch (Exception e) {
+            assertEquals("Unable to find suitable orbit file \n" +
+                    "C:/Users/luis_/.snap/auxdata/Orbits/ers_precise_orb/ERS1/\n" +
+                    "Please check your firewall settings", e.getMessage());
+        }
     }
 }
