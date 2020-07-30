@@ -48,7 +48,7 @@ public class InSARStackOverviewActionProductLibraryV2 extends ProductLibraryV2Ac
 
     @Override
     public void onFailed(Exception exception) {
-        this.productLibraryToolView.showMessageDialog("Stack Overview", "The selected products could be read from the local repository.", JOptionPane.ERROR_MESSAGE);
+        this.productLibraryToolView.showMessageDialog("Stack Overview", "The selected products could not be read from the local repository.", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
