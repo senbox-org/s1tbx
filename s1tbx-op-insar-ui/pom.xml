@@ -81,6 +81,16 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-remote-products-repository</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-product-library-v2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-graph-builder</artifactId>
         </dependency>
         <dependency>
@@ -90,6 +100,11 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-product-library-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-product-library-ui-v2</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
