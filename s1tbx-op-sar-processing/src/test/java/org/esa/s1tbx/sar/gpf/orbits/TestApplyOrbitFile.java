@@ -15,12 +15,16 @@
  */
 package org.esa.s1tbx.sar.gpf.orbits;
 
+import org.esa.s1tbx.commons.test.TestData;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.envisat.EnvisatOrbitReader;
+import org.esa.snap.engine_utilities.util.TestUtils;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,12 +34,53 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestApplyOrbitFile {
 
-    File vorPath = new File("P:\\nest\\nest\\ESA Data\\Orbits\\Doris\\vor");
+    @Before
+    public void setUp() {
+        TestUtils.initTestEnvironment();
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(TestData.inputS1_GRDSubset + " not found", TestData.inputS1_GRDSubset.exists());
+    }
 
     @Test
     public void testOpenFile() {
 
         EnvisatOrbitReader reader = new EnvisatOrbitReader();
         assertNotNull(reader);
+    }
+
+    @Test
+    public void testApplyOrbit_S1() throws Exception {
+        final Product srcProduct = ProductIO.readProduct(TestData.inputS1_GRDSubset);
+
+        ApplyOrbitFileOp op = new ApplyOrbitFileOp();
+        op.setSourceProduct(srcProduct);
+        Product trgProduct = op.getTargetProduct();
+    }
+
+    @Test
+    public void testApplyOrbit_ASAR_WSM() throws Exception {
+        final Product srcProduct = ProductIO.readProduct(TestData.inputASAR_WSM);
+
+        ApplyOrbitFileOp op = new ApplyOrbitFileOp();
+        op.setSourceProduct(srcProduct);
+        Product trgProduct = op.getTargetProduct();
+    }
+
+    @Test
+    public void testApplyOrbit_ASAR_IMS() throws Exception {
+        final Product srcProduct = ProductIO.readProduct(TestData.inputASAR_IMS);
+
+        ApplyOrbitFileOp op = new ApplyOrbitFileOp();
+        op.setSourceProduct(srcProduct);
+        Product trgProduct = op.getTargetProduct();
+    }
+
+    @Test
+    public void testApplyOrbit_ERS1() throws Exception {
+        final Product srcProduct = ProductIO.readProduct(TestData.inputERS_IMP);
+
+        ApplyOrbitFileOp op = new ApplyOrbitFileOp();
+        op.setSourceProduct(srcProduct);
+        Product trgProduct = op.getTargetProduct();
     }
 }

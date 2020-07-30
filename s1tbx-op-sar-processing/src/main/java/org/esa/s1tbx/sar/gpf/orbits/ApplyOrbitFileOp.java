@@ -111,6 +111,7 @@ public final class ApplyOrbitFileOp extends Operator {
     private TiePointGrid longitude = null;
 
     private String mission;
+    private boolean isSLC;
 
     private OrbitFile orbitProvider = null;
 
@@ -143,6 +144,7 @@ public final class ApplyOrbitFileOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
+            isSLC = validator.isComplex();
 
             getSourceMetadata();
 
@@ -287,8 +289,8 @@ public final class ApplyOrbitFileOp extends Operator {
 
         updateOrbitStateVectors();
 
-        if (orbitProvider instanceof PrareOrbitFile || orbitProvider instanceof DorisOrbitFile ||
-                orbitProvider instanceof DelftOrbitFile) {
+        if (isSLC && (orbitProvider instanceof PrareOrbitFile || orbitProvider instanceof DorisOrbitFile ||
+                orbitProvider instanceof DelftOrbitFile)) {
             updateTargetProductGEOCodingJLinda();
         }
 
