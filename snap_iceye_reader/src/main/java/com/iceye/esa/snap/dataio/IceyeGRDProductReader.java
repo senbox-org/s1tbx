@@ -8,6 +8,7 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.commons.product.Missions;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
@@ -282,7 +283,7 @@ public class IceyeGRDProductReader extends SARReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, tiffFeilds.get(IceyeXConstants.PRODUCT.toUpperCase()));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, tiffFeilds.get(IceyeXConstants.PRODUCT_TYPE.toUpperCase()));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, tiffFeilds.get(IceyeXConstants.SPH_DESCRIPTOR.toUpperCase()));
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, tiffFeilds.get(IceyeXConstants.MISSION.toUpperCase()));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, Missions.ICEYE);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, tiffFeilds.get(IceyeXConstants.ACQUISITION_MODE.toUpperCase()));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, tiffFeilds.get(IceyeXConstants.ANTENNA_POINTING.toUpperCase()));

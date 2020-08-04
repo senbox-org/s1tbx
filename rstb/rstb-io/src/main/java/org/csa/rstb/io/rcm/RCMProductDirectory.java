@@ -19,6 +19,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
+import org.esa.s1tbx.commons.product.Missions;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
@@ -885,7 +886,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
     }
 
     private static String getMission() {
-        return RCMConstants.MISSION;
+        return Missions.RCM;
     }
 
     @Override

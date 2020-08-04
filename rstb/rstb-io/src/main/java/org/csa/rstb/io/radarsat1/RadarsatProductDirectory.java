@@ -19,6 +19,7 @@ import Jama.Matrix;
 import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.commons.product.Missions;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
@@ -304,7 +305,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         String descriptor = sceneRec.getAttributeString("Product type descriptor").trim();
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, descriptor);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, getMode(descriptor));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "RS1");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, Missions.RADARSAT1);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                                       getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));

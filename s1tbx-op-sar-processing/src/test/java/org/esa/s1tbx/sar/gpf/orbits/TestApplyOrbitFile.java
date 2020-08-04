@@ -20,12 +20,10 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.envisat.EnvisatOrbitReader;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Ignore;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -89,7 +87,6 @@ public class TestApplyOrbitFile {
             op.setSourceProduct(srcProduct);
             Product trgProduct = op.getTargetProduct();
         } catch (Exception e) {
-			System.out.println("error "+ e.getMessage());
             assertTrue(e.getMessage().startsWith("Unable to find suitable orbit file"));
         }
     }

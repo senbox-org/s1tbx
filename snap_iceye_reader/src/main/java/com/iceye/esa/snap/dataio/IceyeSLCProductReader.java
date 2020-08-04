@@ -3,6 +3,7 @@ package com.iceye.esa.snap.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import com.iceye.esa.snap.dataio.util.IceyeXConstants;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.commons.product.Missions;
 import org.esa.s1tbx.io.netcdf.NetCDFReader;
 import org.esa.s1tbx.io.netcdf.NetCDFUtils;
 import org.esa.s1tbx.io.netcdf.NetcdfConstants;
@@ -259,7 +260,7 @@ public class IceyeSLCProductReader extends SARReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, netcdfFile.getRootGroup().findVariable(IceyeXConstants.PRODUCT).readScalarString());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, netcdfFile.getRootGroup().findVariable(IceyeXConstants.PRODUCT_TYPE).readScalarString());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, netcdfFile.getRootGroup().findVariable(IceyeXConstants.SPH_DESCRIPTOR).readScalarString());
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, netcdfFile.getRootGroup().findVariable(IceyeXConstants.MISSION).readScalarString());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, Missions.ICEYE);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, netcdfFile.getRootGroup().findVariable(IceyeXConstants.ACQUISITION_MODE).readScalarString());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, netcdfFile.getRootGroup().findVariable(IceyeXConstants.ANTENNA_POINTING).readScalarString());
