@@ -41,15 +41,7 @@ public class S1TBXTests {
 
     private static final Preferences testPreferences = Config.instance(S1TBX_TESTS).load().preferences();
 
-    public static String input = "/data/ssd/testData/s1tbx/";
-    static {
-        File file = new File(input);
-        if(!file.exists()) {
-            input = "E:\\TestData\\s1tbx\\";
-        }
-    }
-
-    public final static String inputSAR = input + "SAR" + sep;
+    public final static String inputSAR = TEST_ROOT;
 
     public final static File[] rootPathsTerraSarX = loadFilePath("test.rootPathTerraSarX", inputSAR + "TerraSAR-X");
     public final static File[] rootPathsASAR = loadFilePath("test.rootPathASAR", inputSAR + "ASAR");

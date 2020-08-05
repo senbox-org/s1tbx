@@ -3,7 +3,6 @@ package org.esa.s1tbx.gpf;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
-import org.esa.snap.core.dataio.ProductIOPlugInManager;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
@@ -59,11 +58,6 @@ public class TestCalibration {
 
     @Test
     public void testProcessAllIceye() throws Exception {
-        ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        String[] formats = registry.getAllProductReaderFormatStrings();
-        for(String format : formats) {
-            System.out.println(format);
-        }
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsIceye, "IceyeProduct", productTypeExemptions, exceptionExemptions);
     }
 }
