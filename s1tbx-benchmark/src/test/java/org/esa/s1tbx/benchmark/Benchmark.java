@@ -12,6 +12,7 @@ import java.io.FileWriter;
 
 public abstract class Benchmark {
 
+    private final static boolean DISABLE_BENCHMARKS = true;
     private final static int iterations = 3;
     private final String name;
     private final File resultsFile = new File("e:\\out\\results.json");
@@ -21,6 +22,10 @@ public abstract class Benchmark {
     }
 
     public void run() throws Exception {
+        if(DISABLE_BENCHMARKS) {
+            System.out.println("Benchmark " + name + " disabled");
+            return;
+        }
         SystemUtils.LOG.info("Initial cold start run");
         StopWatch coldStartTimer = new StopWatch();
         this.execute();

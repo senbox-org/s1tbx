@@ -26,15 +26,6 @@ public class TestData {
 
     public final static String sep = File.separator;
 
-//    public static String input = "/data/ssd/testData/s1tbx/";
-//    static {
-//        File file = new File(input);
-//        if(!file.exists()) {
-//            input = "E:\\TestData\\
-//            s1tbx\\";
-//        }
-//    }
-
     public final static String input = System.getProperty(PROPERTY_NAME_S1_DATA_DIR,"/data/ssd/testData/s1tbx/");
     public final static String inputSAR = input + sep + "SAR" + sep;
 
@@ -49,11 +40,12 @@ public class TestData {
 
     //ERS
     public final static File inputERS_IMP = new File(inputSAR + "ERS" + sep + "subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43.dim");
-//    public final static File inputERS_IMP = new File(inputSAR + "ERS" + sep + "subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43.dim");
     public final static File inputERS_IMS = new File(inputSAR + "ERS" + sep + "subset_0_of_ERS-2_SAR_SLC-ORBIT_10249_DATE__06-APR-1997_03_09_34.dim");
 
     //RS2
     public final static File inputRS2_SQuad = new File(inputSAR + "RS2" + sep + "RS2-standard-quad.zip");
+
+    //RCM
 
     //QuadPol
     public final static File inputQuad = new File(inputSAR + "QuadPol" + sep + "QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim");

@@ -73,6 +73,11 @@
             <artifactId>s1tbx-op-sentinel1</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.iceye.esa.snap</groupId>
+            <artifactId>iceye-slc-reader</artifactId>
+            <version>${iceye.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.csa.rstb</groupId>

@@ -48,7 +48,7 @@
 	<modules>
 		<module>jlinda</module>
         <module>rstb</module>
-		<!--module>s1tbx-benchmark</module-->
+		<module>s1tbx-benchmark</module>
         <module>s1tbx-commons</module>
 		<module>s1tbx-io</module>
 		<module>s1tbx-io-ephemeris</module>
