@@ -25,7 +25,7 @@ public class TestDEM {
     private final static OperatorSpi spi = new AddElevationOp.Spi();
 
     private static float[] expectedValues = {
-        535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f
+            537.56757f, 537.56757f, 537.56757f, 537.56757f, 537.56757f, 537.56757f, 537.56757f, 537.56757f
     };
 
     /**
