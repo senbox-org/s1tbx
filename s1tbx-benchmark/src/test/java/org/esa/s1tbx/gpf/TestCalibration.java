@@ -34,26 +34,6 @@ public class TestCalibration {
 
         // If any of the file does not exist: the test will be ignored
         assumeTrue(TestData.inputASAR_WSM + "not found", TestData.inputASAR_WSM.exists());
-        assumeTrue(TestData.inputASAR_IMS + "not found", TestData.inputASAR_IMS.exists());
-        assumeTrue(TestData.inputERS_IMP + "not found", TestData.inputERS_IMP.exists());
-        assumeTrue(TestData.inputERS_IMS + "not found", TestData.inputERS_IMS.exists());
-        assumeTrue(TestData.inputS1_GRD + "not found", TestData.inputS1_GRD.exists());
-        assumeTrue(TestData.inputS1_StripmapSLC + "not found", TestData.inputS1_StripmapSLC.exists());
-    }
-
-    @Test
-    public void testProcessAllCosmo() throws Exception {
-        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsCosmoSkymed, "CosmoSkymed", productTypeExemptions, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllTSX() throws Exception {
-        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsTerraSarX, "TerraSarX", productTypeExemptions, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllSentinel1() throws Exception {
-        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsSentinel1, "SENTINEL-1", productTypeExemptions, exceptionExemptions);
     }
 
     @Test
