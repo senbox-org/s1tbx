@@ -26,7 +26,6 @@ import org.esa.snap.engine_utilities.gpf.CommonReaders;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.snap.productlibrary.rcp.utils.ProductOpener;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
@@ -127,7 +126,11 @@ public class InSARStackOverviewDialog extends ModelessDialog {
                 File[] files = outputProductListPanel.getSelectedFiles();
                 if (files.length == 0)                      // default to get all files
                     files = outputProductListPanel.getFileList();
-                ProductOpener.openProducts(files);
+
+                final org.esa.snap.rcp.actions.file.ProductOpener opener = new org.esa.snap.rcp.actions.file.ProductOpener();
+                opener.setFiles(files);
+                opener.setMultiSelectionEnabled(true);
+                opener.openProduct();
             }
         });
         buttonPanel2.add(openBtn);

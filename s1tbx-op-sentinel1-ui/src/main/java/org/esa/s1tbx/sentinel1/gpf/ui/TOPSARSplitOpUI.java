@@ -34,7 +34,9 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -191,7 +193,7 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
         return contentPane;
     }
 
-    private GeoPos[][] getSelectedBoundaries() {
+    private List<GeoPos[]> getSelectedBoundaries() {
         final Sentinel1Utils.SubSwathInfo[] subswaths = su.getSubSwath();
         final String subswath = (String) subswathCombo.getSelectedItem();
         if (subswath == null)
@@ -200,12 +202,12 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
         for (Sentinel1Utils.SubSwathInfo swath : subswaths) {
             if (swath.subSwathName.contains(subswath)) {
                 final int numBursts = burstRange.getHighValue() - burstRange.getLowValue() + 1;
-                final GeoPos[][] geoBound = new GeoPos[numBursts][4];
 
+                final List<GeoPos[]> geoBoundaryList = new ArrayList<>();
                 for (int i = 0; i < numBursts; ++i) {
-                    geoBound[i] = getBox(burstRange.getLowValue() - 1 + i, swath);
+                    geoBoundaryList.add(getBox(burstRange.getLowValue() - 1 + i, swath));
                 }
-                return geoBound;
+                return geoBoundaryList;
             }
         }
         return null;

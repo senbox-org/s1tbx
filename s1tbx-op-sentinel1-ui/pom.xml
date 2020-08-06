@@ -37,6 +37,10 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
@@ -75,7 +79,7 @@
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-rcp</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-product-library</artifactId>
         </dependency>
@@ -98,6 +102,12 @@
             <groupId>de.sciss</groupId>
             <artifactId>prefuse-core</artifactId>
             <version>1.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>lucene</groupId>
+                    <artifactId>lucene</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     

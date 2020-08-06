@@ -53,10 +53,6 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-graph-builder</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-product-library-ui</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.netbeans.api</groupId>
