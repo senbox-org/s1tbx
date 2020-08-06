@@ -73,25 +73,6 @@ pipeline {
                 }
             }
         }
-        /*stage('Deploy') {
-            agent {
-                docker {
-                    label 'snap-test'
-                    image 'snap-build-server.tilaa.cloud/maven:3.6.0-jdk-8'
-                    args '-e MAVEN_CONFIG=/var/maven/.m2 -v /opt/maven/.m2/settings.xml:/var/maven/.m2/settings.xml -v docker_local-update-center:/local-update-center'
-                }
-            }
-            when {
-                expression {
-                    return "${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/;
-                }
-            }
-            steps {
-                echo "Deploy ${env.JOB_NAME} from ${env.GIT_BRANCH} with commit ${env.GIT_COMMIT}"
-                sh "mvn -Duser.home=/var/maven -Dsnap.userdir=/home/snap deploy -U -DskipTests=true"
-                sh "/opt/scripts/saveToLocalUpdateCenter.sh *-kit/target/netbeans_site/ ${deployDirName} ${branchVersion} ${toolName}"
-            }
-        }*/
         stage('Save installer data') {
             agent {
                 docker {
@@ -121,62 +102,6 @@ pipeline {
             steps {
                 echo "Launch snap-installer"
                 build job: "snap-installer/${env.GIT_BRANCH}"
-            }
-        }
-        stage('Create docker image') {
-            agent { label 'snap-test' }
-            when {
-                expression {
-                    return "${params.launchTests}" == "true";
-                }
-            }
-            steps {
-                echo "Launch snap-installer"
-                build job: "create-snap-docker-image", parameters: [
-                    [$class: 'StringParameterValue', name: 'toolName', value: "${toolName}"],
-                    [$class: 'StringParameterValue', name: 'snapMajorVersion', value: "${snapMajorVersion}"],
-                    [$class: 'StringParameterValue', name: 'deployDirName', value: "${deployDirName}"],
-                    [$class: 'StringParameterValue', name: 'branchVersion', value: "${branchVersion}"],
-                    [$class: 'BooleanParameterValue', name: 'maintenanceBranch', value: "false"]
-                ],
-                quietPeriod: 0,
-                propagate: true,
-                wait: true
-            }
-        }
-        stage ('Starting Tests') {
-            parallel {
-                stage ('Starting GPT Tests') {
-                    agent { label 'snap-test' }
-                    when {
-                        expression {
-                            return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/) && "${params.launchTests}" == "true";
-                        }
-                    }
-                    steps {
-                        echo "Launch snap-gpt-tests using docker image snap:${branchVersion} and scope REGULAR"
-                        // build job: "snap-gpt-tests/${branchVersion}", parameters: [
-                        //    [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
-                        //    [$class: 'StringParameterValue', name: 'testScope', value: "REGULAR"]
-                        //]
-                    }
-                }
-                // Disabled gui testing
-                // stage ('Starting GUI Tests') {
-                //     agent { label 'snap-test' }
-                //     when {
-                //         expression {
-                //             return ("${env.GIT_BRANCH}" == 'master' || "${env.GIT_BRANCH}" =~ /\d+\.x/ || "${env.GIT_BRANCH}" =~ /\d+\.\d+\.\d+(-rc\d+)?$/) && "${params.launchTests}" == "true";
-                //         }
-                //     }
-                //     steps {
-                //         echo "Launch snap-gui-tests using docker image snap:${branchVersion}"
-                //         build job: "snap-gui-tests/${branchVersion}", parameters: [
-                //             [$class: 'StringParameterValue', name: 'dockerTagName', value: "snap:${branchVersion}"],
-                //             [$class: 'StringParameterValue', name: 'testFileList', value: "qftests.lst"]
-                //         ]
-                //     }
-                // }
             }
         }
     }
