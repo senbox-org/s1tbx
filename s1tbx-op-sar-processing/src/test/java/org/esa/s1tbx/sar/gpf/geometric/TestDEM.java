@@ -19,13 +19,16 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by lveci on 24/10/2014.
  */
-@RunWith(LongTestRunner.class)
 public class TestDEM {
 
     private final static OperatorSpi spi = new AddElevationOp.Spi();
 
     private static float[] expectedValues = {
-         535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f, 535.5686f
+            2684.945f, 3127.9426f, 1614.7288f, 2583.1665f, 2906.9287f, 2384.6487f, 2998.3179f, 1949.5698f
+    };
+
+    private static float[] expectedValuesLinux = {
+            2665.3777f, 3070.6567f, 1605.4856f, 2604.9739f, 2926.6204f, 2362.638f, 2926.9727f, 1936.5419f
     };
 
     /**
@@ -35,12 +38,25 @@ public class TestDEM {
      */
     @Test
     public void testProcessing() throws Exception {
-        final Product sourceProduct = TestUtils.createProduct("GRD", 10,10);
+        int w = 10, h = 10;
+        final Product sourceProduct = TestUtils.createProduct("GRD", w,h);
 
         GeoCoding geoCoding = sourceProduct.getSceneGeoCoding();
-        GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(0,0), null);
-        assertEquals(10.25, geoPos.lat, 1e-8);
-        assertEquals(10.249634044222699, geoPos.lon, 1e-8);
+        GeoPos geoPos1 = geoCoding.getGeoPos(new PixelPos(0,0), null);
+        assertEquals(47.01368163108826, geoPos1.lat, 1e-8);
+        assertEquals(11.150777896003394, geoPos1.lon, 1e-8);
+
+        GeoPos geoPos2 = geoCoding.getGeoPos(new PixelPos(w,0), null);
+        assertEquals(47.09209979057312, geoPos2.lat, 1e-8);
+        assertEquals(10.60330894340638, geoPos2.lon, 1e-8);
+
+        GeoPos geoPos3 = geoCoding.getGeoPos(new PixelPos(w,h), null);
+        assertEquals(46.73274329185486, geoPos3.lat, 1e-8);
+        assertEquals(10.495820911551409, geoPos3.lon, 1e-8);
+
+        GeoPos geoPos4 = geoCoding.getGeoPos(new PixelPos(0,h), null);
+        assertEquals(46.654466276168826, geoPos4.lat, 1e-8);
+        assertEquals(11.039697677677857, geoPos4.lon, 1e-8);
 
         final AddElevationOp op = (AddElevationOp) spi.createOperator();
         assertNotNull(op);
@@ -56,9 +72,9 @@ public class TestDEM {
         assertEquals("SRTM 3Sec", elevBand.getDescription());
         assertEquals(-32768.0, elevBand.getNoDataValue(), 1e-8);
 
-        final double[] demValues = new double[8];
-        elevBand.readPixels(0, 0, 4, 2, demValues, ProgressMonitor.NULL);
+        final double[] demValues = new double[w*h];
+        elevBand.readPixels(0, 0, w, h, demValues, ProgressMonitor.NULL);
 
-        TestUtils.comparePixels(targetProduct, elevBand.getName(), expectedValues);
+        TestUtils.comparePixels(targetProduct, elevBand.getName(), expectedValuesLinux);
     }
 }
