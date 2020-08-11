@@ -193,7 +193,7 @@ public class GoldsteinFilterOp extends Operator {
             targetIQPair.put(targetBandI, targetBandQ);
 
             final String suffix = targetBandI.getName().substring(targetBandI.getName().indexOf('_'));
-            ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
+            ReaderUtils.createVirtualIntensityDBBand(targetProduct, targetBandI, targetBandQ, suffix);
             ReaderUtils.createVirtualPhaseBand(targetProduct, targetBandI, targetBandQ, suffix);
 
             i += 2;
