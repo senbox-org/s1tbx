@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.insar.rcp.dialogs;
 
-import org.esa.snap.productlibrary.db.ProductEntry;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.BaseFileModel;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTableModel;
 
@@ -48,9 +47,5 @@ public class InSARFileModel extends BaseFileModel implements FileTableModel {
 
     protected TableData createFileStats(final File file) {
         return new TableData(file);
-    }
-
-    protected TableData createFileStats(final ProductEntry entry) {
-        return new TableData(entry);
     }
 }

@@ -54,7 +54,7 @@ public class InSARStackOverviewActionProductLibraryV2 extends ProductLibraryV2Ac
     @Override
     public void onSuccessfullyFinish(ProductEntry[] productEntries) {
         InSARStackOverviewDialog dialog = new InSARStackOverviewDialog();
-        dialog.setInputProductList(productEntries);
+        //dialog.setInputProductList(productEntries); // are these populated?
         dialog.show();
     }
 }

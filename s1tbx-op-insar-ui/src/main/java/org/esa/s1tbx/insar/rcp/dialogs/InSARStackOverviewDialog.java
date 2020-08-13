@@ -21,7 +21,6 @@ import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.productlibrary.db.ProductEntry;
 import org.esa.snap.engine_utilities.gpf.CommonReaders;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
@@ -138,11 +137,6 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         contentPane.add(outputProductListPanel, BorderLayout.SOUTH);
 
         setContent(contentPane);
-    }
-
-    public void setInputProductList(final ProductEntry[] productEntryList) {
-        inputProductListPanel.setProductEntryList(productEntryList);
-        processStack();
     }
 
     private void validate() throws Exception {
