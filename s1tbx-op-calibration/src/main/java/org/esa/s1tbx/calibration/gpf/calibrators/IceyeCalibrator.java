@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
+import org.esa.s1tbx.commons.product.Missions;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -38,7 +39,7 @@ import java.io.File;
 
 public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
 
-    private static final String[] SUPPORTED_MISSIONS = new String[] {"ICEYE", "ICEYE-X2"};
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"ICEYE", Missions.ICEYE};
 
     private double calibrationFactor;
     private TiePointGrid incidenceAngle = null;
@@ -88,8 +89,6 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
-            getMission();
-
             getCalibrationFlag();
 
             getSampleType();
@@ -105,12 +104,6 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-    }
-
-    private void getMission() {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.contains("ICEYE"))
-            throw new OperatorException(mission + " is not a valid mission for ICEYE Calibration");
     }
 
     /**

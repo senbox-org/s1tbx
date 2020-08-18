@@ -8,11 +8,11 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.commons.product.Missions;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.IllegalFileFormatException;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.*;
-import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -283,7 +283,7 @@ public class IceyeGRDProductReader extends SARReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, tiffFeilds.get(IceyeXConstants.PRODUCT.toUpperCase()));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, tiffFeilds.get(IceyeXConstants.PRODUCT_TYPE.toUpperCase()));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, tiffFeilds.get(IceyeXConstants.SPH_DESCRIPTOR.toUpperCase()));
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, tiffFeilds.get(IceyeXConstants.MISSION.toUpperCase()));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, Missions.ICEYE);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, tiffFeilds.get(IceyeXConstants.ACQUISITION_MODE.toUpperCase()));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, tiffFeilds.get(IceyeXConstants.ANTENNA_POINTING.toUpperCase()));
@@ -710,10 +710,6 @@ public class IceyeGRDProductReader extends SARReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-
-        Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
-        Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
-        Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final ImageIOFile.BandInfo bandInfo = bandMap.get(destBand);
         if (bandInfo != null && bandInfo.img != null) {
