@@ -69,9 +69,9 @@ public class PolsarProProductWriter extends EnviProductWriter {
 
     protected void writeEnviHeader(Band band) throws IOException {
         EnviHeader.createPhysicalFile(getEnviHeaderFile(band),
-                band,
-                band.getRasterWidth(),
-                band.getRasterHeight(), 0);
+                                      band,
+                                      band.getRasterWidth(),
+                                      band.getRasterHeight(), 0);
     }
 
     protected ImageOutputStream createImageOutputStream(Band band) throws IOException {
@@ -86,10 +86,10 @@ public class PolsarProProductWriter extends EnviProductWriter {
      * This may be at the time when a dimap product was opened and the data shold be continously changed in the same
      * product file without an previous call to the saveProductNodes to this product writer.
      *
-     * @param outputFile the dimap header file location.
+     * @param outputFileLocation the dimap header file location.
      */
-    protected void initDirs(final File outputFile) {
-        super.initDirs(outputFile);
+    protected void initDirs(final File outputFileLocation) {
+        super.initDirs(outputFileLocation);
 
         final PolBandUtils.MATRIX matrixType = PolBandUtils.getSourceProductType(getSourceProduct());
         String folder = "";
@@ -103,11 +103,11 @@ public class PolsarProProductWriter extends EnviProductWriter {
             folder = "T4";
         }
         if (!folder.isEmpty()) {
-            _outputDir = new File(_outputDir, folder);
-            if(!_outputDir.exists() && !_outputDir.mkdirs()) {
-                SystemUtils.LOG.severe("Unable to create folders in "+_outputDir);
+            outputDir = new File(outputDir, folder);
+            if (!outputDir.exists() && !outputDir.mkdirs()) {
+                SystemUtils.LOG.severe("Unable to create folders in " + outputDir);
             }
-            _outputFile = new File(_outputDir, outputFile.getName());
+            outputFile = new File(outputDir, outputFile.getName());
         }
     }
 
