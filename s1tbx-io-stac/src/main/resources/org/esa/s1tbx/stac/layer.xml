@@ -1,0 +1,23 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Writers">
+
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+
+            </folder>
+            <folder name="Export">
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+
+    </folder>
+
+</filesystem>

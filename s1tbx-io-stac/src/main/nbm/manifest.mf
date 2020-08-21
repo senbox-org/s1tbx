@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: ${s1tbx.nbmSpecVersion}
+OpenIDE-Module-Implementation-Version: ${s1tbx.nbmImplVersion}
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: false
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: Skywatch
+OpenIDE-Module-Layer: org/esa/s1tbx/stac/layer.xml
+OpenIDE-Module-Long-Description: <p>Skywatch IO SW</p><p><b>Vendor:</b>SkyWatch Space Applications Inc.</p><p>
+ <b>Contact address:</b> 14 Erb St. W. Waterloo (Canada)</p><p><b>Copyright:</b> (C) 2017 SkyWatch Space Applications Inc.</p><p><b>
+ Vendor:</b>SkyWatch Space Applications Inc.</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p>
