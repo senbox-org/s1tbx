@@ -170,7 +170,7 @@ public class StacItem {
 
         final JSONObject geometry = new JSONObject();
         json.put(StacItem.geometry, geometry);
-        geometry.put("type", "Polygon");
+        geometry.put(type, "Polygon");
 
         final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding != null) {

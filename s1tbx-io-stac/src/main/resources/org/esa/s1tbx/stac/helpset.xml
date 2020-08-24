@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE helpsetref PUBLIC "-//NetBeans//DTD JavaHelp Help Set Reference 1.0//EN"
         "http://www.netbeans.org/dtds/helpsetref-1_0.dtd">
-<helpsetref url="nbdocs:/com/skywatch/skywatch-snap/skywatch-snap/io-sw/docs/help.hs" merge="true"/>
+<helpsetref url="nbdocs:/org/esa/s1tbx/s1tbx/stac/docs/help.hs" merge="true"/>

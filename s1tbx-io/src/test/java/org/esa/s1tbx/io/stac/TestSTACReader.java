@@ -13,27 +13,39 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.stac;
+package org.esa.s1tbx.io.stac;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-@Ignore
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 public class TestSTACReader extends ReaderTest {
-
-    private final static File inputFolder = new File("C:\\out\\results\\SkyWatch\\3S");
 
     public TestSTACReader() {
         super(new STACProductReaderPlugIn());
     }
 
     @Test
-    public void testReadProduct() throws Exception {
-        Product srcProduct = testReader(inputFolder.toPath());
+    public void testReadCapellaProduct() throws Exception {
+        URL resource = getClass().getResource("capella/CAPELLA_ARL_SP_GEO_VV_20190927234024_20190927234124.json");
+        assertNotNull(resource);
+        Path path = Paths.get(resource.toURI());
+
+        final DecodeQualification canRead = readerPlugIn.getDecodeQualification(path);
+        assertEquals(DecodeQualification.SUITABLE, canRead);
+
+        ProductReader reader = readerPlugIn.createReaderInstance();
+        Product srcProduct = reader.readProductNodes(path, null);
+        assertNotNull(srcProduct);
 
     }
 }

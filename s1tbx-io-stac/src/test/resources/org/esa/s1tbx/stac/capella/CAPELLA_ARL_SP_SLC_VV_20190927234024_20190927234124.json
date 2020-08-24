@@ -1,0 +1,90 @@
+{
+    "stac_version": "0.9.0",
+    "stac_extensions": [
+        "sat",
+        "view",
+        "sar"
+    ],
+    "id": "CAPELLA_ARL_SP_SLC_VV_20190927234024_20190927234124",
+    "type": "Feature",
+    "bbox": [
+        -121.94754358,
+        38.24194294,
+        -121.91238576,
+        38.27316981
+    ],
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    -121.94664585,
+                    38.24194294
+                ],
+                [
+                    -121.94754358,
+                    38.27254978
+                ],
+                [
+                    -121.91326919,
+                    38.27316981
+                ],
+                [
+                    -121.91238576,
+                    38.24256272
+                ],
+                [
+                    -121.94664585,
+                    38.24194294
+                ]
+            ]
+        ]
+    },
+    "properties": {
+        "datetime": "2019-09-27T23:40:54.288566",
+        "start_datetime": "2019-09-27T23:40:24.482930",
+        "end_datetime": "2019-09-27T23:41:24.094202",
+        "platform": "eros",
+        "instruments": [
+            "capella-radar-arl-1"
+        ],
+        "sar:instrument_mode": "spotlight",
+        "sar:frequency_band": "X",
+        "sar:center_frequency": 9.65,
+        "sar:polarizations": [
+            "VV"
+        ],
+        "sat:orbit_state": "null",
+        "sar:product_type": "SLC",
+        "sar:pixel_spacing_range": 0.25,
+        "sar:pixel_spacing_azimuth": 0.1,
+        "sar:looks_range": 1,
+        "sar:looks_azimuth": 1,
+        "sar:looks_equivalent_number": 1,
+        "sar:resolution_range": 0.5,
+        "sar:resolution_azimuth": 0.5,
+        "view:incidence_angle": 44.300000000000004,
+        "capella:squint_angle": -0.5,
+        "sar:observation_direction": "right",
+        "capella:collect_id": "00000000-0000-0000-0000-000000000000"
+    },
+    "links": [],
+    "assets": {
+        "VV": {
+            "href": "CAPELLA_ARL_SP_SLC_VV_20190927234024_20190927234124.tif",
+            "roles": [
+                "data"
+            ],
+            "sar:polarizations": [
+                "VV"
+            ],
+            "title": "Data file",
+            "type": "image/tiff; application=geotiff"
+        },
+        "metadata": {
+            "title": "Extended Metadata",
+            "href": "CAPELLA_ARL_SP_SLC_VV_20190927234024_20190927234124_extended.json",
+            "type": "application/json"
+        }
+    }
+}

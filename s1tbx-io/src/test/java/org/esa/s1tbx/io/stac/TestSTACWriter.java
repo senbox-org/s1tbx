@@ -13,12 +13,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.stac;
+package org.esa.s1tbx.io.stac;
 
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.junit.Before;
@@ -27,19 +26,20 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
 @Ignore
 public class TestSTACWriter extends ReaderTest {
 
-    private final static File input_PS_Tif = new File(S1TBXTests.inputPathProperty + "/SkyWatch_Internal/Planet/PlanetScope/Tif/20200601_160354_34_105d_3B_AnalyticMS.tif");
+    private final static File inputGEOMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/GEO/ARL_SM_GEO_HH_20190823162315_20190823162606_extended.json");
 
     private final static GeoTiffProductReaderPlugIn geoTiffReaderPlugin = new GeoTiffProductReaderPlugIn();
 
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
-        assumeTrue(input_PS_Tif + " not found", input_PS_Tif.exists());
+        assumeTrue(inputGEOMeta + " not found", inputGEOMeta.exists());
     }
 
     public TestSTACWriter() {
@@ -47,15 +47,15 @@ public class TestSTACWriter extends ReaderTest {
     }
 
     @Test
-    public void testWriteProduct_PS_to_GeoTiff() throws Exception {
-        final ProductReader reader = readerPlugIn.createReaderInstance();
-        final Product srcProduct = reader.readProductNodes(input_PS_Tif, null);
+    public void testWriteCapellaToStac() throws Exception {
+        final Product srcProduct = ProductIO.readProduct(inputGEOMeta);
+        assertNotNull(srcProduct);
 
-        final File folder = new File("c:\\out\\results\\Stac\\PS\\GeoTiff");
-        final File outputFile = new File(folder, srcProduct.getName() + ".tif");
+        final File folder = new File("c:\\out\\results\\Stac");
+        final File outputFile = new File(folder, srcProduct.getName() + ".json");
 
         ProductIO.writeProduct(srcProduct, outputFile, STACProductConstants.FORMAT, false);
 
-        testReader(folder.toPath(), new STACProductReaderPlugIn());
+
     }
 }

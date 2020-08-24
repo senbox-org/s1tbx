@@ -1,0 +1,90 @@
+{
+    "stac_version": "0.9.0",
+    "stac_extensions": [
+        "sat",
+        "view",
+        "sar"
+    ],
+    "id": "CAPELLA_ARL_SP_GEO_VV_20190927234024_20190927234124",
+    "type": "Feature",
+    "bbox": [
+        -121.94798471,
+        38.2416324,
+        -121.91192997,
+        38.27347946
+    ],
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    -121.94753004,
+                    38.27347946
+                ],
+                [
+                    -121.94798471,
+                    38.2419568
+                ],
+                [
+                    -121.91240001,
+                    38.2416324
+                ],
+                [
+                    -121.91192997,
+                    38.2731547
+                ],
+                [
+                    -121.94753004,
+                    38.27347946
+                ]
+            ]
+        ]
+    },
+    "properties": {
+        "datetime": "2019-09-27T23:40:54.288566",
+        "start_datetime": "2019-09-27T23:40:24.482930",
+        "end_datetime": "2019-09-27T23:41:24.094202",
+        "platform": "eros",
+        "instruments": [
+            "capella-radar-arl-1"
+        ],
+        "sar:instrument_mode": "spotlight",
+        "sar:frequency_band": "X",
+        "sar:center_frequency": 9.65,
+        "sar:polarizations": [
+            "VV"
+        ],
+        "sat:orbit_state": "null",
+        "sar:product_type": "GEO",
+        "sar:pixel_spacing_range": 0.25,
+        "sar:pixel_spacing_azimuth": 0.25,
+        "sar:looks_range": 2,
+        "sar:looks_azimuth": 5,
+        "sar:looks_equivalent_number": 10,
+        "sar:resolution_range": 0.783,
+        "sar:resolution_azimuth": 0.54,
+        "view:incidence_angle": 44.6,
+        "capella:squint_angle": -0.5,
+        "sar:observation_direction": "right",
+        "capella:collect_id": "00000000-0000-0000-0000-000000000000"
+    },
+    "links": [],
+    "assets": {
+        "VV": {
+            "href": "CAPELLA_ARL_SP_GEO_VV_20190927234024_20190927234124.tif",
+            "roles": [
+                "data"
+            ],
+            "sar:polarizations": [
+                "VV"
+            ],
+            "title": "Data file",
+            "type": "image/tiff; application=geotiff"
+        },
+        "metadata": {
+            "title": "Extended Metadata",
+            "href": "CAPELLA_ARL_SP_GEO_VV_20190927234024_20190927234124_extended.json",
+            "type": "application/json"
+        }
+    }
+}
