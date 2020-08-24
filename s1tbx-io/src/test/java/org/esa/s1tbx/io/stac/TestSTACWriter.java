@@ -21,7 +21,6 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -29,7 +28,6 @@ import java.io.File;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
-@Ignore
 public class TestSTACWriter extends ReaderTest {
 
     private final static File inputGEOMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/GEO/ARL_SM_GEO_HH_20190823162315_20190823162606_extended.json");
@@ -55,7 +53,6 @@ public class TestSTACWriter extends ReaderTest {
         final File outputFile = new File(folder, srcProduct.getName() + ".json");
 
         ProductIO.writeProduct(srcProduct, outputFile, STACProductConstants.FORMAT, false);
-
 
     }
 }
