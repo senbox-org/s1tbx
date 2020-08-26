@@ -73,6 +73,6 @@ public class TestDEM {
         final double[] demValues = new double[w*h];
         elevBand.readPixels(0, 0, w, h, demValues, ProgressMonitor.NULL);
 
-        TestUtils.comparePixels(targetProduct, elevBand.getName(), expectedValuesLinux);
+        TestUtils.comparePixels(targetProduct, elevBand.getName(), expectedValues);
     }
 }
