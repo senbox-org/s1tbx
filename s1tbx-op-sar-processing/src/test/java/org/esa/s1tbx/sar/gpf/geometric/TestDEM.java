@@ -9,10 +9,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.dem.gpf.AddElevationOp;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.esa.snap.test.LongTestRunner;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,7 +17,6 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by lveci on 24/10/2014.
  */
-@Ignore("Different values on lin/win coming from geotiff reader")
 public class TestDEM {
 
     private final static OperatorSpi spi = new AddElevationOp.Spi();
