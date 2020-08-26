@@ -81,6 +81,8 @@ public class TestDEM2 {
         PixelPos ppUL = getDemPixelPos("ppUL", sourceGC, demGC, 0, 0);
         assertEquals(1875, demBand.getSampleFloat((int) ppUL.getX(), (int) ppUL.getY()), 1.0e-6);
 
+        assertEquals(1915, demBand.getSampleFloat((int) ppUL.getX(), (int) ppUL.getY() - 1), 1.0e-6);
+
         PixelPos ppUR = getDemPixelPos("ppUR", sourceGC, demGC, productWidth, 0);
         assertEquals(1888, demBand.getSampleFloat((int) ppUR.getX(), (int) ppUR.getY()), 1.0e-6);
 
@@ -96,12 +98,12 @@ public class TestDEM2 {
     }
 
     private PixelPos getDemPixelPos(String id, GeoCoding sourceGC, GeoCoding demGC, int x, int y) {
-        System.out.printf(Locale.ENGLISH, "%s source X,Y = %d, %d%n", id, x, y);
+        System.err.printf(Locale.ENGLISH, "%s source X,Y = %d, %d%n", id, x, y);
         GeoPos geoPos = sourceGC.getGeoPos(new PixelPos(x, y), null);
-        System.out.printf(Locale.ENGLISH, "%s source LatLon = %.5f, %.5f%n", id, geoPos.getLat(), geoPos.getLon());
+        System.err.printf(Locale.ENGLISH, "%s source LatLon = %.5f, %.5f%n", id, geoPos.getLat(), geoPos.getLon());
         PixelPos pixelPos = demGC.getPixelPos(geoPos, null);
         pixelPos.setLocation(Math.round(pixelPos.getX()), Math.round(pixelPos.getY()));
-        System.out.printf(Locale.ENGLISH, "%s source X,Y = %.2f, %.2f%n%n", id, pixelPos.getX(), pixelPos.getY());
+        System.err.printf(Locale.ENGLISH, "%s source X,Y = %.2f, %.2f%n%n", id, pixelPos.getX(), pixelPos.getY());
         return pixelPos;
     }
 }
