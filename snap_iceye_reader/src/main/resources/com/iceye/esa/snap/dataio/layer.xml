@@ -23,7 +23,7 @@
                     <file name="org-esa-s1tbx-io-importIceyeProduct.shadow">
                         <attr name="originalFile"
                               stringvalue="Actions/Readers/org-esa-s1tbx-io-importIceyeProduct.instance"/>
-                        <attr name="position" intvalue="2100"/>
+                        <attr name="position" intvalue="570"/>
                     </file>
                 </folder>
             </folder>
