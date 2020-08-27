@@ -22,9 +22,9 @@ import org.esa.s1tbx.io.ceos.CEOSConstants;
  */
 public class Alos2Constants implements CEOSConstants {
 
-    private static final String[] FORMAT_NAMES = {"ALOS 2 CEOS"};
+    private static final String[] FORMAT_NAMES = {"ALOS-2 CEOS"};
     private static final String[] FORMAT_FILE_EXTENSIONS = {""};
-    private static final String PLUGIN_DESCRIPTION = "ALOS 2 CEOS Products";      /*I18N*/
+    private static final String PLUGIN_DESCRIPTION = "ALOS-2 CEOS Products";      /*I18N*/
 
     private static final String[] VOLUME_FILE_PREFIX = {"VOL-ALOS2"};
     private static final String[] LEADER_FILE_PREFIX = {"LED-ALOS2"};
@@ -33,9 +33,7 @@ public class Alos2Constants implements CEOSConstants {
 
     static final String MISSION = "ALOS2";
 
-    static final String PRODUCT_DESCRIPTION_PREFIX = "ALOS 2 product ";
-
-    private static final int MINIMUM_FILES = 4;    // 1 image file + leader file + volume file + trailer file
+    static final String PRODUCT_DESCRIPTION_PREFIX = "ALOS-2 product ";
 
     public String[] getVolumeFilePrefix() {
         return VOLUME_FILE_PREFIX;
@@ -51,10 +49,6 @@ public class Alos2Constants implements CEOSConstants {
 
     public String[] getTrailerFilePrefix() {
         return TRAILER_FILE_PREFIX;
-    }
-
-    public int getMinimumNumFiles() {
-        return MINIMUM_FILES;
     }
 
     public String getPluginDescription() {

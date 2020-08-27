@@ -20,7 +20,7 @@ addons:
       description: "Build submitted via Travis CI"
     notification_email: stb-coverity@thor.si.c-s.fr
     # build_command_prepend: "mvn clean"
-    build_command:   "mvn -DskipTests=true clean compile"
+    build_command:   "mvn -X -DskipTests=true clean compile"
     branch_pattern: coverity_scan
 
 before_install:

@@ -116,7 +116,7 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
             for (Path root : fileSystem.getRootDirectories()) {
                 FileVisitor<Path> visitor = new ListFilesAndFolderVisitor() {
                     @Override
-                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                         if (root.equals(dir)) {
                             return FileVisitResult.CONTINUE;
                         } else {
@@ -134,7 +134,7 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
                     }
 
                     @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                         String zipEntryPath = remoteFirstSeparatorIfExists(file.toString());
                         filesAndFolders.add(zipEntryPath);
                         return FileVisitResult.CONTINUE;
@@ -211,12 +211,12 @@ public class Alos2GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         }
 
         @Override
-        public final FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        public final FileVisitResult visitFileFailed(Path file, IOException exc) {
             return FileVisitResult.CONTINUE;
         }
 
         @Override
-        public final FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        public final FileVisitResult postVisitDirectory(Path dir, IOException exc) {
             return FileVisitResult.CONTINUE;
         }
     }
