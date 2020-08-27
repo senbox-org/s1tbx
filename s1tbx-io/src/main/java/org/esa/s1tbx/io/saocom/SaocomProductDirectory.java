@@ -221,7 +221,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         beamId = parameters.getAttributeString("beamID").replace("QP","").replace("DP","").replace("SD","");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS, beamId);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, parameters.getAttributeString("sideLooking").toLowerCase());
+        final String antennaPointing = parameters.getAttributeString("sideLooking").toLowerCase();
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, antennaPointing);
 
         String desc = features.getAttributeString("abstract");
         productDescription = desc.replace("XML Annotated ", "");
@@ -232,7 +233,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType());
 
         final MetadataElement StateVectorData = features.getElement("StateVectorData");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, StateVectorData.getAttributeString("OrbitDirection"));
+        final String pass = StateVectorData.getAttributeString("OrbitDirection");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, pass);
 
         final MetadataElement scene = features.getElement("scene");
         final MetadataElement timeFrame = scene.getElement("timeFrame");
@@ -241,24 +243,81 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
         final MetadataElement frame = scene.getElement("frame");
         final MetadataElement[] vertices = frame.getElements();
-        latCorners[0] = vertices[0].getAttributeDouble("lat", defInt);
-        lonCorners[0] = vertices[0].getAttributeDouble("lon", defInt);
-        latCorners[1] = vertices[3].getAttributeDouble("lat", defInt);
-        lonCorners[1] = vertices[3].getAttributeDouble("lon", defInt);
-        latCorners[2] = vertices[1].getAttributeDouble("lat", defInt);
-        lonCorners[2] = vertices[1].getAttributeDouble("lon", defInt);
-        latCorners[3] = vertices[2].getAttributeDouble("lat", defInt);
-        lonCorners[3] = vertices[2].getAttributeDouble("lon", defInt);
+        final double[] lat = new double[4];
+        final double[] lon = new double[4];
+        lat[0] = vertices[0].getAttributeDouble("lat", defInt);
+        lon[0] = vertices[0].getAttributeDouble("lon", defInt);
+        lat[1] = vertices[1].getAttributeDouble("lat", defInt);
+        lon[1] = vertices[1].getAttributeDouble("lon", defInt);
+        lat[2] = vertices[2].getAttributeDouble("lat", defInt);
+        lon[2] = vertices[2].getAttributeDouble("lon", defInt);
+        lat[3] = vertices[3].getAttributeDouble("lat", defInt);
+        lon[3] = vertices[3].getAttributeDouble("lon", defInt);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latCorners[0]);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonCorners[0]);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latCorners[1]);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonCorners[1]);
+        if (pass.equals("ASCENDING")) {
+            if (antennaPointing.equals("right")) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, lat[0]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lon[0]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, lat[3]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lon[3]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, lat[1]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lon[1]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lat[2]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lon[2]);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latCorners[2]);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonCorners[2]);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latCorners[3]);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonCorners[3]);
+                latCorners[0] = lat[0]; lonCorners[0] = lon[0];
+                latCorners[1] = lat[3]; lonCorners[1] = lon[3];
+                latCorners[2] = lat[1]; lonCorners[2] = lon[1];
+                latCorners[3] = lat[2]; lonCorners[3] = lon[2];
+
+            } else { // "left"
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, lat[3]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lon[3]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, lat[0]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lon[0]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, lat[2]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lon[2]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lat[1]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lon[1]);
+
+                latCorners[0] = lat[3]; lonCorners[0] = lon[3];
+                latCorners[1] = lat[0]; lonCorners[1] = lon[0];
+                latCorners[2] = lat[2]; lonCorners[2] = lon[2];
+                latCorners[3] = lat[1]; lonCorners[3] = lon[1];
+            }
+
+        } else { // "DESCENDING"
+            if (antennaPointing.equals("right")) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, lat[2]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lon[2]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, lat[1]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lon[1]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, lat[3]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lon[3]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lat[0]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lon[0]);
+
+                latCorners[0] = lat[2]; lonCorners[0] = lon[2];
+                latCorners[1] = lat[1]; lonCorners[1] = lon[1];
+                latCorners[2] = lat[3]; lonCorners[2] = lon[3];
+                latCorners[3] = lat[0]; lonCorners[3] = lon[0];
+
+            } else { // "left"
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, lat[1]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lon[1]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, lat[2]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lon[2]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, lat[0]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lon[0]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lat[3]);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lon[3]);
+
+                latCorners[0] = lat[1]; lonCorners[0] = lon[1];
+                latCorners[1] = lat[2]; lonCorners[1] = lon[2];
+                latCorners[2] = lat[0]; lonCorners[2] = lon[0];
+                latCorners[3] = lat[3]; lonCorners[3] = lon[3];
+            }
+        }
 
         final MetadataElement channel = origProdRoot.getElement("Channel");
         final MetadataElement datasetInfo = channel.getElement("DataSetInfo");
