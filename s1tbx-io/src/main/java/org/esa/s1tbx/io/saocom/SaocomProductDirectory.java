@@ -322,17 +322,23 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final MetadataElement channel = origProdRoot.getElement("Channel");
         final MetadataElement datasetInfo = channel.getElement("DataSetInfo");
         final MetadataElement swathInfo = channel.getElement("SwathInfo");
+        final MetadataElement samplingConstants = channel.getElement("SamplingConstants");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, datasetInfo.getAttributeDouble("fc_hz") / Constants.oneMillion);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, getTime(datasetInfo, "ProcessingDate", dateFormat2));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, swathInfo.getAttributeDouble("AcquisitionPRF"));
 
-        if(swathInfo.containsElement("NominalResolution")) {
-            final MetadataElement nominalResolution = swathInfo.getElement("NominalResolution");
-            final MetadataElement range = nominalResolution.getElement("Range");
-            final MetadataElement azimuth = nominalResolution.getElement("Azimuth");
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, range.getAttributeDouble("Range"));
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, azimuth.getAttributeDouble("Azimuth"));
+        double rangeSpacing = 0.0, azimuthSpacing = 0.0;
+        if(samplingConstants.containsElement("PSrg_m") && samplingConstants.containsElement("PSaz_m")) {
+            final MetadataElement psrg_m = samplingConstants.getElement("PSrg_m");
+            rangeSpacing = psrg_m.getAttributeDouble("PSrg_m");
+            final MetadataElement psaz_m = samplingConstants.getElement("PSaz_m");
+            azimuthSpacing = psaz_m.getAttributeDouble("PSaz_m");
+        }
+
+        if (rangeSpacing > 0.0 && azimuthSpacing > 0.0) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, rangeSpacing);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, azimuthSpacing);
         } else {
             final MetadataElement rasterInfo = channel.getElement("RasterInfo");
             final MetadataElement samplesStep = rasterInfo.getElement("SamplesStep");
