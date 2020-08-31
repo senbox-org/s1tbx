@@ -329,7 +329,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, swathInfo.getAttributeDouble("AcquisitionPRF"));
 
         double rangeSpacing = 0.0, azimuthSpacing = 0.0;
-        if(samplingConstants.containsElement("PSrg_m") && samplingConstants.containsElement("PSaz_m")) {
+        if(samplingConstants != null && samplingConstants.containsElement("PSrg_m") && samplingConstants.containsElement("PSaz_m")) {
             final MetadataElement psrg_m = samplingConstants.getElement("PSrg_m");
             rangeSpacing = psrg_m.getAttributeDouble("PSrg_m");
             final MetadataElement psaz_m = samplingConstants.getElement("PSaz_m");
@@ -342,9 +342,11 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         } else {
             final MetadataElement rasterInfo = channel.getElement("RasterInfo");
             final MetadataElement samplesStep = rasterInfo.getElement("SamplesStep");
-            double spacing = samplesStep.getAttributeDouble("SamplesStep");
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, spacing);
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, spacing);
+//            final MetadataElement linesStep = rasterInfo.getElement("LinesStep");
+            rangeSpacing = samplesStep.getAttributeDouble("SamplesStep");
+//            azimuthSpacing = linesStep.getAttributeDouble("LinesStep");
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, rangeSpacing);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, rangeSpacing);
         }
 
         final MetadataElement slantToGround = channel.getElement("SlantToGround");
