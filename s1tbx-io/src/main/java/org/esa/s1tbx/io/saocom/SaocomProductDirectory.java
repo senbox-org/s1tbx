@@ -349,6 +349,25 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, rangeSpacing);
         }
 
+        double rangeSamplingRateMHz = 0.0;
+        if (samplingConstants != null && samplingConstants.containsElement("frg_hz")) {
+            final MetadataElement frg_hz = samplingConstants.getElement("frg_hz");
+            rangeSamplingRateMHz = frg_hz.getAttributeDouble("frg_hz") / 1e6;
+        }
+
+        if (rangeSamplingRateMHz > 0.0) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRateMHz);
+        } else {
+            final MetadataElement rasterInfo = channel.getElement("RasterInfo");
+            final MetadataElement samplesStep = rasterInfo.getElement("SamplesStep");
+            final String unit = samplesStep.getAttributeString("unit");
+            final double step = samplesStep.getAttributeDouble("SamplesStep");
+            if (unit != null && unit.equals("s") && step > 0.0) {
+                rangeSamplingRateMHz = 1.0 / (step * 1.0e6);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRateMHz);
+            }
+        }
+
         final MetadataElement slantToGround = channel.getElement("SlantToGround");
         if(slantToGround != null) {
             double trg0_s = slantToGround.getAttributeDouble("trg0_s", 0);
