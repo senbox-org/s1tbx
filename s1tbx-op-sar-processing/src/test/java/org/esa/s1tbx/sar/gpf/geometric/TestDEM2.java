@@ -15,7 +15,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
@@ -67,7 +66,10 @@ public class TestDEM2 {
     }
 
     @Test
-    public void testPositionsUsingProductReader() throws IOException {
+    public void testPositionsUsingProductReader() throws Exception {
+
+        // trigger download of DEM file if not yet local
+        srtmDem.getElevation(new GeoPos(46.5, 10.5));
 
         File demInstallDir = srtmDescriptor.getDemInstallDir();
         File demFile = new File(demInstallDir, "srtm_39_03.zip");
@@ -94,6 +96,30 @@ public class TestDEM2 {
 
         PixelPos ppCenter = getDemPixelPos("ppCenter", sourceGC, demGC, (int) (productWidth / 2.0), (int) (productHeight / 2.0));
         assertEquals(2961, demBand.getSampleFloat((int) ppCenter.getX(), (int) ppCenter.getY()), 1.0e-6);
+
+    }
+
+    @Test
+    public void testPositionsUsingProductReader_OtherLocation1() throws Exception {
+
+        // trigger download of DEM file if not yet local
+        srtmDem.getElevation(new GeoPos(-28.263088, -68.820920));    // Chile
+
+        File demInstallDir = srtmDescriptor.getDemInstallDir();
+        File demFile = new File(demInstallDir, "srtm_23_18.zip");
+
+        Product demProduct = ProductIO.readProduct(demFile);
+        Band demBand = demProduct.getBandAt(0);
+
+        assertEquals(2013, demBand.getSampleInt(0, 0));
+
+        assertEquals(960, demBand.getSampleInt(demProduct.getSceneRasterWidth() - 1, 0));
+
+        assertEquals(3847, demBand.getSampleInt(0, demProduct.getSceneRasterHeight() - 1));
+
+        assertEquals(182, demBand.getSampleInt(demProduct.getSceneRasterWidth() - 1, demProduct.getSceneRasterHeight() - 1));
+
+        assertEquals(2087, demBand.getSampleInt(demProduct.getSceneRasterWidth() / 2, demProduct.getSceneRasterHeight() / 2));
 
     }
 
