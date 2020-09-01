@@ -41,7 +41,7 @@
         
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>5.3.1</netcdf.version>
-        <jblas.version>1.2.4</jblas.version>
+        <jblas.version>1.2.5</jblas.version>
         <junit.version>4.12</junit.version>
     </properties>
   

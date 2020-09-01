@@ -73,6 +73,17 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         initContent();
     }
 
+    public void setInputProductList(Product[] products) {
+        final List<File> fileList = new ArrayList<>(products.length);
+        for (Product prod : products) {
+            final File file = prod.getFileLocation();
+            if (file != null && file.exists()) {
+                fileList.add(file);
+            }
+        }
+        inputProductListPanel.setProductFileList(fileList.toArray(new File[fileList.size()]));
+    }
+
     private void initContent() {
         final JPanel contentPane = new JPanel(new BorderLayout());
 
@@ -82,14 +93,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
 
             public void actionPerformed(final ActionEvent e) {
                 final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
-                final List<File> fileList = new ArrayList<>(products.length);
-                for (Product prod : products) {
-                    final File file = prod.getFileLocation();
-                    if (file != null && file.exists()) {
-                        fileList.add(file);
-                    }
-                }
-                inputProductListPanel.setProductFileList(fileList.toArray(new File[fileList.size()]));
+                setInputProductList(products);
             }
         });
         buttonPanel1.add(addAllBtn);

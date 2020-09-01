@@ -1,11 +1,11 @@
 package org.esa.s1tbx.insar.rcp.actions;
 
 import org.esa.s1tbx.insar.rcp.dialogs.InSARStackOverviewDialog;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.product.library.ui.v2.ProductLibraryV2Action;
 import org.esa.snap.product.library.ui.v2.repository.AbstractProductsRepositoryPanel;
 import org.esa.snap.product.library.ui.v2.thread.ThreadCallback;
 import org.esa.snap.product.library.v2.database.model.LocalRepositoryProduct;
-import org.esa.snap.productlibrary.db.ProductEntry;
 import org.esa.snap.remote.products.repository.RepositoryProduct;
 
 import javax.swing.*;
@@ -15,7 +15,7 @@ import java.nio.file.Files;
 /**
  * Created by jcoravu on 21/7/2020.
  */
-public class InSARStackOverviewActionProductLibraryV2 extends ProductLibraryV2Action implements ThreadCallback<ProductEntry[]> {
+public class InSARStackOverviewActionProductLibraryV2 extends ProductLibraryV2Action implements ThreadCallback<Product[]> {
 
     public InSARStackOverviewActionProductLibraryV2() {
         super("Stack Overview");
@@ -52,9 +52,9 @@ public class InSARStackOverviewActionProductLibraryV2 extends ProductLibraryV2Ac
     }
 
     @Override
-    public void onSuccessfullyFinish(ProductEntry[] productEntries) {
+    public void onSuccessfullyFinish(Product[] products) {
         InSARStackOverviewDialog dialog = new InSARStackOverviewDialog();
-        //dialog.setInputProductList(productEntries); // are these populated?
+        dialog.setInputProductList(products);
         dialog.show();
     }
 }

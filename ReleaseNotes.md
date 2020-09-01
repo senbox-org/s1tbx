@@ -5,6 +5,8 @@
 * Support for SAOCOM
 * PyRate export
 * Soil Moisture Toolkit for Radarsat-2/RCM 
+* Join Coregistration for Large TOPS Stacks
+* Spotlight Interferometry
 
 ###Bugs fixed 
 

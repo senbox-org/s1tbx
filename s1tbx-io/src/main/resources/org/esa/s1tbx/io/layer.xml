@@ -16,7 +16,7 @@
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                     <attr name="displayName" stringvalue="ALOS-2 CEOS"/>
-                    <attr name="formatName" stringvalue="ALOS 2 CEOS"/>
+                    <attr name="formatName" stringvalue="ALOS-2 CEOS"/>
                     <attr name="useAllFileFilter" boolvalue="true"/>
                     <attr name="helpId" stringvalue="ImportAlosPalsar"/>
                     <attr name="ShortDescription" stringvalue="Open ALOS-2 CEOS data product."/>
@@ -43,8 +43,8 @@
             <file name="org-esa-s1tbx-io-importAlos2GeoTiffProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
-                <attr name="displayName" stringvalue="ALOS2 GeoTIFF"/>
-                <attr name="formatName" stringvalue="ALOS2 GeoTIFF"/>
+                <attr name="displayName" stringvalue="ALOS-2 GeoTIFF"/>
+                <attr name="formatName" stringvalue="ALOS-2 GeoTIFF"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="ImportAlosPalsar"/>
                 <attr name="ShortDescription" stringvalue="Open ALOS-2 GeoTiff data product."/>
@@ -84,6 +84,15 @@
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importRISAT1"/>
                 <attr name="ShortDescription" stringvalue="Open RISAT1 data product."/>
+            </file>
+            <file name="org-esa-s1tbx-io-importSAOCOM.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="SAOCOM"/>
+                <attr name="formatName" stringvalue="SAOCOM"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importSAOCOM"/>
+                <attr name="ShortDescription" stringvalue="Open SAOCOM data product."/>
             </file>
             <file name="org-esa-s1tbx-io-importSeaSatProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -255,6 +264,10 @@
                     <file name="org-esa-s1tbx-io-importPazProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importPazProduct.instance"/>
                         <attr name="position" intvalue="675"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importSAOCOM.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importSAOCOM.instance"/>
+                        <attr name="position" intvalue="830"/>
                     </file>
                     <file name="org-esa-s1tbx-io-importSeaSatProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importSeaSatProduct.instance"/>
