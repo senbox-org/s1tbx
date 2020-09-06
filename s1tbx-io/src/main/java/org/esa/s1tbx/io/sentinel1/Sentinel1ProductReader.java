@@ -18,6 +18,7 @@ package org.esa.s1tbx.io.sentinel1;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.io.DataCache;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -69,11 +70,11 @@ public class Sentinel1ProductReader extends SARReader {
      */
     @Override
     public void close() throws IOException {
+        super.close();
         if (dataDir != null) {
             dataDir.close();
             dataDir = null;
         }
-        super.close();
     }
 
     /**

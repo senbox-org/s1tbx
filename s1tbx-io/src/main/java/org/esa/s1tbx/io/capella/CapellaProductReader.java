@@ -18,12 +18,19 @@ package org.esa.s1tbx.io.capella;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
+import org.esa.s1tbx.io.DataCache;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import java.awt.*;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +43,7 @@ import java.nio.file.Path;
 public class CapellaProductReader extends SARReader {
 
     private CapellaProductDirectory dataDir;
+    private final DataCache cache;
 
     /**
      * Constructs a new abstract product reader.
@@ -45,6 +53,7 @@ public class CapellaProductReader extends SARReader {
      */
     public CapellaProductReader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
+        cache = new DataCache();
     }
 
 
@@ -100,31 +109,85 @@ public class CapellaProductReader extends SARReader {
                                           int destWidth, int destHeight,
                                           ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
+        if (dataDir == null) {
+            return;
+        }
+
+        final int[] srcArray;
         final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
 
-        bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                bandInfo.imageID, bandInfo.bandSampleOffset);
+        final Rectangle destRect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
+        final DataCache.DataKey datakey = new DataCache.DataKey(bandInfo.img, destRect);
+        DataCache.Data cachedData = cache.get(datakey);
+        if (cachedData != null && cachedData.valid) {
+            srcArray = cachedData.intArray;
+        } else {
+            cachedData = readRect(datakey, bandInfo, sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY, destRect);
+
+            srcArray = cachedData.intArray;
+        }
 
         final boolean isSLC = dataDir.isSLC();
         final boolean isImaginary = destBand.getUnit().contains(Unit.IMAGINARY);
         final double nodatavalue = destBand.getNoDataValue();
         final double scaleFactor = dataDir.getScaleFactor();
-        for(int i=0; i< destBuffer.getNumElems(); ++i) {
-            int val = destBuffer.getElemIntAt(i);
-            if(isSLC) {
-                if(isImaginary) {
-                    double secondHalf = (short) (val & 0xffff);
-                    destBuffer.setElemDoubleAt(i, secondHalf * scaleFactor);
+        final float[] elems = (float[]) destBuffer.getElems();
+        final int numElems = elems.length;
+
+        if (isSLC) {
+            for (int i = 0; i < numElems; ++i) {
+
+                if (isImaginary) {
+                    double secondHalf = (short) (srcArray[i] & 0xffff);
+                    elems[i] = (float) (secondHalf * scaleFactor);
                 } else {
-                    double firstHalf = (short) (val >> 16);
-                    destBuffer.setElemDoubleAt(i, firstHalf * scaleFactor);
-                }
-            } else {
-                if (val != nodatavalue) {
-                    destBuffer.setElemDoubleAt(i, Math.sqrt(val * scaleFactor));
+                    double firstHalf = (short) (srcArray[i] >> 16);
+                    elems[i] = (float) (firstHalf * scaleFactor);
                 }
             }
+        } else {
+            for (int i = 0; i < numElems; ++i) {
+                if (elems[i] != nodatavalue) {
+                    elems[i] = (float) Math.sqrt(srcArray[i] * scaleFactor);
+                }
+            }
+        }
+    }
+
+    private synchronized DataCache.Data readRect(final DataCache.DataKey datakey, final ImageIOFile.BandInfo bandInfo,
+                                                 int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
+                                                 final Rectangle destRect) {
+        try {
+            final ImageReader imageReader = bandInfo.img.getReader();
+            final ImageReadParam readParam = imageReader.getDefaultReadParam();
+            if (sourceStepX == 1 && sourceStepY == 1) {
+                readParam.setSourceRegion(destRect);
+            }
+            readParam.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
+            final RenderedImage subsampledImage = imageReader.readAsRenderedImage(0, readParam);
+
+            final Raster data = subsampledImage.getData(destRect);
+
+            final SampleModel sampleModel = data.getSampleModel();
+            final int destWidth = Math.min((int) destRect.getWidth(), sampleModel.getWidth());
+            final int destHeight = Math.min((int) destRect.getHeight(), sampleModel.getHeight());
+
+            final int length = destWidth * destHeight;
+            final int[] srcArray = new int[length];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
+
+            DataCache.Data cachedData = new DataCache.Data(srcArray);
+            if (datakey != null) {
+                cache.put(datakey, cachedData);
+            }
+            return cachedData;
+        } catch (Exception e) {
+            final int[] srcArray = new int[(int) destRect.getWidth() * (int) destRect.getHeight()];
+            DataCache.Data cachedData = new DataCache.Data(srcArray);
+            if (datakey != null) {
+                cache.put(datakey, cachedData);
+            }
+            return cachedData;
         }
     }
 }
