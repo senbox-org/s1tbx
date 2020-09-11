@@ -44,6 +44,7 @@ import org.jdom2.Element;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Dimension;
 import java.io.*;
@@ -84,7 +85,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
                 final InputStream inStream = getInputStream(imgPath);
                 if(inStream.available() > 0) {
-                    final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    final ImageInputStream imgStream = createImageInputStream(inStream, bandDimensions, isSLC());
 
                     final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                                 1, 1, ProductData.TYPE_INT32, productInputFile);
@@ -94,6 +95,16 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 SystemUtils.LOG.severe(imgPath +" not found");
             }
         }
+    }
+
+    public static ImageInputStream createImageInputStream(final InputStream inStream, final Dimension bandDimensions,
+                                                          final boolean isSLC) throws IOException {
+        final long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+        if(isSLC && maxMemory < 8192L) {
+            SystemUtils.LOG.info("Less than 8K RAM. Using FileCacheImageInputStream");
+            return new FileCacheImageInputStream(inStream, ImageIOFile.createCacheDir());
+        }
+        return ImageIOFile.createImageInputStream(inStream, bandDimensions);
     }
 
     @Override

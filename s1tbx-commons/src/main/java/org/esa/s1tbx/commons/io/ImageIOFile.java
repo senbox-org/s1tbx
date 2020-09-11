@@ -124,6 +124,10 @@ public class ImageIOFile {
         return name;
     }
 
+    public ImageInputStream getStream() {
+        return stream;
+    }
+
     public static ImageReader getIIOReader(final File inputFile) throws IOException {
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
         if (stream == null)
@@ -323,7 +327,7 @@ public class ImageIOFile {
         }
     }
 
-    private static File createCacheDir() throws IOException {
+    public static File createCacheDir() throws IOException {
         final File cacheDir = new File(SystemUtils.getCacheDir(), "temp");
         if (!cacheDir.exists() && !cacheDir.mkdirs()) {
             throw new IOException("Failed to create directory '" + cacheDir + "'.");
@@ -332,9 +336,9 @@ public class ImageIOFile {
     }
 
     public static ImageInputStream createImageInputStream(final InputStream inStream, final Dimension bandDimensions) throws IOException {
-        final double freeMemory = Runtime.getRuntime().freeMemory() * 0.000001D;
-        final double size = bandDimensions.width*bandDimensions.height * 0.000001D;
-        if(useFileCache || freeMemory < 100L || size > 800L) {
+        final long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
+        final long size = (bandDimensions.width*bandDimensions.height *32L) / 1024 / 1024;
+        if(useFileCache || freeMemory < 100L || size > 15000L) {
             SystemUtils.LOG.info("Using FileCacheImageInputStream");
             return new FileCacheImageInputStream(inStream, createCacheDir());
         }
