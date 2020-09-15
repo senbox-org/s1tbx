@@ -49,7 +49,7 @@ public class S1tbxAboutBox extends JPanel {
     private JPanel createVersionPanel() {
         Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
         int year = utc.get(Calendar.YEAR);
-        JLabel copyRightLabel = new JLabel("<html><b>© 2018-" + year + " SkyWatch, SenseSAR and contributors</b>", SwingConstants.CENTER);
+        JLabel copyRightLabel = new JLabel("<html><b>© 2018-" + year + " SkyWatch, Sensar and contributors</b>", SwingConstants.CENTER);
 
         final ModuleInfo moduleInfo = Modules.getDefault().ownerOf(S1tbxAboutBox.class);
         JLabel versionLabel = new JLabel("<html><b>Sentinel-1 Toolbox (S1TBX) version " + moduleInfo.getImplementationVersion() + "</b>", SwingConstants.CENTER);
