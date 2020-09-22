@@ -345,25 +345,25 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 final int srcIdx = srcIndex.getIndex(x);
                 final int tgtIdx = tgtIndex.getIndex(x);
 
-                final double dn2Mean = getMeanDN2(x, y, srcData1, srcData2, gimBandData, srcIndex, srcBandUnit, noDataValue);
-                if(noDataValue.equals(dn2Mean)) {
+                final double dn2 = getDN2(x, y, srcData1, srcData2, gimBandData, srcIndex, srcBandUnit, noDataValue);
+                if(noDataValue.equals(dn2)) {
                     tgtData.setElemDoubleAt(tgtIdx, noDataValue);
                     continue;
                 }
 
-                double sigma = dn2Mean * calibrationFactor;
+                double sigma = dn2 * calibrationFactor;
 
                 if (isComplex && outputImageInComplex) {
                     if (srcBandUnit == Unit.UnitType.REAL) {
                         final double i = srcData1.getElemDoubleAt(srcIdx);
                         final double q = srcData2.getElemDoubleAt(srcIdx);
-                        final double dn2 = i * i + q * q;
+                        final double dn2local = i * i + q * q;
                         double phaseTerm = 0.0;
-                        if (dn2 > 0.0) {
+                        if (dn2local > 0.0) {
                             if (tgtBandUnit == Unit.UnitType.REAL) {
-                                phaseTerm = i / Math.sqrt(dn2);
+                                phaseTerm = i / Math.sqrt(dn2local);
                             } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                                phaseTerm = q / Math.sqrt(dn2);
+                                phaseTerm = q / Math.sqrt(dn2local);
                             }
                         }
                         sigma = Math.sqrt(sigma) * phaseTerm;
@@ -393,44 +393,29 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private double getMeanDN2(final int x, final int y, final ProductData srcData1, ProductData srcData2,
-                              final ProductData gimBandData, final TileIndex srcIndex, final Unit.UnitType srcBandUnit,
-                              final double noDataValue) {
+    private double getDN2(final int x, final int y, final ProductData srcData1, ProductData srcData2,
+                          final ProductData gimBandData, final TileIndex srcIndex, final Unit.UnitType srcBandUnit,
+                          final double noDataValue) {
 
-        final int xMin = Math.max(0, x - halfWindowSize);
-        final int yMin = Math.max(0, y - halfWindowSize);
-        final int xMax = Math.min(x + halfWindowSize, sourceImageWidth - 1);
-        final int yMax = Math.min(y + halfWindowSize, sourceImageHeight - 1);
+        double dn = 0.0, dn2 = 0.0, i = 0.0, q = 0.0;
+        final int srcIdx = srcIndex.getIndex(x);
 
-        int count = 0;
-        double dn = 0.0, dn2 = 0.0, i = 0.0, q = 0.0, dn2Sum = 0.0;
-        for (int yy = yMin; yy <= yMax; ++yy) {
-            srcIndex.calculateStride(yy);
-            for (int xx = xMin; xx <= xMax; ++xx) {
-                final int srcIdx = srcIndex.getIndex(x);
-                if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(srcIdx);
-                    dn2 = dn * dn;
-                } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
-                    dn2 = srcData1.getElemDoubleAt(srcIdx);
-                } else if (srcBandUnit == Unit.UnitType.REAL) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
-                    q = srcData2.getElemDoubleAt(srcIdx);
-                    dn2 = i * i + q * q;
-                } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
-                    dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0);
-                }
-
-                final double incidenceAngle = getIncidenceAngle(xx, yy, gimBandData, srcIdx)*Constants.DTOR;
-                dn2Sum += dn2 * Math.sin(incidenceAngle);
-                count++;
-            }
+        if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
+            dn = srcData1.getElemDoubleAt(srcIdx);
+            dn2 = dn * dn;
+        } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
+            dn2 = srcData1.getElemDoubleAt(srcIdx);
+        } else if (srcBandUnit == Unit.UnitType.REAL) {
+            i = srcData1.getElemDoubleAt(srcIdx);
+            q = srcData2.getElemDoubleAt(srcIdx);
+            dn2 = i * i + q * q;
+        } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
+            dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0);
         }
+        final double incidenceAngle = getIncidenceAngle(x,y, gimBandData, srcIdx)* Constants.DTOR;
 
-        if (count > 0) {
-            return dn2Sum / count;
-        }
-        return noDataValue;
+        dn2 = dn2 * Math.sin(incidenceAngle);
+        return dn2;
     }
 
     private double getIncidenceAngle(final int x, final int y, final ProductData gimBandData, final int srcIdx) {
