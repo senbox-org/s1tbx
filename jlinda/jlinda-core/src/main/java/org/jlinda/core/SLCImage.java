@@ -1,9 +1,7 @@
 package org.jlinda.core;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.jlinda.core.io.ResFile;
@@ -167,17 +165,28 @@ public final class SLCImage {
         this.approxRadarCentreOriginal.x = element.getAttributeDouble(AbstractMetadata.num_samples_per_line) / 2.0d;  // x direction is range!
         this.approxRadarCentreOriginal.y = element.getAttributeDouble(AbstractMetadata.num_output_lines) / 2.0d;  // y direction is azimuth
 
-        // TODO: replace computation of the centre using getGeoPos()
-        // simple averaging of the corners : as approximation accurate enough
-        this.approxGeoCentreOriginal.lat = (float) ((element.getAttributeDouble(AbstractMetadata.first_near_lat) +
-                element.getAttributeDouble(AbstractMetadata.first_far_lat) +
-                element.getAttributeDouble(AbstractMetadata.last_near_lat) +
-                element.getAttributeDouble(AbstractMetadata.last_far_lat)) / 4);
+        if(product != null) {
+            final GeoCoding geoCoding = product.getSceneGeoCoding();
+            final PixelPos centerPos = new PixelPos(this.approxRadarCentreOriginal.x, this.approxRadarCentreOriginal.y);
+            final GeoPos centerGeoPos = new GeoPos();
+            geoCoding.getGeoPos(centerPos, centerGeoPos);
 
-        this.approxGeoCentreOriginal.lon = (float) ((element.getAttributeDouble(AbstractMetadata.first_near_long) +
-                element.getAttributeDouble(AbstractMetadata.first_far_long) +
-                element.getAttributeDouble(AbstractMetadata.last_near_long) +
-                element.getAttributeDouble(AbstractMetadata.last_far_long)) / 4);
+            this.approxGeoCentreOriginal.lat = centerGeoPos.lat;
+            this.approxGeoCentreOriginal.lon = centerGeoPos.lon;
+
+            this.nearRangeOnLeft = isNearRangeOnLeft(product);
+            this.isBiStaticStack = isBiStaticStack(product);
+        } else {
+            this.approxGeoCentreOriginal.lat = (float) ((element.getAttributeDouble(AbstractMetadata.first_near_lat) +
+                    element.getAttributeDouble(AbstractMetadata.first_far_lat) +
+                    element.getAttributeDouble(AbstractMetadata.last_near_lat) +
+                    element.getAttributeDouble(AbstractMetadata.last_far_lat)) / 4);
+
+            this.approxGeoCentreOriginal.lon = (float) ((element.getAttributeDouble(AbstractMetadata.first_near_long) +
+                    element.getAttributeDouble(AbstractMetadata.first_far_long) +
+                    element.getAttributeDouble(AbstractMetadata.last_near_long) +
+                    element.getAttributeDouble(AbstractMetadata.last_far_long)) / 4);
+        }
 
         final double[] xyz = new double[3];
         Ellipsoid.ell2xyz(getApproxGeoCentreOriginal(), xyz);
@@ -213,11 +222,6 @@ public final class SLCImage {
 
         this.mlAz = (int) element.getAttributeDouble(AbstractMetadata.azimuth_looks);
         this.mlRg = (int) element.getAttributeDouble(AbstractMetadata.range_looks);
-
-        if(product != null) {
-            this.nearRangeOnLeft = isNearRangeOnLeft(product);
-            this.isBiStaticStack = isBiStaticStack(product);
-        }
 
         final double firstLineTimeInDays = element.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
         final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * 86400.0;
