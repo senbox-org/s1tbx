@@ -574,9 +574,9 @@ public class RCMProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-        if(product.getSceneGeoCoding() != null) {
-            return;
-        }
+//        if(product.getSceneGeoCoding() != null) {
+//            return;
+//        }
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
@@ -603,13 +603,14 @@ public class RCMProductDirectory extends XMLProductDirectory {
             lngList[i] = (float) longitude.getAttributeDouble("longitude", 0);
 
             final MetadataElement imageCoordinate = imageTiePoint.getElement("imageCoordinate");
+            final double lin = imageCoordinate.getAttributeDouble("line", 0);
             final double pix = imageCoordinate.getAttributeDouble("pixel", 0);
+            if (lin == 0) {
+                ++gridWidth;
+            }
             if (pix == 0) {
-                if (gridWidth == 0)
-                    gridWidth = i;
                 ++gridHeight;
             }
-
             ++i;
         }
 
@@ -678,9 +679,9 @@ public class RCMProductDirectory extends XMLProductDirectory {
         }
         setLatLongMetadata(product, latGrid, lonGrid);
 
-        if (product.getSceneGeoCoding() == null) {
+//        if (product.getSceneGeoCoding() == null) {
             product.setSceneGeoCoding(tpGeoCoding);
-        }
+//        }
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
