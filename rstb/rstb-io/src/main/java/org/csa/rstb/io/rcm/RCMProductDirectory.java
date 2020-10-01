@@ -574,9 +574,9 @@ public class RCMProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-//        if(product.getSceneGeoCoding() != null) {
-//            return;
-//        }
+        if((productType.equals("GCC") || productType.equals("GCD")) && product.getSceneGeoCoding() != null) {
+            return;
+        }
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
@@ -679,9 +679,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
         }
         setLatLongMetadata(product, latGrid, lonGrid);
 
-//        if (product.getSceneGeoCoding() == null) {
-            product.setSceneGeoCoding(tpGeoCoding);
-//        }
+        product.setSceneGeoCoding(tpGeoCoding);
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
