@@ -22,8 +22,13 @@ biases caused by terrain variations are introduced into the coherency
 and covariance matrices. It is often seen that the classification
 result mimic the radiometry rather than the actual land cover. This
 operator removes the radiometric variability associated with topography
-using the terrain flattening method proposed by Small [1] while leaving
-the radiometric variability associated with land cover.<br><h4>Input and Output</h4><ul><li>The
+using the Radiometric Terrain Correction algorithm proposed by Small [1] while leaving
+the radiometric variability associated with land cover.<br><br>In
+the Radiometric Terrain Correction algorithm [1], the radiometric
+effect is simulated using a digital elevation model (DEM) of the imaged
+area. It is therefore required that the&nbsp;DEM resolution must be
+higher than the image resolution. In case that the DEM resolution is
+lower than the image resolution, users have two options:<br><ol><li>Oversample the DEM to higher resolution, which generally will lead to longer the processing time and occasional artefacts in the image;</li><li>Multilook the source image to lower resolution, which will reduce the processing time and produce generally&nbsp;better image.</li></ol><h4>Input and Output</h4><ul><li>The
 input to this operator should be calibrated beta0. For polarimetric SAR
 product, it should be in T3, C3, C2 matrix format.&nbsp;</li><li>The
 output of this operator is terrain flattened gamma0. For polarimetric
@@ -40,24 +45,24 @@ matrices in T3, C3 or C2 format. </li></ul>
     <li>DEM resampling Method: resampling method used in getting elevation from DEM.</li><li>External DEM:&nbsp;User specified external DEM file. Currently only DEM in Geotiff format 
         with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) 
         referred to global geodetic ellipsoid reference WGS84 (and height in 
-        meters)&nbsp;is accepted.&nbsp;</li><li>DEM No Data Value: No Data Value for user specified external DEM.&nbsp; </li><li>External DEM Apply EGM: checkbox if selected, Earth Gravitional model will be applied to the user specified external DEM.&nbsp; </li><li>Additional
+        meters)&nbsp;is supported.&nbsp;</li><li>DEM No Data Value: No Data Value for user specified external DEM.&nbsp; </li><li>External DEM Apply EGM: checkbox if selected, Earth Gravitional Model will be applied to the user specified external DEM.&nbsp; </li><li>Additional
 Overlap Percentage: To perform terrain flattening to a given tile,
 pixels from adjacent tiles are generally needed due to the topography
 in the image area. The overlap percentage is automatically
 computed using the DEM. However, if the computed overlap is not enough,
 then tiling effect can be observed in the terrain flattened image. In
-this case, user can increase the Additional Overlap Percentage. &nbsp;</li><li>Oversampling
+this case, user can increase the Additional Overlap Percentage to increase the overlap between adjacent tiles. &nbsp;</li><li>Oversampling
 Multiple: The Terrain Flattening algorithm requires that the DEM
 resolution is higher than the image resolution. Therefore, the DEM is
 generally oversampled. The default oversampling factor is automatically computed based on
 the DEM resolution and image pixel spacings. The final oversampling factor = (default oversampling factor) x (Oversampling
 Multiple). The default value for&nbsp;Oversampling
-Multiple is 1.5.&nbsp; However, if the&nbsp;oversampling factor is not large enough, then artefacts can be observed
+Multiple is 1.0.&nbsp; However, if the&nbsp;oversampling factor is not large enough, then artefacts can be observed
 in the terrain flattened image. In this case user can increase the
 oversampling factor by setting Oversampling
 Multiple to a larger value. </li>
 </ul>
-<img style="width: 435px; height: 443px;" alt="" src="images/TerrainFlatteningOp.jpg"><br>
+<img style="width: 435px; height: 441px;" alt="" src="images/TerrainFlatteningOp.jpg"><br>
 
 <p> Reference:&nbsp;</p>
 
