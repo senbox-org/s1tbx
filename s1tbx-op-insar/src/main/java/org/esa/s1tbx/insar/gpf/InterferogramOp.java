@@ -1119,6 +1119,28 @@ public class InterferogramOp extends Operator {
         }
     }
 
+    // Save flat-earth phase in [-PI, PI]
+//    private void saveFlatEarthPhase(final int x0, final int xN, final int y0, final int yN, final ComplexDoubleMatrix complexReferencePhase,
+//                                    final ProductContainer product, final Map<Band, Tile> targetTileMap) {
+//
+//        final Band flatEarthPhaseBand = targetProduct.getBand(product.getBandName(FLAT_EARTH_PHASE));
+//        final Tile flatEarthPhaseTile = targetTileMap.get(flatEarthPhaseBand);
+//        final ProductData flatEarthPhaseData = flatEarthPhaseTile.getDataBuffer();
+//
+//        final TileIndex tgtIndex = new TileIndex(flatEarthPhaseTile);
+//        for (int y = y0; y <= yN; y++) {
+//            tgtIndex.calculateStride(y);
+//            final int yy = y - y0;
+//            for (int x = x0; x <= xN; x++) {
+//                final int tgtIdx = tgtIndex.getIndex(x);
+//                final int xx = x - x0;
+//                final double real = complexReferencePhase.get(yy, xx).real();
+//                final double imag = complexReferencePhase.get(yy, xx).imag();
+//                flatEarthPhaseData.setElemFloatAt(tgtIdx, (float)Math.atan2(imag, real));
+//            }
+//        }
+//    }
+
     private void saveInterferogram(final ComplexDoubleMatrix dataMaster, final ProductContainer product,
                                    final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle) {
 

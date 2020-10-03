@@ -1,6 +1,5 @@
 package org.esa.s1tbx.commons.test;
 
-import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -8,7 +7,6 @@ import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 public class ProductValidator {
 

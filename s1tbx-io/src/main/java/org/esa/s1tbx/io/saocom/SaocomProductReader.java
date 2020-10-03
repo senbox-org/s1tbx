@@ -171,11 +171,11 @@ public class SaocomProductReader extends SARReader {
                         if (isSLC) {
                             long bits = Double.doubleToLongBits(value);
                             if (isImaginary) {
-                                int secondHalf = (int) (bits & 0xffffffff);
-                                destBuffer.setElemDoubleAt(i, Float.intBitsToFloat(secondHalf));
-                            } else {
                                 int firstHalf = (int) (bits >> 32);
                                 destBuffer.setElemDoubleAt(i, Float.intBitsToFloat(firstHalf));
+                            } else {
+                                int secondHalf = (int) (bits & 0xffffffff);
+                                destBuffer.setElemDoubleAt(i, Float.intBitsToFloat(secondHalf));
                             }
                             ++i;
                         } else {

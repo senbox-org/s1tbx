@@ -1,4 +1,4 @@
-package org.esa.s1tbx.io.sentinel1;
+package org.esa.s1tbx.io;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -17,7 +17,7 @@ public class DataCache {
 
     public DataCache() {
         cache = CacheBuilder.newBuilder().maximumSize(500).initialCapacity(500)
-        .expireAfterAccess(1, TimeUnit.MINUTES)
+                .expireAfterAccess(10, TimeUnit.MINUTES)
                 //.recordStats()
                 .build(new CacheLoader<DataKey, Data>() {
                            @Override
@@ -48,7 +48,7 @@ public class DataCache {
         private final ImageIOFile img;
         private final Rectangle rect;
 
-        DataKey(final ImageIOFile img, final Rectangle rect) {
+        public DataKey(final ImageIOFile img, final Rectangle rect) {
             this.img = img;
             this.rect = rect;
         }

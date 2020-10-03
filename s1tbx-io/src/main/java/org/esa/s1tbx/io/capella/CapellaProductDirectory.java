@@ -29,6 +29,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
+import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
@@ -152,11 +153,18 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         final String name = getBandFileNameFromImage(imgPath);
         if ((name.endsWith("tif")) && name.startsWith(productName) && !name.contains("preview")) {
             try {
-                final Dimension bandDimensions = new Dimension(width, height);
-                final InputStream inStream = getInputStream(imgPath);
-                if (inStream.available() > 0) {
-                    final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
-
+                ImageInputStream imgStream = null;
+                if(!productDir.isCompressed()) {
+                    File file = productDir.getFile(imgPath);
+                    imgStream = new FileImageInputStream(file);
+                } else {
+                    final Dimension bandDimensions = new Dimension(width, height);
+                    final InputStream inStream = getInputStream(imgPath);
+                    if (inStream.available() > 0) {
+                        imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    }
+                }
+                if(imgStream != null) {
                     final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_INT32, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
@@ -223,7 +231,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         bandName = "Amplitude" + '_' + suffix;
-                        final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
@@ -287,7 +295,9 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
     @Override
     protected void addGeoCoding(final Product product) {
-        ProductUtils.copyGeoCoding(bandProduct, product);
+        if(bandProduct != null) {
+            ProductUtils.copyGeoCoding(bandProduct, product);
+        }
     }
 
     @Override

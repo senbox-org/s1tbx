@@ -12,7 +12,7 @@
     <groupId>com.iceye.esa.snap</groupId>
     <artifactId>iceye-slc-reader</artifactId>
     <version>8.0.0-SNAPSHOT</version>
-    <name>ICEYE snap Desktop Product readers</name>
+    <name>ICEYE Product readers</name>
     <packaging>nbm</packaging>
 
     <dependencies>
