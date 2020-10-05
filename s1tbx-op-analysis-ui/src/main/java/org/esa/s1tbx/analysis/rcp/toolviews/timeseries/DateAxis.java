@@ -55,6 +55,6 @@ public class DateAxis extends DiagramAxis {
             final String tickStr = dateFormat.format(newTime.getAsDate());
             tickNames.add(tickStr);
         }
-        return tickNames.toArray(new String[tickNames.size()]);
+        return tickNames.toArray(new String[0]);
     }
 }

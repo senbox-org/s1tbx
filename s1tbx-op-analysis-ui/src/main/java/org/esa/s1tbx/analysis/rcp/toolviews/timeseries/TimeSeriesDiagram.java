@@ -36,7 +36,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 
-class TimeSeriesDiagram extends Diagram {
+public class TimeSeriesDiagram extends Diagram {
     private Product product;
     private final DateAxis dateAxis;
 
@@ -53,7 +53,7 @@ class TimeSeriesDiagram extends Diagram {
             if (graph instanceof CursorGraph)
                 graphs.add((CursorGraph) graph);
         }
-        return graphs.toArray(new TimeSeriesGraph[graphs.size()]);
+        return graphs.toArray(new TimeSeriesGraph[0]);
     }
 
     public TimeSeriesGraph addCursorGraph(final GraphData graphData) {

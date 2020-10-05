@@ -15,6 +15,8 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
+import org.esa.snap.core.datamodel.Band;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,8 @@ public class TimeSeriesSettings {
 
     private boolean showGrid = true;
     private boolean showLegend = true;
+    private String[] selectedBandNames = null;
+
     private final List<GraphData> graphDataList = new ArrayList<>(2);
 
     public TimeSeriesSettings() {
@@ -47,6 +51,14 @@ public class TimeSeriesSettings {
         showLegend = flag;
     }
 
+    public String[] getSelectedBands() {
+        return selectedBandNames;
+    }
+
+    public void setSelectedBands(final String[] selectedBands) {
+        this.selectedBandNames = selectedBands;
+    }
+
     public void setGraphDataList(final List<GraphData> dataList) {
         graphDataList.clear();
         graphDataList.addAll(dataList);
@@ -54,5 +66,9 @@ public class TimeSeriesSettings {
 
     public final List<GraphData> getGraphDataList() {
         return graphDataList;
+    }
+
+    public boolean hasProducts() {
+        return !graphDataList.isEmpty() && graphDataList.get(0).getProducts() != null;
     }
 }

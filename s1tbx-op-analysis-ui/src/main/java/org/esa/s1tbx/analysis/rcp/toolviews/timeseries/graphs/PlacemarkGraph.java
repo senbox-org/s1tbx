@@ -23,21 +23,20 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Placemark;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.Range;
 
 public class PlacemarkGraph extends TimeSeriesGraph {
 
-    private Placemark placemark = null;
+    private Placemark placemark;
     private final String graphName;
 
     public PlacemarkGraph(final Placemark placemark, String graphName) {
         this.placemark = placemark;
         this.graphName = graphName;
-    }
-
-    public Placemark getPlacemark() {
-        return placemark;
     }
 
     @Override
@@ -53,27 +52,41 @@ public class PlacemarkGraph extends TimeSeriesGraph {
     @Override
     public void readValues(final ImageLayer imageLayer, final GeoPos geoPos, final int level) {
         resetData();
-        if (placemark != null) {
-            for (Band band : selectedBands) {
-                final int index = getTimeIndex(band);
-                if (index >= 0) {
-                    final PixelPos pix = band.getGeoCoding().getPixelPos(placemark.getGeoPos(), null);
 
-                    /*final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(band);
-                    final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
-                    final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
-                    final Point2D modelPixel = i2mTransform.transform(placemark.getPixelPos(), null);
-                    final Point2D imagePixel = m2iTransform.transform(modelPixel, null);
-                    final int pixX = (int) Math.floor(imagePixel.getX());
-                    final int pixY = (int) Math.floor(imagePixel.getY());   */
+        try {
+            final ThreadExecutor executor = new ThreadExecutor();
+            if (placemark != null) {
+                for (Band band : selectedBands) {
+                    final int index = getTimeIndex(band);
+                    if (index >= 0) {
+                        final ThreadRunnable runnable = new ThreadRunnable() {
+                            @Override
+                            public void process() {
+                                final PixelPos pix = band.getGeoCoding().getPixelPos(placemark.getGeoPos(), null);
 
-                    dataPoints[index] = ProductUtils.getGeophysicalSampleAsLong(band, (int) pix.getX(), (int) pix.getY(), level);
-                    if (dataPoints[index] == band.getNoDataValue()) {
-                        dataPoints[index] = Double.NaN;
+                            /*final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(band);
+                            final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
+                            final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
+                            final Point2D modelPixel = i2mTransform.transform(placemark.getPixelPos(), null);
+                            final Point2D imagePixel = m2iTransform.transform(modelPixel, null);
+                            final int pixX = (int) Math.floor(imagePixel.getX());
+                            final int pixY = (int) Math.floor(imagePixel.getY());   */
+
+                                dataPoints[index] = ProductUtils.getGeophysicalSampleAsLong(band, (int) pix.getX(), (int) pix.getY(), level);
+                                if (dataPoints[index] == band.getNoDataValue()) {
+                                    dataPoints[index] = Double.NaN;
+                                }
+                            }
+                        };
+                        executor.execute(runnable);
                     }
                 }
             }
+            executor.complete();
+        } catch (Exception e) {
+            SystemUtils.LOG.severe("Unable to read products " + e.getMessage());
         }
+
         Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
         // no invalidate() call here, SpectrumDiagram does this
     }

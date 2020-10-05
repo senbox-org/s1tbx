@@ -26,6 +26,9 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.Range;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -63,24 +66,37 @@ public class VectorGraph extends TimeSeriesGraph {
         dataComputed = false;
     }
 
-    private void computeData() {
+    private void computeData() throws Exception {
         resetData();
+
+        final ThreadExecutor executor = new ThreadExecutor();
         for (Band band : selectedBands) {
             final int index = getTimeIndex(band);
             if (index >= 0) {
-                dataPoints[index] = processVector(band);
-                if (dataPoints[index] == band.getNoDataValue()) {
-                    dataPoints[index] = Double.NaN;
-                }
+                final ThreadRunnable runnable = new ThreadRunnable() {
+                    @Override
+                    public void process() {
+                        dataPoints[index] = processVector(band);
+                        if (dataPoints[index] == band.getNoDataValue()) {
+                            dataPoints[index] = Double.NaN;
+                        }
+                    }
+                };
+                executor.execute(runnable);
             }
         }
+        executor.complete();
         dataComputed = true;
     }
 
     @Override
     public void readValues(final ImageLayer imageLayer, final GeoPos geoPos, final int level) {
         if (!dataComputed) {
-            computeData();
+            try {
+                computeData();
+            } catch (Exception e) {
+                SystemUtils.LOG.severe("Unable to read products " + e.getMessage());
+            }
         }
         Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
         // no invalidate() call here, SpectrumDiagram does this

@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
+package org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions;
 
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.GraphData;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.FileModel;
@@ -22,14 +23,12 @@ import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
+import org.esa.snap.ui.UIUtils;
 import org.esa.snap.ui.color.ColorComboBox;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
+import javax.swing.*;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  *
@@ -38,6 +37,7 @@ public class GraphProductSetPanel extends ProductSetPanel {
 
     private final ColorComboBox colorCombo = new ColorComboBox();
     private final TimeSeriesSettingsDlg settingsDlg;
+    private final AbstractButton filterButton;
     private String title;
 
     public GraphProductSetPanel(final AppContext theAppContext,
@@ -46,26 +46,48 @@ public class GraphProductSetPanel extends ProductSetPanel {
         super(theAppContext, graphData.getTitle(), new FileTable(new FileModel(), new Dimension(500, 250)), false, true);
         this.title = graphData.getTitle();
         this.settingsDlg = settingsDlg;
+        final JPanel buttonPanel = getButtonPanel();
+
+        filterButton = DialogUtils.createButton("filterButton", "Filter bands",
+                UIUtils.loadImageIcon("icons/Filter24.gif"), null, DialogUtils.ButtonStyle.Icon);
+        filterButton.setEnabled(false);
+        filterButton.addActionListener(e -> {
+            settingsDlg.onApply();
+            TimeSeriesFilterAction action = new TimeSeriesFilterAction(settingsDlg.getToolView(), settingsDlg.getToolView().getSettings());
+            action.actionPerformed(e);
+        });
+        buttonPanel.add(filterButton);
 
         colorCombo.setSelectedColor(graphData.getColor());
-        getButtonPanel().add(colorCombo);
+        buttonPanel.add(colorCombo);
 
-        getButtonPanel().add(createRenameButton(this));
-        getButtonPanel().add(addDeleteButton ? createDeleteButton(this) : new JLabel("       "));
+        buttonPanel.add(createRenameButton(this));
+        buttonPanel.add(addDeleteButton ? createDeleteButton(this) : new JLabel("       "));
+    }
+
+    @Override
+    protected void updateComponents() {
+        super.updateComponents();
+
+        if(settingsDlg != null) {
+            final int rowCount = getFileCount();
+
+            final boolean enableButtons = (rowCount > 0);
+            if (filterButton != null)
+                filterButton.setEnabled(enableButtons);
+        }
     }
 
     private static JButton createRenameButton(final GraphProductSetPanel panel) {
         final JButton renameBtn = DialogUtils.createButton("renameBtn", "Rename", null, panel, DialogUtils.ButtonStyle.Text);
-        renameBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                final PromptDialog dlg = new PromptDialog("Rename", "Name", panel.getTitle(), PromptDialog.TYPE.TEXTFIELD);
-                dlg.show();
-                if (dlg.IsOK()) {
-                    try {
-                        panel.setTitle(dlg.getValue("Name"));
-                    } catch (Exception ex) {
-                        Dialogs.showError(ex.getMessage());
-                    }
+        renameBtn.addActionListener(e -> {
+            final PromptDialog dlg = new PromptDialog("Rename", "Name", panel.getTitle(), PromptDialog.TYPE.TEXTFIELD);
+            dlg.show();
+            if (dlg.IsOK()) {
+                try {
+                    panel.setTitle(dlg.getValue("Name"));
+                } catch (Exception ex) {
+                    Dialogs.showError(ex.getMessage());
                 }
             }
         });
@@ -74,11 +96,7 @@ public class GraphProductSetPanel extends ProductSetPanel {
 
     private JButton createDeleteButton(final GraphProductSetPanel panel) {
         final JButton deleteBtn = DialogUtils.createButton("deleteBtn", "Delete", null, panel, DialogUtils.ButtonStyle.Text);
-        deleteBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                settingsDlg.removeGraphPanel(panel);
-            }
-        });
+        deleteBtn.addActionListener(e -> settingsDlg.removeGraphPanel(panel));
         return deleteBtn;
     }
 

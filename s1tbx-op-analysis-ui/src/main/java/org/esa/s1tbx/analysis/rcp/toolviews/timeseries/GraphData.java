@@ -20,13 +20,15 @@ import org.esa.snap.engine_utilities.gpf.CommonReaders;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Graph content
  */
 public class GraphData {
 
-    private String title;
+    private final String title;
     private final File[] files;
     private final Color color;
     private final Product[] productList;
@@ -47,17 +49,17 @@ public class GraphData {
     }
 
     private static Product[] readProducts(final File[] fileList) {
-        final Product[] prodList = new Product[fileList.length];
-        int i = 0;
+        final List<Product> prodList = new ArrayList<>();
         for (File file : fileList) {
-            try {
-                prodList[i] = CommonReaders.readProduct(file);
-                ++i;
-            } catch (Exception e) {
-                e.printStackTrace();
+            if(file.exists()) {
+                try {
+                    prodList.add(CommonReaders.readProduct(file));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
-        return prodList;
+        return prodList.isEmpty() ? null : prodList.toArray(new Product[0]);
     }
 
     public String getTitle() {

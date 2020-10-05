@@ -23,6 +23,7 @@ import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.Range;
 import org.esa.snap.ui.diagram.AbstractDiagramGraph;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,9 +95,7 @@ public abstract class TimeSeriesGraph extends AbstractDiagramGraph {
     }
 
     protected final void resetData() {
-        for (int i = 0; i < dataPoints.length; ++i) {
-            dataPoints[i] = Double.NaN;
-        }
+        Arrays.fill(dataPoints, Double.NaN);
     }
 
     public final int getTimeIndex(final Band band) {

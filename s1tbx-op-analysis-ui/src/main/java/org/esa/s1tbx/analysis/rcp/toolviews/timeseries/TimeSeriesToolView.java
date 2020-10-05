@@ -16,6 +16,10 @@
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
 import com.bc.ceres.glayer.support.ImageLayer;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.GraphExportImageAction;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesExportAction;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesFilterAction;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesSettingsAction;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.graphs.VectorGraph;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.DataNode;
@@ -27,22 +31,17 @@ import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.ProductNodeEvent;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.ProductNodeListenerAdapter;
-import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.CheckListDialog;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.util.SelectionSupport;
 import org.esa.snap.rcp.windows.ToolTopComponent;
 import org.esa.snap.ui.GridBagUtils;
-import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.ui.PixelPositionListener;
 import org.esa.snap.ui.UIUtils;
-import org.esa.snap.ui.product.BandChooser;
 import org.esa.snap.ui.product.ProductSceneView;
-import org.netbeans.api.annotations.common.NullAllowed;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -51,21 +50,15 @@ import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @TopComponent.Description(
         preferredID = "TimeSeriesToolView",
@@ -96,8 +89,9 @@ import java.util.Set;
 
 public class TimeSeriesToolView extends ToolTopComponent {
 
-    private static final String SUPPRESS_MESSAGE_KEY = "plugin.spectrum.tip";
-    private static final String MSG_NO_BANDS = "Open a band and add products with settings.";
+    private static final String MSG_NO_PRODUCTS = "Add a product stack with the Settings button on the right.";
+    private static final String MSG_NO_BANDS = "Filter bands with the Filter button on the right.";
+    private static final String MSG_NO_IMAGE_VIEW = "Open a band image for viewing.";
 
     private final Map<Product, TimeSeriesDiagram> productToDiagramMap;
     private final ProductNodeListenerAdapter productNodeHandler;
@@ -114,15 +108,14 @@ public class TimeSeriesToolView extends ToolTopComponent {
     private AbstractButton exportTextButton;
     private AbstractButton exportImageButton;
 
-    private boolean tipShown;
     private ProductSceneView currentView;
     private Product currentProduct;
     private boolean isShown = false;
-    private Band[] userSelectedBands = null;
+
     private VectorGraph.TYPE vectorStatistic = VectorGraph.TYPE.AVERAGE;
     private ProductNode oldNode = null;
 
-    private TimeSeriesSettings settings = new TimeSeriesSettings();
+    private final TimeSeriesSettings settings = new TimeSeriesSettings();
 
     public TimeSeriesToolView() {
         setLayout(new BorderLayout());
@@ -132,13 +125,10 @@ public class TimeSeriesToolView extends ToolTopComponent {
 
         final SnapApp snapApp = SnapApp.getDefault();
         snapApp.getProductManager().addListener(new ProductManagerListener());
-        snapApp.getSelectionSupport(ProductNode.class).addHandler(new SelectionSupport.Handler<ProductNode>() {
-            @Override
-            public void selectionChange(@NullAllowed ProductNode oldValue, @NullAllowed ProductNode newValue) {
-                if (newValue != null && newValue != oldNode) {
+        snapApp.getSelectionSupport(ProductNode.class).addHandler((oldValue, newValue) -> {
+            if (newValue != null && newValue != oldNode) {
 
-                    oldNode = newValue;
-                }
+                oldNode = newValue;
             }
         });
 
@@ -209,7 +199,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
             }
             if (currentProduct == null) {
                 diagramCanvas.setDiagram(null);
-                diagramCanvas.setMessageText(MSG_NO_BANDS);
+                diagramCanvas.setMessageText(MSG_NO_PRODUCTS);
             } else {
                 diagramCanvas.setMessageText(null);
             }
@@ -223,7 +213,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
         boolean hasSelectedPins = hasView && currentView.getSelectedPins().length > 0;
         boolean hasPins = hasProduct && currentProduct.getPinGroup().getNodeCount() > 0;
         boolean hasDiagram = diagramCanvas.getDiagram() != null;
-        filterButton.setEnabled(hasProduct);
+        filterButton.setEnabled(settings.hasProducts());
         showForCursorButton.setEnabled(hasView);
         showForSelectedPinsButton.setEnabled(hasSelectedPins);
         showForAllPinsButton.setEnabled(hasPins);
@@ -233,6 +223,14 @@ public class TimeSeriesToolView extends ToolTopComponent {
         exportTextButton.setEnabled(hasProduct);
         exportImageButton.setEnabled(hasProduct);
 
+        if(!settings.hasProducts()) {
+            diagramCanvas.setMessageText(MSG_NO_PRODUCTS);
+        } else if(settings.getSelectedBands() == null) {
+            diagramCanvas.setMessageText(MSG_NO_BANDS);
+        } else if(!hasProduct) {
+            diagramCanvas.setMessageText(MSG_NO_IMAGE_VIEW);
+        }
+
         if (diagramCanvas.getDiagram() != null) {
             diagramCanvas.getDiagram().setDrawGrid(settings.isShowingGrid());
         }
@@ -241,7 +239,8 @@ public class TimeSeriesToolView extends ToolTopComponent {
     private void updateDiagram(final ImageLayer imageLayer, final int pixelX, final int pixelY, final int level) {
         diagramCanvas.setMessageText(null);
         TimeSeriesDiagram diagram = getDiagram();
-        if (diagram != null && userSelectedBands != null && userSelectedBands.length > 0) {
+        final String[] selectedBands = settings.getSelectedBands();
+        if (diagram != null && selectedBands != null && selectedBands.length > 0) {
             diagram.updateDiagram(imageLayer, pixelX, pixelY, level);
         } else {
             diagramCanvas.setMessageText(MSG_NO_BANDS);
@@ -265,160 +264,85 @@ public class TimeSeriesToolView extends ToolTopComponent {
             for (Product prod : products) {
                 utcList.add(prod.getStartTime());
             }
-            return new TimeSeriesTimes(utcList.toArray(new ProductData.UTC[utcList.size()]));
+            return new TimeSeriesTimes(utcList.toArray(new ProductData.UTC[0]));
         }
     }
 
-    private Band[] getSelectedBands() {
-        if (userSelectedBands == null || userSelectedBands.length == 0 || userSelectedBands[0].getProduct() == null) {
-            // create defaults
-            if (currentView != null) {
-                final RasterDataNode currentRaster = currentView.getRaster();
-                if (currentRaster != null) {
-                    final Band band = currentProduct.getBand(currentRaster.getName());
-                    if (band != null) {
-                        userSelectedBands = new Band[]{band};
-                    }
-                }
-            }
-        }
-        return userSelectedBands;
-    }
-
-    private Band[] findBandAcrossProducts(final Band userBand, final Product[] products) {
+    private Band[] findBandAcrossProducts(final String selectedBandName, final Product[] products) {
         final boolean isCoreg = StackUtils.isCoregisteredStack(currentProduct);
+        final ArrayList<Band> bands;
         if (isCoreg) {
-            final ArrayList<Band> bands = new ArrayList<>();
-            final String bandName = getCoregBandName(userBand);
+            bands = new ArrayList<>();
+            final String bandName = TimeSeriesFilterAction.getCoregBandName(selectedBandName);
             // find all bands starting with the same name
             for (Band band : currentProduct.getBands()) {
                 if (band.getName().startsWith(bandName)) {
                     bands.add(band);
                 }
             }
-            return bands.toArray(new Band[bands.size()]);
         } else {
-            final ArrayList<Band> bands = new ArrayList<>(products.length);
+            bands = new ArrayList<>(products.length);
             for (Product prod : products) {
                 // find all bands across products with same name as selected product bands
-                final Band prodBand = prod.getBand(userBand.getName());
+                final Band prodBand = prod.getBand(selectedBandName);
                 if (prodBand != null) {
                     bands.add(prodBand);
                 }
             }
-            return bands.toArray(new Band[bands.size()]);
         }
-    }
-
-    private static String getCoregBandName(final Band band) {
-        String bandName = band.getName();
-        int suffixLoc = bandName.indexOf(StackUtils.MST);
-        if (suffixLoc < 0) {
-            suffixLoc = bandName.indexOf(StackUtils.SLV);
-        }
-        if (suffixLoc < 0) {
-            suffixLoc = bandName.indexOf('_');
-        }
-        return bandName.substring(0, suffixLoc);
-    }
-
-    private static Band[] getAvailableBands(final Product[] products) {
-        final ArrayList<Band> availBands = new ArrayList<>(15);
-        final Set<String> nameSet = new HashSet<>(15);
-
-        for (Product prod : products) {
-            final Band[] bands = prod.getBands();
-            final boolean isCoreg = StackUtils.isCoregisteredStack(prod);
-
-            for (Band band : bands) {
-                String bandName = band.getName();
-                if (isCoreg) {
-                    bandName = getCoregBandName(band);
-                }
-                if (!nameSet.contains(bandName)) {
-                    availBands.add(band);
-                    nameSet.add(bandName);
-                }
-            }
-        }
-        return availBands.toArray(new Band[availBands.size()]);
+        return bands.toArray(new Band[0]);
     }
 
     public JComponent createPanel() {
 
         final AbstractButton settingsButton = DialogUtils.createButton("Settings", "Settings",
                                                                        UIUtils.loadImageIcon("icons/Properties24.gif"), null, DialogUtils.ButtonStyle.Icon);
-        settingsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                openSettingsDlg();
-            }
-        });
+        settingsButton.addActionListener(new TimeSeriesSettingsAction(this, settings));
 
         filterButton = DialogUtils.createButton("filterButton", "Filter bands",
                                                 UIUtils.loadImageIcon("icons/Filter24.gif"), null, DialogUtils.ButtonStyle.Icon);
         filterButton.setEnabled(false);
-        filterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectBands();
-            }
-        });
+        filterButton.addActionListener(new TimeSeriesFilterAction(this, settings));
 
         showForCursorButton = DialogUtils.createIconButton("showForCursorButton", "Show at cursor position",
                                                            UIUtils.loadImageIcon("icons/CursorSpectrum24.gif"), true);
-        showForCursorButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                recreateDiagram();
-            }
-        });
+        showForCursorButton.addActionListener(e -> recreateDiagram());
         showForCursorButton.setSelected(true);
 
         showForSelectedPinsButton = DialogUtils.createIconButton("showForSelectedPinsButton", "Show for selected pins",
                                                                  UIUtils.loadImageIcon("icons/SelectedPinSpectra24.gif"), true);
-        showForSelectedPinsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isShowingForAllPins()) {
-                    showForAllPinsButton.setSelected(false);
-                }
-                recreateDiagram();
+        showForSelectedPinsButton.addActionListener(e -> {
+            if (isShowingForAllPins()) {
+                showForAllPinsButton.setSelected(false);
             }
+            recreateDiagram();
         });
 
         showForAllPinsButton = DialogUtils.createIconButton("showForAllPinsButton", "Show for all pins",
                                                             UIUtils.loadImageIcon("icons/PinSpectra24.gif"),
                                                             true);
-        showForAllPinsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isShowingForSelectedPins()) {
-                    showForSelectedPinsButton.setSelected(false);
-                }
-                recreateDiagram();
+        showForAllPinsButton.addActionListener(e -> {
+            if (isShowingForSelectedPins()) {
+                showForSelectedPinsButton.setSelected(false);
             }
+            recreateDiagram();
         });
 
         showAveragePinSpectrumButton = DialogUtils.createIconButton("showAveragePinSpectrumButton", "Show average of all pins",
                                                                     UIUtils.loadImageIcon("icons/AverageSpectrum24.gif"), true);
-        showAveragePinSpectrumButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // todo - implement
-                JOptionPane.showMessageDialog(null, "Not implemented");
-            }
+        showAveragePinSpectrumButton.addActionListener(e -> {
+            // todo - implement
+            JOptionPane.showMessageDialog(null, "Not implemented");
         });
 
         showVectorAverageButton = DialogUtils.createIconButton("showVectorAverageButton", "Show averaged ROI",
                                                                UIUtils.loadImageIcon("icons/VectorDataNode24.gif"), true);
-        showVectorAverageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (showVectorAverageButton.isSelected()) {
-                    vectorStatistic = getVectorStatisticType();
-                }
-
-                recreateDiagram();
+        showVectorAverageButton.addActionListener(e -> {
+            if (showVectorAverageButton.isSelected()) {
+                vectorStatistic = getVectorStatisticType();
             }
+
+            recreateDiagram();
         });
 
         exportTextButton = DialogUtils.createIconButton("exportTextButton", "Export graph to text file.",
@@ -427,12 +351,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
 
         exportImageButton = DialogUtils.createIconButton("exportImageButton", "Export graph to image file.",
                                                          UIUtils.loadImageIcon("icons/Export24.gif"), false);
-        exportImageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                exportImage();
-            }
-        });
+        exportImageButton.addActionListener(e -> exportImage());
 
         final AbstractButton helpButton = DialogUtils.createIconButton("helpButton", "Help",
                                                                        UIUtils.loadImageIcon("icons/Help24.gif"), false);
@@ -475,7 +394,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
 
         diagramCanvas = new TimeSeriesCanvas(settings);
         diagramCanvas.setPreferredSize(new Dimension(300, 200));
-        diagramCanvas.setMessageText(MSG_NO_BANDS);
+        diagramCanvas.setMessageText(MSG_NO_PRODUCTS);
         diagramCanvas.setBackground(Color.white);
         diagramCanvas.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
@@ -523,34 +442,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
         updateUIState();
     }
 
-    private void openSettingsDlg() {
-        final TimeSeriesSettingsDlg settingsDlg = new TimeSeriesSettingsDlg(SnapApp.getDefault().getMainFrame(),
-                                                                            "Time Series Analysis Settings",
-                                                                            "help", settings, this);
-        settingsDlg.show();
-    }
-
-    private void selectBands() {
-        final List<Product> productList = new ArrayList<>();
-        for (GraphData data : settings.getGraphDataList()) {
-            productList.addAll(Arrays.asList(data.getProducts()));
-        }
-
-        final Band[] allBandNames = getAvailableBands(productList.toArray(new Product[productList.size()]));
-        Band[] selectedBands = getSelectedBands();
-        if (selectedBands == null) {
-            selectedBands = allBandNames;
-        }
-        final BandChooser bandChooser = new BandChooser(SnapApp.getDefault().getMainFrame(), "Available Bands",
-                                                        "help",
-                                                        allBandNames, selectedBands, true);
-        if (bandChooser.show() == ModalDialog.ID_OK) {
-            userSelectedBands = bandChooser.getSelectedBands();
-            recreateDiagram();
-        }
-    }
-
-    TimeSeriesDiagram getDiagram() {
+    public TimeSeriesDiagram getDiagram() {
         Debug.assertNotNull(currentProduct);
         return productToDiagramMap.get(currentProduct);
     }
@@ -585,6 +477,10 @@ public class TimeSeriesToolView extends ToolTopComponent {
         return showVectorAverageButton.isSelected();
     }
 
+    public TimeSeriesSettings getSettings() {
+        return settings;
+    }
+
     private void recreateDiagram() {
         try {
             //todo time axis from 0 to 1.0 and pass in earliest time and latest time
@@ -596,12 +492,15 @@ public class TimeSeriesToolView extends ToolTopComponent {
             if (defaultProductList == null || defaultProductList.length == 0)
                 return;
 
+            final String[] selectedBands = settings.getSelectedBands();
+            if(selectedBands == null)
+                return;
+
             final TimeSeriesDiagram diagram = new TimeSeriesDiagram(currentProduct);
-            userSelectedBands = getSelectedBands();
 
             final TimeSeriesTimes times = getProductTimes();
 
-            for (Band band : userSelectedBands) {
+            for (String band : selectedBands) {
                 if (isShowingForAllPins() || isShowingForSelectedPins()) {
                     Placemark[] pins = null;
                     if (isShowingForSelectedPins()) {
@@ -610,13 +509,15 @@ public class TimeSeriesToolView extends ToolTopComponent {
                         final ProductNodeGroup<Placemark> pinGroup = currentProduct.getPinGroup();
                         pins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
                     }
-                    for (Placemark pin : pins) {
-                        for (GraphData graphData : settings.getGraphDataList()) {
-                            if (graphData.getProducts() != null) {
-                                final Band[] bands = findBandAcrossProducts(band, graphData.getProducts());
-                                if (bands != null && bands.length > 0) {
-                                    final TimeSeriesGraph graph = diagram.addPlacemarkGraph(pin, graphData);
-                                    graph.setBands(times, bands);
+                    if(pins != null) {
+                        for (Placemark pin : pins) {
+                            for (GraphData graphData : settings.getGraphDataList()) {
+                                if (graphData.getProducts() != null) {
+                                    final Band[] bands = findBandAcrossProducts(band, graphData.getProducts());
+                                    if (bands != null && bands.length > 0) {
+                                        final TimeSeriesGraph graph = diagram.addPlacemarkGraph(pin, graphData);
+                                        graph.setBands(times, bands);
+                                    }
                                 }
                             }
                         }
@@ -656,7 +557,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
                     }
                 }
             }
-            diagram.initAxis(times, findBandAcrossProducts(userSelectedBands[0], defaultProductList));
+            diagram.initAxis(times, findBandAcrossProducts(selectedBands[0], defaultProductList));
 
             //diagram.updateDiagram(pixelX, pixelY, level);
             setDiagram(diagram);
@@ -684,25 +585,6 @@ public class TimeSeriesToolView extends ToolTopComponent {
 
     /////////////////////////////////////////////////////////////////////////
     // View change handling
-
-    private class SpectrumIFL extends InternalFrameAdapter {
-
-        @Override
-        public void internalFrameActivated(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                handleViewActivated((ProductSceneView) contentPane);
-            }
-        }
-
-        @Override
-        public void internalFrameDeactivated(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                handleViewDeactivated((ProductSceneView) contentPane);
-            }
-        }
-    }
 
     /////////////////////////////////////////////////////////////////////////
     // Pixel position change handling
@@ -820,7 +702,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
                 setDiagram(null);
                 setCurrentView(null);
                 setCurrentProduct(null);
-                userSelectedBands = null;
+                settings.setSelectedBands(null);
             }
         }
     }
