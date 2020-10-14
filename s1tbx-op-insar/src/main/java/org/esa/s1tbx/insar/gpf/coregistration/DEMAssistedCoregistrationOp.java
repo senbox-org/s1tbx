@@ -109,7 +109,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private double demNoDataValue = 0; // no data value for DEM
     private double noDataValue = 0.0;
     private GeoCoding targetGeoCoding = null;
-    private final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
+    private final HashMap<Band, Band> slaveBandToTargetBandMap = new HashMap<>(2);
     private static final double invalidIndex = -9999.0;
 
     private static final String PRODUCT_SUFFIX = "_Stack";
@@ -196,6 +196,8 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
     private static void getProductMetadata(final Product sourceProduct, final Metadata metadata) throws Exception {
 
+        metadata.product = sourceProduct;
+
         metadata.sourceImageWidth = sourceProduct.getSceneRasterWidth();
         metadata.sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
@@ -278,9 +280,12 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         final int masterBandWidth = masterBand.getRasterWidth();
         final int masterBandHeight = masterBand.getRasterHeight();
 
+        final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
+        int k = 0;
         for(Product slaveProduct : slaveProducts) {
+            k++;
             final String[] slaveBandNames = slaveProduct.getBandNames();
-            final String slvSuffix = StackUtils.SLV+'1' + StackUtils.createBandTimeStamp(slaveProduct);
+            final String slvSuffix = StackUtils.SLV + k + StackUtils.createBandTimeStamp(slaveProduct);
             for (String bandName : slaveBandNames) {
                 final Band srcBand = slaveProduct.getBand(bandName);
                 if (srcBand instanceof VirtualBand) {
@@ -301,6 +306,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 targetBand.setDescription(srcBand.getDescription());
                 targetProduct.addBand(targetBand);
                 targetBandToSlaveBandMap.put(targetBand, srcBand);
+                slaveBandToTargetBandMap.put(srcBand, targetBand);
 
                 if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
                     int idx = targetProduct.getBandIndex(targetBand.getName());
@@ -742,18 +748,20 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                                       final PixelPos[][] slavePixPos, final Metadata slvMetadata) {
 
         try {
-            final Set<Band> keySet = targetBandToSlaveBandMap.keySet();
-            final int numSlvBands = targetBandToSlaveBandMap.size();
+            final Product slaveProduct = slvMetadata.product;
+            final Band[] slaveBands = getNonVirtualBands(slaveProduct);
+            final int numSlvBands = slaveBands.length;
+
             Tile targetTile = null;
             final ProductData[] targetBuffers = new ProductData[numSlvBands];
             final ResamplingRaster[] slvResamplingRasters = new ResamplingRaster[numSlvBands];
 
             int k = 0;
-            for (Band band : keySet) {
-                targetTile = targetTileMap.get(band);
+            for (Band slvBand : slaveBands) {
+                final Band targetBand = slaveBandToTargetBandMap.get(slvBand);
+                targetTile = targetTileMap.get(targetBand);
                 targetBuffers[k] = targetTile.getDataBuffer();
 
-                final Band slvBand = targetBandToSlaveBandMap.get(band);
                 final Tile slvTile = getSourceTile(slvBand, sourceRectangle);
                 final ProductData slvBuffer = slvTile.getDataBuffer();
                 slvResamplingRasters[k] = new ResamplingRaster(slvTile, slvBuffer);
@@ -784,6 +792,16 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("performInterpolation", e);
         }
+    }
+
+    private Band[] getNonVirtualBands(final Product product) {
+        final java.util.List<Band> bandList = new ArrayList<>(product.getNumBands());
+        for (Band band : product.getBands()) {
+            if (!(band instanceof VirtualBand)) {
+                bandList.add(band);
+            }
+        }
+        return bandList.toArray(new Band[0]);
     }
 
     private void saveToTargetBand(final Resampling.Index resamplingIndex, final ResamplingRaster[] slvResamplingRasters,
@@ -876,6 +894,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     }
 
     private static class Metadata {
+        public Product product = null;
         public MetadataElement absRoot = null;
         public OrbitStateVectors orbit = null;
         public double firstLineTime = 0.0;
