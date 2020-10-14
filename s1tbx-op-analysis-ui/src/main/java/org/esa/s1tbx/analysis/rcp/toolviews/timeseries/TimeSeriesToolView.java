@@ -21,17 +21,7 @@ import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesExportA
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesFilterAction;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesSettingsAction;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.graphs.VectorGraph;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.DataNode;
-import org.esa.snap.core.datamodel.Placemark;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductManager;
-import org.esa.snap.core.datamodel.ProductNode;
-import org.esa.snap.core.datamodel.ProductNodeEvent;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.ProductNodeListenerAdapter;
-import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.CheckListDialog;
@@ -41,6 +31,7 @@ import org.esa.snap.rcp.windows.ToolTopComponent;
 import org.esa.snap.ui.GridBagUtils;
 import org.esa.snap.ui.PixelPositionListener;
 import org.esa.snap.ui.UIUtils;
+import org.esa.snap.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.snap.ui.product.ProductSceneView;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -54,11 +45,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @TopComponent.Description(
         preferredID = "TimeSeriesToolView",
@@ -112,7 +100,6 @@ public class TimeSeriesToolView extends ToolTopComponent {
     private Product currentProduct;
     private boolean isShown = false;
 
-    private VectorGraph.TYPE vectorStatistic = VectorGraph.TYPE.AVERAGE;
     private ProductNode oldNode = null;
 
     private final TimeSeriesSettings settings = new TimeSeriesSettings();
@@ -181,6 +168,10 @@ public class TimeSeriesToolView extends ToolTopComponent {
         }
     }
 
+    public Product getCurrentProduct() {
+        return currentProduct;
+    }
+
     private void setCurrentProduct(final Product product) {
         Product oldProduct = currentProduct;
         currentProduct = product;
@@ -223,27 +214,35 @@ public class TimeSeriesToolView extends ToolTopComponent {
         exportTextButton.setEnabled(hasProduct);
         exportImageButton.setEnabled(hasProduct);
 
-        if(!settings.hasProducts()) {
-            diagramCanvas.setMessageText(MSG_NO_PRODUCTS);
-        } else if(settings.getSelectedBands() == null) {
-            diagramCanvas.setMessageText(MSG_NO_BANDS);
-        } else if(!hasProduct) {
-            diagramCanvas.setMessageText(MSG_NO_IMAGE_VIEW);
-        }
+        setCanvasHelpMessage();
 
         if (diagramCanvas.getDiagram() != null) {
             diagramCanvas.getDiagram().setDrawGrid(settings.isShowingGrid());
         }
     }
 
+    private boolean setCanvasHelpMessage() {
+        if(!settings.hasProducts()) {
+            diagramCanvas.setMessageText(MSG_NO_PRODUCTS);
+            return true;
+        } else if(settings.getSelectedBands() == null) {
+            diagramCanvas.setMessageText(MSG_NO_BANDS);
+            return true;
+        } else if(currentProduct == null) {
+            diagramCanvas.setMessageText(MSG_NO_IMAGE_VIEW);
+            return true;
+        }
+        return false;
+    }
+
     private void updateDiagram(final ImageLayer imageLayer, final int pixelX, final int pixelY, final int level) {
-        diagramCanvas.setMessageText(null);
-        TimeSeriesDiagram diagram = getDiagram();
+        if(setCanvasHelpMessage()) {
+            return;
+        }
+        final TimeSeriesDiagram diagram = getDiagram();
         final String[] selectedBands = settings.getSelectedBands();
         if (diagram != null && selectedBands != null && selectedBands.length > 0) {
             diagram.updateDiagram(imageLayer, pixelX, pixelY, level);
-        } else {
-            diagramCanvas.setMessageText(MSG_NO_BANDS);
         }
     }
 
@@ -307,7 +306,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
         showForCursorButton = DialogUtils.createIconButton("showForCursorButton", "Show at cursor position",
                                                            UIUtils.loadImageIcon("icons/CursorSpectrum24.gif"), true);
         showForCursorButton.addActionListener(e -> recreateDiagram());
-        showForCursorButton.setSelected(true);
+        showForCursorButton.setSelected(false);
 
         showForSelectedPinsButton = DialogUtils.createIconButton("showForSelectedPinsButton", "Show for selected pins",
                                                                  UIUtils.loadImageIcon("icons/SelectedPinSpectra24.gif"), true);
@@ -338,10 +337,6 @@ public class TimeSeriesToolView extends ToolTopComponent {
         showVectorAverageButton = DialogUtils.createIconButton("showVectorAverageButton", "Show averaged ROI",
                                                                UIUtils.loadImageIcon("icons/VectorDataNode24.gif"), true);
         showVectorAverageButton.addActionListener(e -> {
-            if (showVectorAverageButton.isSelected()) {
-                vectorStatistic = getVectorStatisticType();
-            }
-
             recreateDiagram();
         });
 
@@ -421,22 +416,6 @@ public class TimeSeriesToolView extends ToolTopComponent {
         action.exportImage();
     }
 
-    private VectorGraph.TYPE getVectorStatisticType() {
-        final Map<String, Boolean> checkBoxMap = new HashMap<>(3);
-        checkBoxMap.put("Mean", true);
-        checkBoxMap.put("Standard Deviation", false);
-
-        final CheckListDialog dlg = new CheckListDialog("ROI Statistic", checkBoxMap, true);
-        dlg.show();
-
-        final boolean doAverage = checkBoxMap.get("Mean");
-        final boolean doStdDev = checkBoxMap.get("Standard Deviation");
-
-        if (doStdDev)
-            return VectorGraph.TYPE.STD_DEV;
-        return VectorGraph.TYPE.AVERAGE;
-    }
-
     public void refresh() {
         recreateDiagram();
         updateUIState();
@@ -500,7 +479,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
 
             final TimeSeriesTimes times = getProductTimes();
 
-            for (String band : selectedBands) {
+            for (String selectedBandName : selectedBands) {
                 if (isShowingForAllPins() || isShowingForSelectedPins()) {
                     Placemark[] pins = null;
                     if (isShowingForSelectedPins()) {
@@ -513,9 +492,12 @@ public class TimeSeriesToolView extends ToolTopComponent {
                         for (Placemark pin : pins) {
                             for (GraphData graphData : settings.getGraphDataList()) {
                                 if (graphData.getProducts() != null) {
-                                    final Band[] bands = findBandAcrossProducts(band, graphData.getProducts());
+                                    final Band[] bands = findBandAcrossProducts(selectedBandName, graphData.getProducts());
                                     if (bands != null && bands.length > 0) {
                                         final TimeSeriesGraph graph = diagram.addPlacemarkGraph(pin, graphData);
+                                        DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) graph.getStyle();
+                                        style.setOutlineColor(settings.getPinColor(pin.getName()));
+                                        style.setOutlineStroke(settings.getBandStroke(selectedBandName));
                                         graph.setBands(times, bands);
                                     }
                                 }
@@ -527,17 +509,19 @@ public class TimeSeriesToolView extends ToolTopComponent {
                 if (isShowingVectorAverage()) {
                     final ProductNodeGroup<VectorDataNode> vectorNodeGroup = currentProduct.getVectorDataGroup();
                     if (vectorNodeGroup != null) {
-                        final String[] vectorNames = vectorNodeGroup.getNodeNames();
+                        final String[] vectorNames = settings.getSelectedVectorNames();
                         for (String name : vectorNames) {
-                            if (!name.equals("pins") && !name.equals("ground_control_points")) {
-                                for (GraphData graphData : settings.getGraphDataList()) {
-                                    if (graphData.getProducts() != null) {
-                                        final Band[] bands = findBandAcrossProducts(band, graphData.getProducts());
-                                        if (bands != null && bands.length > 0) {
-                                            final TimeSeriesGraph graph = diagram.addVectorGraph(
-                                                    vectorNodeGroup.get(name), graphData, vectorStatistic);
-                                            graph.setBands(times, bands);
-                                        }
+                            for (GraphData graphData : settings.getGraphDataList()) {
+                                if (graphData.getProducts() != null) {
+                                    final Band[] bands = findBandAcrossProducts(selectedBandName, graphData.getProducts());
+                                    if (bands != null && bands.length > 0) {
+                                        final VectorDataNode vectorNode = vectorNodeGroup.get(name);
+                                        final TimeSeriesGraph graph = diagram.addVectorGraph(
+                                                vectorNode, graphData, settings.getVectorStatistic());
+                                        DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) graph.getStyle();
+                                        style.setOutlineColor(settings.getVectorColor(name));
+                                        style.setOutlineStroke(settings.getBandStroke(selectedBandName));
+                                        graph.setBands(times, bands);
                                     }
                                 }
                             }
@@ -548,10 +532,14 @@ public class TimeSeriesToolView extends ToolTopComponent {
                 if (isShowingCursor()) {
                     for (GraphData graphData : settings.getGraphDataList()) {
                         if (graphData.getProducts() != null) {
-                            final Band[] bands = findBandAcrossProducts(band, graphData.getProducts());
-                            if (bands != null && bands.length > 0) {
+                            final Band[] bandsAcrossProducts = findBandAcrossProducts(selectedBandName, graphData.getProducts());
+                            if (bandsAcrossProducts != null && bandsAcrossProducts.length > 0) {
                                 final TimeSeriesGraph graph = diagram.addCursorGraph(graphData);
-                                graph.setBands(times, bands);
+                                DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) graph.getStyle();
+                                style.setOutlineColor(Color.BLACK);
+                                BasicStroke stroke = settings.getBandStroke(selectedBandName);
+                                style.setOutlineStroke(stroke);
+                                graph.setBands(times, bandsAcrossProducts);
                             }
                         }
                     }
@@ -559,7 +547,6 @@ public class TimeSeriesToolView extends ToolTopComponent {
             }
             diagram.initAxis(times, findBandAcrossProducts(selectedBands[0], defaultProductList));
 
-            //diagram.updateDiagram(pixelX, pixelY, level);
             setDiagram(diagram);
             updateUIState();
         } catch (Exception e) {

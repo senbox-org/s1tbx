@@ -20,12 +20,11 @@ import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesSettings;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesToolView;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.ModalDialog;
-import org.esa.snap.ui.product.BandChooser;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -59,15 +58,19 @@ public class TimeSeriesFilterAction extends AbstractAction {
         if (selectedBands == null) {
             selectedBands = allBandNames;
         }
-        final BandChooser bandChooser = new BandChooser(SnapApp.getDefault().getMainFrame(), "Available Bands",
-                "help",
-                allBandNames, selectedBands, true);
+
+        final String[] allVectors = getAllVectors(products, toolView.getCurrentProduct());
+
+        final TimeSeriesFiltersDlg bandChooser = new TimeSeriesFiltersDlg(SnapApp.getDefault().getMainFrame(), "Time Series Filters",
+                "help", allBandNames, selectedBands, allVectors, settings);
         if (bandChooser.show() == ModalDialog.ID_OK) {
             final List<String> bandNames = new ArrayList<>();
             for(Band band : bandChooser.getSelectedBands()) {
                 bandNames.add(band.getName());
             }
             settings.setSelectedBands(bandNames.toArray(new String[0]));
+            settings.setSelectedVectors(bandChooser.getSelectedVectors());
+            settings.setVectorStatistic(bandChooser.getStatistic());
             toolView.refresh();
         }
     }
@@ -123,6 +126,68 @@ public class TimeSeriesFilterAction extends AbstractAction {
             }
         }
         return selectedBands.toArray(new Band[0]);
+    }
+
+    private String[] getAllPins(final Product[] products, final Product currentProduct) {
+        final List<String> allVectorNames = new ArrayList<>();
+        if(currentProduct != null) {
+            final ProductNodeGroup<VectorDataNode> vectorNodeGroup = currentProduct.getVectorDataGroup();
+            if (vectorNodeGroup != null) {
+                final String[] vectorNames = vectorNodeGroup.getNodeNames();
+                for (String name : vectorNames) {
+                    if (!name.equals("pins") && !name.equals("ground_control_points")) {
+                        allVectorNames.add(name);
+                    }
+                }
+            }
+        } else {
+            for(Product product : products) {
+                final ProductNodeGroup<VectorDataNode> vectorNodeGroup = product.getVectorDataGroup();
+                if (vectorNodeGroup != null) {
+                    final String[] vectorNames = vectorNodeGroup.getNodeNames();
+                    for (String name : vectorNames) {
+                        if (!name.equals("pins") && !name.equals("ground_control_points")) {
+                            allVectorNames.add(name);
+                        }
+                    }
+                }
+                if(!allVectorNames.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return allVectorNames.toArray(new String[0]);
+    }
+
+    private String[] getAllVectors(final Product[] products, final Product currentProduct) {
+        final List<String> allVectorNames = new ArrayList<>();
+        if(currentProduct != null) {
+            final ProductNodeGroup<VectorDataNode> vectorNodeGroup = currentProduct.getVectorDataGroup();
+            if (vectorNodeGroup != null) {
+                final String[] vectorNames = vectorNodeGroup.getNodeNames();
+                for (String name : vectorNames) {
+                    if (!name.equals("pins") && !name.equals("ground_control_points")) {
+                        allVectorNames.add(name);
+                    }
+                }
+            }
+        } else {
+            for(Product product : products) {
+                final ProductNodeGroup<VectorDataNode> vectorNodeGroup = product.getVectorDataGroup();
+                if (vectorNodeGroup != null) {
+                    final String[] vectorNames = vectorNodeGroup.getNodeNames();
+                    for (String name : vectorNames) {
+                        if (!name.equals("pins") && !name.equals("ground_control_points")) {
+                            allVectorNames.add(name);
+                        }
+                    }
+                }
+                if(!allVectorNames.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return allVectorNames.toArray(new String[0]);
     }
 
     public static String getCoregBandName(final String bandName) {

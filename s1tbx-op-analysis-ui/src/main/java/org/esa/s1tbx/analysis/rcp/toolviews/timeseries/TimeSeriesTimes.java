@@ -24,7 +24,6 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**

@@ -34,7 +34,7 @@ public class PlacemarkGraph extends TimeSeriesGraph {
     private Placemark placemark;
     private final String graphName;
 
-    public PlacemarkGraph(final Placemark placemark, String graphName) {
+    public PlacemarkGraph(final Placemark placemark, final String graphName) {
         this.placemark = placemark;
         this.graphName = graphName;
     }
@@ -64,15 +64,7 @@ public class PlacemarkGraph extends TimeSeriesGraph {
                             public void process() {
                                 final PixelPos pix = band.getGeoCoding().getPixelPos(placemark.getGeoPos(), null);
 
-                            /*final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(band);
-                            final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
-                            final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
-                            final Point2D modelPixel = i2mTransform.transform(placemark.getPixelPos(), null);
-                            final Point2D imagePixel = m2iTransform.transform(modelPixel, null);
-                            final int pixX = (int) Math.floor(imagePixel.getX());
-                            final int pixY = (int) Math.floor(imagePixel.getY());   */
-
-                                dataPoints[index] = ProductUtils.getGeophysicalSampleAsLong(band, (int) pix.getX(), (int) pix.getY(), level);
+                                dataPoints[index] = ProductUtils.getGeophysicalSampleAsDouble(band, (int) pix.getX(), (int) pix.getY(), 0);
                                 if (dataPoints[index] == band.getNoDataValue()) {
                                     dataPoints[index] = Double.NaN;
                                 }
@@ -84,7 +76,7 @@ public class PlacemarkGraph extends TimeSeriesGraph {
             }
             executor.complete();
         } catch (Exception e) {
-            SystemUtils.LOG.severe("Unable to read products " + e.getMessage());
+            SystemUtils.LOG.severe("PlacemarkGraph unable to read values " + e.getMessage());
         }
 
         Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);

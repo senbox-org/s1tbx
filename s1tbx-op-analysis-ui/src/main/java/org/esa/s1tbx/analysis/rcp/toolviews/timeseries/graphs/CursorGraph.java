@@ -22,6 +22,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.ThreadExecutor;
 import org.esa.snap.core.util.ThreadRunnable;
@@ -54,7 +55,8 @@ public class CursorGraph extends TimeSeriesGraph {
                     final ThreadRunnable runnable = new ThreadRunnable() {
                         @Override
                         public void process() {
-                            dataPoints[index] = getPixelDouble(band, (int) pix.getX(), (int) pix.getY());
+                            //dataPoints[index] = getPixelDouble(band, (int) pix.getX(), (int) pix.getY());
+                            dataPoints[index] = ProductUtils.getGeophysicalSampleAsDouble(band, (int) pix.getX(), (int) pix.getY(), 0);
 
                             if (dataPoints[index] == band.getNoDataValue()) {
                                 dataPoints[index] = Double.NaN;
@@ -66,7 +68,7 @@ public class CursorGraph extends TimeSeriesGraph {
             }
             executor.complete();
         } catch (Exception e) {
-            SystemUtils.LOG.severe("Unable to read products " + e.getMessage());
+            SystemUtils.LOG.severe("CursorGraph unable to read values " + e.getMessage());
         }
 
         Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);

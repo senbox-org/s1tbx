@@ -59,7 +59,7 @@ public class GraphProductSetPanel extends ProductSetPanel {
         buttonPanel.add(filterButton);
 
         colorCombo.setSelectedColor(graphData.getColor());
-        buttonPanel.add(colorCombo);
+        //buttonPanel.add(colorCombo);
 
         buttonPanel.add(createRenameButton(this));
         buttonPanel.add(addDeleteButton ? createDeleteButton(this) : new JLabel("       "));

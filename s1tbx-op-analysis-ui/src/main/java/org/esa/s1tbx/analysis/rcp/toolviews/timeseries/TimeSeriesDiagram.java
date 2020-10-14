@@ -40,11 +40,17 @@ public class TimeSeriesDiagram extends Diagram {
     private Product product;
     private final DateAxis dateAxis;
 
+    public static final Color BACKGROUND_COLOR = new Color(240, 240, 250);
+
     public TimeSeriesDiagram(final Product product) {
         this.product = product;
         dateAxis = new DateAxis("Band", "");
         setXAxis(dateAxis);
         setYAxis(new DiagramAxis("", "1"));
+
+        setBackgroundColor(BACKGROUND_COLOR);
+        setMinorGridColor(BACKGROUND_COLOR.brighter());
+        setMajorGridColor(BACKGROUND_COLOR.darker());
     }
 
     public TimeSeriesGraph[] getCursorGraphs() {
@@ -60,7 +66,7 @@ public class TimeSeriesDiagram extends Diagram {
         final TimeSeriesGraph graph = new CursorGraph();
         final DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) graph.getStyle();
         style.setOutlineColor(graphData.getColor());
-        style.setOutlineStroke(new BasicStroke(1.5f));
+        style.setOutlineStroke(new BasicStroke(1.0f));
         style.setFillPaint(Color.WHITE);
         addGraph(graph);
         return graph;
@@ -71,7 +77,7 @@ public class TimeSeriesDiagram extends Diagram {
         final DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) graph.getStyle();
         final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
         style.setOutlineColor(graphData.getColor());
-        style.setOutlineStroke(new BasicStroke(1.2f));
+        style.setOutlineStroke(new BasicStroke(1.5f));
         style.setFillPaint(figureStyle.getFillPaint());
         addGraph(graph);
         return graph;

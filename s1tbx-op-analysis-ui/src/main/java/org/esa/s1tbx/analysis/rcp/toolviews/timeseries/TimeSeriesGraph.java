@@ -86,14 +86,6 @@ public abstract class TimeSeriesGraph extends AbstractDiagramGraph {
         return dataPointRange.getMax();
     }
 
-    protected final boolean isSelected(final Band band) {
-        for (Band b : selectedBands) {
-            if (b == band)
-                return true;
-        }
-        return false;
-    }
-
     protected final void resetData() {
         Arrays.fill(dataPoints, Double.NaN);
     }
