@@ -129,7 +129,7 @@ public class CapellaProductReader extends SARReader {
 
         final boolean isSLC = dataDir.isSLC();
         final boolean isImaginary = destBand.getUnit().contains(Unit.IMAGINARY);
-        final double nodatavalue = destBand.getNoDataValue();
+        final float nodatavalue = (float)destBand.getNoDataValue();
         final double scaleFactor = dataDir.getScaleFactor();
         final float[] elems = (float[]) destBuffer.getElems();
         final int numElems = elems.length;
@@ -147,8 +147,10 @@ public class CapellaProductReader extends SARReader {
             }
         } else {
             for (int i = 0; i < numElems; ++i) {
-                if (elems[i] != nodatavalue) {
+                if (srcArray[i] != nodatavalue) {
                     elems[i] = (float) Math.sqrt(srcArray[i] * scaleFactor);
+                } else {
+                    elems[i] = nodatavalue;
                 }
             }
         }
