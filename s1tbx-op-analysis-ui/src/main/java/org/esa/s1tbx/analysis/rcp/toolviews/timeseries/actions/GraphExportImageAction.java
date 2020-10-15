@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
+package org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions;
 
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesDiagram;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.actions.file.export.AbstractExportImageAction;
@@ -35,8 +36,8 @@ import java.awt.image.RenderedImage;
 public class GraphExportImageAction extends AbstractExportImageAction {
 
     private final static String[][] SCENE_IMAGE_FORMAT_DESCRIPTIONS = {
-            BMP_FORMAT_DESCRIPTION,
             PNG_FORMAT_DESCRIPTION,
+            BMP_FORMAT_DESCRIPTION,
             JPEG_FORMAT_DESCRIPTION,
             TIFF_FORMAT_DESCRIPTION,
             GEOTIFF_FORMAT_DESCRIPTION,
@@ -44,7 +45,7 @@ public class GraphExportImageAction extends AbstractExportImageAction {
     private static final String HELP_ID = "exportImageFile";
 
     private final TimeSeriesDiagram diagram;
-    private SnapFileFilter[] sceneImageFileFilters;
+    private final SnapFileFilter[] sceneImageFileFilters;
 
     public GraphExportImageAction(final TimeSeriesDiagram diagram) {
         super("Export Time Series Image", HELP_ID);

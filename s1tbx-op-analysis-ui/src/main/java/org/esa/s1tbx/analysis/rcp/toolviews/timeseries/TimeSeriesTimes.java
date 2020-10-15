@@ -24,7 +24,6 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -114,15 +113,12 @@ public class TimeSeriesTimes {
         final List<ProductData.UTC> timesList = new ArrayList<>(100);
         Collections.addAll(timesList, times);
 
-        java.util.Collections.sort(timesList, new Comparator<ProductData.UTC>() {
-            @Override
-            public int compare(ProductData.UTC t1, ProductData.UTC t2) {
-                if (t1 == null || t2 == null)
-                    return 0;
-                return t1.getAsDate().compareTo(t2.getAsDate());
-            }
+        timesList.sort((t1, t2) -> {
+            if (t1 == null || t2 == null)
+                return 0;
+            return t1.getAsDate().compareTo(t2.getAsDate());
         });
 
-        return timesList.toArray(new ProductData.UTC[timesList.size()]);
+        return timesList.toArray(new ProductData.UTC[0]);
     }
 }

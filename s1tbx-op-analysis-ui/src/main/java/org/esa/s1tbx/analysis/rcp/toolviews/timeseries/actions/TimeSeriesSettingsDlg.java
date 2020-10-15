@@ -13,16 +13,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
+package org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions;
 
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.GraphData;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesSettings;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesToolView;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.ModelessDialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class TimeSeriesSettingsDlg extends ModelessDialog {
     private final List<GraphProductSetPanel> graphList = new ArrayList<>(2);
 
     private final TimeSeriesToolView view;
-    final TimeSeriesSettings settings;
+    private final TimeSeriesSettings settings;
 
     public TimeSeriesSettingsDlg(final Window parent, final String title, final String helpID,
                                  final TimeSeriesSettings settings, final TimeSeriesToolView view) {
@@ -71,20 +72,18 @@ public class TimeSeriesSettingsDlg extends ModelessDialog {
 
         final JButton addGraphBtn = DialogUtils.createButton("addGraphBtn", "Add Graph", null, content, DialogUtils.ButtonStyle.Text);
         final TimeSeriesSettingsDlg settingsDlg = this;
-        addGraphBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                final int cnt = graphList.size() + 1;
-                final GraphProductSetPanel productListPanel = new GraphProductSetPanel(SnapApp.getDefault().getAppContext(),
-                                                                                       settingsDlg, new GraphData("Graph " + cnt), true);
-                graphList.add(productListPanel);
-                graphListPanel.add(productListPanel, glGbc);
+        addGraphBtn.addActionListener(e -> {
+            final int cnt = graphList.size() + 1;
+            final GraphProductSetPanel productListPanel = new GraphProductSetPanel(SnapApp.getDefault().getAppContext(),
+                                                                                   settingsDlg, new GraphData("Graph " + cnt), true);
+            graphList.add(productListPanel);
+            graphListPanel.add(productListPanel, glGbc);
 
-                glGbc.gridy++;
-                graphListPanel.revalidate();
-            }
+            glGbc.gridy++;
+            graphListPanel.revalidate();
         });
 
-        optionsPanel.add(addGraphBtn);
+        //optionsPanel.add(addGraphBtn);
         optionsPanel.add(showGridCB);
         optionsPanel.add(showLegendCB);
 
@@ -99,6 +98,10 @@ public class TimeSeriesSettingsDlg extends ModelessDialog {
         }
 
         setContent(content);
+    }
+
+    public TimeSeriesToolView getToolView() {
+        return view;
     }
 
     public void removeGraphPanel(final GraphProductSetPanel productListPanel) {

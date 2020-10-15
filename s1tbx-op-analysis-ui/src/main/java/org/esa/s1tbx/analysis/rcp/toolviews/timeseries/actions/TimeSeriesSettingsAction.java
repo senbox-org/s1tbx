@@ -13,42 +13,31 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
+package org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions;
 
-import org.esa.snap.core.util.io.SnapFileFilter;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesSettings;
+import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesToolView;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.runtime.Config;
-import org.esa.snap.ui.diagram.DiagramGraph;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-class TimeSeriesExportAction extends AbstractAction {
+public class TimeSeriesSettingsAction extends AbstractAction {
 
     private final TimeSeriesToolView toolView;
+    private final TimeSeriesSettings settings;
 
-    public TimeSeriesExportAction(final TimeSeriesToolView toolView) {
+    public TimeSeriesSettingsAction(final TimeSeriesToolView toolView, final TimeSeriesSettings settings) {
         super("exportTimeSeries");
         this.toolView = toolView;
+        this.settings = settings;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        export();
-    }
-
-    private void export() {
-        final TimeSeriesDiagram diagram = toolView.getDiagram();
-        if (diagram == null) {
-            return;
-        }
-
-        final DiagramGraph[] graphs = diagram.getGraphs();
-
-        DiagramGraphIO io = new DiagramGraphIO();
-        io.writeGraphs(SnapApp.getDefault().getMainFrame(),
-                                   "Export Pin",
-                                   new SnapFileFilter[]{DiagramGraphIO.CSV_FILE_FILTER},
-                                   Config.instance().preferences(), graphs);
+        final TimeSeriesSettingsDlg settingsDlg = new TimeSeriesSettingsDlg(SnapApp.getDefault().getMainFrame(),
+                "Time Series Analysis Settings",
+                "help", settings, toolView);
+        settingsDlg.show();
     }
 }
