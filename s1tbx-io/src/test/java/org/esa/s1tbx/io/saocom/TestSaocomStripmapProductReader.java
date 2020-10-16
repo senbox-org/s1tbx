@@ -80,7 +80,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_GEC_SP_MetadataFile2.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV"});
+        validateBands(prod, new String[] {"Sigma0_VV"});
     }
 
     @Test
@@ -88,7 +88,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_GEC_SP_Folder.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV"});
+        validateBands(prod, new String[] {"Sigma0_VV"});
     }
 
     @Test
@@ -96,7 +96,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_GEC_DP_MetadataFile.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV"});
+        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV"});
     }
 
     @Test
@@ -104,7 +104,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_GEC_QP_MetadataFile.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
+        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
@@ -112,7 +112,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_GTC_QP_MetadataFile.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
+        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
@@ -120,7 +120,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_DI_SP_MetadataFile.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV"});
+        validateBands(prod, new String[] {"Sigma0_VV"});
     }
 
     @Test
@@ -128,7 +128,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_DI_DP_MetadataFile.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV"});
+        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV"});
     }
 
     @Test
@@ -136,7 +136,7 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
         Product prod = testReader(SM_DI_QP_MetadataFile.toPath());
         validateProduct(prod);
         validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH","Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
+        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
