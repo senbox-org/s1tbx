@@ -23,6 +23,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.measure.Unit;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -58,7 +59,7 @@ public class CRSGeoCodingHandler {
         double pixelSizeX = pixelSpacingInMeter;
         double pixelSizeY = pixelSpacingInMeter;
         if (targetCRS.getName().getCode().equals("WGS84(DD)") ||
-                targetCRS.getCoordinateSystem().getAxis(0).getUnit().getSymbol().equals("°")) {
+                isDegree(targetCRS.getCoordinateSystem().getAxis(0).getUnit())) {
             pixelSizeX = pixelSpacingInDegree;
             pixelSizeY = pixelSpacingInDegree;
         }
@@ -66,12 +67,7 @@ public class CRSGeoCodingHandler {
         final Rectangle2D bounds = new Rectangle2D.Double();
         double lonMin = srcImageBoundary.lonMin;
         double lonMax = srcImageBoundary.lonMax;
-        /*
-        if(lonMin > 180)
-            lonMin -= 360;
-        if(lonMax > 180)
-            lonMax -= 360;
-        */
+
         bounds.setFrameFromDiagonal(lonMin, srcImageBoundary.latMin, lonMax, srcImageBoundary.latMax);
         final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
         final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true, 200);
@@ -113,7 +109,7 @@ public class CRSGeoCodingHandler {
         double pixelSizeX = pixelSpacingInMeter;
         double pixelSizeY = pixelSpacingInMeter;
         if (targetCRS.getName().getCode().equals("WGS84(DD)") ||
-                targetCRS.getCoordinateSystem().getAxis(0).getUnit().getSymbol().equals("°")) {
+                isDegree(targetCRS.getCoordinateSystem().getAxis(0).getUnit())) {
             pixelSizeX = pixelSpacingInDegree;
             pixelSizeY = pixelSpacingInDegree;
         }
@@ -121,12 +117,7 @@ public class CRSGeoCodingHandler {
         final Rectangle2D bounds = new Rectangle2D.Double();
         double lonMin = srcImageBoundary.lonMin;
         double lonMax = srcImageBoundary.lonMax;
-        /*
-        if(lonMin > 180)
-            lonMin -= 360;
-        if(lonMax > 180)
-            lonMax -= 360;
-        */
+
         bounds.setFrameFromDiagonal(lonMin, srcImageBoundary.latMin, lonMax, srcImageBoundary.latMax);
         final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
         final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true, 200);
@@ -151,6 +142,15 @@ public class CRSGeoCodingHandler {
                 easting,
                 northing,
                 pixelSizeX, pixelSizeY);
+    }
+
+    public static boolean isDegree(final Unit unit) {
+        String symbol = unit.getSymbol();
+        if(symbol != null) {
+            return symbol.equals("°");
+        }
+        String str = unit.toString();
+        return str.equals("°");
     }
 
     public static CoordinateReferenceSystem getCRS(final Product sourceProduct, String crs) throws Exception {
