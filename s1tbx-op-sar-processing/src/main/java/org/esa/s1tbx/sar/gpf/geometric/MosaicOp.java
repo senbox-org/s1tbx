@@ -222,7 +222,7 @@ public class MosaicOp extends Operator {
         double pixelSizeX = pixelSize;
         double pixelSizeY = pixelSize;
         if (targetCRS.getName().getCode().equals("WGS84(DD)") ||
-                targetCRS.getCoordinateSystem().getAxis(0).getUnit().getSymbol().equals("°")) {
+                CRSGeoCodingHandler.isDegree(targetCRS.getCoordinateSystem().getAxis(0).getUnit())) {
             pixelSizeX = pixelSpacingInDegree;
             pixelSizeY = pixelSpacingInDegree;
         }
