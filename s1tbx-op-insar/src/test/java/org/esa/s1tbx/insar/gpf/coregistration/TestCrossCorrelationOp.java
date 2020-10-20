@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -42,10 +43,14 @@ public class TestCrossCorrelationOp {
     @Test
     public void testOperator() throws Exception {
 
-        final Product product = createTestMasterProduct(200, 200);
+        final int sourceImageWidth = 200;
+        final int sourceImageHeight = 200;
+        final float xShift = 0.5f;
+        final float yShift = -0.5f;
+        final Product product = createTestMasterProduct(sourceImageWidth, sourceImageHeight, xShift, yShift);
 
         final ProductNodeGroup<Placemark> masterGcpGroup = GCPManager.instance().getGcpGroup(product.getBandAt(0));
-        assertTrue(masterGcpGroup.getNodeCount() == 1);
+        assertTrue(masterGcpGroup.getNodeCount() == 196);
 
         final CrossCorrelationOp op = (CrossCorrelationOp) spi.createOperator();
         assertNotNull(op);
@@ -65,30 +70,36 @@ public class TestCrossCorrelationOp {
         band.readPixels(0, 0, 40, 40, floatValues, ProgressMonitor.NULL);
 
         final ProductNodeGroup<Placemark> targetGcpGroup = GCPManager.instance().getGcpGroup(targetProduct.getBandAt(1));
-
+        for (int i = 0; i < targetGcpGroup.getNodeCount(); ++i) {
+            final String gcpName = targetGcpGroup.get(i).getName();
+            final PixelPos slvPos = targetGcpGroup.get(i).getPixelPos();
+            final PixelPos mstPos = masterGcpGroup.get(gcpName).getPixelPos();
+            assertTrue(mstPos.x == slvPos.x + xShift);
+            assertTrue(mstPos.y == slvPos.y + yShift);
+        }
     }
 
-    private static Product createTestMasterProduct(int w, int h) {
+    private static Product createTestMasterProduct(final int w, final int h, float xShift, float yShift) {
 
         final Product product = new Product("p", "ASA_IMP_1P", w, h);
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 1);
 
-        // create a band: sinc function centre is at (19, 19)
-        final Band band = product.addBand("amplitude_mst", ProductData.TYPE_FLOAT32);
+        // create a band with random numbers between 0.0 and 1.0
+        final Band band = product.addBand("amplitude_VV_mst", ProductData.TYPE_FLOAT32);
         band.setUnit(Unit.AMPLITUDE);
         final float[] floatValues = new float[w * h];
         int i;
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 i = y * w + x;
-                floatValues[i] = sinc((float) (x - w / 2 + 1) / 4.0f) * sinc((float) (y - h / 2 + 1) / 4.0f);
+                floatValues[i] = (float)Math.random();
             }
         }
         band.setData(ProductData.createInstance(floatValues));
 
-        final Band slvBand = createTestSlaveBand(w, h);
+        final Band slvBand = createTestSlaveBand(w, h, floatValues, xShift, yShift);
         product.addBand(slvBand);
 
         // create lat/lon tie point grids
@@ -111,31 +122,54 @@ public class TestCrossCorrelationOp {
 
         // create GCP
         final ProductNodeGroup<Placemark> masterGcpGroup = GCPManager.instance().getGcpGroup(band);
-        final Placemark pin1 = Placemark.createPointPlacemark(
-                GcpDescriptor.getInstance(),
-                "gcp_1",
-                "GCP 1",
-                "",
-                new PixelPos(19.0f, 19.0f),
-                new GeoPos(lat[w * h / 2], lon[w * h / 2]),
-                product.getSceneGeoCoding());
-
-        masterGcpGroup.add(pin1);
+        addGCPGrid(w, h, 200, masterGcpGroup, product.getSceneGeoCoding());
 
         return product;
     }
 
-    private static Band createTestSlaveBand(int w, int h) {
+    private static Band createTestSlaveBand(
+            final int w, final int h, final float[] mstValues, final float xShift, final float yShift) {
 
-        // create a band: sinc function centre is at (16, 21)
-        final Band band = new Band("amplitude_slv", ProductData.TYPE_FLOAT32, w, h);
+        final Band band = new Band("amplitude_VV_slv", ProductData.TYPE_FLOAT32, w, h);
         band.setUnit(Unit.AMPLITUDE);
         float[] floatValues = new float[w * h];
-        int i;
+        int k = 0;
         for (int y = 0; y < h; y++) {
+            float sy = y + yShift;
+            int sy0, sy1;
+            if (sy < 0.0f) {
+                sy0 = 0;
+                sy1 = 1;
+            } else if (sy >= h - 1) {
+                sy0 = h - 2;
+                sy1 = h - 1;
+            } else {
+                sy0 = (int)sy;
+                sy1 = sy0 + 1;
+            }
+            final float wy = sy - sy0;
+
             for (int x = 0; x < w; x++) {
-                i = y * w + x;
-                floatValues[i] = sinc((float) (x - w / 2 + 4) / 4.0f) * sinc((float) (y - h / 2 - 1) / 4.0f);
+                float sx = x + xShift;
+                int sx0, sx1;
+                if (sx < 0.0f) {
+                    sx0 = 0;
+                    sx1 = 1;
+                } else if (sx >= w - 1) {
+                    sx0 = w - 2;
+                    sx1 = w - 1;
+                } else {
+                    sx0 = (int)sx;
+                    sx1 = sx0 + 1;
+                }
+                final float wx = sx - sx0;
+
+                double m00, m01, m10, m11;
+                m00 = mstValues[sy0*w + sx0];
+                m01 = mstValues[sy0*w + sx1];
+                m10 = mstValues[sy1*w + sx0];
+                m11 = mstValues[sy1*w + sx1];
+                floatValues[k++] = (float)MathUtils.interpolate2D(wy, wx, m00, m10, m01, m11);
             }
         }
         band.setData(ProductData.createInstance(floatValues));
@@ -149,6 +183,37 @@ public class TestCrossCorrelationOp {
             return 0.0f;
         } else {
             return (float) (FastMath.sin(x * Constants.PI) / (x * Constants.PI));
+        }
+    }
+
+    private static void addGCPGrid(final int width, final int height, final int numPins,
+                                   final ProductNodeGroup<Placemark> group,
+                                   final GeoCoding targetGeoCoding) {
+
+        final double ratio = width / (double) height;
+        final double n = Math.sqrt(numPins / ratio);
+        final double m = ratio * n;
+        final double spacingX = width / m;
+        final double spacingY = height / n;
+        final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
+
+        group.removeAll();
+        int pinNumber = group.getNodeCount() + 1;
+
+        for (double y = spacingY / 2f; y < height; y += spacingY) {
+
+            for (double x = spacingX / 2f; x < width; x += spacingX) {
+
+                final String name = PlacemarkNameFactory.createName(gcpDescriptor, pinNumber);
+                final String label = PlacemarkNameFactory.createLabel(gcpDescriptor, pinNumber, true);
+
+                final Placemark newPin = Placemark.createPointPlacemark(gcpDescriptor,
+                        name, label, "",
+                        new PixelPos((int) x, (int) y), null,
+                        targetGeoCoding);
+                group.add(newPin);
+                ++pinNumber;
+            }
         }
     }
 }
