@@ -22,6 +22,10 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.Range;
 
@@ -40,17 +44,33 @@ public class CursorGraph extends TimeSeriesGraph {
     @Override
     public void readValues(final ImageLayer imageLayer, final GeoPos geoPos, final int level) {
         resetData();
-        for (Band band : selectedBands) {
-            final int index = getTimeIndex(band);
-            if (index >= 0) {
-                final PixelPos pix = band.getGeoCoding().getPixelPos(geoPos, null);
-                dataPoints[index] = getPixelDouble(band, (int) pix.getX(), (int) pix.getY());
 
-                if (dataPoints[index] == band.getNoDataValue()) {
-                    dataPoints[index] = Double.NaN;
+        try {
+            final ThreadExecutor executor = new ThreadExecutor();
+            for (Band band : selectedBands) {
+                final int index = getTimeIndex(band);
+                if (index >= 0) {
+                    final PixelPos pix = band.getGeoCoding().getPixelPos(geoPos, null);
+
+                    final ThreadRunnable runnable = new ThreadRunnable() {
+                        @Override
+                        public void process() {
+                            //dataPoints[index] = getPixelDouble(band, (int) pix.getX(), (int) pix.getY());
+                            dataPoints[index] = ProductUtils.getGeophysicalSampleAsDouble(band, (int) pix.getX(), (int) pix.getY(), 0);
+
+                            if (dataPoints[index] == band.getNoDataValue()) {
+                                dataPoints[index] = Double.NaN;
+                            }
+                        }
+                    };
+                    executor.execute(runnable);
                 }
             }
+            executor.complete();
+        } catch (Exception e) {
+            SystemUtils.LOG.severe("CursorGraph unable to read values " + e.getMessage());
         }
+
         Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
         // no invalidate() call here, SpectrumDiagram does this
     }

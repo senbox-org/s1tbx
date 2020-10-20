@@ -203,6 +203,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
+        absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
 
         final MetadataElement imageAttributes = features.getElement("imageAttributes");
         final MetadataElement bands = imageAttributes.getElement("bands");
@@ -518,7 +519,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     }
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
-                        bandName = "Amplitude" + '_' + suffix;
+                        bandName = "Sigma0" + '_' + suffix;
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
@@ -527,7 +528,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
-                        SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
+//                        SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
                     }
                 }
             }

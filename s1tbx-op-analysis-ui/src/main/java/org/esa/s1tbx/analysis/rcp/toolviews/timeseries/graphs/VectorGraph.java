@@ -25,10 +25,15 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.Range;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.PlanarImage;
 import java.awt.image.Raster;
@@ -63,102 +68,123 @@ public class VectorGraph extends TimeSeriesGraph {
         dataComputed = false;
     }
 
-    private void computeData() {
+    private void computeData() throws Exception {
         resetData();
+
+        final ThreadExecutor executor = new ThreadExecutor();
         for (Band band : selectedBands) {
             final int index = getTimeIndex(band);
             if (index >= 0) {
-                dataPoints[index] = processVector(band);
-                if (dataPoints[index] == band.getNoDataValue()) {
-                    dataPoints[index] = Double.NaN;
-                }
+                final ThreadRunnable runnable = new ThreadRunnable() {
+                    @Override
+                    public void process() {
+                        dataPoints[index] = processVector(band);
+                        if (dataPoints[index] == band.getNoDataValue()) {
+                            dataPoints[index] = Double.NaN;
+                        }
+                    }
+                };
+                executor.execute(runnable);
             }
         }
+        executor.complete();
         dataComputed = true;
     }
 
     @Override
     public void readValues(final ImageLayer imageLayer, final GeoPos geoPos, final int level) {
         if (!dataComputed) {
-            computeData();
+            try {
+                computeData();
+            } catch (Exception e) {
+                SystemUtils.LOG.severe("VectorGraph unable to read values " + e.getMessage());
+            }
         }
         Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
         // no invalidate() call here, SpectrumDiagram does this
     }
 
     private double processVector(final Band band) {
-        final GeoCoding bandGC = band.getGeoCoding();
-        final ReferencedEnvelope env = vectorNode.getEnvelope();
-        final String envCode = env.getCoordinateReferenceSystem().getName().getCode();
+        try {
+            final GeoCoding bandGC = band.getGeoCoding();
+            final ReferencedEnvelope env = vectorNode.getEnvelope();
+            final CoordinateReferenceSystem crs = env.getCoordinateReferenceSystem();
+            if(crs == null) {
+                return band.getNoDataValue();
+            }
+            final String envCode = crs.getName().getCode();
 
-        final PixelPos topLeft, bottomRight;
-        if (envCode.startsWith("Image CS based on")) {
-            topLeft = new PixelPos((float) env.getMinX(), (float) env.getMinY());
-            bottomRight = new PixelPos((float) env.getMaxX(), (float) env.getMaxY());
-        } else {
-            final GeoPos geo1 = new GeoPos((float) env.getMinY(), (float) env.getMinX());
-            final GeoPos geo2 = new GeoPos((float) env.getMaxY(), (float) env.getMaxX());
+            final PixelPos topLeft, bottomRight;
+            if (envCode.startsWith("Image CS based on")) {
+                topLeft = new PixelPos((float) env.getMinX(), (float) env.getMinY());
+                bottomRight = new PixelPos((float) env.getMaxX(), (float) env.getMaxY());
+            } else {
+                final GeoPos geo1 = new GeoPos((float) env.getMinY(), (float) env.getMinX());
+                final GeoPos geo2 = new GeoPos((float) env.getMaxY(), (float) env.getMaxX());
 
-            topLeft = bandGC.getPixelPos(geo1, null);
-            bottomRight = bandGC.getPixelPos(geo2, null);
-        }
+                topLeft = bandGC.getPixelPos(geo1, null);
+                bottomRight = bandGC.getPixelPos(geo2, null);
+            }
 
-        final int minX = (int) Math.min(topLeft.getX(), bottomRight.getX());
-        final int maxX = (int) Math.max(topLeft.getX(), bottomRight.getX());
-        final int minY = (int) Math.min(topLeft.getY(), bottomRight.getY());
-        final int maxY = (int) Math.max(topLeft.getY(), bottomRight.getY());
+            final int minX = (int) Math.min(topLeft.getX(), bottomRight.getX());
+            final int maxX = (int) Math.max(topLeft.getX(), bottomRight.getX());
+            final int minY = (int) Math.min(topLeft.getY(), bottomRight.getY());
+            final int maxY = (int) Math.max(topLeft.getY(), bottomRight.getY());
 
-        final double noDataValue = band.getNoDataValue();
-        final PlanarImage image = ImageManager.getInstance().getSourceImage(band, 0);
+            final double noDataValue = band.getNoDataValue();
+            final PlanarImage image = ImageManager.getInstance().getSourceImage(band, 0);
 
-        boolean isStdDev = false;
-        double[] samples = null;
-        if (type == TYPE.STD_DEV) {
-            isStdDev = true;
-            samples = new double[Math.max(1, (maxX + 1 - minX) * (maxY + 1 - minY))];
-        }
+            boolean isStdDev = false;
+            double[] samples = null;
+            if (type == TYPE.STD_DEV) {
+                isStdDev = true;
+                samples = new double[Math.max(1, (maxX + 1 - minX) * (maxY + 1 - minY))];
+            }
 
-        double sum = 0;
-        int cnt = 0;
-        for (int x = minX; x <= maxX; ++x) {
-            final int tileX = image.XToTileX(x);
-            for (int y = minY; y <= maxY; ++y) {
-                final int tileY = image.YToTileY(y);
-                final Raster data = image.getTile(tileX, tileY);
-                if (data == null) {
-                    continue;
-                }
-
-                final double sample;
-                if (band.getDataType() == ProductData.TYPE_INT8) {
-                    sample = (byte) data.getSample(x, y, 0);
-                } else if (band.getDataType() == ProductData.TYPE_UINT32) {
-                    sample = data.getSample(x, y, 0) & 0xFFFFFFFFL;
-                } else {
-                    sample = data.getSampleDouble(x, y, 0);
-                }
-
-                if (!Double.isNaN(sample) && sample != noDataValue) {
-                    sum += sample;
-                    if (isStdDev) {
-                        samples[cnt] = sample;
+            double sum = 0;
+            int cnt = 0;
+            for (int x = minX; x <= maxX; ++x) {
+                final int tileX = image.XToTileX(x);
+                for (int y = minY; y <= maxY; ++y) {
+                    final int tileY = image.YToTileY(y);
+                    final Raster data = image.getTile(tileX, tileY);
+                    if (data == null) {
+                        continue;
                     }
-                    ++cnt;
+
+                    final double sample;
+                    if (band.getDataType() == ProductData.TYPE_INT8) {
+                        sample = (byte) data.getSample(x, y, 0);
+                    } else if (band.getDataType() == ProductData.TYPE_UINT32) {
+                        sample = data.getSample(x, y, 0) & 0xFFFFFFFFL;
+                    } else {
+                        sample = data.getSampleDouble(x, y, 0);
+                    }
+
+                    if (!Double.isNaN(sample) && sample != noDataValue) {
+                        sum += sample;
+                        if (isStdDev) {
+                            samples[cnt] = sample;
+                        }
+                        ++cnt;
+                    }
                 }
             }
-        }
 
-        final double mean = sum / (long) cnt;
+            final double mean = sum / (long) cnt;
 
-        if (isStdDev) {
-            double sqrSum = 0.0;
-            for (double sample : samples) {
-                double delta = sample - mean;
-                sqrSum += delta * delta;
+            if (isStdDev) {
+                double sqrSum = 0.0;
+                for (double sample : samples) {
+                    double delta = sample - mean;
+                    sqrSum += delta * delta;
+                }
+                return Math.sqrt(sqrSum / (double) cnt);
             }
-            return Math.sqrt(sqrSum / (double) cnt);
+            return mean;
+        } catch (Exception e) {
+            throw e;
         }
-        return mean;
     }
 
     @Override

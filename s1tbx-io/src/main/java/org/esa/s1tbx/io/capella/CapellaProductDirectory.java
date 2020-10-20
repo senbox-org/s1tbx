@@ -51,7 +51,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final static Double NoDataValue = 65535.0;
 
     public CapellaProductDirectory(final File inputFile) {
         super(inputFile);
@@ -83,6 +82,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, ReaderUtils.getTime(productMetadata, "processing_time", standardDateFormat));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, collect.getAttributeString("mode"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, productMetadata.getAttributeString("software_version"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, "--");
 
         final ProductData.UTC startTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
@@ -99,8 +99,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         height = image.getAttributeInt("rows");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("pixel_spacing_row"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("range_resolution"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("azimuth_resolution"));
 
@@ -110,6 +108,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
         final String radiometry = image.getAttributeString("radiometry");
         scaleFactor = image.getAttributeDouble("scale_factor");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor, scaleFactor);
         if (radiometry.equals("sigma_nought")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 1);
         }
@@ -125,6 +124,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         final String transmit_polarization = radar.getAttributeString("transmit_polarization");
         final String receive_polarization = radar.getAttributeString("receive_polarization");
         pol = (transmit_polarization + receive_polarization).toUpperCase();
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar, pol);
 
         final MetadataElement state = collect.getElement("state");
         addOrbitStateVectors(absRoot, state.getElement("state_vectors"));
@@ -178,8 +178,23 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         }
     }
 
+    private static String getProcessorVersion(final MetadataElement absRoot) {
+        String processingVersion = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+        if(processingVersion != null) {
+            processingVersion =  processingVersion.replace("v","");
+        }
+        return processingVersion;
+    }
+
     @Override
     protected void addBands(final Product product) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+
+        double NoDataValue = 0;
+        if(!isSLC() && "1.6.20".compareToIgnoreCase(getProcessorVersion(absRoot)) > 0) {
+            NoDataValue = bandProduct.getBandAt(0).getSampleFloat(0,0);
+        }
 
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();

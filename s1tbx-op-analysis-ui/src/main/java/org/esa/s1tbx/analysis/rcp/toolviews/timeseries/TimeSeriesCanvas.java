@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.ui.diagram.DiagramCanvas;
 
 import java.awt.*;
@@ -49,19 +48,34 @@ public class TimeSeriesCanvas extends DiagramCanvas {
     private void drawLegend(final Graphics2D g2d) {
         final Rectangle graphArea = getDiagram().getGraphArea();
         int x0 = graphArea.x + 10, y0 = 20;
-        g2d.setStroke(new BasicStroke(2.0f));
-        final java.util.List<GraphData> graphDataList = settings.getGraphDataList();
-        for (GraphData graphData : graphDataList) {
-            if (graphData.getProducts() != null) {
-                final Rectangle2D rect = getTextBox(g2d, graphData.getTitle(), x0, y0);
-                drawTextBox(g2d, rect, graphData.getTitle(), x0, y0, graphData.getColor());
-                x0 = (int) rect.getMaxX() + 10;
-                if (x0 > getWidth() - 50) {
-                    x0 = graphArea.x + 10;
-                    y0 += 20;
-                }
+
+        final String[] selectedBands = settings.getSelectedBands();
+        for (String bandName : selectedBands) {
+            final Rectangle2D rect = getTextBox(g2d, bandName, x0, y0);
+            drawTextBox(g2d, rect, bandName, x0, y0, Color.BLACK, settings.getBandStroke(bandName));
+            x0 = (int) rect.getMaxX() + 10;
+            if (x0 > getWidth() - 50) {
+                x0 = graphArea.x + 10;
+                y0 += 20;
             }
         }
+
+        x0 = graphArea.x + 10;
+        y0 = 40;
+
+        final String[] selectedVectors = settings.getSelectedVectorNames();
+        final BasicStroke solid = new BasicStroke(2);
+        for (String vectorName : selectedVectors) {
+            final Rectangle2D rect = getTextBox(g2d, vectorName, x0, y0);
+            drawTextBox(g2d, rect, vectorName, x0, y0, settings.getVectorColor(vectorName), solid);
+            x0 = (int) rect.getMaxX() + 10;
+            if (x0 > getWidth() - 50) {
+                x0 = graphArea.x + 10;
+                y0 += 20;
+            }
+        }
+
+        g2d.setStroke(settings.solidStroke);
     }
 
     private Rectangle2D getTextBox(final Graphics2D g2d, final String text, final int x0, final int y0) {
@@ -87,48 +101,12 @@ public class TimeSeriesCanvas extends DiagramCanvas {
         return r;
     }
 
-    private static void drawTextBox(final Graphics2D g2d, final Rectangle2D r,
-                                    final String text, final int x0, final int y0, final Color color) {
+    private static void drawTextBox(final Graphics2D g2d, final Rectangle2D r, final String text,
+                                    final int x0, final int y0, final Color color, final BasicStroke stroke) {
         g2d.setColor(color);
+        g2d.setStroke(stroke);
         g2d.drawLine((int) r.getMinX(), (int) r.getMaxY(), (int) r.getMaxX(), (int) r.getMaxY());
         g2d.setColor(Color.black);
         g2d.drawString(text, x0, y0);
-    }
-
-    public boolean contains(int x, int y) {
-        final TimeSeriesDiagram diagram = (TimeSeriesDiagram) getDiagram();
-        String text = "";
-      /*  if(diagram != null) {
-            final Rectangle graphArea = diagram.getGraphArea();
-            if (graphArea != null && y > graphArea.height) {
-                final int numTicks = diagram.getXAxis().getNumMajorTicks();
-                final double dist = (graphArea.width-graphArea.x) / numTicks;
-                final int index = (int)((x - graphArea.x) / dist);
-                final String[] tickText = diagram.getXAxis().createTickmarkTexts();
-                if(index < tickText.length) {
-                    final String refStr = tickText[index];
-                    final Band band = findBand(diagram.getBands(), refStr);
-                    final Product product = band.getProduct();
-                    String timeStr = "";
-                    if(product.getStartTime() != null)
-                        timeStr = "<b>"+product.getStartTime().format()+"</b><br>";
-
-                    text = "<html>"+
-                            product.getProductRefString() +' '+ product.getName()+"<br>" +timeStr+
-                            band.getName()+
-                            "</html>";
-                }
-            }
-        }   */
-        setToolTipText(text);
-        return super.contains(x, y);
-    }
-
-    private static Band findBand(final Band[] bands, final String refStr) {
-        for (Band b : bands) {
-            if (b.getProduct().getProductRefString().equals(refStr))
-                return b;
-        }
-        return null;
     }
 }
