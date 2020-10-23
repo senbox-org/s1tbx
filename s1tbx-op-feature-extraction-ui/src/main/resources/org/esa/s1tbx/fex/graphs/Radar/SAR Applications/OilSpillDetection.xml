@@ -47,7 +47,7 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands></sourceBands>
-      <backgroundWindowSize>61</backgroundWindowSize>
+      <backgroundWindowDim>4.5</backgroundWindowDim>
       <k>2.0</k>
     </parameters>
   </node>

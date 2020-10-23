@@ -17,10 +17,7 @@ package org.esa.s1tbx.fex.gpf.oceantools;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.Mask;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -30,6 +27,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
@@ -53,6 +51,10 @@ import java.util.List;
  * 20-24 Sept. 2004, page 4909-4912, vol.7.
  */
 
+// Need to update the following graphs:
+//    C:\ESA\snap-gpt-tests\gpt-tests-resources\graphs\s1tbx\FeatureExtraction
+//    C:\ESA\s1tbx\s1tbx-op-feature-extraction-ui\src\main\resources\org\esa\s1tbx\fex\graphs\Radar\SAR Applications
+
 @OperatorMetadata(alias = "Oil-Spill-Detection",
         category = "Radar/SAR Applications/Ocean Applications/Oil Spill Detection",
         authors = "Jun Lu, Luis Veci",
@@ -70,14 +72,15 @@ public class OilSpillDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(description = "Background window size", defaultValue = "13", label = "Background Window Size")
-    private int backgroundWindowSize = 61;
+    @Parameter(description = "Background window dimension", defaultValue = "4.5", label = "Background Window Dimension (km)")
+    private double backgroundWindowDim = 4.5;
 
     @Parameter(description = "Threshold shift from background mean", defaultValue = "2.0", label = "Threshold Shift (dB)")
     private double k = 2.0;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
+    private int backgroundWindowSize = 0;
     private int halfBackgroundWindowSize = 0;
 
     private double kInLinearScale = 0.0;
@@ -96,7 +99,8 @@ public class OilSpillDetectionOp extends Operator {
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
-            halfBackgroundWindowSize = (backgroundWindowSize - 1) / 2;
+
+            computeBackgroundWindowSize();
 
             if (k < 0) {
                 throw new OperatorException("Threshold Shift cannot be negative");
@@ -161,6 +165,20 @@ public class OilSpillDetectionOp extends Operator {
         } else if(mission.equals("RS1") || mission.equals("RS2")) {
             pyramidLevel = 3;
         }  */
+    }
+
+    private void computeBackgroundWindowSize() {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        if(absRoot == null) {
+            throw new OperatorException("AbstractMetadata is null");
+        }
+
+        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 1);
+        final double azimuthSpacing = absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing, 1);
+        final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
+        backgroundWindowSize = (int)(backgroundWindowDim * 1000 / minSpacing);
+        halfBackgroundWindowSize = backgroundWindowSize / 2;
     }
 
     /**
@@ -263,8 +281,7 @@ public class OilSpillDetectionOp extends Operator {
                     }
 
                     final double backgroundMean = computeBackgroundMean(tx, ty, sourceTile, noDataValue);
-                    final double threshold = backgroundMean / kInLinearScale;
-                    if (v < threshold) {
+                    if (backgroundMean != noDataValue && v < backgroundMean / kInLinearScale) {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 1);
                     } else {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 0);
@@ -289,18 +306,16 @@ public class OilSpillDetectionOp extends Operator {
 
         final int x0 = Math.max(tx - halfBackgroundWindowSize, 0);
         final int y0 = Math.max(ty - halfBackgroundWindowSize, 0);
-        final int w = Math.min(tx + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
-        final int h = Math.min(ty + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
+        final int xMax = Math.min(tx + halfBackgroundWindowSize, sourceImageWidth - 1);
+        final int yMax = Math.min(ty + halfBackgroundWindowSize, sourceImageHeight - 1);
         final ProductData srcData = sourceTile.getDataBuffer();
         final TileIndex tileIndex = new TileIndex(sourceTile);
 
         double mean = 0.0;
         int numPixels = 0;
-        final int maxy = y0 + h;
-        final int maxx = x0 + w;
-        for (int y = y0; y < maxy; y++) {
+        for (int y = y0; y <= yMax; y++) {
             tileIndex.calculateStride(y);
-            for (int x = x0; x < maxx; x++) {
+            for (int x = x0; x <= xMax; x++) {
                 final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
                 if (v != noDataValue) {
                     mean += v;
@@ -308,7 +323,12 @@ public class OilSpillDetectionOp extends Operator {
                 }
             }
         }
-        return mean / numPixels;
+
+        if (numPixels > 0) {
+            return mean / numPixels;
+        } else {
+            return noDataValue;
+        }
     }
 
     /**
