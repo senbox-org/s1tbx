@@ -242,7 +242,20 @@ public class TimeSeriesToolView extends ToolTopComponent {
         final TimeSeriesDiagram diagram = getDiagram();
         final String[] selectedBands = settings.getSelectedBands();
         if (diagram != null && selectedBands != null && selectedBands.length > 0) {
+            final boolean isShowingVectors = isShowingVectorAverage();
+            final String[] selectedVectors = settings.getSelectedVectorNames();
+            if(isShowingVectors && (selectedVectors == null || selectedVectors.length == 0)) {
+                // select default vector if none selected
+                setDefaultVector();
+            }
+
             diagram.updateDiagram(imageLayer, pixelX, pixelY, level);
+        }
+    }
+
+    private void setDefaultVector() {
+        if(currentProduct != null && currentProduct.getVectorDataGroup().contains("geometry")) {
+            settings.setSelectedVectors(new String[] {"geometry"});
         }
     }
 
@@ -298,7 +311,7 @@ public class TimeSeriesToolView extends ToolTopComponent {
                                                                        UIUtils.loadImageIcon("icons/Properties24.gif"), null, DialogUtils.ButtonStyle.Icon);
         settingsButton.addActionListener(new TimeSeriesSettingsAction(this, settings));
 
-        filterButton = DialogUtils.createButton("filterButton", "Filter bands",
+        filterButton = DialogUtils.createButton("filterButton", "Filter bands and vectors",
                                                 UIUtils.loadImageIcon("icons/Filter24.gif"), null, DialogUtils.ButtonStyle.Icon);
         filterButton.setEnabled(false);
         filterButton.addActionListener(new TimeSeriesFilterAction(this, settings));
