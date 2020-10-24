@@ -16,11 +16,15 @@
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.ThreadExecutor;
+import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.gpf.CommonReaders;
+import org.esa.snap.rcp.SnapApp;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,17 +53,44 @@ public class GraphData {
     }
 
     private static Product[] readProducts(final File[] fileList) {
-        final List<Product> prodList = new ArrayList<>();
-        for (File file : fileList) {
-            if(file.exists()) {
-                try {
-                    prodList.add(CommonReaders.readProduct(file));
-                } catch (Exception e) {
-                    e.printStackTrace();
+        final List<Product> prodList = Collections.synchronizedList(new ArrayList<>());
+        final ThreadExecutor executor = new ThreadExecutor();
+        try {
+            for (File file : fileList) {
+                if (file.exists()) {
+                    ThreadRunnable runnable = new ThreadRunnable() {
+                        @Override
+                        public void process() throws Exception {
+                            Product product = getProductFromProductManager(file);
+                            if (product == null) {
+                                product = CommonReaders.readProduct(file);
+                            }
+                            if (product != null) {
+                                prodList.add(product);
+                            }
+                        }
+                    };
+                    executor.execute(runnable);
+                }
+            }
+            executor.complete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return prodList.isEmpty() ? null : prodList.toArray(new Product[0]);
+    }
+
+    private static Product getProductFromProductManager(final File file) {
+        final SnapApp app = SnapApp.getDefault();
+        if (app != null) {
+            final Product[] products = app.getProductManager().getProducts();
+            for (Product p : products) {
+                if (file.equals(p.getFileLocation())) {
+                    return p;
                 }
             }
         }
-        return prodList.isEmpty() ? null : prodList.toArray(new Product[0]);
+        return null;
     }
 
     public String getTitle() {

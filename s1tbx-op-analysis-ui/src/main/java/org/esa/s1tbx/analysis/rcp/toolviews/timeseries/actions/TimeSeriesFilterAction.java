@@ -115,9 +115,13 @@ public class TimeSeriesFilterAction extends AbstractAction {
                         for(String selBandName : selectedBandNames) {
                             if (isCoreg) {
                                 selBandName = getCoregBandName(selBandName);
-                            }
-                            if (bandName.contains(selBandName)) {
-                                selectedBands.add(band);
+                                if (bandName.contains(selBandName)) {
+                                    selectedBands.add(band);
+                                }
+                            } else {
+                                if (bandName.equals(selBandName)) {
+                                    selectedBands.add(band);
+                                }
                             }
                         }
                         nameSet.add(bandName);

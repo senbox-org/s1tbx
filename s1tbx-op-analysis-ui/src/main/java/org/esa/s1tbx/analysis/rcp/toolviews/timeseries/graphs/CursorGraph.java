@@ -71,8 +71,9 @@ public class CursorGraph extends TimeSeriesGraph {
             SystemUtils.LOG.severe("CursorGraph unable to read values " + e.getMessage());
         }
 
-        Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
-        // no invalidate() call here, SpectrumDiagram does this
+        if(dataPoints != null) {
+            Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
+        }
     }
 
     public static double getPixelDouble(final RasterDataNode raster, final int x, final int y) {
