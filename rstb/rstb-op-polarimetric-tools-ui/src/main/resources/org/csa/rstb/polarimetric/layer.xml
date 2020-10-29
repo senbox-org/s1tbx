@@ -102,6 +102,17 @@
                 <attr name="icon" stringvalue="rstbIcon"/>
                 <attr name="helpId" stringvalue="CompactPolDecompositionOp"/>
             </file>
+            <file name="org-csa-rstb-polarimetric-gpf-FaradayRotationCorrectionOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Faraday Rotation Correction"/>
+                <attr name="operatorName" stringvalue="Faraday-Rotation-Correction"/>
+                <attr name="dialogTitle" stringvalue="Faraday Rotation Correction"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_frc"/>
+                <attr name="ShortDescription" stringvalue="Faraday Rotation Correction"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="helpId" stringvalue="FaradayRotationCorrectionOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -147,6 +158,10 @@
                 <file name="org-csa-rstb-polarimetric-gpf-CrossChannelSNRCorrectionOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-CrossChannelSNRCorrectionOp-Action.instance"/>
                     <attr name="position" intvalue="430"/>
+                </file>
+                <file name="org-csa-rstb-polarimetric-gpf-FaradayRotationCorrectionOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-FaradayRotationCorrectionOp-Action.instance"/>
+                    <attr name="position" intvalue="440"/>
                 </file>
             </folder>
         </folder>
