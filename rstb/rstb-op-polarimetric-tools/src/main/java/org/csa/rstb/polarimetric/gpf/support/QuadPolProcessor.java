@@ -1108,6 +1108,61 @@ public interface QuadPolProcessor extends PolarimetricProcessor, MatrixMath {
         }
     }
 
+    /**
+     * Get mean scatter matrix for given pixel.
+     *
+     * @param x                 X coordinate of the given pixel.
+     * @param y                 Y coordinate of the given pixel.
+     * @param halfWindowSizeX   The sliding window size / 2
+     * @param halfWindowSizeY   The sliding window size / 2
+     * @param sourceProductType The source product type.
+     * @param sourceTiles       The source tiles for all bands.
+     * @param dataBuffers       Source tile data buffers.
+     * @param Sr                The real part of the mean scatter matrix.
+     * @param Si                The imaginary part of the mean scatter matrix.
+     */
+    default void getMeanScatterMatrix(
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
+            final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,
+            final double[][] Sr, final double[][] Si) {
+
+        if (sourceProductType != PolBandUtils.MATRIX.FULL) {
+            throw new OperatorException("Quad-pol source product is expected");
+        }
+
+        final int xSt = Math.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
+        final int xEd = Math.min(x + halfWindowSizeX, sourceTiles[0].getMaxX());
+        final int ySt = Math.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
+        final int yEd = Math.min(y + halfWindowSizeY, sourceTiles[0].getMaxY());
+        final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
+
+        final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+        final double[][] tempSr = new double[2][2];
+        final double[][] tempSi = new double[2][2];
+        final double[][] srMat = new double[2][2];
+        final double[][] siMat = new double[2][2];
+
+        for (int yy = ySt; yy <= yEd; ++yy) {
+            srcIndex.calculateStride(yy);
+            for (int xx = xSt; xx <= xEd; ++xx) {
+                getComplexScatterMatrix(srcIndex.getIndex(xx), dataBuffers, tempSr, tempSi);
+                matrixPlusEquals(srMat, tempSr);
+                matrixPlusEquals(siMat, tempSi);
+            }
+        }
+
+        matrixTimesEquals(srMat, 1.0 / num);
+        matrixTimesEquals(siMat, 1.0 / num);
+
+        for (int i = 0; i < 2; i++) {
+            Sr[i][0] = srMat[i][0];
+            Si[i][0] = siMat[i][0];
+
+            Sr[i][1] = srMat[i][1];
+            Si[i][1] = siMat[i][1];
+        }
+    }
+
     default void getMeanCovarianceMatrixC4(
             final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
             final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,

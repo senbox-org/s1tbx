@@ -21,5 +21,6 @@ public class CapellaProductConstants {
     public static final String PRODUCT_FORMAT = "Capella";
     public static final String PRODUCT_EXT = "_extended.json";
 
+    public static final String METADATA_EXT = ".json";
     public static final String IMAGE_GEOTIFF_EXT = ".tif";
 }
