@@ -32,6 +32,8 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -66,6 +68,9 @@ public final class FaradayRotationCorrectionOp extends Operator implements QuadP
 
     private PolBandUtils.MATRIX sourceProductType = null;
     private PolBandUtils.PolSourceBand[] srcBandList;
+
+    private Band fraBand = null;
+    private boolean outputEstimatedFRA = false;
 
     @Override
     public void initialize() throws OperatorException {
@@ -127,6 +132,13 @@ public final class FaradayRotationCorrectionOp extends Operator implements QuadP
                 targetBands[k++] = targetBand;
             }
             bandList.addTargetBands(targetBands);
+
+            if (outputEstimatedFRA) {
+                fraBand = new Band(
+                        "faraday_rotation_angle", ProductData.TYPE_FLOAT32, sourceImageWidth, sourceImageHeight);
+                fraBand.setUnit(Unit.DEGREES);
+                targetProduct.addBand(fraBand);
+            }
         }
     }
 
@@ -181,6 +193,13 @@ public final class FaradayRotationCorrectionOp extends Operator implements QuadP
                 }
                 final TileIndex tgtIndex = new TileIndex(tileDataList[0].tile);
 
+                Tile estFRATile = null;
+                ProductData estFRABuffer = null;
+                if (outputEstimatedFRA) {
+                    estFRATile = targetTiles.get(fraBand);
+                    estFRABuffer = estFRATile.getDataBuffer();
+                }
+
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
                 final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
                 final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
@@ -204,6 +223,10 @@ public final class FaradayRotationCorrectionOp extends Operator implements QuadP
                                 dataBuffers, mSr, mSi);
 
                         final double omega = estimateFaradayRotationAngle(mSr, mSi);
+
+                        if (outputEstimatedFRA) {
+                            estFRABuffer.setElemFloatAt(tgtIdx, (float) (omega* Constants.RTOD));
+                        }
 
                         getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
 
@@ -267,7 +290,7 @@ public final class FaradayRotationCorrectionOp extends Operator implements QuadP
         final double Zr10 = mSr[1][0] - mSr[0][1] - mSi[0][0] - mSi[1][1];
         final double Zi10 = mSi[1][0] - mSi[0][1] + mSr[0][0] + mSr[1][1];
 
-        return 0.25 * Math.atan2(Zi01 * Zr10 - Zr01 * Zi10, Zr01 * Zr10 + Zi01 * Zi10);
+        return -0.25 * Math.atan2(Zi01 * Zr10 - Zr01 * Zi10, Zr01 * Zr10 + Zi01 * Zi10);
 
 //        Zr[0][0] = mSr[0][0] - mSr[1][1] - mSi[0][1] - mSi[1][0];
 //        Zi[0][0] = mSi[0][0] - mSi[1][1] + mSr[0][1] + mSr[1][0];
