@@ -72,7 +72,7 @@ public class OilSpillDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(description = "Background window dimension", defaultValue = "4.5", label = "Background Window Dimension (km)")
+    @Parameter(description = "Background window dimension (km)", defaultValue = "4.5", label = "Background Window Dimension (km)")
     private double backgroundWindowDim = 4.5;
 
     @Parameter(description = "Threshold shift from background mean", defaultValue = "2.0", label = "Threshold Shift (dB)")
