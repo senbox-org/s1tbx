@@ -19,13 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesGraph;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesTimes;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VectorDataNode;
-import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.ThreadExecutor;
@@ -77,7 +71,7 @@ public class VectorGraph extends TimeSeriesGraph {
             if (index >= 0) {
                 final ThreadRunnable runnable = new ThreadRunnable() {
                     @Override
-                    public void process() {
+                    public void process() throws Exception {
                         dataPoints[index] = processVector(band);
                         if (dataPoints[index] == band.getNoDataValue()) {
                             dataPoints[index] = Double.NaN;
@@ -100,25 +94,29 @@ public class VectorGraph extends TimeSeriesGraph {
                 SystemUtils.LOG.severe("VectorGraph unable to read values " + e.getMessage());
             }
         }
-        Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
-        // no invalidate() call here, SpectrumDiagram does this
+        if(dataPoints != null) {
+            Range.computeRangeDouble(dataPoints, IndexValidator.TRUE, dataPointRange, ProgressMonitor.NULL);
+        }
     }
 
-    private double processVector(final Band band) {
+    private double processVector(final Band band) throws Exception {
         try {
             final GeoCoding bandGC = band.getGeoCoding();
-            final ReferencedEnvelope env = vectorNode.getEnvelope();
-            final CoordinateReferenceSystem crs = env.getCoordinateReferenceSystem();
+            final ReferencedEnvelope envOrig = vectorNode.getEnvelope();
+            final CoordinateReferenceSystem crs = envOrig.getCoordinateReferenceSystem();
             if(crs == null) {
                 return band.getNoDataValue();
             }
+
             final String envCode = crs.getName().getCode();
 
             final PixelPos topLeft, bottomRight;
             if (envCode.startsWith("Image CS based on")) {
-                topLeft = new PixelPos((float) env.getMinX(), (float) env.getMinY());
-                bottomRight = new PixelPos((float) env.getMaxX(), (float) env.getMaxY());
+                topLeft = new PixelPos((float) envOrig.getMinX(), (float) envOrig.getMinY());
+                bottomRight = new PixelPos((float) envOrig.getMaxX(), (float) envOrig.getMaxY());
             } else {
+                final ReferencedEnvelope env = envOrig.transform(band.getGeoCoding().getGeoCRS(), true);
+
                 final GeoPos geo1 = new GeoPos((float) env.getMinY(), (float) env.getMinX());
                 final GeoPos geo2 = new GeoPos((float) env.getMaxY(), (float) env.getMaxX());
 
@@ -132,6 +130,9 @@ public class VectorGraph extends TimeSeriesGraph {
             final int maxY = (int) Math.max(topLeft.getY(), bottomRight.getY());
 
             final double noDataValue = band.getNoDataValue();
+            final boolean isScalingApplied = band.isScalingApplied();
+            final boolean isInt8 = band.getDataType() == ProductData.TYPE_INT8;
+            final boolean isUInt32 = band.getDataType() == ProductData.TYPE_UINT32;
             final PlanarImage image = ImageManager.getInstance().getSourceImage(band, 0);
 
             boolean isStdDev = false;
@@ -152,16 +153,20 @@ public class VectorGraph extends TimeSeriesGraph {
                         continue;
                     }
 
-                    final double sample;
-                    if (band.getDataType() == ProductData.TYPE_INT8) {
+                    double sample;
+                    if (isInt8) {
                         sample = (byte) data.getSample(x, y, 0);
-                    } else if (band.getDataType() == ProductData.TYPE_UINT32) {
+                    } else if (isUInt32) {
                         sample = data.getSample(x, y, 0) & 0xFFFFFFFFL;
                     } else {
                         sample = data.getSampleDouble(x, y, 0);
                     }
 
                     if (!Double.isNaN(sample) && sample != noDataValue) {
+                        if (isScalingApplied) {
+                            sample = band.scale(sample);
+                        }
+
                         sum += sample;
                         if (isStdDev) {
                             samples[cnt] = sample;
@@ -183,8 +188,9 @@ public class VectorGraph extends TimeSeriesGraph {
             }
             return mean;
         } catch (Exception e) {
-            throw e;
+            SystemUtils.LOG.severe(e.getMessage());
         }
+        return 0;
     }
 
     @Override

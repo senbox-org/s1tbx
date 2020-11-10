@@ -869,7 +869,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         //System.out.println("geoGrid.length = " + geoGrid.length);
 
         final double[] latList = new double[geoGrid.length];
-        final double[] lngList = new double[geoGrid.length];
+        final double[] lonList = new double[geoGrid.length];
         final double[] incidenceAngleList = new double[geoGrid.length];
         final double[] elevAngleList = new double[geoGrid.length];
         final double[] rangeTimeList = new double[geoGrid.length];
@@ -881,7 +881,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         int i = 0;
         for (MetadataElement ggPoint : geoGrid) {
             latList[i] = ggPoint.getAttributeDouble("latitude", 0);
-            lngList[i] = ggPoint.getAttributeDouble("longitude", 0);
+            lonList[i] = ggPoint.getAttributeDouble("longitude", 0);
             incidenceAngleList[i] = ggPoint.getAttributeDouble("incidenceAngle", 0);
             elevAngleList[i] = ggPoint.getAttributeDouble("elevationAngle", 0);
             rangeTimeList[i] = ggPoint.getAttributeDouble("slantRangeTime", 0) * Constants.oneBillion; // s to ns
@@ -895,6 +895,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 ++gridHeight;
             }
             ++i;
+        }
+
+        if (crossAntimeridian(lonList)) {
+            for (int j = 0; j < lonList.length; ++j) {
+                if (lonList[j] < 0.0) lonList[j] += 360.0;
+            }
         }
 
         //System.out.println("geoGrid w = " + gridWidth + "; h = " + gridHeight);
@@ -919,7 +925,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, latList,
                                   newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
 
-        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, lngList,
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, lonList,
                                   newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, incidenceAngleList,
@@ -973,6 +979,15 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         if(band != null) {
             bandGeocodingMap.put(band, tpGeoCoding);
         }
+    }
+
+    private boolean crossAntimeridian(final double[] lonList) {
+        for (int i = 1; i < lonList.length; ++i) {
+            if (Math.abs(lonList[i] - lonList[i - 1]) > 350.0 ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {

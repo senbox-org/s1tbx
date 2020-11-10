@@ -83,10 +83,7 @@ public class CapellaProductReader extends SARReader {
         }
 
         final Path path = getPathFromInput(input);
-        File metadataFile = path.toFile();
-        if (metadataFile.isDirectory()) {
-            metadataFile = CapellaProductReaderPlugIn.findMetadataFile(path);
-        }
+        File metadataFile = CapellaProductReaderPlugIn.findMetadataFile(path);
 
         dataDir = new CapellaProductDirectory(metadataFile);
         dataDir.readProductDirectory();
