@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1-SNAPSHOT</version>
+        <version>8.0.1</version>
     </parent>
 
     <artifactId>s1tbx-op-insar-ui</artifactId>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-remote-products-repository</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
