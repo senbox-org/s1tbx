@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-remote-products-repository</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
