@@ -26,6 +26,7 @@
     <mapID target="IntegerInterferogramOp" url="operators/IntegerInterferogramOp.html"/>
     <mapID target="InSARStackOverview" url="operators/InSARStackOverview.html"/>
     <mapID target="StampsExport" url="operators/StampsExportOp.html"/>
+    <mapID target="MultiMasterInSAROp" url="operators/MultiMasterInSAROp.html"/>
 
     <mapID target="StatBaselines" url="desktop/StatBaselines.html"/>
     <mapID target="StatBaselinesChart" url="desktop/StatBaselinesChart.html"/>

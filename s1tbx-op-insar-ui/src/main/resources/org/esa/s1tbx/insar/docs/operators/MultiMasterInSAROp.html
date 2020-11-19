@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Multi-Master InSAR</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Multi-Master InSAR<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Multi-Master InSAR Operator</h3>
+<p class="MsoNormal">Given a coregistered stack product, this operator allows for computing the interferometric phase as well as
+    estimating the interferometric coherence for arbitrary image pairs. Optionally, it can generate the following bands:
+    incidence angle, latitude, and longitude.
+
+<h4>Input<br>
+</h4>
+<ul>
+    <li>The input to this operator should be a stack product with an elevation band (whose name is prefixed by "elevation").
+        In the case of TOPS mode, the input product should have been previously deburst using the TOPSAR-Deburst operator.<br>
+    </li>
+</ul>
+
+<h4>Output<br>
+</h4>
+<ul>
+    <li>The output of the operator is a product with the following bands:
+        <h5>Bands per interferometric pair (with date pairs of the form "[ddMMMYYYY]_[ddMMMYYYY]"):</h5>
+        <ul>
+            <li>
+            i_ifg_[ddMMMYYYY]_[ddMMMYYYY]: I band for interferogram.
+            </li>
+            <li>
+            q_ifg_[ddMMMYYYY]_[ddMMMYYYY]: Q band for interferogram.
+            </li>
+            <li>
+            Intensity_ifg_[ddMMMYYYY]_[ddMMMYYYY]: virtual band for interferometric intensity (I^2 + Q^2).
+            </li>
+            <li>
+            Phase_ifg_[ddMMMYYYY]_[ddMMMYYYY]: virtual band for interferometric phase (atan2(Q, I)).
+            </li>
+            <li>
+            coh_ifg_[ddMMMYYYY]_[ddMMMYYYY]: interferometric coherence.
+            </li>
+        </ul>
+        <h5>Bands created per slave image (with slave number "[SLAVE_NUMBER]"):</h5>
+        <ul>
+            <li>
+            wavenumber_slv[SLAVE_NUMBER]_[ddMMMYYYY]: vertical wavenumber based on elevation band (unit: radians / meter).
+            </li>
+        </ul>
+        <h5>Other bands:</h5>
+        <ul>
+            <li>
+            elevation*: elevation band; same as input elevation band (unit: meters).
+            </li>
+            <li>
+            incidenceAngle: local incidence angle based on elevation band (unit: degrees).
+            </li>
+            <li>
+            lat: latitude based on elevation band (unit: degrees).
+            </li>
+            <li>
+            lon: longitude based on elevation band (unit: degrees).
+            </li>
+        </ul>
+    <br>
+    </li>
+</ul>
+
+
+<h4>Parameters<br>
+</h4>
+<ul>
+    <img alt="" src="images/mm.png"><br>
+    <h5>Configuration parameters</h5>
+    <li>Orbit interpolation degree: degree for polynomial interpolation of orbit.
+    </li>
+    <li>Coherence range window size: number of pixels for coherence estimation.
+    </li>
+    <li>Coherence azimuth window size: number of lines for coherence estimation.
+    </li>
+    <li>Include latitude and longitude: if True, the corresponding bands will be created.
+    </li>
+    <li>Include wavenumber: if True, the corresponding band will be created.
+    </li>
+    <li>Include incidence angle: if True, the corresponding band will be created.
+    </li>
+
+    <h5>Pair selection</h5>
+    <li>Max doppler centroid diff: maximum allowed absolute doppler centroid difference between image pairs (unit: Hz).
+    </li>
+    <li>Max spatial baseline diff: maximum allowed absolute spatial baseline difference between images pairs (unit: meters).
+    </li>
+    <li>Max temporal baseline diff: maximum allowed absolute temporal baseline difference between images pairs (unit: days).
+    </li>
+</ul><br>
+
+<h4>Using GPT<br>
+</h4>
+<p class="MsoNormal">If you are using GPT, the pair selection is done through the <b>pairs</b> parameter. This allows for explicitly listing the pairs, which provides more flexibility than the UI sliders.
+For example, <b>pairs</b> could be set to: <b>06Jan2018-12Apr2018,06Jan2018-09Oct2018,06Jan2018-01Jan2019</b>.
+
+<p class="MsoNormal">
+It is recommended to use the Graph Builder for quickly generating the pairs (by using the sliders) and subsequently saving the processing graph. The graph file can then be edited (optionally) and executed from the command line.
+
+</body>
+</html>
