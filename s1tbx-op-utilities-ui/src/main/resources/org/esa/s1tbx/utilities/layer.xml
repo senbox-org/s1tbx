@@ -51,7 +51,7 @@
                 <attr name="displayName" stringvalue="Demodulate"/>
                 <attr name="operatorName" stringvalue="Demodulate"/>
                 <attr name="dialogTitle" stringvalue="Demodulate"/>
-                <attr name="targetProductNameSuffix" stringvalue="_demod"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Demod"/>
                 <attr name="ShortDescription" stringvalue="Demodulation of an SLC"/>
                 <attr name="helpId" stringvalue="DemodulateOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -62,7 +62,7 @@
                 <attr name="displayName" stringvalue="Remodulate"/>
                 <attr name="operatorName" stringvalue="Remodulate"/>
                 <attr name="dialogTitle" stringvalue="Remodulate"/>
-                <attr name="targetProductNameSuffix" stringvalue="_remod"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Remod"/>
                 <attr name="ShortDescription" stringvalue="Remodulation of an SLC"/>
                 <attr name="helpId" stringvalue="RemodulateOp"/>
             </file>

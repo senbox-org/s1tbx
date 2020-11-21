@@ -8,5 +8,7 @@
     <!--Utility Operators-->
     <mapID target="OverSampleOp" url="operators/OverSampleOp.html"/>
     <mapID target="UnderSampleOp" url="operators/UnderSampleOp.html"/>
+    <mapID target="DemodulateOp" url="operators/DemodulateOp.html"/>
+    <mapID target="RemodulateOp" url="operators/RemodulateOp.html"/>
 
 </map>

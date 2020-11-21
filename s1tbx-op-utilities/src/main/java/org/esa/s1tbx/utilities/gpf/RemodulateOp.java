@@ -103,11 +103,9 @@ public class RemodulateOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        // Define source and target bands
+        // Define source bands
         Band sourceBandI = null;
         Band sourceBandQ = null;
-        Band targetBandI;
-        Band targetBandQ;
 
         // Master
         final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
@@ -118,10 +116,10 @@ public class RemodulateOp extends Operator {
                 sourceBandQ = sourceProduct.getBand(bandName);
             }
         }
-        targetBandI = ProductUtils.copyBand(sourceBandI.getName(), sourceProduct, targetProduct, false);
-        targetBandI.setSourceImage(sourceBandI.getSourceImage());
-        targetBandQ = ProductUtils.copyBand(sourceBandQ.getName(), sourceProduct, targetProduct, false);
-        targetBandQ.setSourceImage(sourceBandQ.getSourceImage());
+        // Check if master bands are null (this could happen if dropped by the BandSelect operator)
+        if (sourceBandI != null && sourceBandQ != null) {
+            createTargetBands(sourceBandI, sourceBandQ);
+        }
 
         // Slaves
         final String[] slaveProductNames = StackUtils.getSlaveProductNames(sourceProduct);
@@ -134,15 +132,31 @@ public class RemodulateOp extends Operator {
                     sourceBandQ = sourceProduct.getBand(bandName);
                 }
             }
-            // Add slave bands to targetProduct
+            createTargetBands(sourceBandI, sourceBandQ);
+        }
+    }
+
+    private void createTargetBands(final Band sourceBandI, final Band sourceBandQ) {
+
+        // Define target bands
+        final Band targetBandI;
+        final Band targetBandQ;
+
+        // Get (demodulation phase) band from sourceProduct
+        final String demodBandName = DEMOD_PHASE_PREFIX + StackUtils.getBandSuffix(sourceBandQ.getName());
+        final Band sourceDemodPhaseBand = sourceProduct.getBand(demodBandName);
+
+        if (sourceDemodPhaseBand == null) { // if band has not been previously demodulated
+            targetBandI = ProductUtils.copyBand(sourceBandI.getName(), sourceProduct, targetProduct, false);
+            targetBandI.setSourceImage(sourceBandI.getSourceImage());
+            targetBandQ = ProductUtils.copyBand(sourceBandQ.getName(), sourceProduct, targetProduct, false);
+            targetBandQ.setSourceImage(sourceBandQ.getSourceImage());
+        } else {
+            // Add bands to targetProduct
             targetBandI = targetProduct.addBand(sourceBandI.getName(), ProductData.TYPE_FLOAT32);
             ProductUtils.copyRasterDataNodeProperties(sourceBandI, targetBandI);
             targetBandQ = targetProduct.addBand(sourceBandQ.getName(), ProductData.TYPE_FLOAT32);
             ProductUtils.copyRasterDataNodeProperties(sourceBandQ, targetBandQ);
-
-            // Get slave (demodulation phase) band from sourceProduct
-            final String demodBandName = DEMOD_PHASE_PREFIX + StackUtils.getBandSuffix(sourceBandQ.getName());
-            final Band sourceDemodPhaseBand = sourceProduct.getBand(demodBandName);
 
             // Store source and target bands in HashMaps
             sourceRasterMap.put(targetBandI, sourceBandI); // (target I: source I) band pairs
@@ -165,7 +179,7 @@ public class RemodulateOp extends Operator {
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
 
-        for (Band targetBandI : complexTgtMap.keySet()) { // for each slave
+        for (Band targetBandI : complexTgtMap.keySet()) { // for each SLC
 
             // Get source and target bands
             final Band sourceBandI = sourceRasterMap.get(targetBandI);
@@ -197,8 +211,8 @@ public class RemodulateOp extends Operator {
         final int xMax = x0 + rectangle.width;
         final int yMax = y0 + rectangle.height;
 
-        final ProductData sourceDataI = sourceTileI.getDataBuffer();
-        final ProductData sourceDataQ = sourceTileQ.getDataBuffer();
+        final ProductData sourceBufferI = sourceTileI.getDataBuffer();
+        final ProductData sourceBufferQ = sourceTileQ.getDataBuffer();
         final ProductData targetBufferI = targetTileI.getDataBuffer();
         final ProductData targetBufferQ = targetTileQ.getDataBuffer();
         final ProductData sourceDemodPhaseBuffer = sourceDemodPhaseTile.getDataBuffer();
@@ -214,8 +228,8 @@ public class RemodulateOp extends Operator {
                 final int targetIdx = targetIndex.getIndex(x);
 
                 // Get value of real and imaginary bands
-                final double valueI = sourceDataI.getElemDoubleAt(sourceIdx);
-                final double valueQ = sourceDataQ.getElemDoubleAt(sourceIdx);
+                final double valueI = sourceBufferI.getElemDoubleAt(sourceIdx);
+                final double valueQ = sourceBufferQ.getElemDoubleAt(sourceIdx);
                 final double demodPhase = sourceDemodPhaseBuffer.getElemDoubleAt(sourceIdx);
 
                 // Get cos and sin of demodulation
