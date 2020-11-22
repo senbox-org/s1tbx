@@ -1,9 +1,7 @@
 package org.esa.s1tbx.io.gamma.pyrate.pyrateheader;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.io.gamma.GammaProductWriter;
 import org.esa.s1tbx.io.gamma.pyrate.pyrateheader.GammaConstants;
-import org.esa.s1tbx.io.gamma.header.HeaderWriter;
 import org.esa.s1tbx.io.gamma.pyrate.PyRateGammaProductWriter;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.SystemUtils;

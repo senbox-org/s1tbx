@@ -22,7 +22,6 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;

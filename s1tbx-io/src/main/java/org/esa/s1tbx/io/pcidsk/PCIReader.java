@@ -21,12 +21,10 @@ import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
-import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;

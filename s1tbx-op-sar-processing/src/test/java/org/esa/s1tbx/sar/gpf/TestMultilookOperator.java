@@ -25,7 +25,6 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 

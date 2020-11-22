@@ -28,7 +28,6 @@ import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;

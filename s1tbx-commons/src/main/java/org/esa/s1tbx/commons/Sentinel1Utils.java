@@ -23,7 +23,6 @@ import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.awt.*;
 import java.util.*;

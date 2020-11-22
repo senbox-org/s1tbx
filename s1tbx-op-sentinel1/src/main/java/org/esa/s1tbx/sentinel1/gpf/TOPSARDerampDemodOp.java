@@ -31,7 +31,6 @@ import org.esa.snap.engine_utilities.gpf.*;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 /**
  * This operator performs deramp and demodulation to the input S-1 TOPS SLC product.

@@ -17,11 +17,8 @@ package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.gpf.GPF;
-import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
