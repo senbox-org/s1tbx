@@ -16,7 +16,6 @@
 package org.esa.s1tbx.io.gamma.pyrate;
 
 import org.esa.s1tbx.io.gamma.GammaProductReaderPlugIn;
-import org.esa.s1tbx.io.gamma.GammaProductWriter;
 import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.EncodeQualification;
 import org.esa.snap.core.dataio.ProductWriter;

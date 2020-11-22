@@ -1,16 +1,11 @@
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.GraphData;
-import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesGraph;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesSettings;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.graphs.VectorGraph;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.ui.ModalDialog;
-import org.esa.snap.ui.diagram.DefaultDiagramGraphStyle;
 
 import javax.swing.*;
 import java.awt.*;

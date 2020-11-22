@@ -16,7 +16,6 @@
 package org.esa.s1tbx.io.kompsat5;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;

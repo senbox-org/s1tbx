@@ -15,12 +15,9 @@
  */
 package org.esa.s1tbx.insar.gpf.ui;
 
-import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;

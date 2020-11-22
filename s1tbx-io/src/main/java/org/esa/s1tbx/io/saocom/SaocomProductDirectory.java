@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.*;
-import java.util.List;
 
 /**
  * This class represents a product directory.

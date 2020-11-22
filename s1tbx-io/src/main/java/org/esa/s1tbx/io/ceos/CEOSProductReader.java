@@ -26,7 +26,6 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 

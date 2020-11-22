@@ -20,11 +20,9 @@ import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.GraphExportImageA
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesExportAction;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesFilterAction;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.actions.TimeSeriesSettingsAction;
-import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.graphs.VectorGraph;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.esa.snap.graphbuilder.rcp.dialogs.CheckListDialog;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.windows.ToolTopComponent;

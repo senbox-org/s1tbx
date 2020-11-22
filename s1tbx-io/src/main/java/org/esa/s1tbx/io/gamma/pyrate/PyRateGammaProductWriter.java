@@ -3,21 +3,14 @@ package org.esa.s1tbx.io.gamma.pyrate;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.s1tbx.commons.io.FileImageOutputStreamExtImpl;
-import org.esa.s1tbx.io.gamma.GammaProductWriter;
 import org.esa.s1tbx.io.gamma.header.GammaConstants;
-import org.esa.s1tbx.io.gamma.header.HeaderDEMWriter;
 import org.esa.s1tbx.io.gamma.pyrate.pyrateheader.*;
-import org.esa.s1tbx.io.gamma.header.HeaderDiffWriter;
-import org.esa.s1tbx.io.gamma.header.HeaderWriter;
 import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.core.util.Guardian;
-import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 
@@ -28,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 

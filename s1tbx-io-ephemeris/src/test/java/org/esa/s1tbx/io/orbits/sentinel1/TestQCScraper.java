@@ -15,10 +15,8 @@
  */
 package org.esa.s1tbx.io.orbits.sentinel1;
 
-import org.esa.snap.test.LongTestRunner;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static junit.framework.TestCase.assertEquals;
 

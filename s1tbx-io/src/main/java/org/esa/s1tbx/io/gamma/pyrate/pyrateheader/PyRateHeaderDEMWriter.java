@@ -1,27 +1,17 @@
 package org.esa.s1tbx.io.gamma.pyrate.pyrateheader;
 
-import org.apache.commons.math3.special.Gamma;
-import org.esa.s1tbx.io.gamma.GammaProductWriter;
-import org.esa.s1tbx.io.gamma.header.HeaderDEMWriter;
 import org.esa.s1tbx.io.gamma.pyrate.PyRateGammaProductWriter;
 import org.esa.snap.core.datamodel.*;
-import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import uk.me.jstott.jcoord.LatLng;
-import uk.me.jstott.jcoord.UTMRef;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Calendar;
 
 public class PyRateHeaderDEMWriter extends PyRateHeaderWriter {
 
-    final static String PAR_EXTENSION = ".par";
     final static String sep = ":\t";
 
     private Product srcProduct ;
