@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     def built = build(job: "snap-ci-nightly/master", parameters: [
-                        [$class: 'StringParameterValue', name: 'tag', value: "master"],
+                        [$class: 'StringParameterValue', name: 'tag', value: "8.x"],
                         [$class: 'StringParameterValue', name: 'docker', value: "snap-ci:master"],
                         [$class: 'StringParameterValue', name: 'engine', value: "8.x"],
                         [$class: 'BooleanParameterValue', name: 'engine_enabled', value: false],
