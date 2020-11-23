@@ -183,21 +183,23 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
         if (hasSourceProducts()) {
 
-            if (!defaultSliderDataLoaded) { // if this is the first time initParameters is called
-                minMaxSelectedSliderData = getMinMaxMean();
-                defaultSliderDataLoaded = true;
-            }
+            minMaxSelectedSliderData = getMinMaxMean();
+
             maxTemporalBaselineDiffSlider.setMinimum(minMaxSelectedSliderData[0][0]);
             maxTemporalBaselineDiffSlider.setMaximum(minMaxSelectedSliderData[0][1]);
-            maxTemporalBaselineDiffSlider.setValue(minMaxSelectedSliderData[0][2]);
 
             maxDopplerCentroidDiffSlider.setMinimum(minMaxSelectedSliderData[1][0]);
             maxDopplerCentroidDiffSlider.setMaximum(minMaxSelectedSliderData[1][1]);
-            maxDopplerCentroidDiffSlider.setValue(minMaxSelectedSliderData[1][2]);
 
             maxSpatialBaselineDiffSlider.setMinimum(minMaxSelectedSliderData[2][0]);
             maxSpatialBaselineDiffSlider.setMaximum(minMaxSelectedSliderData[2][1]);
-            maxSpatialBaselineDiffSlider.setValue(minMaxSelectedSliderData[2][2]);
+
+            if (!defaultSliderDataLoaded) { // if this is the first time initParameters is called
+                maxTemporalBaselineDiffSlider.setValue(minMaxSelectedSliderData[0][2]);
+                maxDopplerCentroidDiffSlider.setValue(minMaxSelectedSliderData[1][2]);
+                maxSpatialBaselineDiffSlider.setValue(minMaxSelectedSliderData[2][2]);
+                defaultSliderDataLoaded = true;
+            }
         }
     }
 
