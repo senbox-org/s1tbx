@@ -74,7 +74,7 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
     private final JRadioButton dopplerCentroidRadioButton = new JRadioButton("Doppler centroid");
     private final JRadioButton spatialBaselineRadioButton = new JRadioButton("Spatial baseline", true);
 
-    private JButton savePlotButton = new JButton("Save plot");
+    private final JButton savePlotButton = new JButton("Save plot");
     private ChartPanel chartPanel;
 
     // Helper attributes
@@ -84,10 +84,8 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
     private String[] pairs;
 
+    private Boolean skipDrawChart = true;
     private Boolean defaultSliderDataLoaded = false;
-    private Boolean dataSliderDopplerCentroid = false;
-    private Boolean dataSliderSpatialBaseline = false;
-    private Boolean dataSliderTemporalBaseline = false;
     private int[][] minMaxSelectedSliderData;
     private String yAxisForPlot = "Spatial baseline [m]";
 
@@ -99,32 +97,33 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
         initializeOperatorUI(operatorName, parameterMap);
 
+        skipDrawChart = true;
         final int[] sliderValue = new int[3];
         maxTemporalBaselineDiffSlider.addChangeListener(e -> {
+            if (maxTemporalBaselineDiffSlider.getValueIsAdjusting()) {
+                return;
+            }
             sliderValue[0] = maxTemporalBaselineDiffSlider.getValue();
-            chartPanel.setChart(getPairsAndDrawChart(sliderValue, false));
-            if (dataSliderTemporalBaseline) {
-                minMaxSelectedSliderData[0][2] = sliderValue[0];
-            } else {
-                dataSliderTemporalBaseline = true;
+            if (!skipDrawChart) {
+                chartPanel.setChart(getPairsAndDrawChart(sliderValue, false));
             }
         });
         maxDopplerCentroidDiffSlider.addChangeListener(e -> {
+            if (maxDopplerCentroidDiffSlider.getValueIsAdjusting()) {
+                return;
+            }
             sliderValue[1] = maxDopplerCentroidDiffSlider.getValue();
-            chartPanel.setChart(getPairsAndDrawChart(sliderValue, false));
-            if (dataSliderDopplerCentroid) {
-                minMaxSelectedSliderData[1][2] = sliderValue[1];
-            } else {
-                dataSliderDopplerCentroid = true;
+            if (!skipDrawChart) {
+                chartPanel.setChart(getPairsAndDrawChart(sliderValue, false));
             }
         });
         maxSpatialBaselineDiffSlider.addChangeListener(e -> {
+            if (maxSpatialBaselineDiffSlider.getValueIsAdjusting()) {
+                return;
+            }
             sliderValue[2] = maxSpatialBaselineDiffSlider.getValue();
-            chartPanel.setChart(getPairsAndDrawChart(sliderValue, false));
-            if (dataSliderSpatialBaseline) {
-                minMaxSelectedSliderData[2][2] = sliderValue[2];
-            } else {
-                dataSliderSpatialBaseline = true;
+            if (!skipDrawChart) {
+                chartPanel.setChart(getPairsAndDrawChart(sliderValue, false));
             }
         });
 
@@ -182,9 +181,9 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
         cohWindowRgTextField.setText(String.valueOf(paramMap.get("cohWindowRg")));
 
         if (hasSourceProducts()) {
-
             minMaxSelectedSliderData = getMinMaxMean();
 
+            skipDrawChart = true;
             maxTemporalBaselineDiffSlider.setMinimum(minMaxSelectedSliderData[0][0]);
             maxTemporalBaselineDiffSlider.setMaximum(minMaxSelectedSliderData[0][1]);
 
@@ -192,12 +191,16 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
             maxDopplerCentroidDiffSlider.setMaximum(minMaxSelectedSliderData[1][1]);
 
             maxSpatialBaselineDiffSlider.setMinimum(minMaxSelectedSliderData[2][0]);
+            skipDrawChart = false;
             maxSpatialBaselineDiffSlider.setMaximum(minMaxSelectedSliderData[2][1]);
 
             if (!defaultSliderDataLoaded) { // if this is the first time initParameters is called
-                maxTemporalBaselineDiffSlider.setValue(minMaxSelectedSliderData[0][2]);
+                skipDrawChart = true;
+                maxTemporalBaselineDiffSlider.setValue(3 * minMaxSelectedSliderData[0][0]);
                 maxDopplerCentroidDiffSlider.setValue(minMaxSelectedSliderData[1][2]);
+                skipDrawChart = false;
                 maxSpatialBaselineDiffSlider.setValue(minMaxSelectedSliderData[2][2]);
+
                 defaultSliderDataLoaded = true;
             }
         }
@@ -436,6 +439,9 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
         final double[][] metadata = getAcquisitionsMetadata();
         final int[][] minMaxMean = new int[3][3];
+        for (int k = 0; k < 3; k++) {
+            minMaxMean[k][0] = Integer.MAX_VALUE;
+        }
         if (metadata != null) {
             for (int k = 0; k < 3; k++) {
                 for (int n = 0; n < metadata.length; n++) {

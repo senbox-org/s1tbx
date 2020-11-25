@@ -238,6 +238,11 @@ public class MultiMasterInSAROp extends Operator {
             }
         }
 
+        // Check if there are invalid pairs (i.e., pairs whose dates are not found in the source product)
+        if (datesInPairsList.size() > 0) {
+            throw new OperatorException("Check pairs. Invalid dates found: " + datesInPairsList.toString());
+        }
+
         // Create band for DEM
         String elevationBandName = null;
         for (String bandName : sourceProduct.getBandNames()) {
