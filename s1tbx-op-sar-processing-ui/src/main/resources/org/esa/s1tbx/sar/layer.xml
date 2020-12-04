@@ -125,6 +125,17 @@
                 <attr name="helpId" stringvalue="TerrainFlatteningOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-MultitemporalCompositingOp-Action.instance">
+                <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Multitemporal Compositing"/>
+                <attr name="operatorName" stringvalue="Multitemporal-Compositing"/>
+                <attr name="dialogTitle" stringvalue="Multitemporal Compositing"/>
+                <attr name="targetProductNameSuffix" stringvalue="_MCTF"/>
+                <attr name="ShortDescription" stringvalue="Multitemporal Compositing"/>
+                <attr name="helpId" stringvalue="MultitemporalCompositingOp"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
             <file name="org-esa-s1tbx-sar-gpf-filtering-SpeckleFilterOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -216,6 +227,10 @@
                 <file name="org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.instance"/>
                     <attr name="position" intvalue="120"/>
+                </file>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-MultitemporalCompositingOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-MultitemporalCompositingOp-Action.instance"/>
+                    <attr name="position" intvalue="130"/>
                 </file>
             </folder>
             <folder name="Speckle Filtering">
