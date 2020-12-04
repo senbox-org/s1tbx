@@ -692,6 +692,7 @@ public class CreateStackOp extends Operator {
                                     masterProduct.getProductType(),
                                     sceneWidth, sceneHeight);
 
+        ProductUtils.copyProductNodes(masterProduct, targetProduct);
         OperatorUtils.addGeoCoding(targetProduct, scnProp);
     }
 
