@@ -86,6 +86,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     final JCheckBox saveLocalIncidenceAngleCheckBox = new JCheckBox("Local incidence angle");
     final JCheckBox saveProjectedLocalIncidenceAngleCheckBox = new JCheckBox("Projected local incidence angle");
     final JCheckBox saveSelectedSourceBandCheckBox = new JCheckBox("Selected source band");
+    final JCheckBox saveLayoverShadowMaskCheckBox = new JCheckBox("Layover Shadow Mask");
     final JCheckBox applyRadiometricNormalizationCheckBox = new JCheckBox("Apply radiometric normalization");
     final JCheckBox saveBetaNoughtCheckBox = new JCheckBox("Save Beta0 band");
     final JCheckBox saveGammaNoughtCheckBox = new JCheckBox("Save Gamma0 band");
@@ -104,6 +105,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private Boolean saveLocalIncidenceAngle = false;
     private Boolean saveProjectedLocalIncidenceAngle = false;
     private Boolean saveSelectedSourceBand = false;
+    private Boolean saveLayoverShadowMask = false;
     private Boolean applyRadiometricNormalization = false;
     private Boolean saveBetaNought = false;
     private Boolean saveGammaNought = false;
@@ -215,6 +217,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         saveSelectedSourceBandCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 saveSelectedSourceBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        saveLayoverShadowMaskCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -458,6 +465,12 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveSelectedSourceBandCheckBox.setSelected(saveSelectedSourceBand);
         }
 
+        saveLayoverShadowMaskCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
         paramVal = (Boolean) paramMap.get("applyRadiometricNormalization");
         if (paramVal != null) {
             applyRadiometricNormalization = paramVal;
@@ -603,6 +616,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         paramMap.put("saveLocalIncidenceAngle", saveLocalIncidenceAngle);
         paramMap.put("saveProjectedLocalIncidenceAngle", saveProjectedLocalIncidenceAngle);
         paramMap.put("saveSelectedSourceBand", saveSelectedSourceBand);
+        paramMap.put("saveLayoverShadowMask", saveLayoverShadowMask);
         paramMap.put("applyRadiometricNormalization", applyRadiometricNormalization);
         paramMap.put("saveBetaNought", saveBetaNought);
         paramMap.put("saveGammaNought", saveGammaNought);
@@ -688,6 +702,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             gbc2.gridx = 2;
             saveBandsPanel.add(saveProjectedLocalIncidenceAngleCheckBox, gbc2);
         }
+        gbc2.gridy++;
+        gbc2.gridx = 0;
+        saveBandsPanel.add(saveLayoverShadowMaskCheckBox, gbc2);
 
         gbc.gridwidth = 2;
         contentPane.add(saveBandsPanel, gbc);
