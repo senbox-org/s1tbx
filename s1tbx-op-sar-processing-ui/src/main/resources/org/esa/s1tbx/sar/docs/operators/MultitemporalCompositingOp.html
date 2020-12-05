@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Multitemporal Compositing</title>
+
+
+    <link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Multitemporal Compositing<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Multitemporal Compositing Operator</h3>In mountainous and hilly
+areas, SAR imagery is severely distorted geometrically and
+radiometrically. With the applications of Geometric Terrain Correction
+and Terrain Flattening, both the geometric and radiometric terrain
+effects can be removed from the backscatters leaving noise being the
+only factor affecting the land cover classification accuracy.
+Multi-temporal filtering can be applied in this case to reduce the
+noise level. Also the effects of spatially varying local resolution can
+be compensated if images of both ascending and descending views are
+combined. This operator generates a composite SAR image from a stack of
+terrain-flattened and geometrically terrain corrected images together
+with their simulated local illuminated areas.<br><br>The operation requires input images in map geometry. Therefore the processing chain should be as the follows:<br><ol><li>Run Terrain Flattening operator with Output Simulate Image option selected;</li><li>Run Range Doppler Geocoding operator with the terrain-flattened images as input;</li><li>Run Create Stack with Maximum Extent option selected;</li><li>Run this operator with the stack created above as input.</li></ol><h4>Input and Output</h4><ul><li>The
+input to this operator should be a stack of terrain-flattened images. For polarimetric SAR
+product, it should be in T3, C3, C2 matrix format.&nbsp;</li><li>The
+output of this operator is a multitemporal composite&nbsp;image for each band in the master product. For polarimetric
+SAR product, the output is terrain flattened coherency or covariance
+matrices in T3, C3 or C2 format. </li></ul>
+<h4>Parameters Used</h4>&nbsp;&nbsp; No processing parameters are needed for this operator.<br>
+<ul></ul>
+<img style="width: 436px; height: 443px;" alt="" src="images/MultitemporalCompositingOp.jpg"><br>
+
+<p>Reference:</p><p>[1] Small, D. "SAR backscatter multitemporal
+compositing via local resolution weighting." In 2012 IEEE International
+Geoscience and Remote Sensing Symposium, pp. 4521-4524. IEEE, 2012<br></p>
+
+
+
+
+<hr>
+</body></html>
