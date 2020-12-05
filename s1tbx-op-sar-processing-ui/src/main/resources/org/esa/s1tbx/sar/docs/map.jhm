@@ -16,6 +16,7 @@
     <mapID target="ALOSDeskewingOp" url="operators/ALOSDeskewingOp.html"/>
     <mapID target="TerrainFlatteningOp" url="operators/TerrainFlatteningOp.html"/>
     <mapID target="UpdateGeoRefOp" url="operators/UpdateGeoRefOp.html"/>
+    <mapID target="MultitemporalCompositingOp" url="operators/MultitemporalCompositingOp.html"/>
 
     <!--SAR Operators-->
     <mapID target="ApplyOrbitFileOp" url="operators/ApplyOrbitFileOp.html"/>
