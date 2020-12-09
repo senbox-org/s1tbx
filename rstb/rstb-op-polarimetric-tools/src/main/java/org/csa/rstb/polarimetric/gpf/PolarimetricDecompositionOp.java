@@ -58,7 +58,8 @@ public final class PolarimetricDecompositionOp extends Operator {
     @Parameter(valueSet = {SINCLAIR_DECOMPOSITION, PAULI_DECOMPOSITION, FREEMAN_DURDEN_DECOMPOSITION,
             GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION,
             YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, H_ALPHA_DECOMPOSITION,
-            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION}, defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
+            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION, HUYNEN_DECOMPOSITION},
+            defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
     private String decomposition = SINCLAIR_DECOMPOSITION;
 
     @Parameter(description = "The sliding window size", interval = "[1, 100]", defaultValue = "5", label = "Window Size")
@@ -102,6 +103,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     public static final String H_ALPHA_DECOMPOSITION = "H-Alpha Dual Pol Decomposition";
     public static final String CLOUDE_DECOMPOSITION = "Cloude Decomposition";
     public static final String TOUZI_DECOMPOSITION = "Touzi Decomposition";
+    public static final String HUYNEN_DECOMPOSITION = "Huynen Decomposition";
 
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType = null;
@@ -117,7 +119,7 @@ public final class PolarimetricDecompositionOp extends Operator {
         if (s.equals(SINCLAIR_DECOMPOSITION) || s.equals(PAULI_DECOMPOSITION) ||
                 s.equals(FREEMAN_DURDEN_DECOMPOSITION) || s.equals(YAMAGUCHI_DECOMPOSITION) ||
                 s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) || s.equals(H_ALPHA_DECOMPOSITION) ||
-                s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) ||
+                s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) || s.equals(HUYNEN_DECOMPOSITION) ||
                 s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
             decomposition = s;
         } else {
@@ -246,6 +248,9 @@ public final class PolarimetricDecompositionOp extends Operator {
                         outputTouziParamSet1,
                         outputTouziParamSet2,
                         outputTouziParamSet3);
+            case HUYNEN_DECOMPOSITION:
+                return new Huynen(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
         }
         return null;
     }
