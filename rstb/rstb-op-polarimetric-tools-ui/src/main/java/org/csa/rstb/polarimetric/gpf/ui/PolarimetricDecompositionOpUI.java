@@ -40,7 +40,8 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
             PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION,
             PolarimetricDecompositionOp.H_ALPHA_DECOMPOSITION,
             PolarimetricDecompositionOp.TOUZI_DECOMPOSITION,
-            PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION
+            PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION,
+            PolarimetricDecompositionOp.KROGAGER_DECOMPOSITION
     });
 
     private final JLabel windowSizeLabel = new JLabel("Window Size:   ");

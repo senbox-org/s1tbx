@@ -58,7 +58,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     @Parameter(valueSet = {SINCLAIR_DECOMPOSITION, PAULI_DECOMPOSITION, FREEMAN_DURDEN_DECOMPOSITION,
             GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION,
             YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, H_ALPHA_DECOMPOSITION,
-            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION, HUYNEN_DECOMPOSITION},
+            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION, HUYNEN_DECOMPOSITION, KROGAGER_DECOMPOSITION},
             defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
     private String decomposition = SINCLAIR_DECOMPOSITION;
 
@@ -104,6 +104,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     public static final String CLOUDE_DECOMPOSITION = "Cloude Decomposition";
     public static final String TOUZI_DECOMPOSITION = "Touzi Decomposition";
     public static final String HUYNEN_DECOMPOSITION = "Huynen Decomposition";
+    public static final String KROGAGER_DECOMPOSITION = "Krogager Decomposition";
 
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType = null;
@@ -120,7 +121,7 @@ public final class PolarimetricDecompositionOp extends Operator {
                 s.equals(FREEMAN_DURDEN_DECOMPOSITION) || s.equals(YAMAGUCHI_DECOMPOSITION) ||
                 s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) || s.equals(H_ALPHA_DECOMPOSITION) ||
                 s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) || s.equals(HUYNEN_DECOMPOSITION) ||
-                s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
+                s.equals(KROGAGER_DECOMPOSITION) || s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
             decomposition = s;
         } else {
             throw new OperatorException(s + " is an invalid decomposition name.");
@@ -250,6 +251,9 @@ public final class PolarimetricDecompositionOp extends Operator {
                         outputTouziParamSet3);
             case HUYNEN_DECOMPOSITION:
                 return new Huynen(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case KROGAGER_DECOMPOSITION:
+                return new Krogager(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight);
         }
         return null;
