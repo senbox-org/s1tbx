@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.s1tbx.commons.polsar.PolBandUtils.MATRIX;
@@ -25,7 +24,6 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -58,11 +56,7 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
      * @return list of band names
      */
     public String[] getTargetBandNames() {
-        final List<String> targetBandNameList = new ArrayList<>(3);
-        targetBandNameList.add(TWO_A0);
-        targetBandNameList.add(B0_PLUS_B);
-        targetBandNameList.add(B0_MINUS_B);
-        return targetBandNameList.toArray(new String[targetBandNameList.size()]);
+        return new String[]{B0_PLUS_B, B0_MINUS_B, TWO_A0};
     }
 
     /**
@@ -72,7 +66,7 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
      * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
-        targetBand.setUnit(Unit.INTENSITY);
+        targetBand.setUnit(Unit.INTENSITY_DB);
     }
 
     private synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
@@ -150,7 +144,10 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
                         continue;
                     }
 
-                    getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
+                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
+                            sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+
+//                    getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
 
                     final HDD data = getHuynenDecomposition(Tr, Ti);
 

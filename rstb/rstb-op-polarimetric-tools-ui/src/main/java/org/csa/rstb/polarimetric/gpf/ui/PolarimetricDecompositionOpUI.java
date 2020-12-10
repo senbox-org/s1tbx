@@ -212,6 +212,7 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
                         item.equals(PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.H_ALPHA_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.TOUZI_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
                     DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
                 } else {
