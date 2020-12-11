@@ -57,6 +57,9 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
     private final JCheckBox outputTouziParamSet2CheckBox = new JCheckBox("Psi 2, Tau 2, Alpha 2, Phi 2");
     private final JCheckBox outputTouziParamSet3CheckBox = new JCheckBox("Psi 3, Tau 3, Alpha 3, Phi 3");
 
+    private final JCheckBox outputHuynenParamSet0CheckBox = new JCheckBox("2A0, B0_plus_B, B0_minus_B (in dB)");
+    private final JCheckBox outputHuynenParamSet1CheckBox = new JCheckBox("A0, B0, B, C, D, E, F, G, H");
+
     private boolean outputHAAlpha = true;
     private boolean outputBetaDeltaGammaLambda = false;
     private boolean outputAlpha123 = false;
@@ -66,6 +69,9 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
     private boolean outputTouziParamSet1 = false;
     private boolean outputTouziParamSet2 = false;
     private boolean outputTouziParamSet3 = false;
+
+    private boolean outputHuynenParamSet0 = true;
+    private boolean outputHuynenParamSet1 = false;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -122,6 +128,18 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
             }
         });
 
+        outputHuynenParamSet0CheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputHuynenParamSet0 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
+        outputHuynenParamSet1CheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputHuynenParamSet1 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
         return panel;
     }
 
@@ -172,6 +190,17 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
             outputTouziParamSet3 = paramVal;
             outputTouziParamSet3CheckBox.getModel().setPressed(outputTouziParamSet3);
         }
+
+        paramVal = (Boolean) paramMap.get("outputHuynenParamSet0");
+        if (paramVal != null) {
+            outputHuynenParamSet0 = paramVal;
+            outputHuynenParamSet0CheckBox.getModel().setPressed(outputHuynenParamSet0);
+        }
+        paramVal = (Boolean) paramMap.get("outputHuynenParamSet1");
+        if (paramVal != null) {
+            outputHuynenParamSet1 = paramVal;
+            outputHuynenParamSet1CheckBox.getModel().setPressed(outputHuynenParamSet1);
+        }
     }
 
     @Override
@@ -193,6 +222,8 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
         paramMap.put("outputTouziParamSet1", outputTouziParamSet1);
         paramMap.put("outputTouziParamSet2", outputTouziParamSet2);
         paramMap.put("outputTouziParamSet3", outputTouziParamSet3);
+        paramMap.put("outputHuynenParamSet0", outputHuynenParamSet0);
+        paramMap.put("outputHuynenParamSet1", outputHuynenParamSet1);
     }
 
     private JComponent createPanel() {
@@ -252,6 +283,17 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
                     outputTouziParamSet2CheckBox.setVisible(false);
                     outputTouziParamSet3CheckBox.setVisible(false);
                 }
+
+                if (item.equals(PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION)) {
+                    outputHuynenParamSet0CheckBox.setVisible(true);
+                    outputHuynenParamSet1CheckBox.setVisible(true);
+
+                    outputHuynenParamSet0CheckBox.setSelected(true);
+                    outputHuynenParamSet1CheckBox.setSelected(false);
+                } else {
+                    outputHuynenParamSet0CheckBox.setVisible(false);
+                    outputHuynenParamSet1CheckBox.setVisible(false);
+                }
             }
         });
 
@@ -279,6 +321,11 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
         gbc.gridy++;
         contentPane.add(outputTouziParamSet3CheckBox, gbc);
 
+        gbc.gridy = gridySaved;
+        contentPane.add(outputHuynenParamSet0CheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(outputHuynenParamSet1CheckBox, gbc);
+
         outputHAAlphaCheckBox.setVisible(false);
         outputBetaDeltaGammaLambdaCheckBox.setVisible(false);
         outputAlpha123CheckBox.setVisible(false);
@@ -288,6 +335,9 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
         outputTouziParamSet1CheckBox.setVisible(false);
         outputTouziParamSet2CheckBox.setVisible(false);
         outputTouziParamSet3CheckBox.setVisible(false);
+
+        outputHuynenParamSet0CheckBox.setVisible(false);
+        outputHuynenParamSet1CheckBox.setVisible(false);
 
         DialogUtils.fillPanel(contentPane, gbc);
 

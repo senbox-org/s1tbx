@@ -93,6 +93,13 @@ public final class PolarimetricDecompositionOp extends Operator {
     @Parameter(description = "Output psi3, tau3, alpha3, phi3", defaultValue = "false", label = "Psi 3, Tau 3, Alpha 3, Phi 3")
     private boolean outputTouziParamSet3 = false;
 
+    // Huynen flags
+    @Parameter(description = "Output 2A0_b, B0_plus_B, B0_minus_B", defaultValue = "true", label = "2A0_b, B0_plus_B, B0_minus_B")
+    private boolean outputHuynenParamSet0 = true;
+
+    @Parameter(description = "Output A0, B0, B, C, D, E, F, G, H", defaultValue = "false", label = "A0, B0, B, C, D, E, F, G, H")
+    private boolean outputHuynenParamSet1 = false;
+
     public static final String SINCLAIR_DECOMPOSITION = "Sinclair Decomposition";
     public static final String PAULI_DECOMPOSITION = "Pauli Decomposition";
     public static final String FREEMAN_DURDEN_DECOMPOSITION = "Freeman-Durden Decomposition";
@@ -142,6 +149,11 @@ public final class PolarimetricDecompositionOp extends Operator {
         outputBetaDeltaGammaLambda = BetaDeltaGammaLambda;
         outputAlpha123 = Alpha123;
         outputLambda123 = Lambda123;
+    }
+
+    protected void setHuynenParameters(final boolean set0, final boolean set1) {
+        outputHuynenParamSet0 = set0;
+        outputHuynenParamSet1 = set1;
     }
 
     /**
@@ -251,7 +263,9 @@ public final class PolarimetricDecompositionOp extends Operator {
                         outputTouziParamSet3);
             case HUYNEN_DECOMPOSITION:
                 return new Huynen(srcBandList, sourceProductType,
-                        windowSize, sourceImageWidth, sourceImageHeight);
+                        windowSize, sourceImageWidth, sourceImageHeight,
+                        outputHuynenParamSet0,
+                        outputHuynenParamSet1);
             case KROGAGER_DECOMPOSITION:
                 return new Krogager(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight);

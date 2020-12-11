@@ -36,14 +36,31 @@ import java.util.Map;
  */
 public class Huynen extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
+    private final boolean outputHuynenParamSet0;
+    private final boolean outputHuynenParamSet1;
+
     private final static String TWO_A0 = "2A0_b";
     private final static String B0_PLUS_B = "B0_plus_B_r";
     private final static String B0_MINUS_B = "B0_minus_B_g";
+    private final static String A0 = "A0";
+    private final static String B0 = "B0";
+    private final static String B = "B";
+    private final static String C = "C";
+    private final static String D = "D";
+    private final static String E = "E";
+    private final static String F = "F";
+    private final static String G = "G";
+    private final static String H = "H";
 
 
     public Huynen(final PolBandUtils.PolSourceBand[] srcBandList, final MATRIX sourceProductType,
-                 final int windowSize, final int srcImageWidth, final int srcImageHeight) {
+                  final int windowSize, final int srcImageWidth, final int srcImageHeight,
+                  final boolean outputHuynenParamSet0,
+                  final boolean outputHuynenParamSet1) {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
+
+        this.outputHuynenParamSet0 = outputHuynenParamSet0;
+        this.outputHuynenParamSet1 = outputHuynenParamSet1;
     }
 
     public String getSuffix() {
@@ -56,7 +73,30 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
      * @return list of band names
      */
     public String[] getTargetBandNames() {
-        return new String[]{B0_PLUS_B, B0_MINUS_B, TWO_A0};
+        final List<String> targetBandNameList = new ArrayList<>(3);
+
+        if (!outputHuynenParamSet0 && !outputHuynenParamSet1) {
+            throw new OperatorException("Please select decomposition parameters to output");
+        }
+
+        if (outputHuynenParamSet0) {
+            targetBandNameList.add(B0_PLUS_B);
+            targetBandNameList.add(B0_MINUS_B);
+            targetBandNameList.add(TWO_A0);
+        }
+        if (outputHuynenParamSet1) {
+            targetBandNameList.add(A0);
+            targetBandNameList.add(B0);
+            targetBandNameList.add(B);
+            targetBandNameList.add(C);
+            targetBandNameList.add(D);
+            targetBandNameList.add(E);
+            targetBandNameList.add(F);
+            targetBandNameList.add(G);
+            targetBandNameList.add(H);
+        }
+
+        return targetBandNameList.toArray(new String[targetBandNameList.size()]);
     }
 
     /**
@@ -66,7 +106,15 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
      * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
-        targetBand.setUnit(Unit.INTENSITY_DB);
+        if (targetBandName.equals(B0_PLUS_B) || targetBandName.equals(B0_MINUS_B) || targetBandName.equals(TWO_A0)) {
+            targetBand.setUnit(Unit.INTENSITY_DB);
+        } else if (targetBandName.equals(A0) || targetBandName.equals(B0) || targetBandName.equals(B)) {
+            targetBand.setUnit(Unit.INTENSITY);
+        } else if (targetBandName.equals(C) || targetBandName.equals(E) || targetBandName.equals(H)) {
+            targetBand.setUnit(Unit.REAL);
+        } else if (targetBandName.equals(D) || targetBandName.equals(F) || targetBandName.equals(G)) {
+            targetBand.setUnit(Unit.IMAGINARY);
+        }
     }
 
     private synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
@@ -99,27 +147,14 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
         final int maxX = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
+        final TileIndex trgIndex = new TileIndex(targetTiles.get(op.getTargetProduct().getBandAt(0)));
+
+        final double[][] Tr = new double[3][3];
+        final double[][] Ti = new double[3][3];
+
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
-            final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
-            int j = 0;
-            for (Band targetBand : bandList.targetBands) {
-                final String targetBandName = targetBand.getName();
-                if (targetBandName.contains(B0_PLUS_B)) {
-                    targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.R);
-                } else if (targetBandName.contains(B0_MINUS_B)) {
-                    targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.G);
-                } else if (targetBandName.contains(TWO_A0)) {
-                    targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.B);
-                }
-                ++j;
-            }
-            final TileIndex trgIndex = new TileIndex(targetInfo[0].tile);
-
-            final double[][] Tr = new double[3][3];
-            final double[][] Ti = new double[3][3];
-
-            if (!bandList.spanMinMaxSet) {
+            if (outputHuynenParamSet0 && !bandList.spanMinMaxSet) {
                 setSpanMinMax(op, bandList);
             }
 
@@ -131,7 +166,6 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
             final double nodatavalue = bandList.srcBands[0].getNoDataValue();
 
-            double two_A0, B0_plus_B, B0_minus_B;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
                 srcIndex.calculateStride(y);
@@ -151,18 +185,42 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
 
                     final HDD data = getHuynenDecomposition(Tr, Ti);
 
-                    two_A0 = scaleDb(data.two_A0, bandList.spanMin, bandList.spanMax);
-                    B0_plus_B = scaleDb(data.B0_plus_B, bandList.spanMin, bandList.spanMax);
-                    B0_minus_B = scaleDb(data.B0_minus_B, bandList.spanMin, bandList.spanMax);
-
                     final int idx = trgIndex.getIndex(x);
-                    for (TargetInfo target : targetInfo) {
-                        if (target.colour == TargetBandColour.R) {
-                            target.dataBuffer.setElemFloatAt(idx, (float) B0_plus_B);
-                        } else if (target.colour == TargetBandColour.G) {
-                            target.dataBuffer.setElemFloatAt(idx, (float) B0_minus_B);
-                        } else if (target.colour == TargetBandColour.B) {
-                            target.dataBuffer.setElemFloatAt(idx, (float) two_A0);
+                    for (final Band band : bandList.targetBands) {
+                        final String targetBandName = band.getName();
+                        final ProductData dataBuffer = targetTiles.get(band).getDataBuffer();
+
+                        if (outputHuynenParamSet0) {
+                            if (targetBandName.equals(TWO_A0))
+                                dataBuffer.setElemFloatAt(idx,
+                                        (float) scaleDb(data.two_A0, bandList.spanMin, bandList.spanMax));
+                            else if (targetBandName.equals(B0_PLUS_B))
+                                dataBuffer.setElemFloatAt(idx,
+                                        (float) scaleDb(data.B0_plus_B, bandList.spanMin, bandList.spanMax));
+                            else if (targetBandName.equals(B0_MINUS_B))
+                                dataBuffer.setElemFloatAt(idx,
+                                        (float) scaleDb(data.B0_minus_B, bandList.spanMin, bandList.spanMax));
+                        }
+
+                        if (outputHuynenParamSet1) {
+                            if (targetBandName.equals(A0))
+                                dataBuffer.setElemFloatAt(idx, (float) data.A0);
+                            else if (targetBandName.equals(B0))
+                                dataBuffer.setElemFloatAt(idx, (float) data.B0);
+                            else if (targetBandName.equals(B))
+                                dataBuffer.setElemFloatAt(idx, (float) data.B);
+                            else if (targetBandName.equals(C))
+                                dataBuffer.setElemFloatAt(idx, (float) data.C);
+                            else if (targetBandName.equals(D))
+                                dataBuffer.setElemFloatAt(idx, (float) data.D);
+                            else if (targetBandName.equals(E))
+                                dataBuffer.setElemFloatAt(idx, (float) data.E);
+                            else if (targetBandName.equals(F))
+                                dataBuffer.setElemFloatAt(idx, (float) data.F);
+                            else if (targetBandName.equals(G))
+                                dataBuffer.setElemFloatAt(idx, (float) data.G);
+                            else if (targetBandName.equals(H))
+                                dataBuffer.setElemFloatAt(idx, (float) data.H);
                         }
                     }
                 }
@@ -177,21 +235,42 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
         final double D = -Ti[0][1];
         final double H = Tr[0][2];
         final double G = Ti[0][2];
-        final double B0 = (C*C + D*D + G*G + H*H) / (4.0*A0);
-        final double B = (C*C + D*D - G*G - H*H) / (4.0*A0);
+        final double B0 = (C * C + D * D + G * G + H * H) / (4.0 * A0);
+        final double B = (C * C + D * D - G * G - H * H) / (4.0 * A0);
+        final double E = (C * H - D * G) / (2.0 * A0);
+        final double F = (C * G + D * H) / (2.0 * A0);
 
-        return new HDD(A0, B0, B);
+        return new HDD(A0, B0, B, C, D, E, F, G, H);
     }
 
     public static class HDD {
         public final double two_A0;
         public final double B0_plus_B;
         public final double B0_minus_B;
+        public final double A0;
+        public final double B0;
+        public final double B;
+        public final double C;
+        public final double D;
+        public final double E;
+        public final double F;
+        public final double G;
+        public final double H;
 
-        public HDD(final double A0, final double B0, final double B) {
+        public HDD(final double A0, final double B0, final double B, final double C, final double D,
+                   final double E, final double F, final double G, final double H) {
             this.two_A0 = 2.0 * A0;
             this.B0_plus_B = B0 + B;
             this.B0_minus_B = B0 - B;
+            this.A0 = A0;
+            this.B0 = B0;
+            this.B = B;
+            this.C = C;
+            this.D = D;
+            this.E = E;
+            this.F = F;
+            this.G = G;
+            this.H = H;
         }
     }
 }
