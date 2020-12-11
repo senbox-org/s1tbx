@@ -28,8 +28,6 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,11 +55,8 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
      * @return list of band names
      */
     public String[] getTargetBandNames() {
-        final List<String> targetBandNameList = new ArrayList<>(3);
-        targetBandNameList.add(K_S);
-        targetBandNameList.add(K_D);
-        targetBandNameList.add(K_H);
-        return targetBandNameList.toArray(new String[targetBandNameList.size()]);
+        return new String[]{K_D, K_H, K_S};
+
     }
 
     /**
@@ -71,7 +66,7 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
      * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
-        targetBand.setUnit(Unit.INTENSITY);
+        targetBand.setUnit(Unit.INTENSITY_DB);
     }
 
     private synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
@@ -191,9 +186,9 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
         public final double ks;
 
         public KDD(final double A0, final double B0, final double F) {
-            this.ks = FastMath.sqrt(2.0 * A0);
-            this.kd = FastMath.sqrt(2.0 * (B0 - FastMath.abs(F)));
-            this.kh = 2.0*FastMath.sqrt(B0 - FastMath.sqrt(B0 * B0 - F * F));
+            this.ks = 2.0 * A0;
+            this.kd = 2.0 * (B0 - FastMath.abs(F));
+            this.kh = 4.0 * (B0 - FastMath.sqrt(B0 * B0 - F * F));
         }
     }
 }
