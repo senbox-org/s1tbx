@@ -93,8 +93,10 @@ public class TimeSeriesSettings {
     public void setSelectedBands(final String[] selectedBands) {
         this.selectedBandNames = selectedBands;
         this.bandStrokeMap.clear();
-        for(String bandName : selectedBands) {
-            getBandStroke(bandName);
+        if(selectedBands != null) {
+            for (String bandName : selectedBands) {
+                getBandStroke(bandName);
+            }
         }
     }
 
