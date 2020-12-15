@@ -41,6 +41,7 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
             PolarimetricDecompositionOp.H_ALPHA_DECOMPOSITION,
             PolarimetricDecompositionOp.TOUZI_DECOMPOSITION,
             PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION,
+            PolarimetricDecompositionOp.YANG_DECOMPOSITION,
             PolarimetricDecompositionOp.KROGAGER_DECOMPOSITION
     });
 
@@ -244,6 +245,7 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
                         item.equals(PolarimetricDecompositionOp.H_ALPHA_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.TOUZI_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.YANG_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
                     DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
                 } else {
@@ -284,7 +286,8 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
                     outputTouziParamSet3CheckBox.setVisible(false);
                 }
 
-                if (item.equals(PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION)) {
+                if (item.equals(PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.YANG_DECOMPOSITION)) {
                     outputHuynenParamSet0CheckBox.setVisible(true);
                     outputHuynenParamSet1CheckBox.setVisible(true);
 
