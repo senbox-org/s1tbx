@@ -24,6 +24,7 @@
 					    <tocitem text="ALOS PALSAR 1" target="ImportAlosPalsar"/>
 						<tocitem text="ALOS PALSAR 2" target="ImportAlos2"/>
 						<tocitem text="Capella" target="ImportCapella"/>
+                        <tocitem text="Gaofen3" target="ImportGaofen3"/>
                         <tocitem text="Cosmo-Skymed" target="ImportCosmoSkymed"/>
                         <tocitem text="ENVISAT ASAR" target="importEnvisatProduct"/>
                         <tocitem text="ERS-1" target="importErsProduct"/>
