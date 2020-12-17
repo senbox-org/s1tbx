@@ -64,6 +64,10 @@
             <artifactId>jcoord</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
