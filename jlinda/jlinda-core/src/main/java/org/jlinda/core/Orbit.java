@@ -45,7 +45,7 @@ public final class Orbit {
 
     public Orbit(double[] timeVector, double[] xVector, double[] yVector, double[] zVector, int degree) {
 
-        numStateVectors = time.length;
+        numStateVectors = timeVector.length;
 
         // state vectors
         time = timeVector;
