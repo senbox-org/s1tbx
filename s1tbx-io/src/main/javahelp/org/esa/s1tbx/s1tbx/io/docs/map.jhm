@@ -8,6 +8,7 @@
     <!-- Product Readers -->
 	<mapID target="ImportAlosPalsar" url="readers/ImportAlosPalsar.html"/>
 	<mapID target="ImportAlos2" url="readers/ImportAlos2.html"/>
+    <mapID target="ImportGaofen3" url="readers/ImportGaofen3.html"/>
 	<mapID target="ImportCapella" url="readers/ImportCapella.html"/>
 	<mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
     <mapID target="importEnvisatProduct" url="readers/ImportEnvisat.html"/>
