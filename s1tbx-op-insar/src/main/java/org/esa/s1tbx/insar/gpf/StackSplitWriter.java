@@ -1,24 +1,9 @@
-/*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
+
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.product.StackSplit;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.dataio.ProductSubsetBuilder;
-import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
@@ -29,8 +14,6 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.subset.PixelSubsetRegion;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 
@@ -38,9 +21,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Split a stack product into individual products
@@ -88,23 +69,19 @@ public class StackSplitWriter extends Operator {
                 }
             }
 
-            final int width = sourceProduct.getSceneRasterWidth();
-            final int height = sourceProduct.getSceneRasterHeight();
-
             targetProduct = sourceProduct;
-            targetProduct.setPreferredTileSize(new Dimension(width, height));
+            targetProduct.setPreferredTileSize(
+                    new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
 
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            final String mstProductName = absRoot.getAttributeString(AbstractMetadata.PRODUCT, sourceProduct.getName());
+            final StackSplit stackSplit = new StackSplit(sourceProduct);
+
             final String[] mstNames = StackUtils.getMasterBandNames(sourceProduct);
-            //System.out.println("mstProductName = " + mstProductName);
-            createSubset(mstProductName, getBandNames(mstNames));
+            createSubset(StackSplit.getBandNames(sourceProduct, mstNames), stackSplit.getReferenceSubset());
 
-            final String[] slvProductNames = StackUtils.getSlaveProductNames(sourceProduct);
-            for(String slvProductName : slvProductNames) {
-                final String[] slvBandNames = StackUtils.getSlaveBandNames(sourceProduct, slvProductName);
-                //System.out.println("slvProductName = " + slvProductName);
-                createSubset(slvProductName, getBandNames(slvBandNames));
+            final StackSplit.Subset[] secondarySubsets = stackSplit.getSecondarySubsets();
+            for(StackSplit.Subset secondarySubset : secondarySubsets) {
+                final String[] slvBandNames = StackUtils.getSlaveBandNames(sourceProduct, secondarySubset.productName);
+                createSubset(StackSplit.getBandNames(sourceProduct, slvBandNames), secondarySubset);
             }
 
         } catch (Throwable t) {
@@ -112,51 +89,11 @@ public class StackSplitWriter extends Operator {
         }
     }
 
-    private String[] getBandNames(final String[] names) {
-        final Set<String> bandNames = new HashSet<>();
-        for(String name : names) {
-            final String suffix = StackUtils.getBandSuffix(name);
-            for(String srcBandName : sourceProduct.getBandNames()) {
-                if(srcBandName.endsWith(suffix)) {
-                    bandNames.add(srcBandName);
-                }
-            }
-        }
-        return bandNames.toArray(new String[bandNames.size()]);
-    }
+    private void createSubset(final String[] bandNames, final StackSplit.Subset subset) {
 
-    private void createSubset(final String productName, final String[] bandNames) throws IOException {
-
-        final int width = sourceProduct.getSceneRasterWidth();
-        final int height = sourceProduct.getSceneRasterHeight();
-
-        final ProductSubsetDef subsetDef = new ProductSubsetDef();
-        subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
-        subsetDef.addNodeNames(bandNames);
-        subsetDef.setSubsetRegion(new PixelSubsetRegion(0, 0, width, height, 0));
-        subsetDef.setSubSampling(1, 1);
-        subsetDef.setIgnoreMetadata(true);
-
-        SubsetInfo subsetInfo = new SubsetInfo();
-        subsetInfo.subsetBuilder = new ProductSubsetBuilder();
-        subsetInfo.subsetProduct = subsetInfo.subsetBuilder.readProductNodes(sourceProduct, subsetDef);
-        subsetInfo.file = new File(targetFolder, productName);
-
-        // update band name
-        for(Band trgBand : subsetInfo.subsetProduct.getBands()) {
-            final String newBandName = StackUtils.getBandNameWithoutDate(trgBand.getName());
-            subsetInfo.newBandNamingMap.put(newBandName, trgBand.getName());
-            trgBand.setName(newBandName);
-
-            // update virtual band expressions
-            for(Band vBand : subsetInfo.subsetProduct.getBands()) {
-                if(vBand instanceof VirtualBand) {
-                    final VirtualBand virtBand = (VirtualBand)vBand;
-                    String expression = virtBand.getExpression().replaceAll(trgBand.getName(), newBandName);
-                    virtBand.setExpression(expression);
-                }
-            }
-        }
+        final SubsetInfo subsetInfo = new SubsetInfo();
+        subsetInfo.subset = subset;
+        subsetInfo.file = new File(targetFolder, subset.productName);
 
         subsetInfo.productWriter = ProductIO.getProductWriter(formatName);
         if (subsetInfo.productWriter == null) {
@@ -164,12 +101,11 @@ public class StackSplitWriter extends Operator {
         }
         subsetInfo.productWriter.setFormatName(formatName);
         subsetInfo.productWriter.setIncrementalMode(false);
-        subsetInfo.subsetProduct.setProductWriter(subsetInfo.productWriter);
+        subsetInfo.subset.subsetProduct.setProductWriter(subsetInfo.productWriter);
         for (String bandName : bandNames) {
             Band band = targetProduct.getBand(bandName);
             if (!(band instanceof VirtualBand)) {
                 bandMap.put(band, subsetInfo);
-                //System.out.println("createSubset: productName = " + productName + " put band " + band.getName());
                 break;
             }
         }
@@ -182,9 +118,9 @@ public class StackSplitWriter extends Operator {
             if(subsetInfo == null)
                 return;
 
-            subsetInfo.productWriter.writeProductNodes(subsetInfo.subsetProduct, subsetInfo.file);
+            subsetInfo.productWriter.writeProductNodes(subsetInfo.subset.subsetProduct, subsetInfo.file);
 
-            final Rectangle trgRect = subsetInfo.subsetBuilder.getSubsetDef().getRegion();
+            final Rectangle trgRect = subsetInfo.subset.subsetBuilder.getSubsetDef().getRegion();
             if (!subsetInfo.written) {
                 writeTile(subsetInfo, trgRect);
             }
@@ -197,16 +133,14 @@ public class StackSplitWriter extends Operator {
         }
     }
 
-    private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect)
-            throws IOException {
+    private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
         if (info.written) return;
 
-        for(Band trgBand : info.subsetProduct.getBands()) {
-            final String oldBandName = info.newBandNamingMap.get(trgBand.getName());
+        for(Band trgBand : info.subset.subsetProduct.getBands()) {
+            final String oldBandName = info.subset.newBandNamingMap.get(trgBand.getName());
             final Tile sourceTile = getSourceTile(sourceProduct.getBand(oldBandName), trgRect);
             final ProductData rawSamples = sourceTile.getRawSamples();
 
-            //final String newBandName = StackUtils.getBandNameWithoutDate(bandName);
             info.productWriter.writeBandRasterData(trgBand,
                     0, 0, trgBand.getRasterWidth(), trgBand.getRasterHeight(), rawSamples, ProgressMonitor.NULL);
         }
@@ -226,12 +160,10 @@ public class StackSplitWriter extends Operator {
     }
 
     private static class SubsetInfo {
-        Product subsetProduct;
-        ProductSubsetBuilder subsetBuilder;
+        StackSplit.Subset subset;
         File file;
         ProductWriter productWriter;
         boolean written = false;
-        final Map<String, String> newBandNamingMap = new HashMap<>();
     }
 
     public static class Spi extends OperatorSpi {
@@ -239,5 +171,4 @@ public class StackSplitWriter extends Operator {
             super(StackSplitWriter.class);
         }
     }
-
 }
