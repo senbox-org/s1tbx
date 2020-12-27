@@ -22,6 +22,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
  * Author: Sami Salkosuo, sami.salkosuo@fi.ibm.com
  *
  * (c) Copyright IBM Corp. 2007
+ * GNU General Public License v2.0
  */
 
 public class UTM2LatLon {
