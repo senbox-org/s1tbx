@@ -520,7 +520,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         bandName = "Sigma0" + '_' + suffix;
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
-                        band.setUnit(Unit.AMPLITUDE);
+                        band.setUnit(Unit.INTENSITY);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(0);
 
