@@ -33,9 +33,9 @@ public class CalibrationFactory {
             throw new OperatorException("AbstractMetadata is null");
         }
 
-        if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
-            throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
-        }
+//        if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
+//            throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+//        }
 
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
