@@ -41,6 +41,7 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
 
     private static final String[] SUPPORTED_MISSIONS = new String[] {"ICEYE", Missions.ICEYE};
 
+    private boolean inputSigma0 = false;
     private double calibrationFactor;
     private TiePointGrid incidenceAngle = null;
 
@@ -89,7 +90,12 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
-            getCalibrationFlag();
+            if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
+                if (outputImageInComplex) {
+                    throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                }
+                inputSigma0 = true;
+            }
 
             getSampleType();
 
@@ -220,11 +226,15 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("ICEYE Calibration: unhandled unit");
                 }
 
-                //K * DN2, calibrated_dB=10*log10(calibrated), DN2=square(S_I)+square(S_Q)
-                sigma = calibrationFactor * dn * Math.sin(incidenceAngle.getPixelDouble(x, y) * Constants.DTOR);
+                if (inputSigma0) {
+                    sigma = dn;
+                } else {
+                    //K * DN2, calibrated_dB=10*log10(calibrated), DN2=square(S_I)+square(S_Q)
+                    sigma = calibrationFactor * dn * Math.sin(incidenceAngle.getPixelDouble(x, y) * Constants.DTOR);
 
-                if (isComplex && outputImageInComplex) {
-                    sigma = Math.sqrt(sigma)*phaseTerm;
+                    if (isComplex && outputImageInComplex) {
+                        sigma = Math.sqrt(sigma)*phaseTerm;
+                    }
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB

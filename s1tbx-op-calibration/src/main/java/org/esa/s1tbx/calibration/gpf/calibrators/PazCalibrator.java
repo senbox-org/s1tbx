@@ -49,6 +49,7 @@ public class PazCalibrator extends BaseCalibrator implements Calibrator {
 
     private String productType = null;
     private String acquisitionMode = null;
+    private boolean inputSigma0 = false;
     private boolean useIncidenceAngleFromGIM = false;
     private double firstLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
@@ -113,7 +114,12 @@ public class PazCalibrator extends BaseCalibrator implements Calibrator {
 
             getProductType();
 
-            getCalibrationFlag();
+            if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
+                if (outputImageInComplex) {
+                    throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                }
+                inputSigma0 = true;
+            }
 
             getSampleType();
 
@@ -404,7 +410,6 @@ public class PazCalibrator extends BaseCalibrator implements Calibrator {
 
         double sigma, dn, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
-        final Double noDataValue = targetBand.getNoDataValue();
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -415,11 +420,6 @@ public class PazCalibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-//                if(noDataValue.equals(dn)) {
-//                    trgData.setElemDoubleAt(tgtIdx, noDataValue);
-//                    continue;
-//                }
-
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
@@ -443,22 +443,27 @@ public class PazCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("Paz Calibration: unhandled unit");
                 }
 
-                double inciAng;
-                if (useIncidenceAngleFromGIM) {
-                    final int gim = srcGIMData.getElemIntAt(srcIdx);
-                    inciAng = (gim - (gim % 10)) / 100.0 * Constants.DTOR;
+                if (inputSigma0) {
+                    sigma = dn;
                 } else {
-                    inciAng = incidenceAngle.getPixelDouble(x, y) * Constants.DTOR;
-                }
 
-                if (noiseCorrectedFlag) {
-                    sigma = Ks * dn * FastMath.sin(inciAng);
-                } else {
-                    sigma = Ks * Math.abs(dn - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
-                }
+                    double inciAng;
+                    if (useIncidenceAngleFromGIM) {
+                        final int gim = srcGIMData.getElemIntAt(srcIdx);
+                        inciAng = (gim - (gim % 10)) / 100.0 * Constants.DTOR;
+                    } else {
+                        inciAng = incidenceAngle.getPixelDouble(x, y) * Constants.DTOR;
+                    }
 
-                if (isComplex && outputImageInComplex) {
-                    sigma = Math.sqrt(sigma)*phaseTerm;
+                    if (noiseCorrectedFlag) {
+                        sigma = Ks * dn * FastMath.sin(inciAng);
+                    } else {
+                        sigma = Ks * Math.abs(dn - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
+                    }
+
+                    if (isComplex && outputImageInComplex) {
+                        sigma = Math.sqrt(sigma)*phaseTerm;
+                    }
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
