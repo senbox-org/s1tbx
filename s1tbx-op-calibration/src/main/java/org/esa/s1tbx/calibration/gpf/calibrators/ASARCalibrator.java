@@ -66,6 +66,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     private TiePointGrid slantRangeTime = null;
     private TiePointGrid latitude = null;
 
+    private boolean inputSigma0 = false;
     private boolean srgrFlag = false;
     private boolean multilookFlag = false;
     private boolean antElevCorrFlag = false;
@@ -240,7 +241,10 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     private void getCalibrationFlags() throws Exception {
 
         if (AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.abs_calibration_flag)) {
-            throw new OperatorException("The product has already been calibrated.");
+            if (outputImageInComplex) {
+                throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+            }
+            inputSigma0 = true;
         }
 
         antElevCorrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.ant_elev_corr_flag);
@@ -930,7 +934,6 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         double sigma, dn, i, q, phaseTerm = 0.0;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
-        final Double noDataValue = targetBand.getNoDataValue();
 
         int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
@@ -948,11 +951,6 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-//                if(noDataValue.equals(dn)) {
-//                    trgData.setElemDoubleAt(tgtIdx, noDataValue);
-//                    continue;
-//                }
-
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
@@ -976,26 +974,31 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("ASAR Calibration: unhandled unit");
                 }
 
-                double calFactor = 1.0;
-                if (retroCalibrationFlag) { // remove old antenna pattern gain
-                    calFactor *= targetTileOldAntPat[yy][xx]; // see Andrea's email dated Nov. 11, 2008
-                }
+                if (inputSigma0) {
+                    sigma = dn;
+                } else {
 
-                // apply calibration constant and incidence angle corrections
-                calFactor *= FastMath.sin(incidenceAnglesArray[xx] * Constants.DTOR) / theCalibrationFactor;
+                    double calFactor = 1.0;
+                    if (retroCalibrationFlag) { // remove old antenna pattern gain
+                        calFactor *= targetTileOldAntPat[yy][xx]; // see Andrea's email dated Nov. 11, 2008
+                    }
 
-                if (applyRangeSpreadingCorr && targetTileSlantRange != null) { // apply range spreading loss compensation
-                    calFactor *= FastMath.pow(targetTileSlantRange[yy][xx] / refSlantRange800km, rangeSpreadingCompPower);
-                }
+                    // apply calibration constant and incidence angle corrections
+                    calFactor *= FastMath.sin(incidenceAnglesArray[xx] * Constants.DTOR) / theCalibrationFactor;
 
-                if (applyAntennaPatternCorr) { // apply antenna pattern correction
-                    calFactor /= targetTileNewAntPat[yy][xx];  // see Andrea's email dated Nov. 11, 2008
-                }
+                    if (applyRangeSpreadingCorr && targetTileSlantRange != null) { // apply range spreading loss compensation
+                        calFactor *= FastMath.pow(targetTileSlantRange[yy][xx] / refSlantRange800km, rangeSpreadingCompPower);
+                    }
 
-                sigma = dn*calFactor;
+                    if (applyAntennaPatternCorr) { // apply antenna pattern correction
+                        calFactor /= targetTileNewAntPat[yy][xx];  // see Andrea's email dated Nov. 11, 2008
+                    }
 
-                if (isComplex && outputImageInComplex) {
-                    sigma = Math.sqrt(sigma)*phaseTerm;
+                    sigma = dn*calFactor;
+
+                    if (isComplex && outputImageInComplex) {
+                        sigma = Math.sqrt(sigma)*phaseTerm;
+                    }
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB

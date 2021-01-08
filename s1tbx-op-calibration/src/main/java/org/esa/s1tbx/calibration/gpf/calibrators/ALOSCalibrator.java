@@ -40,6 +40,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
     private static final String[] SUPPORTED_MISSIONS = new String[] {"ALOS","ALOS2"};
 
+    private boolean inputSigma0 = false;
     private double calibrationFactor = 0;
     private TiePointGrid incidenceAngle = null;
 
@@ -91,7 +92,10 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
                 throw new OperatorException(mission + " is not a valid mission for ALOS Calibration");
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
-                throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                if (outputImageInComplex) {
+                    throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                }
+                inputSigma0 = true;
             }
 
             getSampleType();
@@ -198,7 +202,6 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
         double sigma, dn, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
-        final Double noDataValue = targetBand.getNoDataValue();
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -209,11 +212,6 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-//                if(noDataValue.equals(dn)) {
-//                    trgData.setElemDoubleAt(tgtIdx, noDataValue);
-//                    continue;
-//                }
-
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
@@ -237,7 +235,11 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("ALOS Calibration: unhandled unit");
                 }
 
-                sigma = dn * calibrationFactor;
+                if (inputSigma0) {
+                    sigma = dn;
+                } else {
+                    sigma = dn * calibrationFactor;
+                }
 
                 if (isComplex && outputImageInComplex) {
                     sigma = Math.sqrt(sigma)*phaseTerm;
