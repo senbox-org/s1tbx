@@ -49,6 +49,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
     private int subsetOffsetX = 0;
     private int subsetOffsetY = 0;
 
+    private boolean inputSigma0 = false;
     private boolean isSLC = false;
 
     /**
@@ -95,7 +96,12 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
 
             getMission();
 
-            getCalibrationFlag();
+            if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
+                if (outputImageInComplex) {
+                    throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                }
+                inputSigma0 = true;
+            }
 
             isSLC = sourceProduct.getProductType().toLowerCase().contains("slc");
 
@@ -283,17 +289,21 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("RCM Calibration: unhandled unit");
                 }
 
-                if (isSLC) {
-                    if (gains != null) {
-                        sigma = dn / (gains[x - x0] * gains[x - x0]);
-                        if (outputImageInComplex) {
-                            sigma = Math.sqrt(sigma) * phaseTerm;
-                        }
-                    }
+                if (inputSigma0) {
+                    sigma = dn;
                 } else {
-                    sigma = dn + offset;
-                    if (gains != null) {
-                        sigma /= gains[x - x0];
+                    if (isSLC) {
+                        if (gains != null) {
+                            sigma = dn / (gains[x - x0] * gains[x - x0]);
+                            if (outputImageInComplex) {
+                                sigma = Math.sqrt(sigma) * phaseTerm;
+                            }
+                        }
+                    } else {
+                        sigma = dn + offset;
+                        if (gains != null) {
+                            sigma /= gains[x - x0];
+                        }
                     }
                 }
 
