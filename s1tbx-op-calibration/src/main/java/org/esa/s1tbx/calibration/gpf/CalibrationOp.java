@@ -222,16 +222,15 @@ public class CalibrationOp extends Operator {
             }
             String gammeBandName = "Gamma0";
 
-            if (bands.length > 1) {
-                if (trgBandName.contains("_HH"))
-                    gammeBandName += "_HH";
-                else if (trgBandName.contains("_VV"))
-                    gammeBandName += "_VV";
-                else if (trgBandName.contains("_HV"))
-                    gammeBandName += "_HV";
-                else if (trgBandName.contains("_VH"))
-                    gammeBandName += "_VH";
-            }
+            if (trgBandName.contains("_HH"))
+                gammeBandName += "_HH";
+            else if (trgBandName.contains("_VV"))
+                gammeBandName += "_VV";
+            else if (trgBandName.contains("_HV"))
+                gammeBandName += "_HV";
+            else if (trgBandName.contains("_VH"))
+                gammeBandName += "_VH";
+
             if (outputImageScaleInDb) {
                 gammeBandName += "_dB";
             }
@@ -280,16 +279,15 @@ public class CalibrationOp extends Operator {
             }
             String betaBandName = "Beta0";
 
-            if (bands.length > 1) {
-                if (trgBandName.contains("_HH"))
-                    betaBandName += "_HH";
-                else if (trgBandName.contains("_VV"))
-                    betaBandName += "_VV";
-                else if (trgBandName.contains("_HV"))
-                    betaBandName += "_HV";
-                else if (trgBandName.contains("_VH"))
-                    betaBandName += "_VH";
-            }
+            if (trgBandName.contains("_HH"))
+                betaBandName += "_HH";
+            else if (trgBandName.contains("_VV"))
+                betaBandName += "_VV";
+            else if (trgBandName.contains("_HV"))
+                betaBandName += "_HV";
+            else if (trgBandName.contains("_VH"))
+                betaBandName += "_VH";
+
             if (outputImageScaleInDb) {
                 betaBandName += "_dB";
             }

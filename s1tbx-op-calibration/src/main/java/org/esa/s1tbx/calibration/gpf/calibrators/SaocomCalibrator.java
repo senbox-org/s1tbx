@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by SkyWatch Space Applications http://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,7 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.commons.product.Missions;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -34,25 +33,22 @@ import java.awt.*;
 import java.io.File;
 
 /**
- * Calibration for ICEYE products.
+ * Calibration for SAOCOM PALSAR data products.
  */
 
-public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
+public class SaocomCalibrator extends BaseCalibrator implements Calibrator {
 
-    private static final String[] SUPPORTED_MISSIONS = new String[] {"ICEYE", Missions.ICEYE};
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"SAOCOM"};
 
-    private boolean inputSigma0 = false;
-    private double calibrationFactor;
     private TiePointGrid incidenceAngle = null;
 
     private static final String USE_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
-    private static final String CALIBRATION_FACTOR = "calibration_factor";
 
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public IceyeCalibrator() {
+    public SaocomCalibrator() {
     }
 
     @Override
@@ -65,7 +61,7 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
      */
     public void setExternalAuxFile(File file) throws OperatorException {
         if (file != null) {
-            throw new OperatorException("No external auxiliary file should be selected for ICEYE product");
+            throw new OperatorException("No external auxiliary file should be selected for SAOCOM PALSAR product");
         }
     }
 
@@ -88,36 +84,18 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
             targetProduct = tgtProduct;
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
-            if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
-                if (outputImageInComplex) {
-                    throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
-                }
-                inputSigma0 = true;
-            }
+            final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+            if (!mission.equals("SAOCOM"))
+                throw new OperatorException(mission + " is not a valid mission for SAOCOM Calibration");
 
             getSampleType();
 
-            getCalibrationFactor();
-
             getTiePointGridData(sourceProduct);
-
-            if (mustUpdateMetadata) {
-                updateTargetProductMetadata();
-            }
 
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-    }
-
-    /**
-     * Get calibration factor.
-     */
-    private void getCalibrationFactor() {
-
-        calibrationFactor = origMetadataRoot.getAttributeDouble(CALIBRATION_FACTOR);
     }
 
     /**
@@ -127,17 +105,6 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getTiePointGridData(Product sourceProduct) {
         incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        if (incidenceAngle == null) {
-            throw new OperatorException("Incidence angle tie point grid is not available");
-        }
-    }
-
-    /**
-     * Update the metadata in the target product.
-     */
-    private void updateTargetProductMetadata() {
-        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
     }
 
     /**
@@ -149,15 +116,14 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile,
+                            ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;
         final int y0 = targetTileRectangle.y;
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
-        final int maxY = y0 + h;
-        final int maxX = x0 + w;
 
         Tile sourceRaster1 = null;
         ProductData srcData1 = null;
@@ -187,9 +153,12 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
             return;
         }
 
-        final ProductData tgtData = targetTile.getDataBuffer();
+        final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
         final TileIndex tgtIndex = new TileIndex(targetTile);
+
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
 
         double sigma, dn, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
@@ -203,6 +172,7 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
+
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
@@ -223,18 +193,13 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                     dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
-                    throw new OperatorException("ICEYE Calibration: unhandled unit");
+                    throw new OperatorException("SAOCOM Calibration: unhandled unit");
                 }
 
-                if (inputSigma0) {
-                    sigma = dn;
-                } else {
-                    //K * DN2, calibrated_dB=10*log10(calibrated), DN2=square(S_I)+square(S_Q)
-                    sigma = calibrationFactor * dn * Math.sin(incidenceAngle.getPixelDouble(x, y) * Constants.DTOR);
+                sigma = dn;
 
-                    if (isComplex && outputImageInComplex) {
-                        sigma = Math.sqrt(sigma)*phaseTerm;
-                    }
+                if (isComplex && outputImageInComplex) {
+                    sigma = Math.sqrt(sigma)*phaseTerm;
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
@@ -245,7 +210,7 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
                     }
                 }
 
-                tgtData.setElemDoubleAt(tgtIdx, sigma);
+                trgData.setElemDoubleAt(tgtIdx, sigma);
             }
         }
     }
@@ -255,22 +220,7 @@ public class IceyeCalibrator extends BaseCalibrator implements Calibrator {
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        double sigma = 0.0;
-        if (bandUnit == Unit.UnitType.AMPLITUDE) {
-            sigma = v * v;
-        } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-            sigma = v;
-        } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
-        } else {
-            throw new OperatorException("ICEYE Unknown band unit");
-        }
-
-        if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return sigma * calibrationFactor * FastMath.sin(localIncidenceAngle * Constants.DTOR);
-        } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
-            return sigma / calibrationFactor;
-        }
+        return v;
     }
 
     public double applyRetroCalibration(int x, int y, double v, String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
