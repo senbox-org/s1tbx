@@ -8,6 +8,7 @@ import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.core.gpf.graph.GraphProcessor;
 import org.esa.snap.core.gpf.graph.Node;
 import org.esa.snap.core.gpf.graph.NodeSource;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -20,7 +21,8 @@ public class TestBenchmark_ReadWrite extends BaseBenchmarks {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = read(grdFile);
-                write(srcProduct, DIMAP);
+                write(srcProduct, outputFolder, DIMAP);
+                srcProduct.dispose();
             }
         };
         b.run();
@@ -32,18 +34,20 @@ public class TestBenchmark_ReadWrite extends BaseBenchmarks {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = read(grdFile);
-                writeGPF(srcProduct, DIMAP);
+                writeGPF(srcProduct, outputFolder, DIMAP);
+                srcProduct.dispose();
             }
         };
         b.run();
     }
 
     @Test
+    @Ignore
     public void testGRD_read_writeGraph() throws Exception {
         Benchmark b = new Benchmark("GRD_read_write Graph") {
             @Override
             protected void execute() throws Exception {
-                processReadWriteGraph(grdFile);
+                processReadWriteGraph(grdFile, outputFolder);
             }
         };
         b.run();
@@ -51,11 +55,12 @@ public class TestBenchmark_ReadWrite extends BaseBenchmarks {
 
     @Test
     public void testQP_read_write() throws Exception {
-        Benchmark b = new Benchmark("QP Read/ProductIO.Write") {
+        Benchmark b = new Benchmark("QP Read_ProductIO.Write") {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = read(qpFile);
-                write(srcProduct, DIMAP);
+                write(srcProduct, outputFolder, DIMAP);
+                srcProduct.dispose();
             }
         };
         b.run();
@@ -63,11 +68,12 @@ public class TestBenchmark_ReadWrite extends BaseBenchmarks {
 
     @Test
     public void testQP_read_writeGPF() throws Exception {
-        Benchmark b = new Benchmark("QP Read/WriteGPF") {
+        Benchmark b = new Benchmark("QP Read_WriteGPF") {
             @Override
             protected void execute() throws Exception {
                 final Product srcProduct = read(qpFile);
-                writeGPF(srcProduct, DIMAP);
+                writeGPF(srcProduct, outputFolder, DIMAP);
+                srcProduct.dispose();
             }
         };
         b.run();
@@ -78,13 +84,13 @@ public class TestBenchmark_ReadWrite extends BaseBenchmarks {
         Benchmark b = new Benchmark("QP_read_write Graph") {
             @Override
             protected void execute() throws Exception {
-                processReadWriteGraph(qpFile);
+                processReadWriteGraph(qpFile, outputFolder);
             }
         };
         b.run();
     }
 
-    public static void processReadWriteGraph(final File file) throws Exception {
+    public static void processReadWriteGraph(final File file, final File outputFolder) throws Exception {
 
         final Graph graph = new Graph("graph");
 
