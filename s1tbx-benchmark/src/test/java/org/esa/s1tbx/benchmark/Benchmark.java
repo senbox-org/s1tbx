@@ -1,24 +1,25 @@
 package org.esa.s1tbx.benchmark;
 
+import org.esa.s1tbx.commons.io.JSONUtils;
 import org.esa.snap.core.util.StopWatch;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.nio.file.Files;
 
 public abstract class Benchmark {
 
     private final static boolean DISABLE_BENCHMARKS = true;
-    private final static int iterations = 3;
+    private final static int iterations = 5;
     private final String name;
     private final File resultsFile = new File("e:\\out\\results.json");
+    protected File outputFolder;
 
     public Benchmark(final String name) {
-        this.name = name;
+        this.name = FileUtils.createValidFilename(name);
     }
 
     public void run() throws Exception {
@@ -28,20 +29,25 @@ public abstract class Benchmark {
         }
         SystemUtils.LOG.info("Initial cold start run");
         StopWatch coldStartTimer = new StopWatch();
+        outputFolder = Files.createTempDirectory(name).toFile();
         this.execute();
         coldStartTimer.stop();
         SystemUtils.LOG.info("Cold start time " + coldStartTimer.getTimeDiffString());
+        SystemUtils.freeAllMemory();
+        outputFolder.delete();
         long totalTime = 0L;
 
         for(int i = 1; i <= iterations; ++i) {
             SystemUtils.LOG.info("Run " + i + " of " + iterations +" stated");
             StopWatch timer = new StopWatch();
+            outputFolder = Files.createTempDirectory(name+i).toFile();
             this.execute();
             timer.stop();
             totalTime += timer.getTimeDiff();
             SystemUtils.LOG.info("Run " + i + " of " + iterations + " end time " + timer.getTimeDiffString());
 
             SystemUtils.freeAllMemory();
+            outputFolder.delete();
         }
 
         String avgTime = StopWatch.getTimeString(totalTime / (long)iterations);
@@ -49,27 +55,14 @@ public abstract class Benchmark {
 
         final JSONObject json = readJSON(resultsFile);
         json.put(name, avgTime);
-        writeJSON(json, resultsFile);
+        JSONUtils.writeJSON(json, resultsFile);
     }
 
     private JSONObject readJSON(final File file) throws Exception {
         if(file.exists()) {
-            final BufferedReader streamReader = new BufferedReader(new FileReader(file.getPath()));
-            final JSONParser parser = new JSONParser();
-            return (JSONObject) parser.parse(streamReader);
+            return (JSONObject) JSONUtils.loadJSONFile(file);
         }
         return new JSONObject();
-    }
-
-    public static void writeJSON(final JSONObject json, final File file) throws Exception {
-        try (FileWriter fileWriter = new FileWriter(file)) {
-            final File parent = file.getParentFile();
-            if (parent != null) {
-                parent.mkdirs();
-            }
-            fileWriter.write(json.toJSONString());
-            fileWriter.flush();
-        }
     }
 
     protected abstract void execute() throws Exception;

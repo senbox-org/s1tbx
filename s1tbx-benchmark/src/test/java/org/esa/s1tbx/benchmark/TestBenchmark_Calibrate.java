@@ -35,7 +35,7 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " productIO.write") {
             @Override
             protected void execute() throws Exception {
-                process(grdFile, false);
+                process(grdFile, outputFolder, false);
             }
         };
         b.run();
@@ -45,7 +45,7 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GPF.write") {
             @Override
             protected void execute() throws Exception {
-                process(grdFile, true);
+                process(grdFile, outputFolder, true);
             }
         };
         b.run();
@@ -55,13 +55,13 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GraphProcessor") {
             @Override
             protected void execute() throws Exception {
-                processGraph(grdFile);
+                processGraph(grdFile, outputFolder);
             }
         };
         b.run();
     }
 
-    private void process(final File file, final boolean useWriteOp) throws Exception {
+    private void process(final File file, final File outputFolder, final boolean useWriteOp) throws Exception {
         final Product srcProduct = read(file);
 
         CalibrationOp op = new CalibrationOp();
@@ -69,13 +69,16 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Product trgProduct = op.getTargetProduct();
 
         if(useWriteOp) {
-            writeGPF(trgProduct, DIMAP);
+            writeGPF(trgProduct, outputFolder, DIMAP);
         } else {
-            write(trgProduct, DIMAP);
+            write(trgProduct, outputFolder, DIMAP);
         }
+
+        trgProduct.dispose();
+        srcProduct.dispose();
     }
 
-    private void processGraph(final File file) throws Exception {
+    private void processGraph(final File file, final File outputFolder) throws Exception {
 
         final Graph graph = new Graph("graph");
 

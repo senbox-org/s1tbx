@@ -4,6 +4,7 @@ import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
 import org.esa.snap.core.datamodel.Product;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 
 public class TestBenchmark_PolSARFilters extends BaseBenchmarks {
@@ -32,13 +33,13 @@ public class TestBenchmark_PolSARFilters extends BaseBenchmarks {
         Benchmark b = new Benchmark(name) {
             @Override
             protected void execute() throws Exception {
-                process(name);
+                process(name, outputFolder);
             }
         };
         b.run();
     }
 
-    private void process(final String name) throws IOException {
+    private void process(final String name, final File outputFolder) throws IOException {
         final Product srcProduct = read(qpFile);
 
         PolarimetricSpeckleFilterOp op = new PolarimetricSpeckleFilterOp();
@@ -46,6 +47,9 @@ public class TestBenchmark_PolSARFilters extends BaseBenchmarks {
         op.SetFilter(name);
         Product trgProduct = op.getTargetProduct();
 
-        writeGPF(trgProduct, DIMAP);
+        writeGPF(trgProduct, outputFolder, DIMAP);
+
+        trgProduct.dispose();
+        srcProduct.dispose();
     }
 }

@@ -5,6 +5,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class ProcessorTest {
 
@@ -12,9 +14,8 @@ public class ProcessorTest {
         TestUtils.initTestEnvironment();
     }
 
-    protected File createTmpFolder(final String folderName) {
-        //File folder = new File(System.getProperty("java.io.tmpdir"), folderName);
-        File folder = new File("E:\\out", folderName);
+    protected File createTmpFolder(final String folderName) throws IOException {
+        File folder = Files.createTempDirectory(folderName).toFile();
         folder.mkdirs();
         return folder;
     }

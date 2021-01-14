@@ -16,7 +16,6 @@ public class BaseBenchmarks {
     protected final static File grdFile = new File(S1TBXTests.inputPathProperty +"/SAR/S1/AWS/S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A/manifest.safe");
     protected final static File qpFile = new File(S1TBXTests.inputPathProperty +"/SAR/RS2/RS2_OK2084_PK24911_DK25857_FQ14_20080802_225909_HH_VV_HV_VH_SLC/product.xml");
 
-    protected final static File outputFolder = new File("e:\\out");
     protected final static Rectangle rect = new Rectangle(0, 0, 5000, 5000);
 
     protected final String DIMAP = "BEAM-DIMAP";
@@ -34,11 +33,11 @@ public class BaseBenchmarks {
         return op.getTargetProduct();
     }
 
-    protected void write(final Product trgProduct, final String format) throws IOException {
+    protected void write(final Product trgProduct, final File outputFolder, final String format) throws IOException {
         ProductIO.writeProduct(trgProduct, new File(outputFolder, trgProduct.getName()), format, false);
     }
 
-    protected void writeGPF(final Product trgProduct, final String format) {
+    protected void writeGPF(final Product trgProduct, final File outputFolder, final String format) {
         GPF.writeProduct(trgProduct, new File(outputFolder, trgProduct.getName()), format, false, ProgressMonitor.NULL);
     }
 }
