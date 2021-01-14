@@ -1,6 +1,5 @@
 package org.esa.s1tbx.commons.io;
 
-import org.esa.s1tbx.commons.io.AbstractProductDirectory;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -9,12 +8,8 @@ import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 import org.jdom2.Element;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +25,8 @@ public abstract class JSONProductDirectory extends AbstractProductDirectory {
     public void readProductDirectory() throws IOException {
         try {
             final File headerFile = getFile(getRootFolder() + getHeaderFileName());
-            final BufferedReader streamReader = new BufferedReader(new FileReader(headerFile.getPath()));
-            final JSONParser parser = new JSONParser();
-            this.json = (JSONObject) parser.parse(streamReader);
-        } catch (ParseException e) {
+            this.json = (JSONObject) JSONUtils.loadJSONFile(headerFile);
+        } catch (Exception e) {
             throw new IOException(e);
         }
     }
