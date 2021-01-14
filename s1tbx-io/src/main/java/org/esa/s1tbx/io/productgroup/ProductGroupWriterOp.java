@@ -2,15 +2,13 @@
 package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
+import org.esa.s1tbx.commons.product.StackSplit;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.dataio.ProductSubsetBuilder;
-import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.ProductWriter;
-import org.esa.snap.core.dataio.dimap.DimapProductWriter;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -19,14 +17,13 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,7 +31,7 @@ import java.util.Map;
  */
 @OperatorMetadata(alias = "ProductGroupWriter",
         authors = "Luis Veci",
-        copyright = "Copyright (C) 2020 by SkyWatch Space Applications Inc.",
+        copyright = "Copyright (C) 2021 by SkyWatch Space Applications Inc.",
         version = "1.0",
         description = "Writes a stack as a product group",
         autoWriteDisabled = true,
@@ -47,18 +44,14 @@ public class ProductGroupWriterOp extends Operator {
     @SourceProduct(alias = "source", description = "The source product to be written.")
     private Product sourceProduct;
 
-    @Parameter(description = "The output file to which the data product is written.")
-    private File file;
+    @Parameter(defaultValue = "target", description = "The output folder to which the data product is written.")
+    private File targetFolder;
 
-    @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME,
+    @Parameter(defaultValue = "BEAM-DIMAP",
             description = "The name of the output file format.")
     private String formatName;
 
-    private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<>();
-
-    private boolean productFileWritten;
-
-    private SubsetInfo[] subsetInfo = null;
+    private final Map<Band, SubsetInfo> bandMap = new HashMap<>();
 
     public ProductGroupWriterOp() {
         setRequiresAllBands(true);
@@ -67,37 +60,31 @@ public class ProductGroupWriterOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfCoregisteredStack();
+
+            if(targetFolder == null) {
+                throw new OperatorException("Please add a target folder");
+            }
+            if (!targetFolder.exists()) {
+                if(!targetFolder.mkdirs()) {
+                    throw new IOException("Failed to create directory '" + targetFolder + "'.");
+                }
+            }
+
             targetProduct = sourceProduct;
+            targetProduct.setPreferredTileSize(
+                    new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
 
-            int numFiles =1, numRows, numCols, width, height;
+            final StackSplit stackSplit = new StackSplit(sourceProduct);
 
-            subsetInfo = new SubsetInfo[numFiles];
-            int n = 0;
-            for (int r = 0; r < numFiles; ++r) {
-                    final ProductSubsetDef subsetDef = new ProductSubsetDef();
-                    subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
-                    subsetDef.addNodeNames(sourceProduct.getBandNames());
-                    subsetDef.setSubSampling(1, 1);
-                    subsetDef.setIgnoreMetadata(false);
+            final String[] mstNames = StackUtils.getMasterBandNames(sourceProduct);
+            createSubset(StackSplit.getBandNames(sourceProduct, mstNames), stackSplit.getReferenceSubset());
 
-                    subsetInfo[n] = new SubsetInfo();
-                    subsetInfo[n].subsetBuilder = new ProductSubsetBuilder();
-                    subsetInfo[n].product = subsetInfo[n].subsetBuilder.readProductNodes(sourceProduct, subsetDef);
-                    subsetInfo[n].file = new File(file.getParentFile(), createName(file, n + 1));
-
-                    subsetInfo[n].productWriter = ProductIO.getProductWriter(formatName);
-                    if (subsetInfo[n].productWriter == null) {
-                        throw new OperatorException("No data product writer for the '" + formatName + "' format available");
-                    }
-                    subsetInfo[n].productWriter.setIncrementalMode(false);
-                    subsetInfo[n].productWriter.setFormatName(formatName);
-                    subsetInfo[n].product.setProductWriter(subsetInfo[n].productWriter);
-
-                    final Band[] bands = subsetInfo[n].product.getBands();
-                    for (Band b : bands) {
-                        // b.getSourceImage(); // trigger source image creation
-                    }
-                    ++n;
+            final StackSplit.Subset[] secondarySubsets = stackSplit.getSecondarySubsets();
+            for(StackSplit.Subset secondarySubset : secondarySubsets) {
+                final String[] slvBandNames = StackUtils.getSlaveBandNames(sourceProduct, secondarySubset.productName);
+                createSubset(StackSplit.getBandNames(sourceProduct, slvBandNames), secondarySubset);
             }
 
         } catch (Throwable t) {
@@ -105,30 +92,41 @@ public class ProductGroupWriterOp extends Operator {
         }
     }
 
-    private static String createName(final File file, final int n) {
-        return FileUtils.getFilenameWithoutExtension(file) + '_' + n + FileUtils.getExtension(file);
+    private void createSubset(final String[] bandNames, final StackSplit.Subset subset) {
+
+        final SubsetInfo subsetInfo = new SubsetInfo();
+        subsetInfo.subset = subset;
+        subsetInfo.file = new File(targetFolder, subset.productName);
+
+        subsetInfo.productWriter = ProductIO.getProductWriter(formatName);
+        if (subsetInfo.productWriter == null) {
+            throw new OperatorException("No data product writer for the '" + formatName + "' format available");
+        }
+        subsetInfo.productWriter.setFormatName(formatName);
+        subsetInfo.productWriter.setIncrementalMode(false);
+        subsetInfo.subset.subsetProduct.setProductWriter(subsetInfo.productWriter);
+        for (String bandName : bandNames) {
+            Band band = targetProduct.getBand(bandName);
+            if (!(band instanceof VirtualBand)) {
+                bandMap.put(band, subsetInfo);
+                break;
+            }
+        }
     }
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-            synchronized (this) {
-                if (!productFileWritten) {
-                    for (SubsetInfo info : subsetInfo) {
-                        info.productWriter.writeProductNodes(info.product, info.file);
-                    }
-                    productFileWritten = true;
-                }
-            }
-            final Rectangle rect = targetTile.getRectangle();
+            final SubsetInfo subsetInfo = bandMap.get(targetBand);
+            if(subsetInfo == null)
+                return;
 
-            for (SubsetInfo info : subsetInfo) {
-                final Rectangle trgRect = info.subsetBuilder.getSubsetDef().getRegion();
-                if (rect.intersects(trgRect)) {
-                    writeTile(info, targetBand.getName(), trgRect);
-                }
+            subsetInfo.productWriter.writeProductNodes(subsetInfo.subset.subsetProduct, subsetInfo.file);
+
+            final Rectangle trgRect = subsetInfo.subset.subsetBuilder.getSubsetDef().getRegion();
+            if (!subsetInfo.written) {
+                writeTile(subsetInfo, trgRect);
             }
-            markTileDone(targetBand, targetTile);
         } catch (Exception e) {
             if (e instanceof OperatorException) {
                 throw (OperatorException) e;
@@ -138,83 +136,37 @@ public class ProductGroupWriterOp extends Operator {
         }
     }
 
-    private synchronized void writeTile(final SubsetInfo info, final String bandName, final Rectangle trgRect)
-            throws IOException {
+    private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
+        if (info.written) return;
 
-        final Tile sourceTile = getSourceTile(sourceProduct.getBand(bandName), trgRect);
-        final ProductData rawSamples = sourceTile.getRawSamples();
+        for(Band trgBand : info.subset.subsetProduct.getBands()) {
+            final String oldBandName = info.subset.newBandNamingMap.get(trgBand.getName());
+            final Tile sourceTile = getSourceTile(sourceProduct.getBand(oldBandName), trgRect);
+            final ProductData rawSamples = sourceTile.getRawSamples();
 
-        final Band trgBand = info.product.getBand(bandName);
-        info.productWriter.writeBandRasterData(trgBand,
-                0, 0, trgBand.getRasterWidth(), trgBand.getRasterHeight(), rawSamples, ProgressMonitor.NULL);
-    }
-
-    private void markTileDone(Band targetBand, Tile targetTile) throws IOException {
-        boolean done;
-        synchronized (todoLists) {
-            MultiLevelImage sourceImage = targetBand.getSourceImage();
-
-            final List<Point> currentTodoList = getTodoList(sourceImage);
-            currentTodoList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),
-                    sourceImage.YToTileY(targetTile.getMinY())));
-
-            done = isDone();
+            info.productWriter.writeBandRasterData(trgBand,
+                    0, 0, trgBand.getRasterWidth(), trgBand.getRasterHeight(), rawSamples, ProgressMonitor.NULL);
         }
-        if (done) {
-            // If we get here all tiles are written
-            for (SubsetInfo info : subsetInfo) {
-                if (info.productWriter instanceof DimapProductWriter) {
-                    // if we can update the header (only DIMAP) rewrite it!
-                    synchronized (info.productWriter) {
-                        info.productWriter.writeProductNodes(info.product, info.file);
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean isDone() {
-        for (List<Point> todoList : todoLists.values()) {
-            if (!todoList.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private List<Point> getTodoList(MultiLevelImage sourceImage) {
-        List<Point> todoList = todoLists.get(sourceImage);
-        if (todoList == null) {
-            final int numXTiles = sourceImage.getNumXTiles();
-            final int numYTiles = sourceImage.getNumYTiles();
-            todoList = new ArrayList<>(numXTiles * numYTiles);
-            for (int y = 0; y < numYTiles; y++) {
-                for (int x = 0; x < numXTiles; x++) {
-                    todoList.add(new Point(x, y));
-                }
-            }
-            todoLists.put(sourceImage, todoList);
-        }
-        return todoList;
+        info.written = true;
     }
 
     @Override
     public void dispose() {
         try {
-            for (SubsetInfo info : subsetInfo) {
+            for (Band band : bandMap.keySet()) {
+                SubsetInfo info = bandMap.get(band);
                 info.productWriter.close();
             }
         } catch (IOException ignore) {
         }
-        todoLists.clear();
         super.dispose();
     }
 
     private static class SubsetInfo {
-        Product product;
-        ProductSubsetBuilder subsetBuilder;
+        StackSplit.Subset subset;
         File file;
         ProductWriter productWriter;
+        boolean written = false;
     }
 
     public static class Spi extends OperatorSpi {

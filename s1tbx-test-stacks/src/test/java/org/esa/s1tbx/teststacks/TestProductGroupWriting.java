@@ -1,11 +1,13 @@
 
 package org.esa.s1tbx.teststacks;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.s1tbx.io.productgroup.ProductGroupIO;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.gpf.GPF;
 import org.junit.Test;
 
 import java.io.File;
@@ -46,10 +48,7 @@ public class TestProductGroupWriting extends ProcessorTest {
         return productList.toArray(new Product[0]);
     }
 
-    @Test
-    public void testProductGroup1() throws IOException {
-        final Product[] products = readProducts(new File[] {f1, f2});
-
+    private Product createStackProduct(final Product[] products) {
         CreateStackOp createStackOp = new CreateStackOp();
         int cnt = 0;
         for(Product product : products) {
@@ -57,10 +56,52 @@ public class TestProductGroupWriting extends ProcessorTest {
             ++cnt;
         }
 
-        Product outProduct = createStackOp.getTargetProduct();
+        return createStackOp.getTargetProduct();
+    }
+
+    @Test
+    public void testProductGroupWithProductGroupIO() throws IOException {
+        final Product[] products = readProducts(new File[] {f1, f2});
+        final Product outProduct = createStackProduct(products);
 
         File tmpFolder = createTmpFolder("group1");
         ProductGroupIO.writeProduct(outProduct, new File(tmpFolder,"group1.dim"), "BEAM-DIMAP", true);
+
+        //tmpFolder.delete();
+    }
+
+    @Test
+    public void testProductGroupWithProductGroupIO2() throws IOException {
+        final Product[] products = readProducts(new File[] {f1, f2});
+        final Product outProduct = createStackProduct(products);
+
+        File tmpFolder = createTmpFolder("group2");
+
+        ProductGroupIO.writeProduct(outProduct, new File(tmpFolder,"group2.dim"), "BEAM-DIMAP", true);
+
+        //tmpFolder.delete();
+    }
+
+    @Test
+    public void testProductGroupWithGPF() throws IOException {
+        final Product[] products = readProducts(new File[] {f1, f2});
+        final Product outProduct = createStackProduct(products);
+
+        File tmpFolder = createTmpFolder("group3");
+
+        GPF.writeProduct(outProduct, new File(tmpFolder,"group3.dim"), "BEAM-DIMAP", true, ProgressMonitor.NULL);
+
+        //tmpFolder.delete();
+    }
+
+    @Test
+    public void testProductGroupWithGPF2() throws IOException {
+        final Product[] products = readProducts(new File[] {f1, f2});
+        final Product outProduct = createStackProduct(products);
+
+        File tmpFolder = createTmpFolder("group4");
+
+        GPF.writeProduct(outProduct, new File(tmpFolder,"group4.dim"), "BEAM-DIMAP", true, ProgressMonitor.NULL);
 
         //tmpFolder.delete();
     }

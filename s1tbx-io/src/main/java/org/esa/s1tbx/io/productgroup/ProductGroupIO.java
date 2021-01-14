@@ -1,18 +1,4 @@
-/*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
+
 package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -22,6 +8,7 @@ import org.esa.snap.core.dataio.dimap.DimapProductConstants;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.SystemUtils;
@@ -41,22 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 
-/**
- * The <code>ProductIO</code> class provides several utility methods concerning data I/O for remote sensing data
- * products.
- * <p> For example, a product can be read in using a single method call:
- * <pre>
- *      Product product =  ProductIO.readProduct("test.prd");
- * </pre>
- * and written out in a similar way:
- * <pre>
- *      ProductIO.writeProduct(product, "HDF5", "test.h5", null);
- * </pre>
- *
- * @author Norman Fomferra
- * @author Sabine Embacher
- * @version $Revision$ $Date$
- */
+
 public class ProductGroupIO {
 
     /**
@@ -67,51 +39,14 @@ public class ProductGroupIO {
     public static final String SYSTEM_PROPERTY_CONCURRENT = "snap.productio.concurrent";
     public static final boolean DEFAULT_WRITE_RASTER_CONCURRENT = true;
 
-    /**
-     * Writes a product with the specified format to the given file path.
-     * <p>The method also writes all band data to the file. Therefore the band data must either
-     * <ul>
-     * <li>be completely loaded ({@link Band#getRasterData() Band.rasterData} is not <code>null</code>)</li>
-     * <li>or the product must be associated with a product reader ({@link Product#getProductReader() Product.productReader} is not <code>null</code>)
-     * so that unloaded data can be reloaded.</li>
-     * </ul>.
-     *
-     * @param product    the product, must not be <code>null</code>
-     * @param filePath   the file path
-     * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
-     *                   "BEAM-DIMAP" will be used
-     *
-     * @throws IOException if an IOException occurs
-     */
-    public static void writeProduct(Product product,
-                                    String filePath,
-                                    String formatName) throws IOException {
-        writeProduct(product, new File(filePath), formatName, false, ProgressMonitor.NULL);
-    }
-
-    /**
-     * Writes a product with the specified format to the given file path.
-     * <p>The method also writes all band data to the file. Therefore the band data must either
-     * <ul>
-     * <li>be completely loaded ({@link Band#getRasterData() Band.rasterData} is not <code>null</code>)</li>
-     * <li>or the product must be associated with a product reader ({@link Product#getProductReader() Product.productReader} is not <code>null</code>)
-     * so that unloaded data can be reloaded.</li>
-     * </ul>.
-     *
-     * @param product    the product, must not be <code>null</code>
-     * @param filePath   the file path
-     * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
-     *                   "BEAM-DIMAP" will be used
-     * @param pm         a monitor to inform the user about progress
-     *
-     * @throws IOException if an IOException occurs
-     */
-    public static void writeProduct(Product product,
-                                    String filePath,
-                                    String formatName,
-                                    ProgressMonitor pm) throws IOException {
-        writeProduct(product, new File(filePath), formatName, false, pm);
-    }
+//    public static void writeProduct(Product product, File file, String formatName, boolean clearCacheAfterRowWrite, boolean incremental, ProgressMonitor pm) {
+//        ProductGroupWriterOp writeOp = new ProductGroupWriterOp(product, file, formatName);
+//        writeOp.setDeleteOutputOnFailure(true);
+//        writeOp.setWriteEntireTileRows(true);
+//        writeOp.setClearCacheAfterRowWrite(clearCacheAfterRowWrite);
+//        writeOp.setIncremental(incremental);
+//        writeOp.writeProduct(pm);
+//    }
 
     /**
      * Writes a product with the specified format to the given file.
