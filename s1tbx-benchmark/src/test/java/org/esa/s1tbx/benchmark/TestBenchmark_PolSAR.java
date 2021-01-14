@@ -74,7 +74,7 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " productIO.write") {
             @Override
             protected void execute() throws Exception {
-                process(name, param, false);
+                process(name, param, false, outputFolder);
             }
         };
         b.run();
@@ -84,7 +84,7 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GPF.write") {
             @Override
             protected void execute() throws Exception {
-                process(name, param, true);
+                process(name, param, true, outputFolder);
             }
         };
         b.run();
@@ -94,13 +94,13 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GraphProcessor") {
             @Override
             protected void execute() throws Exception {
-                processGraph(qpFile, name, param);
+                processGraph(qpFile, outputFolder, name, param);
             }
         };
         b.run();
     }
 
-    private void process(final String name, final String param, final boolean useWriteOp) throws Exception {
+    private void process(final String name, final String param, final boolean useWriteOp, final File outputFolder) throws Exception {
         final Product srcProduct = read(qpFile);
 
         final PolarimetricDecompositionOp op = new PolarimetricDecompositionOp();
@@ -112,13 +112,16 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Product trgProduct = op.getTargetProduct();
 
         if(useWriteOp) {
-            writeGPF(trgProduct, DIMAP);
+            writeGPF(trgProduct, outputFolder, DIMAP);
         } else {
-            write(trgProduct, DIMAP);
+            write(trgProduct, outputFolder, DIMAP);
         }
+
+        trgProduct.dispose();
+        srcProduct.dispose();
     }
 
-    private void processGraph(final File file, final String name, final String param) throws Exception {
+    private void processGraph(final File file, final File outputFolder, final String name, final String param) throws Exception {
 
         final Graph graph = new Graph("graph");
 

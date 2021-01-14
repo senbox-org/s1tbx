@@ -23,7 +23,10 @@ public class TestBenchmark_SAR extends BaseBenchmarks {
                 op.setSourceProduct(srcProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct, DIMAP);
+                writeGPF(trgProduct, outputFolder, DIMAP);
+
+                trgProduct.dispose();
+                srcProduct.dispose();
             }
         };
         b.run();
@@ -40,7 +43,10 @@ public class TestBenchmark_SAR extends BaseBenchmarks {
                 op.setSourceProduct(srcProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct, DIMAP);
+                writeGPF(trgProduct, outputFolder, DIMAP);
+
+                trgProduct.dispose();
+                srcProduct.dispose();
             }
         };
         b.run();
@@ -57,7 +63,10 @@ public class TestBenchmark_SAR extends BaseBenchmarks {
                 op.setSourceProduct(srcProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct, DIMAP);
+                writeGPF(trgProduct, outputFolder, DIMAP);
+
+                trgProduct.dispose();
+                srcProduct.dispose();
             }
         };
         b.run();
@@ -79,7 +88,10 @@ public class TestBenchmark_SAR extends BaseBenchmarks {
                 op.setSourceProduct(calProduct);
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct, DIMAP);
+                writeGPF(trgProduct, outputFolder, DIMAP);
+
+                trgProduct.dispose();
+                srcProduct.dispose();
             }
         };
         b.run();
@@ -98,7 +110,10 @@ public class TestBenchmark_SAR extends BaseBenchmarks {
                 op.setParameter("quantizationLevelsStr", "16");
                 Product trgProduct = op.getTargetProduct();
 
-                writeGPF(trgProduct, DIMAP);
+                writeGPF(trgProduct, outputFolder, DIMAP);
+
+                trgProduct.dispose();
+                srcProduct.dispose();
             }
         };
         b.run();
