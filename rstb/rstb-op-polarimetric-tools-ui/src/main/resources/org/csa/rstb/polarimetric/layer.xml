@@ -113,6 +113,17 @@
                 <attr name="icon" stringvalue="rstbIcon"/>
                 <attr name="helpId" stringvalue="FaradayRotationCorrectionOp"/>
             </file>
+			<file name="org-csa-rstb-polarimetric-gpf-RVIOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Dual-pol Radar Vegetation Index"/>
+                <attr name="operatorName" stringvalue="Radar-Vegetation-Index"/>
+                <attr name="dialogTitle" stringvalue="Dual-pol Radar Vegetation Index"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_dprvi"/>
+                <attr name="ShortDescription" stringvalue="Dual-pol Radar Vegetation Index"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+                <attr name="helpId" stringvalue="RVIOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -163,6 +174,10 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-FaradayRotationCorrectionOp-Action.instance"/>
                     <attr name="position" intvalue="440"/>
                 </file>
+				<file name="org-csa-rstb-polarimetric-gpf-RVIOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-RVIOp-Action.instance"/>
+                    <attr name="position" intvalue="450"/>
+                </file>
             </folder>
         </folder>
     </folder>
@@ -183,6 +198,10 @@
 		<file name="org.csa.rstb.polarimetric.gpf.ui.CompactPolDecompositionOpUI">
             <attr name="operatorUIClass" stringvalue="org.csa.rstb.polarimetric.gpf.ui.CompactPolDecompositionOpUI"/>
             <attr name="operatorName" stringvalue="CP-Decomposition"/>
+        </file>
+		<file name="org.csa.rstb.polarimetric.gpf.ui.RVIOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.polarimetric.gpf.ui.RVIOpUI"/>
+            <attr name="operatorName" stringvalue="Radar-Vegetation-Index"/>
         </file>
     </folder>
 
