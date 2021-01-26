@@ -16,7 +16,6 @@
 package org.csa.rstb.polarimetric.gpf.ui;
 
 import org.csa.rstb.polarimetric.gpf.RVIOp;
-import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -30,13 +29,9 @@ import java.util.Map;
 
 public class RVIOpUI extends BaseOperatorUI {
 
-    private final JComboBox<String> windowSize = new JComboBox(new String[]{
-            FilterWindow.SIZE_3x3, FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11,
-            FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17});
-
-
-
-    private static final JLabel windowSizeLabel = new JLabel("Window Size:");
+    
+	private final JComboBox<String> windowSize =
+            new JComboBox(new String[]{"3", "5", "7", "9", "11", "13", "15", "17", "19"});
 
 
     @Override
@@ -45,13 +40,7 @@ public class RVIOpUI extends BaseOperatorUI {
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
 
-        filter.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent event) {
-                updateFilterSelection();
-            }
-        });
-        /* updateFilterSelection(); */
-
+        
         initParameters();
 
         return panel;
@@ -84,8 +73,8 @@ public class RVIOpUI extends BaseOperatorUI {
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        DialogUtils.addComponent(contentPane, gbc, windowSizeLabel, windowSize);
-		DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
+        DialogUtils.addComponent(contentPane, gbc, "windowSize", windowSize);
+
 
         
 
