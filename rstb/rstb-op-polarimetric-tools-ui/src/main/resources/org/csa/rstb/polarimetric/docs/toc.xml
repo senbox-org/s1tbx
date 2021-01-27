@@ -16,6 +16,7 @@
                 <tocitem text="Polarimetric Speckle Filtering" target="PolarimetricSpeckleFilterOp"/>
                 <tocitem text="Orientation Angle Correction" target="OrientationAngleCorrectionOp"/>
                 <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
+				<tocitem text="Dual-pol Radar Vegetation Index" target="RVIOp"/>
             </tocitem>
         </tocitem>
     </tocitem>
