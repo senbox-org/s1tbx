@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    <title>Help - Compact-pol Radar Vegetation Index</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Compact-pol Radar Vegetation Index Generation</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<h3>Compact-pol Radar Vegetation Index-CpRVI</h3>
+<hr><br>
+<p align="right"><img src="images/MRSLABlogo.png"></p>
+<p align="right">Microwave Remote Sensing Lab (MRSLab)</p>
+<p align="right">Indian Institute of Technology Bombay, India</p>
+<p align="right">Contributors: Dr. Dipankar Mandal et al.</p>
+<p align="right">Tel: +91-22-2576-7677</p>
+<p align="right">Date: 25 Nov 2020</p>
+<p align="right">E-mail: mrscsre@gmail.com; dipankar.agrilengg@gmail.com</p>
+<p align="right">URL: http://www.mrslab.in
+</p>
+
+<!-- <h3>Processor Prerequsities</h3>
+<ul>
+<li>Python 3.5 or Python 3.6 to be installed (e.g. C:\Python35) and configure path to SNAP.</li>
+<li>Numpy to be installed at the same python path</li>
+</ul>
+<p>Beginners may follow the following help docs for the python and numpy installation: <a href="http://web.cs.wpi.edu/~cs1004/a16/Resources/Windows/SettingUpPython_Windows.pdf" target="blank">http://web.cs.wpi.edu/~cs1004/a16/Resources/Windows/SettingUpPython_Windows.pdf</a></p>
+<p>SNAP Step Forum: <a href="https://senbox.atlassian.net/wiki/spaces/SNAP/pages/50855941/Configure+Python+to+use+the+SNAP-Python+snappy+interface" target="blank">https://senbox.atlassian.net/wiki/spaces/SNAP/pages/50855941/Configure+Python+to+use+the+SNAP-Python+snappy+interface</a></p>
+<hr> -->
+
+
+<h3>1. CpRVI Theoretical Introduction </h3>
+<p>The Compact-pol Radar Vegetation Index (CpRVI) is calculated from compact-pol 2x2 covariance matric C2.</p>
+<p>The Compact-pol RVI (CpRVI) uses the concept of a geodesic distance (GD) between two
+Kennaugh matrices projected on unit sphere [1]. The ideal depolarizer (ID) is used as a volume model that converts all Stokes vectors into a randomly polarized
+wave. So, it computes a similarity measure fID between the
+observed Kennaugh matrix and a Kennaugh matrix corresponding
+to the ID.</p>
+
+<p>The parameter beta is introduced, which is proportional to the ratio of the
+minimum to the maximum backscattering power in the same
+(SC) and the opposite (OC) sense to the transmitted circular
+polarization. The final formulation is as follows:</p>
+<p align="center"><img src="images/cprviformulation.jpg"></p>
+<p>where g0 (the first element of the Stokes vector) is a measure
+of the total average received power and g3 (the fourth element
+of the Stokes vector) is a measure of the average received
+power in circular polarization.</p>
+
+
+
+<p>Ref:</br>
+[1] D. Mandal et al., "A Radar Vegetation Index for Crop Monitoring Using Compact Polarimetric SAR Data," 
+		in IEEE Transactions on Geoscience and Remote Sensing, vol. 58, no. 9, pp. 6321-6335, Sept. 2020, 
+		doi: 10.1109/TGRS.2020.2976661.</p>
+		
+		
+		
+
+<h3>2. CpRVI Operator Documentation </h3>
+<p>Inputs to CpRVI operator:</br>
+C2 matrix of compact-pol data (Right Circular Transmit is considered).-->data type: float32</br>
+Processing window size--> data type int</p>
+
+<p>Output of CpRVI operator:</br>
+cprvi image-->data type: float32</p>
+<p align="center"><img src="images/toolinterfacecprvi.png" style="height:60%"></p>
+
+
+
+
+<h3>3. CpRVI Results Analysis Help </h3>
+<p>For results analysis please follow the article "D. Mandal et al., "A Radar Vegetation Index for Crop Monitoring Using Compact Polarimetric SAR Data," 
+		in IEEE Transactions on Geoscience and Remote Sensing, vol. 58, no. 9, pp. 6321-6335, Sept. 2020, 
+		doi: 10.1109/TGRS.2020.2976661."</p>
+<br>
+<hr>
+</body>
+</html>
