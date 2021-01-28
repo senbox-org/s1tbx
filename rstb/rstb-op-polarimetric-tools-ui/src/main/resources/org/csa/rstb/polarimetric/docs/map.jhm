@@ -9,6 +9,7 @@
     <mapID target="CompactPolStokesParametersOp" url="operators/CompactPolStokesParametersOp.html"/>
     <mapID target="PolarimetricMatricesOp" url="operators/PolarimetricMatricesOp.html"/>
 	<mapID target="RVIOp" url="operators/RVIOp.html"/>
+	<mapID target="CPRVIOp" url="operators/CPRVIOp.html"/>
     <mapID target="PolarimetricDecompositionOp" url="operators/PolarimetricDecompositionOp.html"/>
     <mapID target="PolarimetricSpeckleFilterOp" url="operators/PolarimetricSpeckleFilterOp.html"/>
     <mapID target="OrientationAngleCorrectionOp" url="operators/OrientationAngleCorrectionOp.html"/>

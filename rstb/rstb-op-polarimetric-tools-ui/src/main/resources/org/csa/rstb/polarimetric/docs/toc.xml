@@ -17,6 +17,7 @@
                 <tocitem text="Orientation Angle Correction" target="OrientationAngleCorrectionOp"/>
                 <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
 				<tocitem text="Dual-pol Radar Vegetation Index" target="RVIOp"/>
+				<tocitem text="Compact-pol Radar Vegetation Index" target="CPRVIOp"/>
             </tocitem>
         </tocitem>
     </tocitem>
