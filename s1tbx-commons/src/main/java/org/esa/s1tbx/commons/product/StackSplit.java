@@ -23,7 +23,9 @@ public class StackSplit {
     public StackSplit(final Product sourceProduct) throws IOException {
         this.srcProduct = sourceProduct;
         final InputProductValidator validator = new InputProductValidator(srcProduct);
-        validator.checkIfCoregisteredStack();
+        if(!validator.isCollocated() && !validator.isCoregisteredStack()) {
+            throw new IOException("Source product should be a collocated or coregistered stack");
+        }
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
         final String referenceProductName = absRoot.getAttributeString(AbstractMetadata.PRODUCT, srcProduct.getName());

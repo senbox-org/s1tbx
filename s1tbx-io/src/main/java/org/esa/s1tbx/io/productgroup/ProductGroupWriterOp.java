@@ -17,6 +17,8 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.gpf.internal.OperatorExecutor;
+import org.esa.snap.core.util.Guardian;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 
@@ -57,11 +59,51 @@ public class ProductGroupWriterOp extends Operator {
         setRequiresAllBands(true);
     }
 
+    public ProductGroupWriterOp(Product sourceProduct, File targetFolder, String formatName) {
+        this();
+        Guardian.assertNotNull("targetFolder", targetFolder);
+        this.sourceProduct = sourceProduct;
+        this.targetFolder = targetFolder;
+        this.formatName = formatName;
+    }
+
+    public void writeProduct(ProgressMonitor pm) {
+        long startNanos = System.nanoTime();
+        getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + targetFolder);
+        OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
+        try {
+//            if (clearCacheAfterRowWrite && writeEntireTileRows) {
+//                operatorExecutor.setScheduleRowsSeparate(true);
+//            }
+            operatorExecutor.execute(OperatorExecutor.ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, "Writing...", pm);
+
+            getLogger().info("End writing product " + getTargetProduct().getName() + " to " + targetFolder);
+
+            double millis = (System.nanoTime() - startNanos) / 1.0E6;
+            double seconds = millis / 1.0E3;
+            int w = getTargetProduct().getSceneRasterWidth();
+            int h = getTargetProduct().getSceneRasterHeight();
+
+            getLogger().info(String.format("Time: %6.3f s total, %6.3f ms per line, %3.6f ms per pixel",
+                    seconds,
+                    millis / h,
+                    millis / h / w));
+
+            stopTileComputationObservation();
+        } catch (OperatorException e) {
+            throw e;
+        } finally {
+            dispose();
+        }
+    }
+
     @Override
     public void initialize() throws OperatorException {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfCoregisteredStack();
+            if(!validator.isCollocated() && !validator.isCoregisteredStack()) {
+                throw new IOException("Source product should be a collocated or coregistered stack");
+            }
 
             if(targetFolder == null) {
                 throw new OperatorException("Please add a target folder");
