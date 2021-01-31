@@ -39,14 +39,10 @@ public class ProductGroupIO {
     public static final String SYSTEM_PROPERTY_CONCURRENT = "snap.productio.concurrent";
     public static final boolean DEFAULT_WRITE_RASTER_CONCURRENT = true;
 
-//    public static void writeProduct(Product product, File file, String formatName, boolean clearCacheAfterRowWrite, boolean incremental, ProgressMonitor pm) {
-//        ProductGroupWriterOp writeOp = new ProductGroupWriterOp(product, file, formatName);
-//        writeOp.setDeleteOutputOnFailure(true);
-//        writeOp.setWriteEntireTileRows(true);
-//        writeOp.setClearCacheAfterRowWrite(clearCacheAfterRowWrite);
-//        writeOp.setIncremental(incremental);
-//        writeOp.writeProduct(pm);
-//    }
+    public static void operatorWrite(Product product, File file, String formatName, ProgressMonitor pm) {
+        ProductGroupWriterOp writeOp = new ProductGroupWriterOp(product, file, formatName);
+        writeOp.writeProduct(pm);
+    }
 
     /**
      * Writes a product with the specified format to the given file.

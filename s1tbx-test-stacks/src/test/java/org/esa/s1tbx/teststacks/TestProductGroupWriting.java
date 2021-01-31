@@ -29,13 +29,13 @@ public class TestProductGroupWriting extends ProcessorTest {
     private final static File f4 = new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame\\RS2_OK28551_PK284031_DK257628_FQ10W_20120824_001629_HH_VV_HV_VH_SLC.zip");
     private final static File f5 = new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame\\RS2_OK28551_PK284040_DK257637_FQ10W_20120917_001630_HH_VV_HV_VH_SLC.zip");
 
-    private Product[] readProducts(final File folder) throws IOException {
+    private List<Product> readProducts(final File folder) throws IOException {
         assertTrue(folder.isDirectory());
         File[] files = folder.listFiles();
         return readProducts(files);
     }
 
-    private Product[] readProducts(final File[] files) throws IOException {
+    private List<Product> readProducts(final File[] files) throws IOException {
         final List<Product> productList = new ArrayList<>();
         if(files != null) {
             for(File file : files) {
@@ -45,10 +45,17 @@ public class TestProductGroupWriting extends ProcessorTest {
                 }
             }
         }
-        return productList.toArray(new Product[0]);
+        return productList;
     }
 
-    private Product createStackProduct(final Product[] products) {
+    private void closeProducts(final List<Product> products) {
+        for(Product product : products) {
+            if(product != null)
+                product.dispose();
+        }
+    }
+
+    private Product createStackProduct(final List<Product> products) {
         CreateStackOp createStackOp = new CreateStackOp();
         int cnt = 0;
         for(Product product : products) {
@@ -61,48 +68,73 @@ public class TestProductGroupWriting extends ProcessorTest {
 
     @Test
     public void testProductGroupWithProductGroupIO() throws IOException {
-        final Product[] products = readProducts(new File[] {f1, f2});
+        final List<Product> products = readProducts(new File[] {f1, f2, f3});
         final Product outProduct = createStackProduct(products);
 
         File tmpFolder = createTmpFolder("group1");
-        ProductGroupIO.writeProduct(outProduct, new File(tmpFolder,"group1.dim"), "BEAM-DIMAP", true);
+        File productFile = new File(tmpFolder,"productIO1_group1.dim");
+        ProductGroupIO.writeProduct(outProduct, productFile, "BEAM-DIMAP", true);
 
+        closeProducts(products);
+        outProduct.dispose();
         //tmpFolder.delete();
     }
 
     @Test
     public void testProductGroupWithProductGroupIO2() throws IOException {
-        final Product[] products = readProducts(new File[] {f1, f2});
+        final List<Product> products = readProducts(new File[] {f1, f2, f3});
         final Product outProduct = createStackProduct(products);
 
         File tmpFolder = createTmpFolder("group2");
+        File stackProductFile = new File(tmpFolder,"productIO2_group2.dim");
+        ProductGroupIO.writeProduct(outProduct, stackProductFile, "BEAM-DIMAP", true);
 
-        ProductGroupIO.writeProduct(outProduct, new File(tmpFolder,"group2.dim"), "BEAM-DIMAP", true);
+        Product stackProduct = ProductIO.readProduct(stackProductFile);
 
+        closeProducts(products);
+        outProduct.dispose();
         //tmpFolder.delete();
     }
 
     @Test
     public void testProductGroupWithGPF() throws IOException {
-        final Product[] products = readProducts(new File[] {f1, f2});
-        final Product outProduct = createStackProduct(products);
+        final List<Product> inputProducts1 = readProducts(new File[] {f1, f2});
+        final Product outProduct1 = createStackProduct(inputProducts1);
 
         File tmpFolder = createTmpFolder("group3");
+        File stackProductFile = new File(tmpFolder,"gpf1_group3.dim");
+        ProductGroupIO.operatorWrite(outProduct1, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
 
-        GPF.writeProduct(outProduct, new File(tmpFolder,"group3.dim"), "BEAM-DIMAP", true, ProgressMonitor.NULL);
+        closeProducts(inputProducts1);
+        outProduct1.dispose();
 
+        Product stackProduct = ProductIO.readProduct(stackProductFile);
+        final List<Product> inputProducts2 = readProducts(new File[] {f3});
+        final List<Product> stackProductList = new ArrayList<>();
+        stackProductList.add(stackProduct);
+        stackProductList.addAll(inputProducts2);
+
+        final Product outProduct2 = createStackProduct(stackProductList);
+
+        File stackProductFile2 = new File(tmpFolder,"gpf1_stack.dim");
+        GPF.writeProduct(outProduct2, stackProductFile2, "BEAM-DIMAP", true, ProgressMonitor.NULL);
+
+        closeProducts(inputProducts2);
+        outProduct2.dispose();
         //tmpFolder.delete();
     }
 
     @Test
     public void testProductGroupWithGPF2() throws IOException {
-        final Product[] products = readProducts(new File[] {f1, f2});
+        final List<Product> products = readProducts(new File[] {f1, f2, f3});
         final Product outProduct = createStackProduct(products);
 
         File tmpFolder = createTmpFolder("group4");
+        File stackProductFile = new File(tmpFolder,"gpf2_group4.dim");
+        GPF.writeProduct(outProduct, stackProductFile, "BEAM-DIMAP", true, ProgressMonitor.NULL);
 
-        GPF.writeProduct(outProduct, new File(tmpFolder,"group4.dim"), "BEAM-DIMAP", true, ProgressMonitor.NULL);
-
+        closeProducts(products);
+        outProduct.dispose();
         //tmpFolder.delete();
     }
 }
