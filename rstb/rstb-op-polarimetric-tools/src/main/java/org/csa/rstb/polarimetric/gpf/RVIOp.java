@@ -63,7 +63,7 @@ import java.util.Map;
         authors = "Dipankar Mandal et al.",
         version = "1.0",
         copyright = "Copyright (C) 2020 by Microwave Remote Sensing Lab, IITBombay",
-        description = "Radar Vegetation Indices generation")
+        description = "Dual-pol Radar Vegetation Indices generation")
 public final class RVIOp extends Operator implements DualPolProcessor {
 
     @SourceProduct(alias = "source")
