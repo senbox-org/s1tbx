@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Copyright (C) 2020 by Microwave Remote Sensing Lab, IITBombay http://www.mrslab.in -->
+<html>
+<head>
+    <title>Help - Generalized Radar Vegetation Index</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Generalized Radar Vegetation Index Generation</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<h3>Generalized Radar Vegetation Index-GRVI</h3>
+<hr><br>
+<p align="right"><img src="images/MRSLABlogo.png"></p>
+<p align="right">Microwave Remote Sensing Lab (MRSLab)</p>
+<p align="right">Indian Institute of Technology Bombay, India</p>
+<p align="right">Contributors: Dr. Dipankar Mandal et al.</p>
+<p align="right">Tel: +91-22-2576-7677</p>
+<p align="right">Date: 25 Nov 2020</p>
+<p align="right">E-mail: mrscsre@gmail.com; dipankar.agrilengg@gmail.com</p>
+<p align="right">URL: http://www.mrslab.in
+</p>
+
+
+<h3>1. GRVI Theoretical Introduction </h3>
+<p>The Generalized Radar Vegetation Index (GRVI) is calculated from quad-pol 3x3 covariance matrix C3 or coherency matrix T3.</p>
+<p>The GRVI uses the concept of a geodesic distance (GD) between two
+Kennaugh matrices projected on unit sphere [1]. The Generalized Volume SCattering Model (GVSM) is used as a volume model. So, it computes a similarity measure fv between the
+observed Kennaugh matrix and a Kennaugh matrix corresponding
+to the GVSM.</p>
+
+<p>The parameter beta is introduced, which is the
+ratio of minimum to maximum geodesic distances between K and elementary
+targets: trihedral (Kt), cylinder (Kc), dihedral (Kd), and narrow
+dihedral (Knd). The final formulation of GRVI [2] is as follows:</p>
+<p align="center"><img src="images/grviformulation.jpg"></p>
+<p>A schematic workflow for the Generalized volume scattering model based Radar Vegetation Index (GRVI) formulation is shown below:</p>
+<p align="center"><img src="images/grviworkflow.jpg"></p>
+
+
+<p>Ref:</br>
+[1] D. Mandal, V. Kumar, D. Ratha, J. M. Lopez-Sanchez, A. Bhattacharya, H. McNairn, Y. S. Rao, and K. V. Ramana, “Assessment of rice growth conditions in a semi-arid region of India using the Generalized Radar Vegetation Index derived from RADARSAT-2 polarimetric SAR data,” Remote Sensing of Environment, 237: 111561, 2020.</br>
+[2] D. Ratha, D. Mandal, V. Kumar, H. McNairn, A. Bhattacharya, and A. C. Frery, “A Generalized Volume Scattering Model-Based Vegetation Index From Polarimetric SAR Data,” IEEE Geoscience and Remote Sensing Letters, 16 (11), pp. 1791-1795, 2019. doi:10.1109/LGRS.2019.2907703.	</p>	
+		
+		
+
+<h3>2. GRVI Operator Documentation </h3>
+<p>Inputs to GRVI operator:</br>
+C3 or T3 matrix generated from quad-pol data.</br>
+Processing window size--> data type int</p>
+
+<p>Output of GRVI operator:</br>
+grvi image-->data type: float32</p>
+<p align="center"><img src="images/toolinterfacegrvi.png" style="height:60%"></p>
+
+
+
+
+
+<br>
+<hr>
+</body>
+</html>

@@ -8,3 +8,6 @@ org.csa.rstb.polarimetric.gpf.CompactPolDataSimulationOp$Spi
 org.csa.rstb.polarimetric.gpf.CompactPolStokesParametersOp$Spi
 org.csa.rstb.polarimetric.gpf.CompactPolDecompositionOp$Spi
 org.csa.rstb.polarimetric.gpf.FaradayRotationCorrectionOp$Spi
+org.csa.rstb.polarimetric.gpf.RVIOp$Spi
+org.csa.rstb.polarimetric.gpf.CPRVIOp$Spi
+org.csa.rstb.polarimetric.gpf.GRVIOp$Spi
