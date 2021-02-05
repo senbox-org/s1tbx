@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Copyright (C) 2020 by Microwave Remote Sensing Lab, IITBombay http://www.mrslab.in -->
+<html>
+<head>
+    <title>Help - Dual-pol Radar Vegetation Index</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Dual-pol Radar Vegetation Index Generation</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<h3>Dual-pol Radar Vegetation Index-DpRVI</h3>
+<hr><br>
+<p align="right"><a href="http://www.mrslab.in" target="blank"><img src="images/MRSLABlogo.png"></a></p>
+<p align="right">Microwave Remote Sensing Lab (MRSLab)</br>
+Indian Institute of Technology Bombay, India</br>
+Contributors: Dr. Dipankar Mandal</br>
+Tel: +91-22-2576-7677</br>
+Date: 25 Nov 2020</br>
+E-mail: mrscsre@gmail.com; dipankar.agrilengg@gmail.com</br>
+URL: http://www.mrslab.in
+</p>
+
+
+<h3>1. DpRVI Theoretical Introduction </h3>
+<p>The Dual-pol Radar Vegetation Index (DpRVI) is calculated from dual-pol 2x2 covariance matric C2.</p>
+<p align="center"><img src="images/c2matrix.PNG"></p>
+<p>The scattering information in
+terms of the degree of polarization and the eigenvalue spectrum are jointly utilized to
+derive the vegetation index from dual-pol SAR data. The state of
+polarization of an EM wave is characterized in terms of the degree of
+polarization (m) as proposed by Barakat (1977):</p>
+<p align="center"><img src="images/dop.PNG"></p>
+<p>where Tr is the matrix trace operator (i.e., the sum of the diagonal
+elements) and |.| is the determinant of a matrix.</p>
+
+<p>The two non-negative eigenvalues (lambda1>=lambda2>=0) are obtained from the eigen-decomposition of the C2 matrix which are then normalized with the total power Span (Tr(C2) = lambda1 + lambda2).
+The eigenvalues quantify the dominancy of scattering mechanisms. Hence, the parameter beta is introduces as beta = lambda1/Span</p>
+<p>The dominant scattering information is modulated with the degree
+of polarization (m), which in particular characterizes anisotropy for
+dual-pol SAR data. The scattering randomness is then obtained by
+subtracting m x beta from unity, as given in the following equation by Mandal et al. (2020).</p>
+<p align="center"><img src="images/dprvieq.PNG"></p>
+
+<p>Ref:</br>
+[1] Barakat, R., 1977. Degree of polarization and the principal idempotents of the coherency
+matrix. Opt. Commun. 23 (2), 147-150.</br>
+[2] D. Mandal, V. Kumar, D. Ratha, S. Dey, A. Bhattacharya, J. M. Lopez-Sanchez, H. McNairn, Y. S. Rao, "Dual Polarimetric Radar Vegetation Index for Crop Growth Monitoring Using Sentinel-1 SAR Data," Remote Sensing of Environment, 247: 111954, 2020, DOI:10.1016/j.rse.2020.111954.</p>
+
+<h3>2. DpRVI Algorithm Specification </h3>
+<p>The general workflow to generate DpRVI from Sentinel-1 SLC products is highlighted in the following figure.</p>
+<p align="center"><img src="images/processingflow.png" style="height:150%"></p>
+<p align="center">Sentinel-1 preprocessing workflow for time-series data to generate DpRVI.</p><br>
+<p> The preprocessing workflow (Graph .xml file) can be found in https://github.com/mrslab-iitb/sentinel-1-SLC-preprocessing-polarimetry. ; 
+</br> Read more about Graph processing Sentinel-1 C2 matrix at:</br> 
+[Ref] : Mandal, D.; Vaka, D.S.; Bhogapurapu, N.R.; Vanama, V.S.K.; Kumar, V.; Rao, Y.S.; Bhattacharya, A. Sentinel-1 SLC Preprocessing Workflow for Polarimetric Applications: A Generic Practice for Generating Dual-pol Covariance Matrix Elements in SNAP S-1 Toolbox. Preprints 2019, 2019110393 (doi: 10.20944/preprints201911.0393.v1).</p>
+
+
+<h3>3. DpRVI Processor Documentation </h3>
+<p>Inputs to DpRVI processor:</br>
+C2 matrix of Sentinel-1 like dual-pol data.-->data type: float32</br>
+Processing window size--> data type int</p>
+
+<p>Output of DpRVI processor:</br>
+dprvi image-->data type: float32</p>
+<p align="center"><img src="images/toolinterface.png" style="height:70%"></p>
+
+
+
+
+<h3>4. DpRVI Results Analysis Help </h3>
+<p>For results analysis please follow the article "D. Mandal, V. Kumar, D. Ratha, S. Dey, A. Bhattacharya, J. M. Lopez-Sanchez, H. McNairn, Y. S. Rao, "Dual Polarimetric Radar Vegetation Index for Crop Growth Monitoring Using Sentinel-1 SAR Data," Remote Sensing of Environment, 247: 111954, 2020, DOI:10.1016/j.rse.2020.111954."</p>
+<br>
+<hr>
+</body>
+</html>
