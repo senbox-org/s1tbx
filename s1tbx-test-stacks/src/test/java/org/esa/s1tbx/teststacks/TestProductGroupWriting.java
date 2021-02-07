@@ -81,28 +81,12 @@ public class TestProductGroupWriting extends ProcessorTest {
     }
 
     @Test
-    public void testProductGroupWithProductGroupIO2() throws IOException {
-        final List<Product> products = readProducts(new File[] {f1, f2, f3});
-        final Product outProduct = createStackProduct(products);
-
-        File tmpFolder = createTmpFolder("group2");
-        File stackProductFile = new File(tmpFolder,"productIO2_group2.dim");
-        ProductGroupIO.writeProduct(outProduct, stackProductFile, "BEAM-DIMAP", true);
-
-        Product stackProduct = ProductIO.readProduct(stackProductFile);
-
-        closeProducts(products);
-        outProduct.dispose();
-        //tmpFolder.delete();
-    }
-
-    @Test
     public void testProductGroupWithGPF() throws IOException {
         final List<Product> inputProducts1 = readProducts(new File[] {f1, f2});
         final Product outProduct1 = createStackProduct(inputProducts1);
 
         File tmpFolder = createTmpFolder("group3");
-        File stackProductFile = new File(tmpFolder,"gpf1_group3.dim");
+        File stackProductFile = new File(tmpFolder,"gpf1_group3");
         ProductGroupIO.operatorWrite(outProduct1, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
 
         closeProducts(inputProducts1);
@@ -116,25 +100,11 @@ public class TestProductGroupWriting extends ProcessorTest {
 
         final Product outProduct2 = createStackProduct(stackProductList);
 
-        File stackProductFile2 = new File(tmpFolder,"gpf1_stack.dim");
+        File stackProductFile2 = new File(tmpFolder,"gpf1_stack");
         GPF.writeProduct(outProduct2, stackProductFile2, "BEAM-DIMAP", true, ProgressMonitor.NULL);
 
         closeProducts(inputProducts2);
         outProduct2.dispose();
-        //tmpFolder.delete();
-    }
-
-    @Test
-    public void testProductGroupWithGPF2() throws IOException {
-        final List<Product> products = readProducts(new File[] {f1, f2, f3});
-        final Product outProduct = createStackProduct(products);
-
-        File tmpFolder = createTmpFolder("group4");
-        File stackProductFile = new File(tmpFolder,"gpf2_group4.dim");
-        GPF.writeProduct(outProduct, stackProductFile, "BEAM-DIMAP", true, ProgressMonitor.NULL);
-
-        closeProducts(products);
-        outProduct.dispose();
         //tmpFolder.delete();
     }
 }

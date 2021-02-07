@@ -61,7 +61,7 @@ public class StackSplit {
         return bandNames.toArray(new String[0]);
     }
 
-    private Subset createSubset(final Product srcProduct, final String productName, final String[] bandNames) throws IOException {
+    public Subset createSubset(final Product srcProduct, final String productName, final String[] bandNames) throws IOException {
 
         final int width = srcProduct.getSceneRasterWidth();
         final int height = srcProduct.getSceneRasterHeight();
