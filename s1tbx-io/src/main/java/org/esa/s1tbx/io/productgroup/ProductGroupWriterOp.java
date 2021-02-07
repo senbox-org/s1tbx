@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -22,6 +36,7 @@ import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
+import org.json.simple.JSONObject;
 
 import java.awt.*;
 import java.io.File;
@@ -189,7 +204,14 @@ public class ProductGroupWriterOp extends Operator {
         }
 
         final File file = new File(targetFolder, "product_group.json");
-        metadataFile.write(file);
+        metadataFile.write(sourceProduct.getName(), sourceProduct.getProductType(), file);
+    }
+
+    class j extends JSONObject {
+
+        j() {
+
+        }
     }
 
     @Override
