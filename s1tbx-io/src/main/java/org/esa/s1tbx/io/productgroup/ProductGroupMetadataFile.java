@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.productgroup;
 
 import org.esa.s1tbx.commons.io.JSONUtils;
+import org.esa.snap.core.datamodel.ProductData;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -34,6 +35,7 @@ public class ProductGroupMetadataFile {
     private static final String HREF = "href";
     private static final String FORMAT = "snap:format";
     private static final String ASSET_INDEX = "snap:asset_index";                       //optional to enforce band order
+    private static final String UPDATED_DATE = "snap:updated_date";
     private static final String PRODUCT_GROUP_VERSION = "snap:product_group_version";
     private static final String ID = "id";
     private static final String PRODUCT_TYPE = "snap:product_type";
@@ -45,6 +47,15 @@ public class ProductGroupMetadataFile {
 
     public void addAsset(final Asset asset) {
         assetList.add(asset);
+    }
+
+    public Asset findAsset(final Asset newAsset) {
+        for(Asset asset : assetList) {
+            if(asset.equals(newAsset)) {
+                return asset;
+            }
+        }
+        return null;
     }
 
     public Asset[] getAssets() {
@@ -105,6 +116,11 @@ public class ProductGroupMetadataFile {
             assetJSON.put(HREF, asset.path);
             assetJSON.put(FORMAT, asset.format);
             assetJSON.put(ASSET_INDEX, index++);
+
+            if(asset.updatedUTC == null) {
+                asset.updatedUTC = ProductData.UTC.create(new Date(), 0);
+            }
+            assetJSON.put(UPDATED_DATE, asset.updatedUTC.format());
         }
 
         JSONUtils.writeJSON(json, file);
@@ -115,12 +131,25 @@ public class ProductGroupMetadataFile {
         final String name;
         final String path;
         final String format;
+        ProductData.UTC updatedUTC = null;
         int index = -1;
 
         public Asset(final String name, final String path, final String format) {
             this.name = name;
             this.path = path;
             this.format = format;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if(super.equals(obj))
+                return true;
+            if(obj instanceof Asset) {
+                Asset newAsset = (Asset)obj;
+                return this.name.equals(newAsset.name) && this.path.equals(newAsset.path)
+                        && this.format.equals(newAsset.format);
+            }
+            return false;
         }
     }
 }

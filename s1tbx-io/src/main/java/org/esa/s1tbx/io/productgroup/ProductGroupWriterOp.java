@@ -32,11 +32,11 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.internal.OperatorExecutor;
+import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.json.simple.JSONObject;
 
 import java.awt.*;
 import java.io.File;
@@ -197,21 +197,19 @@ public class ProductGroupWriterOp extends Operator {
 
     private void writeProductGroupMetadataFile(final List<SubsetInfo> assetList) throws Exception {
         final ProductGroupMetadataFile metadataFile = new ProductGroupMetadataFile();
+        final File file = new File(targetFolder, "product_group.json");
+        if(file.exists()) {
+            metadataFile.read(file);
+        }
 
         for(ProductGroupWriterOp.SubsetInfo subsetInfo : assetList) {
-            metadataFile.addAsset(new ProductGroupMetadataFile.Asset(
-                    subsetInfo.subset.productName, subsetInfo.file.getAbsolutePath() + ".dim", formatName));
+            ProductGroupMetadataFile.Asset asset = new ProductGroupMetadataFile.Asset(
+                    subsetInfo.subset.productName, subsetInfo.file.getAbsolutePath() + ".dim", formatName);
+
+            metadataFile.addAsset(asset);
         }
 
-        final File file = new File(targetFolder, "product_group.json");
         metadataFile.write(sourceProduct.getName(), sourceProduct.getProductType(), file);
-    }
-
-    class j extends JSONObject {
-
-        j() {
-
-        }
     }
 
     @Override
@@ -225,12 +223,8 @@ public class ProductGroupWriterOp extends Operator {
 
             subsetInfo.productWriter.writeProductNodes(subsetInfo.subset.subsetProduct, subsetInfo.file);
 
-            //final Rectangle trgRect = new PixelSubsetRegion(
-            //        subsetInfo.subset.subsetBuilder.getSubsetDef().getRegionMap().get(targetBand.getName()), 0).getPixelRegion();
-            final Rectangle trgRect = subsetInfo.subset.subsetBuilder.getSubsetDef().getRegion();
-
             if (!subsetInfo.written) {
-                writeTile(subsetInfo, trgRect);
+                writeTile(subsetInfo, targetTile.getRectangle());
             }
         } catch (Exception e) {
             if (e instanceof OperatorException) {
