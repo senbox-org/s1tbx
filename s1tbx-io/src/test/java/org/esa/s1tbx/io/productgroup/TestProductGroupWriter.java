@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

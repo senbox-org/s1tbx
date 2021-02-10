@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.productgroup;
+package org.esa.s1tbx.io.productgroup.support;
 
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class TestProductGroupMetadataFile {
     public void testWrite() throws Exception {
         final ProductGroupMetadataFile metadataFile = new ProductGroupMetadataFile();
 
-        metadataFile.addAsset(new ProductGroupMetadataFile.Asset(
+        metadataFile.addAsset(new ProductGroupAsset(
                     "name", "path_to_file", "BEAM-DIMAP"));
 
         final File file = new File(Files.createTempDirectory("productgroups").toFile(), "product_group.json");

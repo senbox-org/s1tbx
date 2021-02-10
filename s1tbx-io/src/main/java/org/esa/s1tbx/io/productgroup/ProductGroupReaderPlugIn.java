@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.productgroup;
 
+import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.dataio.envi.EnviProductReaderPlugIn;

@@ -13,10 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.productgroup;
+package org.esa.s1tbx.io.productgroup.support;
 
 import org.esa.s1tbx.commons.io.JSONUtils;
-import org.esa.snap.core.datamodel.ProductData;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -27,15 +26,11 @@ public class ProductGroupMetadataFile {
 
     public static final String PRODUCT_GROUP_METADATA_FILE = "product_group.json";
 
-    private final List<Asset> assetList = new ArrayList<>();
+    private final List<ProductGroupAsset> assetList = new ArrayList<>();
     private String productName;
     private String productType;
 
     private static final String ASSETS = "assets";
-    private static final String HREF = "href";
-    private static final String FORMAT = "snap:format";
-    private static final String ASSET_INDEX = "snap:asset_index";                       //optional to enforce band order
-    private static final String UPDATED_DATE = "snap:updated_date";
     private static final String PRODUCT_GROUP_VERSION = "snap:product_group_version";
     private static final String ID = "id";
     private static final String PRODUCT_TYPE = "snap:product_type";
@@ -45,12 +40,12 @@ public class ProductGroupMetadataFile {
     public ProductGroupMetadataFile() {
     }
 
-    public void addAsset(final Asset asset) {
+    public void addAsset(final ProductGroupAsset asset) {
         assetList.add(asset);
     }
 
-    public Asset findAsset(final Asset newAsset) {
-        for(Asset asset : assetList) {
+    public ProductGroupAsset findAsset(final ProductGroupAsset newAsset) {
+        for(ProductGroupAsset asset : assetList) {
             if(asset.equals(newAsset)) {
                 return asset;
             }
@@ -58,8 +53,8 @@ public class ProductGroupMetadataFile {
         return null;
     }
 
-    public Asset[] getAssets() {
-        return assetList.toArray(new Asset[0]);
+    public ProductGroupAsset[] getAssets() {
+        return assetList.toArray(new ProductGroupAsset[0]);
     }
 
     public String getProductName() {
@@ -84,19 +79,11 @@ public class ProductGroupMetadataFile {
             int cnt = 0;
             for(Object key : assets.keySet()) {
                 final JSONObject assetJSON = (JSONObject) assets.get(key);
-                String name = (String)key;
-                String path = (String)assetJSON.get(HREF);
-                String format = (String)assetJSON.get(FORMAT);
-
-                final Asset asset = new Asset(name, path, format);
-                asset.index = cnt;
-                if(assetJSON.containsKey(ASSET_INDEX)) {
-                    asset.index = ((Long)assetJSON.get(ASSET_INDEX)).intValue();
-                }
+                ProductGroupAsset asset = ProductGroupAsset.createAsset((String)key, cnt, assetJSON);
                 assetList.add(asset);
                 ++cnt;
             }
-            assetList.sort(Comparator.comparingInt(o -> o.index));
+            assetList.sort(Comparator.comparingInt(o -> o.getIndex()));
         }
     }
 
@@ -110,46 +97,15 @@ public class ProductGroupMetadataFile {
         json.put(ASSETS, assets);
 
         int index = 1;
-        for(Asset asset : assetList) {
+        for(ProductGroupAsset asset : assetList) {
+            asset.setIndex(index++);
             final JSONObject assetJSON = new JSONObject();
-            assets.put(asset.name, assetJSON);
-            assetJSON.put(HREF, asset.path);
-            assetJSON.put(FORMAT, asset.format);
-            assetJSON.put(ASSET_INDEX, index++);
-
-            if(asset.updatedUTC == null) {
-                asset.updatedUTC = ProductData.UTC.create(new Date(), 0);
-            }
-            assetJSON.put(UPDATED_DATE, asset.updatedUTC.format());
+            assets.put(asset.getName(), assetJSON);
+            asset.write(assetJSON);
         }
 
         JSONUtils.writeJSON(json, file);
         return file;
     }
 
-    public static class Asset {
-        final String name;
-        final String path;
-        final String format;
-        ProductData.UTC updatedUTC = null;
-        int index = -1;
-
-        public Asset(final String name, final String path, final String format) {
-            this.name = name;
-            this.path = path;
-            this.format = format;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if(super.equals(obj))
-                return true;
-            if(obj instanceof Asset) {
-                Asset newAsset = (Asset)obj;
-                return this.name.equals(newAsset.name) && this.path.equals(newAsset.path)
-                        && this.format.equals(newAsset.format);
-            }
-            return false;
-        }
-    }
 }

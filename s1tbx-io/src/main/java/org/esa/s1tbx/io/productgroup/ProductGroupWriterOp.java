@@ -17,6 +17,8 @@ package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.product.StackSplit;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupAsset;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.Band;
@@ -32,7 +34,6 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.internal.OperatorExecutor;
-import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
@@ -41,7 +42,6 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,8 +72,9 @@ public class ProductGroupWriterOp extends Operator {
             description = "The name of the output file format.")
     private String formatName;
 
+    private ProductGroupMetadataFile metadataFile;
     private final Map<String, SubsetInfo> bandMap = new HashMap<>();
-    private final String ext = ".dim";
+    private final static String ext = ".dim";
 
     public ProductGroupWriterOp() {
         setRequiresAllBands(true);
@@ -167,7 +168,7 @@ public class ProductGroupWriterOp extends Operator {
                 }
             }
 
-            writeProductGroupMetadataFile(assetList);
+            this.metadataFile = writeProductGroupMetadataFile(assetList);
 
         } catch (Throwable t) {
             throw new OperatorException(t);
@@ -197,7 +198,7 @@ public class ProductGroupWriterOp extends Operator {
         return subsetInfo;
     }
 
-    private void writeProductGroupMetadataFile(final List<SubsetInfo> assetList) throws Exception {
+    private ProductGroupMetadataFile writeProductGroupMetadataFile(final List<SubsetInfo> assetList) throws Exception {
         final ProductGroupMetadataFile metadataFile = new ProductGroupMetadataFile();
         final File file = new File(targetFolder, "product_group.json");
         if(file.exists()) {
@@ -205,13 +206,15 @@ public class ProductGroupWriterOp extends Operator {
         }
 
         for(ProductGroupWriterOp.SubsetInfo subsetInfo : assetList) {
-            ProductGroupMetadataFile.Asset asset = new ProductGroupMetadataFile.Asset(
+            ProductGroupAsset asset = new ProductGroupAsset(
                     subsetInfo.subset.productName, relativePath(subsetInfo.file) + ext, formatName);
 
             metadataFile.addAsset(asset);
         }
 
         metadataFile.write(sourceProduct.getName(), sourceProduct.getProductType(), file);
+
+        return metadataFile;
     }
 
     private String relativePath(final File file) {

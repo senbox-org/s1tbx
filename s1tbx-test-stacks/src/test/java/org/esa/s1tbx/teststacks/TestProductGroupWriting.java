@@ -4,7 +4,7 @@ package org.esa.s1tbx.teststacks;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
-import org.esa.s1tbx.io.productgroup.ProductGroupIO;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;

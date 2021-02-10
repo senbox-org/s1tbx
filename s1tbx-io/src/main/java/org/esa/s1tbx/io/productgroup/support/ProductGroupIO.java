@@ -13,10 +13,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.productgroup;
+package org.esa.s1tbx.io.productgroup.support;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.s1tbx.io.productgroup.ProductGroupWriterOp;
 import org.esa.snap.core.dataio.*;
 import org.esa.snap.core.dataio.dimap.DimapProductConstants;
 import org.esa.snap.core.datamodel.Band;

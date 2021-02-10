@@ -16,6 +16,8 @@
 package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupAsset;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
@@ -53,12 +55,12 @@ public class ProductGroupReader extends AbstractProductReader {
             final ProductGroupMetadataFile metadataFile = new ProductGroupMetadataFile();
             metadataFile.read(inputFile);
 
-            final ProductGroupMetadataFile.Asset[] assets = metadataFile.getAssets();
+            final ProductGroupAsset[] assets = metadataFile.getAssets();
 
-            for (ProductGroupMetadataFile.Asset asset : assets) {
-                File assetFile = new File(asset.path);
-                if(!assetFile.exists()) {
-                    assetFile = new File(inputFolder, asset.path);
+            for (ProductGroupAsset asset : assets) {
+                File assetFile = new File(asset.getPath());
+                if (!assetFile.exists()) {
+                    assetFile = new File(inputFolder, asset.getPath());
                 }
                 Product subProduct = ProductIO.readProduct(assetFile);
                 assetProducts.add(subProduct);
@@ -83,18 +85,18 @@ public class ProductGroupReader extends AbstractProductReader {
 
     @Override
     public void close() {
-        for(Product assetProduct : assetProducts) {
+        for (Product assetProduct : assetProducts) {
             assetProduct.dispose();
         }
     }
 
     private void addSecondaryProducts(final Product product, final List<Product> assetProducts) throws IOException {
-        for(Product assetProduct : assetProducts) {
-            if(!product.isCompatibleProduct(assetProduct, 0)) {
-                throw new IOException("ProductGroup asset "+ assetProduct.getName() +" is incompatible");
+        for (Product assetProduct : assetProducts) {
+            if (!product.isCompatibleProduct(assetProduct, 0)) {
+                throw new IOException("ProductGroup asset " + assetProduct.getName() + " is incompatible");
             }
 
-            for(Band band : assetProduct.getBands()) {
+            for (Band band : assetProduct.getBands()) {
                 ProductUtils.copyBand(band.getName(), assetProduct, band.getName(), product, true);
             }
         }
