@@ -62,6 +62,10 @@ public class ProductGroupAsset {
         this.index = index;
     }
 
+    public ProductData.UTC getUpdatedUTC() {
+        return updatedUTC;
+    }
+
     public boolean isModified() {
         return modified;
     }

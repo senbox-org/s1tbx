@@ -21,6 +21,7 @@ import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.ResourceInstaller;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.esa.snap.core.util.Debug.assertTrue;
 import static org.junit.Assert.*;
 
 
@@ -47,7 +49,8 @@ public class TestProductGroupReader extends ProcessorTest {
 
     @Test
     public void testRead() throws Exception {
-        final File file = new File(createTmpFolder(tmpFolder), ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE);
+        final File targetFolder = createTmpFolder(tmpFolder);
+        final File file = new File(targetFolder, ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE);
 
         Product product = ProductIO.readProduct(file);
         assertNotNull(product);
@@ -57,5 +60,8 @@ public class TestProductGroupReader extends ProcessorTest {
         assertEquals("band2", product.getBandAt(1).getName());
         assertEquals("band3", product.getBandAt(2).getName());
         assertEquals("band4", product.getBandAt(3).getName());
+
+        product.dispose();
+        assertTrue(FileUtils.deleteTree(targetFolder));
     }
 }

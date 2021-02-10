@@ -17,19 +17,23 @@ package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupAsset;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 
+import static org.esa.snap.core.util.Debug.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class TestProductGroupWriter extends ProcessorTest {
 
@@ -40,6 +44,9 @@ public class TestProductGroupWriter extends ProcessorTest {
 
         final File targetFolder = createTmpFolder("productgroups/group1");
         ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        product.dispose();
+        assertTrue(FileUtils.deleteTree(targetFolder));
     }
 
     @Test
@@ -53,6 +60,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         ProductGroupMetadataFile productGroupMetadataFile = new ProductGroupMetadataFile();
         productGroupMetadataFile.read(metadataFile);
         assertEquals(3, productGroupMetadataFile.getAssets().length);
+        assertTrue(areSameUpdateDate(productGroupMetadataFile.getAssets()));
 
         TestUtils.createBand(product, "band" + 4, product.getSceneRasterWidth(), product.getSceneRasterHeight());
 
@@ -61,7 +69,19 @@ public class TestProductGroupWriter extends ProcessorTest {
         productGroupMetadataFile = new ProductGroupMetadataFile();
         productGroupMetadataFile.read(metadataFile);
         assertEquals(4, productGroupMetadataFile.getAssets().length);
+        assertFalse(areSameUpdateDate(productGroupMetadataFile.getAssets()));
 
+        product.dispose();
+        assertTrue(FileUtils.deleteTree(targetFolder));
+    }
+
+    private boolean areSameUpdateDate(final ProductGroupAsset[] assets) {
+        ProductData.UTC updatedUTC = assets[0].getUpdatedUTC();
+        for(ProductGroupAsset asset : assets) {
+            if(!updatedUTC.equals(asset.getUpdatedUTC()))
+                return false;
+        }
+        return true;
     }
 
     private Product createStackProduct() {

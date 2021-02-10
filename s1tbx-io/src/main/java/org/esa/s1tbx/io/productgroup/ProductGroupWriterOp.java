@@ -277,8 +277,9 @@ public class ProductGroupWriterOp extends Operator {
     public void dispose() {
         try {
             for (String bandName : bandMap.keySet()) {
-                SubsetInfo info = bandMap.get(bandName);
-                info.productWriter.close();
+                SubsetInfo subsetInfo = bandMap.get(bandName);
+                subsetInfo.productWriter.close();
+                subsetInfo.subset.subsetProduct.dispose();
             }
         } catch (IOException ignore) {
         }
