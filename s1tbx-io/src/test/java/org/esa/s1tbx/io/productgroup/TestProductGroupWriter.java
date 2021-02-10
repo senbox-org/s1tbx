@@ -18,6 +18,7 @@ package org.esa.s1tbx.io.productgroup;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -27,6 +28,8 @@ import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestProductGroupWriter extends ProcessorTest {
 
@@ -45,7 +48,20 @@ public class TestProductGroupWriter extends ProcessorTest {
         addMetadata(product);
 
         final File targetFolder = createTmpFolder("productgroups/group2");
+        File metadataFile = ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        ProductGroupMetadataFile productGroupMetadataFile = new ProductGroupMetadataFile();
+        productGroupMetadataFile.read(metadataFile);
+        assertEquals(3, productGroupMetadataFile.getAssets().length);
+
+        TestUtils.createBand(product, "band" + 4, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+
         ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        productGroupMetadataFile = new ProductGroupMetadataFile();
+        productGroupMetadataFile.read(metadataFile);
+        assertEquals(4, productGroupMetadataFile.getAssets().length);
+
     }
 
     private Product createStackProduct() {

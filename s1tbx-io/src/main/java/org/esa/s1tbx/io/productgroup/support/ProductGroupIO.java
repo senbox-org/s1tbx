@@ -54,9 +54,9 @@ public class ProductGroupIO {
     public static final String SYSTEM_PROPERTY_CONCURRENT = "snap.productio.concurrent";
     public static final boolean DEFAULT_WRITE_RASTER_CONCURRENT = true;
 
-    public static void operatorWrite(Product product, File file, String formatName, ProgressMonitor pm) {
+    public static File operatorWrite(Product product, File file, String formatName, ProgressMonitor pm) {
         ProductGroupWriterOp writeOp = new ProductGroupWriterOp(product, file, formatName);
-        writeOp.writeProduct(pm);
+        return writeOp.writeProduct(pm);
     }
 
     /**

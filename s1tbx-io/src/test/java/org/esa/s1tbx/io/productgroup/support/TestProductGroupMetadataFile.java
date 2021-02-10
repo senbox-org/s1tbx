@@ -31,7 +31,8 @@ public class TestProductGroupMetadataFile {
         metadataFile.addAsset(new ProductGroupAsset(
                     "name", "path_to_file", "BEAM-DIMAP"));
 
-        final File file = new File(Files.createTempDirectory("productgroups").toFile(), "product_group.json");
+        final File file = new File(Files.createTempDirectory("productgroups").toFile(),
+                ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE);
         metadataFile.write("productName", "productType", file);
         assertTrue(file.exists());
 

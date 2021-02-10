@@ -83,7 +83,7 @@ public class ProductGroupMetadataFile {
                 assetList.add(asset);
                 ++cnt;
             }
-            assetList.sort(Comparator.comparingInt(o -> o.getIndex()));
+            assetList.sort(Comparator.comparingInt(ProductGroupAsset::getIndex));
         }
     }
 

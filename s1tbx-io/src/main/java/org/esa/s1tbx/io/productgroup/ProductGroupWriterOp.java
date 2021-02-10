@@ -72,8 +72,9 @@ public class ProductGroupWriterOp extends Operator {
             description = "The name of the output file format.")
     private String formatName;
 
-    private ProductGroupMetadataFile metadataFile;
+    private File metadataFile;
     private final Map<String, SubsetInfo> bandMap = new HashMap<>();
+    private final Map<SubsetInfo, ProductGroupAsset> assetMap = new HashMap<>();
     private final static String ext = ".dim";
 
     public ProductGroupWriterOp() {
@@ -88,7 +89,7 @@ public class ProductGroupWriterOp extends Operator {
         this.formatName = formatName;
     }
 
-    public void writeProduct(ProgressMonitor pm) {
+    public File writeProduct(ProgressMonitor pm) {
         long startNanos = System.nanoTime();
         getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + targetFolder);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
@@ -111,6 +112,8 @@ public class ProductGroupWriterOp extends Operator {
                     millis / h / w));
 
             stopTileComputationObservation();
+
+            return metadataFile;
         } catch (OperatorException e) {
             throw e;
         } finally {
@@ -198,23 +201,31 @@ public class ProductGroupWriterOp extends Operator {
         return subsetInfo;
     }
 
-    private ProductGroupMetadataFile writeProductGroupMetadataFile(final List<SubsetInfo> assetList) throws Exception {
+    private File writeProductGroupMetadataFile(final List<SubsetInfo> assetList) throws Exception {
         final ProductGroupMetadataFile metadataFile = new ProductGroupMetadataFile();
-        final File file = new File(targetFolder, "product_group.json");
+        final File file = new File(targetFolder, ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE);
         if(file.exists()) {
             metadataFile.read(file);
         }
 
         for(ProductGroupWriterOp.SubsetInfo subsetInfo : assetList) {
-            ProductGroupAsset asset = new ProductGroupAsset(
+            ProductGroupAsset newAsset = new ProductGroupAsset(
                     subsetInfo.subset.productName, relativePath(subsetInfo.file) + ext, formatName);
 
-            metadataFile.addAsset(asset);
+            ProductGroupAsset origAsset = metadataFile.findAsset(newAsset);
+            if(origAsset == null) {
+                metadataFile.addAsset(newAsset);
+                origAsset = newAsset;
+            } else {
+                if(!origAsset.getFormat().equals(newAsset.getFormat())) {
+                    throw new IOException("ProductGroup of format "+formatName
+                            +" cannot be saved to an existing folder of format "+ origAsset.getFormat());
+                }
+            }
+            assetMap.put(subsetInfo, origAsset);
         }
 
-        metadataFile.write(sourceProduct.getName(), sourceProduct.getProductType(), file);
-
-        return metadataFile;
+        return metadataFile.write(sourceProduct.getName(), sourceProduct.getProductType(), file);
     }
 
     private String relativePath(final File file) {
@@ -230,10 +241,14 @@ public class ProductGroupWriterOp extends Operator {
                 return;
             }
 
-            subsetInfo.productWriter.writeProductNodes(subsetInfo.subset.subsetProduct, subsetInfo.file);
+            final ProductGroupAsset asset = assetMap.get(subsetInfo);
+            if(asset.isModified()) {
 
-            if (!subsetInfo.written) {
-                writeTile(subsetInfo, targetTile.getRectangle());
+                subsetInfo.productWriter.writeProductNodes(subsetInfo.subset.subsetProduct, subsetInfo.file);
+
+                if (!subsetInfo.written) {
+                    writeTile(subsetInfo, targetTile.getRectangle());
+                }
             }
         } catch (Exception e) {
             if (e instanceof OperatorException) {

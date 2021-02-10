@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.productgroup.support;
 
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.io.FileUtils;
 import org.json.simple.JSONObject;
 
 import java.util.Date;
@@ -49,12 +50,20 @@ public class ProductGroupAsset {
         return path;
     }
 
+    public String getFormat() {
+        return format;
+    }
+
     public int getIndex() {
         return index;
     }
 
     public void setIndex(final int index) {
         this.index = index;
+    }
+
+    public boolean isModified() {
+        return modified;
     }
 
     public static ProductGroupAsset createAsset(final String name, int cnt, final JSONObject assetJSON) throws Exception  {
@@ -92,8 +101,8 @@ public class ProductGroupAsset {
             return true;
         if (obj instanceof ProductGroupAsset) {
             ProductGroupAsset newAsset = (ProductGroupAsset) obj;
-            return this.name.equals(newAsset.name) && this.path.equals(newAsset.path)
-                    && this.format.equals(newAsset.format);
+            return this.name.equals(newAsset.name) && FileUtils.getFilenameWithoutExtension(this.path)
+                        .equals(FileUtils.getFilenameWithoutExtension(newAsset.path));
         }
         return false;
     }

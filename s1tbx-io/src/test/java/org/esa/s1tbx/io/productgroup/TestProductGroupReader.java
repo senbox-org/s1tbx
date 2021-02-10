@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
+import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.ResourceInstaller;
@@ -46,7 +47,7 @@ public class TestProductGroupReader extends ProcessorTest {
 
     @Test
     public void testRead() throws Exception {
-        final File file = new File(createTmpFolder(tmpFolder), "product_group.json");
+        final File file = new File(createTmpFolder(tmpFolder), ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE);
 
         Product product = ProductIO.readProduct(file);
         assertNotNull(product);
