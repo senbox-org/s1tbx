@@ -34,16 +34,24 @@ public class TestProductGroupWriter extends ProcessorTest {
         Product product = createStackProduct();
         addMetadata(product);
 
-        final File targetFolder = createTmpFolder("productgroups");
+        final File targetFolder = createTmpFolder("productgroups/group1");
         ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
     }
 
+    @Test
+    public void testWrite_Append() throws Exception {
+        Product product = createStackProduct();
+        addMetadata(product);
+
+        final File targetFolder = createTmpFolder("productgroups/group2");
+        ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+    }
 
     private Product createStackProduct() {
         final int w = 10, h = 10;
         final Product product = TestUtils.createProduct("type", w, h);
 
-        for(int i=1; i < 5; ++i) {
+        for(int i=1; i < 4; ++i) {
             TestUtils.createBand(product, "band" + i, w, h);
         }
 

@@ -41,6 +41,7 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +73,7 @@ public class ProductGroupWriterOp extends Operator {
     private String formatName;
 
     private final Map<String, SubsetInfo> bandMap = new HashMap<>();
+    private final String ext = ".dim";
 
     public ProductGroupWriterOp() {
         setRequiresAllBands(true);
@@ -204,12 +206,16 @@ public class ProductGroupWriterOp extends Operator {
 
         for(ProductGroupWriterOp.SubsetInfo subsetInfo : assetList) {
             ProductGroupMetadataFile.Asset asset = new ProductGroupMetadataFile.Asset(
-                    subsetInfo.subset.productName, subsetInfo.file.getAbsolutePath() + ".dim", formatName);
+                    subsetInfo.subset.productName, relativePath(subsetInfo.file) + ext, formatName);
 
             metadataFile.addAsset(asset);
         }
 
         metadataFile.write(sourceProduct.getName(), sourceProduct.getProductType(), file);
+    }
+
+    private String relativePath(final File file) {
+        return targetFolder.toPath().relativize(file.toPath()).toString();
     }
 
     @Override

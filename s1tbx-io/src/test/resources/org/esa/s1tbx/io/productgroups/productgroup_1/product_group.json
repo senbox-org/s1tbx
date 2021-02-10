@@ -1,0 +1,31 @@
+{
+	"snap:product_group_version": "0.1",
+	"assets": {
+		"product_band1": {
+			"snap:format": "BEAM-DIMAP",
+			"snap:updated_date": "10-FEB-2021 17:46:39.000000",
+			"href": "product_band1.dim",
+			"snap:asset_index": 5
+		},
+		"product_band2": {
+			"snap:format": "BEAM-DIMAP",
+			"snap:updated_date": "10-FEB-2021 17:46:39.000000",
+			"href": "product_band2.dim",
+			"snap:asset_index": 6
+		},
+		"product_band3": {
+			"snap:format": "BEAM-DIMAP",
+			"snap:updated_date": "10-FEB-2021 17:46:39.000000",
+			"href": "product_band3.dim",
+			"snap:asset_index": 7
+		},
+		"product_band4": {
+			"snap:format": "BEAM-DIMAP",
+			"snap:updated_date": "10-FEB-2021 17:46:39.000000",
+			"href": "product_band4.dim",
+			"snap:asset_index": 8
+		}
+	},
+	"snap:product_type": "type",
+	"id": "name"
+}

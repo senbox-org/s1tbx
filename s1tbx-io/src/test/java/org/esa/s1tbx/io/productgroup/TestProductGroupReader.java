@@ -15,21 +15,38 @@
  */
 package org.esa.s1tbx.io.productgroup;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.ResourceInstaller;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 
 
 public class TestProductGroupReader extends ProcessorTest {
 
+    private final static String resourcePath = "org/esa/s1tbx/io/productgroups/productgroup_1";
+    private final static String tmpFolder = "productgroup_reader/productgroup_1";
+
+    @Before
+    public void setup() throws IOException {
+        Path sourceDirPath = ResourceInstaller.findModuleCodeBasePath(this.getClass()).resolve(resourcePath);
+        Path destDirectory = createTmpFolder(tmpFolder).toPath();
+
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDirPath, destDirectory);
+        resourceInstaller.install(".*", ProgressMonitor.NULL);
+    }
+
     @Test
     public void testRead() throws Exception {
-        final File file = new File("C:\\out\\productgroups\\product_group.json");
+        final File file = new File(createTmpFolder(tmpFolder), "product_group.json");
 
         Product product = ProductIO.readProduct(file);
         assertNotNull(product);
@@ -40,5 +57,4 @@ public class TestProductGroupReader extends ProcessorTest {
         assertEquals("band3", product.getBandAt(2).getName());
         assertEquals("band4", product.getBandAt(3).getName());
     }
-
 }

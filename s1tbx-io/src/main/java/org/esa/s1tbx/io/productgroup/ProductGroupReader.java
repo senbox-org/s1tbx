@@ -49,13 +49,18 @@ public class ProductGroupReader extends AbstractProductReader {
                 inputFile = ProductGroupReaderPlugIn.findMetadataFile(inputFile);
             }
 
+            final File inputFolder = inputFile.getParentFile();
             final ProductGroupMetadataFile metadataFile = new ProductGroupMetadataFile();
             metadataFile.read(inputFile);
 
             final ProductGroupMetadataFile.Asset[] assets = metadataFile.getAssets();
 
             for (ProductGroupMetadataFile.Asset asset : assets) {
-                Product subProduct = ProductIO.readProduct(asset.path);
+                File assetFile = new File(asset.path);
+                if(!assetFile.exists()) {
+                    assetFile = new File(inputFolder, asset.path);
+                }
+                Product subProduct = ProductIO.readProduct(assetFile);
                 assetProducts.add(subProduct);
             }
 
