@@ -76,25 +76,29 @@ public class CapellaProductReader extends SARReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
+        try {
+            Object input = getInput();
+            if (input instanceof InputStream) {
+                throw new IOException("InputStream not supported");
+            }
 
-        Object input = getInput();
-        if (input instanceof InputStream) {
-            throw new IOException("InputStream not supported");
+            final Path path = getPathFromInput(input);
+            File metadataFile = CapellaProductReaderPlugIn.findMetadataFile(path);
+
+            dataDir = new CapellaProductDirectory(metadataFile);
+            dataDir.readProductDirectory();
+            final Product product = dataDir.createProduct();
+
+            addCommonSARMetadata(product);
+            product.getGcpGroup();
+            product.setFileLocation(metadataFile);
+            product.setProductReader(this);
+
+            return product;
+        } catch (Throwable e) {
+            handleReaderException(e);
         }
-
-        final Path path = getPathFromInput(input);
-        File metadataFile = CapellaProductReaderPlugIn.findMetadataFile(path);
-
-        dataDir = new CapellaProductDirectory(metadataFile);
-        dataDir.readProductDirectory();
-        final Product product = dataDir.createProduct();
-
-        addCommonSARMetadata(product);
-        product.getGcpGroup();
-        product.setFileLocation(metadataFile);
-        product.setProductReader(this);
-
-        return product;
+        return null;
     }
 
     @Override
