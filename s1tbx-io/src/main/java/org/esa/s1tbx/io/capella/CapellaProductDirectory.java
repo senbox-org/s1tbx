@@ -27,6 +27,7 @@ import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.stream.FileImageInputStream;
@@ -37,6 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.Map;
+
+import static org.esa.s1tbx.io.sentinel1.Sentinel1Directory.sentinelDateFormat;
 
 /**
  * This class represents a product directory.
@@ -111,6 +114,14 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor, scaleFactor);
         if (radiometry.equals("sigma_nought")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 1);
+        }
+
+        final MetadataElement imageGeometry = image.getElement("image_geometry");
+        if(isSLC()) {
+            if(imageGeometry.containsAttribute("range_to_first_sample")) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+                        imageGeometry.getAttributeDouble("range_to_first_sample"));
+            }
         }
 
         final MetadataElement radar = collect.getElement("radar");
@@ -289,21 +300,28 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         final MetadataElement positionElem = orbitElem.getElement("position");
         final MetadataElement velocityElem = orbitElem.getElement("velocity");
 
-        //orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-        //                                ReaderUtils.getTime(orbitElem, "time", sentinelDateFormat));
+        orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
+                                        ReaderUtils.getTime(orbitElem, "time", sentinelDateFormat));
+
+        String xPosName = positionElem.containsAttribute("x") ? "x" : "position1";
+        String yPosName = positionElem.containsAttribute("y") ? "y" : "position2";
+        String zPosName = positionElem.containsAttribute("z") ? "z" : "position3";
+        String xVelName = positionElem.containsAttribute("x") ? "x" : "velocity1";
+        String yVelName = positionElem.containsAttribute("y") ? "y" : "velocity2";
+        String zVelName = positionElem.containsAttribute("z") ? "z" : "velocity3";
 
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                positionElem.getAttributeDouble("x", 0));
+                positionElem.getAttributeDouble(xPosName, 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                positionElem.getAttributeDouble("y", 0));
+                positionElem.getAttributeDouble(yPosName, 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                positionElem.getAttributeDouble("z", 0));
+                positionElem.getAttributeDouble(zPosName, 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                velocityElem.getAttributeDouble("x", 0));
+                velocityElem.getAttributeDouble(xVelName, 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                velocityElem.getAttributeDouble("y", 0));
+                velocityElem.getAttributeDouble(yVelName, 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                velocityElem.getAttributeDouble("z", 0));
+                velocityElem.getAttributeDouble(zVelName, 0));
 
         orbitVectorListElem.addElement(orbitVectorElem);
     }
@@ -317,7 +335,40 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
     @Override
     protected void addTiePointGrids(final Product product) {
-        // replaced by call to addTiePointGrids(band)
+
+        final int gridWidth = 4;
+        final int gridHeight = 4;
+        final double subSamplingX = (double) product.getSceneRasterWidth() / (gridWidth - 1);
+        final double subSamplingY = (double) product.getSceneRasterHeight() / (gridHeight - 1);
+        if (subSamplingX == 0 || subSamplingY == 0)
+            return;
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement productMetadata = origProdRoot.getElement("ProductMetadata");
+        final MetadataElement collect = productMetadata.getElement("collect");
+        final MetadataElement image = collect.getElement("image");
+        final MetadataElement centerPixel = image.getElement("center_pixel");
+        final double incidenceAngle = centerPixel.getAttributeDouble("incidence_angle");
+
+        final double[] incidenceCorners = new double[] { incidenceAngle,incidenceAngle,incidenceAngle,incidenceAngle};
+
+        if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
+            final float[] fineAngles = new float[gridWidth * gridHeight];
+            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
+
+            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
+                    subSamplingX, subSamplingY, fineAngles);
+            incidentAngleGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(incidentAngleGrid);
+        }
+
+//        final float[] fineSlantRange = new float[gridWidth * gridHeight];
+//        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
+//
+//        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
+//                subSamplingX, subSamplingY, fineSlantRange);
+//        slantRangeGrid.setUnit(Unit.NANOSECONDS);
+//        product.addTiePointGrid(slantRangeGrid);
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
@@ -337,25 +388,25 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(w, h));
     }
 
-    @Override
-    public Product createProduct() throws IOException {
-
-        final MetadataElement newRoot = addMetaData();
-        findImages(newRoot);
-
-        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-
-        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
-        updateProduct(product, newRoot);
-
-        addBands(product);
-        addGeoCoding(product);
-
-        ReaderUtils.addMetadataIncidenceAngles(product);
-        ReaderUtils.addMetadataProductSize(product);
-
-        return product;
-    }
+//    @Override
+//    public Product createProduct() throws IOException {
+//
+//        final MetadataElement newRoot = addMetaData();
+//        findImages(newRoot);
+//
+//        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+//        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+//        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+//
+//        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
+//        updateProduct(product, newRoot);
+//
+//        addBands(product);
+//        addGeoCoding(product);
+//
+//        ReaderUtils.addMetadataIncidenceAngles(product);
+//        ReaderUtils.addMetadataProductSize(product);
+//
+//        return product;
+//    }
 }
