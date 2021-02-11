@@ -24,6 +24,7 @@ import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.common.PassThroughOp;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.TestUtils;
@@ -74,6 +75,41 @@ public class TestProductGroupWriter extends ProcessorTest {
         product.dispose();
         assertTrue(FileUtils.deleteTree(targetFolder));
     }
+
+    @Test
+    public void testWrite_Update_Processing_History() throws Exception {
+        Product product = createStackProduct();
+        addMetadata(product);
+
+        final File targetFolder = createTmpFolder("productgroups/group2");
+        File metadataFile = ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        ProductGroupMetadataFile productGroupMetadataFile = new ProductGroupMetadataFile();
+        productGroupMetadataFile.read(metadataFile);
+        assertEquals(3, productGroupMetadataFile.getAssets().length);
+        assertTrue(areSameUpdateDate(productGroupMetadataFile.getAssets()));
+
+        TestUtils.createBand(product, "band" + 4, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+
+        ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        productGroupMetadataFile = new ProductGroupMetadataFile();
+        productGroupMetadataFile.read(metadataFile);
+        assertEquals(4, productGroupMetadataFile.getAssets().length);
+        assertFalse(areSameUpdateDate(productGroupMetadataFile.getAssets()));
+
+        PassThroughOp passThroughOp = new PassThroughOp();
+        passThroughOp.setSourceProduct(product);
+        Product processedProduct = passThroughOp.getTargetProduct();
+
+        ProductGroupIO.operatorWrite(processedProduct, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        processedProduct.dispose();
+
+        product.dispose();
+        //assertTrue(FileUtils.deleteTree(targetFolder));
+    }
+
 
     private boolean areSameUpdateDate(final ProductGroupAsset[] assets) {
         ProductData.UTC updatedUTC = assets[0].getUpdatedUTC();
