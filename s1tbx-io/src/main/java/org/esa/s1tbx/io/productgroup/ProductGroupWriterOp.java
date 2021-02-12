@@ -84,12 +84,16 @@ public class ProductGroupWriterOp extends Operator {
     public ProductGroupWriterOp(Product sourceProduct, File targetFolder, String formatName) {
         this();
         Guardian.assertNotNull("targetFolder", targetFolder);
+
+        if(targetFolder.getName().equals(ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE)) {
+            targetFolder = targetFolder.getParentFile();
+        }
         this.sourceProduct = sourceProduct;
         this.targetFolder = targetFolder;
         this.formatName = formatName;
     }
 
-    public File writeProduct(ProgressMonitor pm) {
+    public File writeProduct(final ProgressMonitor pm) {
         long startNanos = System.nanoTime();
         getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + targetFolder);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
@@ -148,11 +152,11 @@ public class ProductGroupWriterOp extends Operator {
             targetProduct.setPreferredTileSize(
                     new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
 
-            final StackSplit stackSplit = new StackSplit(sourceProduct);
+            final StackSplit stackSplit = new StackSplit(sourceProduct, true);
 
             final List<SubsetInfo> assetList = new ArrayList<>();
-            final String[] mstNames = StackUtils.getMasterBandNames(sourceProduct);
-            if(mstNames.length == 0) {
+            final String[] refNames = StackUtils.getMasterBandNames(sourceProduct);
+            if(refNames.length == 0) {
                 for(Band band : sourceProduct.getBands()) {
                     final String[] subsetBandNames = new String[] {band.getName()};
                     StackSplit.Subset subset = stackSplit.createSubset(sourceProduct, "product_"+band.getName(), subsetBandNames);
@@ -160,7 +164,7 @@ public class ProductGroupWriterOp extends Operator {
                     assetList.add(secSubset);
                 }
             } else {
-                SubsetInfo refSubset = createSubset(StackSplit.getBandNames(sourceProduct, mstNames), stackSplit.getReferenceSubset());
+                SubsetInfo refSubset = createSubset(StackSplit.getBandNames(sourceProduct, refNames), stackSplit.getReferenceSubset());
                 assetList.add(refSubset);
 
                 final StackSplit.Subset[] secondarySubsets = stackSplit.getSecondarySubsets();
@@ -233,7 +237,7 @@ public class ProductGroupWriterOp extends Operator {
     }
 
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(final Band targetBand, final Tile targetTile, final ProgressMonitor pm) throws OperatorException {
         try {
             final SubsetInfo subsetInfo = bandMap.get(targetBand.getName());
             if(subsetInfo == null) {

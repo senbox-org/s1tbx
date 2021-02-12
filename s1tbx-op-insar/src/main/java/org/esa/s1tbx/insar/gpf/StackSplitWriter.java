@@ -73,7 +73,7 @@ public class StackSplitWriter extends Operator {
             targetProduct.setPreferredTileSize(
                     new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
 
-            final StackSplit stackSplit = new StackSplit(sourceProduct);
+            final StackSplit stackSplit = new StackSplit(sourceProduct, false);
 
             final String[] mstNames = StackUtils.getMasterBandNames(sourceProduct);
             createSubset(StackSplit.getBandNames(sourceProduct, mstNames), stackSplit.getReferenceSubset());

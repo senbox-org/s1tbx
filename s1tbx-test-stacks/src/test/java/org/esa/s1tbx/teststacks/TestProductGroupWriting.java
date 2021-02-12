@@ -8,6 +8,7 @@ import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -77,7 +78,7 @@ public class TestProductGroupWriting extends ProcessorTest {
 
         closeProducts(products);
         outProduct.dispose();
-        //tmpFolder.delete();
+        assertTrue(FileUtils.deleteTree(tmpFolder));
     }
 
     @Test
@@ -87,7 +88,7 @@ public class TestProductGroupWriting extends ProcessorTest {
 
         File tmpFolder = createTmpFolder("group3");
         File stackProductFile = new File(tmpFolder,"gpf1_group3");
-        ProductGroupIO.operatorWrite(outProduct1, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
+        stackProductFile = ProductGroupIO.operatorWrite(outProduct1, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
 
         closeProducts(inputProducts1);
         outProduct1.dispose();
@@ -100,11 +101,11 @@ public class TestProductGroupWriting extends ProcessorTest {
 
         final Product outProduct2 = createStackProduct(stackProductList);
 
-        File stackProductFile2 = new File(tmpFolder,"gpf1_stack");
-        GPF.writeProduct(outProduct2, stackProductFile2, "BEAM-DIMAP", true, ProgressMonitor.NULL);
+        //GPF.writeProduct(outProduct2, stackProductFile2, "BEAM-DIMAP", true, ProgressMonitor.NULL);
+        ProductGroupIO.operatorWrite(outProduct2, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
 
         closeProducts(inputProducts2);
         outProduct2.dispose();
-        //tmpFolder.delete();
+        //assertTrue(FileUtils.deleteTree(tmpFolder));
     }
 }

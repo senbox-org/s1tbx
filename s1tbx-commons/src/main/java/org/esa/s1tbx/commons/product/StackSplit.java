@@ -19,9 +19,12 @@ public class StackSplit {
     private final Product srcProduct;
     private final Subset referenceSubset;
     private final List<Subset> secondarySubsetList = new ArrayList<>();
+    private final boolean keepStackBandNames;
 
-    public StackSplit(final Product sourceProduct) throws IOException {
+    public StackSplit(final Product sourceProduct, final boolean keepStackBandNames) throws IOException {
         this.srcProduct = sourceProduct;
+        this.keepStackBandNames = keepStackBandNames;
+
         final InputProductValidator validator = new InputProductValidator(srcProduct);
         if(!validator.isCollocated() && !validator.isCoregisteredStack()) {
             throw new IOException("Source product should be a collocated or coregistered stack");
@@ -78,18 +81,24 @@ public class StackSplit {
         subset.subsetBuilder = new ProductSubsetBuilder();
         subset.subsetProduct = subset.subsetBuilder.readProductNodes(srcProduct, subsetDef);
 
-        // update band name
-        for(Band trgBand : subset.subsetProduct.getBands()) {
-            final String newBandName = StackUtils.getBandNameWithoutDate(trgBand.getName());
-            subset.newBandNamingMap.put(newBandName, trgBand.getName());
-            trgBand.setName(newBandName);
+        if(keepStackBandNames) {
+            for (Band trgBand : subset.subsetProduct.getBands()) {
+                subset.newBandNamingMap.put(trgBand.getName(), trgBand.getName());
+            }
+        } else {
+            // update band name
+            for (Band trgBand : subset.subsetProduct.getBands()) {
+                final String newBandName = StackUtils.getBandNameWithoutDate(trgBand.getName());
+                subset.newBandNamingMap.put(newBandName, trgBand.getName());
+                trgBand.setName(newBandName);
 
-            // update virtual band expressions
-            for(Band vBand : subset.subsetProduct.getBands()) {
-                if(vBand instanceof VirtualBand) {
-                    final VirtualBand virtBand = (VirtualBand)vBand;
-                    String expression = virtBand.getExpression().replaceAll(trgBand.getName(), newBandName);
-                    virtBand.setExpression(expression);
+                // update virtual band expressions
+                for (Band vBand : subset.subsetProduct.getBands()) {
+                    if (vBand instanceof VirtualBand) {
+                        final VirtualBand virtBand = (VirtualBand) vBand;
+                        String expression = virtBand.getExpression().replaceAll(trgBand.getName(), newBandName);
+                        virtBand.setExpression(expression);
+                    }
                 }
             }
         }
