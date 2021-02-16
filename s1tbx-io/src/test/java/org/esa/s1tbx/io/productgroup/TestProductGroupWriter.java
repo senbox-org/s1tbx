@@ -84,7 +84,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         assertFalse(areSameUpdateDate(productGroupMetadataFile.getAssets()));
 
         product.dispose();
-        assertTrue(FileUtils.deleteTree(targetFolder));
+        //assertTrue(FileUtils.deleteTree(targetFolder));
     }
 
     @Test

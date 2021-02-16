@@ -148,8 +148,9 @@ public class ProductGroupWriterOp extends Operator {
                 ProductUtils.copyBand(band.getName(), sourceProduct, band.getName(), targetProduct, false);
             }
 
-            //targetProduct.setPreferredTileSize(
-            //        new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
+            // todo this is not good
+            targetProduct.setPreferredTileSize(
+                    new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
 
             final StackSplit stackSplit = new StackSplit(sourceProduct, true);
 

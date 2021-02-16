@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.teststacks;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -29,6 +43,47 @@ public class TestProductGroupWriting extends ProcessorTest {
     private final static File f3 = new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame\\RS2_OK28321_PK282224_DK256391_FQ10W_20120731_001628_HH_VV_HV_VH_SLC.zip");
     private final static File f4 = new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame\\RS2_OK28551_PK284031_DK257628_FQ10W_20120824_001629_HH_VV_HV_VH_SLC.zip");
     private final static File f5 = new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame\\RS2_OK28551_PK284040_DK257637_FQ10W_20120917_001630_HH_VV_HV_VH_SLC.zip");
+
+    @Test
+    public void testProductGroupWithProductGroupIO() throws IOException {
+        final List<Product> products = readProducts(new File[] {f1, f2, f3});
+        final Product outProduct = createStackProduct(products);
+
+        File tmpFolder = createTmpFolder("group1");
+        File productFile = new File(tmpFolder,"productIO1_group1.dim");
+        ProductGroupIO.operatorWrite(outProduct, productFile, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        closeProducts(products);
+        outProduct.dispose();
+        assertTrue(FileUtils.deleteTree(tmpFolder));
+    }
+
+    @Test
+    public void testProductGroupWithGPF() throws IOException {
+        final List<Product> inputProducts1 = readProducts(new File[] {f1, f2});
+        final Product outProduct1 = createStackProduct(inputProducts1);
+
+        File tmpFolder = createTmpFolder("group3");
+        File stackProductFile = new File(tmpFolder,"gpf1_group3");
+        stackProductFile = ProductGroupIO.operatorWrite(outProduct1, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        closeProducts(inputProducts1);
+        outProduct1.dispose();
+
+        Product stackProduct = ProductIO.readProduct(stackProductFile);
+        final List<Product> inputProducts2 = readProducts(new File[] {f3});
+        final List<Product> stackProductList = new ArrayList<>();
+        stackProductList.add(stackProduct);
+        stackProductList.addAll(inputProducts2);
+
+        final Product outProduct2 = createStackProduct(stackProductList);
+
+        ProductGroupIO.operatorWrite(outProduct2, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        closeProducts(inputProducts2);
+        outProduct2.dispose();
+        assertTrue(FileUtils.deleteTree(tmpFolder));
+    }
 
     private List<Product> readProducts(final File folder) throws IOException {
         assertTrue(folder.isDirectory());
@@ -65,46 +120,5 @@ public class TestProductGroupWriting extends ProcessorTest {
         }
 
         return createStackOp.getTargetProduct();
-    }
-
-    @Test
-    public void testProductGroupWithProductGroupIO() throws IOException {
-        final List<Product> products = readProducts(new File[] {f1, f2, f3});
-        final Product outProduct = createStackProduct(products);
-
-        File tmpFolder = createTmpFolder("group1");
-        File productFile = new File(tmpFolder,"productIO1_group1.dim");
-        ProductGroupIO.writeProduct(outProduct, productFile, "BEAM-DIMAP", true);
-
-        closeProducts(products);
-        outProduct.dispose();
-        assertTrue(FileUtils.deleteTree(tmpFolder));
-    }
-
-    @Test
-    public void testProductGroupWithGPF() throws IOException {
-        final List<Product> inputProducts1 = readProducts(new File[] {f1, f2});
-        final Product outProduct1 = createStackProduct(inputProducts1);
-
-        File tmpFolder = createTmpFolder("group3");
-        File stackProductFile = new File(tmpFolder,"gpf1_group3");
-        stackProductFile = ProductGroupIO.operatorWrite(outProduct1, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
-
-        closeProducts(inputProducts1);
-        outProduct1.dispose();
-
-        Product stackProduct = ProductIO.readProduct(stackProductFile);
-        final List<Product> inputProducts2 = readProducts(new File[] {f3});
-        final List<Product> stackProductList = new ArrayList<>();
-        stackProductList.add(stackProduct);
-        stackProductList.addAll(inputProducts2);
-
-        final Product outProduct2 = createStackProduct(stackProductList);
-
-        ProductGroupIO.operatorWrite(outProduct2, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
-
-        closeProducts(inputProducts2);
-        outProduct2.dispose();
-        //assertTrue(FileUtils.deleteTree(tmpFolder));
     }
 }
