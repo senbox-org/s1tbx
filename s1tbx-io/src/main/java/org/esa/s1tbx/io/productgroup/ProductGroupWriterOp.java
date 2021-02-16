@@ -37,7 +37,6 @@ import org.esa.snap.core.gpf.internal.OperatorExecutor;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -149,30 +148,21 @@ public class ProductGroupWriterOp extends Operator {
                 ProductUtils.copyBand(band.getName(), sourceProduct, band.getName(), targetProduct, false);
             }
 
-            targetProduct.setPreferredTileSize(
-                    new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
+            //targetProduct.setPreferredTileSize(
+            //        new Dimension(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
 
             final StackSplit stackSplit = new StackSplit(sourceProduct, true);
 
             final List<SubsetInfo> assetList = new ArrayList<>();
-            final String[] refNames = StackUtils.getMasterBandNames(sourceProduct);
-            if(refNames.length == 0) {
-                for(Band band : sourceProduct.getBands()) {
-                    final String[] subsetBandNames = new String[] {band.getName()};
-                    StackSplit.Subset subset = stackSplit.createSubset(sourceProduct, "product_"+band.getName(), subsetBandNames);
-                    SubsetInfo secSubset = createSubset(StackSplit.getBandNames(sourceProduct, subsetBandNames), subset);
-                    assetList.add(secSubset);
-                }
-            } else {
-                SubsetInfo refSubset = createSubset(StackSplit.getBandNames(sourceProduct, refNames), stackSplit.getReferenceSubset());
+            if (stackSplit.getReferenceSubset() != null) {
+                SubsetInfo refSubset = createSubset(stackSplit.getReferenceSubset());
                 assetList.add(refSubset);
+            }
 
-                final StackSplit.Subset[] secondarySubsets = stackSplit.getSecondarySubsets();
-                for (StackSplit.Subset subset : secondarySubsets) {
-                    final String[] subsetBandNames = StackUtils.getSlaveBandNames(sourceProduct, subset.productName);
-                    SubsetInfo secSubset = createSubset(StackSplit.getBandNames(sourceProduct, subsetBandNames), subset);
-                    assetList.add(secSubset);
-                }
+            final StackSplit.SplitProduct[] secondarySplitProducts = stackSplit.getSecondarySubsets();
+            for (StackSplit.SplitProduct splitProduct : secondarySplitProducts) {
+                SubsetInfo secSubset = createSubset(splitProduct);
+                assetList.add(secSubset);
             }
 
             this.metadataFile = writeProductGroupMetadataFile(assetList);
@@ -182,25 +172,16 @@ public class ProductGroupWriterOp extends Operator {
         }
     }
 
-    private SubsetInfo createSubset(final String[] bandNames, final StackSplit.Subset subset) {
+    private SubsetInfo createSubset(final StackSplit.SplitProduct splitProduct) {
 
-        final SubsetInfo subsetInfo = new SubsetInfo();
-        subsetInfo.subset = subset;
-        subsetInfo.file = new File(targetFolder, subset.productName);
+        final SubsetInfo subsetInfo = new SubsetInfo(splitProduct, formatName, new File(targetFolder, splitProduct.productName));
 
-        subsetInfo.productWriter = ProductIO.getProductWriter(formatName);
-        if (subsetInfo.productWriter == null) {
-            throw new OperatorException("No data product writer for the '" + formatName + "' format available");
-        }
-        subsetInfo.productWriter.setFormatName(formatName);
-        subsetInfo.productWriter.setIncrementalMode(false);
-        subsetInfo.subset.subsetProduct.setProductWriter(subsetInfo.productWriter);
-        for (String bandName : bandNames) {
+        for (String bandName : splitProduct.srcBandNames) {
             Band band = sourceProduct.getBand(bandName);
-            if (!(band instanceof VirtualBand)) {
+            //if (!(band instanceof VirtualBand)) {
                 bandMap.put(band.getName(), subsetInfo);
                 break;
-            }
+            //}
         }
         return subsetInfo;
     }
@@ -214,7 +195,7 @@ public class ProductGroupWriterOp extends Operator {
 
         for(ProductGroupWriterOp.SubsetInfo subsetInfo : assetList) {
             ProductGroupAsset newAsset = new ProductGroupAsset(
-                    subsetInfo.subset.productName, relativePath(subsetInfo.file) + ext, formatName);
+                    subsetInfo.splitProduct.productName, relativePath(subsetInfo.file) + ext, formatName);
 
             ProductGroupAsset origAsset = metadataFile.findAsset(newAsset);
             if(origAsset == null) {
@@ -248,7 +229,7 @@ public class ProductGroupWriterOp extends Operator {
             final ProductGroupAsset asset = assetMap.get(subsetInfo);
             if(asset.isModified()) {
 
-                subsetInfo.productWriter.writeProductNodes(subsetInfo.subset.subsetProduct, subsetInfo.file);
+                subsetInfo.productWriter.writeProductNodes(subsetInfo.splitProduct.subsetProduct, subsetInfo.file);
 
                 if (!subsetInfo.written) {
                     writeTile(subsetInfo, targetTile.getRectangle());
@@ -266,8 +247,8 @@ public class ProductGroupWriterOp extends Operator {
     private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
         if (info.written) return;
 
-        for(Band trgBand : info.subset.subsetProduct.getBands()) {
-            final String oldBandName = info.subset.newBandNamingMap.get(trgBand.getName());
+        for(Band trgBand : info.splitProduct.subsetProduct.getBands()) {
+            final String oldBandName = info.splitProduct.newBandNamingMap.get(trgBand.getName());
             final Tile sourceTile = getSourceTile(sourceProduct.getBand(oldBandName), trgRect);
             final ProductData rawSamples = sourceTile.getRawSamples();
 
@@ -283,7 +264,7 @@ public class ProductGroupWriterOp extends Operator {
             for (String bandName : bandMap.keySet()) {
                 SubsetInfo subsetInfo = bandMap.get(bandName);
                 subsetInfo.productWriter.close();
-                subsetInfo.subset.subsetProduct.dispose();
+                subsetInfo.splitProduct.subsetProduct.dispose();
             }
         } catch (IOException ignore) {
         }
@@ -291,10 +272,23 @@ public class ProductGroupWriterOp extends Operator {
     }
 
     private static class SubsetInfo {
-        StackSplit.Subset subset;
-        File file;
-        ProductWriter productWriter;
+        final StackSplit.SplitProduct splitProduct;
+        final File file;
+        final ProductWriter productWriter;
         boolean written = false;
+
+        SubsetInfo(final StackSplit.SplitProduct splitProduct, final String formatName, final File file) throws OperatorException {
+            this.splitProduct = splitProduct;
+            this.file = file;
+
+            this.productWriter = ProductIO.getProductWriter(formatName);
+            if (productWriter == null) {
+                throw new OperatorException("No data product writer for the '" + formatName + "' format available");
+            }
+            productWriter.setFormatName(formatName);
+            productWriter.setIncrementalMode(false);
+            splitProduct.subsetProduct.setProductWriter(productWriter);
+        }
     }
 
     public static class Spi extends OperatorSpi {

@@ -75,13 +75,11 @@ public class StackSplitWriter extends Operator {
 
             final StackSplit stackSplit = new StackSplit(sourceProduct, false);
 
-            final String[] mstNames = StackUtils.getMasterBandNames(sourceProduct);
-            createSubset(StackSplit.getBandNames(sourceProduct, mstNames), stackSplit.getReferenceSubset());
+            createSubset(stackSplit.getReferenceSubset());
 
-            final StackSplit.Subset[] secondarySubsets = stackSplit.getSecondarySubsets();
-            for(StackSplit.Subset secondarySubset : secondarySubsets) {
-                final String[] slvBandNames = StackUtils.getSlaveBandNames(sourceProduct, secondarySubset.productName);
-                createSubset(StackSplit.getBandNames(sourceProduct, slvBandNames), secondarySubset);
+            final StackSplit.SplitProduct[] secondarySplitProducts = stackSplit.getSecondarySubsets();
+            for(StackSplit.SplitProduct secondarySplitProduct : secondarySplitProducts) {
+                createSubset(secondarySplitProduct);
             }
 
         } catch (Throwable t) {
@@ -89,11 +87,11 @@ public class StackSplitWriter extends Operator {
         }
     }
 
-    private void createSubset(final String[] bandNames, final StackSplit.Subset subset) {
+    private void createSubset(final StackSplit.SplitProduct splitProduct) {
 
         final SubsetInfo subsetInfo = new SubsetInfo();
-        subsetInfo.subset = subset;
-        subsetInfo.file = new File(targetFolder, subset.productName);
+        subsetInfo.splitProduct = splitProduct;
+        subsetInfo.file = new File(targetFolder, splitProduct.productName);
 
         subsetInfo.productWriter = ProductIO.getProductWriter(formatName);
         if (subsetInfo.productWriter == null) {
@@ -101,8 +99,8 @@ public class StackSplitWriter extends Operator {
         }
         subsetInfo.productWriter.setFormatName(formatName);
         subsetInfo.productWriter.setIncrementalMode(false);
-        subsetInfo.subset.subsetProduct.setProductWriter(subsetInfo.productWriter);
-        for (String bandName : bandNames) {
+        subsetInfo.splitProduct.subsetProduct.setProductWriter(subsetInfo.productWriter);
+        for (String bandName : splitProduct.srcBandNames) {
             Band band = targetProduct.getBand(bandName);
             if (!(band instanceof VirtualBand)) {
                 bandMap.put(band, subsetInfo);
@@ -118,9 +116,9 @@ public class StackSplitWriter extends Operator {
             if(subsetInfo == null)
                 return;
 
-            subsetInfo.productWriter.writeProductNodes(subsetInfo.subset.subsetProduct, subsetInfo.file);
+            subsetInfo.productWriter.writeProductNodes(subsetInfo.splitProduct.subsetProduct, subsetInfo.file);
 
-            final Rectangle trgRect = subsetInfo.subset.subsetBuilder.getSubsetDef().getRegion();
+            final Rectangle trgRect = subsetInfo.splitProduct.subsetDef.getRegion();
             if (!subsetInfo.written) {
                 writeTile(subsetInfo, trgRect);
             }
@@ -136,8 +134,8 @@ public class StackSplitWriter extends Operator {
     private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
         if (info.written) return;
 
-        for(Band trgBand : info.subset.subsetProduct.getBands()) {
-            final String oldBandName = info.subset.newBandNamingMap.get(trgBand.getName());
+        for(Band trgBand : info.splitProduct.subsetProduct.getBands()) {
+            final String oldBandName = info.splitProduct.newBandNamingMap.get(trgBand.getName());
             final Tile sourceTile = getSourceTile(sourceProduct.getBand(oldBandName), trgRect);
             final ProductData rawSamples = sourceTile.getRawSamples();
 
@@ -160,7 +158,7 @@ public class StackSplitWriter extends Operator {
     }
 
     private static class SubsetInfo {
-        StackSplit.Subset subset;
+        StackSplit.SplitProduct splitProduct;
         File file;
         ProductWriter productWriter;
         boolean written = false;

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.productgroup;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupAsset;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
@@ -26,7 +27,9 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.common.PassThroughOp;
 import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.dataio.netcdf.util.ReaderUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
@@ -44,7 +47,15 @@ public class TestProductGroupWriter extends ProcessorTest {
         addMetadata(product);
 
         final File targetFolder = createTmpFolder("productgroups/group1");
-        ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+        File metadataFile = ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
+
+        assertEquals(4, product.getNumBands());
+        assertTrue(metadataFile.exists());
+
+        ProductGroupMetadataFile productGroupMetadataFile = new ProductGroupMetadataFile();
+        productGroupMetadataFile.read(metadataFile);
+        assertEquals(3, productGroupMetadataFile.getAssets().length);
+        assertTrue(areSameUpdateDate(productGroupMetadataFile.getAssets()));
 
         product.dispose();
         assertTrue(FileUtils.deleteTree(targetFolder));
@@ -107,7 +118,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         processedProduct.dispose();
 
         product.dispose();
-        //assertTrue(FileUtils.deleteTree(targetFolder));
+        assertTrue(FileUtils.deleteTree(targetFolder));
     }
 
 
@@ -127,6 +138,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         for(int i=1; i < 4; ++i) {
             TestUtils.createBand(product, "band" + i, w, h);
         }
+        SARReader.createVirtualIntensityBand(product, product.getBandAt(0), "");
 
         return product;
     }

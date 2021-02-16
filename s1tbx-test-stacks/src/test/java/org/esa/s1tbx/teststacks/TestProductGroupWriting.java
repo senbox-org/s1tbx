@@ -101,7 +101,6 @@ public class TestProductGroupWriting extends ProcessorTest {
 
         final Product outProduct2 = createStackProduct(stackProductList);
 
-        //GPF.writeProduct(outProduct2, stackProductFile2, "BEAM-DIMAP", true, ProgressMonitor.NULL);
         ProductGroupIO.operatorWrite(outProduct2, stackProductFile, "BEAM-DIMAP", ProgressMonitor.NULL);
 
         closeProducts(inputProducts2);

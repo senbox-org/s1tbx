@@ -25,17 +25,15 @@ import java.util.*;
 public class ProductGroupMetadataFile {
 
     public static final String PRODUCT_GROUP_METADATA_FILE = "product_group.json";
+    public static final String ASSETS = "assets";
+    public static final String PRODUCT_GROUP_VERSION = "snap:product_group_version";
+    public static final String ID = "id";
+    public static final String PRODUCT_TYPE = "snap:product_type";
+    public static final String LATEST_VERSION = "0.1";
 
     private final List<ProductGroupAsset> assetList = new ArrayList<>();
     private String productName;
     private String productType;
-
-    private static final String ASSETS = "assets";
-    private static final String PRODUCT_GROUP_VERSION = "snap:product_group_version";
-    private static final String ID = "id";
-    private static final String PRODUCT_TYPE = "snap:product_type";
-
-    private static final String LATEST_VERSION = "0.1";
 
     public ProductGroupMetadataFile() {
     }

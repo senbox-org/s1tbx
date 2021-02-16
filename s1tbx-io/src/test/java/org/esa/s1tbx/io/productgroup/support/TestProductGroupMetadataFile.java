@@ -15,12 +15,15 @@
  */
 package org.esa.s1tbx.io.productgroup.support;
 
+import org.esa.s1tbx.commons.io.JSONUtils;
+import org.json.simple.JSONObject;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Files;
 
-import static org.esa.snap.core.util.Debug.assertTrue;
+import static org.junit.Assert.*;
+
 
 public class TestProductGroupMetadataFile {
 
@@ -35,6 +38,21 @@ public class TestProductGroupMetadataFile {
                 ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE);
         metadataFile.write("productName", "productType", file);
         assertTrue(file.exists());
+
+        final JSONObject json = (JSONObject)JSONUtils.loadJSONFile(file);
+        assertEquals("productName", json.get(ProductGroupMetadataFile.ID));
+        assertEquals("productType", json.get(ProductGroupMetadataFile.PRODUCT_TYPE));
+        assertEquals(ProductGroupMetadataFile.LATEST_VERSION, json.get(ProductGroupMetadataFile.PRODUCT_GROUP_VERSION));
+
+        final JSONObject assets = (JSONObject)json.get(ProductGroupMetadataFile.ASSETS);
+        assertEquals(1, assets.size());
+        JSONObject asset1 = (JSONObject)assets.get("name");
+        assertNotNull(asset1);
+
+        assertTrue(asset1.containsKey(ProductGroupAsset.UPDATED_DATE));
+        assertEquals(1L, asset1.get(ProductGroupAsset.ASSET_INDEX));
+        assertEquals("BEAM-DIMAP", asset1.get(ProductGroupAsset.FORMAT));
+        assertEquals("path_to_file", asset1.get(ProductGroupAsset.HREF));
 
         file.delete();
     }

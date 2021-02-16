@@ -23,10 +23,10 @@ import java.util.Date;
 
 @SuppressWarnings("unchecked")
 public class ProductGroupAsset {
-    private static final String HREF = "href";
-    private static final String FORMAT = "snap:format";
-    private static final String ASSET_INDEX = "snap:asset_index";                       //optional to enforce band order
-    private static final String UPDATED_DATE = "snap:updated_date";
+    public static final String HREF = "href";
+    public static final String FORMAT = "snap:format";
+    public static final String ASSET_INDEX = "snap:asset_index";                       //optional to enforce band order
+    public static final String UPDATED_DATE = "snap:updated_date";
 
     private final String name;
     private final String path;
@@ -83,7 +83,8 @@ public class ProductGroupAsset {
         }
         asset.index = cnt;
         if (assetJSON.containsKey(ASSET_INDEX)) {
-            asset.index = ((Long) assetJSON.get(ASSET_INDEX)).intValue();
+            Object idx = assetJSON.get(ASSET_INDEX);
+            asset.index = idx instanceof Long ? ((Long)idx).intValue() : (Integer)idx;
         }
         return asset;
     }
