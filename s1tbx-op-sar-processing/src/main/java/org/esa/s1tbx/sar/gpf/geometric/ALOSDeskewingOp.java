@@ -190,7 +190,7 @@ public class ALOSDeskewingOp extends Operator {
 
         slantRangeToFirstPixel = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.slant_range_to_first_pixel);
 
-        radarWaveLength = SARUtils.getRadarFrequency(absRoot);
+        radarWaveLength = SARUtils.getRadarWavelength(absRoot);
     }
 
     /**

@@ -205,7 +205,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         metadata.srgrFlag = AbstractMetadata.getAttributeBoolean(metadata.absRoot, AbstractMetadata.srgr_flag);
 
-        metadata.wavelength = SARUtils.getRadarFrequency(metadata.absRoot);
+        metadata.wavelength = SARUtils.getRadarWavelength(metadata.absRoot);
 
         metadata.rangeSpacing = AbstractMetadata.getAttributeDouble(
                 metadata.absRoot, AbstractMetadata.range_spacing);
