@@ -86,15 +86,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, ReaderUtils.getTime(productMetadata, "processing_time", standardDateFormat));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, collect.getAttributeString("mode"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, productMetadata.getAttributeString("software_version"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, "--");
-
-        final ProductData.UTC startTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(collect, "stop_timestamp", standardDateFormat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
 
         final MetadataElement image = collect.getElement("image");
 
@@ -102,12 +93,14 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         height = image.getAttributeInt("rows");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("range_resolution"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("azimuth_resolution"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("pixel_spacing_row"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, image.getAttributeDouble("range_looks"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, image.getAttributeDouble("azimuth_looks"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm, image.getAttributeString("algorithm"));
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
 
         final String radiometry = image.getAttributeString("radiometry");
         scaleFactor = image.getAttributeDouble("scale_factor");
@@ -124,6 +117,37 @@ public class CapellaProductDirectory extends JSONProductDirectory {
             }
         }
 
+        final ProductData.UTC startTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
+        final ProductData.UTC stopTime = ReaderUtils.getTime(collect, "stop_timestamp", standardDateFormat);
+
+        final ProductData.UTC firstLineTime = ReaderUtils.getTime(imageGeometry, "first_line_time", standardDateFormat);
+        double delta_line_time = imageGeometry.getAttributeDouble("delta_line_time");
+
+        final MetadataElement centerPixel = image.getElement("center_pixel");
+        final ProductData.UTC centerTime = ReaderUtils.getTime(centerPixel, "center_time", standardDateFormat);
+
+        final double firstTime = firstLineTime.getMJD() * 24.0 * 3600.0;
+        final double midTime = centerTime.getMJD() * 24.0 * 3600.0;
+        final double imageDuration = (midTime - firstTime) * 2.0;
+        final double deltaTime = (height - 1) * delta_line_time;
+        //final double lastTime = firstTime + deltaTime;
+        final double lastTime = firstTime + imageDuration;
+        final ProductData.UTC lastLineTime = new ProductData.UTC(lastTime / 3600.0 / 24.0);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, firstLineTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, lastLineTime);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, delta_line_time);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                ReaderUtils.getLineTimeInterval(firstLineTime, lastLineTime, height));
+
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+        //        ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
+
+        final MetadataElement state = collect.getElement("state");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, state.getAttributeString("direction").toUpperCase());
+
         final MetadataElement radar = collect.getElement("radar");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, radar.getAttributeDouble("center_frequency") / Constants.oneMillion);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, radar.getAttributeString("pointing"));
@@ -137,7 +161,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         pol = (transmit_polarization + receive_polarization).toUpperCase();
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar, pol);
 
-        final MetadataElement state = collect.getElement("state");
         addOrbitStateVectors(absRoot, state.getElement("state_vectors"));
     }
 
