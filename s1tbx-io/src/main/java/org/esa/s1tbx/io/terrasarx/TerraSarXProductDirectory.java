@@ -486,7 +486,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             // modify abstracted metadata
         }
 
-        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
     }
 
     private void findImagesForTanDemX(final MetadataElement newRoot) throws IOException {
