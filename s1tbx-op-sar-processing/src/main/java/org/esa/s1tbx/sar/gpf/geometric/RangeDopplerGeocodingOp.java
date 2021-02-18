@@ -404,7 +404,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         mission = getMissionType(absRoot);
 
-        skipBistaticCorrection = absRoot.getAttributeInt("bistatic_correction_applied", 0) == 1;
+        skipBistaticCorrection = absRoot.getAttributeInt(AbstractMetadata.bistatic_correction_applied, 0) == 1;
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
