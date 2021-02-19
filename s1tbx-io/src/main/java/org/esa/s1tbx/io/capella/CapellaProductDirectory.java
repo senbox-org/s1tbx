@@ -117,11 +117,14 @@ public class CapellaProductDirectory extends JSONProductDirectory {
             }
         }
 
-        final ProductData.UTC startTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(collect, "stop_timestamp", standardDateFormat);
+        final ProductData.UTC firstLineTime;
+        if(imageGeometry.containsAttribute("first_line_time")) {
+            firstLineTime = ReaderUtils.getTime(imageGeometry, "first_line_time", standardDateFormat);
+        } else {
+            firstLineTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
+        }
 
-        final ProductData.UTC firstLineTime = ReaderUtils.getTime(imageGeometry, "first_line_time", standardDateFormat);
-        double delta_line_time = imageGeometry.getAttributeDouble("delta_line_time");
+        //double delta_line_time = imageGeometry.getAttributeDouble("delta_line_time");
 
         final MetadataElement centerPixel = image.getElement("center_pixel");
         final ProductData.UTC centerTime = ReaderUtils.getTime(centerPixel, "center_time", standardDateFormat);
@@ -129,7 +132,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         final double firstTime = firstLineTime.getMJD() * 24.0 * 3600.0;
         final double midTime = centerTime.getMJD() * 24.0 * 3600.0;
         final double imageDuration = (midTime - firstTime) * 2.0;
-        final double deltaTime = (height - 1) * delta_line_time;
+        //final double deltaTime = (height - 1) * delta_line_time;
         //final double lastTime = firstTime + deltaTime;
         final double lastTime = firstTime + imageDuration;
         final ProductData.UTC lastLineTime = new ProductData.UTC(lastTime / 3600.0 / 24.0);
@@ -140,13 +143,8 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
                 ReaderUtils.getLineTimeInterval(firstLineTime, lastLineTime, height));
 
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-        //        ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
-
         final MetadataElement state = collect.getElement("state");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, state.getAttributeString("direction").toUpperCase());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, state.getAttributeString("direction", "unknown").toUpperCase());
 
         final MetadataElement radar = collect.getElement("radar");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, radar.getAttributeDouble("center_frequency") / Constants.oneMillion);
