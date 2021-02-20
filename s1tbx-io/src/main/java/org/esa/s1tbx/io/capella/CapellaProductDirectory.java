@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 by SkyWatch Space Applications Inc. http://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -391,43 +391,4 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 //        slantRangeGrid.setUnit(Unit.NANOSECONDS);
 //        product.addTiePointGrid(slantRangeGrid);
     }
-
-    private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-
-        final int w = product.getSceneRasterWidth();
-        final int h = product.getSceneRasterHeight();
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(w, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(w, 0));
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(w, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(w, h));
-    }
-
-//    @Override
-//    public Product createProduct() throws IOException {
-//
-//        final MetadataElement newRoot = addMetaData();
-//        findImages(newRoot);
-//
-//        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-//        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-//        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-//
-//        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
-//        updateProduct(product, newRoot);
-//
-//        addBands(product);
-//        addGeoCoding(product);
-//
-//        ReaderUtils.addMetadataIncidenceAngles(product);
-//        ReaderUtils.addMetadataProductSize(product);
-//
-//        return product;
-//    }
 }
