@@ -62,7 +62,11 @@ public interface S1TBXProductReaderPlugIn extends ProductReaderPlugIn {
     default boolean isPrimaryMetadataFileName(final String metadataFileName) {
         final String filename = metadataFileName.toUpperCase();
         if (filename.endsWith(getProductMetadataFileExtension().toUpperCase())) {
-            for (String prefix : getProductMetadataFilePrefixes()) {
+            final String[] prefixes = getProductMetadataFilePrefixes();
+            if(prefixes == null || prefixes.length == 0) {
+                return true;
+            }
+            for (String prefix : prefixes) {
                 if (filename.startsWith(prefix.toUpperCase())) {
                     return true;
                 }
