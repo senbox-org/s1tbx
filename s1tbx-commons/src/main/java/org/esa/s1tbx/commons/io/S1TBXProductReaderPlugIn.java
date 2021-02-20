@@ -48,7 +48,7 @@ public interface S1TBXProductReaderPlugIn extends ProductReaderPlugIn {
                     final File file = folderPath.toRealPath().toFile();
                     File metadataFile = new File(file.getParentFile(),
                             FileUtils.getFilenameWithoutExtension(file.getName()) + getProductMetadataFileExtension());
-                    if(metadataFile.exists()) {
+                    if(metadataFile.exists() && isPrimaryMetadataFileName(metadataFile.getName())) {
                         return metadataFile;
                     }
                 }
