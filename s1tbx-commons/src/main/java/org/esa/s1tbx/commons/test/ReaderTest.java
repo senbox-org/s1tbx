@@ -7,6 +7,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -24,6 +25,10 @@ public class ReaderTest {
     public ReaderTest(final ProductReaderPlugIn readerPlugIn) {
         this.readerPlugIn = readerPlugIn;
         this.reader = readerPlugIn.createReaderInstance();
+    }
+
+    protected void close() throws IOException {
+        reader.close();
     }
 
     protected Product testReader(final Path inputPath) throws Exception {

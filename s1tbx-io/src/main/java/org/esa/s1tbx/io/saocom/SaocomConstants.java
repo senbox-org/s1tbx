@@ -31,6 +31,8 @@ class SaocomConstants {
 
     final static Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
+    private SaocomConstants() {}
+    
     public static String getPluginDescription() {
         return PLUGIN_DESCRIPTION;
     }
