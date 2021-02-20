@@ -335,26 +335,29 @@ public abstract class AbstractProductDirectory {
     }
 
     private static void setLatLongMetadata(final Product product) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         final GeoCoding geoCoding = product.getSceneGeoCoding();
-        final GeoPos geoPos = new GeoPos();
-        final int w = product.getSceneRasterWidth();
-        final int h = product.getSceneRasterHeight();
+        if(geoCoding != null) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            
+            final GeoPos geoPos = new GeoPos();
+            final int w = product.getSceneRasterWidth();
+            final int h = product.getSceneRasterHeight();
 
-        geoCoding.getGeoPos(new PixelPos(0,0), geoPos);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geoPos.lat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, geoPos.lon);
-        geoCoding.getGeoPos(new PixelPos(w,0), geoPos);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, geoPos.lat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(0, 0), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(w, 0), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, geoPos.lon);
 
-        geoCoding.getGeoPos(new PixelPos(0, h), geoPos);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, geoPos.lat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, geoPos.lon);
-        geoCoding.getGeoPos(new PixelPos(w, h), geoPos);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, geoPos.lat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(0, h), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(w, h), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, geoPos.lon);
+        }
     }
 
     protected static float[][] getBoundingBox(float [][] coordinateList){
