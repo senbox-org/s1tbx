@@ -441,9 +441,9 @@ public final class SARGeocoding {
      *
      * @param sourceImageWidth    The source image width.
      * @param rangeSpacing        The range spacing.
-     * @param slantRange          The salnt range in meters.
+     * @param slantRange          The slant range in meters.
      * @param srgrCoeff           The SRGR coefficients for converting ground range to slant range.
-     *                            Here it is assumed that the polinomial is given by
+     *                            Here it is assumed that the polynomial is given by
      *                            c0 + c1*x + c2*x^2 + ... + cn*x^n, where {c0, c1, ..., cn} are the SRGR coefficients.
      * @param ground_range_origin The ground range origin.
      * @return The ground range in meters.
