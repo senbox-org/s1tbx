@@ -17,7 +17,6 @@ package org.esa.s1tbx.io.orbits.sentinel1;
 
 import org.junit.Assume;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,11 +28,10 @@ import static junit.framework.TestCase.*;
 /**
  * find files on step
  */
-@Ignore("Used to scrape step auxdata")
-public class TestStepAuxdataScraper {
+public class TestStepOrbitFileScraper {
 
     @BeforeClass
-    public static void setUpClass() throws Exception {
+    public static void setUpClass() {
         boolean internetAvailable;
         try {
             URLConnection urlConnection = new URL("http://www.google.com").openConnection();
@@ -50,33 +48,33 @@ public class TestStepAuxdataScraper {
 
     @Test
     public void testDownloadPreciseOrbitFileS1A() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.PRECISE);
+        final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.PRECISE);
 
-        String[] orbitFiles = step.getFileURLs("S1A", 2016, 2);
+        OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1A", 2016, 2);
         assertEquals(29, orbitFiles.length);
     }
 
     @Test
     public void testDownloadPreciseOrbitFileS1B() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.PRECISE);
+        final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.PRECISE);
 
-        String[] orbitFiles = step.getFileURLs("S1B", 2016, 7);
+        OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1B", 2016, 7);
         assertEquals(31, orbitFiles.length);
     }
 
     @Test
     public void testDownloadRestituteOrbitFileS1A() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESTITUTED);
+        final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.RESTITUTED);
 
-        String[] orbitFiles = step.getFileURLs("S1A", 2016, 2);
+        OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1A", 2016, 2);
         assertEquals(591, orbitFiles.length);
     }
 
     @Test
     public void testDownloadRestituteOrbitFileS1B() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESTITUTED);
+        final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.RESTITUTED);
 
-        String[] orbitFiles = step.getFileURLs("S1B", 2016, 7);
+        OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1B", 2016, 7);
         assertEquals(592, orbitFiles.length);
     }
 }
