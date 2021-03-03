@@ -50,6 +50,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
     private final String productName;
     private String pol;
     private double scaleFactor;
+    private String calibration = null;
     private Product bandProduct;
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
@@ -105,7 +106,8 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         final String radiometry = image.getAttributeString("radiometry");
         scaleFactor = image.getAttributeDouble("scale_factor");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor, scaleFactor);
-        if (radiometry.equals("sigma_nought")) {
+        if (radiometry.contains("nought")) {
+            calibration = radiometry.contains("gamma") ? "Gamma0" : radiometry.contains("sigma") ? "Sigma0" : "Beta0";
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 1);
         }
 
@@ -277,16 +279,19 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                     }
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
-                        bandName = "Amplitude" + '_' + suffix;
+                        bandName = calibration != null ? calibration : "Amplitude";
+                        bandName += '_' + suffix;
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
-                        band.setUnit(Unit.AMPLITUDE);
+                        band.setUnit(calibration != null ? Unit.INTENSITY : Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
-                        SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
+                        if(calibration == null) {
+                            SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
+                        }
 
                         // reset to null so it doesn't adopt a geocoding from the bands
                         product.setSceneGeoCoding(null);
