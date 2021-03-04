@@ -70,7 +70,7 @@ public class TestCapellaProductReader extends ReaderTest {
         Product prod = testReader(inputGEOFolder.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test
@@ -78,7 +78,7 @@ public class TestCapellaProductReader extends ReaderTest {
         Product prod = testReader(inputGEOMeta.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TestCapellaProductReader extends ReaderTest {
         Product prod = testReader(inputGEOTif.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test
