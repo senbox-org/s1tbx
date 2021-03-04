@@ -13,22 +13,22 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.fex;
+package org.esa.s1tbx.dat;
 
-import org.esa.snap.engine_utilities.util.ResourceUtils;
+import org.esa.s1tbx.commons.S1TBXSetup;
 import org.openide.modules.OnStart;
 
 /**
  * Handle OnStart for module
  */
-public class s1tbxFeatureExtractionModule {
+public class S1tbxRCPModule {
 
     @OnStart
     public static class StartOp implements Runnable {
 
         @Override
         public void run() {
-            ResourceUtils.installGraphs(this.getClass(), "org/esa/s1tbx/fex/graphs/");
+            S1TBXSetup.installColorPalettes(this.getClass(), "org/esa/s1tbx/dat/auxdata/color_palettes/");
         }
     }
 }
