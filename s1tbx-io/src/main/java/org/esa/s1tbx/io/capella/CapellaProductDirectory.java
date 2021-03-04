@@ -95,8 +95,11 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         height = image.getAttributeInt("rows");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, imageGeometry.getAttributeDouble("delta_range_sample"));
+        if (imageGeometry.getAttribute("delta_range_sample") != null) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, imageGeometry.getAttributeDouble("delta_range_sample"));
+        } else {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
+        }
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("pixel_spacing_row"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, image.getAttributeDouble("range_looks"));
