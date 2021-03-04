@@ -48,7 +48,7 @@ public final class SARGeocoding {
 
         final double incidenceAngleToFirstPixel = incidenceAngle.getPixelDouble(0, 0);
         final double incidenceAngleToLastPixel = incidenceAngle.getPixelDouble(sourceImageWidth - 1, 0);
-        return (incidenceAngleToFirstPixel < incidenceAngleToLastPixel);
+        return (incidenceAngleToFirstPixel <= incidenceAngleToLastPixel);
     }
 
     /**
