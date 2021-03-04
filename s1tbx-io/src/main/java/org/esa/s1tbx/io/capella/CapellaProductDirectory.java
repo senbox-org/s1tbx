@@ -89,12 +89,14 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, productMetadata.getAttributeString("software_version"));
 
         final MetadataElement image = collect.getElement("image");
+        final MetadataElement imageGeometry = image.getElement("image_geometry");
 
         width = image.getAttributeInt("columns");
         height = image.getAttributeInt("rows");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, imageGeometry.getAttributeDouble("delta_range_sample"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("pixel_spacing_row"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, image.getAttributeDouble("range_looks"));
@@ -111,7 +113,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 1);
         }
 
-        final MetadataElement imageGeometry = image.getElement("image_geometry");
         if(isSLC()) {
             if(imageGeometry.containsAttribute("range_to_first_sample")) {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
