@@ -21,7 +21,7 @@ import org.openide.modules.OnStart;
 /**
  * Handle OnStart for module
  */
-public class rstbSoilMoistureModule {
+public class RstbSoilMoistureModule {
 
     @OnStart
     public static class StartOp implements Runnable {

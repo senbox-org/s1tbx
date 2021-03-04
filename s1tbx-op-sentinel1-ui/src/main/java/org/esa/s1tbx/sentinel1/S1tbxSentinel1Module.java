@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.insar;
+package org.esa.s1tbx.sentinel1;
 
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.openide.modules.OnStart;
@@ -21,14 +21,14 @@ import org.openide.modules.OnStart;
 /**
  * Handle OnStart for module
  */
-public class s1tbxInSARModule {
+public class S1tbxSentinel1Module {
 
     @OnStart
     public static class StartOp implements Runnable {
 
         @Override
         public void run() {
-            ResourceUtils.installGraphs(this.getClass(), "org/esa/s1tbx/insar/graphs/");
+            ResourceUtils.installGraphs(this.getClass(), "org/esa/s1tbx/sentinel1/graphs/");
         }
     }
 }
