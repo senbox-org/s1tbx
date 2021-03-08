@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,15 +15,18 @@
  */
 package org.esa.s1tbx.io.orbits.sentinel1;
 
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
 import static junit.framework.TestCase.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * find files on step
@@ -45,9 +48,8 @@ public class TestStepOrbitFileScraper {
         Assume.assumeTrue("Internet connection not available, skipping TestStepAuxdataScraper", internetAvailable);
     }
 
-
     @Test
-    public void testDownloadPreciseOrbitFileS1A() {
+    public void testGetFileURLsPreciseOrbitFileS1A() {
         final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.PRECISE);
 
         OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1A", 2016, 2);
@@ -55,7 +57,7 @@ public class TestStepOrbitFileScraper {
     }
 
     @Test
-    public void testDownloadPreciseOrbitFileS1B() {
+    public void testGetFileURLsPreciseOrbitFileS1B() {
         final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.PRECISE);
 
         OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1B", 2016, 7);
@@ -63,7 +65,7 @@ public class TestStepOrbitFileScraper {
     }
 
     @Test
-    public void testDownloadRestituteOrbitFileS1A() {
+    public void testGetFileURLsRestituteOrbitFileS1A() {
         final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.RESTITUTED);
 
         OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1A", 2016, 2);
@@ -71,10 +73,46 @@ public class TestStepOrbitFileScraper {
     }
 
     @Test
-    public void testDownloadRestituteOrbitFileS1B() {
+    public void testGetFileURLsRestituteOrbitFileS1B() {
         final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.RESTITUTED);
 
         OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1B", 2016, 7);
         assertEquals(592, orbitFiles.length);
+    }
+
+    @Test
+    public void testDownloadPreciseOrbitFileS1A() throws Exception {
+        final String missionPrefix = "S1A";
+        final String orbitType = SentinelPODOrbitFile.PRECISE;
+        final int year = 2016;
+        final int month = 2;
+        final int day = 28;
+        final ProductData.UTC stateVectorTime = ProductData.UTC.parse("2016-02-28 15:19:21.698661", Sentinel1OrbitFileReader.orbitDateFormat);
+        final File localFolder = SentinelPODOrbitFile.getDestFolder(missionPrefix, orbitType, year, month);
+
+        final OrbitFileScraper scraper = new OrbitFileScraper.Step(orbitType);
+
+        File orbitFile = scraper.download(localFolder,missionPrefix, orbitType,
+                year, month, day, stateVectorTime);
+        assertTrue(orbitFile.exists());
+        orbitFile.delete();
+    }
+
+    @Test
+    public void testDownloadPreciseOrbitFileS1B() throws Exception {
+        final String missionPrefix = "S1B";
+        final String orbitType = SentinelPODOrbitFile.PRECISE;
+        final int year = 2018;
+        final int month = 2;
+        final int day = 28;
+        final ProductData.UTC stateVectorTime = ProductData.UTC.parse("2018-02-28 15:19:21.698661", Sentinel1OrbitFileReader.orbitDateFormat);
+        final File localFolder = SentinelPODOrbitFile.getDestFolder(missionPrefix, orbitType, year, month);
+
+        final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.PRECISE);
+
+        File orbitFile = scraper.download(localFolder,missionPrefix, orbitType,
+                year, month, day, stateVectorTime);
+        assertTrue(orbitFile.exists());
+        orbitFile.delete();
     }
 }
