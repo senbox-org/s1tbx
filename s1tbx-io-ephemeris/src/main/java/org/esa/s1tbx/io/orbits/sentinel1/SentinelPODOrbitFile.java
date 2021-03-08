@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,44 +19,22 @@ import Jama.Matrix;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.esa.s1tbx.io.orbits.BaseOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
-import org.esa.snap.engine_utilities.download.DownloadableContentImpl;
 import org.esa.snap.engine_utilities.util.Maths;
 import org.esa.snap.engine_utilities.util.Settings;
-import org.esa.snap.engine_utilities.util.ZipUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Sentinel POD Orbit File
@@ -75,11 +53,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private final int polyDegree;
 
-    private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
-    private final static DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private FixedHeader fixedHeader = null;
-
     private List<Orbits.OrbitVector> osvList = new ArrayList<>();
 
     private static LoadingCache<File, List<Orbits.OrbitVector>> cache;
@@ -94,22 +67,30 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     }
 
     public File retrieveOrbitFile(final String orbitType) throws Exception {
-        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
+        final ProductData.UTC stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME);
         final Calendar calendar = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1; // zero based
         final int day = calendar.get(Calendar.DAY_OF_MONTH);
-        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        final int minute = calendar.get(Calendar.MINUTE);
-        final int second = calendar.get(Calendar.SECOND);
         final String missionPrefix = getMissionPrefix(absRoot);
+
+        final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
 
         orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
 
         if (orbitFile == null) {
             try {
+                final GnssOrbitFileDownloader gnssOrbitFileDownloader = new GnssOrbitFileDownloader();
+                orbitFile = gnssOrbitFileDownloader.download(localFolder, "Sentinel-1", missionPrefix,
+                        orbitType, year, month, day, stateVectorTime);
+            } catch(Exception e) {
+                // try next
+            }
+        }
+        if (orbitFile == null) {
+            try {
                 final OrbitFileScraper scraper = new OrbitFileScraper.Step(orbitType);
-                orbitFile = downloadFromWebSite(scraper, missionPrefix, orbitType, year, month, day, stateVectorTime);
+                orbitFile = scraper.download(localFolder, missionPrefix, orbitType, year, month, day, stateVectorTime);
             } catch(Exception e) {
                 // try next
             }
@@ -117,15 +98,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         if (orbitFile == null) {
             try {
                 final OrbitFileScraper scraper = new OrbitFileScraper.ESA_S1(orbitType);
-                orbitFile = downloadFromWebSite(scraper, missionPrefix, orbitType, year, month, day, stateVectorTime);
-            } catch(Exception e) {
-                // try next
-            }
-        }
-
-        if (orbitFile == null) {
-            try {
-                orbitFile = downloadFromQCRestAPI(missionPrefix, orbitType, year, month, day, hour, minute, second, stateVectorTime);
+                orbitFile = scraper.download(localFolder, missionPrefix, orbitType, year, month, day, stateVectorTime);
             } catch(Exception e) {
                 // try next
             }
@@ -152,97 +125,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private static String getMissionPrefix(final MetadataElement absRoot) {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
         return "S1" + mission.substring(mission.length() - 1);
-    }
-
-    private static File downloadFromQCRestAPI(final String missionPrefix, final String orbitType,
-                                              int year, int month, final int day,
-                                              final int hour, final int minute, final int second,
-                                              final double stateVectorTime) throws Exception {
-        final String orbProductType = orbitType.equals(RESTITUTED) ? "AUX_RESORB" : "AUX_POEORB";
-        final String date = year+"-"+month+"-"+day;
-
-        String endPoint = "https://qc.sentinel1.eo.esa.int/api/v1/?product_type="+orbProductType;
-        endPoint += "&validity_stop__gt="+date+"T23:59:59";
-        endPoint += "&validity_start__lt="+date+"T"+hour+":"+minute+":"+second;
-        endPoint += "&ordering=-creation_date&page_size=1";
-
-        try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            final HttpGet httpGet = new HttpGet(endPoint);
-
-            final StringBuilder outputBuilder = new StringBuilder();
-            try (final CloseableHttpResponse response = httpClient.execute(httpGet)) {
-                final int status = response.getStatusLine().getStatusCode();
-
-                try (final BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
-                    String line;
-                    while ((line = rd.readLine()) != null) {
-                        outputBuilder.append(line);
-                    }
-                }
-                response.close();
-
-                if (status == 200) {
-                    final JSONParser parser = new JSONParser();
-                    JSONObject json = (JSONObject) parser.parse(outputBuilder.toString());
-                    if(json.containsKey("results")) {
-                        JSONArray results = (JSONArray)json.get("results");
-                        if(!results.isEmpty()) {
-                            JSONObject result = (JSONObject)results.get(0);
-                            if(result.containsKey("remote_url")) {
-                                String remoteURL = (String)result.get("remote_url");
-
-                                getQCFile(missionPrefix, orbitType, year, month, remoteURL);
-                            }
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                System.out.println("Exception calling QC Rest API:  " + e.getMessage());
-                throw e;
-            }
-        }
-
-        return findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
-    }
-
-    private static File downloadFromWebSite(final OrbitFileScraper scraper,
-                                            final String missionPrefix, final String orbitType,
-                                            int year, int month, final int day,
-                                            final double stateVectorTime) throws Exception {
-        scrapeOrbitFiles(scraper, missionPrefix, orbitType, year, month, stateVectorTime);
-        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
-        if (orbitFile == null) {
-            NewDate newDate = getNeighouringMonth(year, month, day);
-            scrapeOrbitFiles(scraper, missionPrefix, orbitType, newDate.year, newDate.month, stateVectorTime);
-            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, newDate.year, newDate.month);
-        }
-        return orbitFile;
-    }
-
-    private static class NewDate {
-        final int month;
-        final int year;
-        NewDate(int year, int month) {
-            this.year = year;
-            this.month = month;
-        }
-    }
-
-    private static NewDate getNeighouringMonth(int year, int month, final int day) {
-        if (day < 15) {
-            month--;
-            if (month < 1) {
-                month = 12;
-                year--;
-            }
-        } else {
-            month++;
-            if (month > 12) {
-                month = 1;
-                year++;
-            }
-        }
-        return new NewDate(year, month);
     }
 
     static File getDestFolder(final String missionPrefix, final String orbitType, final int year, final int month) {
@@ -274,8 +156,8 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return destFolder;
     }
 
-    private static File findOrbitFile(final String missionPrefix, final String orbitType,
-                                      final double stateVectorTime, final int year, final int month) {
+    static File findOrbitFile(final String missionPrefix, final String orbitType,
+                              final ProductData.UTC stateVectorTime, final int year, final int month) {
         final String prefix;
         if (orbitType.startsWith(RESTITUTED)) {
             prefix = missionPrefix + "_OPER_AUX_RESORB_OPOD_";
@@ -291,56 +173,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             return null;
 
         for (File file : files) {
-            if (isWithinRange(file.getName(), stateVectorTime)) {
+            if (Sentinel1OrbitFileReader.isWithinRange(file.getName(), stateVectorTime)) {
                 return file;
             }
         }
         return null;
-    }
-
-    private static void scrapeOrbitFiles(final OrbitFileScraper scraper,
-                                         final String missionPrefix, final String orbitType, int year, int month,
-                                         final double stateVectorTime) throws Exception {
-
-        final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
-
-        final OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs(missionPrefix, year, month);
-        final SSLUtil ssl = new SSLUtil();
-        ssl.disableSSLCertificateCheck();
-
-        for (OrbitFileScraper.RemoteOrbitFile file : orbitFiles) {
-            if (isWithinRange(file.fileName, stateVectorTime)) {
-                final File localFile = new File(localFolder, file.fileName);
-                DownloadableContentImpl.getRemoteHttpFile(new URL(file.remotePath), localFile);
-                break;
-            }
-        }
-
-        ssl.enableSSLCertificateCheck();
-    }
-
-    private static void getQCFile(final String missionPrefix, final String orbitType, int year, int month,
-                                  final String remoteURL) throws Exception {
-
-        final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
-        final int lastSlash = remoteURL.lastIndexOf("/")+1;
-        final String remoteFolder = remoteURL.substring(0, lastSlash);
-        final String name = remoteURL.substring(lastSlash);
-        final URL remotePath = new URL(remoteFolder);
-
-        final SSLUtil ssl = new SSLUtil();
-        ssl.disableSSLCertificateCheck();
-
-        final File localFile = new File(localFolder, name);
-        DownloadableContentImpl.getRemoteHttpFile(remotePath, localFile);
-
-        ssl.enableSSLCertificateCheck();
-
-        if (localFile.exists()) {
-            final File localZipFile = FileUtils.exchangeExtension(localFile, ".EOF.zip");
-            ZipUtils.zipFile(localFile, localZipFile);
-            localFile.delete();
-        }
     }
 
     /**
@@ -348,61 +185,17 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
      *
      * @throws Exception
      */
-    private void checkOrbitFileValidity() throws Exception {
+    private void checkOrbitFileValidity(final Sentinel1OrbitFileReader orbitFileReader) throws Exception {
 
         final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
-        final String validityStartTimeStr = getValidityStartFromHeader();
-        final String validityStopTimeStr = getValidityStopFromHeader();
-        final double validityStartTimeMJD = SentinelPODOrbitFile.toUTC(validityStartTimeStr).getMJD();
-        final double validityStopTimeMJD = SentinelPODOrbitFile.toUTC(validityStopTimeStr).getMJD();
+        final String validityStartTimeStr = orbitFileReader.getValidityStartFromHeader();
+        final String validityStopTimeStr = orbitFileReader.getValidityStopFromHeader();
+        final double validityStartTimeMJD = Sentinel1OrbitFileReader.toUTC(validityStartTimeStr).getMJD();
+        final double validityStopTimeMJD = Sentinel1OrbitFileReader.toUTC(validityStopTimeStr).getMJD();
 
         if (stateVectorTime < validityStartTimeMJD || stateVectorTime > validityStopTimeMJD) {
             throw new IOException("Product acquisition time is not within the validity period of the orbit");
         }
-    }
-
-    public Orbits.OrbitVector[] getOrbitData(final double startUTC, final double endUTC) {
-
-        final Orbits.OrbitVector startOSV = new Orbits.OrbitVector(startUTC);
-        int startIdx = Collections.binarySearch(osvList, startOSV, new Orbits.OrbitComparator());
-
-        if (startIdx < 0) {
-            final int insertionPt = -(startIdx + 1);
-            if (insertionPt == osvList.size()) {
-                startIdx = insertionPt - 1;
-            } else if (insertionPt <= 0) {
-                startIdx = 0;
-            } else {
-                startIdx = insertionPt - 1;
-            }
-        }
-
-        final Orbits.OrbitVector endOSV = new Orbits.OrbitVector(endUTC);
-        int endIdx = Collections.binarySearch(osvList, endOSV, new Orbits.OrbitComparator());
-
-        if (endIdx < 0) {
-            final int insertionPt = -(endIdx + 1);
-            if (insertionPt == osvList.size()) {
-                endIdx = insertionPt - 1;
-            } else if (insertionPt == 0) {
-                endIdx = 0;
-            } else {
-                endIdx = insertionPt;
-            }
-        }
-
-        startIdx -= 3;
-        endIdx += 3;
-
-        final int numOSV = endIdx - startIdx + 1;
-        final Orbits.OrbitVector[] orbitDataList = new Orbits.OrbitVector[numOSV];
-        int idx = startIdx;
-        for (int i = 0; i < numOSV; i++) {
-            orbitDataList[i] = osvList.get(idx);
-            idx++;
-        }
-
-        return orbitDataList;
     }
 
     /**
@@ -410,7 +203,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
      *
      * @param utc The UTC in days.
      * @return The orbit state vector.
-     * @throws Exception The exceptions.
      */
     public Orbits.OrbitVector getOrbitData(final double utc) {
 
@@ -482,360 +274,14 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             return;
         }
 
-        final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-        final DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+        final Sentinel1OrbitFileReader orbitFileReader = new Sentinel1OrbitFileReader(orbitFile);
+        orbitFileReader.read();
 
-        final Document doc;
-        if (orbitFile.getName().toLowerCase().endsWith(".zip")) {
-            final ZipFile productZip = new ZipFile(orbitFile, ZipFile.OPEN_READ);
-            final Enumeration<? extends ZipEntry> entries = productZip.entries();
-            final ZipEntry zipEntry = entries.nextElement();
+        osvList = orbitFileReader.getOrbitStateVectors();
 
-            doc = documentBuilder.parse(productZip.getInputStream(zipEntry));
-        } else {
-            doc = documentBuilder.parse(orbitFile);
-        }
-
-        doc.getDocumentElement().normalize();
-
-        final NodeList nodeList = doc.getElementsByTagName("Earth_Explorer_File");
-        if (nodeList.getLength() != 1) {
-            throw new Exception("SentinelPODOrbitFile.readOrbitFile: ERROR found too many Earth_Explorer_File " + nodeList.getLength());
-        }
-
-        org.w3c.dom.Node fixedHeaderNode = null;
-        org.w3c.dom.Node variableHeaderNode = null;
-        org.w3c.dom.Node listOfOSVsNode = null;
-
-        final NodeList fileChildNodes = nodeList.item(0).getChildNodes();
-
-        for (int i = 0; i < fileChildNodes.getLength(); i++) {
-
-            final org.w3c.dom.Node fileChildNode = fileChildNodes.item(i);
-
-            if (fileChildNode.getNodeName().equals("Earth_Explorer_Header")) {
-
-                final NodeList headerChildNodes = fileChildNode.getChildNodes();
-
-                for (int j = 0; j < headerChildNodes.getLength(); j++) {
-
-                    final org.w3c.dom.Node headerChildNode = headerChildNodes.item(j);
-
-                    if (headerChildNode.getNodeName().equals("Fixed_Header")) {
-
-                        fixedHeaderNode = headerChildNode;
-
-                    } else if (headerChildNode.getNodeName().equals("Variable_Header")) {
-
-                        variableHeaderNode = headerChildNode;
-                    }
-                }
-
-            } else if (fileChildNode.getNodeName().equals("Data_Block")) {
-
-                final NodeList dataBlockChildNodes = fileChildNode.getChildNodes();
-
-                for (int j = 0; j < dataBlockChildNodes.getLength(); j++) {
-
-                    final org.w3c.dom.Node dataBlockChildNode = dataBlockChildNodes.item(j);
-
-                    if (dataBlockChildNode.getNodeName().equals("List_of_OSVs")) {
-
-                        listOfOSVsNode = dataBlockChildNode;
-                    }
-                }
-            }
-
-            if (fixedHeaderNode != null && variableHeaderNode != null && listOfOSVsNode != null) {
-                break;
-            }
-        }
-
-        if (fixedHeaderNode != null) {
-
-            readFixedHeader(fixedHeaderNode);
-        }
-
-        // Don't need anything from Variable_Header.
-
-        if (listOfOSVsNode != null) {
-
-            osvList = readOSVList(listOfOSVsNode);
-        }
-
-        checkOrbitFileValidity();
+        checkOrbitFileValidity(orbitFileReader);
 
         getCache().put(orbitFile, osvList);
-    }
-
-    private void readFixedHeader(final org.w3c.dom.Node fixedHeaderNode) {
-
-        final NodeList fixedHeaderChildNodes = fixedHeaderNode.getChildNodes();
-
-        String mission = null;
-        String fileType = null;
-        String validityStart = null;
-        String validityStop = null;
-
-        for (int i = 0; i < fixedHeaderChildNodes.getLength(); i++) {
-
-            final org.w3c.dom.Node fixedHeaderChildNode = fixedHeaderChildNodes.item(i);
-
-            switch (fixedHeaderChildNode.getNodeName()) {
-                case "Mission":
-
-                    mission = fixedHeaderChildNode.getTextContent();
-
-                    break;
-                case "File_Type":
-
-                    fileType = fixedHeaderChildNode.getTextContent();
-
-                    break;
-                case "Validity_Period":
-
-                    final NodeList validityPeriodChildNodes = fixedHeaderChildNode.getChildNodes();
-
-                    for (int j = 0; j < validityPeriodChildNodes.getLength(); j++) {
-
-                        final org.w3c.dom.Node validityPeriodChildNode = validityPeriodChildNodes.item(j);
-
-                        if (validityPeriodChildNode.getNodeName().equals("Validity_Start")) {
-
-                            validityStart = validityPeriodChildNode.getTextContent();
-
-                        } else if (validityPeriodChildNode.getNodeName().equals("Validity_Stop")) {
-
-                            validityStop = validityPeriodChildNode.getTextContent();
-                        }
-                    }
-                    break;
-            }
-
-            if (mission != null && fileType != null && validityStart != null && validityStop != null) {
-
-                fixedHeader = new FixedHeader(mission, fileType, validityStart, validityStop);
-                break;
-            }
-        }
-    }
-
-    private static List<Orbits.OrbitVector> readOSVList(final org.w3c.dom.Node listOfOSVsNode) throws Exception {
-
-        final org.w3c.dom.Node attrCount = getAttributeFromNode(listOfOSVsNode, "count");
-        final int count = Integer.parseInt(attrCount.getTextContent());
-        final List<Orbits.OrbitVector> osvList = new ArrayList<>();
-
-        org.w3c.dom.Node childNode = listOfOSVsNode.getFirstChild();
-        int osvCnt = 0;
-
-        while (childNode != null) {
-
-            if (childNode.getNodeName().equals("OSV")) {
-
-                osvCnt++;
-                osvList.add(readOneOSV(childNode));
-            }
-
-            childNode = childNode.getNextSibling();
-        }
-
-        osvList.sort(new Orbits.OrbitComparator());
-
-        if (count != osvCnt) {
-            SystemUtils.LOG.warning("SentinelPODOrbitFile.readOSVList: WARNING List_of_OSVs count = " + count + " but found only " + osvCnt + " OSV");
-        }
-
-        return osvList;
-    }
-
-    private static Orbits.OrbitVector readOneOSV(final org.w3c.dom.Node osvNode) throws Exception {
-
-        String utc = "";
-        double x = 0.0;
-        double y = 0.0;
-        double z = 0.0;
-        double vx = 0.0;
-        double vy = 0.0;
-        double vz = 0.0;
-
-        org.w3c.dom.Node childNode = osvNode.getFirstChild();
-
-        while (childNode != null) {
-
-            switch (childNode.getNodeName()) {
-                case "UTC": {
-                    utc = childNode.getTextContent();
-                }
-                break;
-                case "X": {
-                    x = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "Y": {
-                    y = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "Z": {
-                    z = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "VX": {
-                    vx = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "VY": {
-                    vy = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "VZ": {
-                    vz = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                default:
-                    break;
-            }
-
-            childNode = childNode.getNextSibling();
-        }
-
-        final double utcTime = toUTC(utc).getMJD();
-
-        return new Orbits.OrbitVector(utcTime, x, y, z, vx, vy, vz);
-    }
-
-    // TODO This is copied from Sentinel1Level0Reader.java; may be we should put in in some utilities class.
-    private static org.w3c.dom.Node getAttributeFromNode(final org.w3c.dom.Node node, final String attrName) {
-
-        // Will look for attribute called attrName in the given node
-
-        NamedNodeMap attr = node.getAttributes();
-
-        org.w3c.dom.Node attrNode = null;
-
-        for (int j = 0; j < attr.getLength(); j++) {
-
-            if (attr.item(j).getNodeName().equals(attrName)) {
-                if (attrNode == null) {
-                    attrNode = attr.item(j);
-                } else {
-                    // Should not be possible
-                    SystemUtils.LOG.warning("SentinelPODOrbitFile.getAttributeFromNode: WARNING more than one " + attrName + " in " + node.getNodeName());
-                }
-            }
-        }
-
-        if (attrNode == null) {
-            SystemUtils.LOG.warning("SentinelPODOrbitFile.getAttributeFromNode: Failed to find " + attrName + " in " + node.getNodeName());
-        }
-
-        return attrNode;
-    }
-
-    private static String convertUTC(String utc) {
-
-        return utc.replace("UTC=", "").replace("T", " ");
-    }
-
-    static String getMissionIDFromFilename(String filename) {
-
-        return filename.substring(0, 3);
-    }
-
-    static String getFileTypeFromFilename(String filename) {
-
-        return filename.substring(9, 19);
-    }
-
-    private static String extractUTCTimeFromFilename(final String filename, final int offset) {
-
-        final String yyyy = filename.substring(offset, offset + 4);
-        final String mmDate = filename.substring(offset + 4, offset + 6);
-        final String dd = filename.substring(offset + 6, offset + 8);
-        final String hh = filename.substring(offset + 9, offset + 11);
-        final String mmTime = filename.substring(offset + 11, offset + 13);
-        final String ss = filename.substring(offset + 13, offset + 15);
-
-        return "UTC=" + yyyy + '-' + mmDate + '-' + dd + 'T' + hh + ':' + mmTime + ':' + ss;
-    }
-
-    private static String extractTimeFromFilename(final String filename, final int offset) {
-
-        return filename.substring(offset, offset + 15).replace("T", "-");
-    }
-
-    static ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
-
-        if (filename.charAt(41) == 'V') {
-
-            String val = extractTimeFromFilename(filename, 42);
-            return ProductData.UTC.parse(val, dateFormat);
-        }
-        return null;
-    }
-
-    static ProductData.UTC getValidityStopFromFilenameUTC(String filename) throws ParseException {
-
-        if (filename.charAt(41) == 'V') {
-
-            String val = extractTimeFromFilename(filename, 58);
-            return ProductData.UTC.parse(val, dateFormat);
-        }
-        return null;
-    }
-
-    static String getValidityStartFromFilename(String filename) {
-
-        if (filename.charAt(41) == 'V') {
-
-            return extractUTCTimeFromFilename(filename, 42);
-        }
-        return null;
-    }
-
-    static String getValidityStopFromFilename(String filename) {
-
-        if (filename.charAt(41) == 'V') {
-
-            return extractUTCTimeFromFilename(filename, 58);
-        }
-        return null;
-    }
-
-    String getMissionFromHeader() {
-
-        if (fixedHeader != null) {
-            return fixedHeader.mission;
-        }
-        return null;
-    }
-
-    String getFileTypeFromHeader() {
-
-        if (fixedHeader != null) {
-            return fixedHeader.fileType;
-        }
-        return null;
-    }
-
-    String getValidityStartFromHeader() {
-
-        if (fixedHeader != null) {
-            return fixedHeader.validityStart;
-        }
-        return null;
-    }
-
-    String getValidityStopFromHeader() {
-
-        if (fixedHeader != null) {
-            return fixedHeader.validityStop;
-        }
-        return null;
-    }
-
-    static ProductData.UTC toUTC(final String str) throws ParseException {
-        return ProductData.UTC.parse(convertUTC(str), orbitDateFormat);
     }
 
     private static class S1OrbitFileFilter implements FilenameFilter {
@@ -849,21 +295,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         public boolean accept(File dir, String name) {
             name = name.toUpperCase();
             return (name.endsWith(".ZIP") || name.endsWith(".EOF")) && name.startsWith(prefix);
-        }
-    }
-
-    private static boolean isWithinRange(final String filename, final double stateVectorTime) {
-        try {
-            final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
-            final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
-            if (utcStart != null && utcEnd != null) {
-                double sMJD = utcStart.getMJD();
-                double eMJD = utcEnd.getMJD();
-                return stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD();
-            }
-            return false;
-        } catch (Exception e) {
-            return false;
         }
     }
 
@@ -884,21 +315,5 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                            }
                        }
                 );
-    }
-
-    private static final class FixedHeader {
-
-        private final String mission;
-        private final String fileType;
-        private final String validityStart;
-        private final String validityStop;
-
-        FixedHeader(final String mission, final String fileType, final String validityStart, final String validityStop) {
-
-            this.mission = mission;
-            this.fileType = fileType;
-            this.validityStart = validityStart;
-            this.validityStop = validityStop;
-        }
     }
 }
