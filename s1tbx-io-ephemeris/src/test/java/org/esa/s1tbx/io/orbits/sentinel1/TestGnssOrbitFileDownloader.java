@@ -67,15 +67,34 @@ public class TestGnssOrbitFileDownloader {
     }
 
     @Test
-    @Ignore
     public void testDownloadPreciseOrbitFileS1A() throws Exception {
         final String mission = "Sentinel-1";
         final String missionPrefix = "S1A";
         final String orbitType = SentinelPODOrbitFile.PRECISE;
         final int year = 2021;
-        final int month = 2;
-        final int day = 8;
-        final ProductData.UTC stateVectorTime = ProductData.UTC.parse("2021-02-08 15:19:21.698661", Sentinel1OrbitFileReader.orbitDateFormat);
+        final int month = 1;
+        final int day = 27;
+        final ProductData.UTC stateVectorTime = ProductData.UTC.parse("2021-01-27 15:19:21.698661", Sentinel1OrbitFileReader.orbitDateFormat);
+        final File localFolder = SentinelPODOrbitFile.getDestFolder(missionPrefix, orbitType, year, month);
+
+        final GnssOrbitFileDownloader gnssDownloader = new GnssOrbitFileDownloader();
+
+        File orbitFile = gnssDownloader.download(localFolder, mission, missionPrefix, orbitType,
+                year, month, day, stateVectorTime);
+        assertTrue(orbitFile.exists());
+        orbitFile.delete();
+    }
+
+    @Test
+    @Ignore
+    public void testDownloadPreciseOrbitFileS1A_NextMonth() throws Exception {
+        final String mission = "Sentinel-1";
+        final String missionPrefix = "S1A";
+        final String orbitType = SentinelPODOrbitFile.PRECISE;
+        final int year = 2021;
+        final int month = 1;
+        final int day = 28;
+        final ProductData.UTC stateVectorTime = ProductData.UTC.parse("2021-01-28 15:19:21.698661", Sentinel1OrbitFileReader.orbitDateFormat);
         final File localFolder = SentinelPODOrbitFile.getDestFolder(missionPrefix, orbitType, year, month);
 
         final GnssOrbitFileDownloader gnssDownloader = new GnssOrbitFileDownloader();
