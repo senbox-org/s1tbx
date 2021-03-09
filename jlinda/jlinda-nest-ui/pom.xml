@@ -44,12 +44,12 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-ui</artifactId>
-            <version>${desktop.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-rcp</artifactId>
-            <version>${desktop.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-graph-builder</artifactId>
-            <version>${desktop.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

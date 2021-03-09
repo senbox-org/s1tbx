@@ -167,7 +167,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-rcp</artifactId>
-            <version>${desktop.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
