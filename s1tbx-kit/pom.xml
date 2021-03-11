@@ -70,6 +70,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-cloud</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
