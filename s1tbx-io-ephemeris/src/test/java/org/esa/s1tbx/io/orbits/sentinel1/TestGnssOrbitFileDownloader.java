@@ -20,7 +20,6 @@ import org.esa.s1tbx.cloud.opensearch.OpenSearch;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -86,7 +85,6 @@ public class TestGnssOrbitFileDownloader {
     }
 
     @Test
-    @Ignore
     public void testDownloadPreciseOrbitFileS1A_NextMonth() throws Exception {
         final String mission = "Sentinel-1";
         final String missionPrefix = "S1A";
