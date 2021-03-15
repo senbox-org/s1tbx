@@ -5,6 +5,6 @@ AutoUpdate-Show-In-Client: false
 AutoUpdate-Essential-Module: false
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP Toolboxes
-OpenIDE-Module-Long-Description: <p>S1TBX Commons</p><p><b>Vendor:</b> SkyWatch Space Applications Inc</p><p>
+OpenIDE-Module-Long-Description: <p>S1TBX Cloud Tools</p><p><b>Vendor:</b> SkyWatch Space Applications Inc</p><p>
  <b>Contact</b> https://www.skywatch.com</p><p><b>Copyright:</b> (C) 2021 by SkyWatch Space Applications Inc</p><p><b>
  Vendor:</b> SkyWatch Space Applications Inc</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p>
