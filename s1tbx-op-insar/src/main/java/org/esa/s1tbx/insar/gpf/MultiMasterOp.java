@@ -106,7 +106,7 @@ public class MultiMasterOp extends Operator{
         date_metadatapairs.put(masterDateInt, masterAbstractedMetadata);
         dates.add(masterDateInt);
         for(MetadataElement s : slaveAbstractedMetadata){
-            String date = s.getAttributeString("PROC_TIME").split(" ")[0];
+            String date = s.getAttributeString("first_line_time").split(" ")[0];
             int dateInt = strDatetoInt(date);
             date_metadatapairs.put(dateInt, s);
             dates.add(dateInt);
