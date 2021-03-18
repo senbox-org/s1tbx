@@ -20,9 +20,15 @@ import org.esa.s1tbx.cloud.opensearch.OpenSearch;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,6 +36,21 @@ import static org.junit.Assert.assertTrue;
 public class TestGnssOrbitFileDownloader {
 
     private static final String query = "https://scihub.copernicus.eu/gnss/search?q=producttype:AUX_RESORB AND ingestiondate:[2021-02-10T10:00:000Z TO 2021-02-15T10:00:000Z] AND platformname:Sentinel-1";
+
+    @BeforeClass
+    public static void setUpClass() {
+        boolean internetAvailable;
+        try {
+            URLConnection urlConnection = new URL("http://www.google.com").openConnection();
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.getContent();
+            internetAvailable = true;
+        } catch (IOException e) {
+            internetAvailable = false;
+        }
+
+        Assume.assumeTrue("Internet connection not available, skipping TestGnssOrbitFileDownloader", internetAvailable);
+    }
 
     @Test
     public void testConstructQuery() throws Exception {
@@ -47,11 +68,8 @@ public class TestGnssOrbitFileDownloader {
         final OpenSearch.PageResult pageResult = openSearch.getPages(query);
 
         OpenSearch.SearchResult[] searchResults = openSearch.getSearchResults(pageResult);
-        for(OpenSearch.SearchResult searchResult : searchResults) {
-            System.out.println(searchResult.url);
-        }
 
-        final File outputFolder = new File("c:\\tmp");
+        final File outputFolder = Files.createTempDirectory("gnss").toFile();
         final String downloadURL = GnssOrbitFileDownloader.COPERNICUS_ODATA_ROOT+"Products('" + searchResults[0].id + "')" + "/$value";
 
         final OpenData openData = new OpenData(GnssOrbitFileDownloader.COPERNICUS_ODATA_ROOT,
@@ -63,6 +81,8 @@ public class TestGnssOrbitFileDownloader {
             ZipUtils.zipFile(localFile, localZipFile);
             localFile.delete();
         }
+
+        FileUtils.deleteTree(outputFolder);
     }
 
     @Test
