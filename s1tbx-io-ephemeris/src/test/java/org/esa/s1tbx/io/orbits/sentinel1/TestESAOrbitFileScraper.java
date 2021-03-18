@@ -46,7 +46,7 @@ public class TestESAOrbitFileScraper {
             internetAvailable = false;
         }
 
-        Assume.assumeTrue("Internet connection not available, skipping TestStepAuxdataScraper", internetAvailable);
+        Assume.assumeTrue("Internet connection not available, skipping TestESAOrbitFileScraper", internetAvailable);
     }
 
     @Test
