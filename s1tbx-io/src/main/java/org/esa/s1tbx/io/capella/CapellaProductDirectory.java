@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 by SkyWatch Space Applications Inc. http://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -50,6 +50,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
     private final String productName;
     private String pol;
     private double scaleFactor;
+    private String calibration = null;
     private Product bandProduct;
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
@@ -86,43 +87,70 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, ReaderUtils.getTime(productMetadata, "processing_time", standardDateFormat));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, collect.getAttributeString("mode"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, productMetadata.getAttributeString("software_version"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, "--");
-
-        final ProductData.UTC startTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(collect, "stop_timestamp", standardDateFormat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
 
         final MetadataElement image = collect.getElement("image");
+        final MetadataElement imageGeometry = image.getElement("image_geometry");
 
         width = image.getAttributeInt("columns");
         height = image.getAttributeInt("rows");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("range_resolution"));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("azimuth_resolution"));
+        if (imageGeometry.getAttribute("delta_range_sample") != null) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, imageGeometry.getAttributeDouble("delta_range_sample"));
+        } else {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, image.getAttributeDouble("pixel_spacing_column"));
+        }
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, image.getAttributeDouble("pixel_spacing_row"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, image.getAttributeDouble("range_looks"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, image.getAttributeDouble("azimuth_looks"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm, image.getAttributeString("algorithm"));
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
+
         final String radiometry = image.getAttributeString("radiometry");
         scaleFactor = image.getAttributeDouble("scale_factor");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor, scaleFactor);
-        if (radiometry.equals("sigma_nought")) {
+        if (radiometry.contains("nought")) {
+            calibration = radiometry.contains("gamma") ? "Gamma0" : radiometry.contains("sigma") ? "Sigma0" : "Beta0";
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 1);
         }
 
-        final MetadataElement imageGeometry = image.getElement("image_geometry");
         if(isSLC()) {
             if(imageGeometry.containsAttribute("range_to_first_sample")) {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
                         imageGeometry.getAttributeDouble("range_to_first_sample"));
             }
         }
+
+        final ProductData.UTC firstLineTime;
+        if(imageGeometry.containsAttribute("first_line_time")) {
+            firstLineTime = ReaderUtils.getTime(imageGeometry, "first_line_time", standardDateFormat);
+        } else {
+            firstLineTime = ReaderUtils.getTime(collect, "start_timestamp", standardDateFormat);
+        }
+
+        //double delta_line_time = imageGeometry.getAttributeDouble("delta_line_time");
+
+        final MetadataElement centerPixel = image.getElement("center_pixel");
+        final ProductData.UTC centerTime = ReaderUtils.getTime(centerPixel, "center_time", standardDateFormat);
+
+        final double firstTime = firstLineTime.getMJD() * 24.0 * 3600.0;
+        final double midTime = centerTime.getMJD() * 24.0 * 3600.0;
+        final double imageDuration = (midTime - firstTime) * 2.0;
+        //final double deltaTime = (height - 1) * delta_line_time;
+        //final double lastTime = firstTime + deltaTime;
+        final double lastTime = firstTime + imageDuration;
+        final ProductData.UTC lastLineTime = new ProductData.UTC(lastTime / 3600.0 / 24.0);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, firstLineTime);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, lastLineTime);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, delta_line_time);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                ReaderUtils.getLineTimeInterval(firstLineTime, lastLineTime, height));
+
+        final MetadataElement state = collect.getElement("state");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, state.getAttributeString("direction", "unknown").toUpperCase());
 
         final MetadataElement radar = collect.getElement("radar");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency, radar.getAttributeDouble("center_frequency") / Constants.oneMillion);
@@ -137,7 +165,6 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         pol = (transmit_polarization + receive_polarization).toUpperCase();
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar, pol);
 
-        final MetadataElement state = collect.getElement("state");
         addOrbitStateVectors(absRoot, state.getElement("state_vectors"));
     }
 
@@ -256,16 +283,19 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                     }
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
-                        bandName = "Amplitude" + '_' + suffix;
+                        bandName = calibration != null ? calibration : "Amplitude";
+                        bandName += '_' + suffix;
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
-                        band.setUnit(Unit.AMPLITUDE);
+                        band.setUnit(calibration != null ? Unit.INTENSITY : Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
-                        SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
+                        if(calibration == null) {
+                            SARReader.createVirtualIntensityBand(product, band, '_' + suffix);
+                        }
 
                         // reset to null so it doesn't adopt a geocoding from the bands
                         product.setSceneGeoCoding(null);
@@ -370,43 +400,4 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 //        slantRangeGrid.setUnit(Unit.NANOSECONDS);
 //        product.addTiePointGrid(slantRangeGrid);
     }
-
-    private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-
-        final int w = product.getSceneRasterWidth();
-        final int h = product.getSceneRasterHeight();
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(w, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(w, 0));
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(w, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(w, h));
-    }
-
-//    @Override
-//    public Product createProduct() throws IOException {
-//
-//        final MetadataElement newRoot = addMetaData();
-//        findImages(newRoot);
-//
-//        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-//        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-//        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-//
-//        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
-//        updateProduct(product, newRoot);
-//
-//        addBands(product);
-//        addGeoCoding(product);
-//
-//        ReaderUtils.addMetadataIncidenceAngles(product);
-//        ReaderUtils.addMetadataProductSize(product);
-//
-//        return product;
-//    }
 }

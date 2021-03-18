@@ -21,7 +21,7 @@ import org.openide.modules.OnStart;
 /**
  * Handle OnStart for module
  */
-public class s1tbxSARProcessingModule {
+public class S1tbxSARProcessingModule {
 
     @OnStart
     public static class StartOp implements Runnable {

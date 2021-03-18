@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 by SkyWatch Space Applications Inc. http://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -64,7 +64,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
         Product prod = testReader(inputGEOFolder.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test
@@ -72,7 +72,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
         Product prod = testReader(inputGEOMeta.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test
@@ -80,7 +80,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
         Product prod = testReader(inputGEOTif.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test

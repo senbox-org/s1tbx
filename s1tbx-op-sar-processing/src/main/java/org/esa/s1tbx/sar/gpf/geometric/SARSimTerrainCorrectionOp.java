@@ -411,11 +411,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
 
-        skipBistaticCorrection = absRoot.getAttributeInt("bistatic_correction_applied", 0) == 1;
+        skipBistaticCorrection = absRoot.getAttributeInt(AbstractMetadata.bistatic_correction_applied, 0) == 1;
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
-        wavelength = SARUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarWavelength(absRoot);
 
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);

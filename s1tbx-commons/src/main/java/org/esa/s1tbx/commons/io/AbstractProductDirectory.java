@@ -16,9 +16,7 @@
 package org.esa.s1tbx.commons.io;
 
 import com.bc.ceres.core.VirtualDir;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -304,6 +302,7 @@ public abstract class AbstractProductDirectory {
 
         addGeoCoding(product);
         addTiePointGrids(product);
+        setLatLongMetadata(product);
 
         ReaderUtils.addMetadataIncidenceAngles(product);
         ReaderUtils.addMetadataProductSize(product);
@@ -333,6 +332,32 @@ public abstract class AbstractProductDirectory {
 
         product.setProductType(absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE));
         product.setDescription(absRoot.getAttributeString(AbstractMetadata.SPH_DESCRIPTOR));
+    }
+
+    private static void setLatLongMetadata(final Product product) {
+
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
+        if(geoCoding != null) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            
+            final GeoPos geoPos = new GeoPos();
+            final int w = product.getSceneRasterWidth();
+            final int h = product.getSceneRasterHeight();
+
+            geoCoding.getGeoPos(new PixelPos(0, 0), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(w, 0), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, geoPos.lon);
+
+            geoCoding.getGeoPos(new PixelPos(0, h), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(w, h), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, geoPos.lon);
+        }
     }
 
     protected static float[][] getBoundingBox(float [][] coordinateList){

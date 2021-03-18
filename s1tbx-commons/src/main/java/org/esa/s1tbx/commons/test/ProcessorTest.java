@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.commons.test;
 
 import org.esa.snap.core.datamodel.Band;
@@ -44,13 +59,19 @@ public class ProcessorTest {
     protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
         final Band[] bands = trgProduct.getBands();
         if(bandNames.length != bands.length) {
-            String msg = "";
-            for(String bandName : bandNames) {
-                if(!msg.isEmpty())
-                    msg += ", ";
-                msg += bandName;
+            String expectedBandNames = "";
+            for(String bandName : trgProduct.getBandNames()) {
+                if(!expectedBandNames.isEmpty())
+                    expectedBandNames += ", ";
+                expectedBandNames += bandName;
             }
-            throw new Exception("Expecting "+bandNames.length + " bands but found "+ bands.length +" "+ msg);
+            String actualBandNames = "";
+            for(String bandName : bandNames) {
+                if(!actualBandNames.isEmpty())
+                    actualBandNames += ", ";
+                actualBandNames += bandName;
+            }
+            throw new Exception("Expecting "+bandNames.length + " bands "+actualBandNames+" but found "+ bands.length +" "+ expectedBandNames);
         }
         for(String bandName : bandNames) {
             Band band = trgProduct.getBand(bandName);

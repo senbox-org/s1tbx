@@ -165,7 +165,7 @@ public final class PhaseToElevationOp extends Operator {
     private void getMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        final double wavelength = SARUtils.getRadarFrequency(absRoot);
+        final double wavelength = SARUtils.getRadarWavelength(absRoot);
         waveNumber = Constants.TWO_PI / wavelength;
         orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
