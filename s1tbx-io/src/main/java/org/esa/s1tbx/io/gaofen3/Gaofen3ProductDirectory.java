@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2020 by SkyWatch Space Applications Inc. http://www.skywatch.com
- *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -15,6 +13,7 @@
  */
 package org.esa.s1tbx.io.gaofen3;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.OrbitStateVectors;
 import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.s1tbx.commons.io.ImageIOFile;
@@ -26,10 +25,7 @@ import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
-import org.esa.snap.engine_utilities.datamodel.PosVector;
-import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.datamodel.*;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
@@ -39,6 +35,9 @@ import org.jdom2.Element;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.utils.DateUtils;
+
+import org.jblas.DoubleMatrix;
+import org.jblas.Solve;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -50,9 +49,14 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.jlinda.core.utils.PolyUtils;
 
 /**
- * This class represents a product directory.
+ * @author Jakob Grahn
  */
 public class Gaofen3ProductDirectory extends XMLProductDirectory  {
 
@@ -65,6 +69,18 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
     private Map<String,Double> calConstMap = new HashMap<>();
     private Map<String,List<Double>> rpcParameters = new HashMap<>();
     private double[] incidenceAngleList;
+    private Orbit polyOrbit;
+    private double[] coeff_X;
+    private double[] coeff_Y;
+    private double[] coeff_Z;
+    private double tMax;
+    private double tMin;
+    private double xMax;
+    private double yMax;
+    private double zMax;
+    private double xMin;
+    private double yMin;
+    private double zMin;
 
     private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -137,8 +153,7 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         final String pass = productMetadata.getAttributeString("Direction", defStr);
         final String lookDir = sensorMetadata.getAttributeString("lookDirection");
         final String imagingMode = sensorMetadata.getAttributeString("imagingMode", defStr);
-        final ArrayList<String> testedModes = new ArrayList<String>() {{add("ss");add("fsi");add("fsii");}};
-        //final ArrayList<String> testedModes = new ArrayList<String>() {{add("ss");add("fsi");add("fsii");add("ufs");}};
+        final ArrayList<String> testedModes = new ArrayList<String>() {{add("ss");add("fsi");add("fsii");add("ufs");}};
         if (!testedModes.contains(imagingMode.toLowerCase())){
             throw new IOException("Imaging mode \"" + imagingMode + "\" not tested! ");
         }
@@ -181,9 +196,9 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,1/eqvPrf);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,1/eqvPrf);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+        //        ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
                 imageInfoMetadata.getAttributeDouble("nearRange"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
@@ -267,10 +282,48 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         }
     }
 
-    protected void addStateVectors(final Product product) {
+    protected Orbit getPolyOrbit(final Product product) {
+
+        if (polyOrbit==null) {
+
+            // Metadata elements:
+            final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+            final MetadataElement productMetadata = origProdRoot.getElement("product");
+            final MetadataElement svecMetadata = productMetadata.getElement("GPS");
+            final MetadataElement[] svecElems = svecMetadata.getElements();
+
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            final String firstLineTimeString = absRoot.getAttributeString(AbstractMetadata.first_line_time);
+            final ProductData.UTC firstLineTimeUtc = AbstractMetadata.parseUTC(firstLineTimeString);
+            final double firstLineTimeSec = DateUtils.dateTimeToSecOfDay(firstLineTimeUtc.toString());
+
+            // Make smoothed state vector interpolator (using Orbit-class/polynomial interpolation):
+            final int nStateVectors = svecElems.length;
+            final int polyOrder = Math.min(nStateVectors - 2, 5);
+            SystemUtils.LOG.info("State vectors (n=" + nStateVectors + ") fitted to " + polyOrder + "-order polynomial.");
+            final int step = 1; // Math.floorDiv(nStateVectors, polyOrder+1);
+            final int nInterpStateVectors = Math.floorDiv(nStateVectors, step);
+            double[] timeInterp = new double[nInterpStateVectors];
+            double[] xPosInterp = new double[nInterpStateVectors];
+            double[] yPosInterp = new double[nInterpStateVectors];
+            double[] zPosInterp = new double[nInterpStateVectors];
+
+            for (int i = 0; i < nInterpStateVectors; i++) {
+                timeInterp[i] = DateUtils.dateTimeToSecOfDay(svecElems[i * step].getAttributeString("TimeStamp"));
+                xPosInterp[i] = svecElems[i * step].getAttributeDouble("xPosition");
+                yPosInterp[i] = svecElems[i * step].getAttributeDouble("yPosition");
+                zPosInterp[i] = svecElems[i * step].getAttributeDouble("zPosition");
+            }
+            polyOrbit = new Orbit(timeInterp, xPosInterp, yPosInterp, zPosInterp, polyOrder);
+        }
+
+        return polyOrbit;
+
+    }
+
+    protected void makePolyCoeff(final Product product) {
 
         // Metadata elements:
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement productMetadata = origProdRoot.getElement("product");
         final MetadataElement svecMetadata = productMetadata.getElement("GPS");
@@ -278,27 +331,98 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
 
         // Make smoothed state vector interpolator (using Orbit-class/polynomial interpolation):
         final int nStateVectors = svecElems.length;
-        final int polyOrder = 5;
+        final int polyOrder = Math.min(nStateVectors - 2, 5);
+        SystemUtils.LOG.info("State vectors (n=" + nStateVectors + ") fitted to " + polyOrder + "-order polynomial.");
         final int step = 1; // Math.floorDiv(nStateVectors, polyOrder+1);
         final int nInterpStateVectors = Math.floorDiv(nStateVectors, step);
         double[] timeInterp = new double[nInterpStateVectors];
         double[] xPosInterp = new double[nInterpStateVectors];
         double[] yPosInterp = new double[nInterpStateVectors];
         double[] zPosInterp = new double[nInterpStateVectors];
+
         for (int i = 0; i < nInterpStateVectors; i++) {
             timeInterp[i] = DateUtils.dateTimeToSecOfDay(svecElems[i * step].getAttributeString("TimeStamp"));
             xPosInterp[i] = svecElems[i * step].getAttributeDouble("xPosition");
             yPosInterp[i] = svecElems[i * step].getAttributeDouble("yPosition");
             zPosInterp[i] = svecElems[i * step].getAttributeDouble("zPosition");
+            tMax = Math.max(tMax, timeInterp[i]);
+            xMax = Math.max(xMax, xPosInterp[i]);
+            yMax = Math.max(yMax, yPosInterp[i]);
+            zMax = Math.max(zMax, zPosInterp[i]);
+            tMin = Math.min(tMin, timeInterp[i]);
+            xMin = Math.min(xMin, xPosInterp[i]);
+            yMin = Math.min(yMin, yPosInterp[i]);
+            zMin = Math.min(zMin, zPosInterp[i]);
         }
-        final Orbit orbit = new Orbit(timeInterp, xPosInterp, yPosInterp, zPosInterp, polyOrder);
+
+        for (int i = 0; i < nInterpStateVectors; i++) {
+            timeInterp[i] = (timeInterp[i] - tMin)/(tMax-tMin);
+            xPosInterp[i] = (xPosInterp[i] - xMin)/(xMax-xMin);
+            yPosInterp[i] = (yPosInterp[i] - yMin)/(yMax-yMin);
+            zPosInterp[i] = (zPosInterp[i] - zMin)/(zMax-zMin);
+        }
+
+        coeff_X = PolyUtils.polyFit(new DoubleMatrix(timeInterp), new DoubleMatrix(xPosInterp), polyOrder);
+        coeff_Y = PolyUtils.polyFit(new DoubleMatrix(timeInterp), new DoubleMatrix(yPosInterp), polyOrder);
+        coeff_Z = PolyUtils.polyFit(new DoubleMatrix(timeInterp), new DoubleMatrix(zPosInterp), polyOrder);
+
+    }
+
+    private Point getXYZ(double azTime) {
+        azTime = (azTime-tMin)/(tMax-tMin);
+        return new Point(
+                PolyUtils.polyVal1D(azTime, coeff_X)*(xMax-xMin) + xMin,
+                PolyUtils.polyVal1D(azTime, coeff_Y)*(yMax-yMin) + yMin,
+                PolyUtils.polyVal1D(azTime, coeff_Z)*(zMax-zMin) + zMin);
+    }
+
+    private Point getXYZDot(double azTime) {
+
+        azTime = (azTime-tMin)/(tMax-tMin);
+
+        int DEGREE = coeff_X.length - 1;
+
+        double x = coeff_X[1];
+        double y = coeff_Y[1];
+        double z = coeff_Z[1];
+
+        for (int i = 2; i <= DEGREE; ++i) {
+            double powT = i * FastMath.pow(azTime, i - 1);
+            x += coeff_X[i] * powT;
+            y += coeff_Y[i] * powT;
+            z += coeff_Z[i] * powT;
+        }
+
+        return new Point(
+                x*(xMax-xMin) + xMin,
+                y*(yMax-yMin) + yMin,
+                z*(zMax-zMin) + zMin
+        );
+    }
+
+    private static int argMin(double[] a) {
+        int loc = 0;
+        double min = a[loc];
+        for (int i = 1; i < a.length; i++) {
+            if (a[i] < min) {
+                min = a[i];
+                loc = i;
+            }
+        }
+        return loc;
+    }
+
+    /*
+    protected void addStateVectors(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final Orbit orbit = getPolyOrbit(product);
 
         // Generate new state vectors by interpolation:
-        final double mjdFirstSV = ReaderUtils.getTime(svecElems[0],
-                "TimeStamp", standardDateFormat).getMJD() - 10/Constants.secondsInDay;
-        final double mjdLastSV = ReaderUtils.getTime(svecElems[svecElems.length-1],
-                "TimeStamp", standardDateFormat).getMJD() + 10/Constants.secondsInDay;
-        final double mjdTimeStep = 1/Constants.secondsInDay;
+        final double mjdFirstSV = AbstractMetadata.parseUTC(
+                absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD() - 10/Constants.secondsInDay;
+        final double mjdLastSV = AbstractMetadata.parseUTC(
+                absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD() + 10/Constants.secondsInDay;
+        final double mjdTimeStep = 10/Constants.secondsInDay;
         final int nStateVectorsFinal = (int) Math.floor((mjdLastSV-mjdFirstSV)/(mjdTimeStep))+1;
         final OrbitStateVector[] stateVectorsFinal = new OrbitStateVector[nStateVectorsFinal];
 
@@ -319,6 +443,246 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+     */
+
+    protected void addRpcStateVectors(final Product product) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        assert absRoot != null;
+
+        final Gaofen3Geocoding geocoding = getGeoCoding(product);
+
+        final String firstLineTimeString = absRoot.getAttributeString(AbstractMetadata.first_line_time);
+        final ProductData.UTC firstLineTimeUtc = AbstractMetadata.parseUTC(firstLineTimeString);
+        final double firstLineTimeMjd = firstLineTimeUtc.getMJD();
+        final double firstLineTimeSec = DateUtils.dateTimeToSecOfDay(firstLineTimeUtc.toString());
+        final double lineTimeIntervalInSecs = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval);
+        final double lineTimeIntervalInDays = lineTimeIntervalInSecs/Constants.secondsInDay;
+        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing);
+        final double nearEdgeSlantRange = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel);
+
+        /*
+        final OrbitStateVector[] stateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
+        final OrbitStateVectors orbitStateVectors = new OrbitStateVectors(
+                stateVectors, firstLineTimeMjd, lineTimeIntervalInDays, height);
+         */
+
+        final Orbit orbit = getPolyOrbit(product);
+        final int nx = 100;
+        final int nsv = 100;
+        int maxIter = 30;
+        double scaleFactor = 1e5;
+        double rmsResidualThreshold = 1.5*scaleFactor/1e5;
+        double lambda0 = 1.0;
+        double[] dx = new double[] {1,0,0};
+        double[] dy = new double[] {0,1,0};
+        double[] dz = new double[] {0,0,1};
+        double dp = 1.0;
+        double dv = 0.01;
+
+        SystemUtils.LOG.info("Max iterations:     " + maxIter);
+        SystemUtils.LOG.info("RMS residual thres: " + rmsResidualThreshold);
+
+        double[] xArr = new double[nx];
+        double[] yArr = new double[nsv];
+        for (int i = 0; i < nx; i++) {
+            xArr[i] = ((double) i)/((double) nx-1) * (width-1);
+        }
+        for (int i = 0; i < nsv; i++) {
+            yArr[i] = 500 + ((double) i)/((double) nsv-1) * (height-1-1000);
+        }
+
+        Orbits.OrbitVector[] svCorrected = new Orbits.OrbitVector[nsv];
+
+        for (int i = 0; i < nsv; i++) { // Loop over azimuth:
+            double iy = yArr[i];  // Image index in azimuth
+            double azTimeMjd = firstLineTimeMjd + iy*lineTimeIntervalInDays;
+            double azTimeSec = firstLineTimeSec + iy*lineTimeIntervalInSecs;
+
+            // Pick out state vector for current azimuth time:
+            /*
+            OrbitStateVectors.PositionVelocity sensorPosVel = orbitStateVectors.getPositionVelocity(azTimeMjd);
+            Orbits.OrbitVector svCurrent = new Orbits.OrbitVector(azTimeMjd,
+                    sensorPosVel.position.x, sensorPosVel.position.y, sensorPosVel.position.z,
+                    sensorPosVel.velocity.x, sensorPosVel.velocity.y, sensorPosVel.velocity.z
+            );
+             */
+
+            final Point pos = orbit.getXYZ(azTimeSec);
+            final Point vel = orbit.getXYZDot(azTimeSec);
+            Orbits.OrbitVector svCurrent = new Orbits.OrbitVector(azTimeMjd,
+                    pos.getX(), pos.getY(), pos.getZ(),
+                    vel.getX(), vel.getY(), vel.getZ()
+            );
+
+            GeoPos[] geoRPCList = new GeoPos[nx];
+            for (int j = 0; j < nx; j++) { // Loop over range:
+                // Get target geo from RPC:
+                double ix = xArr[j];
+                PixelPos idx = new PixelPos(ix, iy);
+                GeoPos geoRPC = new GeoPos();
+                geocoding.getGeoPos(idx, geoRPC);
+                geoRPCList[j] = geoRPC;
+
+                // Sanity check:
+                PixelPos _idx = new PixelPos();
+                geocoding.getPixelPos(geoRPC, _idx);
+                assert idx.x == _idx.x;
+                assert idx.y == _idx.y;
+            }
+
+            // Initiate Jacobian and residual:
+            DoubleMatrix jac = new DoubleMatrix(6, 2*nx);
+            DoubleMatrix residual = new DoubleMatrix(2*nx, 1);
+
+            double[] rmsResidualList = new double[maxIter];
+            Orbits.OrbitVector[] svList = new Orbits.OrbitVector[maxIter];
+            boolean converged;
+            double lambda = lambda0;
+            for (int iter = 0; iter < maxIter; iter++) {
+                //SystemUtils.LOG.info("iter: " + iter);
+                svList[iter] = new Orbits.OrbitVector(svCurrent.utcMJD,
+                        svCurrent.xPos, svCurrent.yPos, svCurrent.zPos,
+                        svCurrent.xVel, svCurrent.yVel, svCurrent.zVel
+                );
+                for (int j = 0; j < nx; j++) { // Loop over range:
+                    double ix = xArr[j];  // Image index in range
+                    GeoPos geoRPC = geoRPCList[j];
+
+                    // Get slant range time:
+                    double srMeter = nearEdgeSlantRange + ix * rangeSpacing;
+                    double srSec = srMeter / Constants.halfLightSpeed;
+
+                    // Update target geo using orbit:
+                    GeoPos geoRD = computeLatLon(geoRPC.lat, geoRPC.lon, srSec, svCurrent);
+                    double rLat = geoRD.lat - geoRPC.lat;
+                    double rLon = geoRD.lon - geoRPC.lon;
+                    residual.put(2*j, 0, rLat * scaleFactor);
+                    residual.put(2*j + 1, 0, rLon * scaleFactor);
+
+                    // Estimate Jacobian by perturbing state vectors:
+                    for (int k = 0; k < 3; k++) {
+                        // Perturb position:
+                        Orbits.OrbitVector sv_dp0 = new Orbits.OrbitVector(svCurrent.utcMJD,
+                                svCurrent.xPos - dx[k]*dp,
+                                svCurrent.yPos - dy[k]*dp,
+                                svCurrent.zPos - dz[k]*dp,
+                                svCurrent.xVel,
+                                svCurrent.yVel,
+                                svCurrent.zVel
+                        );
+                        Orbits.OrbitVector sv_dp1 = new Orbits.OrbitVector(svCurrent.utcMJD,
+                                svCurrent.xPos + dx[k]*dp,
+                                svCurrent.yPos + dy[k]*dp,
+                                svCurrent.zPos + dz[k]*dp,
+                                svCurrent.xVel,
+                                svCurrent.yVel,
+                                svCurrent.zVel
+                        );
+
+                        // Perturb velocity:
+                        Orbits.OrbitVector sv_dv0 = new Orbits.OrbitVector(svCurrent.utcMJD,
+                                svCurrent.xPos,
+                                svCurrent.yPos,
+                                svCurrent.zPos,
+                                svCurrent.xVel - dx[k]*dv,
+                                svCurrent.yVel - dy[k]*dv,
+                                svCurrent.zVel - dz[k]*dv
+                        );
+                        Orbits.OrbitVector sv_dv1 = new Orbits.OrbitVector(svCurrent.utcMJD,
+                                svCurrent.xPos,
+                                svCurrent.yPos,
+                                svCurrent.zPos,
+                                svCurrent.xVel + dx[k]*dv,
+                                svCurrent.yVel + dy[k]*dv,
+                                svCurrent.zVel + dz[k]*dv
+                        );
+
+                        // Compute perturbed target geo:
+                        GeoPos geo_dp0 = computeLatLon(geoRPC.lat, geoRPC.lon, srSec, sv_dp0);
+                        GeoPos geo_dp1 = computeLatLon(geoRPC.lat, geoRPC.lon, srSec, sv_dp1);
+                        GeoPos geo_dv0 = computeLatLon(geoRPC.lat, geoRPC.lon, srSec, sv_dv0);
+                        GeoPos geo_dv1 = computeLatLon(geoRPC.lat, geoRPC.lon, srSec, sv_dv1);
+
+                        // Numerical derivative of residual wrt position and velocity along dim k:
+                        double drLat_dp = (geo_dp1.lat - geo_dp0.lat)/(2*dp);
+                        double drLon_dp = (geo_dp1.lon - geo_dp0.lon)/(2*dp);
+                        double drLat_dv = (geo_dv1.lat - geo_dv0.lat)/(2*dv);
+                        double drLon_dv = (geo_dv1.lon - geo_dv0.lon)/(2*dv);
+
+                        jac.put(k, 2*j, drLat_dp * scaleFactor);
+                        jac.put(k, 2*j+1, drLon_dp * scaleFactor);
+                        jac.put(k+3, 2*j, drLat_dv * scaleFactor);
+                        jac.put(k+3, 2*j+1, drLon_dv * scaleFactor);
+                    }
+                }
+
+                // Check residual:
+                int nResidual = residual.columns*residual.rows;
+                double rmsResidual = Math.sqrt(residual.transpose().mmul(residual).get(0,0) / nResidual);
+                rmsResidualList[iter] = rmsResidual;
+                converged = rmsResidual < rmsResidualThreshold;
+                if (converged) {
+                    SystemUtils.LOG.info("RMS residual criteria reached after " + iter + " iterations: " +
+                            rmsResidual + " < " + rmsResidualThreshold);
+                    break;
+                } else if (iter == maxIter-1){
+                    SystemUtils.LOG.warning("Max iteration reached without RMS residual criteria reached: " +
+                            rmsResidual + " >= " + rmsResidualThreshold);
+                    SystemUtils.LOG.warning("Selecting state vector with smallest RMS residual = " +
+                            Collections.min(Arrays.asList(ArrayUtils.toObject(rmsResidualList))));
+                    SystemUtils.LOG.warning("Smallest RMS residual at iteration: " + argMin(rmsResidualList));
+                    svCurrent = svList[argMin(rmsResidualList)];
+                    break;
+                }
+
+                // Damping factor:
+                //lambda = lambda0;
+                if ( iter < 5 ){
+                    lambda = lambda0;
+                } else {
+                    if (rmsResidualList[iter] > rmsResidualList[iter-1]) {
+                        lambda = lambda*2;
+                    } else {
+                        lambda = lambda/2;
+                    }
+                }
+
+                // Solve:
+                DoubleMatrix A = jac.mmul(jac.transpose()).add(DoubleMatrix.eye(6).mul(lambda));
+                DoubleMatrix rhs = jac.mmul(residual);
+                DoubleMatrix dbeta = Solve.solveLeastSquares(A, rhs);
+
+                // Update state vector:
+                svCurrent.xPos = svCurrent.xPos - dbeta.get(0,0);
+                svCurrent.yPos = svCurrent.yPos - dbeta.get(1,0);
+                svCurrent.zPos = svCurrent.zPos - dbeta.get(2,0);
+                svCurrent.xVel = svCurrent.xVel - dbeta.get(3,0);
+                svCurrent.yVel = svCurrent.yVel - dbeta.get(4,0);
+                svCurrent.zVel = svCurrent.zVel - dbeta.get(5,0);
+
+            }
+            svCorrected[i] = svCurrent;
+        }
+
+        // Add to abstracted metadata:
+        final OrbitStateVector[] stateVectorsFinal = new OrbitStateVector[nsv];
+        for (int i = 0; i < nsv; i++) {
+            final ProductData.UTC utcTime = new ProductData.UTC(svCorrected[i].utcMJD);
+            stateVectorsFinal[i] = new OrbitStateVector(utcTime,
+                    svCorrected[i].xPos, svCorrected[i].yPos, svCorrected[i].zPos,
+                    svCorrected[i].xVel, svCorrected[i].yVel, svCorrected[i].zVel
+            );
+        }
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, stateVectorsFinal[0].time);
+        try {
+            AbstractMetadata.setOrbitStateVectors(absRoot, stateVectorsFinal);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     protected void addMetadataCorners(final Product product) {
@@ -541,6 +905,33 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         );
     }
 
+    /**
+     * Compute accurate target geo position.
+     *
+     * @param latMid   The scene latitude.
+     * @param lonMid   The scene longitude.
+     * @param slrgTime The slant range time of the given pixel.
+     * @param data     The orbit data.
+     * @return The geo position of the target.
+     */
+    private static GeoPos computeLatLon(
+            final double latMid, final double lonMid, double slrgTime, Orbits.OrbitVector data) {
+
+        final double[] xyz = new double[3];
+        final GeoPos geoPos = new GeoPos(latMid, lonMid);
+
+        // compute initial (x,y,z) coordinate from lat/lon
+        GeoUtils.geo2xyz(geoPos, xyz);
+
+        // compute accurate (x,y,z) coordinate using Newton's method
+        GeoUtils.computeAccurateXYZ(data, xyz, slrgTime);
+
+        // compute (lat, lon, alt) from accurate (x,y,z) coordinate
+        GeoUtils.xyz2geo(xyz, geoPos);
+
+        return geoPos;
+    }
+
     @Override
     protected void addGeoCoding(final Product product) {
         product.setSceneGeoCoding(getGeoCoding(product));
@@ -646,7 +1037,97 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
 
     }
 
-    protected void fixAzimuthRangeOffsets(final Product product) {
+
+    protected void fixAzimuthRangeOffsets_onepoint(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final Gaofen3Geocoding geocoding = getGeoCoding(product);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+
+        double f0 = 0.5;
+        double[] idxRef0 = {width*f0, height*f0};
+        double[] geoRef0 = geocoding.pixel2geo(idxRef0[0],idxRef0[1]);
+
+        SystemUtils.LOG.info(String.format("Correction ref. point 1 : geo=(%f, %f), idx=(%f, %f)",
+                geoRef0[0], geoRef0[1], idxRef0[0], idxRef0[1]));
+
+        final double[] idxRpc0 = geocoding.geo2pixel(geoRef0[0], geoRef0[1]);
+
+        /*
+        final OrbitStateVector[] stateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
+        double averageSatSpeed = 0.0;
+        for (OrbitStateVector sv: stateVectors) {
+            averageSatSpeed += Math.sqrt(Math.pow(sv.x_vel, 2) + Math.pow(sv.y_vel, 2) + Math.pow(sv.z_vel, 2));
+        }
+        averageSatSpeed = averageSatSpeed/stateVectors.length;
+        */
+
+        double averageSatSpeed = origProdRoot.getElement("product").
+                getElement("platform").getAttributeDouble("satVelocity");
+
+        final int maxIter = 10;
+        boolean converged = false;
+        for (int i = 0; i < maxIter; i++) {
+            final double[] idxRd0 = geo2pixelRangeDoppler(product, geoRef0[0], geoRef0[1], 0.0);
+
+            // --- Fix range --- //
+            final double dx = absRoot.getAttributeDouble(AbstractMetadata.range_spacing);  //meter
+            final double corRg0 = (idxRd0[0] - idxRpc0[0])*dx;
+
+            // ... slant_range_to_first_pixel:
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+                    absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel) + corRg0);
+
+            // --- Fix azimuth --- //
+            final double dy = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval); //sec
+            final double corAz0 = (idxRd0[1] - idxRpc0[1])*dy;
+            final double corAz0meters = corAz0*averageSatSpeed;
+
+            // ... first_line_time:
+            final double cor_first_line_time_MJD = corAz0/Constants.secondsInDay;
+            final double first_line_time_MJD = AbstractMetadata.parseUTC(
+                    absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD();
+            final ProductData.UTC first_line_time_corrected = new ProductData.UTC(
+                    first_line_time_MJD + cor_first_line_time_MJD);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, first_line_time_corrected);
+
+            // ... last_line_time:
+            final double cor_last_line_time_MJD = cor_first_line_time_MJD;
+            final double last_line_time_MJD = AbstractMetadata.parseUTC(
+                    absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD();
+            final ProductData.UTC last_line_time_corrected = new ProductData.UTC(
+                    last_line_time_MJD + cor_last_line_time_MJD);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, last_line_time_corrected);
+
+            // Log:
+            final String msg = String.format("Range/Azimuth correction, iteration %d (max %d)...\n", i+1, maxIter) +
+                    String.format("\tRange correction: %f m (at point 1)\n", corRg0) +
+                    String.format("\tAzimuth correction: %f m (at point 1)\n", corAz0meters) +
+                    String.format("\tfirst_line_time corrected (UTC): %s sec\n",
+                            first_line_time_corrected.format()) +
+                    String.format("\tlast_line_time corrected (UTC): %s sec\n",
+                            last_line_time_corrected.format()) +
+                    String.format("\tfirst_line_time correction: %f sec\n",
+                            cor_first_line_time_MJD*Constants.secondsInDay) +
+                    String.format("\tlast_line_time correction: %f sec\n",
+                            cor_last_line_time_MJD*Constants.secondsInDay);
+            SystemUtils.LOG.info(msg);
+            if (
+                    Math.abs(corAz0meters) < 0.1 &&
+                            Math.abs(corRg0) < 0.1
+            ) {
+                converged = true;
+                break;
+            }
+        }
+
+        if (!converged){
+            SystemUtils.LOG.severe("Range/azimuth time correction did not converge!");
+        }
+
+    }
+
+    /*
+    protected void fixAzimuthRangeOffsets_twopoint(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final Gaofen3Geocoding geocoding = getGeoCoding(product);
 
@@ -764,6 +1245,7 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         }
 
     }
+    */
 
     private double[] geo2pixelRangeDoppler(final Product product, final double lat, final double lon, final double alt) {
 
@@ -773,6 +1255,7 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         final String firstLineTimeString = absRoot.getAttributeString(AbstractMetadata.first_line_time);
         final ProductData.UTC firstLineTimeUtc = AbstractMetadata.parseUTC(firstLineTimeString);
         final double firstLineTimeMjd = firstLineTimeUtc.getMJD();
+        final double firstLineTimeSec = DateUtils.dateTimeToSecOfDay(firstLineTimeUtc.toString());
 
         final double lineTimeIntervalInSecs = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval);
         final double lineTimeIntervalInDays = lineTimeIntervalInSecs/Constants.secondsInDay;
@@ -782,6 +1265,7 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         final double wavelength = Constants.lightSpeed/absRoot.getAttributeDouble(AbstractMetadata.radar_frequency)/
                 Constants.oneMillion;
 
+        /*
         final OrbitStateVector[] stateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
         final OrbitStateVectors orbitStateVectors = new OrbitStateVectors(
                 stateVectors, firstLineTimeMjd, lineTimeIntervalInDays, height);
@@ -793,6 +1277,27 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
             sensorPosition.add(new PosVector(pv.position.x, pv.position.y, pv.position.z));
             sensorVelocity.add(new PosVector(pv.velocity.x, pv.velocity.y, pv.velocity.z));
         }
+        */
+
+        List<PosVector> sensorPosition = new ArrayList<>();
+        List<PosVector> sensorVelocity = new ArrayList<>();
+        final Orbit orbit = getPolyOrbit(product);
+        final OrbitStateVector[] stateVectors = new OrbitStateVector[height];
+        for (int i = 0; i < height; i++) {
+            double azTimeSec = firstLineTimeSec + i*lineTimeIntervalInSecs;
+            double azTimeMjd = firstLineTimeMjd + i*lineTimeIntervalInDays;
+            final ProductData.UTC utcTime = new ProductData.UTC(azTimeMjd);
+            final Point pos = orbit.getXYZ(azTimeSec);
+            final Point vel = orbit.getXYZDot(azTimeSec);
+
+            sensorPosition.add(new PosVector(pos.getX(), pos.getY(), pos.getZ()));
+            sensorVelocity.add(new PosVector(vel.getX(), vel.getY(), vel.getZ()));
+            stateVectors[i] = new OrbitStateVector(
+                    utcTime, pos.getX(), pos.getY(), pos.getZ(), vel.getX(), vel.getY(), vel.getZ()
+            );
+        }
+        final OrbitStateVectors orbitStateVectors = new OrbitStateVectors(
+                stateVectors, firstLineTimeMjd, lineTimeIntervalInDays, height);
 
         final PosVector xyz = new PosVector();
         GeoUtils.geo2xyzWGS84(lat, lon, alt, xyz);
@@ -823,14 +1328,18 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
 
         final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
         updateProduct(product, newRoot);
-        addStateVectors(product);
         addBands(product);
         addGeoCoding(product);
         addMetadataCorners(product);
         addTiePointGrids(product);
         ReaderUtils.addMetadataIncidenceAngles(product);
         ReaderUtils.addMetadataProductSize(product);
-        fixAzimuthRangeOffsets(product);
+
+        SystemUtils.LOG.info("Fix range/azimuth offsets from RPC... ");
+        fixAzimuthRangeOffsets_onepoint(product);
+
+        SystemUtils.LOG.info("Reconstructing state vectors from RPC... ");
+        addRpcStateVectors(product);
 
         return product;
     }

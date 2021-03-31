@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2020 Skywatch. https://www.skywatch.com
- *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -15,6 +13,9 @@
  */
 package org.esa.s1tbx.io.gaofen3;
 
+/**
+ * @author Jakob Grahn
+ */
 public class Gaofen3ProductConstants {
 
     public static final String[] PRODUCT_PREFIX = new String[] {"GF3_"};
