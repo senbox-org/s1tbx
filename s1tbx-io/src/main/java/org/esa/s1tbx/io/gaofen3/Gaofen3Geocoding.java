@@ -1,3 +1,16 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.io.gaofen3;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
@@ -7,21 +20,17 @@ import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.PowellOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.math.FXYSum;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * A geo-coding based on equations. The geo-coordinates (lat, lon) and the pixel coordinates (x,y) are
- * computed by the given {@link FXYSum functions}.
- *
- * @author Marco Peters
+ * @author Jakob Grahn
  */
 public class Gaofen3Geocoding extends AbstractGeoCoding {
 
