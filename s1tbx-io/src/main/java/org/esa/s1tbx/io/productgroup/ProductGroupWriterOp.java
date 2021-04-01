@@ -145,7 +145,11 @@ public class ProductGroupWriterOp extends Operator {
                     sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
             for(Band band : sourceProduct.getBands()) {
-                ProductUtils.copyBand(band.getName(), sourceProduct, band.getName(), targetProduct, false);
+                if (band instanceof VirtualBand) {
+                    ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) band, band.getName());
+                } else {
+                    ProductUtils.copyBand(band.getName(), sourceProduct, band.getName(), targetProduct, false);
+                }
             }
 
             // todo this is not good
