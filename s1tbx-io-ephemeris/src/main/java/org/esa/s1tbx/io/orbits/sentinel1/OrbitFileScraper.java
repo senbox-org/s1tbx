@@ -18,9 +18,6 @@ package org.esa.s1tbx.io.orbits.sentinel1;
 
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.ThreadExecutor;
-import org.esa.snap.core.util.ThreadRunnable;
 import org.esa.snap.engine_utilities.download.DownloadableContentImpl;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,7 +27,6 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -168,49 +164,6 @@ abstract class OrbitFileScraper {
 
             final List<RemoteOrbitFile> remoteOrbitFiles = getFileURLs(remotePath);
 
-            return remoteOrbitFiles.toArray(new RemoteOrbitFile[0]);
-        }
-    }
-
-    public static class ESA_S1 extends OrbitFileScraper {
-        private static final String esaS1OrbitsUrl = "http://aux.sentinel1.eo.esa.int/";
-
-        public ESA_S1(final String orbitType) {
-            super(orbitType);
-            this.baseURL = esaS1OrbitsUrl;
-        }
-
-        @Override
-        RemoteOrbitFile[] getFileURLs(final String mission, final int year, final int month) {
-            final String monthStr = StringUtils.padNum(month, 2, '0');
-            final List<RemoteOrbitFile> allRemoteOrbitFiles = Collections.synchronizedList(new ArrayList<>());
-
-            try {
-                final ThreadExecutor executor = new ThreadExecutor();
-                for (int day = 1; day <= 31; day++) {
-                    final String dayStr = StringUtils.padNum(day, 2, '0');
-
-                    final ThreadRunnable runnable = new ThreadRunnable() {
-                        @Override
-                        public void process() {
-                            String remotePath = baseURL + orbitType + '/' + year + '/' + monthStr + '/' + dayStr + '/';
-
-                            allRemoteOrbitFiles.addAll(getFileURLs(remotePath));
-                        }
-                    };
-                    executor.execute(runnable);
-                }
-                executor.complete();
-            } catch (Exception e) {
-                SystemUtils.LOG.warning("Unable to get orbit files " + e.getMessage());
-            }
-
-            final List<RemoteOrbitFile> remoteOrbitFiles = new ArrayList<>();
-            for(RemoteOrbitFile remoteOrbitFile : allRemoteOrbitFiles) {
-                if(remoteOrbitFile.fileName.startsWith(mission)) {
-                    remoteOrbitFiles.add(remoteOrbitFile);
-                }
-            }
             return remoteOrbitFiles.toArray(new RemoteOrbitFile[0]);
         }
     }
