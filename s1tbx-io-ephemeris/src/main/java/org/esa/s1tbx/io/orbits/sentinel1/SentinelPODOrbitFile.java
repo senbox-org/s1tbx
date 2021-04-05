@@ -95,14 +95,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                 // try next
             }
         }
-        if (orbitFile == null) {
-            try {
-                final OrbitFileScraper scraper = new OrbitFileScraper.ESA_S1(orbitType);
-                orbitFile = scraper.download(localFolder, missionPrefix, orbitType, year, month, day, stateVectorTime);
-            } catch(Exception e) {
-                // try next
-            }
-        }
 
         if (orbitFile == null) {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
