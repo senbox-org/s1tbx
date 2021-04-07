@@ -219,13 +219,16 @@ public final class FaradayRotationCorrectionOp extends Operator implements QuadP
                         final int tgtIdx = tgtIndex.getIndex(x);
                         final int srcIdx = srcIndex.getIndex(x);
 
-                        getMeanScatterMatrix(x, y, halfWindowSize, halfWindowSize, sourceProductType, sourceTiles,
-                                dataBuffers, mSr, mSi);
+//                        getMeanScatterMatrix(x, y, halfWindowSize, halfWindowSize, sourceProductType, sourceTiles,
+//                                dataBuffers, mSr, mSi);
+//
+//                        final double omega = estimateFaradayRotationAngle(mSr, mSi);
 
-                        final double omega = estimateFaradayRotationAngle(mSr, mSi);
+                        // Lee's method
+                        final double omega = getMeanFaradayRotationAngle(x, y, sourceTiles, dataBuffers);
 
                         if (outputEstimatedFRA) {
-                            estFRABuffer.setElemFloatAt(tgtIdx, (float) (omega* Constants.RTOD));
+                            estFRABuffer.setElemFloatAt(tgtIdx, (float) (omega * Constants.RTOD));
                         }
 
                         getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
@@ -303,6 +306,46 @@ public final class FaradayRotationCorrectionOp extends Operator implements QuadP
 //
 //        Zr[1][1] = mSr[1][1] - mSr[0][0] - mSi[0][1] - mSi[1][0];
 //        Zi[1][1] = mSi[1][1] - mSi[0][0] + mSr[0][1] + mSr[1][0];
+    }
+
+    private double getMeanFaradayRotationAngle(final int x, final int y, final Tile[] sourceTiles,
+                                               final ProductData[] dataBuffers) {
+
+        final int xSt = Math.max(x - halfWindowSize, sourceTiles[0].getMinX());
+        final int xEd = Math.min(x + halfWindowSize, sourceTiles[0].getMaxX());
+        final int ySt = Math.max(y - halfWindowSize, sourceTiles[0].getMinY());
+        final int yEd = Math.min(y + halfWindowSize, sourceTiles[0].getMaxY());
+        final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
+
+        final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+        final double[][] tempSr = new double[2][2];
+        final double[][] tempSi = new double[2][2];
+
+        double zr = 0.0, zi = 0.0;
+        for (int yy = ySt; yy <= yEd; ++yy) {
+            srcIndex.calculateStride(yy);
+            for (int xx = xSt; xx <= xEd; ++xx) {
+                getComplexScatterMatrix(srcIndex.getIndex(xx), dataBuffers, tempSr, tempSi);
+                final double[] zz = computeZrlZlr(tempSr, tempSi);
+                zr += zz[0];
+                zi += zz[1];
+            }
+        }
+        zr /= num;
+        zi /= num;
+
+        return -0.25*Math.atan2(zi, zr);
+    }
+
+    private double[] computeZrlZlr(final double[][] mSr, final double[][] mSi) {
+
+        final double Zr01 = mSr[0][1] - mSr[1][0] - mSi[0][0] - mSi[1][1];
+        final double Zi01 = mSi[0][1] - mSi[1][0] + mSr[0][0] + mSr[1][1];
+
+        final double Zr10 = mSr[1][0] - mSr[0][1] - mSi[0][0] - mSi[1][1];
+        final double Zi10 = mSi[1][0] - mSi[0][1] + mSr[0][0] + mSr[1][1];
+
+        return new double[]{Zr01 * Zr10 + Zi01 * Zi10, Zi01 * Zr10 - Zr01 * Zi10};
     }
 
     private void performFRCorrection(final double omega, final double[][] Sr, final double[][] Si,
