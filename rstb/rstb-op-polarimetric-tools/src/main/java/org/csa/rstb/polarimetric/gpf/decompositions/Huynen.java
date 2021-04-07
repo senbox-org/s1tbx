@@ -154,9 +154,9 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
 
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
-            if (outputHuynenParamSet0 && !bandList.spanMinMaxSet) {
-                setSpanMinMax(op, bandList);
-            }
+//            if (outputHuynenParamSet0 && !bandList.spanMinMaxSet) {
+//                setSpanMinMax(op, bandList);
+//            }
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
@@ -193,13 +193,16 @@ public class Huynen extends DecompositionBase implements Decomposition, QuadPolP
                         if (outputHuynenParamSet0) {
                             if (targetBandName.equals(TWO_A0))
                                 dataBuffer.setElemFloatAt(idx,
-                                        (float) scaleDb(data.two_A0, bandList.spanMin, bandList.spanMax));
+                                        (float) (10.0 * Math.log10(data.two_A0)));
+//                                        (float) scaleDb(data.two_A0, bandList.spanMin, bandList.spanMax));
                             else if (targetBandName.equals(B0_PLUS_B))
                                 dataBuffer.setElemFloatAt(idx,
-                                        (float) scaleDb(data.B0_plus_B, bandList.spanMin, bandList.spanMax));
+                                        (float) (10.0 * Math.log10(data.B0_plus_B)));
+//                                        (float) scaleDb(data.B0_plus_B, bandList.spanMin, bandList.spanMax));
                             else if (targetBandName.equals(B0_MINUS_B))
                                 dataBuffer.setElemFloatAt(idx,
-                                        (float) scaleDb(data.B0_minus_B, bandList.spanMin, bandList.spanMax));
+                                        (float) (10.0 * Math.log10(data.B0_minus_B)));
+//                                        (float) scaleDb(data.B0_minus_B, bandList.spanMin, bandList.spanMax));
                         }
 
                         if (outputHuynenParamSet1) {
