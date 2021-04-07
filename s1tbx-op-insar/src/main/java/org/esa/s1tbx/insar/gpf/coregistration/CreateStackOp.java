@@ -195,7 +195,7 @@ public class CreateStackOp extends Operator {
             switch (extent) {
                 case MASTER_EXTENT:
 
-                    targetProduct = new Product(masterProduct.getName() + PRODUCT_SUFFIX,
+                    targetProduct = new Product(OperatorUtils.createProductName(masterProduct.getName(), PRODUCT_SUFFIX),
                                                 masterProduct.getProductType(),
                                                 masterProduct.getSceneRasterWidth(),
                                                 masterProduct.getSceneRasterHeight());
