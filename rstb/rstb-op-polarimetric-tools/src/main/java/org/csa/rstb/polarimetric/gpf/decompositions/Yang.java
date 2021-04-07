@@ -153,9 +153,9 @@ public class Yang extends DecompositionBase implements Decomposition, QuadPolPro
 
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
-            if (outputHuynenParamSet0 && !bandList.spanMinMaxSet) {
-                setSpanMinMax(op, bandList);
-            }
+//            if (outputHuynenParamSet0 && !bandList.spanMinMaxSet) {
+//                setSpanMinMax(op, bandList);
+//            }
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
@@ -399,13 +399,16 @@ public class Yang extends DecompositionBase implements Decomposition, QuadPolPro
             if (outputHuynenParamSet0) {
                 if (targetBandName.equals(TWO_A0))
                     dataBuffer.setElemFloatAt(idx,
-                            (float) scaleDb(2.0 * hp.A0, bandList.spanMin, bandList.spanMax));
+                            (float) (10.0 * Math.log10(2.0 * hp.A0)));
+//                            (float) scaleDb(2.0 * hp.A0, bandList.spanMin, bandList.spanMax));
                 else if (targetBandName.equals(B0_PLUS_B))
                     dataBuffer.setElemFloatAt(idx,
-                            (float) scaleDb(hp.B0 + hp.B, bandList.spanMin, bandList.spanMax));
+                            (float) (10.0 * Math.log10(hp.B0 + hp.B)));
+//                            (float) scaleDb(hp.B0 + hp.B, bandList.spanMin, bandList.spanMax));
                 else if (targetBandName.equals(B0_MINUS_B))
                     dataBuffer.setElemFloatAt(idx,
-                            (float) scaleDb(hp.B0 - hp.B, bandList.spanMin, bandList.spanMax));
+                            (float) (10.0 * Math.log10(hp.B0 - hp.B)));
+//                            (float) scaleDb(hp.B0 - hp.B, bandList.spanMin, bandList.spanMax));
             }
 
             if (outputHuynenParamSet1) {
