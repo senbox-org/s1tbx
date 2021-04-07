@@ -85,7 +85,7 @@ public abstract class SARReader extends AbstractProductReader {
         }
     }
 
-    public static void createVirtualIntensityBand(final Product product, final Band band, final String countStr) {
+    public static Band createVirtualIntensityBand(final Product product, final Band band, final String countStr) {
         final String bandName = band.getName();
         final double nodatavalue = band.getNoDataValue();
         final String expression = bandName +" == " + nodatavalue +" ? " + nodatavalue +" : " + bandName + " * " + bandName;
@@ -105,6 +105,7 @@ public abstract class SARReader extends AbstractProductReader {
         }
 
         product.addBand(virtBand);
+        return virtBand;
     }
 
     public static String findPolarizationInBandName(final String bandName) {
