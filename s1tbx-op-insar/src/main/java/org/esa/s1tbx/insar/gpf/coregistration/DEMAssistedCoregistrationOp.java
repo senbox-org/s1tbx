@@ -246,7 +246,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(
-                masterProduct.getName() + PRODUCT_SUFFIX,
+                OperatorUtils.createProductName(masterProduct.getName(), PRODUCT_SUFFIX),
                 masterProduct.getProductType(),
                 masterProduct.getSceneRasterWidth(),
                 masterProduct.getSceneRasterHeight());
