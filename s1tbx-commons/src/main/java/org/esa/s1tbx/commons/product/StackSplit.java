@@ -87,7 +87,10 @@ public class StackSplit {
         } else {
             // coregistered stack
 
-            final String referenceProductName = absRoot.getAttributeString(AbstractMetadata.PRODUCT, srcProduct.getName());
+            String referenceProductName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+            if(referenceProductName == null || referenceProductName.equals(AbstractMetadata.NO_METADATA_STRING)) {
+                referenceProductName = srcProduct.getName();
+            }
             referenceSplitProduct = createSubset(srcProduct, referenceProductName, getBandNames(srcProduct, referenceBandNames));
 
             final String[] secondaryProductNames = StackUtils.getSlaveProductNames(sourceProduct);
