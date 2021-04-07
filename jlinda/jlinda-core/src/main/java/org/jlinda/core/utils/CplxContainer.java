@@ -28,7 +28,22 @@ public class CplxContainer {
         this.realBand = realBand;
         this.imagBand = imagBand;
         this.polarisation = OperatorUtils.getPolarizationFromBandName(realBand.getName());
-        this.subswath = OperatorUtils.getSubswathFromBandName(realBand.getName());
+        this.subswath = getSubswathFromBandName(realBand.getName());
         this.name = realBand.getName();
+    }
+
+    private static String getSubswathFromBandName(final String bandName) {
+
+        String ss = "";
+        final String bandNameU = bandName.toUpperCase();
+        if (bandNameU.contains("_IW")) {
+            int idx = bandNameU.indexOf("_IW")+1;
+            return bandNameU.substring(idx, idx + 3);
+        } else if (bandNameU.contains("_EW")) {
+            int idx = bandNameU.indexOf("_EW")+1;
+            return bandNameU.substring(idx, idx + 3);
+        }
+
+        return "";
     }
 }
