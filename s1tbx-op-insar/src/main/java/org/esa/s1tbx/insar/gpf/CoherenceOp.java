@@ -382,7 +382,7 @@ public class CoherenceOp extends Operator {
         }
     }
 
-    private void createTargetProduct() {
+    private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(),
