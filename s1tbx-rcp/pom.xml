@@ -82,6 +82,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-smart-configurator</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.esa.snap.netbeans</groupId>
             <artifactId>doc-windows</artifactId>
             <version>${doc-windows.version}</version>
