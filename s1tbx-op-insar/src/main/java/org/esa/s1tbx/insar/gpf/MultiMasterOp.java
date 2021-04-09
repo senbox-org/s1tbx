@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -62,15 +77,11 @@ public class MultiMasterOp extends Operator{
             validator.checkIfCoregisteredStack();
             //splitSingleMasterProduct();
 
-
-
         } catch (Throwable t) {
             throw new OperatorException(t);
         }
-
-
-
     }
+
     @Override
     public void doExecute(ProgressMonitor pm) throws OperatorException {
         try {
@@ -79,6 +90,7 @@ public class MultiMasterOp extends Operator{
             e.printStackTrace();
         }
     }
+
     private void splitSingleMasterProduct(final ProgressMonitor pm) throws Exception {
         pm.beginTask("Splitting stack into multiple products", 100);
         pm.worked(1);
@@ -86,9 +98,9 @@ public class MultiMasterOp extends Operator{
         final Product singleMaster_MultiSlave = sourceProduct; //ProductIO.readProduct(filepath);
         MetadataElement rootMetadata = singleMaster_MultiSlave.getMetadataRoot();
         Band[] bands = singleMaster_MultiSlave.getBands();
-        MetadataElement slaves = rootMetadata.getElement("Slave_Metadata");
+        MetadataElement slaves = rootMetadata.getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
         MetadataElement [] slaveAbstractedMetadata = slaves.getElements();
-        MetadataElement masterAbstractedMetadata = rootMetadata.getElement("Abstracted_Metadata");
+        MetadataElement masterAbstractedMetadata = rootMetadata.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
         //MetadataElement masterOrbitData = masterAbstractedMetadata.getElement("Orbit_State_Vectors");
         HashMap<Integer, ArrayList<Band>> date_bandpairs = new HashMap<Integer, ArrayList<Band>>();
@@ -149,7 +161,7 @@ public class MultiMasterOp extends Operator{
             }
 
             absMetadata.setAttributeInt(AbstractMetadata.coregistered_stack, 1);
-            MetadataElement slave_data = new MetadataElement("Slave_Metadata");
+            MetadataElement slave_data = new MetadataElement(AbstractMetadata.SLAVE_METADATA_ROOT);
 
             slave_data.addElement(date_metadatapairs.get(dateMst));
             slave_data.addElement(date_metadatapairs.get(dateSlv));
