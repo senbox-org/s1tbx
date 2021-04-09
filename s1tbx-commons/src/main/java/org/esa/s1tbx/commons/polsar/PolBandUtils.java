@@ -326,7 +326,7 @@ public class PolBandUtils {
         return sourceBands;
     }
 
-    public static void saveNewBandNames(final Product targetProduct, final PolSourceBand[] srcBandList) {
+    public static void saveNewBandNames(final Product targetProduct, final PolSourceBand[] srcBandList) throws Exception {
         if (StackUtils.isCoregisteredStack(targetProduct)) {
             boolean masterProduct = true;
             for (final PolSourceBand bandList : srcBandList) {

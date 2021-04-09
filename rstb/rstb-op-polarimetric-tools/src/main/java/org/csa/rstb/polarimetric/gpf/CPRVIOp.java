@@ -149,7 +149,7 @@ public final class CPRVIOp extends Operator implements CompactPolProcessor {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absRoot != null) {

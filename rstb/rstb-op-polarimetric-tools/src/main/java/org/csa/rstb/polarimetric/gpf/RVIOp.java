@@ -145,7 +145,7 @@ public final class RVIOp extends Operator implements DualPolProcessor {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absRoot != null) {

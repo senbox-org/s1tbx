@@ -463,7 +463,7 @@ public class InterferogramOp extends Operator {
         }
     }
 
-    private void createTargetProduct() {
+    private void createTargetProduct() throws Exception {
 
         // construct target product
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
