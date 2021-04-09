@@ -17,11 +17,8 @@ package org.csa.rstb.polarimetric.gpf;
 
 import org.apache.commons.math3.util.FastMath;
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.polarimetric.gpf.decompositions.Decomposition;
-import org.csa.rstb.polarimetric.gpf.decompositions.DecompositionBase;
 import org.csa.rstb.polarimetric.gpf.support.CompactPolProcessor;
 import org.csa.rstb.polarimetric.gpf.support.StokesParameters;
-import org.csa.rstb.polarimetric.gpf.support.MatrixMath;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -62,7 +59,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Compactpol-Radar-Vegetation-Index",
-        category = "Radar/Polarimetric",
+        category = "Radar/Polarimetric/Radar Vegetation Index",
         authors = "Dipankar Mandal et al.",
         version = "1.0",
         copyright = "Copyright (C) 2020 by Microwave Remote Sensing Lab, IITBombay",
