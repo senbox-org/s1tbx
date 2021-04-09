@@ -22,9 +22,11 @@ import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
@@ -72,7 +74,7 @@ public class ProductGroupReader extends AbstractProductReader {
                         refProduct.getSceneRasterWidth(), refProduct.getSceneRasterHeight());
                 ProductUtils.copyProductNodes(refProduct, product);
 
-                addSecondaryProducts(product, assetProducts);
+                addSecondaryProducts(product, refProduct, assetProducts);
 
                 return product;
             }
@@ -90,7 +92,17 @@ public class ProductGroupReader extends AbstractProductReader {
         }
     }
 
-    private void addSecondaryProducts(final Product product, final List<Product> assetProducts) throws IOException {
+    private void addSecondaryProducts(final Product product, final Product refProduct,
+                                      final List<Product> assetProducts) throws IOException {
+        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement slaveMetadataRoot;
+        if(root.containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)) {
+            slaveMetadataRoot = root.getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+        } else {
+            slaveMetadataRoot = new MetadataElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+            root.addElement(slaveMetadataRoot);
+        }
+
         for (Product assetProduct : assetProducts) {
             if (!product.isCompatibleProduct(assetProduct, 0)) {
                 throw new IOException("ProductGroup asset " + assetProduct.getName() + " is incompatible");
@@ -98,6 +110,12 @@ public class ProductGroupReader extends AbstractProductReader {
 
             for (Band band : assetProduct.getBands()) {
                 ProductUtils.copyBand(band.getName(), assetProduct, band.getName(), product, true);
+            }
+
+            if(assetProduct != refProduct) {
+                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(assetProduct).createDeepClone();
+                absRoot.setName(assetProduct.getName());
+                slaveMetadataRoot.addElement(absRoot);
             }
         }
     }

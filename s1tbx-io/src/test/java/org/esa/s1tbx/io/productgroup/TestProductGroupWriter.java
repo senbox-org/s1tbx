@@ -195,10 +195,10 @@ public class TestProductGroupWriter extends ProcessorTest {
         slv1Meta.setAttributeString(AbstractMetadata.PRODUCT, secondaryProductName);
 
         MetadataElement slaveMetadata;
-        if(root.containsElement("Slave_Metadata")) {
-            slaveMetadata = root.getElement("Slave_Metadata");
+        if(root.containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)) {
+            slaveMetadata = root.getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
         } else {
-            slaveMetadata = new MetadataElement("Slave_Metadata");
+            slaveMetadata = new MetadataElement(AbstractMetadata.SLAVE_METADATA_ROOT);
             root.addElement(slaveMetadata);
         }
         slaveMetadata.addElement(slv1Meta);

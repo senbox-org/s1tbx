@@ -27,6 +27,7 @@ import org.esa.snap.core.jexp.Parser;
 import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.jexp.WritableNamespace;
 import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.metadata.MetadataInspector;
 import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -73,14 +74,15 @@ public class StackSplit {
                 }
 
                 SplitProduct secondarySplitProduct = createSubset(sourceProduct, "product_" + virtualBand.getName(),
-                        secondaryProductNames.toArray(new String[0]));
+                        secondaryProductNames.toArray(new String[0]), null);
                 secondarySplitProductList.add(secondarySplitProduct);
             }
 
             for(Band band : sourceProduct.getBands()) {
                 if(!bandNamesUsed.contains(band.getName())) {
                     final String[] secondaryProductNames = new String[]{band.getName()};
-                    SplitProduct secondarySplitProduct = createSubset(sourceProduct, "product_" + band.getName(), secondaryProductNames);
+                    SplitProduct secondarySplitProduct = createSubset(sourceProduct,
+                            "product_" + band.getName(), secondaryProductNames, null);
                     secondarySplitProductList.add(secondarySplitProduct);
                 }
             }
@@ -91,12 +93,16 @@ public class StackSplit {
             if(referenceProductName == null || referenceProductName.equals(AbstractMetadata.NO_METADATA_STRING)) {
                 referenceProductName = srcProduct.getName();
             }
-            referenceSplitProduct = createSubset(srcProduct, referenceProductName, getBandNames(srcProduct, referenceBandNames));
+
+            referenceSplitProduct = createSubset(srcProduct, referenceProductName,
+                    getBandNames(srcProduct, referenceBandNames), absRoot);
 
             final String[] secondaryProductNames = StackUtils.getSlaveProductNames(sourceProduct);
             for (String secondaryProductName : secondaryProductNames) {
                 final String[] secondaryBandNames = StackUtils.getSlaveBandNames(sourceProduct, secondaryProductName);
-                SplitProduct secondarySplitProduct = createSubset(srcProduct, secondaryProductName, getBandNames(srcProduct, secondaryBandNames));
+                final MetadataElement metadata = StackUtils.getSlaveMetadata(sourceProduct, secondaryProductName);
+                SplitProduct secondarySplitProduct = createSubset(srcProduct, secondaryProductName,
+                        getBandNames(srcProduct, secondaryBandNames), metadata);
                 secondarySplitProductList.add(secondarySplitProduct);
             }
         }
@@ -145,7 +151,8 @@ public class StackSplit {
         return bandNames.toArray(new String[0]);
     }
 
-    public SplitProduct createSubset(final Product srcProduct, final String productName, final String[] bandNames) throws IOException {
+    public SplitProduct createSubset(final Product srcProduct, final String productName, final String[] bandNames,
+                                     final MetadataElement metadata) throws IOException {
 
         final int width = srcProduct.getSceneRasterWidth();
         final int height = srcProduct.getSceneRasterHeight();
@@ -158,6 +165,15 @@ public class StackSplit {
         subsetDef.setIgnoreMetadata(true);
 
         final SplitProduct splitProduct = new SplitProduct(srcProduct, productName, bandNames, subsetDef);
+
+        if(metadata != null) {
+            final MetadataElement root = splitProduct.subsetProduct.getMetadataRoot();
+            if(root.containsElement(AbstractMetadata.ABSTRACT_METADATA_ROOT)) {
+                root.removeElement(root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT));
+            }
+            metadata.setName(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+            root.addElement(metadata);
+        }
 
         if(keepStackBandNames) {
             for (Band trgBand : splitProduct.subsetProduct.getBands()) {
@@ -197,7 +213,7 @@ public class StackSplit {
             this.srcBandNames = srcBandNames;
             this.subsetDef = subsetDef;
 
-            ProductSubsetBuilder subsetBuilder = new ProductSubsetBuilder();
+            final ProductSubsetBuilder subsetBuilder = new ProductSubsetBuilder();
             this.subsetProduct = subsetBuilder.readProductNodes(srcProduct, subsetDef);
         }
     }
