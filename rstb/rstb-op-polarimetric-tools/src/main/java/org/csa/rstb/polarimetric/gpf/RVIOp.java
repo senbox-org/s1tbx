@@ -59,7 +59,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Radar-Vegetation-Index",
-        category = "Radar/Polarimetric",
+        category = "Radar/Polarimetric/Radar Vegetation Index",
         authors = "Dipankar Mandal et al.",
         version = "1.0",
         copyright = "Copyright (C) 2020 by Microwave Remote Sensing Lab, IITBombay",
@@ -145,7 +145,7 @@ public final class RVIOp extends Operator implements DualPolProcessor {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absRoot != null) {

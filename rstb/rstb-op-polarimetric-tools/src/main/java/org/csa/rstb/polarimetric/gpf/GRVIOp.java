@@ -17,10 +17,7 @@ package org.csa.rstb.polarimetric.gpf;
 
 import org.apache.commons.math3.util.FastMath;
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.polarimetric.gpf.decompositions.Decomposition;
-import org.csa.rstb.polarimetric.gpf.decompositions.DecompositionBase;
 import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
-import org.csa.rstb.polarimetric.gpf.support.MatrixMath;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -41,8 +38,6 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,7 +60,7 @@ import java.util.Collections;
  */
 
 @OperatorMetadata(alias = "Generalized-Radar-Vegetation-Index",
-        category = "Radar/Polarimetric",
+        category = "Radar/Polarimetric/Radar Vegetation Index",
         authors = "Dipankar Mandal at al.",
         version = "1.0",
         copyright = "Copyright (C) 2020 by Microwave Remote Sensing Lab, IITBombay",
@@ -151,7 +146,7 @@ public final class GRVIOp extends Operator implements QuadPolProcessor {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absRoot != null) {

@@ -243,7 +243,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     /**
      * Create target product.
      */
-    private void createTargetProduct() {
+    private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(
                 OperatorUtils.createProductName(masterProduct.getName(), PRODUCT_SUFFIX),
@@ -354,7 +354,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         if(maskOutAreaWithoutElevation) {
             Band slvBand = null;
             for(Band tgtBand : targetProduct.getBands()) {
-                if(StackUtils.isSlaveBand(tgtBand, targetProduct)) {
+                if(StackUtils.isSlaveBand(tgtBand.getName(), targetProduct)) {
                     slvBand = tgtBand;
                     break;
                 }
@@ -362,7 +362,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             if(slvBand != null) {
                 for (Band tgtBand : targetProduct.getBands()) {
-                    if (StackUtils.isMasterBand(tgtBand, targetProduct)) {
+                    if (StackUtils.isMasterBand(tgtBand.getName(), targetProduct)) {
                         tgtBand.setValidPixelExpression(slvBand.getName());
                     }
                 }
