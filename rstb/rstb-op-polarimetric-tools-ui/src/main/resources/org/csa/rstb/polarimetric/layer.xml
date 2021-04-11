@@ -168,6 +168,21 @@
                         <attr name="position" intvalue="400"/>
                     </file>
 				</folder>
+                <folder name="Radar Vegetation Index">
+                    <attr name="position" intvalue="95"/>
+                    <file name="org-csa-rstb-polarimetric-gpf-RVIOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-RVIOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-csa-rstb-polarimetric-gpf-CPRVIOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-CPRVIOp-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-csa-rstb-polarimetric-gpf-GRVIOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-GRVIOp-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                </folder>
                 <file name="org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>
@@ -195,18 +210,6 @@
                 <file name="org-csa-rstb-polarimetric-gpf-FaradayRotationCorrectionOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-FaradayRotationCorrectionOp-Action.instance"/>
                     <attr name="position" intvalue="440"/>
-                </file>
-				<file name="org-csa-rstb-polarimetric-gpf-RVIOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-RVIOp-Action.instance"/>
-                    <attr name="position" intvalue="450"/>
-                </file>
-				<file name="org-csa-rstb-polarimetric-gpf-CPRVIOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-CPRVIOp-Action.instance"/>
-                    <attr name="position" intvalue="460"/>
-                </file>
-				<file name="org-csa-rstb-polarimetric-gpf-GRVIOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-GRVIOp-Action.instance"/>
-                    <attr name="position" intvalue="470"/>
                 </file>
             </folder>
         </folder>
