@@ -37,6 +37,7 @@ import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -82,9 +83,9 @@ public class CrossCorrelationOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The number of GCPs to use in a grid", interval = "(10, *)", defaultValue = "200",
+    @Parameter(description = "The number of GCPs to use in a grid", interval = "(10, *)", defaultValue = "2000",
             label = "Number of GCPs")
-    private int numGCPtoGenerate = 200;
+    private int numGCPtoGenerate = 2000;
 
     @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "128", label = "Coarse Registration Window Width")
     private String coarseRegistrationWindowWidth = "128";
@@ -102,10 +103,10 @@ public class CrossCorrelationOp extends Operator {
     private double gcpTolerance = 0.5;
 
     // ==================== input parameters used for complex co-registration ==================
-    @Parameter(defaultValue = "true", label = "Apply Fine Registration")
-    private boolean applyFineRegistration = true;
-    @Parameter(defaultValue = "true", label = "Optimize for InSAR")
-    private boolean inSAROptimized = true;
+    @Parameter(defaultValue = "false", label = "Apply Fine Registration")
+    private boolean applyFineRegistration = false;
+    @Parameter(defaultValue = "false", label = "Optimize for InSAR")
+    private boolean inSAROptimized = false;
 
     @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32", label = "Fine Registration Window Width")
     private String fineRegistrationWindowWidth = "32";
@@ -168,6 +169,7 @@ public class CrossCorrelationOp extends Operator {
     private final Map<Band, Boolean> gcpsComputedMap = new HashMap<>(10);
     private Band primarySlaveBand = null;    // the slave band to process
     private boolean collocatedStack = false;
+    private boolean isComplex;
 
     private ElevationModel dem = null;
     private CorrelationWindow fineWin;
@@ -195,6 +197,14 @@ public class CrossCorrelationOp extends Operator {
     public void initialize() throws OperatorException {
         try {
             getCollocatedStackFlag();
+
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            isComplex = validator.isComplex();
+
+            if (isComplex) {
+                applyFineRegistration = true;
+                inSAROptimized = true;
+            }
 
             cWindowWidth = Integer.parseInt(coarseRegistrationWindowWidth);
             cWindowHeight = Integer.parseInt(coarseRegistrationWindowHeight);
