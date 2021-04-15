@@ -171,6 +171,7 @@ public class ProductGroupWriterOp extends Operator {
             }
 
             this.metadataFile = writeProductGroupMetadataFile(assetList);
+            targetProduct.setFileLocation(metadataFile);
 
         } catch (Throwable t) {
             throw new OperatorException(t);

@@ -76,6 +76,8 @@ public class ProductGroupReader extends AbstractProductReader {
 
                 addSecondaryProducts(product, refProduct, assetProducts);
 
+                product.setFileLocation(inputFile);
+
                 return product;
             }
             throw new IOException("No ProductGroup assets found");

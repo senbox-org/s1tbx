@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * The product writer for ENVI products.
+ * The product writer for product groups.
  */
 public class ProductGroupWriter extends AbstractProductWriter {
 
