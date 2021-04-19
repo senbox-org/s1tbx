@@ -128,7 +128,7 @@ public class WarpOp extends Operator {
     private InterpolationTable interpTable;
 
     @Parameter(description = "Show the Residuals file in a text viewer", defaultValue = "false", label = "Show Residuals")
-    private Boolean openResidualsFile;
+    private Boolean openResidualsFile = false;
 
     private Band masterBand;
     private boolean complexCoregistration;
@@ -564,7 +564,7 @@ public class WarpOp extends Operator {
                 // find others for same slave product
                 final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
                 for (Band band : sourceProduct.getBands()) {
-                    if (band != srcBand) {
+                    if (band != srcBand && !StringUtils.contains(masterBandNames, band.getName())) {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if (slvProductName != null && slvProductName.equals(productName)) {
                             slaveGCPGroup = GCPManager.instance().getGcpGroup(band);

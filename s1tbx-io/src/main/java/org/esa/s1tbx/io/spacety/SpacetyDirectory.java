@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,22 +13,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.sentinel1;
+package org.esa.s1tbx.io.spacety;
 
 import org.esa.s1tbx.commons.io.ImageIOFile;
-import org.esa.s1tbx.commons.io.JSONProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.s1tbx.io.sentinel1.SafeManifest;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
@@ -41,44 +33,43 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.*;
+import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.NO_METADATA_STRING;
 
 /**
  * This class represents a product directory.
  */
-public class Sentinel1Level1Directory extends XMLProductDirectory implements Sentinel1Directory {
+public class SpacetyDirectory extends XMLProductDirectory {
 
     private final Map<Band, TiePointGeoCoding> bandGeocodingMap = new HashMap<>(5);
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
-    private final static Double NoDataValue = 0.0;//-9999.0;
+    private final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final static Double NoDataValue = 0.0;
 
-    public Sentinel1Level1Directory(final File inputFile) {
+    public SpacetyDirectory(final File inputFile) {
         super(inputFile);
     }
 
     protected String getHeaderFileName() {
-        return Sentinel1ProductReaderPlugIn.PRODUCT_HEADER_NAME;
+        return SpacetyProductReaderPlugIn.PRODUCT_HEADER_NAME;
     }
 
     protected String getRelativePathToImageFolder() {
         return getRootFolder() + "measurement" + '/';
     }
 
-    protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
+    protected void addImageFile(final String imgPath, final MetadataElement newRoot) {
         final String name = getBandFileNameFromImage(imgPath);
         if ((name.endsWith("tiff"))) {
             try {
@@ -87,8 +78,13 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 if(inStream.available() > 0) {
                     final ImageInputStream imgStream = createImageInputStream(inStream, bandDimensions, isSLC());
 
-                    final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
-                                1, 1, ProductData.TYPE_INT32, productInputFile);
+                    final ImageIOFile img = new ImageIOFile(name, imgStream,
+                            GeoTiffUtils.getTiffIIOReader(imgStream), productInputFile);
+                    if(img.getNumBands() == 2) {
+                        img.setDataType(ProductData.TYPE_INT16);
+                    } else {
+                        img.setDataType(ProductData.TYPE_INT32);
+                    }
                     bandImageFileMap.put(img.getName(), img);
                 }
             } catch (Exception e) {
@@ -111,28 +107,23 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     protected void addBands(final Product product) {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        int cnt = 1;
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
             final MetadataElement bandMetadata = absRoot.getElement(imgBandMetadataMap.get(imgName));
-            final String swath = bandMetadata.getAttributeString(AbstractMetadata.swath);
             final String pol = bandMetadata.getAttributeString(AbstractMetadata.polarization);
             final int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             final int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
             int numImages = img.getNumImages();
+            int numBands = img.getNumBands();
+            boolean isComplexSample = false;
+            System.out.println("numImage="+numImages + " numBands="+numBands);
 
             String tpgPrefix = "";
             String suffix = pol;
-            if (isSLC()) {
+            if (isSLC() && numBands == 1) {
                 numImages *= 2; // real + imaginary
-                if(isTOPSAR()) {
-                    suffix = swath + '_' + pol;
-                    tpgPrefix = swath;
-                } else if(acqMode.equals("WV")) {
-                    suffix = suffix + '_' + cnt;
-                    ++cnt;
-                }
+                isComplexSample = true;
             }
 
             String bandName;
@@ -143,7 +134,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 if (isSLC()) {
                     String unit;
 
-                    for (int b = 0; b < img.getNumBands(); ++b) {
+                    for (int b = 0; b < numBands; ++b) {
                         if (real) {
                             bandName = "i" + '_' + suffix;
                             unit = Unit.REAL;
@@ -159,6 +150,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
                         product.addBand(band);
                         final ImageIOFile.BandInfo bandInfo = new ImageIOFile.BandInfo(band, img, i, b);
+                        bandInfo.setComplexSample(isComplexSample);
                         bandMap.put(band, bandInfo);
                         AbstractMetadata.addBandToBandMap(bandMetadata, bandName);
 
@@ -211,29 +203,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
 
-        addProductInfoJSON(origProdRoot);
-
         // get metadata for each band
         addBandAbstractedMetadata(absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
-    }
-
-    private void addProductInfoJSON(final MetadataElement origProdRoot) {
-        if(productDir.exists("productInfo.json")) {
-            try {
-                final File productInfoFile = productDir.getFile("productInfo.json");
-                if(productInfoFile.length() > 0) {
-                    final BufferedReader streamReader = new BufferedReader(new FileReader(productInfoFile.getPath()));
-                    final JSONParser parser = new JSONParser();
-                    final JSONObject json = (JSONObject) parser.parse(streamReader);
-                    json.remove("filenameMap");
-                    AbstractMetadataIO.AddXMLMetadata(JSONProductDirectory.jsonToXML("ProductInfo", json), origProdRoot);
-                }
-            } catch(Exception e) {
-               //throw new IOException("Unable to read productInfo " + e.getMessage(), e);
-            }
-        }
     }
 
     private void determineProductDimensions(final MetadataElement absRoot) throws IOException {
@@ -304,6 +277,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 final MetadataElement prodElem = nameElem.getElement("product");
                 final MetadataElement adsHeader = prodElem.getElement("adsHeader");
 
+                acqMode = adsHeader.getAttributeString("mode");
                 final String swath = adsHeader.getAttributeString("swath");
                 final String pol = adsHeader.getAttributeString("polarisation");
 
@@ -315,6 +289,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 final String imgName = FileUtils.exchangeExtension(metadataFile, ".tiff");
                 imgBandMetadataMap.put(imgName, bandRootName);
 
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.ACQUISITION_MODE, swath);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile);
@@ -347,6 +322,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
                                               imageInformation.getAttributeString("pixelValue").toUpperCase());
 
+                final double incAngle = imageInformation.getAttributeDouble("incidenceAngleMidSwath");
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, incAngle);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, incAngle);
+
                 heightSum += getBandTerrainHeight(prodElem);
 
                 if (!commonMetadataRetrieved) {
@@ -357,9 +336,24 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
                     final MetadataElement processingInformation = imageAnnotation.getElement("processingInformation");
                     final MetadataElement swathProcParamsList = processingInformation.getElement("swathProcParamsList");
-                    final MetadataElement swathProcParams = swathProcParamsList.getElement("swathProcParams");
-                    final MetadataElement rangeProcessing = swathProcParams.getElement("rangeProcessing");
-                    final MetadataElement azimuthProcessing = swathProcParams.getElement("azimuthProcessing");
+                    if(swathProcParamsList != null) {
+                        final MetadataElement swathProcParams = swathProcParamsList.getElement("swathProcParams");
+                        final MetadataElement rangeProcessing = swathProcParams.getElement("rangeProcessing");
+                        final MetadataElement azimuthProcessing = swathProcParams.getElement("azimuthProcessing");
+
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth,
+                                rangeProcessing.getAttributeDouble("processingBandwidth") / Constants.oneMillion);
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth,
+                                azimuthProcessing.getAttributeDouble("processingBandwidth"));
+
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                                rangeProcessing.getAttributeDouble("numberOfLooks"));
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                                azimuthProcessing.getAttributeDouble("numberOfLooks"));
+                    } else if(isSLC()){
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1);
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 1);
+                    }
 
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
                                                   productInformation.getAttributeDouble("rangeSamplingRate") / Constants.oneMillion);
@@ -372,20 +366,17 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                                                   imageInformation.getAttributeDouble("slantRangeTime") * Constants.halfLightSpeed);
 
                     final MetadataElement downlinkInformationList = generalAnnotation.getElement("downlinkInformationList");
-                    final MetadataElement downlinkInformation = downlinkInformationList.getElement("downlinkInformation");
+                    if(downlinkInformationList != null) {
+                        final MetadataElement downlinkInformation = downlinkInformationList.getElement("downlinkInformation");
 
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                                                  downlinkInformation.getAttributeDouble("prf"));
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
+                                downlinkInformation.getAttributeDouble("prf"));
+                    } else if(generalAnnotation.containsElement("downlinkInformation")){
+                        final MetadataElement downlinkInformation = generalAnnotation.getElement("downlinkInformation");
 
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth,
-                                                  rangeProcessing.getAttributeDouble("processingBandwidth") / Constants.oneMillion);
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth,
-                                                  azimuthProcessing.getAttributeDouble("processingBandwidth"));
-
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                                                  rangeProcessing.getAttributeDouble("numberOfLooks"));
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                                                  azimuthProcessing.getAttributeDouble("numberOfLooks"));
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
+                                downlinkInformation.getAttributeDouble("prf"));
+                    }
 
                     if (!isTOPSAR() || !isSLC()) {
                         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
@@ -569,29 +560,59 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    private void addDopplerCentroidCoefficients(
-            final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
+    private void addDopplerCentroidCoefficients(final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
         if (dopplerCentroid == null) return;
-        final MetadataElement dcEstimateList = dopplerCentroid.getElement("dcEstimateList");
-        if (dcEstimateList == null) return;
-
-        final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
         int listCnt = 1;
-        for (MetadataElement elem : dcEstimateList.getElements()) {
+        final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
+
+        final MetadataElement dcEstimateList = dopplerCentroid.getElement("dcEstimateList");
+        if (dcEstimateList != null) {
+
+            for (MetadataElement elem : dcEstimateList.getElements()) {
+                final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
+                dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
+                ++listCnt;
+
+                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", sentinelDateFormat);
+                dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
+
+                final double refTime = elem.getAttributeDouble("t0", 0) * 1e9; // s to ns
+                AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
+                        ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+                AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
+
+                final String coeffStr = elem.getElement("geometryDcPolynomial").getAttributeString("geometryDcPolynomial", "");
+                if (!coeffStr.isEmpty()) {
+                    final StringTokenizer st = new StringTokenizer(coeffStr);
+                    int cnt = 1;
+                    while (st.hasMoreTokens()) {
+                        final double coefValue = Double.parseDouble(st.nextToken());
+
+                        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
+                        dopplerListElem.addElement(coefElem);
+                        ++cnt;
+                        AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
+                                ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                        AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
+                    }
+                }
+            }
+        } else if(dopplerCentroid.containsElement("dcEstimate")) {
+            final MetadataElement dcEstimate = dopplerCentroid.getElement("dcEstimate");
+
             final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
             dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
-            ++listCnt;
 
-            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", sentinelDateFormat);
+            final ProductData.UTC utcTime = ReaderUtils.getTime(dcEstimate, "dopplerParametersReferenceTime", sentinelDateFormat);
             dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
-            final double refTime = elem.getAttributeDouble("t0", 0) * 1e9; // s to ns
+            final double refTime = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel);
             AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
-                                                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
             AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
-            final String coeffStr = elem.getElement("geometryDcPolynomial").getAttributeString("geometryDcPolynomial", "");
+            final String coeffStr = dcEstimate.getAttributeString("dopplerCentroidCoefficients", "");
             if (!coeffStr.isEmpty()) {
                 final StringTokenizer st = new StringTokenizer(coeffStr);
                 int cnt = 1;
@@ -602,7 +623,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     dopplerListElem.addElement(coefElem);
                     ++cnt;
                     AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                                                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
                     AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
                 }
             }
@@ -748,6 +769,9 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         final MetadataElement[] geoGrid = geolocationGridPointList.getElements();
 
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final double incidenceAngle = absRoot.getAttributeDouble(AbstractMetadata.incidence_near, 0);
+
         //System.out.println("geoGrid.length = " + geoGrid.length);
 
         final double[] latList = new double[geoGrid.length];
@@ -764,7 +788,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         for (MetadataElement ggPoint : geoGrid) {
             latList[i] = ggPoint.getAttributeDouble("latitude", 0);
             lonList[i] = ggPoint.getAttributeDouble("longitude", 0);
-            incidenceAngleList[i] = ggPoint.getAttributeDouble("incidenceAngle", 0);
+            double incAngle = ggPoint.getAttributeDouble("incidenceAngle", 0);
+            incidenceAngleList[i] = incAngle == 0 ? incidenceAngle : incAngle;
             elevAngleList[i] = ggPoint.getAttributeDouble("elevationAngle", 0);
             rangeTimeList[i] = ggPoint.getAttributeDouble("slantRangeTime", 0) * Constants.oneBillion; // s to ns
 

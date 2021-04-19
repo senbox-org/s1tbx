@@ -80,8 +80,8 @@ public class ChangeDetectionOp extends Operator {
     private int sourceImageHeight;
     private String ratioBandName;
 
-    private static String RATIO_BAND_NAME = "ratio";
-    private static String LOG_RATIO_BAND_NAME = "log_ratio";
+    private static final String RATIO_BAND_NAME = "ratio";
+    private static final String LOG_RATIO_BAND_NAME = "log_ratio";
     private static final String MASK_NAME = "_change";
 
     @Override
@@ -103,7 +103,7 @@ public class ChangeDetectionOp extends Operator {
      *
      * @throws Exception The exception.
      */
-    private void createTargetProduct() throws Exception {
+    private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),
@@ -150,7 +150,7 @@ public class ChangeDetectionOp extends Operator {
                         break;
                 }
             }
-            sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
+            sourceBandNames = bandNameList.toArray(new String[0]);
         }
 
         if (sourceBandNames.length != 2) {
@@ -168,10 +168,7 @@ public class ChangeDetectionOp extends Operator {
             ratioBandName = LOG_RATIO_BAND_NAME;
         }
 
-        final Band targetRatioBand = new Band(ratioBandName,
-                ProductData.TYPE_FLOAT32,
-                sourceImageWidth,
-                sourceImageHeight);
+        final Band targetRatioBand = new Band(ratioBandName, ProductData.TYPE_FLOAT32, sourceImageWidth, sourceImageHeight);
 
         targetRatioBand.setNoDataValue(0);
         targetRatioBand.setNoDataValueUsed(true);
@@ -186,9 +183,9 @@ public class ChangeDetectionOp extends Operator {
         String expression = targetRatioBand.getName() + " > "+ maskUpperThreshold+" ? 1 : " + targetRatioBand.getName() + " < "+maskLowerThreshold+" ? -1 : 0";
 
         final Mask mask = new Mask(targetRatioBand.getName() + MASK_NAME,
-                                   targetRatioBand.getRasterWidth(),
-                                   targetRatioBand.getRasterHeight(),
-                                   Mask.BandMathsType.INSTANCE);
+                targetRatioBand.getRasterWidth(),
+                targetRatioBand.getRasterHeight(),
+                Mask.BandMathsType.INSTANCE);
 
         mask.setDescription("Change");
         mask.getImageConfig().setValue("color", Color.RED);
@@ -265,7 +262,6 @@ public class ChangeDetectionOp extends Operator {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
-
 
     /**
      * Operator SPI.
