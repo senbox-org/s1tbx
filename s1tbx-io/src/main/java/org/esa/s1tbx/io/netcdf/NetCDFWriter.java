@@ -16,7 +16,6 @@
 package org.esa.s1tbx.io.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.sun.tools.javac.util.List;
 import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.datamodel.Band;
@@ -43,8 +42,7 @@ import ucar.nc2.NetcdfFileWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class NetCDFWriter extends AbstractProductWriter {
@@ -116,24 +114,22 @@ public class NetCDFWriter extends AbstractProductWriter {
 
         netCDFWriteable = NetcdfFileWriter.createNew(outputFile.getAbsolutePath(), true);
 
-
         netCDFWriteable.addDimension(NetcdfConstants.LON_VAR_NAMES[0], product.getSceneRasterWidth());
         netCDFWriteable.addDimension(NetcdfConstants.LAT_VAR_NAMES[0], product.getSceneRasterHeight());
 
         final Group rootGroup = netCDFWriteable.getNetcdfFile().getRootGroup();
-        netCDFWriteable.addVariable(NetcdfConstants.LAT_VAR_NAMES[0], DataType.FLOAT,
-                                    List.from(new Dimension[]{rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0])}));
+        final List<Dimension> latLonList = new ArrayList<>();
+        latLonList.add(rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0]));
+        latLonList.add(rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0]));
+
+        netCDFWriteable.addVariable(NetcdfConstants.LAT_VAR_NAMES[0], DataType.FLOAT, latLonList.subList(0,0));
         netCDFWriteable.addVariableAttribute(NetcdfConstants.LAT_VAR_NAMES[0], "units", "degrees_north (+N/-S)");
-        netCDFWriteable.addVariable(NetcdfConstants.LON_VAR_NAMES[0], DataType.FLOAT,
-                List.from(new Dimension[]{rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])}));
+        netCDFWriteable.addVariable(NetcdfConstants.LON_VAR_NAMES[0], DataType.FLOAT, latLonList.subList(1,1));
         netCDFWriteable.addVariableAttribute(NetcdfConstants.LON_VAR_NAMES[0], "units", "degrees_east (+E/-W)");
 
         for (Band band : product.getBands()) {
             final String name = StringUtils.createValidName(band.getName(), new char[]{'_'}, '_');
-            netCDFWriteable.addVariable(name, DataType.DOUBLE,
-                    List.from(new Dimension[]{rootGroup.findDimension(NetcdfConstants.LAT_VAR_NAMES[0]),
-                            rootGroup.findDimension(NetcdfConstants.LON_VAR_NAMES[0])}
-            ));
+            netCDFWriteable.addVariable(name, DataType.DOUBLE, latLonList);
             if (band.getDescription() != null)
                 netCDFWriteable.addVariableAttribute(name, "description", band.getDescription());
             if (band.getUnit() != null)
@@ -144,8 +140,11 @@ public class NetCDFWriter extends AbstractProductWriter {
             final String name = tpg.getName();
             netCDFWriteable.addDimension(name + 'x', tpg.getGridWidth());
             netCDFWriteable.addDimension(name + 'y', tpg.getGridHeight());
-            netCDFWriteable.addVariable(name, DataType.FLOAT,
-                    List.from(new Dimension[]{rootGroup.findDimension(name + 'y'), rootGroup.findDimension(name + 'x')}));
+            final List<Dimension> nameXYList = new ArrayList<>();
+            nameXYList.add(rootGroup.findDimension(name + 'y'));
+            nameXYList.add(rootGroup.findDimension(name + 'x'));
+
+            netCDFWriteable.addVariable(name, DataType.FLOAT, nameXYList);
             if (tpg.getDescription() != null)
                 netCDFWriteable.addVariableAttribute(name, "description", tpg.getDescription());
             if (tpg.getUnit() != null)

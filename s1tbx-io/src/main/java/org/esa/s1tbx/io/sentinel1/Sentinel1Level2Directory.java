@@ -39,7 +39,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     }
 
     protected String getHeaderFileName() {
-        return Sentinel1Constants.PRODUCT_HEADER_NAME;
+        return Sentinel1ProductReaderPlugIn.PRODUCT_HEADER_NAME;
     }
 
     protected String getRelativePathToImageFolder() {
@@ -72,8 +72,9 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
-        Sentinel1Level1Directory.addManifestMetadata(getProductName(), absRoot, origProdRoot, true);
-        final String acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        final SafeManifest safeManifest = new SafeManifest();
+        safeManifest.addManifestMetadata(getProductName(), absRoot, origProdRoot, true);
+
         setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
 
         // get metadata for each band

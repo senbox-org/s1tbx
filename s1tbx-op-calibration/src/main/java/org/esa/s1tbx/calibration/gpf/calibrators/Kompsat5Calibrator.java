@@ -57,6 +57,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     private double gimOffset = 0.0;
     private Band gimBand = null;
     private TiePointGrid incidenceAngleTPG = null;
+    private boolean inputSigma0 = false;
 
     private static final String GIM_BAND_NAME = "GIM";
 
@@ -115,7 +116,10 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             }
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
-                throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                if (outputImageInComplex) {
+                    throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                }
+                inputSigma0 = true;
             }
 
             // HIGH RESOLUTION / STANDARD / WIDE SWATH
@@ -295,6 +299,118 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
+        Tile sourceRaster1 = null, sourceRaster2 = null;
+        ProductData srcData1 = null, srcData2 = null;
+        Band sourceBand1 = null, sourceBand2 = null;
+
+        final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
+        if (srcBandNames.length == 1) {
+            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
+            srcData1 = sourceRaster1.getDataBuffer();
+        } else {
+            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+            sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
+            sourceRaster2 = calibrationOp.getSourceTile(sourceBand2, targetTileRectangle);
+            srcData1 = sourceRaster1.getDataBuffer();
+            srcData2 = sourceRaster2.getDataBuffer();
+        }
+
+        Tile gimBandTile = null;
+        ProductData gimBandData = null;
+        if (gimBand != null) {
+            gimBandTile = calibrationOp.getSourceTile(gimBand, targetTileRectangle);
+            gimBandData = gimBandTile.getDataBuffer();
+        }
+
+        final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
+        final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
+
+        // copy band if unit is phase
+        if (tgtBandUnit == Unit.UnitType.PHASE) {
+            targetTile.setRawSamples(sourceRaster1.getRawSamples());
+            return;
+        }
+
+        final ProductData tgtData = targetTile.getDataBuffer();
+        final TileIndex srcIndex = new TileIndex(sourceRaster1);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
+        final Double noDataValue = targetBand.getNoDataValue();
+
+        double sigma, dn, i, q, phaseTerm = 0.0;
+        int srcIdx, tgtIdx;
+
+        for (int y = y0; y < maxY; ++y) {
+            srcIndex.calculateStride(y);
+            tgtIndex.calculateStride(y);
+
+            for (int x = x0; x < maxX; ++x) {
+                srcIdx = srcIndex.getIndex(x);
+                tgtIdx = tgtIndex.getIndex(x);
+
+                if (inputSigma0) {
+                    sigma = getSigma0(x, y, srcData1, srcData2, srcIndex, srcBandUnit);
+                } else {
+
+                    dn = srcData1.getElemDoubleAt(srcIdx);
+                    if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
+                        dn *= dn;
+                    } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
+
+                    } else if (srcBandUnit == Unit.UnitType.REAL) {
+                        i = dn;
+                        q = srcData2.getElemDoubleAt(srcIdx);
+                        dn = i * i + q * q;
+                        if (dn > 0.0) {
+                            if (tgtBandUnit == Unit.UnitType.REAL) {
+                                phaseTerm = i / Math.sqrt(dn);
+                            } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                                phaseTerm = q / Math.sqrt(dn);
+                            }
+                        } else {
+                            phaseTerm = 0.0;
+                        }
+                    } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
+                        dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
+                    } else {
+                        throw new OperatorException("Kompsat-5 Calibration: unhandled unit");
+                    }
+
+                    final double incidenceAngle = getIncidenceAngle(x, y, gimBandData, srcIdx)*Constants.DTOR;
+                    sigma = calibrationFactor * dn * Math.sin(incidenceAngle);
+
+                    if (isComplex && outputImageInComplex) {
+                        sigma = Math.sqrt(sigma) * phaseTerm;
+                    }
+                }
+
+                if (outputImageScaleInDb) { // convert calibration result to dB
+                    if (sigma < underFlowFloat) {
+                        sigma = -underFlowFloat;
+                    } else {
+                        sigma = 10.0 * Math.log10(sigma);
+                    }
+                }
+
+                tgtData.setElemDoubleAt(tgtIdx, sigma);
+            }
+        }
+    }
+
+// The following function performs calibration on averaged DN values using a sliding window as suggested in the
+//   equations. But the calibration result visually is poor than that where no average is performed.
+   /*
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+
+        final Rectangle targetTileRectangle = targetTile.getRectangle();
+        final int x0 = targetTileRectangle.x;
+        final int y0 = targetTileRectangle.y;
+        final int w = targetTileRectangle.width;
+        final int h = targetTileRectangle.height;
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
+
         final Rectangle sourceRectangle = getSourceTileRectangle(
                 x0, y0, w, h, halfWindowSize, halfWindowSize, sourceImageWidth, sourceImageHeight);
 
@@ -337,6 +453,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         final TileIndex tgtIndex = new TileIndex(targetTile);
         final Double noDataValue = targetBand.getNoDataValue();
 
+        double sigma;
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
             tgtIndex.calculateStride(y);
@@ -345,28 +462,33 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 final int srcIdx = srcIndex.getIndex(x);
                 final int tgtIdx = tgtIndex.getIndex(x);
 
-                final double dn2Mean = getMeanDN2(x, y, srcData1, srcData2, gimBandData, srcIndex, srcBandUnit, noDataValue);
-                if(noDataValue.equals(dn2Mean)) {
-                    tgtData.setElemDoubleAt(tgtIdx, noDataValue);
-                    continue;
-                }
+                if (inputSigma0) {
+                    sigma = getSigma0(x, y, srcData1, srcData2, srcIndex, srcBandUnit);
+                } else {
 
-                double sigma = dn2Mean * calibrationFactor;
+                    final double dn2Mean = getMeanDN2(x, y, srcData1, srcData2, gimBandData, srcIndex, srcBandUnit, noDataValue);
+                    if(noDataValue.equals(dn2Mean)) {
+                        tgtData.setElemDoubleAt(tgtIdx, noDataValue);
+                        continue;
+                    }
 
-                if (isComplex && outputImageInComplex) {
-                    if (srcBandUnit == Unit.UnitType.REAL) {
-                        final double i = srcData1.getElemDoubleAt(srcIdx);
-                        final double q = srcData2.getElemDoubleAt(srcIdx);
-                        final double dn2 = i * i + q * q;
-                        double phaseTerm = 0.0;
-                        if (dn2 > 0.0) {
-                            if (tgtBandUnit == Unit.UnitType.REAL) {
-                                phaseTerm = i / Math.sqrt(dn2);
-                            } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                                phaseTerm = q / Math.sqrt(dn2);
+                    sigma = dn2Mean * calibrationFactor;
+
+                    if (isComplex && outputImageInComplex) {
+                        if (srcBandUnit == Unit.UnitType.REAL) {
+                            final double i = srcData1.getElemDoubleAt(srcIdx);
+                            final double q = srcData2.getElemDoubleAt(srcIdx);
+                            final double dn2 = i * i + q * q;
+                            double phaseTerm = 0.0;
+                            if (dn2 > 0.0) {
+                                if (tgtBandUnit == Unit.UnitType.REAL) {
+                                    phaseTerm = i / Math.sqrt(dn2);
+                                } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                                    phaseTerm = q / Math.sqrt(dn2);
+                                }
                             }
+                            sigma = Math.sqrt(sigma) * phaseTerm;
                         }
-                        sigma = Math.sqrt(sigma) * phaseTerm;
                     }
                 }
 
@@ -382,7 +504,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             }
         }
     }
-
+*/
     private Rectangle getSourceTileRectangle(final int x0, final int y0, final int w, final int h,
                                              final int halfSizeX, final int halfSizeY,
                                              final int sourceImageWidth, final int sourceImageHeight) {
@@ -448,5 +570,27 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         Band sourceBand = sourceProduct.getBand(targetBand.getName());
         Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
         targetTile.setRawSamples(sourceTile.getRawSamples());
+    }
+
+    private double getSigma0(final int x, final int y, final ProductData srcData1, ProductData srcData2,
+                             final TileIndex srcIndex, final Unit.UnitType srcBandUnit) {
+
+        double dn, i, q, sigma0 = 0.0;
+        srcIndex.calculateStride(y);
+        final int srcIdx = srcIndex.getIndex(x);
+        if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
+            dn = srcData1.getElemDoubleAt(srcIdx);
+            sigma0 = dn * dn;
+        } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
+            sigma0 = srcData1.getElemDoubleAt(srcIdx);
+        } else if (srcBandUnit == Unit.UnitType.REAL) {
+            i = srcData1.getElemDoubleAt(srcIdx);
+            q = srcData2.getElemDoubleAt(srcIdx);
+            sigma0 = i * i + q * q;
+        } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
+            sigma0 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0);
+        }
+
+        return sigma0;
     }
 }

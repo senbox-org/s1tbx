@@ -58,7 +58,8 @@ public final class PolarimetricDecompositionOp extends Operator {
     @Parameter(valueSet = {SINCLAIR_DECOMPOSITION, PAULI_DECOMPOSITION, FREEMAN_DURDEN_DECOMPOSITION,
             GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION,
             YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, H_ALPHA_DECOMPOSITION,
-            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION, HUYNEN_DECOMPOSITION, YANG_DECOMPOSITION, KROGAGER_DECOMPOSITION},
+            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION, HUYNEN_DECOMPOSITION, YANG_DECOMPOSITION,
+            KROGAGER_DECOMPOSITION, CAMERON_DECOMPOSITION},
             defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
     private String decomposition = SINCLAIR_DECOMPOSITION;
 
@@ -113,6 +114,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     public static final String HUYNEN_DECOMPOSITION = "Huynen Decomposition";
     public static final String YANG_DECOMPOSITION = "Yang Decomposition";
     public static final String KROGAGER_DECOMPOSITION = "Krogager Decomposition";
+    public static final String CAMERON_DECOMPOSITION = "Cameron Decomposition";
 
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType = null;
@@ -129,7 +131,7 @@ public final class PolarimetricDecompositionOp extends Operator {
                 s.equals(FREEMAN_DURDEN_DECOMPOSITION) || s.equals(YAMAGUCHI_DECOMPOSITION) ||
                 s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) || s.equals(H_ALPHA_DECOMPOSITION) ||
                 s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) || s.equals(HUYNEN_DECOMPOSITION) ||
-                s.equals(YANG_DECOMPOSITION) || s.equals(KROGAGER_DECOMPOSITION) ||
+                s.equals(YANG_DECOMPOSITION) || s.equals(KROGAGER_DECOMPOSITION) || s.equals(CAMERON_DECOMPOSITION) ||
                 s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
             decomposition = s;
         } else {
@@ -276,6 +278,9 @@ public final class PolarimetricDecompositionOp extends Operator {
             case KROGAGER_DECOMPOSITION:
                 return new Krogager(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight);
+            case CAMERON_DECOMPOSITION:
+                return new Cameron(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
         }
         return null;
     }
@@ -298,7 +303,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);

@@ -70,7 +70,7 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Benchmark b = new Benchmark(name) {
             @Override
             protected void execute() throws Exception {
-                process(name, false);
+                process(name, outputFolder, false);
             }
         };
         b.run();
@@ -80,7 +80,7 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Benchmark b = new Benchmark(name) {
             @Override
             protected void execute() throws Exception {
-                process(name, true);
+                process(name, outputFolder, true);
             }
         };
         b.run();
@@ -90,13 +90,13 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Benchmark b = new Benchmark(name) {
             @Override
             protected void execute() throws Exception {
-                processGraph(grdFile, name);
+                processGraph(grdFile, outputFolder, name);
             }
         };
         b.run();
     }
 
-    private void process(final String name, final boolean useWriteOp) throws IOException {
+    private void process(final String name, final File outputFolder, final boolean useWriteOp) throws IOException {
         final Product srcProduct = read(grdFile);
 
         SpeckleFilterOp op = new SpeckleFilterOp();
@@ -105,13 +105,16 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Product trgProduct = op.getTargetProduct();
 
         if(useWriteOp) {
-            writeGPF(trgProduct, DIMAP);
+            writeGPF(trgProduct, outputFolder, DIMAP);
         } else {
-            write(trgProduct, DIMAP);
+            write(trgProduct, outputFolder, DIMAP);
         }
+
+        trgProduct.dispose();
+        srcProduct.dispose();
     }
 
-    private void processGraph(final File file, final String name) throws Exception {
+    private void processGraph(final File file, final File outputFolder, final String name) throws Exception {
 
         final Graph graph = new Graph("graph");
 

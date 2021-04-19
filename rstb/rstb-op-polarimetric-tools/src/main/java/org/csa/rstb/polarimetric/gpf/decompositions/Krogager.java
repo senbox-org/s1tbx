@@ -119,9 +119,9 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
             final double[][] Tr = new double[3][3];
             final double[][] Ti = new double[3][3];
 
-            if (!bandList.spanMinMaxSet) {
-                setSpanMinMax(op, bandList);
-            }
+//            if (!bandList.spanMinMaxSet) {
+//                setSpanMinMax(op, bandList);
+//            }
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
@@ -148,9 +148,13 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
 
                     final KDD data = getKrogagerDecomposition(Tr, Ti);
 
-                    kd = scaleDb(data.kd, bandList.spanMin, bandList.spanMax);
-                    kh = scaleDb(data.kh, bandList.spanMin, bandList.spanMax);
-                    ks = scaleDb(data.ks, bandList.spanMin, bandList.spanMax);
+                    kd = 10.0 * Math.log10(data.kd);
+                    kh = 10.0 * Math.log10(data.kh);
+                    ks = 10.0 * Math.log10(data.ks);
+
+//                    kd = scaleDb(data.kd, bandList.spanMin, bandList.spanMax);
+//                    kh = scaleDb(data.kh, bandList.spanMin, bandList.spanMax);
+//                    ks = scaleDb(data.ks, bandList.spanMin, bandList.spanMax);
 
                     final int idx = trgIndex.getIndex(x);
                     for (TargetInfo target : targetInfo) {

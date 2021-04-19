@@ -184,7 +184,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private boolean saveSelectedSourceBand = true;
 
     @Parameter(defaultValue = "false", label = "Save layover shadow mask")
-    private boolean saveLayoverShadowMask = true;
+    private boolean saveLayoverShadowMask = false;
 
     @Parameter(defaultValue = "false", label = "Output complex data")
     private boolean outputComplex = false;
@@ -415,11 +415,11 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         mission = getMissionType(absRoot);
 
-        skipBistaticCorrection = absRoot.getAttributeInt("bistatic_correction_applied", 0) == 1;
+        skipBistaticCorrection = absRoot.getAttributeInt(AbstractMetadata.bistatic_correction_applied, 0) == 1;
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
-        wavelength = SARUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarWavelength(absRoot);
 
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         if (rangeSpacing <= 0.0) {

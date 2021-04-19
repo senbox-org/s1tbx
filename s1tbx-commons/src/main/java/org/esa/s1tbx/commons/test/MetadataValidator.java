@@ -83,7 +83,7 @@ public class MetadataValidator {
 
     private void verifySRGR() throws Exception {
         if(!validationOptions.validateSRGR) {
-            SystemUtils.LOG.warning("Skipping SRGR validation");
+            SystemUtils.LOG.warning("MetadataValidator Skipping SRGR validation");
             return;
         }
         if(isSLC()) {
@@ -119,7 +119,7 @@ public class MetadataValidator {
 
     private void verifyOrbitStateVectors() throws Exception {
         if(!validationOptions.validateOrbitStateVectors) {
-            SystemUtils.LOG.warning("Skipping orbit state vector validation");
+            SystemUtils.LOG.warning("MetadataValidator Skipping orbit state vector validation");
             return;
         }
 
@@ -133,6 +133,23 @@ public class MetadataValidator {
             if(orbit_vector0 != null) {
                 throw new Exception("Orbit State Vectors should start from 1");
             }
+            final MetadataElement orbit_vector1 = orbitElem.getElement(AbstractMetadata.orbit_vector +1);
+            if(orbit_vector1 == null) {
+                throw new Exception("Orbit State Vectors not found");
+            } else  {
+                double xPos = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_x_pos);
+                double yPos = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_y_pos);
+                double zPos = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_z_pos);
+                double xVel = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_x_vel);
+                double yVel = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_y_vel);
+                double zVel = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_z_vel);
+                if(xPos == 0 || yPos == 0 || zPos == 0  || xVel == 0 || yVel == 0 || zVel == 0) {
+                    throw new Exception("Orbit State Vectors incomplete");
+                }
+                if(!orbit_vector1.containsAttribute(AbstractMetadata.orbit_vector_time)) {
+                    throw new Exception("Orbit State Vectors missing time");
+                }
+            }
         } else {
             throw new Exception("Orbit State Vectors not found");
         }
@@ -140,7 +157,7 @@ public class MetadataValidator {
 
     private void verifyDopplerCentroids() throws Exception {
         if(!validationOptions.validateDopplerCentroids) {
-            SystemUtils.LOG.warning("Skipping doppler centroid validation");
+            SystemUtils.LOG.warning("MetadataValidator Skipping doppler centroid validation");
             return;
         }
         if(!isSLC()) {

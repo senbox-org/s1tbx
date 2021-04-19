@@ -195,7 +195,7 @@ public class CreateStackOp extends Operator {
             switch (extent) {
                 case MASTER_EXTENT:
 
-                    targetProduct = new Product(masterProduct.getName() + PRODUCT_SUFFIX,
+                    targetProduct = new Product(OperatorUtils.createProductName(masterProduct.getName(), PRODUCT_SUFFIX),
                                                 masterProduct.getProductType(),
                                                 masterProduct.getSceneRasterWidth(),
                                                 masterProduct.getSceneRasterHeight());
@@ -338,7 +338,9 @@ public class CreateStackOp extends Operator {
             }
 
             // set non-elevation areas to no data value for the master bands using the slave bands
-            DEMAssistedCoregistrationOp.setMasterValidPixelExpression(targetProduct, true);
+            if (!extent.equals(MAX_EXTENT)) {
+                DEMAssistedCoregistrationOp.setMasterValidPixelExpression(targetProduct, true);
+            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);

@@ -7,6 +7,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -24,6 +25,10 @@ public class ReaderTest {
     public ReaderTest(final ProductReaderPlugIn readerPlugIn) {
         this.readerPlugIn = readerPlugIn;
         this.reader = readerPlugIn.createReaderInstance();
+    }
+
+    protected void close() throws IOException {
+        reader.close();
     }
 
     protected Product testReader(final Path inputPath) throws Exception {
@@ -56,6 +61,9 @@ public class ReaderTest {
     }
 
     protected void validateProduct(final Product product, final ProductValidator.ValidationOptions options) throws Exception {
+        if(product == null) {
+            throw new Exception("Product is null");
+        }
         final ProductValidator productValidator = new ProductValidator(product, options);
         productValidator.validate();
     }
@@ -73,13 +81,19 @@ public class ReaderTest {
     protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
         final Band[] bands = trgProduct.getBands();
         if(bandNames.length != bands.length) {
-            String msg = "";
-            for(String bandName : bandNames) {
-                if(!msg.isEmpty())
-                    msg += ", ";
-                msg += bandName;
+            String expectedBandNames = "";
+            for(String bandName : trgProduct.getBandNames()) {
+                if(!expectedBandNames.isEmpty())
+                    expectedBandNames += ", ";
+                expectedBandNames += bandName;
             }
-            throw new Exception("Expecting "+bandNames.length + " bands but found "+ bands.length +" "+ msg);
+            String actualBandNames = "";
+            for(String bandName : bandNames) {
+                if(!actualBandNames.isEmpty())
+                    actualBandNames += ", ";
+                actualBandNames += bandName;
+            }
+            throw new Exception("Expecting "+bandNames.length + " bands "+actualBandNames+" but found "+ bands.length +" "+ expectedBandNames);
         }
         for(String bandName : bandNames) {
             Band band = trgProduct.getBand(bandName);

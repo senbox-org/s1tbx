@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 by SkyWatch Space Applications Inc. http://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,7 @@ import org.esa.s1tbx.commons.test.MetadataValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,12 +60,17 @@ public class TestCapellaProductReader extends ReaderTest {
         options.validateDopplerCentroids = false;
     }
 
+    @After
+    public void tearDown() throws Exception {
+        close();
+    }
+
     @Test
     public void testOpeningGEOFolder() throws Exception {
         Product prod = testReader(inputGEOFolder.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test
@@ -72,7 +78,7 @@ public class TestCapellaProductReader extends ReaderTest {
         Product prod = testReader(inputGEOMeta.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test
@@ -80,7 +86,7 @@ public class TestCapellaProductReader extends ReaderTest {
         Product prod = testReader(inputGEOTif.toPath());
         validateProduct(prod);
         validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+        validateBands(prod, new String[] {"Sigma0_HH"});
     }
 
     @Test

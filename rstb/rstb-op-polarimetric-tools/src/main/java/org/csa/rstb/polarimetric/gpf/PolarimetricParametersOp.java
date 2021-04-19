@@ -254,7 +254,7 @@ public final class PolarimetricParametersOp extends Operator implements QuadPolP
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absRoot != null) {

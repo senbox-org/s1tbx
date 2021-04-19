@@ -52,6 +52,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
     private int subsetOffsetX = 0;
     private int subsetOffsetY = 0;
 
+    private boolean inputSigma0 = false;
     private boolean isSLC = false;
 
     /**
@@ -97,13 +98,20 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
             getMission();
 
-            getCalibrationFlag();
+            if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
+                if (outputImageInComplex) {
+                    throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+                }
+                inputSigma0 = true;
+            }
 
             isSLC = sourceProduct.getProductType().toLowerCase().contains("slc");
 
             getSubsetOffset();
 
-            getLUT();
+            if (!inputSigma0) {
+                getLUT();
+            }
 
             getTiePointGridData(sourceProduct);
 
@@ -240,11 +248,6 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-//                if(noDataValue.equals(dn)) {
-//                    trgData.setElemDoubleAt(tgtIdx, noDataValue);
-//                    continue;
-//                }
-
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
@@ -268,17 +271,21 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("RadarSat2 Calibration: unhandled unit");
                 }
 
-                if (isSLC) {
-                    if (gains != null) {
-                        sigma = dn / (gains[x + subsetOffsetX] * gains[x + subsetOffsetX]);
-                        if (outputImageInComplex) {
-                            sigma = Math.sqrt(sigma)*phaseTerm;
-                        }
-                    }
+                if (inputSigma0) {
+                    sigma = dn;
                 } else {
-                    sigma = dn + offset;
-                    if (gains != null) {
-                        sigma /= gains[x + subsetOffsetX];
+                    if (isSLC) {
+                        if (gains != null) {
+                            sigma = dn / (gains[x + subsetOffsetX] * gains[x + subsetOffsetX]);
+                            if (outputImageInComplex) {
+                                sigma = Math.sqrt(sigma)*phaseTerm;
+                            }
+                        }
+                    } else {
+                        sigma = dn + offset;
+                        if (gains != null) {
+                            sigma /= gains[x + subsetOffsetX];
+                        }
                     }
                 }
 

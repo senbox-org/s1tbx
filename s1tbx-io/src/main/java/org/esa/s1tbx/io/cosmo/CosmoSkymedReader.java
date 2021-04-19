@@ -277,7 +277,6 @@ public class CosmoSkymedReader extends SARReader {
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "CSK");
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.satellite, globalElem.getAttributeString("Satellite_Id", "CSK"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 ReaderUtils.getTime(globalElem, "Product_Generation_UTC", standardDateFormat));
 
@@ -411,7 +410,7 @@ public class CosmoSkymedReader extends SARReader {
             }
         }
 
-        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
 
         addOrbitStateVectors(absRoot, globalElem);
     }
@@ -430,17 +429,19 @@ public class CosmoSkymedReader extends SARReader {
 
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
         final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat);
-        final int numPoints = globalElem.getAttributeInt("Number_of_State_Vectors");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, referenceUTC);
 
+        ProductData stateVectorTimes = globalElem.getAttribute("State_Vectors_Times").getData();
+        final int numPoints = stateVectorTimes.getNumElems();
+
+        final ProductData pos = globalElem.getAttribute("ECEF_Satellite_Position").getData();
+        final ProductData vel = globalElem.getAttribute("ECEF_Satellite_Velocity").getData();
+
         for (int i = 0; i < numPoints; i++) {
-            final double stateVectorTime = globalElem.getAttribute("State_Vectors_Times").getData().getElemDoubleAt(i);
+            final double stateVectorTime = stateVectorTimes.getElemDoubleAt(i);
             final ProductData.UTC orbitTime =
                     new ProductData.UTC(referenceUTC.getMJD() + stateVectorTime / Constants.secondsInDay);
-
-            final ProductData pos = globalElem.getAttribute("ECEF_Satellite_Position").getData();
-            final ProductData vel = globalElem.getAttribute("ECEF_Satellite_Velocity").getData();
 
             final double satellitePositionX = pos.getElemDoubleAt(3 * i);
             final double satellitePositionY = pos.getElemDoubleAt(3 * i + 1);
@@ -481,14 +482,24 @@ public class CosmoSkymedReader extends SARReader {
                 ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
         AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
-        for (int i = 0; i < 6; i++) {
-            final double coefValue =
-                    globalElem.getAttribute("Centroid_vs_Range_Time_Polynomial").getData().getElemDoubleAt(i);
-            final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
-            dopplerListElem.addElement(coefElem);
-            AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                    ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
-            AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
+        ProductData centroid = null;
+        if(globalElem.containsAttribute("Centroid_vs_Range_Time_Polynomial")) {
+            centroid = globalElem.getAttribute("Centroid_vs_Range_Time_Polynomial").getData();
+        } else if(globalElem.containsAttribute("S01_Doppler_Centroid_vs_Range_Time_Polynomial")) {
+            centroid = globalElem.getAttribute("S01_Doppler_Centroid_vs_Range_Time_Polynomial").getData();
+        } else if(globalElem.containsAttribute("S02_Doppler_Centroid_vs_Range_Time_Polynomial")) {
+            centroid = globalElem.getAttribute("S02_Doppler_Centroid_vs_Range_Time_Polynomial").getData();
+        }
+
+        if(centroid != null) {
+            for (int i = 0; i < centroid.getNumElems(); i++) {
+                final double coefValue = centroid.getElemDoubleAt(i);
+                final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
+                dopplerListElem.addElement(coefElem);
+                AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
+                        ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
+            }
         }
     }
 

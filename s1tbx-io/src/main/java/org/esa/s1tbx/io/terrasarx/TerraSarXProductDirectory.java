@@ -165,7 +165,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
         final Element slaveRootElement = slaveDoc.getRootElement();
 
-        final MetadataElement slaveRoot = new MetadataElement("Slave_Metadata");
+        final MetadataElement slaveRoot = new MetadataElement(AbstractMetadata.SLAVE_METADATA_ROOT);
         AbstractMetadataIO.AddXMLMetadata(slaveRootElement, AbstractMetadata.addOriginalProductMetadata(slaveRoot));
         addAbstractedMetadataHeader(slaveRoot);
 
@@ -486,7 +486,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             // modify abstracted metadata
         }
 
-        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
     }
 
     private void findImagesForTanDemX(final MetadataElement newRoot) throws IOException {
@@ -1106,7 +1106,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
 
             if (mission.contains("TDM")) {
-                final MetadataElement slaveMetadata = absRoot.getParentElement().getElement("Slave_Metadata");
+                final MetadataElement slaveMetadata = absRoot.getParentElement().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
 
                 slaveMetadata.setAttributeString("Master_bands", masterBands);
 

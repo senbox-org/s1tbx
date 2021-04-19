@@ -105,6 +105,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     private int blockWidth;
     private int blockHeight;
 
+    private boolean inputSigma0 = false;
     private boolean applyAntennaPatternCorrection = false;
     private boolean applyRangeSpreadingLossCorrection = false;
     private boolean applyReplicaPowerCorrection = false;
@@ -367,7 +368,6 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             double sigma, dn, i, q, phaseTerm = 0.0;
             int index;
             int adcJ = 0;
-            final Double noDataValue = targetBand.getNoDataValue();
 
             for (int x = x0; x < maxX; x++) {
 
@@ -380,11 +380,6 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                     index = sourceRaster1.getDataBufferIndex(x, y);
 
                     dn = srcData1.getElemDoubleAt(index);
-//                    if(noDataValue.equals(dn)) {
-//                        trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), noDataValue);
-//                        continue;
-//                    }
-
                     if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                         dn *= dn;
                     } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
@@ -408,29 +403,34 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                         throw new OperatorException("ERS Calibration: unhandled unit");
                     }
 
-                    double calFactor = sinIncidenceAngleByK;
+                    if (inputSigma0) {
+                        sigma = dn;
+                    } else {
 
-                    if (applyAntennaPatternCorrection) {
-                        calFactor *= antennaPatternCorrFactor[x];
-                    }
+                        double calFactor = sinIncidenceAngleByK;
 
-                    if (applyRangeSpreadingLossCorrection) {
-                        calFactor *= rangeSpreadingLoss[x];
-                    }
+                        if (applyAntennaPatternCorrection) {
+                            calFactor *= antennaPatternCorrFactor[x];
+                        }
 
-                    if (applyReplicaPowerCorrection) {
-                        calFactor *= replicaPulseVariationsCorrectionFactor;
-                    }
+                        if (applyRangeSpreadingLossCorrection) {
+                            calFactor *= rangeSpreadingLoss[x];
+                        }
 
-                    if (applyADCSaturationCorrectionToCurrentTile) {
-                        final int adcI = Math.min(((y - y0) / blockHeight), adcPowerLoss.length - 1);
-                        calFactor *= adcPowerLoss[adcI][adcJ];
-                    }
+                        if (applyReplicaPowerCorrection) {
+                            calFactor *= replicaPulseVariationsCorrectionFactor;
+                        }
 
-                    sigma = dn*calFactor;
+                        if (applyADCSaturationCorrectionToCurrentTile) {
+                            final int adcI = Math.min(((y - y0) / blockHeight), adcPowerLoss.length - 1);
+                            calFactor *= adcPowerLoss[adcI][adcJ];
+                        }
 
-                    if (isComplex && outputImageInComplex) {
-                        sigma = Math.sqrt(sigma)*phaseTerm;
+                        sigma = dn*calFactor;
+
+                        if (isComplex && outputImageInComplex) {
+                            sigma = Math.sqrt(sigma)*phaseTerm;
+                        }
                     }
 
                     if (outputImageScaleInDb) { // convert calibration result to dB
@@ -681,7 +681,10 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     private void getCalibrationFlags() throws Exception {
 
         if (AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.abs_calibration_flag)) {
-            throw new OperatorException("The product has already been calibrated");
+            if (outputImageInComplex) {
+                throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+            }
+            inputSigma0 = true;
         }
 
         antennaPatternCorrectionFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.ant_elev_corr_flag);

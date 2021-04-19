@@ -121,6 +121,15 @@
                 <attr name="helpId" stringvalue="importSentinel1Product"/>
                 <attr name="ShortDescription" stringvalue="Open SENTINEL-1 data product."/>
             </file>
+            <file name="org-esa-s1tbx-io-importSpacety.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="Spacety"/>
+                <attr name="formatName" stringvalue="Spacety"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importSpacety"/>
+                <attr name="ShortDescription" stringvalue="Open Spacety data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importTerraSarXProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -289,6 +298,10 @@
                     <file name="org-esa-s1tbx-io-importS1Product.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importS1Product.instance"/>
                         <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importSpacety.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importSpacety.instance"/>
+                        <attr name="position" intvalue="910"/>
                     </file>
                     <file name="org-esa-s1tbx-io-importTerraSarXProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTerraSarXProduct.instance"/>

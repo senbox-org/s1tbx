@@ -199,7 +199,7 @@ public class InterferogramOp extends Operator {
 
         try {
             if(AbstractMetadata.getAbstractedMetadata(sourceProduct).containsAttribute("multimaster_split")){
-                mstRoot = sourceProduct.getMetadataRoot().getElement("Slave_Metadata").getElementAt(0);
+                mstRoot = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElementAt(0);
             }
             else{
                 mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
@@ -463,7 +463,7 @@ public class InterferogramOp extends Operator {
         }
     }
 
-    private void createTargetProduct() {
+    private void createTargetProduct() throws Exception {
 
         // construct target product
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
