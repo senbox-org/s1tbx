@@ -39,7 +39,7 @@ public class TestSentinel1ProductReader extends ReaderTest {
 
     private final static File inputGRDFolder = new File(TestData.inputSAR + File.separator + "S1" + File.separator + "AWS" + File.separator + "S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
 
-    private String[] productTypeExemptions = {"RAW","OCN"};
+    private final String[] productTypeExemptions = {"RAW","OCN"};
 
     private final static String inputS1 = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "S1" + S1TBXTests.sep ;
     private final static File[] rootPathsSentinel1 = S1TBXTests.loadFilePath(inputS1);
