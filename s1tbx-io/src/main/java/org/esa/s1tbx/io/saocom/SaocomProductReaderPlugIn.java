@@ -37,6 +37,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      * @param input any input object
      * @return true if this product reader can decode the given input, otherwise false.
      */
+    @Override
     public DecodeQualification getDecodeQualification(final Object input) {
         final Path path = ReaderUtils.getPathFromInput(input);
         if (path == null) {
@@ -60,6 +61,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
         return SaocomConstants.VALID_INPUT_TYPES;
     }
@@ -69,10 +71,12 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return a new reader instance, never <code>null</code>
      */
+    @Override
     public ProductReader createReaderInstance() {
         return new SaocomProductReader(this);
     }
 
+    @Override
     public SnapFileFilter getProductFileFilter() {
         return new S1TBXFileFilter(this);
     }
@@ -82,6 +86,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
         return SaocomConstants.getFormatNames();
     }
@@ -94,6 +99,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
         return SaocomConstants.getFormatFileExtensions();
     }
@@ -107,6 +113,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(final Locale locale) {
         return SaocomConstants.getPluginDescription();
     }

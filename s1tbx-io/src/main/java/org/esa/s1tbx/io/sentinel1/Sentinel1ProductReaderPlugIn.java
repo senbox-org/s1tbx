@@ -33,10 +33,21 @@ import java.util.Locale;
  */
 public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
 
-    private static final String ANNOTATION = "annotation";
-    private static final String MEASUREMENT = "measurement";
+    private final static String[] FORMAT_NAMES = new String[]{"SENTINEL-1"};
+    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe", "zip"};
+    private final static String PLUGIN_DESCRIPTION = "SENTINEL-1 Products";      /*I18N*/
 
-    private static String[] annotation_prefixes = new String[] {"s1", "s2-", "s3-", "s4-", "s5-", "s6-", "iw", "ew", "rs2", "asa"};
+    private final static String PRODUCT_HEADER_PREFIX = "MANIFEST";
+    final static String PRODUCT_HEADER_NAME = "manifest.safe";
+
+    private final static String INDICATION_KEY = "SAFE";
+
+    private final static Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
+
+    private final static String ANNOTATION = "annotation";
+    private final static String MEASUREMENT = "measurement";
+
+    private final static String[] annotation_prefixes = new String[] {"s1", "s2-", "s3-", "s4-", "s5-", "s6-", "iw", "ew", "rs2", "asa"};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -45,29 +56,30 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      * @param input any input object
      * @return true if this product reader can decode the given input, otherwise false.
      */
+    @Override
     public DecodeQualification getDecodeQualification(final Object input) {
         Path path = ReaderUtils.getPathFromInput(input);
         if (path != null) {
             if(Files.isDirectory(path)) {
-                path = path.resolve(Sentinel1Constants.PRODUCT_HEADER_NAME);
+                path = path.resolve(PRODUCT_HEADER_NAME);
                 if(!Files.exists(path)) {
                     return DecodeQualification.UNABLE;
                 }
             }
 
             final String filename = path.getFileName().toString().toLowerCase();
-            if (filename.equals(Sentinel1Constants.PRODUCT_HEADER_NAME)) {
+            if (filename.equals(PRODUCT_HEADER_NAME)) {
                 if (isLevel1(path) || isLevel2(path) || isLevel0(path)) {
                     return DecodeQualification.INTENDED;
                 }
             }
             if (filename.endsWith(".zip") && filename.startsWith("s1") &&
-                    (ZipUtils.findInZip(path.toFile(), "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
-                    ZipUtils.findInZip(path.toFile(), "rs2", Sentinel1Constants.PRODUCT_HEADER_NAME))) {
+                    (ZipUtils.findInZip(path.toFile(), "s1", PRODUCT_HEADER_NAME) ||
+                    ZipUtils.findInZip(path.toFile(), "rs2", PRODUCT_HEADER_NAME))) {
                 return DecodeQualification.INTENDED;
             }
             if(filename.startsWith("s1") && filename.endsWith(".safe") && Files.isDirectory(path)) {
-                Path manifest = path.resolve(Sentinel1Constants.PRODUCT_HEADER_NAME);
+                Path manifest = path.resolve(PRODUCT_HEADER_NAME);
                 if(Files.exists(manifest)) {
                     if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest)) {
                         return DecodeQualification.INTENDED;
@@ -148,8 +160,9 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
-        return Sentinel1Constants.VALID_INPUT_TYPES;
+        return VALID_INPUT_TYPES;
     }
 
     /**
@@ -157,10 +170,12 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a new reader instance, never <code>null</code>
      */
+    @Override
     public ProductReader createReaderInstance() {
         return new Sentinel1ProductReader(this);
     }
 
+    @Override
     public SnapFileFilter getProductFileFilter() {
         return new FileFilter();
     }
@@ -170,8 +185,9 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
-        return Sentinel1Constants.getFormatNames();
+        return FORMAT_NAMES;
     }
 
     /**
@@ -182,8 +198,9 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
-        return Sentinel1Constants.getFormatFileExtensions();
+        return FORMAT_FILE_EXTENSIONS;
     }
 
     /**
@@ -195,17 +212,18 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(final Locale locale) {
-        return Sentinel1Constants.getPluginDescription();
+        return PLUGIN_DESCRIPTION;
     }
 
     public static class FileFilter extends SnapFileFilter {
 
         public FileFilter() {
             super();
-            setFormatName(Sentinel1Constants.getFormatNames()[0]);
-            setExtensions(Sentinel1Constants.getFormatFileExtensions());
-            setDescription(Sentinel1Constants.getPluginDescription());
+            setFormatName(FORMAT_NAMES[0]);
+            setExtensions(FORMAT_FILE_EXTENSIONS);
+            setDescription(PLUGIN_DESCRIPTION);
         }
 
         /**
@@ -219,8 +237,8 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         public boolean accept(final File file) {
             if (super.accept(file)) {
                 final String name = file.getName().toUpperCase();
-                return file.isDirectory() || (name.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
-                        name.endsWith(Sentinel1Constants.getIndicationKey())) ||
+                return file.isDirectory() || (name.startsWith(PRODUCT_HEADER_PREFIX) &&
+                        name.endsWith(INDICATION_KEY)) ||
                         (name.startsWith("S1") && name.endsWith(".ZIP"));
             }
             return false;

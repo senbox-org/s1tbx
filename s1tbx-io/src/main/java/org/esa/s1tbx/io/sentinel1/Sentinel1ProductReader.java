@@ -91,7 +91,7 @@ public class Sentinel1ProductReader extends SARReader {
         try {
             Path inputPath = getPathFromInput(getInput());
             if(Files.isDirectory(inputPath)) {
-                inputPath = inputPath.resolve(Sentinel1Constants.PRODUCT_HEADER_NAME);
+                inputPath = inputPath.resolve(Sentinel1ProductReaderPlugIn.PRODUCT_HEADER_NAME);
             }
             if(!Files.exists(inputPath)) {
                 throw new IOException(inputPath.toString() + " not found");

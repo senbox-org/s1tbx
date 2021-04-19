@@ -49,6 +49,7 @@ public class CapellaProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      * @param input any input object
      * @return true if this product reader can decode the given input, otherwise false.
      */
+    @Override
     public DecodeQualification getDecodeQualification(final Object input) {
 
         final Path path = ReaderUtils.getPathFromInput(input);
