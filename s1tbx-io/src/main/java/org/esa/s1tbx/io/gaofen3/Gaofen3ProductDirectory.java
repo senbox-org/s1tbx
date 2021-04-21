@@ -63,9 +63,9 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
     private String[] polarisations;
     private String polarisationTag;
     private Product bandProduct;
-    private Map<String,Double> qValMap = new HashMap<>();
-    private Map<String,Double> calConstMap = new HashMap<>();
-    private Map<String,List<Double>> rpcParameters = new HashMap<>();
+    private final Map<String,Double> qValMap = new HashMap<>();
+    private final Map<String,Double> calConstMap = new HashMap<>();
+    private final Map<String,List<Double>> rpcParameters = new HashMap<>();
     private double[] incidenceAngleList;
     private Orbit polyOrbit;
 
@@ -76,7 +76,7 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         super(inputFile);
         productName = inputFile.getName().replace(".meta.xml", "");
 
-        SystemUtils.LOG.info("Reading GF3 product: " + productName);
+        //SystemUtils.LOG.info("Reading GF3 product: " + productName);
 
         // Read RPCs, use first file found and assume it is applicable to all bands:
         final File folder =  new File(inputFile.getParent());
@@ -97,7 +97,7 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        final Element rootElement = xmlDoc.getRootElement();
+
         final int nval = Integer.parseInt(xmlDoc.getRootElement().getChild("numberofIncidenceValue").getValue());
         final double[] _incidenceAngleList = new double[nval];
         int cnt = 0;
@@ -307,7 +307,6 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         }
 
         return polyOrbit;
-
     }
 
     private static int argMin(double[] a) {
@@ -321,7 +320,6 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         }
         return loc;
     }
-
 
     protected void addStateVectorsFromMeta(final Product product) {
 
@@ -526,15 +524,15 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
                 rmsResidualList[iter] = rmsResidual;
                 converged = rmsResidual < rmsResidualThreshold;
                 if (converged) {
-                    SystemUtils.LOG.info("RMS residual criteria reached after " + iter + " iterations: " +
-                            rmsResidual + " < " + rmsResidualThreshold);
+                    //SystemUtils.LOG.info("RMS residual criteria reached after " + iter + " iterations: " +
+                    //        rmsResidual + " < " + rmsResidualThreshold);
                     break;
                 } else if (iter == maxIter-1){
-                    SystemUtils.LOG.warning("Max iteration reached without RMS residual criteria reached: " +
-                            rmsResidual + " >= " + rmsResidualThreshold);
-                    SystemUtils.LOG.warning("Selecting state vector with smallest RMS residual = " +
-                            Collections.min(Arrays.asList(ArrayUtils.toObject(rmsResidualList))));
-                    SystemUtils.LOG.warning("Smallest RMS residual at iteration: " + argMin(rmsResidualList));
+                    //SystemUtils.LOG.warning("Max iteration reached without RMS residual criteria reached: " +
+                    //        rmsResidual + " >= " + rmsResidualThreshold);
+                    //SystemUtils.LOG.warning("Selecting state vector with smallest RMS residual = " +
+                    //        Collections.min(Arrays.asList(ArrayUtils.toObject(rmsResidualList))));
+                    //SystemUtils.LOG.warning("Smallest RMS residual at iteration: " + argMin(rmsResidualList));
                     svCurrent = svList[argMin(rmsResidualList)];
                     break;
                 }
@@ -583,8 +581,6 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     protected void addMetadataCorners(final Product product) {
@@ -929,7 +925,6 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
         }
 
     }
-
 
     protected void fixAzimuthRangeOffsets_onepoint(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);

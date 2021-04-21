@@ -24,7 +24,6 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Locale;
 
@@ -33,8 +32,13 @@ import java.util.Locale;
  */
 public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
 
-    private final static String PLUGIN_DESCRIPTION = "Gaofen-3 Product Format";
-    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class, InputStream.class};
+    private static final String[] PRODUCT_PREFIX = new String[] {"GF3_"};
+    private static final String PRODUCT_FORMAT = "Gaofen3";
+    private static final String METADATA_EXT = ".meta.xml";
+    private static final String RPC_EXT = ".rpc";
+
+    private static final String PLUGIN_DESCRIPTION = "Gaofen-3 Product Format";
+    private static final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -50,7 +54,7 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
             try {
                 String realName = path.toRealPath().getFileName().toString();
                 if (ZipUtils.isZip(path)) {
-                    for(String prefix : Gaofen3ProductConstants.PRODUCT_PREFIX) {
+                    for(String prefix : PRODUCT_PREFIX) {
                         if (realName.startsWith(prefix)) {
                             return DecodeQualification.INTENDED;
                         }
@@ -84,7 +88,7 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
                     return folder;
                 } else {
                     File metadataFile = new File(file.getParentFile(),
-                            FileUtils.getFilenameWithoutExtension(file.getName()) + Gaofen3ProductConstants.METADATA_EXT);
+                            FileUtils.getFilenameWithoutExtension(file.getName()) + METADATA_EXT);
                     if(metadataFile.exists()) {
                         return metadataFile;
                     }
@@ -98,8 +102,8 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
 
     public static boolean isValidProductName(final File file) {
         final String filename = file.getName().toUpperCase();
-        if(filename.endsWith(Gaofen3ProductConstants.METADATA_EXT.toUpperCase())) {
-            for (String prefix : Gaofen3ProductConstants.PRODUCT_PREFIX) {
+        if(filename.endsWith(METADATA_EXT.toUpperCase())) {
+            for (String prefix : PRODUCT_PREFIX) {
                 if (filename.startsWith(prefix)) {
                     return true;
                 }
@@ -140,7 +144,7 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        return new String[] {Gaofen3ProductConstants.PRODUCT_FORMAT};
+        return new String[] {PRODUCT_FORMAT};
     }
 
     /**
@@ -152,7 +156,7 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return  new String[] {Gaofen3ProductConstants.METADATA_EXT};
+        return  new String[] {METADATA_EXT};
     }
 
     /**
@@ -172,8 +176,8 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
 
         public FileFilter() {
             super();
-            setFormatName(Gaofen3ProductConstants.PRODUCT_FORMAT);
-            setExtensions(new String[] {Gaofen3ProductConstants.METADATA_EXT});
+            setFormatName(PRODUCT_FORMAT);
+            setExtensions(new String[] {METADATA_EXT});
             setDescription(PLUGIN_DESCRIPTION);
         }
 
