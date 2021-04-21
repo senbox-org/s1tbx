@@ -42,6 +42,9 @@ public class ProcessorTest {
     }
 
     protected void validateProduct(final Product product, final ProductValidator.ValidationOptions options) throws Exception {
+        if(product == null) {
+            throw new Exception("Product is null");
+        }
         final ProductValidator productValidator = new ProductValidator(product, options);
         productValidator.validate();
     }

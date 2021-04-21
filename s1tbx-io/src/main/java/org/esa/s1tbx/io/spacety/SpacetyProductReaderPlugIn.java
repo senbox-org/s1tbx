@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.saocom;
+package org.esa.s1tbx.io.spacety;
 
 import org.esa.s1tbx.commons.io.S1TBXFileFilter;
 import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
@@ -21,14 +21,26 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 
 /**
- * The ReaderPlugIn for Saocom products.
+ * The ReaderPlugIn for Sentinel1 products.
  */
-public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
+public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
+
+    private final static String[] FORMAT_NAMES = new String[]{"Spacety"};
+    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe", "zip"};
+    private final static String PLUGIN_DESCRIPTION = "Spacety Products";
+
+    private static final String[] PRODUCT_PREFIX = new String[] {"bc", "bx"};
+    final static String PRODUCT_HEADER_NAME = "manifest.safe";
+
+    private static final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -39,22 +51,45 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      */
     @Override
     public DecodeQualification getDecodeQualification(final Object input) {
-        final Path path = ReaderUtils.getPathFromInput(input);
-        if (path == null) {
-            return DecodeQualification.UNABLE;
-        }
-        final String filename = path.getFileName().toString().toUpperCase();
-        for (String prefix : SaocomConstants.METADATA_PREFIX) {
-            if (filename.startsWith(prefix) && filename.toLowerCase().endsWith(SaocomConstants.METADATA_EXT)) {
+        Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            if(Files.isDirectory(path)) {
+                path = path.resolve(PRODUCT_HEADER_NAME);
+                if(!Files.exists(path)) {
+                    return DecodeQualification.UNABLE;
+                }
+            }
+
+            final String filename = path.getFileName().toString().toLowerCase();
+            if (filename.equals(PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
+            if (filename.endsWith(".zip")) {
+                for(String prefix : PRODUCT_PREFIX) {
+                    if(filename.startsWith(prefix) &&
+                        (ZipUtils.findInZip(path.toFile(), prefix, PRODUCT_HEADER_NAME))) {
+                            return DecodeQualification.INTENDED;
+                    }
+                }
+            }
+            if(filename.endsWith(".safe") && Files.isDirectory(path)) {
+                for(String prefix : PRODUCT_PREFIX) {
+                    if(filename.startsWith(prefix)) {
+                        Path manifest = path.resolve(PRODUCT_HEADER_NAME);
+                        if(Files.exists(manifest)) {
+                            return DecodeQualification.INTENDED;
+                        }
+                    }
+                }
+            }
         }
+
         return DecodeQualification.UNABLE;
     }
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
-     * <p/>
+     * <p>
      * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
@@ -63,7 +98,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      */
     @Override
     public Class[] getInputTypes() {
-        return SaocomConstants.VALID_INPUT_TYPES;
+        return VALID_INPUT_TYPES;
     }
 
     /**
@@ -73,7 +108,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      */
     @Override
     public ProductReader createReaderInstance() {
-        return new SaocomProductReader(this);
+        return new SpacetyProductReader(this);
     }
 
     @Override
@@ -88,7 +123,7 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      */
     @Override
     public String[] getFormatNames() {
-        return SaocomConstants.getFormatNames();
+        return FORMAT_NAMES;
     }
 
     /**
@@ -101,13 +136,13 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      */
     @Override
     public String[] getDefaultFileExtensions() {
-        return SaocomConstants.getFormatFileExtensions();
+        return FORMAT_FILE_EXTENSIONS;
     }
 
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
+     * <p>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
@@ -115,16 +150,16 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      */
     @Override
     public String getDescription(final Locale locale) {
-        return SaocomConstants.getPluginDescription();
+        return PLUGIN_DESCRIPTION;
     }
 
     @Override
     public String getProductMetadataFileExtension() {
-        return SaocomConstants.METADATA_EXT;
+        return ".SAFE";
     }
 
     @Override
     public String[] getProductMetadataFilePrefixes() {
-        return SaocomConstants.METADATA_PREFIX;
+        return new String[]{"MANIFEST"};
     }
 }
