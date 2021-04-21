@@ -371,6 +371,67 @@ public final class SARGeocoding {
         }
     }
 
+    public static double computeSRGRRatio(
+            final int sourceImageWidth, final double firstLineUTC, final double lastLineUTC,
+            final double groundRangeSpacing, final double slantRangeSpacing, final double zeroDopplerTime,
+            final double slantRange, final double nearEdgeSlantRange,
+            final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
+
+        if (zeroDopplerTime < Math.min(firstLineUTC, lastLineUTC) ||
+                zeroDopplerTime > Math.max(firstLineUTC, lastLineUTC)) {
+            return -1.0;
+        }
+
+        final double[] srgrCoefficients = getSRGRCoefficients(zeroDopplerTime, srgrConvParams);
+
+        final int k = (int)((slantRange - nearEdgeSlantRange) / slantRangeSpacing);
+        final double sltRange1 = nearEdgeSlantRange + k * slantRangeSpacing;
+        final double sltRange2 = sltRange1 + slantRangeSpacing;
+
+        final double grdRange1 = computeGroundRange(sourceImageWidth, groundRangeSpacing, sltRange1,
+                srgrCoefficients, srgrConvParams[0].ground_range_origin);
+        if (grdRange1 < 0.0) {
+            return -1.0;
+        }
+
+        final double grdRange2 = computeGroundRange(sourceImageWidth, groundRangeSpacing, sltRange2,
+                srgrCoefficients, srgrConvParams[0].ground_range_origin);
+        if (grdRange2 < 0.0) {
+            return -1.0;
+        }
+
+        return slantRangeSpacing / (grdRange2 - grdRange1);
+    }
+
+    public static double[] getSRGRCoefficients(final double zeroDopplerTime,
+                                               final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
+
+        final double[] srgrCoefficients = new double[srgrConvParams[0].coefficients.length];
+
+        int idx = 0;
+        if (srgrConvParams.length == 1) {
+            System.arraycopy(srgrConvParams[0].coefficients, 0, srgrCoefficients, 0, srgrConvParams[0].coefficients.length);
+        } else {
+            for (int i = 0; i < srgrConvParams.length && zeroDopplerTime >= srgrConvParams[i].timeMJD; i++) {
+                idx = i;
+            }
+
+            if (idx == srgrConvParams.length - 1) {
+                idx--;
+            }
+
+            final double mu = (zeroDopplerTime - srgrConvParams[idx].timeMJD) /
+                    (srgrConvParams[idx + 1].timeMJD - srgrConvParams[idx].timeMJD);
+
+            for (int i = 0; i < srgrCoefficients.length; i++) {
+                srgrCoefficients[i] = Maths.interpolationLinear(srgrConvParams[idx].coefficients[i],
+                        srgrConvParams[idx + 1].coefficients[i], mu);
+            }
+        }
+
+        return srgrCoefficients;
+    }
+
     public static double computeExtendedRangeIndex(
             final boolean srgrFlag, final int sourceImageWidth, final double firstLineUTC, final double lastLineUTC,
             final double rangeSpacing, final double zeroDopplerTime, final double slantRange,
@@ -440,7 +501,7 @@ public final class SARGeocoding {
      * Compute ground range for given slant range.
      *
      * @param sourceImageWidth    The source image width.
-     * @param rangeSpacing        The range spacing.
+     * @param groundRangeSpacing  The ground range spacing.
      * @param slantRange          The slant range in meters.
      * @param srgrCoeff           The SRGR coefficients for converting ground range to slant range.
      *                            Here it is assumed that the polynomial is given by
@@ -448,7 +509,7 @@ public final class SARGeocoding {
      * @param ground_range_origin The ground range origin.
      * @return The ground range in meters.
      */
-    public static double computeGroundRange(final int sourceImageWidth, final double rangeSpacing,
+    public static double computeGroundRange(final int sourceImageWidth, final double groundRangeSpacing,
                                             final double slantRange, final double[] srgrCoeff,
                                             final double ground_range_origin) {
 
@@ -459,7 +520,7 @@ public final class SARGeocoding {
             return -1.0;
         }
 
-        double upperBound = ground_range_origin + sourceImageWidth * rangeSpacing;
+        double upperBound = ground_range_origin + sourceImageWidth * groundRangeSpacing;
         final double upperBoundSlantRange = Maths.computePolynomialValue(upperBound, srgrCoeff);
         if (slantRange > upperBoundSlantRange) {
             return -1.0;
