@@ -16,14 +16,12 @@
 package org.esa.s1tbx.io.orbits.sentinel1;
 
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -51,8 +49,6 @@ public class Sentinel1OrbitFileReader {
     }
 
     void read() throws Exception {
-        final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-        final DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
         final Document doc;
         if (orbitFile.getName().toLowerCase().endsWith(".zip")) {
@@ -60,147 +56,52 @@ public class Sentinel1OrbitFileReader {
             final Enumeration<? extends ZipEntry> entries = productZip.entries();
             final ZipEntry zipEntry = entries.nextElement();
 
-            doc = documentBuilder.parse(productZip.getInputStream(zipEntry));
+            doc = XMLSupport.LoadXML(productZip.getInputStream(zipEntry));
         } else {
-            doc = documentBuilder.parse(orbitFile);
+            doc = XMLSupport.LoadXML(orbitFile.getPath());
         }
 
-        doc.getDocumentElement().normalize();
-
-        final NodeList nodeList = doc.getElementsByTagName("Earth_Explorer_File");
-        if (nodeList.getLength() != 1) {
-            throw new Exception("SentinelPODOrbitFile.readOrbitFile: ERROR found too many Earth_Explorer_File " + nodeList.getLength());
-        }
-
-        org.w3c.dom.Node fixedHeaderNode = null;
-        org.w3c.dom.Node variableHeaderNode = null;
-        org.w3c.dom.Node listOfOSVsNode = null;
-
-        final NodeList fileChildNodes = nodeList.item(0).getChildNodes();
-
-        for (int i = 0; i < fileChildNodes.getLength(); i++) {
-
-            final org.w3c.dom.Node fileChildNode = fileChildNodes.item(i);
-
-            if (fileChildNode.getNodeName().equals("Earth_Explorer_Header")) {
-
-                final NodeList headerChildNodes = fileChildNode.getChildNodes();
-
-                for (int j = 0; j < headerChildNodes.getLength(); j++) {
-
-                    final org.w3c.dom.Node headerChildNode = headerChildNodes.item(j);
-
-                    if (headerChildNode.getNodeName().equals("Fixed_Header")) {
-
-                        fixedHeaderNode = headerChildNode;
-
-                    } else if (headerChildNode.getNodeName().equals("Variable_Header")) {
-
-                        variableHeaderNode = headerChildNode;
-                    }
-                }
-
-            } else if (fileChildNode.getNodeName().equals("Data_Block")) {
-
-                final NodeList dataBlockChildNodes = fileChildNode.getChildNodes();
-
-                for (int j = 0; j < dataBlockChildNodes.getLength(); j++) {
-
-                    final org.w3c.dom.Node dataBlockChildNode = dataBlockChildNodes.item(j);
-
-                    if (dataBlockChildNode.getNodeName().equals("List_of_OSVs")) {
-
-                        listOfOSVsNode = dataBlockChildNode;
-                    }
-                }
-            }
-
-            if (fixedHeaderNode != null && variableHeaderNode != null && listOfOSVsNode != null) {
-                break;
+        final Element earthExplorer = doc.getRootElement();
+        final Element earthExplorerHeader = earthExplorer.getChild("Earth_Explorer_Header");
+        if(earthExplorerHeader != null) {
+            final Element fixedHeaderElem = earthExplorerHeader.getChild("Fixed_Header");
+            if(fixedHeaderElem != null) {
+                fixedHeader = readFixedHeader(fixedHeaderElem);
             }
         }
 
-        if (fixedHeaderNode != null) {
-
-            readFixedHeader(fixedHeaderNode);
-        }
-
-        if (listOfOSVsNode != null) {
-
-            osvList = readOSVList(listOfOSVsNode);
+        final Element dataBlock = earthExplorer.getChild("Data_Block");
+        if(dataBlock != null) {
+            final Element listOfOSVs = dataBlock.getChild("List_of_OSVs");
+            osvList = readOSVList(listOfOSVs);
         }
     }
 
-    private void readFixedHeader(final org.w3c.dom.Node fixedHeaderNode) {
+    private static FixedHeader readFixedHeader(final Element fixedHeaderElem) {
 
-        final NodeList fixedHeaderChildNodes = fixedHeaderNode.getChildNodes();
+        String mission = fixedHeaderElem.getChild("Mission").getText();
+        String fileType = fixedHeaderElem.getChild("File_Type").getText();
 
-        String mission = null;
-        String fileType = null;
-        String validityStart = null;
-        String validityStop = null;
+        final Element validityPeriodElem = fixedHeaderElem.getChild("Validity_Period");
+        String validityStart = validityPeriodElem.getChild("Validity_Start").getText();
+        String validityStop = validityPeriodElem.getChild("Validity_Stop").getText();
 
-        for (int i = 0; i < fixedHeaderChildNodes.getLength(); i++) {
+        final Element sourceElem = fixedHeaderElem.getChild("Source");
+        String version = sourceElem.getChild("Creator_Version").getText();
 
-            final org.w3c.dom.Node fixedHeaderChildNode = fixedHeaderChildNodes.item(i);
-
-            switch (fixedHeaderChildNode.getNodeName()) {
-                case "Mission":
-
-                    mission = fixedHeaderChildNode.getTextContent();
-
-                    break;
-                case "File_Type":
-
-                    fileType = fixedHeaderChildNode.getTextContent();
-
-                    break;
-                case "Validity_Period":
-
-                    final NodeList validityPeriodChildNodes = fixedHeaderChildNode.getChildNodes();
-
-                    for (int j = 0; j < validityPeriodChildNodes.getLength(); j++) {
-
-                        final org.w3c.dom.Node validityPeriodChildNode = validityPeriodChildNodes.item(j);
-
-                        if (validityPeriodChildNode.getNodeName().equals("Validity_Start")) {
-
-                            validityStart = validityPeriodChildNode.getTextContent();
-
-                        } else if (validityPeriodChildNode.getNodeName().equals("Validity_Stop")) {
-
-                            validityStop = validityPeriodChildNode.getTextContent();
-                        }
-                    }
-                    break;
-            }
-
-            if (mission != null && fileType != null && validityStart != null && validityStop != null) {
-
-                fixedHeader = new FixedHeader(mission, fileType, validityStart, validityStop);
-                break;
-            }
-        }
+        return new FixedHeader(mission, fileType, validityStart, validityStop, version);
     }
 
-    private static List<Orbits.OrbitVector> readOSVList(final org.w3c.dom.Node listOfOSVsNode) throws Exception {
+    private static List<Orbits.OrbitVector> readOSVList(final Element listOfOSVsNode) throws Exception {
 
-        final org.w3c.dom.Node attrCount = getAttributeFromNode(listOfOSVsNode, "count");
-        final int count = Integer.parseInt(attrCount.getTextContent());
+        final int count = Integer.parseInt(listOfOSVsNode.getAttributeValue("count"));
         final List<Orbits.OrbitVector> osvList = new ArrayList<>();
 
-        org.w3c.dom.Node childNode = listOfOSVsNode.getFirstChild();
         int osvCnt = 0;
-
-        while (childNode != null) {
-
-            if (childNode.getNodeName().equals("OSV")) {
-
-                osvCnt++;
-                osvList.add(readOneOSV(childNode));
-            }
-
-            childNode = childNode.getNextSibling();
+        final List<Element> osvElemList = listOfOSVsNode.getChildren("OSV");
+        for(Element osvElem : osvElemList) {
+            osvList.add(readOneOSV(osvElem));
+            osvCnt++;
         }
 
         osvList.sort(new Orbits.OrbitComparator());
@@ -212,87 +113,19 @@ public class Sentinel1OrbitFileReader {
         return osvList;
     }
 
-    private static Orbits.OrbitVector readOneOSV(final org.w3c.dom.Node osvNode) throws Exception {
+    private static Orbits.OrbitVector readOneOSV(final Element osvNode) throws Exception {
 
-        String utc = "";
-        double x = 0.0;
-        double y = 0.0;
-        double z = 0.0;
-        double vx = 0.0;
-        double vy = 0.0;
-        double vz = 0.0;
-
-        org.w3c.dom.Node childNode = osvNode.getFirstChild();
-
-        while (childNode != null) {
-
-            switch (childNode.getNodeName()) {
-                case "UTC": {
-                    utc = childNode.getTextContent();
-                }
-                break;
-                case "X": {
-                    x = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "Y": {
-                    y = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "Z": {
-                    z = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "VX": {
-                    vx = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "VY": {
-                    vy = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                case "VZ": {
-                    vz = Double.parseDouble(childNode.getTextContent());
-                }
-                break;
-                default:
-                    break;
-            }
-
-            childNode = childNode.getNextSibling();
-        }
+        final String utc = osvNode.getChild("UTC").getText();
+        double x = Double.parseDouble(osvNode.getChild("X").getText());
+        double y = Double.parseDouble(osvNode.getChild("Y").getText());
+        double z = Double.parseDouble(osvNode.getChild("Z").getText());
+        double vx = Double.parseDouble(osvNode.getChild("VX").getText());
+        double vy = Double.parseDouble(osvNode.getChild("VY").getText());
+        double vz = Double.parseDouble(osvNode.getChild("VZ").getText());
 
         final double utcTime = toUTC(utc).getMJD();
 
         return new Orbits.OrbitVector(utcTime, x, y, z, vx, vy, vz);
-    }
-
-    // TODO This is copied from Sentinel1Level0Reader.java; may be we should put in in some utilities class.
-    private static org.w3c.dom.Node getAttributeFromNode(final org.w3c.dom.Node node, final String attrName) {
-
-        // Will look for attribute called attrName in the given node
-
-        NamedNodeMap attr = node.getAttributes();
-
-        org.w3c.dom.Node attrNode = null;
-
-        for (int j = 0; j < attr.getLength(); j++) {
-
-            if (attr.item(j).getNodeName().equals(attrName)) {
-                if (attrNode == null) {
-                    attrNode = attr.item(j);
-                } else {
-                    // Should not be possible
-                    SystemUtils.LOG.warning("SentinelPODOrbitFile.getAttributeFromNode: WARNING more than one " + attrName + " in " + node.getNodeName());
-                }
-            }
-        }
-
-        if (attrNode == null) {
-            SystemUtils.LOG.warning("SentinelPODOrbitFile.getAttributeFromNode: Failed to find " + attrName + " in " + node.getNodeName());
-        }
-
-        return attrNode;
     }
 
     private static String convertUTC(String utc) {
@@ -405,19 +238,26 @@ public class Sentinel1OrbitFileReader {
         return ProductData.UTC.parse(convertUTC(str), orbitDateFormat);
     }
 
+    public String getFileVersion() {
+        return fixedHeader.version;
+    }
+
     private static final class FixedHeader {
 
         private final String mission;
         private final String fileType;
         private final String validityStart;
         private final String validityStop;
+        private final String version;
 
-        FixedHeader(final String mission, final String fileType, final String validityStart, final String validityStop) {
+        FixedHeader(final String mission, final String fileType,
+                    final String validityStart, final String validityStop, final String version) {
 
             this.mission = mission;
             this.fileType = fileType;
             this.validityStart = validityStart;
             this.validityStop = validityStop;
+            this.version = version;
         }
     }
 }
