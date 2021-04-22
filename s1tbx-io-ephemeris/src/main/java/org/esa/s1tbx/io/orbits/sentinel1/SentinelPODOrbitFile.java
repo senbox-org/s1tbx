@@ -54,8 +54,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private final int polyDegree;
 
     private List<Orbits.OrbitVector> osvList = new ArrayList<>();
+    private String fileVersion;
 
-    private static LoadingCache<File, List<Orbits.OrbitVector>> cache;
+    private static LoadingCache<File, Sentinel1OrbitFileReader> cache;
 
     public SentinelPODOrbitFile(final MetadataElement absRoot, final int polyDegree) {
         super(absRoot);
@@ -190,6 +191,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
+    @Override
+    public String getVersion() {
+        return fileVersion;
+    }
+
     /**
      * Get orbit state vector for given time using polynomial fitting.
      *
@@ -260,20 +266,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private void readOrbitFile() throws Exception {
 
-        List<Orbits.OrbitVector> cachedOSVList = getCache().get(orbitFile);
-        if(cachedOSVList != null && !cachedOSVList.isEmpty()) {
-            osvList = cachedOSVList;
-            return;
-        }
-
-        final Sentinel1OrbitFileReader orbitFileReader = new Sentinel1OrbitFileReader(orbitFile);
-        orbitFileReader.read();
-
-        osvList = orbitFileReader.getOrbitStateVectors();
+        final Sentinel1OrbitFileReader orbitFileReader = getCache().get(orbitFile);
 
         checkOrbitFileValidity(orbitFileReader);
 
-        getCache().put(orbitFile, osvList);
+        osvList = orbitFileReader.getOrbitStateVectors();
+        fileVersion = orbitFileReader.getFileVersion();
     }
 
     private static class S1OrbitFileFilter implements FilenameFilter {
@@ -290,20 +288,23 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    private LoadingCache<File, List<Orbits.OrbitVector>> getCache() {
+    private LoadingCache<File, Sentinel1OrbitFileReader> getCache() {
         if(cache == null) {
             cache = createCache();
         }
         return cache;
     }
 
-    private static LoadingCache<File, List<Orbits.OrbitVector>> createCache() {
-        return CacheBuilder.newBuilder().maximumSize(6).initialCapacity(6)
-                .expireAfterAccess(5, TimeUnit.MINUTES)
-                .build(new CacheLoader<File, List<Orbits.OrbitVector>>() {
+    private static LoadingCache<File, Sentinel1OrbitFileReader> createCache() {
+        return CacheBuilder.newBuilder().maximumSize(100).initialCapacity(100)
+                .expireAfterAccess(20, TimeUnit.MINUTES)
+                .build(new CacheLoader<File, Sentinel1OrbitFileReader>() {
                            @Override
-                           public List<Orbits.OrbitVector> load(File key) {
-                               return new ArrayList<>();
+                           public Sentinel1OrbitFileReader load(File key) throws Exception {
+                               Sentinel1OrbitFileReader orbitFileReader = new Sentinel1OrbitFileReader(key);
+                               orbitFileReader.read();
+
+                               return orbitFileReader;
                            }
                        }
                 );
