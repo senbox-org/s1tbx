@@ -7,7 +7,7 @@
     <artifactId>s1tbx</artifactId>
     <version>9.0.0-SNAPSHOT</version>
     <name>Sentinel-1 Toolbox</name>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1</url>
     <description>Tools for SAR Earth Observation</description>
     
     <packaging>pom</packaging>
@@ -616,6 +616,7 @@
                     <configuration>
                         <moduleType>normal</moduleType>
                         <licenseName>GPL 3</licenseName>
+                        <homePageUrl>https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1</homePageUrl>
                         <licenseFile>${project.basedir}/../LICENSE.html</licenseFile>
                         <cluster>${brandingToken}</cluster>
                         <brandingToken>${brandingToken}</brandingToken>
