@@ -201,7 +201,7 @@ class HTTPDownloader {
             }
         }
 
-        return new EntryFileProperty(outFile.getAbsolutePath(), bytesToHex(md5ChecksumFromFilePath(outFile)), null, downloadedFileSize);
+        return new EntryFileProperty(outFile.getAbsolutePath(), downloadedFileSize);
     }
 
     private static byte[] md5ChecksumFromFilePath(final File fSource){
@@ -283,7 +283,11 @@ class HTTPDownloader {
         private final String uuid;
         private final long size;
 
-        EntryFileProperty(String name, String md5Checksum, String uuid, long size) {
+        EntryFileProperty(final String name, final long size) {
+            this(name,null, null,size);
+        }
+
+        EntryFileProperty(final String name, final String md5Checksum, final String uuid, final long size) {
             this.name = name;
             this.md5Checksum = md5Checksum;
             this.uuid = uuid;

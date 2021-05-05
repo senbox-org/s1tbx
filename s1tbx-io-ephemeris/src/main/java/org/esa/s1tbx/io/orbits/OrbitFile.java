@@ -48,4 +48,6 @@ public interface OrbitFile {
      * @return the new orbit file
      */
     File getOrbitFile();
+
+    default String getVersion() { return null; }
 }
