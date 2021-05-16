@@ -13,24 +13,22 @@
  */
 package org.esa.s1tbx.io.gaofen3;
 
+import org.esa.s1tbx.commons.io.S1TBXFileFilter;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
 
 /**
  * @author Jakob Grahn
  */
-public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
+public class Gaofen3ProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
     private static final String[] PRODUCT_PREFIX = new String[] {"GF3_"};
     private static final String PRODUCT_FORMAT = "Gaofen3";
@@ -70,48 +68,6 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    public static File findMetadataFile(final Path folderPath) {
-        final File folder = folderPath.toFile();
-        if (folder.isDirectory()) {
-            final File[] fileList = folder.listFiles();
-            if (fileList != null) {
-                for (File f : fileList) {
-                    if (isValidProductName(f)) {
-                        return f;
-                    }
-                }
-            }
-        } else {
-            try {
-                final File file = folderPath.toRealPath().toFile();
-                if (isValidProductName(file)) {
-                    return folder;
-                } else {
-                    File metadataFile = new File(file.getParentFile(),
-                            FileUtils.getFilenameWithoutExtension(file.getName()) + METADATA_EXT);
-                    if(metadataFile.exists()) {
-                        return metadataFile;
-                    }
-                }
-            } catch (IOException e) {
-                SystemUtils.LOG.severe("Unable to findMetadataFile " + e.getMessage());
-            }
-        }
-        return null;
-    }
-
-    public static boolean isValidProductName(final File file) {
-        final String filename = file.getName().toUpperCase();
-        if(filename.endsWith(METADATA_EXT.toUpperCase())) {
-            for (String prefix : PRODUCT_PREFIX) {
-                if (filename.startsWith(prefix)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
      * <p>
@@ -135,7 +91,7 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     public SnapFileFilter getProductFileFilter() {
-        return new FileFilter();
+        return new S1TBXFileFilter(this);
     }
 
     /**
@@ -172,28 +128,13 @@ public class Gaofen3ProductReaderPlugIn implements ProductReaderPlugIn {
         return PLUGIN_DESCRIPTION;
     }
 
-    public static class FileFilter extends SnapFileFilter {
+    @Override
+    public String getProductMetadataFileExtension() {
+        return METADATA_EXT;
+    }
 
-        public FileFilter() {
-            super();
-            setFormatName(PRODUCT_FORMAT);
-            setExtensions(new String[] {METADATA_EXT});
-            setDescription(PLUGIN_DESCRIPTION);
-        }
-
-        /**
-         * Tests whether or not the given file is accepted by this filter. The default implementation returns
-         * <code>true</code> if the given file is a directory or the path string ends with one of the registered extensions.
-         * if no extension are defined, the method always returns <code>true</code>
-         *
-         * @param file the file to be or not be accepted.
-         * @return <code>true</code> if given file is accepted by this filter
-         */
-        public boolean accept(final File file) {
-            if (super.accept(file)) {
-                return file.isDirectory() || findMetadataFile(file.toPath()) != null;
-            }
-            return false;
-        }
+    @Override
+    public String[] getProductMetadataFilePrefixes() {
+        return PRODUCT_PREFIX;
     }
 }

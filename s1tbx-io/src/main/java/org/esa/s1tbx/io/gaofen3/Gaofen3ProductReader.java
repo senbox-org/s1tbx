@@ -15,9 +15,9 @@ package org.esa.s1tbx.io.gaofen3;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.DataCache;
-import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -40,6 +40,7 @@ import java.nio.file.Path;
  */
 public class Gaofen3ProductReader extends SARReader {
 
+    private final S1TBXProductReaderPlugIn readerPlugIn;
     private Gaofen3ProductDirectory dataDir;
     private final DataCache cache;
 
@@ -49,11 +50,11 @@ public class Gaofen3ProductReader extends SARReader {
      * @param readerPlugIn the reader plug-in which created this reader, can be <code>null</code> for internal reader
      *                     implementations
      */
-    public Gaofen3ProductReader(final ProductReaderPlugIn readerPlugIn) {
+    public Gaofen3ProductReader(final S1TBXProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
         cache = new DataCache();
+        this.readerPlugIn = readerPlugIn;
     }
-
 
     @Override
     public void close() throws IOException {
@@ -81,7 +82,7 @@ public class Gaofen3ProductReader extends SARReader {
         }
 
         final Path path = getPathFromInput(input);
-        File metadataFile = Gaofen3ProductReaderPlugIn.findMetadataFile(path);
+        File metadataFile = readerPlugIn.findMetadataFile(path);
 
         dataDir = new Gaofen3ProductDirectory(metadataFile);
         dataDir.readProductDirectory();
