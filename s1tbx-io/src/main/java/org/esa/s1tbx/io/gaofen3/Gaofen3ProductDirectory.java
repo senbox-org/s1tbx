@@ -48,10 +48,7 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
-import java.util.Arrays;
-import java.util.Collections;
 
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  * @author Jakob Grahn

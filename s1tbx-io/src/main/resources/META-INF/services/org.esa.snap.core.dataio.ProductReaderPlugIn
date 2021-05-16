@@ -1,4 +1,3 @@
-org.esa.s1tbx.io.gaofen3.Gaofen3ProductReaderPlugIn
 org.esa.s1tbx.io.capella.CapellaProductReaderPlugIn
 org.esa.s1tbx.io.ceos.ers.ERSProductReaderPlugIn
 org.esa.s1tbx.io.ceos.jers.JERSProductReaderPlugIn
@@ -8,6 +7,7 @@ org.esa.s1tbx.io.ceos.alos2.Alos2GeoTiffProductReaderPlugIn
 org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn
 org.esa.s1tbx.io.cosmo.CosmoSkymedReaderPlugIn
 org.esa.s1tbx.io.gamma.GammaProductReaderPlugIn
+org.esa.s1tbx.io.gaofen3.Gaofen3ProductReaderPlugIn
 org.esa.s1tbx.io.gtopo30.GTOPO30ReaderPlugIn
 org.esa.s1tbx.io.kompsat5.Kompsat5ReaderPlugIn
 org.esa.s1tbx.io.paz.PazProductReaderPlugIn
