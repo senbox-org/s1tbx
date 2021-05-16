@@ -29,6 +29,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -68,82 +69,84 @@ public class TestSentinelPODOrbitFile {
         final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(absRoot, 3);
         podOrbitFile.retrieveOrbitFile(SentinelPODOrbitFile.PRECISE);
 
+        assertEquals("1.10.1", podOrbitFile.getVersion());
+
         // First OSV (exact match)
-        String utcStr1 = "UTC=2014-05-25T15:19:21.698661";
+        String utcStr1 = "UTC=2015-08-27T22:59:43.000000";
         double utc1 = Sentinel1OrbitFileReader.toUTC(utcStr1).getMJD();
         Orbits.OrbitVector orbitData = podOrbitFile.getOrbitData(utc1);
-        assert(orbitData.xPos == -3.1501508247974257E19);
-        assert(orbitData.yPos == 8.268709303811858E19);
-        assert(orbitData.zPos == 2.4697297126022783E19);
-        assert(orbitData.xVel == 2.9129073756671728E16);
-        assert(orbitData.yVel == 3.6850695790661096E16);
-        assert(orbitData.zVel == -8.8394902904799616E16);
+        assertEquals(-368251.718419, orbitData.xPos, 0.00001);
+        assertEquals(-2299963.236657, orbitData.yPos, 0.00001);
+        assertEquals(6671242.884855, orbitData.zPos, 0.00001);
+        assertEquals(-2359.280562, orbitData.xVel, 0.00001);
+        assertEquals(6854.762675, orbitData.yVel, 0.00001);
+        assertEquals(2228.116584, orbitData.zVel, 0.00001);
 
         // Last OSV (exact match)
-        utcStr1 = "UTC=2014-05-25T18:36:41.698661";
+        utcStr1 = "UTC=2015-08-29T00:59:43.000000";
         utc1 = Sentinel1OrbitFileReader.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
-        assert(orbitData.xPos == -3.147332110679456E19);
-        assert(orbitData.yPos == 8.26131072549093E19);
-        assert(orbitData.zPos == 2.467519679832084E19);
-        assert(orbitData.xVel == 2.9103010465610332E16);
-        assert(orbitData.yVel == 3.6817720802569768E16);
-        assert(orbitData.zVel == -8.8315809808721968E16);
+        assertEquals(-1801672.0416870117, orbitData.xPos, 0.00001);
+        assertEquals(-6843683.1560668945, orbitData.yPos, 0.00001);
+        assertEquals(-10341.53857421875, orbitData.zPos, 0.00001);
+        assertEquals(-1531.6392338871956, orbitData.xVel, 0.00001);
+        assertEquals(401.30609583854675, orbitData.yVel, 0.00001);
+        assertEquals(7430.427426996641, orbitData.zVel, 0.00001);
 
         // 500th OSV (exact match)
-        utcStr1 = "UTC=2014-05-25T16:42:31.698661";
+        utcStr1 = "UTC=2015-08-28T00:23:03.000000";
         utc1 = Sentinel1OrbitFileReader.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
-        assert(orbitData.xPos == -3.1489626650287845E19);
-        assert(orbitData.yPos == 8.265590614684035E19);
-        assert(orbitData.zPos == 2.4687981275085324E19);
-        assert(orbitData.xVel == 2.911808741596072E16);
-        assert(orbitData.yVel == 3.6836795993490472E16);
-        assert(orbitData.zVel == -8.8361563151106112E16);
+        assertEquals(-942678.5061780214, orbitData.xPos, 0.00001);
+        assertEquals(-6731873.704930037, orbitData.yPos, 0.00001);
+        assertEquals(1959410.9963270426, orbitData.zPos, 0.00001);
+        assertEquals(-1304.736001000012, orbitData.xVel, 0.00001);
+        assertEquals(2269.5797080000048, orbitData.yVel, 0.00001);
+        assertEquals(7132.566981000011, orbitData.zVel, 0.00001);
 
         // between 450th and 451th OSV (closer to 450th)
-        utcStr1 = "UTC=2014-05-25T16:34:14.698661";
+        utcStr1 = "UTC=2015-08-28T00:14:45.000000";
         utc1 = Sentinel1OrbitFileReader.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
-        assert(orbitData.xPos == -3.1490809913905762E19);
-        assert(orbitData.yPos == 8.265901198452882E19);
-        assert(orbitData.zPos == 2.4688909021310206E19);
-        assert(orbitData.xVel == 2.9119181522802116E16);
-        assert(orbitData.yVel == 3.683818024539328E16);
-        assert(orbitData.zVel == -8.8364883387887632E16);
+        assertEquals(-178042.07025708258, orbitData.xPos, 0.00001);
+        assertEquals(-6869995.854708411, orbitData.yPos, 0.00001);
+        assertEquals(-1697201.8589743972, orbitData.zPos, 0.00001);
+        assertEquals(-1645.6544726879947, orbitData.xVel, 0.00001);
+        assertEquals(-1730.7971334199392, orbitData.yVel, 0.00001);
+        assertEquals(7208.367487452444, orbitData.zVel, 0.00001);
 
         // between 450th and 451th OSV (closer to 451th)
-        utcStr1 = "UTC=2014-05-25T16:34:18.698661";
+        utcStr1 = "UTC=2015-08-28T00:14:50.999999";
         utc1 = Sentinel1OrbitFileReader.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
-        assert(orbitData.xPos == -3.149080039053903E19);
-        assert(orbitData.yPos == 8.265898698753671E19);
-        assert(orbitData.zPos == 2.468890155444702E19);
-        assert(orbitData.xVel == 2.9119172717003868E16);
-        assert(orbitData.yVel == 3.6838169104394488E16);
-        assert(orbitData.zVel == -8.8364856665328064E16);
+        assertEquals(-187916.8427630216, orbitData.xPos, 0.00001);
+        assertEquals(-6880237.810813792, orbitData.yPos, 0.00001);
+        assertEquals(-1653917.5010708272, orbitData.zPos, 0.00001);
+        assertEquals(-1645.9188845989265, orbitData.xVel, 0.00001);
+        assertEquals(-1683.1769871794822, orbitData.yVel, 0.00001);
+        assertEquals(7219.705373079771, orbitData.zVel, 0.00001);
 
         // OSV earlier than all
         utcStr1 = "UTC=2014-05-25T15:10:21.698661";
         utc1 = Sentinel1OrbitFileReader.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
-        assert(orbitData.xPos == -3.1502794211280278E19);
-        assert(orbitData.yPos == 8.269046844256785E19);
-        assert(orbitData.zPos == 2.4698305394683273E19);
-        assert(orbitData.xVel == 2.913026282495338E16);
-        assert(orbitData.yVel == 3.6852200186762112E16);
-        assert(orbitData.zVel == -8.8398511316807696E16);
+        assertEquals(-3.150273170852699E19, orbitData.xPos, 0.00001);
+        assertEquals(8.269037468208297E19, orbitData.yPos, 0.00001);
+        assertEquals(2.4698065798492193E19, orbitData.zPos, 0.00001);
+        assertEquals(2.9099011052782536E16, orbitData.xVel, 0.00001);
+        assertEquals(3.6873034709899288E16, orbitData.yVel, 0.00001);
+        assertEquals(-8.8408928573603792E16, orbitData.zVel, 0.00001);
 
         // OSV later than all
-        utcStr1 = "UTC=2014-05-25T18:36:41.699662";
+        utcStr1 = "UTC=2015-09-10T18:36:41.699662";
         utc1 = Sentinel1OrbitFileReader.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
-        assert(orbitData.xPos == -3.147332110441233E19);
-        assert(orbitData.yPos == 8.26131072486564E19);
-        assert(orbitData.zPos == 2.467519679645303E19);
-        assert(orbitData.xVel == 2.9103010463407592E16);
-        assert(orbitData.yVel == 3.6817720799782896E16);
-        assert(orbitData.zVel == -8.8315809802037424E16);
+        assertEquals(6.475599032734154E14, orbitData.xPos, 0.00001);
+        assertEquals(-1.2459061082351416E14, orbitData.yPos, 0.00001);
+        assertEquals(-1.8615578366160958E15, orbitData.zPos, 0.00001);
+        assertEquals(-5.251709936239622E11, orbitData.xVel, 0.00001);
+        assertEquals(-2.0816778799893662E12, orbitData.yVel, 0.00001);
+        assertEquals(-5.457739965786061E10, orbitData.zVel, 0.00001);
 
 
         final Sentinel1OrbitFileReader orbitFileReader = new Sentinel1OrbitFileReader(podOrbitFile.getOrbitFile());
