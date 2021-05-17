@@ -61,9 +61,6 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
             }
 
             final String filename = path.getFileName().toString().toLowerCase();
-            if (filename.equals(PRODUCT_HEADER_NAME)) {
-                return DecodeQualification.INTENDED;
-            }
             if (filename.endsWith(".zip")) {
                 for(String prefix : PRODUCT_PREFIX) {
                     if(filename.startsWith(prefix) &&
@@ -72,11 +69,11 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
                     }
                 }
             }
-            if(filename.endsWith(".safe") && Files.isDirectory(path)) {
-                for(String prefix : PRODUCT_PREFIX) {
-                    if(filename.startsWith(prefix)) {
-                        Path manifest = path.resolve(PRODUCT_HEADER_NAME);
-                        if(Files.exists(manifest)) {
+            if (filename.equals(PRODUCT_HEADER_NAME)) {
+                final String parentFolderName = path.getParent().getFileName().toString().toLowerCase();
+                if (parentFolderName.endsWith(".safe")) {
+                    for (String prefix : PRODUCT_PREFIX) {
+                        if (parentFolderName.startsWith(prefix)) {
                             return DecodeQualification.INTENDED;
                         }
                     }
