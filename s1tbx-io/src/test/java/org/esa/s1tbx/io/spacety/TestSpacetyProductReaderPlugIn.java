@@ -54,7 +54,7 @@ public class TestSpacetyProductReaderPlugIn extends AbstractProductReaderPlugInT
     @Test
     public void testDecodeWithS2Data() throws URISyntaxException {
         File dir = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE").toURI());
-        File manifestFile = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE\\manifest.safe").toURI());
+        File manifestFile = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE/manifest.safe").toURI());
 
         assertEquals(DecodeQualification.UNABLE, plugin.getDecodeQualification(dir));
         assertEquals(DecodeQualification.UNABLE, plugin.getDecodeQualification(manifestFile));
