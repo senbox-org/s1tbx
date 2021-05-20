@@ -1,0 +1,96 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "Capella_Strip_GEO",
+	"expectedContent": {
+		"metadata": [{
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/state\/coordinate_system\/type",
+				"value": "ecef"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/transmit_antenna\/beam_pattern\/coefficients\/coefficients[4]\/coefficients9",
+				"value": "0.0"
+			}, {
+				"path": "Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector7\/time",
+				"value": "18-NOV-2020 18:51:23.399826"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/pointing\/pointing[6]\/attitude\/attitude2",
+				"value": "0.6342080584385305"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/transmit_antenna\/beam_pattern\/coefficients\/coefficients\/coefficients7",
+				"value": "4.028841477627756E11"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/receive_antenna\/beam_pattern\/coefficients\/coefficients[6]\/coefficients5",
+				"value": "-5.8897430574713201E18"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/image\/range_window\/parameters\/nbar",
+				"value": "3"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/state\/coordinate_system\/type",
+				"value": "ecef"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/image\/center_pixel\/target_position\/target_position1",
+				"value": "4199088.620385428"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/transmit_antenna\/beam_pattern\/coefficients\/coefficients[9]\/coefficients9",
+				"value": "0.0"
+			}
+		],
+		"tiePointGrids": [{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 1482,
+						"y": 2040,
+						"value": 34.107506
+					}, {
+						"x": 19462,
+						"y": 9741,
+						"value": 34.107506
+					}
+				],
+				"name": "incident_angle",
+				"subSamplingY": "3817.6666666666665",
+				"subSamplingX": "9469.666666666666"
+			}
+		],
+		"sceneHeight": 11453,
+		"sceneWidth": 28409,
+		"geoCoding": {
+			"coordinates": [{
+					"x": 12253.0,
+					"y": 6156.0,
+					"lon": 10.576870003642899,
+					"lat": 48.04266480004403
+				}, {
+					"x": 21092.0,
+					"y": 7431.0,
+					"lon": 10.67140597517326,
+					"lat": 48.032150607780956
+				}
+			],
+			"reverseAccuracy": 2.784654498100281E-7
+		},
+		"startTime": "18-NOV-2020 18:51:23.044280",
+		"endTime": "18-NOV-2020 18:51:27.132052",
+		"bands": [{
+				"bandWidth": 28409,
+				"noDataValueUsed": "true",
+				"bandHeight": 11453,
+				"expectedPixels": [{
+						"x": 8263,
+						"y": 2941,
+						"value": "NaN"
+					}, {
+						"x": 17343,
+						"y": 4183,
+						"value": 0.4053764
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Sigma0_HH",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}
