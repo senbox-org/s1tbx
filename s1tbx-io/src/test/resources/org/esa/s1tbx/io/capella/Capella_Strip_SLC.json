@@ -1,0 +1,167 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "Capella_Strip_SLC",
+	"expectedContent": {
+		"metadata": [{
+				"path": "Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector7\/time",
+				"value": "18-NOV-2020 18:51:23.399826"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/pointing\/pointing[6]\/attitude\/attitude2",
+				"value": "0.6342080584385305"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/transmit_antenna\/beam_pattern\/coefficients\/coefficients\/coefficients7",
+				"value": "4.028841477627756E11"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/receive_antenna\/beam_pattern\/coefficients\/coefficients[6]\/coefficients5",
+				"value": "-5.8897430574713201E18"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/image\/range_window\/parameters\/nbar",
+				"value": "3"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/state\/coordinate_system\/type",
+				"value": "ecef"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/image\/center_pixel\/target_position\/target_position1",
+				"value": "4199768.217264862"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/transmit_antenna\/beam_pattern\/coefficients\/coefficients[9]\/coefficients9",
+				"value": "0.0"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/image\/center_pixel\/target_position\/target_position2",
+				"value": "785898.4832541768"
+			}, {
+				"path": "Original_Product_Metadata\/ProductMetadata\/collect\/radar\/prf\/prf\/start_timestamps\/start_timestamps1",
+				"value": "2020-11-18T18:51:23.044280842Z"
+			}
+		],
+		"tiePointGrids": [{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 234,
+						"y": 4411,
+						"value": 48.011463
+					}, {
+						"x": 3074,
+						"y": 21061,
+						"value": 48.050987
+					}
+				],
+				"name": "latitude",
+				"subSamplingY": "2751.222222222222",
+				"subSamplingX": "498.55555555555554"
+			}, {
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 1305,
+						"y": 6359,
+						"value": 10.534551
+					}, {
+						"x": 2739,
+						"y": 9044,
+						"value": 10.561917
+					}
+				],
+				"name": "longitude",
+				"subSamplingY": "2751.222222222222",
+				"subSamplingX": "498.55555555555554"
+			}, {
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 2468,
+						"y": 18455,
+						"value": 34.028435
+					}, {
+						"x": 2729,
+						"y": 22989,
+						"value": 34.028435
+					}
+				],
+				"name": "incident_angle",
+				"subSamplingY": "8253.666666666666",
+				"subSamplingX": "1495.6666666666667"
+			}
+		],
+		"sceneHeight": 24761,
+		"sceneWidth": 4487,
+		"geoCoding": {
+			"coordinates": [{
+					"x": 1935.0,
+					"y": 13310.0,
+					"lon": 10.609728741590176,
+					"lat": 48.03446384504482
+				}, {
+					"x": 3331.0,
+					"y": 16067.0,
+					"lon": 10.637968586847595,
+					"lat": 48.050190062737656
+				}
+			],
+			"reverseAccuracy": 1.8859308610274184
+		},
+		"startTime": "18-NOV-2020 18:51:23.564636",
+		"endTime": "18-NOV-2020 18:51:26.611695",
+		"bands": [{
+				"bandWidth": 4487,
+				"noDataValueUsed": "true",
+				"bandHeight": 24761,
+				"expectedPixels": [{
+						"x": 710,
+						"y": 16492,
+						"value": -0.01886662
+					}, {
+						"x": 2329,
+						"y": 22619,
+						"value": 0.1424297
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "i_HH",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "real"
+			}, {
+				"bandWidth": 4487,
+				"noDataValueUsed": "true",
+				"bandHeight": 24761,
+				"expectedPixels": [{
+						"x": 3392,
+						"y": 11999,
+						"value": -0.11280113
+					}, {
+						"x": 4266,
+						"y": 12030,
+						"value": 0.11333258
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "q_HH",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "imaginary"
+			}, {
+				"bandWidth": 4487,
+				"noDataValueUsed": "true",
+				"bandHeight": 24761,
+				"expectedPixels": [{
+						"x": 1527,
+						"y": 22270,
+						"value": 3.6020687
+					}, {
+						"x": 44,
+						"y": 11656,
+						"value": 0.03435439
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity_HH",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}
