@@ -308,7 +308,7 @@ public class CreateStackOp extends Operator {
             copySlaveMetadata();
 
             StackUtils.saveMasterProductBandNames(targetProduct,
-                                                  masterProductBands.toArray(new String[masterProductBands.size()]));
+                                                  masterProductBands.toArray(new String[0]));
             StackUtils.saveSlaveProductNames(sourceProduct, targetProduct, masterProduct, sourceRasterMap);
 
             updateMetadata();
@@ -419,7 +419,8 @@ public class CreateStackOp extends Operator {
                 //System.out.println();
             }
 
-        } catch (Exception e) {
+        } catch (Error | Exception e) {
+            // only log the warning and continue
             SystemUtils.LOG.warning("Unable to calculate baselines. " + e.getMessage());
         }
     }
@@ -567,7 +568,7 @@ public class CreateStackOp extends Operator {
                 }
             }
         }
-        return bandList.toArray(new Band[bandList.size()]);
+        return bandList.toArray(new Band[0]);
     }
 
     private Product getProduct(final String productName, final String bandName) {
@@ -596,7 +597,7 @@ public class CreateStackOp extends Operator {
 
     private String getProductName(final String name) {
         if (name.contains("::"))
-            return name.substring(name.indexOf("::") + 2, name.length());
+            return name.substring(name.indexOf("::") + 2);
         return sourceProduct[0].getName();
     }
 
@@ -929,7 +930,7 @@ public class CreateStackOp extends Operator {
         }
     }
 
-    public static void checkPixelSpacing(final Product[] sourceProducts) throws Exception {
+    public static void checkPixelSpacing(final Product[] sourceProducts) {
         double savedRangeSpacing = 0.0;
         double savedAzimuthSpacing = 0.0;
         for (final Product prod : sourceProducts) {
