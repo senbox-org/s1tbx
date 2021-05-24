@@ -2,7 +2,6 @@
 <html><head><title>Help - Apply Orbit Correction</title>
 
     <link rel="stylesheet" href="../style.css"></head>
-
 <body>
 <table class="header">
     <tbody>
@@ -22,7 +21,7 @@
 
 <h4>Orbit Files Supported</h4>
 
-<p>The operator&nbsp;currently only supports ASAR and ERS products.&nbsp;</p>
+<p>The operator&nbsp;currently only supports ASAR, ERS and Sentinel-1 products.&nbsp;</p>
 <ul>
     <li>For Sentinel-1, Restituted orbit files and Preceise orbit
 files may be applied. Precise orbits are produced a few weeks after
@@ -45,9 +44,8 @@ servers. If an orbit file is not found, you may try looking for it in <a href="h
 <ol>
     <li>Get the start time of the source product;</li>
     <li>Find orbit file with&nbsp;user specified type and&nbsp;the product start time;</li>
-    <li>For each orbit state vector, get its zero Doppler time;</li>
-    <li>Compute new orbit state vector with 8th order Lagrange interpolation using data for the 9&nbsp;nearest orbit
-        positions&nbsp;around the zero Doppler time.
+    <li>For each orbit state vector in the metadata, get its UTM time;</li>
+    <li>Compute new orbit state vector for the UTM time using interpolation.
     </li>
 </ol><h4>Parameters Used</h4>
 
