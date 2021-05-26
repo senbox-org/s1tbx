@@ -101,7 +101,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
             final File destFolder = getDestFolder(missionPrefix, orbitType, year, month);
             throw new IOException("No valid orbit file found for " + timeStr +
-                    "\nOrbit files may be downloaded from https://scihub.copernicus.eu/gnss/"
+                    "\nOrbit files may be downloaded from " + GnssOrbitFileDownloader.COPERNICUS_ODATA_ROOT
                     + "\nand placed in " + destFolder.getAbsolutePath());
         }
 
