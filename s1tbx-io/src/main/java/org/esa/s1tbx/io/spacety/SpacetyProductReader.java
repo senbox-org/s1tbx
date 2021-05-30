@@ -17,9 +17,9 @@ package org.esa.s1tbx.io.spacety;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.DataCache;
-import org.esa.s1tbx.io.binary.ArrayCopy;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -98,7 +98,7 @@ public class SpacetyProductReader extends SARReader {
                 throw new IOException(inputPath.toString() + " not found");
             }
 
-            dataDir = new SpacetyDirectory(inputPath.toFile());
+            dataDir = new SpacetyDirectory(inputPath.toFile(), (S1TBXProductReaderPlugIn)getReaderPlugIn());
             dataDir.readProductDirectory();
             final Product product = dataDir.createProduct();
             product.setFileLocation(inputPath.toFile());

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.spacety;
 
 import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
@@ -50,23 +51,20 @@ import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.NO_METADA
  */
 public class SpacetyDirectory extends XMLProductDirectory {
 
-    private final Map<Band, TiePointGeoCoding> bandGeocodingMap = new HashMap<>(5);
-    private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
-    private String acqMode = "";
+    private final Map<Band, TiePointGeoCoding> bandGeocodingMap = new HashMap<>();
+    private final transient Map<String, String> imgBandMetadataMap = new HashMap<>();
+    private final S1TBXProductReaderPlugIn readerPlugIn;
 
     private final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
     private final static Double NoDataValue = 0.0;
 
-    public SpacetyDirectory(final File inputFile) {
+    public SpacetyDirectory(final File inputFile, final S1TBXProductReaderPlugIn readerPlugIn) {
         super(inputFile);
+        this.readerPlugIn = readerPlugIn;
     }
 
     protected String getHeaderFileName() {
         return SpacetyProductReaderPlugIn.PRODUCT_HEADER_NAME;
-    }
-
-    protected String getRelativePathToImageFolder() {
-        return getRootFolder() + "measurement" + '/';
     }
 
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) {
@@ -112,15 +110,19 @@ public class SpacetyDirectory extends XMLProductDirectory {
             final String imgName = img.getName().toLowerCase();
             final MetadataElement bandMetadata = absRoot.getElement(imgBandMetadataMap.get(imgName));
             final String pol = bandMetadata.getAttributeString(AbstractMetadata.polarization);
+            final String swath = bandMetadata.getAttributeString(AbstractMetadata.swath);
+            final String mode = bandMetadata.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
             final int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             final int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
             int numImages = img.getNumImages();
             int numBands = img.getNumBands();
             boolean isComplexSample = false;
-            System.out.println("numImage="+numImages + " numBands="+numBands);
 
             String tpgPrefix = "";
             String suffix = pol;
+            if(mode.equalsIgnoreCase("ns")) {
+                suffix += '_'+swath;
+            }
             if (isSLC() && numBands == 1) {
                 numImages *= 2; // real + imaginary
                 isComplexSample = true;
@@ -200,7 +202,6 @@ public class SpacetyDirectory extends XMLProductDirectory {
         final SafeManifest safeManifest = new SafeManifest();
         safeManifest.addManifestMetadata(getProductName(), absRoot, origProdRoot, false);
 
-        acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
 
         // get metadata for each band
@@ -209,37 +210,14 @@ public class SpacetyDirectory extends XMLProductDirectory {
         addNoiseAbstractedMetadata(origProdRoot);
     }
 
-    private void determineProductDimensions(final MetadataElement absRoot) throws IOException {
-        int totalWidth = 0, maxHeight = 0, k = 0;
-        String pol = null;
-        for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
-            final ImageIOFile img = stringImageIOFileEntry.getValue();
-            final String imgName = img.getName().toLowerCase();
-            final String bandMetadataName = imgBandMetadataMap.get(imgName);
-            if (bandMetadataName == null) {
-                throw new IOException("Metadata for measurement dataset " + imgName + " not found");
-            }
-
-            if (k == 0) {
-                pol = bandMetadataName.substring(bandMetadataName.lastIndexOf("_") + 1);
-            } else if (!bandMetadataName.substring(bandMetadataName.lastIndexOf("_") + 1).equals(pol)) {
-                continue;
-            }
-            k++;
-
-            final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
-            int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
-            int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
-            totalWidth += width;
-            if (height > maxHeight) {
-                maxHeight = height;
+    private boolean isMetadataFile(final String filename) {
+        for(String prefix : readerPlugIn.getProductMetadataFilePrefixes()) {
+            if(filename.toLowerCase().startsWith(prefix.toLowerCase())) {
+                if(filename.toLowerCase().endsWith(".xml"))
+                    return true;
             }
         }
-
-        if (isSLC() && isTOPSAR()) {  // approximate does not account for overlap
-            absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line, totalWidth);
-            absRoot.setAttributeInt(AbstractMetadata.num_output_lines, maxHeight);
-        }
+        return false;
     }
 
     private void addBandAbstractedMetadata(final MetadataElement absRoot,
@@ -260,13 +238,19 @@ public class SpacetyDirectory extends XMLProductDirectory {
         double heightSum = 0.0;
 
         int numBands = 0;
-        final String annotFolder = getRootFolder() + "annotation";
+        String annotFolder = getRootFolder() + "annotation/";
+        if(!exists(annotFolder)) {
+            annotFolder = getRootFolder();
+        }
+
         final String[] filenames = listFiles(annotFolder);
         if (filenames != null) {
             for (String metadataFile : filenames) {
+                if(!isMetadataFile(metadataFile)) {
+                    continue;
+                }
 
-                final Document xmlDoc;
-                try (final InputStream is = getInputStream(annotFolder + '/' + metadataFile)) {
+                try (final InputStream is = getInputStream(annotFolder + metadataFile)) {
                     xmlDoc = XMLSupport.LoadXML(is);
                 }
                 final Element rootElement = xmlDoc.getRootElement();
@@ -277,7 +261,7 @@ public class SpacetyDirectory extends XMLProductDirectory {
                 final MetadataElement prodElem = nameElem.getElement("product");
                 final MetadataElement adsHeader = prodElem.getElement("adsHeader");
 
-                acqMode = adsHeader.getAttributeString("mode");
+                final String mode = adsHeader.getAttributeString("mode");
                 final String swath = adsHeader.getAttributeString("swath");
                 final String pol = adsHeader.getAttributeString("polarisation");
 
@@ -289,7 +273,7 @@ public class SpacetyDirectory extends XMLProductDirectory {
                 final String imgName = FileUtils.exchangeExtension(metadataFile, ".tiff");
                 imgBandMetadataMap.put(imgName, bandRootName);
 
-                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.ACQUISITION_MODE, swath);
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.ACQUISITION_MODE, mode);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile);
@@ -307,8 +291,6 @@ public class SpacetyDirectory extends XMLProductDirectory {
 
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.data_take_id,
                                               Integer.parseInt(adsHeader.getAttributeString("missionDataTakeId")));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slice_num,
-                                              Integer.parseInt(imageInformation.getAttributeString("sliceNumber")));
 
                 rangeSpacingTotal += imageInformation.getAttributeDouble("rangePixelSpacing");
                 azimuthSpacingTotal += imageInformation.getAttributeDouble("azimuthPixelSpacing");
@@ -322,6 +304,11 @@ public class SpacetyDirectory extends XMLProductDirectory {
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
                                               imageInformation.getAttributeString("pixelValue").toUpperCase());
 
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
+                        imageInformation.getAttributeInt("numberOfSamples"));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
+                        imageInformation.getAttributeInt("numberOfLines"));
+
                 final double incAngle = imageInformation.getAttributeDouble("incidenceAngleMidSwath");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, incAngle);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, incAngle);
@@ -329,28 +316,11 @@ public class SpacetyDirectory extends XMLProductDirectory {
                 heightSum += getBandTerrainHeight(prodElem);
 
                 if (!commonMetadataRetrieved) {
-                    // these should be the same for all swaths
-                    // set to absRoot
 
                     final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
                     final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
-                    final MetadataElement processingInformation = imageAnnotation.getElement("processingInformation");
-                    final MetadataElement swathProcParamsList = processingInformation.getElement("swathProcParamsList");
-                    if(swathProcParamsList != null) {
-                        final MetadataElement swathProcParams = swathProcParamsList.getElement("swathProcParams");
-                        final MetadataElement rangeProcessing = swathProcParams.getElement("rangeProcessing");
-                        final MetadataElement azimuthProcessing = swathProcParams.getElement("azimuthProcessing");
 
-                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth,
-                                rangeProcessing.getAttributeDouble("processingBandwidth") / Constants.oneMillion);
-                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth,
-                                azimuthProcessing.getAttributeDouble("processingBandwidth"));
-
-                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                                rangeProcessing.getAttributeDouble("numberOfLooks"));
-                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                                azimuthProcessing.getAttributeDouble("numberOfLooks"));
-                    } else if(isSLC()){
+                    if(isSLC()){
                         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, 1);
                         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, 1);
                     }
@@ -361,6 +331,9 @@ public class SpacetyDirectory extends XMLProductDirectory {
                                                   productInformation.getAttributeDouble("radarFrequency") / Constants.oneMillion);
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
                                                   imageInformation.getAttributeDouble("azimuthTimeInterval"));
+
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
+                            productInformation.getAttributeDouble("prf"));
 
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
                                                   imageInformation.getAttributeDouble("slantRangeTime") * Constants.halfLightSpeed);
@@ -378,7 +351,7 @@ public class SpacetyDirectory extends XMLProductDirectory {
                                 downlinkInformation.getAttributeDouble("prf"));
                     }
 
-                    if (!isTOPSAR() || !isSLC()) {
+                    if (!isSLC()) {
                         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                                                       imageInformation.getAttributeInt("numberOfLines"));
                         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
@@ -429,15 +402,18 @@ public class SpacetyDirectory extends XMLProductDirectory {
             calibrationElement = new MetadataElement("calibration");
             origProdRoot.addElement(calibrationElement);
         }
-        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
+        String calibFolder = getRootFolder() + "annotation/calibration/";
+        if(!exists(calibFolder)) {
+            calibFolder = getRootFolder();
+        }
         final String[] filenames = listFiles(calibFolder);
 
         if (filenames != null) {
             for (String metadataFile : filenames) {
-                if (metadataFile.startsWith("calibration")) {
+                if (metadataFile.startsWith("calibration") && metadataFile.endsWith(".xml")) {
 
                     final Document xmlDoc;
-                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
+                    try (final InputStream is = getInputStream(calibFolder + metadataFile)) {
                         xmlDoc = XMLSupport.LoadXML(is);
                     }
                     final Element rootElement = xmlDoc.getRootElement();
@@ -457,15 +433,18 @@ public class SpacetyDirectory extends XMLProductDirectory {
             noiseElement = new MetadataElement("noise");
             origProdRoot.addElement(noiseElement);
         }
-        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
+        String calibFolder = getRootFolder() + "annotation/calibration/";
+        if(!exists(calibFolder)) {
+            calibFolder = getRootFolder();
+        }
         final String[] filenames = listFiles(calibFolder);
 
         if (filenames != null) {
             for (String metadataFile : filenames) {
-                if (metadataFile.startsWith("noise")) {
+                if (metadataFile.startsWith("noise") && metadataFile.endsWith(".xml")) {
 
                     final Document xmlDoc;
-                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
+                    try (final InputStream is = getInputStream(calibFolder + metadataFile)) {
                         xmlDoc = XMLSupport.LoadXML(is);
                     }
                     final Element rootElement = xmlDoc.getRootElement();
@@ -914,10 +893,6 @@ public class SpacetyDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(w, h));
     }
 
-    private boolean isTOPSAR() {
-        return acqMode.equals("IW") || acqMode.equals("EW");
-    }
-
     @Override
     protected String getProductName() {
         String name = getBaseName();
@@ -1012,7 +987,6 @@ public class SpacetyDirectory extends XMLProductDirectory {
         findImages(newRoot);
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-        determineProductDimensions(absRoot);
 
         final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
         final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);

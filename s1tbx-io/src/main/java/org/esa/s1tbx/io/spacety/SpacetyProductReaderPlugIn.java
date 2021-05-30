@@ -37,7 +37,7 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe", "zip"};
     private final static String PLUGIN_DESCRIPTION = "Spacety Products";
 
-    private static final String[] PRODUCT_PREFIX = new String[] {"bc", "bx"};
+    private static final String[] PRODUCT_PREFIX = new String[] {"bc","bx","manifest"};
     final static String PRODUCT_HEADER_NAME = "manifest.safe";
 
     private static final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
@@ -71,11 +71,9 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
             }
             if (filename.equals(PRODUCT_HEADER_NAME)) {
                 final String parentFolderName = path.getParent().getFileName().toString().toLowerCase();
-                if (parentFolderName.endsWith(".safe")) {
-                    for (String prefix : PRODUCT_PREFIX) {
-                        if (parentFolderName.startsWith(prefix)) {
-                            return DecodeQualification.INTENDED;
-                        }
+                for (String prefix : PRODUCT_PREFIX) {
+                    if (parentFolderName.startsWith(prefix)) {
+                        return DecodeQualification.INTENDED;
                     }
                 }
             }
@@ -157,6 +155,6 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
     @Override
     public String[] getProductMetadataFilePrefixes() {
-        return new String[]{"MANIFEST"};
+        return PRODUCT_PREFIX;
     }
 }
