@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.orbits.sentinel1;
 
 
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.downloadable.SSLUtil;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.download.DownloadableContentImpl;
 import org.jsoup.Jsoup;

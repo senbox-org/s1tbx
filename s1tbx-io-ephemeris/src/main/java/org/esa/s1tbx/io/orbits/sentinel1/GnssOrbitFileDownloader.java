@@ -18,6 +18,7 @@ package org.esa.s1tbx.io.orbits.sentinel1;
 import org.esa.s1tbx.cloud.opendata.OpenData;
 import org.esa.s1tbx.cloud.opensearch.OpenSearch;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.downloadable.SSLUtil;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
@@ -67,21 +68,27 @@ public class GnssOrbitFileDownloader {
     }
 
     private File download(final File localFolder, final OpenSearch.SearchResult searchResult) throws Exception {
+        final SSLUtil ssl = new SSLUtil();
+        ssl.disableSSLCertificateCheck();
 
-        final String downloadURL = GnssOrbitFileDownloader.COPERNICUS_ODATA_ROOT+"Products('" + searchResult.id + "')" + "/$value";
+        try {
+            final String downloadURL = GnssOrbitFileDownloader.COPERNICUS_ODATA_ROOT + "Products('" + searchResult.id + "')" + "/$value";
 
-        final OpenData openData = new OpenData(GnssOrbitFileDownloader.COPERNICUS_ODATA_ROOT,
-                GnssOrbitFileDownloader.USER_NAME, GnssOrbitFileDownloader.PASSWORD);
-        File localFile = openData.download(searchResult.id, downloadURL, localFolder, ".EOF");
+            final OpenData openData = new OpenData(GnssOrbitFileDownloader.COPERNICUS_ODATA_ROOT,
+                    GnssOrbitFileDownloader.USER_NAME, GnssOrbitFileDownloader.PASSWORD);
+            File localFile = openData.download(searchResult.id, downloadURL, localFolder, ".EOF");
 
-        if (localFile.exists()) {
-            final File localZipFile = FileUtils.exchangeExtension(localFile, ".EOF.zip");
-            ZipUtils.zipFile(localFile, localZipFile);
-            localFile.delete();
+            if (localFile.exists()) {
+                final File localZipFile = FileUtils.exchangeExtension(localFile, ".EOF.zip");
+                ZipUtils.zipFile(localFile, localZipFile);
+                localFile.delete();
 
-            return localZipFile;
+                return localZipFile;
+            }
+            return null;
+        } finally {
+            ssl.enableSSLCertificateCheck();
         }
-        return null;
     }
 
     static String constructQuery(final String mission, final String missionPrefix, final String orbitType,
