@@ -89,24 +89,26 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
 
         // Read incidence angles:
         final String incFile = inputFile.getName().replace(".meta.xml", ".incidence.xml");
-        try (final InputStream is = getInputStream(incFile)) {
-            xmlDoc = XMLSupport.LoadXML(is);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        final int nval = Integer.parseInt(xmlDoc.getRootElement().getChild("numberofIncidenceValue").getValue());
-        final double[] _incidenceAngleList = new double[nval];
-        int cnt = 0;
-        for (Element child : xmlDoc.getRootElement().getChildren()){
-            switch (child.getName()) {
-                case "incidenceValue":
-                    double v = Double.parseDouble(child.getValue());
-                    _incidenceAngleList[cnt] = v;
-                    cnt += 1;
+        if(exists(incFile)) {
+            try (final InputStream is = getInputStream(incFile)) {
+                xmlDoc = XMLSupport.LoadXML(is);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
+            final int nval = Integer.parseInt(xmlDoc.getRootElement().getChild("numberofIncidenceValue").getValue());
+            final double[] _incidenceAngleList = new double[nval];
+            int cnt = 0;
+            for (Element child : xmlDoc.getRootElement().getChildren()) {
+                switch (child.getName()) {
+                    case "incidenceValue":
+                        double v = Double.parseDouble(child.getValue());
+                        _incidenceAngleList[cnt] = v;
+                        cnt += 1;
+                }
+            }
+            incidenceAngleList = _incidenceAngleList;
         }
-        incidenceAngleList = _incidenceAngleList;
     }
 
     @Override
@@ -832,29 +834,30 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
 
     private void addTiePointGridInc(final Product product) {
 
-        final int xStep = 10;
-        final int yStep = 1;
-        final int gridWidth = Math.max(incidenceAngleList.length/xStep, 2);
-        final int gridHeight = Math.max(height/yStep, 2);
-        final float[] incidenceAngleListRep = new float[gridWidth * gridHeight];
-        int cnt = 0;
-        for (int i = 0; i < gridHeight; i++) {
-            for (int j = 0; j < gridWidth; j++) {
-                incidenceAngleListRep[cnt] = (float) incidenceAngleList[j*xStep];
-                cnt++;
+        if(incidenceAngleList != null) {
+            final int xStep = 10;
+            final int yStep = 1;
+            final int gridWidth = Math.max(incidenceAngleList.length / xStep, 2);
+            final int gridHeight = Math.max(height / yStep, 2);
+            final float[] incidenceAngleListRep = new float[gridWidth * gridHeight];
+            int cnt = 0;
+            for (int i = 0; i < gridHeight; i++) {
+                for (int j = 0; j < gridWidth; j++) {
+                    incidenceAngleListRep[cnt] = (float) incidenceAngleList[j * xStep];
+                    cnt++;
+                }
+            }
+
+            final float subSamplingX = width / (float) (gridWidth - 1);
+            final float subSamplingY = height / (float) (gridHeight - 1);
+
+            if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
+                final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
+                        gridWidth, gridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, incidenceAngleListRep);
+                incidentAngleGrid.setUnit(Unit.DEGREES);
+                product.addTiePointGrid(incidentAngleGrid);
             }
         }
-
-        final float subSamplingX = width / (float) (gridWidth - 1);
-        final float subSamplingY = height / (float) (gridHeight - 1);
-
-        if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
-            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                    gridWidth, gridHeight, 0.5f, 0.5f, subSamplingX,  subSamplingY, incidenceAngleListRep);
-            incidentAngleGrid.setUnit(Unit.DEGREES);
-            product.addTiePointGrid(incidentAngleGrid);
-        }
-
     }
 
     private void addTiePointGridLatLon(final Product product) {
