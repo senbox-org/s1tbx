@@ -33,7 +33,8 @@ public class CompactPolDecompositionOpUI extends BaseOperatorUI {
             CompactPolDecompositionOp.M_CHI_DECOMPOSITION,
             CompactPolDecompositionOp.M_DELTA_DECOMPOSITION,
             CompactPolDecompositionOp.H_ALPHA_DECOMPOSITION,
-            CompactPolDecompositionOp.RVOG_DECOMPOSITION
+            CompactPolDecompositionOp.RVOG_DECOMPOSITION,
+            CompactPolDecompositionOp.MF3CC_DECOMPOSITION
     });
 
     private final JComboBox windowSizeXStr = new JComboBox(new String[]{"3", "5", "7", "9", "11", "13", "15", "17", "19"});
