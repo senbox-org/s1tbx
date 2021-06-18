@@ -75,9 +75,23 @@ The compact pol anisotropy is defined by<br>
 </div>
 
 <h4>Model-Free 3-Component Decomposition&nbsp;(MF3CC)</h4>
-<center><img style="width: 300px; height: 150px;" alt="" src="images/MF3CC_powers.png"></center><br>
+Model-free 3 component decomposition technique [4] does not consider any volume model for the computation of the three scattering power components. 
+The scattering power components are roll-invariant. The total power is conserved after decomposition and all the scattering power components
+are non-negative. The target scattering type parameter is represented as:
 <center><img style="width: 300px; height: 130px;" alt="" src="images/MF3CC_parm.png"></center><br>
+
+where, &#920<sub>CP</sub> is the target characterization parameter which varies from -45 to 45 degrees, m<sub>CP</sub> is the 2D Barakat degree of polarization,
+S<sub>0</sub>, S<sub>1</sub>, S<sub>2</sub> and S<sub>3</sub> are the elements of the Stokes vector and S<sub>0</sub> is the total power of covariance
+matrix C<sub>2</sub>.
+
+<br></br>
+
+The scattering power components are:
+
+<center><img style="width: 300px; height: 150px;" alt="" src="images/MF3CC_powers.png"></center><br>
 <br>
+P<sub>d</sub><sup>CP</sup> is the even bounce power component, P<sub>s</sub><sup>CP</sup> is the odd bounce power component and 
+P<sub>v</sub><sup>CP</sup> is the diffused power component.
 
 <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"><span style="position: relative; top: 19pt;"><br>
 </span></span>
@@ -98,7 +112,7 @@ The compact pol anisotropy is defined by<br>
 </ol>
 <h4>Parameters Used</h4>&nbsp;&nbsp; The following processing parameters are needed (see Figure 1):<br>
 <ul>
-    <li>Decomposition: m-chi, m-delta, H-Alpha or RVOG decomposition<br>
+    <li>Decomposition: m-chi, m-delta, H-Alpha, RVOG decomposition or Model-Free 3-Component Decomposition<br>
     </li>
     <li>Window Size X: X dimension of the sliding window used in computing the mean covariance matrix</li>
   <li>Window Size Y: Y dimension of the sliding window used in computing the mean covariance matrix</li>
@@ -133,6 +147,10 @@ The compact pol anisotropy is defined by<br>
     Theory", IEEE Geoscience and Remote Sensing Letters, Vol. 9, No. 1,
     Jan. 2012.<br>
     <br>
+    <p>[4] S. Dey, A. Bhattacharya, D. Ratha, D. Mandal and A. C. Frery, 2020. 
+        &#8220;Target characterization and scattering power decomposition for 
+        full and compact polarimetric SAR data&#8221;, IEEE Transactions on 
+        Geoscience and Remote Sensing, 59(5), pp.3981-3998. </p>
 </p>
 
 
