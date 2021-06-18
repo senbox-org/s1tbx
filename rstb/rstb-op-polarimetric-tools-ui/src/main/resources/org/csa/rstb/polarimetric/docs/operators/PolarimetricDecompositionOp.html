@@ -181,46 +181,14 @@ Generalized Freeman-Durden decomposition, it is assumed that the
 surface and dihedral mechanisms are orthogonal. Then the power&nbsp;
 scattered by the three components can be computed by inverting the
 model. <br>
-
-<h4>Model-free 3 Component Decomposition&nbsp;(MF3CF)</h4>
-&nbsp; &nbsp; Model-free 3 component decomposition technique [4] does not consider any volume model for the computation of the three scattering power components. 
-The scattering power components are roll-invariant. The total power is conserved after decomposition and all the scattering power components
-are non-negative. The target scattering type parameter is represented as:
-
+<h4>Model-Free 3-Component Decomposition&nbsp;(MF3CF)</h4>
+<center><img style="width: 200px; height: 84px;" alt="" src="images/MF3CF_powers.png"></center><br>
 <center><img style="width: 430px; height: 84px;" alt="" src="images/MF3CF_parm.png"></center><br>
 
-where, &#920<sub>FP</sub> is the target characterization parameter which varies from -45 to 45 degrees, m<sub>FP</sub> is the 3D Barakat degree of polarization,
-T<sub>11</sub>, T<sub>22</sub> and T<sub>33</sub> are the elements of the coherency matrix and Span is the total power of coherency
-matrix T<sub>3</sub>. 
-
-<br></br>
-The scattering power components are: 
-<center><img style="width: 200px; height: 84px;" alt="" src="images/MF3CF_powers.png"></center><br>
-
-P<sub>d</sub><sup>FP</sup> is the even bounce power component, P<sub>s</sub><sup>FP</sup> is the odd bounce power component and 
-P<sub>v</sub><sup>FP</sup> is the diffused power component.
-
 <br>
-
 <h4>Model-Free 4-Component Decomposition&nbsp;(MF4CF)</h4>
-&nbsp; &nbsp; Model-free 4 component decomposition technique [5] does not consider any volume model for the computation of the four scattering power components. 
-The scattering power components are roll-invariant. The total power is conserved after decomposition and all the scattering power components
-are non-negative. However, in this decomposition a scattering asymmetry parameter is introduced which captures the helicity.
-
-<br></br>
-The scattering type parameters are:
-<center><img style="width: 300px; height: 130px;" alt="" src="images/MF4CF_parm.png"></center><br>
-
-where, &#932<sub>FP</sub> is the target asymmetry parameter and &#920<sub>FP</sub> is the target characterization parameter. K<sub>11</sub>, K<sub>14</sub>
-and K<sub>44</sub> are the elements of the Kennaugh matrix.
-
-<br></br>
-The four scattering power components are:
 <center><img style="width: 250px; height: 250px;" alt="" src="images/MF4CF_powers.png"></center><br>
-
-P<sub>d</sub> is the even bounce power component, P<sub>s</sub> is the odd bounce power component, 
-P<sub>v</sub> is the diffused power component and P<sub>v</sub> is the asymmetry (helix) power component.
-
+<center><img style="width: 300px; height: 130px;" alt="" src="images/MF4CF_parm.png"></center><br>
 <br>
 
 <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="font-style: italic;"></span></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span>
@@ -324,39 +292,6 @@ For Van Zyl decomposition, the following parameters are used (see Figure 6):<br>
 
 <p><br>
 
-For Model-free 3 component decomposition (MF3CF) decomposition, the following parameters are used (see Figure 7):<br>
-<ul>
-    <li>Window Size: dimension of sliding window for computing mean covariance or coherence matrix</li>
-</ul>
-<img style="width: 450px; height: 450px;" alt="" src="images/MF3CF_ui.JPG"><br>
-    
-<p><br>
-</p>
-    
-<p>
-    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 7. Dialog box for Model-free 3 component decomposition (MF3CF)</p>
-    
-<p><br>
-
-</p>
-
-
-For Model-free 4 component decomposition (MF4CF) decomposition, the following parameters are used (see Figure 8):<br>
-<ul>
-    <li>Window Size: dimension of sliding window for computing mean covariance or coherence matrix</li>
-</ul>
-<img style="width: 450px; height: 450px;" alt="" src="images/MF4CF_ui.JPG"><br>
-    
-<p><br>
-</p>
-    
-<p>
-    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 8. Dialog box for Model-free 4 component decomposition (MF4CF)</p>
-    
-<p><br>
-
 </p>
 
 <p> Reference:&nbsp;</p>
@@ -365,7 +300,5 @@ For Model-free 4 component decomposition (MF4CF) decomposition, the following pa
 
 <p>[2] R. Touzi, &#8220;Target Scattering Decomposition in Terms of
     Roll-Invariant Target Parameters,&#8221; IEEE Transactions on Geoscience and
-    Remote Sensing, vol. 45, no. 1, pp. 73&#8211;84, January 2007.</p><p>[3] S.R. Cloude, &#8220;Polarisation: Applications in Remote Sensing&#8221;, Oxford University Press, ISBN 978-0-19-956973-1, 2009. </p>
-    <p>[4] S. Dey, A. Bhattacharya, D. Ratha, D. Mandal and A. C. Frery, 2020. &#8220;Target characterization and scattering power decomposition for full and compact polarimetric SAR data&#8221;, IEEE Transactions on Geoscience and Remote Sensing, 59(5), pp.3981-3998. </p>
-    <p>[5] S. Dey, A. Bhattacharya, A. C. Frery, C. López-Martínez and Y. S. Rao, 2021. &#8220;A Model-free Four Component Scattering Power Decomposition for Polarimetric SAR Data&#8221;, IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing, 14, pp.3887-3902. </p><hr>
+    Remote Sensing, vol. 45, no. 1, pp. 73&#8211;84, January 2007.</p><p>[3] S.R. Cloude, &#8220;Polarisation: Applications in Remote Sensing&#8221;, Oxford University Press, ISBN 978-0-19-956973-1, 2009. </p><hr>
 </body></html>
