@@ -25,6 +25,7 @@
                     <tocitem text="Phase to Elevation" target="PhaseToElevationOp"/>
                     <tocitem text="Integer Interferogram Combination" target="IntegerInterferogramOp"/>
                     <tocitem text="Multi-Master InSAR" target="MultiMasterInSAROp"/>
+                    <tocitem text="Horizontal/Vertical Motion" target="HorizontalVerticalMotionOp"/>
                 </tocitem>
                 <tocitem text="Filtering">
                     <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>

@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Horizontal/Vertical Motion</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Horizontal/Vertical Motion<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Horizontal/Vertical Motion Operator</h3>
+<p class="MsoNormal">Given two (collocated) ascending and descending interferograms, this operator computes the horizontal
+    (East-West) and vertical motion.
+
+<h4>Input<br>
+</h4>
+<p class="MsoNormal">
+        The input to this operator should be a product that has resulted from collocating two terrain-corrected interferograms.
+        Such a collocated product can be created by following these steps:
+        <ul>
+            <li>
+                Create an interferogram for an ascending orbit.
+            </li>
+            <li>
+                Create an interferogram for a descending orbit (note: the dates of each InSAR pair should be selected and
+                sorted such that they correspond with the ascending interferogram).
+            </li>
+            <li>
+                Multilook (or apply Goldstein filter to) both interferograms and perform phase unwrapping.
+            </li>
+            <li>
+                Apply the <b>Range Doppler Terrain Correction</b> operator to both interferograms, so that they are geocoded. Make sure you
+                select the "Incidence angle from ellipsoid" option.
+            </li>
+            <li>
+                Use the <b>Collocate</b> operator to align the terrain-corrected interferograms.
+            </li>
+        </ul>
+
+<h4>Output<br>
+</h4>
+<p class="MsoNormal">
+    The output of this operator is a product with the following bands:
+        <ul>
+            <li>
+            h_motion: East-West deformation in millimeters.
+            </li>
+            <li>
+            v_motion: vertical deformation in millimeters.
+            </li>
+        </ul>
+    <br>
+
+<h4>Parameters<br>
+</h4>
+<p class="MsoNormal">The X and Y positions of a reference pixel should be selected.
+
+</body>
+</html>

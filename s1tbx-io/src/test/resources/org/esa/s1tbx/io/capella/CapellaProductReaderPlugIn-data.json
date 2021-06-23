@@ -1,14 +1,19 @@
 {
   "testProducts": [
     {
-      "id": "Capella_GEO",
-      "relativePath": "SAR/Capella/Airborne/GEO/ARL_SM_GEO_HH_20190823160819_20190823161113_extended.json",
-      "description": "Capella Airborne GEO product"
+      "id": "Capella_Strip_GEO",
+      "relativePath": "SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.json",
+      "description": "Capella Strip GEO product"
     },
     {
-      "id": "Capella_SLC",
-      "relativePath": "SAR/Capella/Airborne/SLC/ARL_SM_SLC_HH_20190823160819_20190823161113_extended.json",
-      "description": "Capella Airborne SLC product"
+      "id": "Capella_Strip_SLC",
+      "relativePath": "SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.json",
+      "description": "Capella Strip SLC product"
+    },
+    {
+      "id": "Capella_Spot_SLC",
+      "relativePath": "SAR/Capella/Spot/SLC/CAPELLA_C02_SP_SLC_HH_20201209213329_20201209213332.json",
+      "description": "Capella Spot SLC product"
     }
   ]
 }

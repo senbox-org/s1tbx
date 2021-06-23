@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
- *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -13,7 +11,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.spacety;
+package org.esa.s1tbx.io.gaofen3;
 
 import org.esa.s1tbx.commons.io.S1TBXFileFilter;
 import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
@@ -24,22 +22,20 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 
 /**
- * The ReaderPlugIn for Sentinel1 products.
+ * @author Jakob Grahn
  */
-public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
+public class Gaofen3ProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
-    private final static String[] FORMAT_NAMES = new String[]{"Spacety"};
-    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe", "zip"};
-    private final static String PLUGIN_DESCRIPTION = "Spacety Products";
+    private static final String[] PRODUCT_PREFIX = new String[] {"GF3_"};
+    private static final String PRODUCT_FORMAT = "Gaofen3";
+    private static final String METADATA_EXT = ".meta.xml";
+    private static final String RPC_EXT = ".rpc";
 
-    private static final String[] PRODUCT_PREFIX = new String[] {"bc","bx","manifest"};
-    final static String PRODUCT_HEADER_NAME = "manifest.safe";
-
+    private static final String PLUGIN_DESCRIPTION = "Gaofen-3 Product Format";
     private static final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
@@ -49,36 +45,26 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      * @param input any input object
      * @return true if this product reader can decode the given input, otherwise false.
      */
-    @Override
     public DecodeQualification getDecodeQualification(final Object input) {
-        Path path = ReaderUtils.getPathFromInput(input);
-        if (path != null) {
-            if(Files.isDirectory(path)) {
-                path = path.resolve(PRODUCT_HEADER_NAME);
-                if(!Files.exists(path)) {
-                    return DecodeQualification.UNABLE;
-                }
-            }
 
-            final String filename = path.getFileName().toString().toLowerCase();
-            if (filename.endsWith(".zip")) {
-                for(String prefix : PRODUCT_PREFIX) {
-                    if(filename.startsWith(prefix) &&
-                        (ZipUtils.findInZip(path.toFile(), prefix, PRODUCT_HEADER_NAME))) {
+        final Path path = ReaderUtils.getPathFromInput(input);
+        if (path != null) {
+            try {
+                String realName = path.toRealPath().getFileName().toString();
+                if (ZipUtils.isZip(path)) {
+                    for(String prefix : PRODUCT_PREFIX) {
+                        if (realName.startsWith(prefix)) {
                             return DecodeQualification.INTENDED;
+                        }
                     }
                 }
-            }
-            if (filename.equals(PRODUCT_HEADER_NAME)) {
-                final String parentFolderName = path.getParent().getFileName().toString().toLowerCase();
-                for (String prefix : PRODUCT_PREFIX) {
-                    if (parentFolderName.startsWith(prefix)) {
-                        return DecodeQualification.INTENDED;
-                    }
+                if (findMetadataFile(path) != null) {
+                    return DecodeQualification.INTENDED;
                 }
+            } catch (Exception e) {
+                System.out.println(e);
             }
         }
-
         return DecodeQualification.UNABLE;
     }
 
@@ -91,7 +77,6 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
-    @Override
     public Class[] getInputTypes() {
         return VALID_INPUT_TYPES;
     }
@@ -101,12 +86,10 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return a new reader instance, never <code>null</code>
      */
-    @Override
     public ProductReader createReaderInstance() {
-        return new SpacetyProductReader(this);
+        return new Gaofen3ProductReader(this);
     }
 
-    @Override
     public SnapFileFilter getProductFileFilter() {
         return new S1TBXFileFilter(this);
     }
@@ -116,9 +99,8 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
-    @Override
     public String[] getFormatNames() {
-        return FORMAT_NAMES;
+        return new String[] {PRODUCT_FORMAT};
     }
 
     /**
@@ -129,9 +111,8 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
-    @Override
     public String[] getDefaultFileExtensions() {
-        return FORMAT_FILE_EXTENSIONS;
+        return  new String[] {METADATA_EXT};
     }
 
     /**
@@ -143,14 +124,13 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
-    @Override
     public String getDescription(final Locale locale) {
         return PLUGIN_DESCRIPTION;
     }
 
     @Override
     public String getProductMetadataFileExtension() {
-        return ".SAFE";
+        return METADATA_EXT;
     }
 
     @Override

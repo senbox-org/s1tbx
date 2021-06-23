@@ -16,10 +16,17 @@
 package org.esa.s1tbx.io.spacety;
 
 import org.esa.s1tbx.io.AbstractProductReaderPlugInTest;
+import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.io.File;
+import java.net.URISyntaxException;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class TestSpacetyProductReaderPlugIn extends AbstractProductReaderPlugInTest {
 
@@ -41,16 +48,25 @@ public class TestSpacetyProductReaderPlugIn extends AbstractProductReaderPlugInT
 
     @Test
     public void testGetDefaultFileExtensions() {
-        assertArrayEquals(new String[]{"safe","zip"}, plugin.getDefaultFileExtensions());
+        assertArrayEquals(new String[]{"safe", "zip"}, plugin.getDefaultFileExtensions());
+    }
+
+    @Test
+    public void testDecodeWithS2Data() throws URISyntaxException {
+        File dir = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE").toURI());
+        File manifestFile = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE/manifest.safe").toURI());
+
+        assertEquals(DecodeQualification.UNABLE, plugin.getDecodeQualification(dir));
+        assertEquals(DecodeQualification.UNABLE, plugin.getDecodeQualification(manifestFile));
     }
 
     @Override
     protected String[] getValidPrimaryMetadataFileNames() {
-        return new String[] {"manifest.safe"};
+        return new String[]{"manifest.safe", "manifest.SAFE"};
     }
 
     @Override
     protected String[] getInvalidPrimaryMetadataFileNames() {
-        return new String[] {"Capella_xyz_extended.xml"};
+        return new String[]{"Capella_xyz_extended.xml"};
     }
 }

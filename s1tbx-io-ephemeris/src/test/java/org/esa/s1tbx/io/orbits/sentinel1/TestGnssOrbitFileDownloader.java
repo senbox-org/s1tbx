@@ -22,6 +22,7 @@ import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -35,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestGnssOrbitFileDownloader {
 
-    private static final String query = "https://scihub.copernicus.eu/gnss/search?q=producttype:AUX_RESORB AND ingestiondate:[2021-02-10T10:00:000Z TO 2021-02-15T10:00:000Z] AND platformname:Sentinel-1";
+    private static final String query = "https://scihub.copernicus.eu/gnss/search?q=producttype:AUX_POEORB AND ingestiondate:[2021-02-10T10:00:000Z TO 2021-02-15T10:00:000Z] AND platformname:Sentinel-1";
 
     @BeforeClass
     public static void setUpClass() {
@@ -124,6 +125,7 @@ public class TestGnssOrbitFileDownloader {
     }
 
     @Test
+    @Ignore("RESBORBs removed from GNSS hub")
     public void testDownloadRestituteOrbitFileS1B() throws Exception {
         final String mission = "Sentinel-1";
         final String missionPrefix = "S1B";
