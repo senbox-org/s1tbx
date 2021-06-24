@@ -13,10 +13,8 @@ import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.ProductContainer;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class TopoPhase {
@@ -527,7 +525,7 @@ public class TopoPhase {
 
         // distribute points
         final int[][] points = MathUtils.distributePoints(numberOfPoints, window);
-        final ArrayList<Double> heights = new ArrayList();
+        final List<Double> heights = new ArrayList<>();
 
         // then for number of extra points
         for (int[] point : points) {

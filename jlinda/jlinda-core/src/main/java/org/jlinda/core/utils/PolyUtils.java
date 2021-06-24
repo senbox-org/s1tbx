@@ -212,7 +212,7 @@ public class PolyUtils {
         return sum;
     }
 
-    public static double[][] polyval(final double[] x, final double[] y, final double coeff[], int degree) {
+    public static double[][] polyval(final double[] x, final double[] y, final double[] coeff, int degree) {
 
         if (degree < -1) {
             logger.warning("polyValGrid: degree < -1 ????");

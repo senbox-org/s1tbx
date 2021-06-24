@@ -11,7 +11,7 @@ public class LittleEndianDataInputStream extends InputStream implements DataInpu
     // DataInputStream
     private InputStream in; // to get at the low-level read methods of
     // InputStream
-    private byte w[]; // work array for buffering input
+    private byte[] w; // work array for buffering input
 
 
 	public LittleEndianDataInputStream(InputStream in) {
@@ -93,15 +93,15 @@ public class LittleEndianDataInputStream extends InputStream implements DataInpu
 		 return Double.longBitsToDouble(readLong());
 	 }
 
-	 public final int read(byte b[], int off, int len) throws IOException {
+	 public final int read(byte[] b, int off, int len) throws IOException {
 		 return in.read(b, off, len);
 	 }
 
-	 public final void readFully(byte b[]) throws IOException {
+	 public final void readFully(byte[] b) throws IOException {
 		 d.readFully(b, 0, b.length);
 	 }
 
-	 public final void readFully(byte b[], int off, int len) throws IOException {
+	 public final void readFully(byte[] b, int off, int len) throws IOException {
 		 d.readFully(b, off, len);
 	 }
 
