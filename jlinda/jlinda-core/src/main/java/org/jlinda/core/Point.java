@@ -128,17 +128,9 @@ public class Point extends Coordinate {
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    public void toScreen() {
-        System.out.println("Point{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}');
-    }
-
     // TODO: UNIT test for only if x,y defined
     public double[] toArray() {
-        double array[] = new double[3];
+        double[] array = new double[3];
         array[0] = this.x;
         array[1] = this.y;
         array[2] = this.z;

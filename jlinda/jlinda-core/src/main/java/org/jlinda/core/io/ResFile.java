@@ -8,6 +8,7 @@ import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,8 +38,8 @@ public final class ResFile {
     public ResFile() {
     }
 
-    private static enum IndexPositions {
-        START, END;
+    private enum IndexPositions {
+        START, END
     }
 
     public ResFile(File file) {
@@ -50,7 +51,6 @@ public final class ResFile {
         resFile = new File(fileName);
         streamBuffer(resFile);
     }
-
 
     // method to buffer doris res file
     public void streamBuffer(File file) {
@@ -64,49 +64,37 @@ public final class ResFile {
                 buffer.append(line);
                 buffer.append(System.getProperty("line.separator"));
             }
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
         startIdx = 0;
         endIdx = buffer.length();
-
     }
 
-    public void dumpBuffer() throws IOException {
+    public void dumpBuffer() {
 
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(resFile));
             out.write(buffer.toString());
             out.close();
-        } catch (FileNotFoundException ex) {
-            logger.severe(" dumpBuffer() exception " + ex.getMessage());
-            ex.printStackTrace();
         } catch (IOException ex) {
             logger.severe(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         }
-
     }
 
-    public void dumpBuffer(File newFile) throws IOException {
+    public void dumpBuffer(File newFile) {
 
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(newFile));
             out.write(buffer.toString());
             out.close();
-        } catch (FileNotFoundException ex) {
-            logger.severe(" dumpBuffer() exception " + ex.getMessage());
-            ex.printStackTrace();
         } catch (IOException ex) {
             logger.severe(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         }
-
     }
-
 
     public void setSubBuffer(int start, int end) {
         if (start > end) {
@@ -184,9 +172,9 @@ public final class ResFile {
     }
 
     // method to query for keys in ascii file
-    public ArrayList queryKey(String key, int groupToReturn) throws IndexOutOfBoundsException {
+    public List<String> queryKey(String key, int groupToReturn) throws IndexOutOfBoundsException {
 
-        ArrayList<String> valuesList = new ArrayList<>();
+        List<String> valuesList = new ArrayList<>();
 
         Matcher match = createMatcher(buffer.substring(startIdx, endIdx), createPattern(key));
         while (match.find()) {
@@ -197,11 +185,6 @@ public final class ResFile {
             }
         }
         return valuesList;
-    }
-
-    // method to query for keys in acii file : returns group (2)
-    public ArrayList queryKey(String key) throws IndexOutOfBoundsException {
-        return queryKey(key, 2);
     }
 
     public String parseStringValue(String key) {
@@ -220,7 +203,7 @@ public final class ResFile {
         return ProductData.UTC.parse(parseStringValue(key));
     }
 
-    public double parseTimeValue(final String key) throws ParseException {
+    public double parseTimeValue(final String key) {
         // assume format:  02-AUG-1995 21:16:42.210
         final String dateTime = parseStringValue(key);
         return DateUtils.dateTimeToSecOfDay(dateTime);
