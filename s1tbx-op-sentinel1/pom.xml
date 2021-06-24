@@ -65,6 +65,7 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jlinda</groupId>
