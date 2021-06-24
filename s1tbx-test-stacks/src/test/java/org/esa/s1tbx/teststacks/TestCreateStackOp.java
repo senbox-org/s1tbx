@@ -21,7 +21,9 @@ import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.test.LongTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +37,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for CreateStackOp.
  */
+@RunWith(LongTestRunner.class)
 public class TestCreateStackOp extends ProcessorTest {
 
     private final static File inFile1 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PNUPA20031203_061259_000000162022_00120_09192_0099.N1");
