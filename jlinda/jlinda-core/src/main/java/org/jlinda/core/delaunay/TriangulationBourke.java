@@ -133,10 +133,10 @@ public class TriangulationBourke {
 		}
 	*/
 
-	static int Triangulate ( int nv, XYZ pxyz[], ITRIANGLE v[] )
+	static int Triangulate ( int nv, XYZ[] pxyz, ITRIANGLE[] v )
 	{
-		boolean complete[] 		= null;
-		IEDGE 	edges[] 		= null;
+		boolean[] complete 		= null;
+		IEDGE[]   edges 		= null;
 		int 	nedge 			= 0;
 		int 	trimax, emax 	= 200;
 		int 	status 			= 0;

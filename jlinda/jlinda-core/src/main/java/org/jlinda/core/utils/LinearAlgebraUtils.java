@@ -323,56 +323,6 @@ public class LinearAlgebraUtils {
         }
     }
 
-/*
-    public static void setdata(double[][] outMatrix, Window outWin, double[][] inMatrix, Window inWin) {
-
-        if (outWin.linehi == 0 && outWin.pixhi == 0) {
-            outWin.linehi = outMatrix.length - 1;
-            outWin.pixhi = outMatrix[0].length - 1;
-        }
-        if (inWin.linehi == 0 && inWin.pixhi == 0) {
-            inWin.linehi = inMatrix.length - 1;
-            inWin.pixhi = inMatrix[0].length - 1;
-        }
-
-        if (((outWin.linehi - outWin.linelo) != (inWin.linehi - inWin.linelo)) ||
-                ((outWin.pixhi - outWin.pixlo) != (inWin.pixhi - inWin.pixlo))) {
-            logger.severe("setdata: wrong input.");
-            throw new IllegalArgumentException("setdata: wrong input.");
-
-        }
-        if (outWin.linehi < outWin.linelo || outWin.pixhi < outWin.pixlo) {
-            logger.severe("setdata: wrong input.1");
-            throw new IllegalArgumentException("setdata: wrong input.1");
-        }
-
-        if ((outWin.linehi > outMatrix.length - 1) ||
-                (outWin.pixhi > outMatrix[0].length - 1)) {
-            logger.severe("setdata: wrong input.2");
-            throw new IllegalArgumentException("setdata: wrong input.2");
-        }
-
-        if ((inWin.linehi > inMatrix.length - 1) ||
-                (inWin.pixhi > inMatrix[0].length - 1)) {
-            logger.severe("setdata: wrong input.3");
-            throw new IllegalArgumentException("setdata: wrong input.3");
-        }
-
-        //// Fill data ////
-        int sizeLin = (int) inWin.pixels();
-//        for (int i = (int) outWin.linelo; i <= outWin.linehi; i++) {
-        for (int i = 0; i <= outWin.lines(); i++) {
-
-
-            int startIn = (int) (i * inMatrix.length + inWin.pixlo);
-            int startOut = (int) (i * outMatrix.length + outWin.pixlo);
-
-            System.arraycopy(inMatrix[i], startIn, outMatrix[i], startOut, sizeLin);
-
-        }
-    }
-*/
-
     public static void setdata(ComplexDoubleMatrix outMatrix, Window outWin, ComplexDoubleMatrix inMatrix, Window inWin) {
 
         // Check default request
