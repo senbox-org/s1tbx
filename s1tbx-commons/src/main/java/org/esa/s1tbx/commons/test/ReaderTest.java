@@ -1,9 +1,23 @@
+/*
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.commons.test;
 
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
@@ -11,16 +25,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ReaderTest {
+public class ReaderTest extends ProcessorTest {
 
     protected final ProductReaderPlugIn readerPlugIn;
     protected final ProductReader reader;
     protected boolean verifyTime = true;
     protected boolean verifyGeoCoding = true;
-
-    static {
-        TestUtils.initTestEnvironment();
-    }
 
     public ReaderTest(final ProductReaderPlugIn readerPlugIn) {
         this.readerPlugIn = readerPlugIn;
@@ -36,76 +46,22 @@ public class ReaderTest {
     }
 
     protected Product testReader(final Path inputPath, final ProductReaderPlugIn readerPlugIn) throws Exception {
-        if(!Files.exists(inputPath)){
-            TestUtils.skipTest(this, inputPath +" not found");
+        if (!Files.exists(inputPath)) {
+            TestUtils.skipTest(this, inputPath + " not found");
             return null;
         }
 
         final DecodeQualification canRead = readerPlugIn.getDecodeQualification(inputPath);
-        if(canRead != DecodeQualification.INTENDED) {
+        if (canRead != DecodeQualification.INTENDED) {
             throw new Exception("Reader not intended");
         }
 
         final ProductReader reader = readerPlugIn.createReaderInstance();
         final Product product = reader.readProductNodes(inputPath, null);
-        if(product == null) {
+        if (product == null) {
             throw new Exception("Unable to read product");
         }
 
         return product;
-    }
-
-    protected void validateProduct(final Product product) throws Exception {
-        final ProductValidator productValidator = new ProductValidator(product);
-        productValidator.validate();
-    }
-
-    protected void validateProduct(final Product product, final ProductValidator.ValidationOptions options) throws Exception {
-        if(product == null) {
-            throw new Exception("Product is null");
-        }
-        final ProductValidator productValidator = new ProductValidator(product, options);
-        productValidator.validate();
-    }
-
-    protected void validateMetadata(final Product product) throws Exception {
-        final MetadataValidator metadataValidator = new MetadataValidator(product);
-        metadataValidator.validate();
-    }
-
-    protected void validateMetadata(final Product product, final MetadataValidator.ValidationOptions options) throws Exception {
-        final MetadataValidator metadataValidator = new MetadataValidator(product, options);
-        metadataValidator.validate();
-    }
-
-    protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
-        final Band[] bands = trgProduct.getBands();
-        if(bandNames.length != bands.length) {
-            String expectedBandNames = "";
-            for(String bandName : trgProduct.getBandNames()) {
-                if(!expectedBandNames.isEmpty())
-                    expectedBandNames += ", ";
-                expectedBandNames += bandName;
-            }
-            String actualBandNames = "";
-            for(String bandName : bandNames) {
-                if(!actualBandNames.isEmpty())
-                    actualBandNames += ", ";
-                actualBandNames += bandName;
-            }
-            throw new Exception("Expecting "+bandNames.length + " bands "+actualBandNames+" but found "+ bands.length +" "+ expectedBandNames);
-        }
-        for(String bandName : bandNames) {
-            Band band = trgProduct.getBand(bandName);
-            if(band == null) {
-                throw new Exception("Band "+ bandName +" not found");
-            }
-            if(band.getUnit() == null) {
-                throw new Exception("Band "+ bandName +" is missing a unit");
-            }
-            if(!band.isNoDataValueUsed()) {
-                throw new Exception("Band "+ bandName +" is not using a nodata value");
-            }
-        }
     }
 }
