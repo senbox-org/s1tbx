@@ -20,19 +20,29 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.5-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>s1tbx-op-sar-processing</artifactId>
-    <name>S1TBX SAR Processing</name>
-    <description>SAR Processing Tools</description>
+    <artifactId>s1tbx-io-ephemeris-ui</artifactId>
+    <name>S1TBX IO Orbit Ephemeris UI</name>
+    <description>Orbit Ephemeris UI</description>
 
     <packaging>nbm</packaging>
     
     <dependencies>
         <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-sar-processing</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io-ephemeris</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>ceres-core</artifactId>
+            <artifactId>ceres-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -40,7 +50,16 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-gpf</artifactId>
+            <artifactId>snap-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-rcp</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-graph-builder</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -53,6 +72,7 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-calibration</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
@@ -60,12 +80,17 @@
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jlinda</groupId>
-            <artifactId>jlinda-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-annotations-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-javahelp</artifactId>
         </dependency>
     </dependencies>
 

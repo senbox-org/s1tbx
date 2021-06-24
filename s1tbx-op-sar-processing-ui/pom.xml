@@ -36,11 +36,6 @@
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io-ephemeris</artifactId>
-            <version>${s1tbx.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-ui</artifactId>
         </dependency>
