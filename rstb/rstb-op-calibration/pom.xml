@@ -51,6 +51,7 @@
             <groupId>org.csa.rstb</groupId>
             <artifactId>rstb-io</artifactId>
             <version>${rstb.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     

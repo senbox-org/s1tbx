@@ -59,7 +59,7 @@ public final class PolarimetricDecompositionOp extends Operator {
             GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION,
             YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, H_ALPHA_DECOMPOSITION,
             CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION, HUYNEN_DECOMPOSITION, YANG_DECOMPOSITION,
-            KROGAGER_DECOMPOSITION, CAMERON_DECOMPOSITION},
+            KROGAGER_DECOMPOSITION, CAMERON_DECOMPOSITION, MF3CF_DECOMPOSITION, MF4CF_DECOMPOSITION},
             defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
     private String decomposition = SINCLAIR_DECOMPOSITION;
 
@@ -115,6 +115,8 @@ public final class PolarimetricDecompositionOp extends Operator {
     public static final String YANG_DECOMPOSITION = "Yang Decomposition";
     public static final String KROGAGER_DECOMPOSITION = "Krogager Decomposition";
     public static final String CAMERON_DECOMPOSITION = "Cameron Decomposition";
+    public static final String MF3CF_DECOMPOSITION = "Model-free 3-component Decomposition";
+    public static final String MF4CF_DECOMPOSITION = "Model-free 4-component Decomposition";
 
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType = null;
@@ -132,7 +134,7 @@ public final class PolarimetricDecompositionOp extends Operator {
                 s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) || s.equals(H_ALPHA_DECOMPOSITION) ||
                 s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) || s.equals(HUYNEN_DECOMPOSITION) ||
                 s.equals(YANG_DECOMPOSITION) || s.equals(KROGAGER_DECOMPOSITION) || s.equals(CAMERON_DECOMPOSITION) ||
-                s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
+                s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION) || s.equals(MF3CF_DECOMPOSITION) || s.equals(MF4CF_DECOMPOSITION)) {
             decomposition = s;
         } else {
             throw new OperatorException(s + " is an invalid decomposition name.");
@@ -244,6 +246,12 @@ public final class PolarimetricDecompositionOp extends Operator {
                         windowSize, sourceImageWidth, sourceImageHeight);
             case VANZYL_DECOMPOSITION:
                 return new vanZyl(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case MF3CF_DECOMPOSITION:
+                return new MF3CF(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case MF4CF_DECOMPOSITION:
+                return new MF4CF(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight);
             case CLOUDE_DECOMPOSITION:
                 return new Cloude(srcBandList, sourceProductType,

@@ -43,7 +43,9 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
             PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION,
             PolarimetricDecompositionOp.YANG_DECOMPOSITION,
             PolarimetricDecompositionOp.KROGAGER_DECOMPOSITION,
-            PolarimetricDecompositionOp.CAMERON_DECOMPOSITION
+            PolarimetricDecompositionOp.CAMERON_DECOMPOSITION,
+            PolarimetricDecompositionOp.MF3CF_DECOMPOSITION,
+            PolarimetricDecompositionOp.MF4CF_DECOMPOSITION,
     });
 
     private final JLabel windowSizeLabel = new JLabel("Window Size:   ");
@@ -247,7 +249,9 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
                         item.equals(PolarimetricDecompositionOp.TOUZI_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.HUYNEN_DECOMPOSITION) ||
                         item.equals(PolarimetricDecompositionOp.YANG_DECOMPOSITION) ||
-                        item.equals(PolarimetricDecompositionOp.GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
+                        item.equals(PolarimetricDecompositionOp.GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.MF3CF_DECOMPOSITION) ||
+                        item.equals(PolarimetricDecompositionOp.MF4CF_DECOMPOSITION)) {
                     DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
                 } else {
                     DialogUtils.enableComponents(windowSizeLabel, windowSize, false);

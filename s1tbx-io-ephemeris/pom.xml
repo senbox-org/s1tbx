@@ -11,6 +11,7 @@
 
     <artifactId>s1tbx-io-ephemeris</artifactId>
     <name>S1TBX IO Orbit Ephemeris</name>
+	<description>Orbit Ephemeris</description>
 	
     <packaging>nbm</packaging>
 
@@ -25,6 +26,10 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
@@ -34,6 +39,10 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
