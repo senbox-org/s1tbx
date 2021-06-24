@@ -53,27 +53,25 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
     public DecodeQualification getDecodeQualification(final Object input) {
         Path path = ReaderUtils.getPathFromInput(input);
         if (path != null) {
-            if(Files.isDirectory(path)) {
-                path = path.resolve(PRODUCT_HEADER_NAME);
-                if(!Files.exists(path)) {
-                    return DecodeQualification.UNABLE;
-                }
-            }
-
-            final String filename = path.getFileName().toString().toLowerCase();
-            if (filename.endsWith(".zip")) {
-                for(String prefix : PRODUCT_PREFIX) {
-                    if(filename.startsWith(prefix) &&
-                        (ZipUtils.findInZip(path.toFile(), prefix, PRODUCT_HEADER_NAME))) {
-                            return DecodeQualification.INTENDED;
-                    }
-                }
-            }
-            if (filename.equals(PRODUCT_HEADER_NAME)) {
-                final String parentFolderName = path.getParent().getFileName().toString().toLowerCase();
+            final File metadataFile = findMetadataFile(path);
+            if (metadataFile != null) {
+                final String parentFolderName = metadataFile.getParentFile().getName().toLowerCase();
                 for (String prefix : PRODUCT_PREFIX) {
                     if (parentFolderName.startsWith(prefix)) {
                         return DecodeQualification.INTENDED;
+                    }
+                }
+            }
+
+            File file = path.toFile();
+            if(file.isFile()) {
+                final String filename = file.getName().toLowerCase();
+                if (filename.endsWith(".zip")) {
+                    for(String prefix : PRODUCT_PREFIX) {
+                        if(filename.startsWith(prefix) &&
+                                (ZipUtils.findInZip(path.toFile(), prefix, PRODUCT_HEADER_NAME, "") != null)) {
+                            return DecodeQualification.INTENDED;
+                        }
                     }
                 }
             }
