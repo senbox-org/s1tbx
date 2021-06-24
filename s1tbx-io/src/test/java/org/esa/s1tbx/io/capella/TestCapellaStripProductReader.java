@@ -33,13 +33,13 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestCapellaStripProductReader extends ReaderTest {
 
-    private final static File inputGEOMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.json");
-    private final static File inputGEOTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.tif");
-    private final static File inputGEOFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO");
+    final static File inputGEOMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.json");
+    final static File inputGEOTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.tif");
+    final static File inputGEOFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO");
 
-    private final static File inputSLCMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.json");
-    private final static File inputSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.tif");
-    private final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC");
+    final static File inputSLCMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.json");
+    final static File inputSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.tif");
+    final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC");
 
     final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
 
