@@ -53,4 +53,19 @@ public class TestSaocomProductReaderPlugIn extends AbstractProductReaderPlugInTe
     protected String[] getInvalidPrimaryMetadataFileNames() {
         return new String[] {"S1A_xyz_extended.xml"};
     }
+
+    @Test
+    public void testValidDecodeQualification() {
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_DP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_SP_MetadataFile2);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_SP_Folder);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_QP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GTC_QP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_DI_SP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_DI_DP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_DI_QP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_SLC_SP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_SLC_DP_MetadataFile);
+        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_SLC_QP_MetadataFile);
+    }
 }

@@ -43,11 +43,8 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
         if (path == null) {
             return DecodeQualification.UNABLE;
         }
-        final String filename = path.getFileName().toString().toUpperCase();
-        for (String prefix : SaocomConstants.METADATA_PREFIX) {
-            if (filename.startsWith(prefix) && filename.toLowerCase().endsWith(SaocomConstants.METADATA_EXT)) {
-                return DecodeQualification.INTENDED;
-            }
+        if (findMetadataFile(path) != null) {
+            return DecodeQualification.INTENDED;
         }
         return DecodeQualification.UNABLE;
     }

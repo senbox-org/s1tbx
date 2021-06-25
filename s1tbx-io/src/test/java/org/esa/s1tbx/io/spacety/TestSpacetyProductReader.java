@@ -33,23 +33,23 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestSpacetyProductReader extends ReaderTest {
 
-    private final static File slc_sp1 = new File(S1TBXTests.inputPathProperty +
+    final static File slc_sp1 = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_SP_SLC_1SSV_20210405T201755_000480_0001E0");
-    private final static File slc_sp1_zip = new File(S1TBXTests.inputPathProperty +
+    final static File slc_sp1_zip = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_SP_SLC_1SSV_20210405T201755_000480_0001E0.zip");
 
-    private final static File slc_sm1 = new File(S1TBXTests.inputPathProperty +
+    final static File slc_sm1 = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_SM_SLC_1SSV_20210324T214340_000394_00018A");
-    private final static File slc_sm1_zip = new File(S1TBXTests.inputPathProperty +
+    final static File slc_sm1_zip = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_SM_SLC_1SSV_20210324T214340_000394_00018A.zip");
-    private final static File slc_sm2 = new File(S1TBXTests.inputPathProperty +
+    final static File slc_sm2 = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_SM_SLC_1SSV_20210327T145357_000411_00019B");
-    private final static File slc_sm2_zip = new File(S1TBXTests.inputPathProperty +
+    final static File slc_sm2_zip = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_SM_SLC_1SSV_20210327T145357_000411_00019B.zip");
 
-    private final static File slc_ns1 = new File(S1TBXTests.inputPathProperty +
+    final static File slc_ns1 = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_NS_SLC_1SSV_20210326T012419_000395_00018B");
-    private final static File slc_ns1_zip = new File(S1TBXTests.inputPathProperty +
+    final static File slc_ns1_zip = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_NS_SLC_1SSV_20210326T012419_000395_00018B.zip");
 
     final static ProductValidator.ValidationOptions productOptions = new ProductValidator.ValidationOptions();

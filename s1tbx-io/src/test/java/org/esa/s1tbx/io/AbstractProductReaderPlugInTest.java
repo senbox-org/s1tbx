@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io;
 
 import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
+import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.util.io.SnapFileFilter;
@@ -44,6 +45,25 @@ public abstract class AbstractProductReaderPlugInTest {
     public void testCreateReaderInstance() {
         ProductReader productReader = plugin.createReaderInstance();
         assertNotNull(productReader);
+    }
+
+    @Test
+    public void testDecodeQualificationRoot() {
+        isInValidDecodeQualitification(new File("/"));
+        isInValidDecodeQualitification(new File("c:\\"));
+        isInValidDecodeQualitification(new File("z:\\"));
+    }
+
+    protected void isValidDecodeQualitification(final File file) {
+        DecodeQualification decodeQualification = plugin.getDecodeQualification(file);
+        assertEquals("DecodeQualification="+decodeQualification,
+                DecodeQualification.INTENDED, decodeQualification);
+    }
+
+    protected void isInValidDecodeQualitification(final File file) {
+        DecodeQualification decodeQualification = plugin.getDecodeQualification(file);
+        assertEquals("DecodeQualification="+decodeQualification,
+                DecodeQualification.UNABLE, decodeQualification);
     }
 
     @Test

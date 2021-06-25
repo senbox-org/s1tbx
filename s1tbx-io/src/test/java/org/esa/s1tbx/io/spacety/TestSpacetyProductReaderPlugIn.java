@@ -16,7 +16,6 @@
 package org.esa.s1tbx.io.spacety;
 
 import org.esa.s1tbx.io.AbstractProductReaderPlugInTest;
-import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.junit.Test;
 
@@ -56,8 +55,8 @@ public class TestSpacetyProductReaderPlugIn extends AbstractProductReaderPlugInT
         File dir = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE").toURI());
         File manifestFile = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE/manifest.safe").toURI());
 
-        assertEquals(DecodeQualification.UNABLE, plugin.getDecodeQualification(dir));
-        assertEquals(DecodeQualification.UNABLE, plugin.getDecodeQualification(manifestFile));
+        isInValidDecodeQualitification(dir);
+        isInValidDecodeQualitification(manifestFile);
     }
 
     @Override
@@ -68,5 +67,17 @@ public class TestSpacetyProductReaderPlugIn extends AbstractProductReaderPlugInT
     @Override
     protected String[] getInvalidPrimaryMetadataFileNames() {
         return new String[]{"Capella_xyz_extended.xml"};
+    }
+
+    @Test
+    public void testValidDecodeQualification() {
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_sp1);
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_sp1_zip);
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm1);
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm1_zip);
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm2);
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm2_zip);
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_ns1);
+        isValidDecodeQualitification(TestSpacetyProductReader.slc_ns1_zip);
     }
 }

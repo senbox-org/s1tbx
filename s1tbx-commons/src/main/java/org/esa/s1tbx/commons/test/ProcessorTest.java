@@ -30,15 +30,14 @@ public class ProcessorTest {
     }
 
     protected File createTmpFolder(final String folderName) throws IOException {
-        //File folder = Files.createTempDirectory(folderName).toFile();
-        File folder = new File("c:\\out\\" + folderName);
+        File folder = Files.createTempDirectory(folderName).toFile();
+        //File folder = new File("c:\\out\\" + folderName);
         folder.mkdirs();
         return folder;
     }
 
     protected void validateProduct(final Product product) throws Exception {
-        final ProductValidator productValidator = new ProductValidator(product);
-        productValidator.validate();
+        validateProduct(product, null);
     }
 
     protected void validateProduct(final Product product, final ProductValidator.ValidationOptions options) throws Exception {
@@ -50,11 +49,13 @@ public class ProcessorTest {
     }
 
     protected void validateMetadata(final Product product) throws Exception {
-        final MetadataValidator metadataValidator = new MetadataValidator(product);
-        metadataValidator.validate();
+        validateMetadata(product, null);
     }
 
     protected void validateMetadata(final Product product, final MetadataValidator.ValidationOptions options) throws Exception {
+        if(product == null) {
+            throw new Exception("Product is null");
+        }
         final MetadataValidator metadataValidator = new MetadataValidator(product, options);
         metadataValidator.validate();
     }

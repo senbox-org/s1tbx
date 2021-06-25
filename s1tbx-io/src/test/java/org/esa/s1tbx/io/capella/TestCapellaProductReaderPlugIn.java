@@ -53,4 +53,17 @@ public class TestCapellaProductReaderPlugIn extends AbstractProductReaderPlugInT
     protected String[] getInvalidPrimaryMetadataFileNames() {
         return new String[] {"Capella_xyz_extended.xml"};
     }
+
+    @Test
+    public void testValidDecodeQualification() {
+        isValidDecodeQualitification(TestCapellaSpotProductReader.inputSLCMeta);
+        isValidDecodeQualitification(TestCapellaSpotProductReader.inputSLCTif);
+        isValidDecodeQualitification(TestCapellaSpotProductReader.inputSLCFolder);
+        isValidDecodeQualitification(TestCapellaStripProductReader.inputGEOMeta);
+        isValidDecodeQualitification(TestCapellaStripProductReader.inputGEOTif);
+        isValidDecodeQualitification(TestCapellaStripProductReader.inputGEOFolder);
+        isValidDecodeQualitification(TestCapellaStripProductReader.inputSLCMeta);
+        isValidDecodeQualitification(TestCapellaStripProductReader.inputSLCTif);
+        isValidDecodeQualitification(TestCapellaStripProductReader.inputSLCFolder);
+    }
 }

@@ -33,9 +33,9 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestCapellaSpotProductReader extends ReaderTest {
 
-    private final static File inputSLCMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC/CAPELLA_C02_SP_SLC_HH_20201209213329_20201209213332.json");
-    private final static File inputSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC/CAPELLA_C02_SP_SLC_HH_20201209213329_20201209213332.tif");
-    private final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC");
+    final static File inputSLCMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC/CAPELLA_C02_SP_SLC_HH_20201209213329_20201209213332.json");
+    final static File inputSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC/CAPELLA_C02_SP_SLC_HH_20201209213329_20201209213332.tif");
+    final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC");
 
     final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
 
