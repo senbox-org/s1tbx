@@ -18,6 +18,7 @@ package org.esa.s1tbx.commons.test;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
 import java.io.File;
@@ -34,7 +35,7 @@ public class ProcessorTest {
 
     protected File createTmpFolder(final String folderName) throws IOException {
         File folder = Files.createTempDirectory(folderName).toFile();
-        //File folder = new File("c:\\out\\" + folderName);
+        //File folder = new File("c:\\tmp\\" + folderName);
         folder.mkdirs();
         return folder;
     }
@@ -109,5 +110,9 @@ public class ProcessorTest {
                 throw new Exception("Band "+ bandName +" is not using a nodata value");
             }
         }
+    }
+
+    public static void delete(final File file) {
+        FileUtils.deleteTree(file);
     }
 }
