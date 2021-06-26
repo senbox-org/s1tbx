@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.commons.test;
 
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.util.TestUtils;
@@ -22,6 +23,8 @@ import org.esa.snap.engine_utilities.util.TestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProcessorTest {
 
@@ -34,6 +37,23 @@ public class ProcessorTest {
         //File folder = new File("c:\\out\\" + folderName);
         folder.mkdirs();
         return folder;
+    }
+
+    protected Product[] readProducts(final File folder) throws IOException {
+        if(!folder.isDirectory()) {
+            throw new IOException("Expecting " + folder + " to be a directory");
+        }
+        final File[] files = folder.listFiles();
+        final List<Product> productList = new ArrayList<>();
+        if(files != null) {
+            for(File file : files) {
+                Product product = ProductIO.readProduct(file);
+                if(product != null) {
+                    productList.add(product);
+                }
+            }
+        }
+        return productList.toArray(new Product[0]);
     }
 
     protected void validateProduct(final Product product) throws Exception {
