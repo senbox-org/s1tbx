@@ -518,7 +518,7 @@ public final class SARSimulationOp extends Operator {
         }
 
         final Tile targetTile = targetTiles.get(targetProduct.getBand(SIMULATED_BAND_NAME));
-        final ProductData masterBuffer = targetTile.getDataBuffer();
+        final ProductData targetTileBuffer = targetTile.getDataBuffer();
         ProductData demBandBuffer = null;
         ProductData zeroHeightBandBuffer = null;
         ProductData localIncidenceAngleBandBuffer = null;
@@ -657,7 +657,7 @@ public final class SARSimulationOp extends Operator {
                         final double v = computeBackscatteredPower(localIncidenceAngles[1]);
 
                         saveSimulatedData(
-                                posData.azimuthIndex, posData.rangeIndex, v, x0, y0, w, h, targetTile, masterBuffer);
+                                posData.azimuthIndex, posData.rangeIndex, v, x0, y0, w, h, targetTile, targetTileBuffer);
 
                         int idx = 0;
                         if (saveDEM || saveLocalIncidenceAngle)
@@ -780,7 +780,7 @@ public final class SARSimulationOp extends Operator {
                         final double v = computeBackscatteredPower(localIncidenceAngles[1]);
 
                         saveSimulatedData(
-                                posData.azimuthIndex, posData.rangeIndex, v, x0, y0, w, h, targetTile, masterBuffer);
+                                posData.azimuthIndex, posData.rangeIndex, v, x0, y0, w, h, targetTile, targetTileBuffer);
 
                         int idx = 0;
                         if (saveDEM || saveLocalIncidenceAngle)
@@ -857,7 +857,7 @@ public final class SARSimulationOp extends Operator {
 
     private static void saveSimulatedData(final double azimuthIndex, final double rangeIndex, double v,
                                           final int x0, final int y0, final int w, final int h, final Tile targetTile,
-                                          final ProductData masterBuffer) {
+                                          final ProductData dataBuffer) {
         final int ia0 = (int) (azimuthIndex);
         final int ia1 = ia0 + 1;
         final int ir0 = (int) (rangeIndex);
@@ -871,21 +871,21 @@ public final class SARSimulationOp extends Operator {
             final double wrc = 1 - wr;
             if (ia0 >= y0 && ia0 < y0 + h) {
                 final int idx00 = targetTile.getDataBufferIndex(ir0, ia0);
-                masterBuffer.setElemDoubleAt(idx00, wrc * wac * v + masterBuffer.getElemDoubleAt(idx00));
+                dataBuffer.setElemDoubleAt(idx00, wrc * wac * v + dataBuffer.getElemDoubleAt(idx00));
             }
             if (ia1 >= y0 && ia1 < y0 + h) {
                 final int idx10 = targetTile.getDataBufferIndex(ir0, ia1);
-                masterBuffer.setElemDoubleAt(idx10, wrc * wa * v + masterBuffer.getElemDoubleAt(idx10));
+                dataBuffer.setElemDoubleAt(idx10, wrc * wa * v + dataBuffer.getElemDoubleAt(idx10));
             }
         }
         if (ir1 >= x0 && ir1 < x0 + w) {
             if (ia0 >= y0 && ia0 < y0 + h) {
                 final int idx01 = targetTile.getDataBufferIndex(ir1, ia0);
-                masterBuffer.setElemDoubleAt(idx01, wr * wac * v + masterBuffer.getElemDoubleAt(idx01));
+                dataBuffer.setElemDoubleAt(idx01, wr * wac * v + dataBuffer.getElemDoubleAt(idx01));
             }
             if (ia1 >= y0 && ia1 < y0 + h) {
                 final int idx11 = targetTile.getDataBufferIndex(ir1, ia1);
-                masterBuffer.setElemDoubleAt(idx11, wr * wa * v + masterBuffer.getElemDoubleAt(idx11));
+                dataBuffer.setElemDoubleAt(idx11, wr * wa * v + dataBuffer.getElemDoubleAt(idx11));
             }
         }
     }

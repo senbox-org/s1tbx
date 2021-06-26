@@ -89,7 +89,7 @@ public final class BackGeocodingOp extends Operator {
     private double externalDEMNoDataValue = 0;
 
     @Parameter(defaultValue = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
-            description = "The method to be used when resampling the slave grid onto the master grid.",
+            description = "The method to be used when resampling the slave grid onto the reference image grid.",
             label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
 

@@ -217,7 +217,7 @@ public class PyRateHeaderWriter {
 
     private double getRadarFrequencyHz(Product phaseProduct, boolean master) throws IOException {
         if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
-            throw new IOException("Product is not a coregistered slave/master pair.");
+            throw new IOException("Product is not a coregistered pair.");
         }
 
         MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
@@ -238,7 +238,7 @@ public class PyRateHeaderWriter {
 
     private double getIncidenceAngle(Product phaseProduct, boolean master) throws IOException{
         if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
-            throw new IOException("Product is not a coregistered slave/master pair.");
+            throw new IOException("Product is not a coregistered pair.");
         }
 
         MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
@@ -266,7 +266,7 @@ public class PyRateHeaderWriter {
 
     public static String getDateStringKey(Product phaseProduct, boolean master) throws IOException {
         if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
-            throw new IOException("Product is not a coregistered slave/master pair.");
+            throw new IOException("Product is not a coregistered pair.");
         }
 
         MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
@@ -302,7 +302,7 @@ public class PyRateHeaderWriter {
         MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         String dateString = "";
         if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
-            throw new IOException("Product is not a coregistered slave/master pair.");
+            throw new IOException("Product is not a coregistered pair.");
         }
         MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
         if (absRoot.containsAttribute("multimaster_split")){

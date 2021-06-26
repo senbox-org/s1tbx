@@ -145,15 +145,14 @@ public class Baseline {
     public void model(final SLCImage master, final SLCImage slave, Orbit masterOrbit, Orbit slaveOrbit) throws Exception {
 
         if (!masterOrbit.isInterpolated()) {
-            logger.info("Baseline cannot be computed, master orbit not initialized.");
-            throw new Exception("Baseline.model_parameters: master orbit not initialized");
+            logger.info("Baseline cannot be computed, reference orbit not initialized.");
+            throw new Exception("Baseline.model_parameters: reference orbit not initialized");
         } else if (!slaveOrbit.isInterpolated()) {
-            logger.info("Baseline cannot be computed, slave orbit not initialized.");
-            throw new Exception("Baseline.model_parameters: slave orbit not initialized");
+            logger.info("Baseline cannot be computed, secondary orbit not initialized.");
+            throw new Exception("Baseline.model_parameters: secondary orbit not initialized");
         }
 
         if (isInitialized) {
-            logger.warning("baseline already isInitialized??? (returning)");
             return;
         }
 

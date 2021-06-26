@@ -280,7 +280,7 @@ public class OffsetTrackingOp extends Operator {
         masterBand = getSourceBand(sourceProduct, StackUtils.MST);
         slaveBand = getSourceBand(sourceProduct, StackUtils.SLV);
         if (masterBand == null || slaveBand == null) {
-            throw new OperatorException("Cannot find master or slave amplitude or intensity band");
+            throw new OperatorException("Cannot find reference or secondary amplitude or intensity band");
         }
     }
 

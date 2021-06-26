@@ -20,9 +20,9 @@
 
 <h3>Offset Tracking Operator</h3>
 <div style="text-align: left;">The Offset Tracking operator estimates
-the movement of glacier surfaces between two SAR images (master and slave) in both
+the movement of glacier surfaces between two SAR images (reference and secondary) in both
 slant-range and azimuth direction. It performs cross-correlation on
-selected GCP-patches in master and slave images, and computes glacier
+selected GCP-patches in reference and secondary images, and computes glacier
 velocities based on the shift computed for each GCP. Finally the
 glacier velocity map is computed through interpolation of the
 velocities computed for the GCP grid.<br>
@@ -36,32 +36,32 @@ velocities computed for the GCP grid.<br>
 
 
 <ol>
-  <li>For user specified GCP grid in master image, compute corresponding slave pixel positions using normalized cross-correlation.</li>
-  <li>For each point on the GCP grid, compute offset between master and
-slave images, and movement velocity. Point with velocity exceeding the
+  <li>For user specified GCP grid in reference image, compute corresponding secondary pixel positions using normalized cross-correlation.</li>
+  <li>For each point on the GCP grid, compute offset between reference and
+    secondary images, and movement velocity. Point with velocity exceeding the
 user specified maximum velocity will be marked as outlier.<br>
   </li>
   <li>Perform local average for offset on valid GCP points. <br>
   </li>
   <li>Fill holes caused by the outliers. Offset and velocity will be calculated using weighted average. <br>
   </li>
-  <li>Finally, compute the velocity for all pixels in the master image from the velocity on GCP grid by interpolation.<br>
+  <li>Finally, compute the velocity for all pixels in the reference image from the velocity on GCP grid by interpolation.<br>
   </li>
 </ol>
 <h4>Offset Tracking with SNAP</h4>
 
 
-<p>The master and slave images used in offset tracking should be
+<p>The reference and secondary images used in offset tracking should be
 coregistered first by DEM assisted coregistration. The following steps
 should be followed: <br>
 </p>
 <ol>
-  <li>Run Apply Orbit File operator respectively with master and slave
+  <li>Run Apply Orbit File operator respectively with reference and secondary
 images as input to update the orbit state vectors in the metadata of
 the product with the precise orbit file. <br>
   </li>
-  <li>Run DEM Assisted Coregistration operator with both master and
-slave output from step 1 as input to coregister master and slave images.</li>
+  <li>Run DEM Assisted Coregistration operator with both reference and
+    secondary output from step 1 as input to coregister reference and secondary images.</li>
   <li>Run Offset Tracking operator with the coregistered stack as input to produce the glacier velocity map. <br>
   </li>
   <li>To display the glacier velocity map, double click on the velocity

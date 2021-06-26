@@ -17,36 +17,36 @@
 <h3>Warp Operator</h3>
 <br>
 The Warp operator is a component of <a href="../tutorials/coregistering_products.html">coregistration</a>. This operator
-computes a warp function from the master-slave ground control point (GCP) pairs produced
+computes a warp function from the reference-secondary ground control point (GCP) pairs produced
 by <a href="GCPSelectionOp.html">GCP Selection operator</a>, and generates the final co-registered image. <br><h4>
     Compute Warp Polynomial</h4>&nbsp;&nbsp;
-Once the valid master-slave GCP pairs are&nbsp;known, a polynomial of a
+Once the valid reference-secondary GCP pairs are&nbsp;known, a polynomial of a
 certain order is computed using a least square method, which
-maps&nbsp;the master GCPs&nbsp;onto the slave GCPs. This function is
+maps&nbsp;the reference GCPs&nbsp;onto the secondary GCPs. This function is
 known as the warp function and is used to perform the co-registration.
-Generally the warp function computed with the initial master-slave GCPs
+Generally the warp function computed with the initial reference-secondary GCPs
 is&nbsp;not the final warp function used in co-registration because it
 normally introduces large errors for GCPs. These GCPs must be removed.
 Therefore the warp function is
 determined in an iterative manner.<br>
 <ol>
-    <li>First&nbsp;a warp function is computed using the initial master-slave GCP pairs.</li>
-    <li>Then&nbsp;the master GCPs are mapped to the slave image with the&nbsp;warp function,
-        and&nbsp;the residuals between the mapped master GCPs and&nbsp;their corresponding slave GCPs are computed. The
+    <li>First&nbsp;a warp function is computed using the initial reference-secondary GCP pairs.</li>
+    <li>Then&nbsp;the reference GCPs are mapped to the secondary image with the&nbsp;warp function,
+        and&nbsp;the residuals between the mapped reference GCPs and&nbsp;their corresponding secondary GCPs are computed. The
         root
         mean square&nbsp;(RMS) and the standard deviation for the residuals are also computed.
     </li>
-    <li>Next,&nbsp;the master-slave GCP pairs are filtered with the mean
+    <li>Next,&nbsp;the reference-secondary GCP pairs are filtered with the mean
         RMS. GCP pairs with RMS greater than the mean RMS&nbsp;are eliminated.
     </li>
     <li>The
         same procedure (step 1 to 3) is repeated up to 2 times if needed and
-        each time&nbsp;the remaining master-slave GCP pairs from previous
+        each time&nbsp;the remaining reference-secondary GCP pairs from previous
         elimination are used.
     </li>
-    <li>Finally&nbsp;the master-slave GCP pairs are filtered with the user
+    <li>Finally&nbsp;the reference-secondary GCP pairs are filtered with the user
         selected RMS threshold and the final warp function is computed with the
-        remaining master-slave GCP pairs.
+        remaining reference-secondary GCP pairs.
     </li>
 </ol>
 &nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; The WARP polynomial order is specified by user in the dialog box.<br>
@@ -66,8 +66,8 @@ determined in an iterative manner.<br>
     </li>
 </ul>
 <h4>Generate Co-Registered Image</h4>&nbsp;&nbsp;&nbsp;With the
-determination of&nbsp;warp function which maps&nbsp;pixels in the master
-image to the slave image, the co-registered image can be obtained with
+determination of&nbsp;warp function which maps&nbsp;pixels in the reference
+image to the secondary image, the co-registered image can be obtained with
 interpolation. Currently the following interpolation methods are
 supported:<br>
 <ol>
@@ -84,7 +84,7 @@ For interferometric applications Cubic or Truncated sinc kernels are recommended
 These kernels assure the optimal interpolation in terms of Signal-to-Noise ratio.
 
 <h4>Residual File</h4>&nbsp;&nbsp;&nbsp;The residual file is a
-text file containing information about master and slave GCPs before and
+text file containing information about reference and secondary GCPs before and
 after each elimination. The residual for a GCP pair is&nbsp;the errors
 introduced by the warping function and can be used as a good indicator
 of the quality of the warp function. It is often very useful to check
@@ -97,8 +97,8 @@ information contained in the residual file are listed below:<br>
 <ul>
     <li>Band name</li>
     <li>Warp coefficients</li>
-    <li>Master GCP coordinates</li>
-    <li>Slave GCP coordinates</li>
+    <li>Reference GCP coordinates</li>
+    <li>Secondary GCP coordinates</li>
     <li>Row and column residuals</li>
     <li>Root
         mean square errors (RMS)
@@ -116,7 +116,7 @@ information contained in the residual file are listed below:<br>
         smaller the threshold, the better the GCP quality, but lower the number of GCPs.
     </li>
     <li>Warp Polynomial Order: The degree of the warp polynomial.&nbsp;</li>
-    <li>Interpolation Method: The interpolation method used computing co-registered slave image
+    <li>Interpolation Method: The interpolation method used computing co-registered secondary image
         pixel value.
     </li>
     <li>Show Residuals: Display GCP residual file if selected.</li>

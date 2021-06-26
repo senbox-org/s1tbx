@@ -19,10 +19,10 @@
 <p>
     This operator filters the spectras, of stack of SLC images, in the range direction. This is an
     optional step in interferometric processing chain.
-    The filtering in range direction of master and slave image increases Signal-to-Noise Ration (SNR) in the
+    The filtering in range direction of reference and secondary image increases Signal-to-Noise Ration (SNR) in the
     interferogram.
     This noise reduction results from filtering out non overlapping parts of the spectrum.
-    This spectral non overlap in range between master and slave is caused by a slightly different viewing angle of both
+    This spectral non overlap in range between reference and secondary is caused by a slightly different viewing angle of both
     sensors. The longer the perpendicular baseline, the smaller the overlapping part. Eventually
     a baseline of about 1100 m results in no overlap at all (that is also critical
     baseline for ERS). Assuming no local terrain slope, a reduction of typically 10-20% in the number of residues can be
@@ -30,11 +30,11 @@
 </p>
 
 <p>
-    The range filtering should be performed after coregistration (after slave images
-    are resampled/warped to the master grid), because the fringe frequency is estimated from the interferogram (that is
-    temporary computed). It is performed simultaneously for the master and slave image, unless there are multiple slave
-    images in the stack. If later is the case, as with Azimuth Filtering Operator, only slave images will be filtered
-    while the master image will be left in its original state.
+    The range filtering should be performed after coregistration (after secondary images
+    are resampled/warped to the reference grid), because the fringe frequency is estimated from the interferogram (that is
+    temporary computed). It is performed simultaneously for the reference and secondary image, unless there are multiple secondary
+    images in the stack. If later is the case, as with Azimuth Filtering Operator, only secondary images will be filtered
+    while the reference image will be left in its original state.
 </p>
 
 <h4>Implementation Details</h4>
@@ -46,7 +46,7 @@
 
 <p>
     Adaptive range filtering algorithm builds on the local fringe frequency estimated from the locally computed
-    interferogram. After the warping/resampling of the slave on the master grid the local fringe frequency is
+    interferogram. After the warping/resampling of the secondary on the reference grid the local fringe frequency is
     estimated using peak analysis of the power of the spectrum of the complex interferogram. The warping/resampling
     is required since the local fringe frequency is estimated from the interferogram. The fringe frequency is
     directly related to the spectral shift in range direction. (Note: that this shift is not an actual shift, but
@@ -78,7 +78,7 @@
         the range spectrum). Effect of this parameter may be negligible to overall results.
     </li>
     <li>
-        <b>Oversampling factor:</b> Oversample master and slave(s) with this factor before computing the complex interferogram
+        <b>Oversampling factor:</b> Oversample reference and secondary(s) with this factor before computing the complex interferogram
         for the peak estimation. This factor has to be a power of 2. 2 is default, and with this factor the filter is
         able to estimate the peak for frequency shifts larger than half the bandwidth. A factor of 4 for example might
         give a better estimate, since the interval between shifts that can be estimated is in that case halfed

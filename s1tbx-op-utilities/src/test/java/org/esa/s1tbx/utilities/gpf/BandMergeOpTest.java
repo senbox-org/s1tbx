@@ -84,7 +84,7 @@ public class BandMergeOpTest {
             mergeOp.getTargetProduct();
             fail();
         } catch (OperatorException e) {
-            final String expectedErrorMessage = "Product .* is not compatible to master product";
+            final String expectedErrorMessage = "Product .* is not compatible to reference product";
             assertTrue("expected: '" + expectedErrorMessage + "', actual: '" + e.getMessage() + "'",
                        e.getMessage().replace(".", "").matches(expectedErrorMessage));
         }

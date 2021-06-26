@@ -183,11 +183,9 @@ public class IEMInverBase extends Operator {
         return (!Double.isNaN(val) && !Double.isInfinite(val));
     }
 
-    // Among the bands, there is a "master" and the rest are "slaves".
-    // The "master" has the highest rank.
-    // The "slaves" are numbered 1, 2, 3 and so on. "Slave m" has higher rank than "Slave n" where m < n.
-    // The band name of the "master" contains "mst".
-    // The band name of a "slave" contains "slvx" where x = 1, 2, 3, ...
+    // Among the bands, there is a "reference" and the rest are "secondary".
+    // The "reference" has the highest rank.
+    // The "secondary" are numbered 1, 2, 3 and so on. "secondary m" has higher rank than "secondary n" where m < n.
     // Check if s1 has higher rank then s2.
     // E.g., Band name "Sigma0_HH_slv2_26Oct2011" has higher rank than band name "Sigma0_HH_slv7_26Oct2911".
     private static boolean hasHigherRank(final String s1, final String s2) {

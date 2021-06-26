@@ -193,7 +193,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     @Parameter(description = "Show the Residuals file in a text viewer", defaultValue = "false", label = "Show Residuals")
     private boolean openResidualsFile = false;
 
-    private ProductNodeGroup<Placemark> masterGCPGroup = null;
+    private ProductNodeGroup<Placemark> referenceGCPGroup = null;
     private MetadataElement absRoot = null;
     private ElevationModel dem = null;
     private String demResamplingMethod;
@@ -764,9 +764,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
             }
         }
 
-        // for all slave bands or band pairs compute a warp
-        final Band masterBand = sourceProduct.getBandAt(0);
-        masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
+        // for all secondary bands or band pairs compute a warp
+        final Band referenceBand = sourceProduct.getBandAt(0);
+        referenceGCPGroup = GCPManager.instance().getGcpGroup(referenceBand);
         final int numSrcBands = sourceProduct.getNumBands();
         boolean appendFlag = false;
         for (int i = 1; i < numSrcBands; ++i) { // loop through all slave bands
@@ -782,7 +782,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
                 for (Band band : sourceProduct.getBands()) {
-                    if (band != srcBand && band != masterBand) {
+                    if (band != srcBand && band != referenceBand) {
                         slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
                         if (slaveGCPGroup.getNodeCount() >= 3)        // only one band should have GCPs
                         {
@@ -795,7 +795,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             final WarpData warpData = new WarpData(slaveGCPGroup);
             warpDataMap.put(srcBand, warpData);
 
-            warpData.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
+            warpData.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, referenceGCPGroup,
                                                  maxIterations, rmsThreshold, appendFlag);
 
             if (!appendFlag) {
@@ -1323,7 +1323,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 // get initial slave GCP position
                 // Note: master GCP position is the same as the initial slave GCP position because master and slave
                 //       now share the same geocoding.
-                final Placemark mPin = masterGCPGroup.get(sPin.getName());
+                final Placemark mPin = referenceGCPGroup.get(sPin.getName());
                 final PixelPos mGCPPos = mPin.getPixelPos();
 
                 // compute range and azimuth shifts

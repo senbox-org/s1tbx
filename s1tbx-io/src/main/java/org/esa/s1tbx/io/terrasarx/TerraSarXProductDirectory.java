@@ -81,8 +81,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // For TDM CoSSC products only
-    private String masterProductName = null;
-    private String slaveProductName = null;
+    private String referenceProductName = null;
+    private String secondaryProductName = null;
     private boolean isTanDEMX = false;
 
     public TerraSarXProductDirectory(final File inputFile) {
@@ -124,40 +124,40 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 .getChild("satelliteID" + inSARslaveID).getText();
 
         final List<Element> componentList = mainRootElement.getChild("productComponents").getChildren("component");
-        Element masterAnnotationComponent = null;
-        Element slaveAnnotationComponent = null;
+        Element referenceAnnotationComponent = null;
+        Element secondaryAnnotationComponent = null;
         for (Element component : componentList) {
             final String satId = component.getChild("instrument").getChildText("satIDs");
             if (component.getChildText("name").startsWith("cossc_annotation")) {
                 if (satId.equals(masterSatellite)) {
-                    masterAnnotationComponent = component;
+                    referenceAnnotationComponent = component;
                 }
                 if (satId.equals(slaveSatellite)) {
-                    slaveAnnotationComponent = component;
+                    secondaryAnnotationComponent = component;
                 }
             }
-            if (masterAnnotationComponent != null && slaveAnnotationComponent != null) {
+            if (referenceAnnotationComponent != null && secondaryAnnotationComponent != null) {
                 break;
             }
         }
-        if (masterAnnotationComponent == null) {
-            throw new IOException("Cannot locate primary annotation component (master product) in main annotation of TDM product");
+        if (referenceAnnotationComponent == null) {
+            throw new IOException("Cannot locate primary annotation component (reference product) in main annotation of TDM product");
         }
-        if (slaveAnnotationComponent == null) {
-            throw new IOException("Cannot locate secondary annotation component (slave product) in main annotation of TDM product");
+        if (secondaryAnnotationComponent == null) {
+            throw new IOException("Cannot locate secondary annotation component (secondary product) in main annotation of TDM product");
         }
 
-        String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        masterProductName = masterHeader.substring(0, masterHeader.indexOf('/'));
+        String referenceHeader = referenceAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        referenceProductName = referenceHeader.substring(0, referenceHeader.indexOf('/'));
 
-        masterHeader = findHeaderFile(masterHeader, masterProductName);
+        referenceHeader = findHeaderFile(referenceHeader, referenceProductName);
 
         // Build the slave metadata
 
-        String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        slaveProductName = slaveHeader.substring(0, slaveHeader.indexOf('/'));
+        String slaveHeader = secondaryAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        secondaryProductName = slaveHeader.substring(0, slaveHeader.indexOf('/'));
 
-        slaveHeader = findHeaderFile(slaveHeader, slaveProductName);
+        slaveHeader = findHeaderFile(slaveHeader, secondaryProductName);
 
         final Document slaveDoc;
         try (final InputStream is = getInputStream(slaveHeader)) {
@@ -175,22 +175,22 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final MetadataElement productInfo = new MetadataElement("Product_Information");
         final MetadataElement inputProd = new MetadataElement("InputProducts");
         productInfo.addElement(inputProd);
-        inputProd.setAttributeString("InputProduct", slaveProductName);
+        inputProd.setAttributeString("InputProduct", secondaryProductName);
         slaveAbstractedMetadataElem.addElement(productInfo);
 
-        // Change the name from Abstracted_Metadata to the slave product name
-        slaveAbstractedMetadataElem.setName(slaveProductName);
+        // Change the name from Abstracted_Metadata to the secondary product name
+        slaveAbstractedMetadataElem.setName(secondaryProductName);
 
         // Use the master's annotation to build the Abstracted_Metadata and Original_Product_Metadata.
 
         final MetadataElement metadataRoot = new MetadataElement(Product.METADATA_ROOT_NAME);
 
-        final Document masterDoc;
-        try (final InputStream is = getInputStream(masterHeader)) {
-            masterDoc = XMLSupport.LoadXML(is);
+        final Document referenceDoc;
+        try (final InputStream is = getInputStream(referenceHeader)) {
+            referenceDoc = XMLSupport.LoadXML(is);
         }
 
-        final Element masterRootElement = masterDoc.getRootElement();
+        final Element masterRootElement = referenceDoc.getRootElement();
         AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(metadataRoot));
 
         addAbstractedMetadataHeader(metadataRoot);
@@ -491,10 +491,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     private void findImagesForTanDemX(final MetadataElement newRoot) throws IOException {
 
-        String parentPath = masterProductName + '/' + getRelativePathToImageFolder();
+        String parentPath = referenceProductName + '/' + getRelativePathToImageFolder();
         findImages(parentPath, newRoot);
 
-        parentPath = slaveProductName + '/' + getRelativePathToImageFolder();
+        parentPath = secondaryProductName + '/' + getRelativePathToImageFolder();
         findImages(parentPath, newRoot);
     }
 
@@ -696,7 +696,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             // Using the master product is important here.
             // The slave product is coregistered to the master without its geocoding being updated afterwards.
             // Its geocoding is unusable because of this.
-            level1ProductDir = new File(getBaseDir(), masterProductName);
+            level1ProductDir = new File(getBaseDir(), referenceProductName);
         }
         File georefFile = new File(level1ProductDir, "ANNOTATION" + File.separator + "GEOREF.xml");
         if (georefFile.exists()) {
@@ -1063,9 +1063,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
                 if (mission.contains("TDM")) {
                     final String level1ProductDirName = file.getParentFile().getParentFile().getName();
-                    if (level1ProductDirName.equals(masterProductName)) {
+                    if (level1ProductDirName.equals(referenceProductName)) {
                         extraInfo = StackUtils.MST;
-                    } else if (level1ProductDirName.equals(slaveProductName)) {
+                    } else if (level1ProductDirName.equals(secondaryProductName)) {
                         extraInfo = StackUtils.SLV + '1';
                     }
                     extraInfo += StackUtils.createBandTimeStamp(product);
@@ -1110,7 +1110,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
                 slaveMetadata.setAttributeString("Master_bands", masterBands);
 
-                final MetadataElement slaveProduct = slaveMetadata.getElement(slaveProductName);
+                final MetadataElement slaveProduct = slaveMetadata.getElement(secondaryProductName);
                 final MetadataAttribute slaveBandsAttr = new MetadataAttribute("Slave_bands", ProductData.TYPE_ASCII);
                 slaveProduct.addAttribute(slaveBandsAttr);
                 slaveProduct.setAttributeString(slaveBandsAttr.getName(), slaveBands);

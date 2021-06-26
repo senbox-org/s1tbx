@@ -124,7 +124,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
                 CreateStackOp.checkPixelSpacing(sourceProducts);
             } catch (OperatorException e) {
                 return new UIValidation(UIValidation.State.WARNING, "Resampling type cannot be NONE" +
-                        " pixel spacings are different for master and slave");
+                        " pixel spacings are different for reference and secondary");
             } catch (Exception e) {
                 //ignore
             }
@@ -134,9 +134,6 @@ public class CreateStackOpUI extends BaseOperatorUI {
 
     @Override
     public void updateParameters() {
-
-        //OperatorUIUtils.updateParamList(mstBandList, paramMap, "masterBandNames");
-        //OperatorUIUtils.updateParamList(slvBandList, paramMap, "slaveBandNames");
 
         paramMap.put("resamplingType", resamplingType.getSelectedItem());
 

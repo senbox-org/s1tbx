@@ -23,10 +23,10 @@
     need to be co-registered to sub-pixel accuracy.</p>
 
 <p><br>The
-    toolbox will accurately&nbsp;co-register one&nbsp;or more&nbsp;slave
-    images with respect to a master image. The co-registration function is
+    toolbox will accurately&nbsp;co-register one&nbsp;or more&nbsp;secondary
+    images with respect to a reference image. The co-registration function is
     fully automatic, in the sense that it does not require the user to
-    manually select ground control points (GCPs) for the master and slave
+    manually select ground control points (GCPs) for the reference and secondary
     images.</p>
 
 <p><br>Images
@@ -52,15 +52,15 @@
     (i.e. they must all be complex or all real) and have the same
     projection system (all slant range or all ground range projected or all
     geocoded). &nbsp; If the images are not in the same projection, the
-    slave image(s) should be
-    reprojected into the same projection system as that of the master
+    secondary image(s) should be
+    reprojected into the same projection system as that of the reference
     image.
 </p><h4>Create Stack</h4>
 
 <p>The
-    Create Stack operator&nbsp;collocates the master and slave images.
-    Basically the slave image data is resampled into the geographical
-    raster of the master image. By doing so the master and slave images
+    Create Stack operator&nbsp;collocates the reference and secondary images.
+    Basically the secondary image data is resampled into the geographical
+    raster of the reference image. By doing so the reference and secondary images
     share the same geopositioning information and have the same dimension.
     For details of the Create Stack operator,&nbsp;readers are referred to <a href="../operators/CollocateOp.html">Create
         Stack operator</a>.
@@ -69,35 +69,34 @@
     option to not do any resampling in the CreateStack should be used.</p><h4>GCP Selection</h4>
 
 <p>The
-    GCP Selection operator then creates an alignment between&nbsp;master
-    and slave images by matching the user
-    selected master GCPs to their corresponding slave GCPs. There are two
+    GCP Selection operator then creates an alignment between&nbsp;reference
+    and secondary images by matching the user
+    selected reference GCPs to their corresponding secondary GCPs. There are two
     stages for the operation: coarse registration and fine registration.
     For real images co-registration, the coarse registration is applied.
     The registration&nbsp;is achieved by maximizing the
-    cross-correlation between master and slave images on a series of
+    cross-correlation between reference and secondary images on a series of
     imagettes defined across the images. For complex image co-registration,
     the additional fine registration is applied. The registration is
-    achieved by maximizing the&nbsp;coherence between master and
-    slave&nbsp;images at a series
-    of imagettes defined across the images.&nbsp;For details of
+    achieved by maximizing the&nbsp;coherence between reference and
+    secondary&nbsp;images at a series of imagettes defined across the images.&nbsp;For details of
     the&nbsp;GCP Selection operator, readers are referred to&nbsp;<a href="../operators/GCPSelectionOp.html">GCP
         Selection operator</a>.</p><h4>Warp</h4>
 
 <p>With
-    the master-slave GCP pairs selected, a warp function is created by the
+    the reference-secondary GCP pairs selected, a warp function is created by the
     Warp operator, which&nbsp;maps pixels
-    in the slave image into pixels in the master image.&nbsp;For details of
+    in the secondary image into pixels in the reference image.&nbsp;For details of
     the&nbsp;Warp operator, readers are referred to <a href="../operators/WarpOp.html">Warp operator</a>.</p><h4>
     Co-Registration from the DAT</h4>&nbsp;&nbsp;&nbsp;Detailed steps of using this operator are given below:<br>
 <ol>
     <li>From the SAR Tools menu, select Coregistration.</li>
-    <li>Add a master product to the ProductSet Reader.</li>
-    <li>Add any slave products to the ProductSet reader or drag and drop products from a Project.</li>
-    <li>In the CreateStack tab, select one source band from the master and one
-        source band from the slave for detected products. If you are using
-        complex data products, select&nbsp;bands i and q for the master and select
-        bands i and q from the slaves. &nbsp;For interferometric processing, select no resampling and Master extents in
+    <li>Add a reference product to the ProductSet Reader.</li>
+    <li>Add any secondary products to the ProductSet reader or drag and drop products from a Project.</li>
+    <li>In the CreateStack tab, select one source band from the reference and one
+        source band from the secondary for detected products. If you are using
+        complex data products, select&nbsp;bands i and q for the reference and select
+        bands i and q from the secondaries. &nbsp;For interferometric processing, select no resampling and Reference extents in
         the CreateStack.
     </li>
     <li>In the GCP Selection tab enter the number of GCPs to create.</li>

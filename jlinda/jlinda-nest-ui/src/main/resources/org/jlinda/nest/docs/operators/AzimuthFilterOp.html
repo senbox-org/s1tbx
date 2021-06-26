@@ -22,9 +22,9 @@
 <p>
     This operator filters the spectras, of stack of SLC images, in the azimuth direction. This is an
     optional step in the interferometric processing chain.
-    The part of the spectras do that does not overlap with the spectrum of the slave is filtered out. This
+    The part of the spectras do that does not overlap with the spectrum of the secondary is filtered out. This
     non overlap is due to the selection of a Doppler centroid frequency in the SAR processing, which normally is
-    not equal for master and slave image.
+    not equal for reference and secondary image.
 </p>
 
 <p>
@@ -33,12 +33,12 @@
 </p>
 
 <p>
-    Operator performs filtering of all images in the stack at the same time. However, if multiple slave images are
-    present in the stack, only slave images will be filtered, and master image will remain unfiltered (all slaves
-    coregistered on the same master image). This approach has the advantage that for each interferogram of the stack
-    a separate set of master images is created, effectively saving the disk storage space and making the processing
-    more efficient. The disadvantage of not filtering the master is that a small part of the spectrum of the master
-    is not shared with the slave spectrum, yielding a minor loss of coherence in the interferogram.
+    Operator performs filtering of all images in the stack at the same time. However, if multiple secondary images are
+    present in the stack, only secondary images will be filtered, and reference image will remain unfiltered (all secondary
+    coregistered on the same reference image). This approach has the advantage that for each interferogram of the stack
+    a separate set of reference images is created, effectively saving the disk storage space and making the processing
+    more efficient. The disadvantage of not filtering the reference is that a small part of the spectrum of the reference
+    is not shared with the secondary spectrum, yielding a minor loss of coherence in the interferogram.
 </p>
 
 <h4>Operator parameters:</h4>&nbsp;&nbsp;
@@ -53,7 +53,7 @@
         <b>Azimuth Filter Overlap:</b> Half of the overlap between consecutive tiles in azimuth
         direction. Partially the same data is used to estimate the spectrum, to avoid border effects.
         However, the exact influence of this parameter to the end results scales with the Doppler Centroid Frequency
-        variability between master and slave images. It has not been studied yet, what is the optimum ratio between
+        variability between reference and secondary images. It has not been studied yet, what is the optimum ratio between
         Overlap parameter and Doppler Centroid Frequency difference. Setting this card to 0 gives the fastest results.
     </li>
     <li>

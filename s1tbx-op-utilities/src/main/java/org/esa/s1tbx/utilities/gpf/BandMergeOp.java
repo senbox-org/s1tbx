@@ -49,13 +49,13 @@ import java.util.List;
  */
 @OperatorMetadata(alias = "BandMerge",
                   category = "Raster",
-                  description = "Allows copying raster data from any number of source products to a specified 'master' product.",
+                  description = "Allows copying raster data from any number of source products to a specified 'reference' product.",
                   authors = "SNAP team",
                   version = "1.0",
                   copyright = "(c) 2012 by Brockmann Consult")
 public class BandMergeOp extends Operator {
 
-    @SourceProducts(description = "The products to be merged into the master product.")
+    @SourceProducts(description = "The products to be merged into the reference product.")
     private Product[] sourceProducts;
 
     @TargetProduct
@@ -129,7 +129,7 @@ public class BandMergeOp extends Operator {
     private void validateSourceProducts() {
         for (Product sourceProduct : getSourceProducts()) {
             if (!targetProduct.isCompatibleProduct(sourceProduct, geographicError)) {
-                throw new OperatorException(String.format("Product [%s] is not compatible to master product.",
+                throw new OperatorException(String.format("Product [%s] is not compatible to reference product.",
                                                           getSourceProductId(sourceProduct)));
             }
         }

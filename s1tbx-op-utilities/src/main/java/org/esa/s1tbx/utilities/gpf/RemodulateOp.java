@@ -107,9 +107,9 @@ public class RemodulateOp extends Operator {
         Band sourceBandI = null;
         Band sourceBandQ = null;
 
-        // Master
-        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
-        for (String bandName : masterBandNames) {
+        // Reference
+        final String[] referenceBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        for (String bandName : referenceBandNames) {
             if (bandName.contains("i_")) {
                 sourceBandI = sourceProduct.getBand(bandName);
             } else {
@@ -121,9 +121,9 @@ public class RemodulateOp extends Operator {
             createTargetBands(sourceBandI, sourceBandQ);
         }
 
-        // Slaves
-        final String[] slaveProductNames = StackUtils.getSlaveProductNames(sourceProduct);
-        for (String slaveProductName : slaveProductNames) {
+        // Secondaries
+        final String[] secondaryProductNames = StackUtils.getSlaveProductNames(sourceProduct);
+        for (String slaveProductName : secondaryProductNames) {
             final String[] slvBandNames = StackUtils.getSlaveBandNames(sourceProduct, slaveProductName);
             for (String bandName : slvBandNames) {
                 if (bandName.contains("i_")) {
