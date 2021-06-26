@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.Resolution;
 import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -667,18 +668,16 @@ public class CreateStackOp extends Operator {
     /**
      * Maximum extents consists of the overall area
      */
-    private void determineMaxExtents() throws Exception {
+    private void determineMaxExtents() {
 
         final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
         OperatorUtils.computeImageGeoBoundary(sourceProduct, scnProp);
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(masterProduct);
-        double pixelSize = 1;
-        if(absRoot != null) {
-            final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-            final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-            pixelSize = Math.min(rangeSpacing, azimuthSpacing);
-        }
+        final Resolution resolution = new Resolution(masterProduct);
+        final double rangeSpacing = resolution.getResX();
+        final double azimuthSpacing = resolution.getResY();
+        double pixelSize = Math.min(rangeSpacing, azimuthSpacing);
+
         OperatorUtils.getSceneDimensions(pixelSize, scnProp);
 
         int sceneWidth = scnProp.sceneWidth;
