@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.teststacks;
+package org.esa.s1tbx.teststacks.coregistration;
 
 import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
@@ -22,17 +22,16 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.test.LongTestRunner;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit test for CreateStackOp.
@@ -40,18 +39,24 @@ import static org.junit.Assert.assertTrue;
 @RunWith(LongTestRunner.class)
 public class TestCreateStackOp extends ProcessorTest {
 
-    private final static File inFile1 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PNUPA20031203_061259_000000162022_00120_09192_0099.N1");
-    private final static File inFile2 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PXPDE20040211_061300_000000142024_00120_10194_0013.N1");
+    private final static File asarBamFile1 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PNUPA20031203_061259_000000162022_00120_09192_0099.N1");
+    private final static File asarBamFile2 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PXPDE20040211_061300_000000142024_00120_10194_0013.N1");
+    private final static File asarSantoriniFolder = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Santorini");
+
+    @Before
+    public void setUp() {
+        // If any of the file does not exist: the test will be ignored
+        assumeTrue(asarBamFile1 + " not found", asarBamFile1.exists());
+        assumeTrue(asarBamFile2 + " not found", asarBamFile2.exists());
+        assumeTrue(asarSantoriniFolder + " not found", asarSantoriniFolder.exists());
+    }
 
     @Test
     public void testForumIssue() throws IOException {
-        if(!inFile1.exists() || !inFile2.exists()){
-            return;
-        }
 
         Product[] products = new Product[2];
-        products[0] = ProductIO.readProduct(inFile1);
-        products[1] = ProductIO.readProduct(inFile2);
+        products[0] = ProductIO.readProduct(asarBamFile1);
+        products[1] = ProductIO.readProduct(asarBamFile2);
         assertNotNull(products[0]);
         assertNotNull(products[1]);
 
@@ -70,40 +75,29 @@ public class TestCreateStackOp extends ProcessorTest {
         File tmpFolder = createTmpFolder("stacks");
         ProductIO.writeProduct(outProduct, new File(tmpFolder,"target.dim"), "BEAM-DIMAP", true);
 
-        tmpFolder.delete();
-    }
-
-    private Product[] readProducts(final File folder) throws IOException {
-        assertTrue(folder.isDirectory());
-        File[] files = folder.listFiles();
-        final List<Product> productList = new ArrayList<>();
-        if(files != null) {
-            for(File file : files) {
-                Product product = ProductIO.readProduct(file);
-                if(product != null) {
-                    productList.add(product);
-                }
-            }
-        }
-        return productList.toArray(new Product[0]);
+        outProduct.dispose();
+        delete(tmpFolder);
     }
 
     @Test
-    public void testStack1() throws IOException {
-        final Product[] products = readProducts(new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame"));
+    public void testStack1() throws Exception {
+        final Product[] products = readProducts(asarSantoriniFolder);
 
-        CreateStackOp createStackOp = new CreateStackOp();
+        CreateStackOp createStack = new CreateStackOp();
         int cnt = 0;
         for(Product product : products) {
-            createStackOp.setSourceProduct("input"+cnt, product);
+            createStack.setSourceProduct("input"+cnt, product);
             ++cnt;
         }
 
-        Product outProduct = createStackOp.getTargetProduct();
+        Product trgProduct = createStack.getTargetProduct();
+
+        validateProduct(trgProduct);
 
         File tmpFolder = createTmpFolder("stack1");
-        ProductIO.writeProduct(outProduct, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
+        ProductIO.writeProduct(trgProduct, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
 
-        //tmpFolder.delete();
+        trgProduct.dispose();
+        delete(tmpFolder);
     }
 }

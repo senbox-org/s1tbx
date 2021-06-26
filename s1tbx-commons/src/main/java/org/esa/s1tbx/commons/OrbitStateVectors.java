@@ -20,19 +20,20 @@ public final class OrbitStateVectors {
 
     public OrbitStateVectors(final OrbitStateVector[] orbitStateVectors,
                              final double firstLineUTC, final double lineTimeInterval, final int sourceImageHeight) {
+        if(orbitStateVectors != null && orbitStateVectors.length > 0) {
+            this.orbitStateVectors = removeRedundantVectors(orbitStateVectors);
 
-        this.orbitStateVectors = removeRedundantVectors(orbitStateVectors);
+            this.dt = (this.orbitStateVectors[this.orbitStateVectors.length - 1].time_mjd -
+                    this.orbitStateVectors[0].time_mjd) / (this.orbitStateVectors.length - 1);
 
-        this.dt = (this.orbitStateVectors[this.orbitStateVectors.length - 1].time_mjd -
-                this.orbitStateVectors[0].time_mjd) / (this.orbitStateVectors.length - 1);
-
-        this.sensorPosition = new PosVector[sourceImageHeight];
-        this.sensorVelocity = new PosVector[sourceImageHeight];
-        for (int i = 0; i < sourceImageHeight; i++) {
-            final double time = firstLineUTC + i * lineTimeInterval;
-            PositionVelocity pv = getPositionVelocity(time);
-            sensorPosition[i] = pv.position;
-            sensorVelocity[i] = pv.velocity;
+            this.sensorPosition = new PosVector[sourceImageHeight];
+            this.sensorVelocity = new PosVector[sourceImageHeight];
+            for (int i = 0; i < sourceImageHeight; i++) {
+                final double time = firstLineUTC + i * lineTimeInterval;
+                PositionVelocity pv = getPositionVelocity(time);
+                sensorPosition[i] = pv.position;
+                sensorVelocity[i] = pv.velocity;
+            }
         }
     }
 
