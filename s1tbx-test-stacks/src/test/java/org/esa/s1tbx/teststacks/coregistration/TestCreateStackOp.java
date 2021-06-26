@@ -41,14 +41,14 @@ public class TestCreateStackOp extends ProcessorTest {
 
     private final static File asarBamFile1 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PNUPA20031203_061259_000000162022_00120_09192_0099.N1");
     private final static File asarBamFile2 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PXPDE20040211_061300_000000142024_00120_10194_0013.N1");
-    private final static File rs2ManitobaFolder = new File(S1TBXTests.inputPathProperty + "/SAR/RS2/Manitoba");
+    private final static File asarSantoriniFolder = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Santorini");
 
     @Before
     public void setUp() {
         // If any of the file does not exist: the test will be ignored
         assumeTrue(asarBamFile1 + " not found", asarBamFile1.exists());
         assumeTrue(asarBamFile2 + " not found", asarBamFile2.exists());
-        assumeTrue(rs2ManitobaFolder + " not found", rs2ManitobaFolder.exists());
+        assumeTrue(asarSantoriniFolder + " not found", asarSantoriniFolder.exists());
     }
 
     @Test
@@ -76,26 +76,28 @@ public class TestCreateStackOp extends ProcessorTest {
         ProductIO.writeProduct(outProduct, new File(tmpFolder,"target.dim"), "BEAM-DIMAP", true);
 
         outProduct.dispose();
-        tmpFolder.delete();
+        delete(tmpFolder);
     }
 
     @Test
-    public void testStack1() throws IOException {
-        final Product[] products = readProducts(rs2ManitobaFolder);
+    public void testStack1() throws Exception {
+        final Product[] products = readProducts(asarSantoriniFolder);
 
-        CreateStackOp createStackOp = new CreateStackOp();
+        CreateStackOp createStack = new CreateStackOp();
         int cnt = 0;
         for(Product product : products) {
-            createStackOp.setSourceProduct("input"+cnt, product);
+            createStack.setSourceProduct("input"+cnt, product);
             ++cnt;
         }
 
-        Product outProduct = createStackOp.getTargetProduct();
+        Product trgProduct = createStack.getTargetProduct();
+
+        validateProduct(trgProduct);
 
         File tmpFolder = createTmpFolder("stack1");
-        ProductIO.writeProduct(outProduct, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
+        ProductIO.writeProduct(trgProduct, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
 
-        outProduct.dispose();
-        tmpFolder.delete();
+        trgProduct.dispose();
+        delete(tmpFolder);
     }
 }
