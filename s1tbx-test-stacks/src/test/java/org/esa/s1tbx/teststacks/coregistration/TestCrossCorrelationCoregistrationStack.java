@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.util.List;
 
 import static org.junit.Assume.assumeTrue;
 
@@ -29,7 +30,7 @@ public class TestCrossCorrelationCoregistrationStack extends ProcessorTest {
 
     @Test
     public void testStack1() throws Exception {
-        final Product[] products = readProducts(asarSantoriniFolder);
+        final List<Product> products = readProducts(asarSantoriniFolder);
 
         Product trgProduct = coregister(products);
 
@@ -40,7 +41,7 @@ public class TestCrossCorrelationCoregistrationStack extends ProcessorTest {
         delete(tmpFolder);
     }
 
-    public static Product coregister(final Product[] products) {
+    public static Product coregister(final List<Product> products) {
         CreateStackOp createStack = new CreateStackOp();
         int cnt = 0;
         for(Product product : products) {

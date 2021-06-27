@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
@@ -81,7 +82,7 @@ public class TestCreateStackOp extends ProcessorTest {
 
     @Test
     public void testStack1() throws Exception {
-        final Product[] products = readProducts(asarSantoriniFolder);
+        final List<Product> products = readProducts(asarSantoriniFolder);
 
         CreateStackOp createStack = new CreateStackOp();
         int cnt = 0;
