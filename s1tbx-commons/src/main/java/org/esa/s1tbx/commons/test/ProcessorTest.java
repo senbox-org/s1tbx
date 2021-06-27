@@ -35,7 +35,6 @@ public class ProcessorTest {
 
     protected File createTmpFolder(final String folderName) throws IOException {
         File folder = Files.createTempDirectory(folderName).toFile();
-        //File folder = new File("c:\\tmp\\" + folderName);
         folder.mkdirs();
         return folder;
     }
