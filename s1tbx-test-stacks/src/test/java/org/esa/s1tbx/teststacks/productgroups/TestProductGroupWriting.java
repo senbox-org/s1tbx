@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.teststacks;
+package org.esa.s1tbx.teststacks.productgroups;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.test.ProcessorTest;
@@ -21,7 +21,6 @@ import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.util.io.FileUtils;
 import org.junit.Test;
 
@@ -30,7 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -83,25 +81,6 @@ public class TestProductGroupWriting extends ProcessorTest {
         closeProducts(inputProducts2);
         outProduct2.dispose();
         //assertTrue(FileUtils.deleteTree(tmpFolder));
-    }
-
-    private List<Product> readProducts(final File folder) throws IOException {
-        assertTrue(folder.isDirectory());
-        File[] files = folder.listFiles();
-        return readProducts(files);
-    }
-
-    private List<Product> readProducts(final File[] files) throws IOException {
-        final List<Product> productList = new ArrayList<>();
-        if(files != null) {
-            for(File file : files) {
-                Product product = ProductIO.readProduct(file);
-                if(product != null) {
-                    productList.add(product);
-                }
-            }
-        }
-        return productList;
     }
 
     private void closeProducts(final List<Product> products) {
