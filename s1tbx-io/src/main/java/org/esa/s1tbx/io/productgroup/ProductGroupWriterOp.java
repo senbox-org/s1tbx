@@ -21,10 +21,7 @@ import org.esa.s1tbx.io.productgroup.support.ProductGroupAsset;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupMetadataFile;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -77,7 +74,7 @@ public class ProductGroupWriterOp extends Operator {
     private final Map<SubsetInfo, ProductGroupAsset> assetMap = new HashMap<>();
     private final static String ext = ".dim";
 
-    private final static boolean DEBUG = true;
+    public final static boolean DEBUG = true;
 
     public ProductGroupWriterOp() {
         setRequiresAllBands(true);
@@ -161,7 +158,9 @@ public class ProductGroupWriterOp extends Operator {
             final List<SubsetInfo> assetList = new ArrayList<>();
             if (stackSplit.getReferenceSubset() != null) {
                 SubsetInfo refSubset = createSubset(stackSplit.getReferenceSubset());
-                assetList.add(refSubset);
+                if(refSubset.splitProduct.subsetProduct.getNumBands() > 0) {
+                    assetList.add(refSubset);
+                }
             }
 
             final StackSplit.SplitProduct[] secondarySplitProducts = stackSplit.getSecondarySubsets();
@@ -186,7 +185,7 @@ public class ProductGroupWriterOp extends Operator {
             Band band = sourceProduct.getBand(bandName);
             if (!(band instanceof VirtualBand)) {
                 bandMap.put(band.getName(), subsetInfo);
-                break;
+                //break;
             }
         }
         return subsetInfo;
@@ -221,6 +220,19 @@ public class ProductGroupWriterOp extends Operator {
 
     private String relativePath(final File file) {
         return targetFolder.toPath().relativize(file.toPath()).toString();
+    }
+
+    public boolean shouldWrite(ProductNode node) {
+        boolean shouldWrite = false;
+        final SubsetInfo subsetInfo = bandMap.get(node.getName());
+
+        if (subsetInfo != null) {
+            final ProductGroupAsset asset = assetMap.get(subsetInfo);
+
+            shouldWrite = !(node instanceof VirtualBand) && asset.isModified();
+        }
+        print("Should write " + node.getDisplayName() + ": " + shouldWrite);
+        return shouldWrite;
     }
 
     @Override
@@ -306,7 +318,7 @@ public class ProductGroupWriterOp extends Operator {
 
     private static void print(final String str) {
         if(DEBUG) {
-            SystemUtils.LOG.fine(str);
+            SystemUtils.LOG.info(str);
         }
     }
 

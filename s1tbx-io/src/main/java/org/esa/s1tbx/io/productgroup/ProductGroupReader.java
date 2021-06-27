@@ -26,6 +26,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
@@ -47,17 +48,25 @@ public class ProductGroupReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         try {
             final Path inputPath = ReaderUtils.getPathFromInput(getInput());
+            if(inputPath == null) {
+                throw new IOException("ProductGroupReader unable to read " + getInput());
+            }
             File inputFile = inputPath.toFile();
 
             if (inputFile.isDirectory()) {
                 inputFile = ProductGroupReaderPlugIn.findMetadataFile(inputFile);
             }
+            if(inputFile == null) {
+                throw new IOException("ProductGroupReader unable to read " + getInput());
+            }
 
             final File inputFolder = inputFile.getParentFile();
             final ProductGroupMetadataFile metadataFile = new ProductGroupMetadataFile();
+            print("ProductGroupReader read " + inputFile);
             metadataFile.read(inputFile);
 
             final ProductGroupAsset[] assets = metadataFile.getAssets();
+            print("ProductGroupReader found " + assets.length + " assets.");
 
             for (ProductGroupAsset asset : assets) {
                 File assetFile = new File(asset.getPath());
@@ -131,5 +140,11 @@ public class ProductGroupReader extends AbstractProductReader {
                                           ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
 
+    }
+
+    private static void print(final String str) {
+        if(ProductGroupWriterOp.DEBUG) {
+            SystemUtils.LOG.info(str);
+        }
     }
 }

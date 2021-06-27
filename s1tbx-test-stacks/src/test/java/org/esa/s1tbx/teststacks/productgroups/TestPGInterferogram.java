@@ -42,8 +42,12 @@ public class TestPGInterferogram extends ProcessorTest {
         final List<Product> products = readProducts(asarSantoriniFolder);
         final List<Product> firstPair = products.subList(0, 2);
 
-        final File trgFolder = new File(tmpFolder,"stackPG");
+        File trgFolder = new File(tmpFolder,"stackPG");
         coregisterInterferogram(firstPair, trgFolder);
+
+        final List<Product> firstThree = products.subList(0, 3);
+        trgFolder = new File(tmpFolder,"stackPG");
+        coregisterInterferogram(firstThree, trgFolder);
 
         //delete(tmpFolder);
     }

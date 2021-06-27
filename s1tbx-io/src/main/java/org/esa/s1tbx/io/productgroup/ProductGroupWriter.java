@@ -20,6 +20,7 @@ import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -57,6 +58,7 @@ public class ProductGroupWriter extends AbstractProductWriter {
         } else if (output instanceof File) {
             outputFile = (File) output;
         }
+        print("ProductGroupWriter write " + outputFile);
         op = new ProductGroupWriterOp(sourceProduct, outputFile, "BEAM-DIMAP");
         op.initialize();
 
@@ -82,7 +84,6 @@ public class ProductGroupWriter extends AbstractProductWriter {
      * Writes all data in memory to the data sink(s) associated with this writer.
      */
     public void flush() {
-
     }
 
     /**
@@ -100,7 +101,6 @@ public class ProductGroupWriter extends AbstractProductWriter {
      * Complete deletes the physical representation of the given product from the file system.
      */
     public void deleteOutput() {
-
     }
 
     /**
@@ -111,6 +111,21 @@ public class ProductGroupWriter extends AbstractProductWriter {
      */
     @Override
     public boolean shouldWrite(ProductNode node) {
-        return !(node instanceof VirtualBand) && super.shouldWrite(node);
+        if (node instanceof RasterDataNode && ((RasterDataNode) node).isSynthetic()) {
+            return false;
+        }
+        if (node instanceof VirtualBand) {
+            return false;
+        }
+        if (node instanceof FilterBand) {
+            return false;
+        }
+        return (op == null || op.shouldWrite(node)) && super.shouldWrite(node);
+    }
+
+    private static void print(final String str) {
+        if(ProductGroupWriterOp.DEBUG) {
+            SystemUtils.LOG.info(str);
+        }
     }
 }
