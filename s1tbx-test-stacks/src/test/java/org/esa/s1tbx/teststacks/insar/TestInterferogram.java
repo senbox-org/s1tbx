@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.util.List;
 
 import static org.junit.Assume.assumeTrue;
 
@@ -28,7 +29,7 @@ public class TestInterferogram extends ProcessorTest {
 
     @Test
     public void testStack1() throws Exception {
-        final Product[] products = readProducts(asarSantoriniFolder);
+        final List<Product> products = readProducts(asarSantoriniFolder);
 
         Product coregisteredStack = TestCrossCorrelationCoregistrationStack.coregister(products);
 

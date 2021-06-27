@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 
 import static org.junit.Assume.assumeTrue;
 
@@ -24,7 +25,7 @@ public class TestDemAssistedCoregistrationStack extends ProcessorTest {
 
     @Test
     public void testStack1() throws Exception {
-        final Product[] products = readProducts(asarSantoriniFolder);
+        final List<Product> products = readProducts(asarSantoriniFolder);
 
         DEMAssistedCoregistrationOp demAssistedCoregistration = new DEMAssistedCoregistrationOp();
         int cnt = 0;

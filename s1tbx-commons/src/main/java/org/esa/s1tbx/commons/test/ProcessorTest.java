@@ -40,11 +40,15 @@ public class ProcessorTest {
         return folder;
     }
 
-    protected Product[] readProducts(final File folder) throws IOException {
+    protected List<Product> readProducts(final File folder) throws IOException {
         if(!folder.isDirectory()) {
             throw new IOException("Expecting " + folder + " to be a directory");
         }
         final File[] files = folder.listFiles();
+        return readProducts(files);
+    }
+
+    protected List<Product> readProducts(final File[] files) throws IOException {
         final List<Product> productList = new ArrayList<>();
         if(files != null) {
             for(File file : files) {
@@ -54,7 +58,7 @@ public class ProcessorTest {
                 }
             }
         }
-        return productList.toArray(new Product[0]);
+        return productList;
     }
 
     protected void validateProduct(final Product product) throws Exception {
