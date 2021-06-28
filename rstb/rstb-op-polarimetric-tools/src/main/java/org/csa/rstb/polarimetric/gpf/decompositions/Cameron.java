@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by SkyWatch Space Applications Inc.
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.polarimetric.gpf.decompositions;
 
-import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.support.QuadPolProcessor;
 import org.esa.s1tbx.commons.polsar.PolBandUtils;
 import org.esa.s1tbx.commons.polsar.PolBandUtils.MATRIX;
