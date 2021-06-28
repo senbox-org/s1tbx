@@ -65,7 +65,7 @@ public class HorizontalVerticalMotionOp extends Operator {
             label = "Reference pixel Y position")
     private int refPixelY = 0;
 
-    // Targets bands
+    // Target bands
     private Band targetBandHorizontalMotion;
     private Band targetBandVerticalMotion;
 
@@ -78,7 +78,7 @@ public class HorizontalVerticalMotionOp extends Operator {
     private double headingDsc;
     private double headingAsc;
 
-    // Values to be loading during execution
+    // Values to be loaded during execution
     private double refOffsetDsc;
     private double refOffsetAsc;
     private boolean areRefOffsetsAvailable = false;
