@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Ionospheric Correction</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css"></head>
+
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Ionospheric Correction<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Ionospheric Correction Operator</h3>
+<p class="MsoNormal">This operator uses three interferometric products (each of which with an unwrapped interferometric phase band)
+    to estimate and correct for ionospheric phase screens. The estimation is done in two steps. First, an initial phase screen
+    is computed. Then, a spatially-adaptive Gaussian filter is applied to reduce the noise level.
+    The methodology adopted is based on [1].
+
+<h4>Input<br>
+</h4>
+<p class="MsoNormal">
+    The input to this operator should be three interferometric products, as read (in any order) by using the
+    <b>ProductSet-Reader</b>. These input products can be created as follows:
+<ul>
+    <h5>TOPS</h5>
+    <li>Coregister a pair of TOPS images using the usual workflow.
+    </li>
+    <li>Coregister a pair of <b>low</b> subbands of TOPS images. This can be achieved by calling the <b>BandPassFilter</b> operator
+        right after calling <b>TOPSAR-Split</b>.
+        Recommendation: reuse the overall azimuth/range shifts estimated by the <b>Enhanced-Spectral-Diversity</b> operator in the previous step.
+    </li>
+    <li>Analogously, coregister a pair of <b>high</b> subbands.
+    </li>
+    <li>Create interferograms (with coherence estimation enabled) for each coregistered dataset and deburst.
+        Recommendation: use the <b>GoldsteinPhaseFiltering</b> and <b>Multilook</b> operators to filter the interferograms.
+    </li>
+    <li>Unwrap each interferometric phase band using SNAPHU. The name of the unwrapped phase band should contain the string
+        <b>Unw_Phase_ifg</b> in order for the <b>IonosphericCorrection</b> operator to recognize it.
+    </li>
+
+    <h5>Stripmap</h5>
+    <li>Coregister a pair of Stripmap images using the usual workflow.
+    </li>
+    <li>Coregister a pair of <b>low</b> subbands of images. This can be achieved by calling the <b>BandPassFilter</b> operator
+        right after reading the original SLC.
+    </li>
+    <li>Analogously, coregister a pair of <b>high</b> subbands.
+    </li>
+    <li>Create interferograms (with coherence estimation enabled) for each coregistered dataset.
+        Recommendation: use the <b>GoldsteinPhaseFiltering</b> and <b>Multilook</b> operators to filter the interferograms.
+    </li>
+    <li>Unwrap each interferometric phase band using SNAPHU. The name of the unwrapped phase band should contain the string
+        <b>Unw_Phase_ifg</b> in order for the <b>IonosphericCorrection</b> operator to recognize it.
+    </li>
+</ul><br>
+
+<h4>Output<br>
+</h4>
+<p class="MsoNormal">
+    The output of this operator is a product with the following bands:
+<ul>
+    <li>
+        ionosphericPhase: unwrapped ionospheric phase screen. This can be collocated (see <b>Collocate</b> operator)
+        with another interferogram with higher spatial resolution.
+    </li>
+    <li>
+        wrappedIonosphericPhase: wrapped ionospheric phase screen.
+    </li>
+    <li>
+        wrappedOriginalPhase: rewrapped phase of original full-bandwidth interferogram.
+    </li>
+    <li>
+        wrappedCorrectedPhase: rewrapped phase of corrected full-bandwidth interferogram.
+    </li>
+</ul>
+<br>
+
+<h4>Parameters<br>
+</h4>
+<p class="MsoNormal">
+<ul>
+    <li>
+        sigma: standard deviation for defining a Gaussian kenerl for filtering the initial estimation of ionospheric phase screens.
+        This value is an integer representing a number of pixels. The Guassian kernel is isotropic, so it is assumed
+        that appropriate multilooking has been previously applied to ensure a squared pixel.
+    </li>
+    <li>
+        coherenceThreshold: coherence values below this threshold will be forced to be zero. This is important, as
+        the coherence is used to (locally) weight the Gaussian kernel.
+    </li>
+    <li>
+        minCoherence: minimum coherence for masking out values in all output bands. This is mostly for visualization
+        purposes.
+    </li>
+</ul>
+<br>
+
+<h4>References</h4>
+
+<ol>
+    <li>G. Gomba, A. Parizzi, F. De Zan, M. Eineder and R. Bamler, "Toward Operational Compensation of Ionospheric
+        Effects in SAR Interferograms: The Split-Spectrum Method," in IEEE Transactions on Geoscience and Remote
+        Sensing, vol. 54, no. 3, pp. 1446-1461, March 2016, doi: 10.1109/TGRS.2015.2481079.
+    </li>
+</ol>
+
+</body>
+</html>
