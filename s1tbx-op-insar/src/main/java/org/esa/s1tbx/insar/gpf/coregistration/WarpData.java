@@ -17,7 +17,6 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.jlinda.core.coregistration.PolynomialModel;
 
 import javax.media.jai.WarpPolynomial;
@@ -446,7 +445,7 @@ public class WarpData implements PolynomialModel {
                                                 final float threshold, final int parseIndex, final String bandName)
             throws OperatorException {
 
-        final File residualFile = getResidualsFile(sourceProduct);
+        final File residualFile = WarpOp.getResidualsFile(sourceProduct);
         PrintStream p = null; // declare a print stream object
 
         try {
@@ -547,10 +546,5 @@ public class WarpData implements PolynomialModel {
             if (p != null)
                 p.close();
         }
-    }
-
-    private static File getResidualsFile(final Product sourceProduct) {
-        final String fileName = sourceProduct.getName() + "_residual.txt";
-        return new File(ResourceUtils.getReportFolder(), fileName);
     }
 }
