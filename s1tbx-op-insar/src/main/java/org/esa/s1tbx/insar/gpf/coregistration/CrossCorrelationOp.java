@@ -164,22 +164,16 @@ public class CrossCorrelationOp extends Operator {
 
     private final static double MaxInvalidPixelPercentage = 0.66; // maximum percentage of invalid pixels allowed in xcorrelation
 
-    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
-    private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
-    private final Map<Band, Boolean> gcpsComputedMap = new HashMap<>(10);
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>();
+    private final Map<Band, Band> complexSrcMap = new HashMap<>();
+    private final Map<Band, Boolean> gcpsComputedMap = new HashMap<>();
+    final Map<Band, Band> bandsToCoregister = new HashMap<>();
+
     private Band primarySlaveBand = null;    // the slave band to process
     private boolean collocatedStack = false;
-    private boolean isComplex;
 
     private ElevationModel dem = null;
     private CorrelationWindow fineWin;
-
-    /**
-     * Default constructor. The graph processing framework
-     * requires that an operator has a default constructor.
-     */
-    public CrossCorrelationOp() {
-    }
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -199,7 +193,7 @@ public class CrossCorrelationOp extends Operator {
             getCollocatedStackFlag();
 
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            isComplex = validator.isComplex();
+            final boolean isComplex = validator.isComplex();
 
             if (isComplex) {
                 applyFineRegistration = true;
@@ -253,6 +247,8 @@ public class CrossCorrelationOp extends Operator {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
                            targetProduct.getSceneGeoCoding());
             }
+
+            determineBandsToCoregister();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -417,6 +413,67 @@ public class CrossCorrelationOp extends Operator {
         dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.NEAREST_NEIGHBOUR_NAME));
     }
 
+    private void determineBandsToCoregister() {
+        // select only one band per slave product
+        final Map<String, Band> singleSlvBandMap = new HashMap<>();
+        for (Band targetBand : targetProduct.getBands()) {
+
+            final Band slaveBand = sourceRasterMap.get(targetBand);
+            if (slaveBand == masterBand1 || slaveBand == masterBand2 ||
+                    StringUtils.contains(masterBandNames, slaveBand.getName())) {
+                continue;
+            }
+
+            if (collocatedStack && !useAllPolarimetricBands) {
+                final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
+                final String slvProductName = StackUtils.getSlaveProductName(targetProduct, targetBand, mstPol);
+                if (slvProductName == null || singleSlvBandMap.get(slvProductName) != null) {
+                    continue;
+                }
+                singleSlvBandMap.put(slvProductName, targetBand);
+            }
+
+            final String unit = slaveBand.getUnit();
+            if (unit != null && (unit.contains(Unit.IMAGINARY) || unit.contains(Unit.BIT) ||
+                    (complexCoregistration && unit.contains(Unit.INTENSITY)))) {
+                continue;
+            }
+            bandsToCoregister.put(targetBand, slaveBand);
+        }
+    }
+
+    @Override
+    public void computeTile(final Band targetBand, final Tile targetTile, final ProgressMonitor pm) throws OperatorException {
+        try {
+            if (onlyGCPsOnLand && dem == null) {
+                createDEM();
+            }
+
+            final Band slaveBand = sourceRasterMap.get(targetBand);
+            final Rectangle targetRectangle = targetTile.getRectangle();
+            if (gcpsComputedMap.get(slaveBand)) {
+                if (slaveBand == primarySlaveBand) {
+                    targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+                }
+                return;
+            }
+
+            final String bandCountStr = "";
+            if (complexCoregistration) {
+                computeSlaveGCPs(slaveBand, complexSrcMap.get(slaveBand), targetBand, bandCountStr);
+            } else {
+                computeSlaveGCPs(slaveBand, null, targetBand, bandCountStr);
+            }
+
+            if (slaveBand == primarySlaveBand) {
+                targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+            }
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -426,88 +483,59 @@ public class CrossCorrelationOp extends Operator {
      * @param pm              A progress monitor which should be used to determine computation cancellation requests.
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
-    @Override
-    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
-            throws OperatorException {
-        try {
-            //int x0 = targetRectangle.x;
-            //int y0 = targetRectangle.y;
-            //int w = targetRectangle.width;
-            //int h = targetRectangle.height;
-            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
-
-            if (onlyGCPsOnLand && dem == null) {
-                createDEM();
-            }
-
-            // select only one band per slave product
-            final Map<String, Band> singleSlvBandMap = new HashMap<>();
-
-            final Map<Band, Band> bandList = new HashMap<>();
-            for (Band targetBand : targetProduct.getBands()) {
-
-                final Band slaveBand = sourceRasterMap.get(targetBand);
-                if (gcpsComputedMap.get(slaveBand)) {
-                    bandList.put(targetBand, primarySlaveBand);
-                    break;
-                }
-
-                if (slaveBand == masterBand1 || slaveBand == masterBand2 ||
-                        StringUtils.contains(masterBandNames, slaveBand.getName())) {
-                    continue;
-                }
-
-                if (collocatedStack && !useAllPolarimetricBands) {
-                    final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
-                    final String slvProductName = StackUtils.getSlaveProductName(targetProduct, targetBand, mstPol);
-                    if (slvProductName == null || singleSlvBandMap.get(slvProductName) != null) {
-                        continue;
-                    }
-                    singleSlvBandMap.put(slvProductName, targetBand);
-                }
-
-                final String unit = slaveBand.getUnit();
-                if (unit != null && (unit.contains(Unit.IMAGINARY) || unit.contains(Unit.BIT) ||
-                        (complexCoregistration && unit.contains(Unit.INTENSITY)))) {
-                    continue;
-                }
-                bandList.put(targetBand, slaveBand);
-            }
-
-            int bandCnt = 0;
-            Band firstTargetBand = null;
-            for (Band targetBand : bandList.keySet()) {
-                ++bandCnt;
-                final Band slaveBand = bandList.get(targetBand);
-
-                if (collocatedStack || (!collocatedStack && bandCnt == 1)) {
-                    final String bandCountStr = bandCnt + " of " + bandList.size();
-                    if (complexCoregistration) {
-                        computeSlaveGCPs(slaveBand, complexSrcMap.get(slaveBand), targetBand, bandCountStr);
-                    } else {
-                        computeSlaveGCPs(slaveBand, null, targetBand, bandCountStr);
-                    }
-
-                    if (bandCnt == 1) {
-                        firstTargetBand = targetBand;
-                    }
-                } else {
-                    copyFirstTargetBandGCPs(firstTargetBand, targetBand);
-                }
-
-                // copy slave data to target
-                if (slaveBand == primarySlaveBand) {
-                    final Tile targetTile = targetTileMap.get(targetBand);
-                    if (targetTile != null) {
-                        targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
-                    }
-                }
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
+    //@Override
+//    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+//            throws OperatorException {
+//        try {
+//            if (onlyGCPsOnLand && dem == null) {
+//                createDEM();
+//            }
+//
+//            final Map<Band, Band> bandList = new HashMap<>();
+//            for (Band targetBand : bandsToCoregister.keySet()) {
+//
+//                final Band slaveBand = sourceRasterMap.get(targetBand);
+//                if (gcpsComputedMap.get(slaveBand)) {
+//                    bandList.put(targetBand, primarySlaveBand);
+//                    break;
+//                }
+//                bandList.put(targetBand, slaveBand);
+//            }
+//
+//            int bandCnt = 0;
+//            Band firstTargetBand = null;
+//            for (Band targetBand : bandList.keySet()) {
+//                ++bandCnt;
+//                final Band slaveBand = bandList.get(targetBand);
+//
+//                if (collocatedStack || (!collocatedStack && bandCnt == 1)) {
+//                    final String bandCountStr = bandCnt + " of " + bandList.size();
+//                    if (complexCoregistration) {
+//                        computeSlaveGCPs(slaveBand, complexSrcMap.get(slaveBand), targetBand, bandCountStr);
+//                    } else {
+//                        computeSlaveGCPs(slaveBand, null, targetBand, bandCountStr);
+//                    }
+//
+//                    if (bandCnt == 1) {
+//                        firstTargetBand = targetBand;
+//                    }
+//                } else {
+//                    copyFirstTargetBandGCPs(firstTargetBand, targetBand);
+//                }
+//
+//                // copy slave data to target
+//                if (slaveBand == primarySlaveBand) {
+//                    final Tile targetTile = targetTileMap.get(targetBand);
+//                    if (targetTile != null) {
+//                        targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+//                    }
+//                }
+//            }
+//
+//        } catch (Throwable e) {
+//            OperatorUtils.catchOperatorException(getId(), e);
+//        }
+//    }
 
     /**
      * Compute slave GCPs for the given tile.
