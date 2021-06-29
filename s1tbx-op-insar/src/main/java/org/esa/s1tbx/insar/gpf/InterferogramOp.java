@@ -233,7 +233,7 @@ public class InterferogramOp extends Operator {
 
             if (isTOPSARBurstProduct) {
                 final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-                final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(' ')));
+                final float mVersion = Float.parseFloat(mProcSysId.substring(mProcSysId.lastIndexOf(' ')));
 
                 MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
                 if (slaveElem == null) {
@@ -242,7 +242,7 @@ public class InterferogramOp extends Operator {
                 MetadataElement[] slaveRoot = slaveElem.getElements();
                 for (MetadataElement slvRoot : slaveRoot) {
                     final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-                    final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(' ')));
+                    final float sVersion = Float.parseFloat(sProcSysId.substring(sProcSysId.lastIndexOf(' ')));
                     if ((mVersion < 2.43 && sVersion >= 2.43 && mstRoot.getAttribute("EAP Correction") == null) ||
                             (sVersion < 2.43 && mVersion >= 2.43 && slvRoot.getAttribute("EAP Correction") == null)) {
                         throw new OperatorException("Source products cannot be InSAR pairs: one is EAP phase corrected" +
@@ -443,7 +443,7 @@ public class InterferogramOp extends Operator {
                 Band bandReal = null;
                 Band bandImag = null;
                 for (String bandName : product.getBandNames()) {
-                    if (tag == "mst" && bandName.contains(tag) || (bandName.contains(tag) && bandName.contains(date))) {
+                    if (tag.equals("mst") && bandName.contains(tag) || (bandName.contains(tag) && bandName.contains(date))) {
                         if (subswath.isEmpty() || bandName.contains(subswath)) {
                             if (pol.isEmpty() || bandName.contains(pol)) {
                                 final Band band = product.getBand(bandName);
@@ -1019,11 +1019,9 @@ public class InterferogramOp extends Operator {
                                                final int minPixel, final int maxPixel,
                                                final int minLine, final int maxLine,
                                                final String polynomialName) {
-        DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(xMin, xMax, xSize);
-        rangeAxisNormalized = normalizeDoubleMatrix(rangeAxisNormalized, minPixel, maxPixel);
 
-        DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(yMin, yMax, ySize);
-        azimuthAxisNormalized = normalizeDoubleMatrix(azimuthAxisNormalized, minLine, maxLine);
+        DoubleMatrix rangeAxisNormalized = normalizeDoubleMatrix(DoubleMatrix.linspace(xMin, xMax, xSize), minPixel, maxPixel);
+        DoubleMatrix azimuthAxisNormalized = normalizeDoubleMatrix(DoubleMatrix.linspace(yMin, yMax, ySize), minLine, maxLine);
 
         final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
 
