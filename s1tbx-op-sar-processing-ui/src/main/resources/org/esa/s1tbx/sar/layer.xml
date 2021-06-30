@@ -188,6 +188,17 @@
                 <attr name="helpId" stringvalue="MultilookOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
+            <file name="org-esa-s1tbx-sar-gpf-BandPassFilter-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="BandPass Filter"/>
+                <attr name="operatorName" stringvalue="BandPassFilter"/>
+                <attr name="dialogTitle" stringvalue="BandPass Filter"/>
+                <attr name="ShortDescription" stringvalue="Bandpass filter an SLC."/>
+                <attr name="targetProductNameSuffix"  stringvalue="_subband"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="BandPassFilterOp"/>
+            </file>
         </folder>
         <folder name="Wizards">
             <file name="org-esa-s1tbx-sar-wizards-MosaicWizard-Action.instance">
@@ -297,6 +308,10 @@
 					<attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance"/>
 					<attr name="position" intvalue="2100"/>
 				</file>
+                <file name="org-esa-s1tbx-sar-gpf-BandPassFilterOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-BandPassFilter-Action.instance"/>
+                    <attr name="position" intvalue="2200"/>
+                </file>
 			</folder>
         </folder>
     </folder>

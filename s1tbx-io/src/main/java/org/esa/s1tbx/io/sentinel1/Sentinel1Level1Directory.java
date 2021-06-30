@@ -387,6 +387,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
                                                   azimuthProcessing.getAttributeDouble("numberOfLooks"));
 
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_window_type,
+                                                  rangeProcessing.getAttributeString("windowType"));
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_window_coefficient,
+                                                  rangeProcessing.getAttributeDouble("windowCoefficient"));
+
                     if (!isTOPSAR() || !isSLC()) {
                         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                                                       imageInformation.getAttributeInt("numberOfLines"));

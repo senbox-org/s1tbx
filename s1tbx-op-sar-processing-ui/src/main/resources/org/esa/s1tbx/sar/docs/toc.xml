@@ -45,6 +45,7 @@
             </tocitem>
             <tocitem text="Complex to Detected GR" target="SLCtoPRI"/>
             <tocitem text="Multilook" target="MultilookOp"/>
+            <tocitem text="BandPass Filter" target="BandPassFilterOp"/>
         </tocitem>
     </tocitem>
 </toc>
