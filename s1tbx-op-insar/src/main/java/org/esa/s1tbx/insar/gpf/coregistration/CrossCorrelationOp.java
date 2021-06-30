@@ -442,37 +442,37 @@ public class CrossCorrelationOp extends Operator {
         }
     }
 
-    @Override
-    public void computeTile(final Band targetBand, final Tile targetTile, final ProgressMonitor pm) throws OperatorException {
-        try {
-            if (onlyGCPsOnLand && dem == null) {
-                createDEM();
-            }
-
-            final Band slaveBand = sourceRasterMap.get(targetBand);
-            final Rectangle targetRectangle = targetTile.getRectangle();
-            if (gcpsComputedMap.get(slaveBand)) {
-                if (slaveBand == primarySlaveBand) {
-                    targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
-                }
-                return;
-            }
-
-            final String bandCountStr = "";
-            if (complexCoregistration) {
-                computeSlaveGCPs(slaveBand, complexSrcMap.get(slaveBand), targetBand, bandCountStr);
-            } else {
-                computeSlaveGCPs(slaveBand, null, targetBand, bandCountStr);
-            }
-
-            if (slaveBand == primarySlaveBand) {
-                targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
+//    @Override
+//    public void computeTile(final Band targetBand, final Tile targetTile, final ProgressMonitor pm) throws OperatorException {
+//        try {
+//            if (onlyGCPsOnLand && dem == null) {
+//                createDEM();
+//            }
+//
+//            final Band slaveBand = sourceRasterMap.get(targetBand);
+//            final Rectangle targetRectangle = targetTile.getRectangle();
+//            if (gcpsComputedMap.get(slaveBand)) {
+//                if (slaveBand == primarySlaveBand) {
+//                    targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+//                }
+//                return;
+//            }
+//
+//            final String bandCountStr = "";
+//            if (complexCoregistration) {
+//                computeSlaveGCPs(slaveBand, complexSrcMap.get(slaveBand), targetBand, bandCountStr);
+//            } else {
+//                computeSlaveGCPs(slaveBand, null, targetBand, bandCountStr);
+//            }
+//
+//            if (slaveBand == primarySlaveBand) {
+//                targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+//            }
+//
+//        } catch (Throwable e) {
+//            OperatorUtils.catchOperatorException(getId(), e);
+//        }
+//    }
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -483,59 +483,59 @@ public class CrossCorrelationOp extends Operator {
      * @param pm              A progress monitor which should be used to determine computation cancellation requests.
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
-    //@Override
-//    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
-//            throws OperatorException {
-//        try {
-//            if (onlyGCPsOnLand && dem == null) {
-//                createDEM();
-//            }
-//
-//            final Map<Band, Band> bandList = new HashMap<>();
-//            for (Band targetBand : bandsToCoregister.keySet()) {
-//
-//                final Band slaveBand = sourceRasterMap.get(targetBand);
-//                if (gcpsComputedMap.get(slaveBand)) {
-//                    bandList.put(targetBand, primarySlaveBand);
-//                    break;
-//                }
-//                bandList.put(targetBand, slaveBand);
-//            }
-//
-//            int bandCnt = 0;
-//            Band firstTargetBand = null;
-//            for (Band targetBand : bandList.keySet()) {
-//                ++bandCnt;
-//                final Band slaveBand = bandList.get(targetBand);
-//
-//                if (collocatedStack || (!collocatedStack && bandCnt == 1)) {
-//                    final String bandCountStr = bandCnt + " of " + bandList.size();
-//                    if (complexCoregistration) {
-//                        computeSlaveGCPs(slaveBand, complexSrcMap.get(slaveBand), targetBand, bandCountStr);
-//                    } else {
-//                        computeSlaveGCPs(slaveBand, null, targetBand, bandCountStr);
-//                    }
-//
-//                    if (bandCnt == 1) {
-//                        firstTargetBand = targetBand;
-//                    }
-//                } else {
-//                    copyFirstTargetBandGCPs(firstTargetBand, targetBand);
-//                }
-//
-//                // copy slave data to target
-//                if (slaveBand == primarySlaveBand) {
-//                    final Tile targetTile = targetTileMap.get(targetBand);
-//                    if (targetTile != null) {
-//                        targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
-//                    }
-//                }
-//            }
-//
-//        } catch (Throwable e) {
-//            OperatorUtils.catchOperatorException(getId(), e);
-//        }
-//    }
+    @Override
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
+        try {
+            if (onlyGCPsOnLand && dem == null) {
+                createDEM();
+            }
+
+            final Map<Band, Band> bandList = new HashMap<>();
+            for (Band targetBand : bandsToCoregister.keySet()) {
+
+                final Band slaveBand = sourceRasterMap.get(targetBand);
+                if (gcpsComputedMap.get(slaveBand)) {
+                    bandList.put(targetBand, primarySlaveBand);
+                    break;
+                }
+                bandList.put(targetBand, slaveBand);
+            }
+
+            int bandCnt = 0;
+            Band firstTargetBand = null;
+            for (Band targetBand : bandList.keySet()) {
+                ++bandCnt;
+                final Band slaveBand = bandList.get(targetBand);
+
+                if (collocatedStack || (!collocatedStack && bandCnt == 1)) {
+                    final String bandCountStr = bandCnt + " of " + bandList.size();
+                    if (complexCoregistration) {
+                        computeSlaveGCPs(slaveBand, complexSrcMap.get(slaveBand), targetBand, bandCountStr);
+                    } else {
+                        computeSlaveGCPs(slaveBand, null, targetBand, bandCountStr);
+                    }
+
+                    if (bandCnt == 1) {
+                        firstTargetBand = targetBand;
+                    }
+                } else {
+                    copyFirstTargetBandGCPs(firstTargetBand, targetBand);
+                }
+
+                // copy slave data to target
+                if (slaveBand == primarySlaveBand) {
+                    final Tile targetTile = targetTileMap.get(targetBand);
+                    if (targetTile != null) {
+                        targetTile.setRawSamples(getSourceTile(slaveBand, targetRectangle).getRawSamples());
+                    }
+                }
+            }
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
 
     /**
      * Compute slave GCPs for the given tile.
@@ -583,6 +583,7 @@ public class CrossCorrelationOp extends Operator {
                                                                mPin.getPixelPos().y + offset[1]);
                     if (!checkSlaveGCPValidity(sGCPPixelPos)) {
                         //System.out.println("GCP(" + i + ") is outside slave image.");
+                        status.worked(1);
                         continue;
                     }
 
@@ -616,25 +617,30 @@ public class CrossCorrelationOp extends Operator {
                                 //System.out.println("final "+mPin.getName()+" = " + "(" + sGCPPixelPos.x + "," + sGCPPixelPos.y + ")");
                                 //System.out.println();
 
-                            } //else {
-                            //System.out.println("GCP(" + mPin.getName() + ") is invalid.");
-                            //}
+                            } else {
+                                //System.out.println("GCP(" + mPin.getName() + ") is invalid.");
+                                synchronized (status) {
+                                    status.worked(1);
+                                }
+                            }
                         }
 
                         private synchronized void addPlacemark(final Placemark pin) {
                             targetGCPGroup.add(pin);
+                            status.worked(1);
                         }
 
                     };
 
                     executor.execute(worker);
+                } else {
+                    status.worked(1);
                 }
-                status.worked(1);
             }
 
             executor.complete();
 
-            SystemUtils.tileCacheFreeOldTiles();
+            //SystemUtils.tileCacheFreeOldTiles();
 
             //final long duration = timeMonitor.stop();
             //System.out.println("XCorr completed in "+ ProcessTimeMonitor.formatDuration(duration));
@@ -986,14 +992,15 @@ public class CrossCorrelationOp extends Operator {
         final int xul = x0 - cHalfWindowWidth + 1;
         final int yul = y0 - cHalfWindowHeight + 1;
         final Rectangle masterImagetteRectangle = new Rectangle(xul, yul, cWindowWidth, cWindowHeight);
+        final double validPixelThreshold = MaxInvalidPixelPercentage * cWindowHeight * cWindowWidth;
 
         try {
             final Tile masterImagetteRaster1 = getSourceTile(masterBand1, masterImagetteRectangle);
             final ProductData masterData1 = masterImagetteRaster1.getDataBuffer();
-            final Double noDataValue1 = masterBand1.getNoDataValue();
+            final double noDataValue1 = masterBand1.getNoDataValue();
 
             ProductData masterData2 = null;
-            Double noDataValue2 = 0.0;
+            double noDataValue2 = 0.0;
             if (complexCoregistration) {
                 final Tile masterImagetteRaster2 = getSourceTile(masterBand2, masterImagetteRectangle);
                 masterData2 = masterImagetteRaster2.getDataBuffer();
@@ -1011,17 +1018,21 @@ public class CrossCorrelationOp extends Operator {
                     if (complexCoregistration) {
                         final double v1 = masterData1.getElemDoubleAt(index);
                         final double v2 = masterData2.getElemDoubleAt(index);
-                        if (noDataValue1.equals(v1) && noDataValue2.equals(v2)) {
+                        if (Double.compare(noDataValue1, v1) == 0 && Double.compare(noDataValue2, v2) == 0) {
                             numInvalidPixels++;
                         }
                         mI[k++] = v1 * v1 + v2 * v2;
                     } else {
                         final double v = masterData1.getElemDoubleAt(index);
-                        if (noDataValue1.equals(v)) {
+                        if (Double.compare(noDataValue1, v) == 0) {
                             numInvalidPixels++;
                         }
                         mI[k++] = v;
                     }
+                }
+
+                if(numInvalidPixels > validPixelThreshold) {
+                    break;
                 }
             }
 
@@ -1029,7 +1040,7 @@ public class CrossCorrelationOp extends Operator {
             if (masterData2 != null)
                 masterData2.dispose();
 
-            return numInvalidPixels <= MaxInvalidPixelPercentage * cWindowHeight * cWindowWidth;
+            return numInvalidPixels <= validPixelThreshold;
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("getMasterImagette", e);
@@ -1046,16 +1057,17 @@ public class CrossCorrelationOp extends Operator {
         final int xul = Math.max(0, (int) xx - cHalfWindowWidth);
         final int yul = Math.max(0, (int) yy - cHalfWindowHeight);
         final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, cWindowWidth + 3, cWindowHeight + 3);
+        final double validPixelThreshold = MaxInvalidPixelPercentage * cWindowHeight * cWindowWidth;
         int k = 0;
 
         try {
             final Tile slaveImagetteRaster1 = getSourceTile(slaveBand1, slaveImagetteRectangle);
             final ProductData slaveData1 = slaveImagetteRaster1.getDataBuffer();
-            final Double noDataValue1 = slaveBand1.getNoDataValue();
+            final double noDataValue1 = slaveBand1.getNoDataValue();
 
             Tile slaveImagetteRaster2 = null;
             ProductData slaveData2 = null;
-            Double noDataValue2 = 0.0;
+            double noDataValue2 = 0.0;
             if (complexCoregistration) {
                 slaveImagetteRaster2 = getSourceTile(slaveBand2, slaveImagetteRectangle);
                 slaveData2 = slaveImagetteRaster2.getDataBuffer();
@@ -1096,7 +1108,7 @@ public class CrossCorrelationOp extends Operator {
                                                                   slaveData2.getElemDoubleAt(x10),
                                                                   slaveData2.getElemDoubleAt(x11));
 
-                        if (noDataValue1.equals(v1) && noDataValue2.equals(v2)) {
+                        if(Double.compare(noDataValue1, v1) == 0 && Double.compare(noDataValue2, v2) == 0) {
                             numInvalidPixels++;
                         }
                         sI[k] = v1 * v1 + v2 * v2;
@@ -1107,19 +1119,23 @@ public class CrossCorrelationOp extends Operator {
                                                                  slaveData1.getElemDoubleAt(x10),
                                                                  slaveData1.getElemDoubleAt(x11));
 
-                        if (noDataValue1.equals(v)) {
+                        if(Double.compare(noDataValue1, v) == 0) {
                             numInvalidPixels++;
                         }
                         sI[k] = v;
                     }
                     ++k;
                 }
+
+                if(numInvalidPixels > validPixelThreshold) {
+                    break;
+                }
             }
             slaveData1.dispose();
             if (slaveData2 != null)
                 slaveData2.dispose();
 
-            return numInvalidPixels <= MaxInvalidPixelPercentage * cWindowHeight * cWindowWidth;
+            return numInvalidPixels <= validPixelThreshold;
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("getSlaveImagette", e);
