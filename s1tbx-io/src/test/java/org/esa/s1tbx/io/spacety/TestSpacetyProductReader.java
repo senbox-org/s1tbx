@@ -52,8 +52,6 @@ public class TestSpacetyProductReader extends ReaderTest {
     final static File slc_ns1_zip = new File(S1TBXTests.inputPathProperty +
             "/SAR/Spacety/SLC/BC1_NS_SLC_1SSV_20210326T012419_000395_00018B.zip");
 
-    final static ProductValidator.ValidationOptions productOptions = new ProductValidator.ValidationOptions();
-
     @Before
     public void setUp() {
         // If the file does not exist: the test will be ignored
@@ -72,25 +70,31 @@ public class TestSpacetyProductReader extends ReaderTest {
     @Test
     public void testOpeningMetadataFile_SP1() throws Exception {
         Product prod = testReader(slc_sp1.toPath().resolve("manifest.safe"));
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testOpeningFolder_SP1() throws Exception {
         Product prod = testReader(slc_sp1.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testOpeningZip_SP1() throws Exception {
         Product prod = testReader(slc_sp1_zip.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     // SM
@@ -98,49 +102,61 @@ public class TestSpacetyProductReader extends ReaderTest {
     @Test
     public void testOpeningMetadataFile_SM1() throws Exception {
         Product prod = testReader(slc_sm1.toPath().resolve("manifest.safe"));
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testOpeningFolder_SM1() throws Exception {
         Product prod = testReader(slc_sm1.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testOpeningZip_SM1() throws Exception {
         Product prod = testReader(slc_sm1_zip.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testOpeningMetadataFile_SM2() throws Exception {
         Product prod = testReader(slc_sm2.toPath().resolve("manifest.safe"));
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testOpeningFolder_SM2() throws Exception {
         Product prod = testReader(slc_sm2.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testOpeningZip_SM2() throws Exception {
         Product prod = testReader(slc_sm2_zip.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     // NS
@@ -148,24 +164,30 @@ public class TestSpacetyProductReader extends ReaderTest {
     @Test
     public void testOpeningMetadataFile_NS1() throws Exception {
         Product prod = testReader(slc_ns1.toPath().resolve("manifest.safe"));
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV_NS1","q_VV_NS1","Intensity_VV_NS1","i_VV_NS2","q_VV_NS2","Intensity_VV_NS2","i_VV_NS3","q_VV_NS3","Intensity_VV_NS3","i_VV_NS4","q_VV_NS4","Intensity_VV_NS4"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV_NS1","q_VV_NS1","Intensity_VV_NS1","i_VV_NS2","q_VV_NS2","Intensity_VV_NS2","i_VV_NS3","q_VV_NS3","Intensity_VV_NS3","i_VV_NS4","q_VV_NS4","Intensity_VV_NS4"});
     }
 
     @Test
     public void testOpeningFolder_NS1() throws Exception {
         Product prod = testReader(slc_ns1.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV_NS1","q_VV_NS1","Intensity_VV_NS1","i_VV_NS2","q_VV_NS2","Intensity_VV_NS2","i_VV_NS3","q_VV_NS3","Intensity_VV_NS3","i_VV_NS4","q_VV_NS4","Intensity_VV_NS4"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV_NS1","q_VV_NS1","Intensity_VV_NS1","i_VV_NS2","q_VV_NS2","Intensity_VV_NS2","i_VV_NS3","q_VV_NS3","Intensity_VV_NS3","i_VV_NS4","q_VV_NS4","Intensity_VV_NS4"});
     }
 
     @Test
     public void testOpeningZip_NS1() throws Exception {
         Product prod = testReader(slc_ns1_zip.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV_NS1","q_VV_NS1","Intensity_VV_NS1","i_VV_NS2","q_VV_NS2","Intensity_VV_NS2","i_VV_NS3","q_VV_NS3","Intensity_VV_NS3","i_VV_NS4","q_VV_NS4","Intensity_VV_NS4"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV_NS1","q_VV_NS1","Intensity_VV_NS1","i_VV_NS2","q_VV_NS2","Intensity_VV_NS2","i_VV_NS3","q_VV_NS3","Intensity_VV_NS3","i_VV_NS4","q_VV_NS4","Intensity_VV_NS4"});
     }
 }

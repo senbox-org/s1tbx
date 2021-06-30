@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.kompsat5;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -56,55 +57,60 @@ public class TestKompsat5ProductReader extends ReaderTest {
     @Test
     public void testOpeningHDF_GTCFolder() throws Exception {
         Product prod = testReader(inputHDF_GTCFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"GIM","Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"GIM","Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningHDF_GTCMetadata() throws Exception {
         Product prod = testReader(inputHDF_GTCMetaXML.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"GIM", "Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"GIM", "Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningHDF_SCSFolder() throws Exception {
         Product prod = testReader(inputHDF_SCSFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"GIM", "i_HH", "q_HH", "Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"GIM", "i_HH", "q_HH", "Intensity_HH"});
     }
 
     @Test
     public void testOpeningHDF_SCSMetadata() throws Exception {
         Product prod = testReader(inputHDF_SCSMetaXML.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"GIM", "i_HH", "q_HH", "Intensity_HH"});
-    }
 
-//    @Test
-//    public void testOpeningZip() throws Exception {
-//        Product prod = testReader(inputZip);
-//    validateProduct(prod);
-//    validateMetadata(prod);
-//    }
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"GIM", "i_HH", "q_HH", "Intensity_HH"});
+    }
 
     @Test
     public void testOpeningGeoTiffFolder() throws Exception {
         Product prod = testReader(inputGeoTiffFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningGeotiffMetadata() throws Exception {
         Product prod = testReader(inputGeoTiffMetaXML.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 }

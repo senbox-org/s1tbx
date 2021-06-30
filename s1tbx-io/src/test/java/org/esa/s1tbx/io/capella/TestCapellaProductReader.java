@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.capella;
 
 import org.esa.s1tbx.commons.test.MetadataValidator;
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -42,7 +43,7 @@ public class TestCapellaProductReader extends ReaderTest {
     private final static File inputSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/SLC/ARL_SM_SLC_HH_20190823162315_20190823162606.tif");
     private final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Airborne/SLC");
 
-    final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
+    final static MetadataValidator.Options options = new MetadataValidator.Options();
 
     public TestCapellaProductReader() {
         super(new CapellaProductReaderPlugIn());
@@ -68,48 +69,59 @@ public class TestCapellaProductReader extends ReaderTest {
     @Test
     public void testOpeningGEOFolder() throws Exception {
         Product prod = testReader(inputGEOFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Sigma0_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"Sigma0_HH"});
     }
 
     @Test
     public void testOpeningGEOMetadata() throws Exception {
         Product prod = testReader(inputGEOMeta.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Sigma0_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"Sigma0_HH"});
     }
 
     @Test
     public void testOpeningGEOTif() throws Exception {
         Product prod = testReader(inputGEOTif.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Sigma0_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"Sigma0_HH"});
     }
 
     @Test
     public void testOpeningSLCFolder() throws Exception {
         Product prod = testReader(inputSLCFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"i_HH", "q_HH", "Intensity_HH"});
     }
 
     @Test
     public void testOpeningSLCMetadata() throws Exception {
         Product prod = testReader(inputSLCMeta.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"i_HH", "q_HH", "Intensity_HH"});
     }
 
     @Test
     public void testOpeningSLCTif() throws Exception {
         Product prod = testReader(inputSLCTif.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 }

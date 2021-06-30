@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.terrasarx;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -56,17 +57,21 @@ public class TestTerraSarXProductReader extends ReaderTest {
     @Test
     public void testOpenMGDMetadata() throws Exception {
         Product prod = testReader(mgdMetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpenSSCMetadata() throws Exception {
         Product prod = testReader(sscMetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 
     /**

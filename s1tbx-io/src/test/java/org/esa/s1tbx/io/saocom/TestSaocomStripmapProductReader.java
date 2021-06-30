@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.saocom;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -78,89 +79,111 @@ public class TestSaocomStripmapProductReader extends ReaderTest {
     @Test
     public void testReadSM_GEC_SP_Metadata2() throws Exception {
         Product prod = testReader(SM_GEC_SP_MetadataFile2.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_VV"});
     }
 
     @Test
     public void testReadSM_GEC_SP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_GEC_SP_Folder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_VV"});
     }
 
     @Test
     public void testReadSM_GEC_DP_Metadata() throws Exception {
         Product prod = testReader(SM_GEC_DP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_HH","Sigma0_HV"});
     }
 
     @Test
     public void testReadSM_GEC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_GEC_QP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
     public void testReadSM_GTC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_GTC_QP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
     public void testReadSM_DI_SP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_DI_SP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_VV"});
     }
 
     @Test
     public void testReadSM_DI_DP_Metadata() throws Exception {
         Product prod = testReader(SM_DI_DP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_HH","Sigma0_HV"});
     }
 
     @Test
     public void testReadSM_DI_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_DI_QP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
     public void testReadSM_SLC_SP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_SLC_SP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_VV","q_VV","Intensity_VV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_VV","q_VV","Intensity_VV"});
     }
 
     @Test
     public void testReadSM_SLC_DP_Metadata() throws Exception {
         Product prod = testReader(SM_SLC_DP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH","i_HV","q_HV","Intensity_HV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH","i_HV","q_HV","Intensity_HV"});
     }
 
     @Test
     public void testReadSM_SLC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(SM_SLC_QP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
                 "i_HH","q_HH","Intensity_HH",
                 "i_HV","q_HV","Intensity_HV",
                 "i_VV","q_VV","Intensity_VV",

@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.paz;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -56,16 +57,20 @@ public class TestPazProductReader extends ReaderTest {
     @Test
     public void testOpeningMGDMetadata() throws Exception {
         Product prod = testReader(inputMGDMetaXML.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningSSCMetadata() throws Exception {
         Product prod = testReader(inputSSCMetaXML.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 }

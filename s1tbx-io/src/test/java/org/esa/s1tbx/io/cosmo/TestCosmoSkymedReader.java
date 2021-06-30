@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.cosmo;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
@@ -60,17 +61,21 @@ public class TestCosmoSkymedReader extends ReaderTest {
     @Test
     public void testOpeningSCS_H5() throws Exception {
         Product prod = testReader(inputSCS_H5.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i","q","Intensity"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i","q","Intensity"});
     }
 
     @Test
     public void testOpeningDGM_H5() throws Exception {
         Product prod = testReader(inputDGM_H5.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude","Intensity"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude","Intensity"});
     }
 
     /**
