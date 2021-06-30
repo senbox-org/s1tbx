@@ -853,7 +853,9 @@ public final class TerrainFlatteningOp extends Operator {
                     tgtIndex.calculateStride(y);
                     srcIndex.calculateStride(y);
                     final double zeroDopplerTime = firstLineUTC + y*lineTimeInterval;
-                    final double[] srgrCoeff = isGRD ? SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams) : null;
+                    final double[] srgrCoeff = isGRD && srgrConvParams != null ?
+                            SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams) : null;
+                    final boolean computeSRGR = srgrCoeff != null;
 
                     for (int x = x0; x < x0 + w; x++) {
                         final int xx = x - x0;
@@ -865,7 +867,7 @@ public final class TerrainFlatteningOp extends Operator {
                             final double aGamma = aBeta / FastMath.tan(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
                             if (simVal > threshold * aGamma) {
                                 simVal /= aBeta;
-                                if (isGRD) {
+                                if (computeSRGR) {
                                     simVal /= computeSRGRRatio(x, srgrCoeff);
 //                                    simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
                                 }
