@@ -20,6 +20,7 @@
 
     <!--SAR Operators-->
     <mapID target="MultilookOp" url="operators/MultilookOp.html"/>
+    <mapID target="BandPassFilterOp" url="operators/BandPassFilterOp.html"/>
     <mapID target="SpeckleFilterOp" url="operators/SpeckleFilterOp.html"/>
     <mapID target="MultiTemporalSpeckleFilterOp" url="operators/MultiTemporalSpeckleFilterOp.html"/>
     <mapID target="WSSDeburstOp" url="operators/WSSDeburstOp.html"/>

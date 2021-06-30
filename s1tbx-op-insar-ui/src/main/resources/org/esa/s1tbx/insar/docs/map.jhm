@@ -28,6 +28,7 @@
     <mapID target="StampsExport" url="operators/StampsExportOp.html"/>
     <mapID target="MultiMasterInSAROp" url="operators/MultiMasterInSAROp.html"/>
     <mapID target="HorizontalVerticalMotionOp" url="operators/HorizontalVerticalMotionOp.html"/>
+    <mapID target="IonosphericCorrectionOp" url="operators/IonosphericCorrectionOp.html"/>
 
     <mapID target="StatBaselines" url="desktop/StatBaselines.html"/>
     <mapID target="StatBaselinesChart" url="desktop/StatBaselinesChart.html"/>
