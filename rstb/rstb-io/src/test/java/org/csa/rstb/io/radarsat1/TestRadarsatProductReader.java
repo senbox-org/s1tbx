@@ -1,6 +1,7 @@
 
 package org.csa.rstb.io.radarsat1;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -37,9 +38,11 @@ public class TestRadarsatProductReader extends ReaderTest  {
     @Test
     public void testOpeningZip() throws Exception {
         Product prod = testReader(zipFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
 //    @Test
@@ -50,8 +53,10 @@ public class TestRadarsatProductReader extends ReaderTest  {
     @Test
     public void testOpeningVolFile() throws Exception {
         Product prod = testReader(metaFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 }
