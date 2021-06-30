@@ -96,8 +96,12 @@ public class TestCreateStackOp extends ProcessorTest {
 
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
-        validator.validateMetadata();
-        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV","Amplitude_VV","Intensity_VV", "Amplitude_VH","Intensity_VH"});
+        validator.validateBands(new String[] {
+                "i_VV_mst_25Feb2004", "q_VV_mst_25Feb2004",
+                "i_VV_slv1_31Mar2004", "q_VV_slv1_31Mar2004",
+                "i_VV_slv2_14Jul2004", "q_VV_slv2_14Jul2004",
+                "i_VV_slv3_27Oct2004", "q_VV_slv3_27Oct2004"
+        });
 
         File tmpFolder = createTmpFolder("stack1");
         ProductIO.writeProduct(prod, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
