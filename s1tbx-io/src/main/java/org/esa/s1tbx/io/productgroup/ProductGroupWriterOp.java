@@ -74,7 +74,7 @@ public class ProductGroupWriterOp extends Operator {
     private final Map<SubsetInfo, ProductGroupAsset> assetMap = new HashMap<>();
     private final static String ext = ".dim";
 
-    public final static boolean DEBUG = true;
+    public final static boolean DEBUG = false;
 
     public ProductGroupWriterOp() {
         setRequiresAllBands(true);
@@ -268,7 +268,7 @@ public class ProductGroupWriterOp extends Operator {
         }
     }
 
-    private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
+    private void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
         for(Band trgBand : info.splitProduct.subsetProduct.getBands()) {
             if (trgBand instanceof VirtualBand) {
                 continue;
@@ -277,10 +277,15 @@ public class ProductGroupWriterOp extends Operator {
             final Tile sourceTile = getSourceTile(sourceProduct.getBand(oldBandName), trgRect);
             final ProductData rawSamples = sourceTile.getRawSamples();
 
-            info.productWriter.writeBandRasterData(trgBand,
-                    trgRect.x, trgRect.y, trgRect.width, trgRect.height,
-                    rawSamples, ProgressMonitor.NULL);
+            writeRaster(info.productWriter, trgBand, trgRect, rawSamples);
         }
+    }
+
+    private void writeRaster(final ProductWriter productWriter, final Band trgBand, final Rectangle trgRect,
+                                          ProductData rawSamples) throws IOException {
+        productWriter.writeBandRasterData(trgBand,
+                trgRect.x, trgRect.y, trgRect.width, trgRect.height,
+                rawSamples, ProgressMonitor.NULL);
     }
 
     @Override
