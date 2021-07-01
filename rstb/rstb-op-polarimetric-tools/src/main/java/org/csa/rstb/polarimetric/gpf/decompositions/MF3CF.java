@@ -71,7 +71,7 @@ public class MF3CF extends DecompositionBase implements Decomposition, QuadPolPr
      * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
-        targetBand.setUnit(Unit.INTENSITY_DB);
+        targetBand.setUnit(Unit.INTENSITY);
     }
 
     /**
