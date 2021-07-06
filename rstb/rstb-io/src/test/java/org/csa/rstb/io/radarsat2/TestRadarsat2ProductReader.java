@@ -15,6 +15,7 @@
  */
 package org.csa.rstb.io.radarsat2;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.commons.test.TestData;
@@ -36,6 +37,7 @@ public class TestRadarsat2ProductReader extends ReaderTest {
 
     private static final File folderSLC = new File(S1TBXTests.TEST_ROOT +"RS2/RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC");
     private static final File metadataSLC = new File(S1TBXTests.TEST_ROOT +"RS2/RS2_OK76385_PK678063_DK606752_FQ2_20080415_143807_HH_VV_HV_VH_SLC/product.xml");
+    private static final File slc2 = new File(S1TBXTests.TEST_ROOT +"RS2/RS2_OK2084_PK24911_DK25857_FQ14_20080802_225909_HH_VV_HV_VH_SLC/product.xml");
     private static final File inputRS2_SQuadFile = TestData.inputRS2_SQuad;
 
     private static final File zipQP_SGX = new File(S1TBXTests.TEST_ROOT +"RS2/RS2_OK76385_PK678075_DK606764_FQ15_20080506_142542_HH_VV_HV_VH_SGX.zip");
@@ -45,6 +47,8 @@ public class TestRadarsat2ProductReader extends ReaderTest {
 
     public final static String inputRS2 = S1TBXTests.inputPathProperty + "/SAR/RS2/";
     public final static File[] rootPathsRadarsat2 = S1TBXTests.loadFilePath(inputRS2);
+
+    private final static ProductValidator.Expected expectedSLC = new ProductValidator.Expected();
 
     @Before
     public void setUp() {
@@ -60,6 +64,10 @@ public class TestRadarsat2ProductReader extends ReaderTest {
         for (File file : rootPathsRadarsat2) {
             assumeTrue(file + " not found", file.exists());
         }
+
+        expectedSLC.isSAR = true;
+        expectedSLC.isComplex = true;
+        expectedSLC.productType = "SLC";
     }
 
     public TestRadarsat2ProductReader() {
@@ -75,9 +83,12 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     @Test
     public void testOpeningFolder() throws Exception {
         Product prod = testReader(folderSLC.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.setExpected(expectedSLC);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
                 "i_HH","q_HH","Intensity_HH",
                 "i_HV","q_HV","Intensity_HV",
                 "i_VV","q_VV","Intensity_VV",
@@ -87,9 +98,42 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     @Test
     public void testOpeningMetadataFile() throws Exception {
         Product prod = testReader(metadataSLC.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.setExpected(expectedSLC);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
+                "i_HH","q_HH","Intensity_HH",
+                "i_HV","q_HV","Intensity_HV",
+                "i_VV","q_VV","Intensity_VV",
+                "i_VH","q_VH","Intensity_VH"});
+    }
+
+    @Test
+    public void testOpeningQP() throws Exception {
+        Product prod = testReader(inputRS2_SQuadFile.toPath());
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.setExpected(expectedSLC);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
+                "i_HH","q_HH","Intensity_HH",
+                "i_HV","q_HV","Intensity_HV",
+                "i_VV","q_VV","Intensity_VV",
+                "i_VH","q_VH","Intensity_VH"});
+    }
+
+    @Test
+    public void testOpeningSLC2() throws Exception {
+        Product prod = testReader(slc2.toPath());
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.setExpected(expectedSLC);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
                 "i_HH","q_HH","Intensity_HH",
                 "i_HV","q_HV","Intensity_HV",
                 "i_VV","q_VV","Intensity_VV",
@@ -99,21 +143,22 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     @Test
     public void testOpeningQP_SGX_Zip() throws Exception {
         Product prod = testReader(zipQP_SGX.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
-                "Amplitude_HH","Intensity_HH",
-                "Amplitude_HV","Intensity_HV",
-                "Amplitude_VV","Intensity_VV",
-                "Amplitude_VH","Intensity_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
+                "Amplitude_HH", "Intensity_HH", "Amplitude_HV", "Intensity_HV", "Amplitude_VH", "Intensity_VH", "Amplitude_VV", "Intensity_VV"});
     }
 
     @Test
     public void testOpeningDP_SGFZip() throws Exception {
         Product prod = testReader(zipDP_SGF.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
                 "Amplitude_HH","Intensity_HH",
                 "Amplitude_HV","Intensity_HV"});
     }
@@ -121,9 +166,11 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     @Test
     public void testOpeningDP_SGXZip() throws Exception {
         Product prod = testReader(zipDP_SGX.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
                 "Amplitude_HH","Intensity_HH",
                 "Amplitude_HV","Intensity_HV"});
     }
@@ -131,9 +178,11 @@ public class TestRadarsat2ProductReader extends ReaderTest {
     @Test
     public void testOpeningDP_SSGZip() throws Exception {
         Product prod = testReader(zipDP_SSG.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
                 "Amplitude_HH","Intensity_HH",
                 "Amplitude_HV","Intensity_HV"});
     }

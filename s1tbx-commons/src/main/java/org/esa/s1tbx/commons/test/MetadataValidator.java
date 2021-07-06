@@ -26,22 +26,32 @@ public class MetadataValidator {
 
     private final Product product;
     private final MetadataElement absRoot;
-    private final ValidationOptions validationOptions;
+    private final Options metadataOptions;
+    private final InputProductValidator inputProductValidator;
+    private Expected expected;
 
-    public static class ValidationOptions {
+    public static class Options {
         public boolean validateOrbitStateVectors = true;
         public boolean validateSRGR = true;
         public boolean validateDopplerCentroids = true;
     }
 
-    public MetadataValidator(final Product product) {
-        this(product, null);
+    public static class Expected {
+        public Boolean isSAR = null;
+        public Boolean isComplex = null;
+        public String productType = null;
     }
 
-    public MetadataValidator(final Product product, final ValidationOptions options) {
+    public MetadataValidator(final Product product, final Options options) {
         this.product = product;
         this.absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        this.validationOptions = options == null ? new ValidationOptions() : options;
+        this.metadataOptions = options == null ? new Options() : options;
+        this.inputProductValidator = new InputProductValidator(product);
+        this.expected = new Expected();
+    }
+
+    public void setExpected(final Expected expected) {
+        this.expected = expected;
     }
 
     public void validate() throws Exception {
@@ -53,11 +63,30 @@ public class MetadataValidator {
         verifyStr(AbstractMetadata.SPH_DESCRIPTOR);
         verifyStr(AbstractMetadata.PASS);
 
-        final InputProductValidator validator = new InputProductValidator(product);
-        if(validator.isSARProduct()) {
+        verifyExpected();
+
+        if(inputProductValidator.isSARProduct()) {
             validateSAR();
         } else {
             validateOptical();
+        }
+    }
+
+    private void verifyExpected() throws Exception {
+        if(expected.isSAR != null) {
+            if(inputProductValidator.isSARProduct() != expected.isSAR) {
+                throw new Exception("Expecting SAR product " + expected.isSAR);
+            }
+        }
+        if(expected.isComplex != null) {
+            if(inputProductValidator.isComplex() != expected.isComplex) {
+                throw new Exception("Expecting complex data " + expected.isComplex);
+            }
+        }
+        if(expected.productType != null) {
+            if(!product.getProductType().equals(expected.productType)) {
+                throw new Exception("Expecting productType "+ expected.productType + " but got " +product.getProductType());
+            }
         }
     }
 
@@ -97,7 +126,7 @@ public class MetadataValidator {
     }
 
     private void verifySRGR() throws Exception {
-        if(!validationOptions.validateSRGR) {
+        if(!metadataOptions.validateSRGR) {
             SystemUtils.LOG.warning("MetadataValidator Skipping SRGR validation");
             return;
         }
@@ -133,7 +162,7 @@ public class MetadataValidator {
     }
 
     private void verifyOrbitStateVectors() throws Exception {
-        if(!validationOptions.validateOrbitStateVectors) {
+        if(!metadataOptions.validateOrbitStateVectors) {
             SystemUtils.LOG.warning("MetadataValidator Skipping orbit state vector validation");
             return;
         }
@@ -171,7 +200,7 @@ public class MetadataValidator {
     }
 
     private void verifyDopplerCentroids() throws Exception {
-        if(!validationOptions.validateDopplerCentroids) {
+        if(!metadataOptions.validateDopplerCentroids) {
             SystemUtils.LOG.warning("MetadataValidator Skipping doppler centroid validation");
             return;
         }

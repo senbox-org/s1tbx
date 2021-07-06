@@ -16,6 +16,7 @@
 package org.esa.s1tbx.teststacks.coregistration;
 
 import org.esa.s1tbx.commons.test.ProcessorTest;
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.snap.core.dataio.ProductIO;
@@ -91,14 +92,21 @@ public class TestCreateStackOp extends ProcessorTest {
             ++cnt;
         }
 
-        Product trgProduct = createStack.getTargetProduct();
+        Product prod = createStack.getTargetProduct();
 
-        validateProduct(trgProduct);
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateBands(new String[] {
+                "i_VV_mst_25Feb2004", "q_VV_mst_25Feb2004",
+                "i_VV_slv1_31Mar2004", "q_VV_slv1_31Mar2004",
+                "i_VV_slv2_14Jul2004", "q_VV_slv2_14Jul2004",
+                "i_VV_slv3_27Oct2004", "q_VV_slv3_27Oct2004"
+        });
 
         File tmpFolder = createTmpFolder("stack1");
-        ProductIO.writeProduct(trgProduct, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
+        ProductIO.writeProduct(prod, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
 
-        trgProduct.dispose();
+        prod.dispose();
         delete(tmpFolder);
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.iceye.esa.snap.dataio;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -93,9 +94,11 @@ public class TestIceyeReader extends ReaderTest {
     public void testReadSL_meta_GRD() throws Exception {
         if(SL_GRD_MetadataFile.exists()) {
             Product prod = testReader(SL_GRD_MetadataFile.toPath());
-            validateProduct(prod);
-            validateMetadata(prod);
-            validateBands(prod, new String[]{"Amplitude_VV", "Intensity_VV"});
+
+            final ProductValidator validator = new ProductValidator(prod);
+            validator.validateProduct();
+            validator.validateMetadata();
+            validator.validateBands(new String[]{"Amplitude_VV", "Intensity_VV"});
         }
     }
 
@@ -103,9 +106,11 @@ public class TestIceyeReader extends ReaderTest {
     public void testReadSL_meta_SLC() throws Exception {
         if(SL_SLC_MetadataFile.exists()) {
             Product prod = testReader(SL_SLC_MetadataFile.toPath());
-            validateProduct(prod);
-            validateMetadata(prod);
-            validateBands(prod, new String[]{"i_VV", "q_VV", "Intensity_VV"});
+
+            final ProductValidator validator = new ProductValidator(prod);
+            validator.validateProduct();
+            validator.validateMetadata();
+            validator.validateBands(new String[]{"i_VV", "q_VV", "Intensity_VV"});
         }
     }
 
@@ -113,9 +118,11 @@ public class TestIceyeReader extends ReaderTest {
     public void testReadSL_GRD() throws Exception {
         if(SL_GRD_ImageFile.exists()) {
             Product prod = testReader(SL_GRD_ImageFile.toPath());
-            validateProduct(prod);
-            validateMetadata(prod);
-            validateBands(prod, new String[]{"Amplitude_VV", "Intensity_VV"});
+
+            final ProductValidator validator = new ProductValidator(prod);
+            validator.validateProduct();
+            validator.validateMetadata();
+            validator.validateBands(new String[]{"Amplitude_VV", "Intensity_VV"});
         }
     }
 
@@ -123,9 +130,11 @@ public class TestIceyeReader extends ReaderTest {
     public void testReadSL_SLC() throws Exception {
         if(SL_SLC_ImageFile.exists()) {
             Product prod = testReader(SL_SLC_ImageFile.toPath());
-            validateProduct(prod);
-            validateMetadata(prod);
-            validateBands(prod, new String[]{"i_VV", "q_VV", "Intensity_VV"});
+
+            final ProductValidator validator = new ProductValidator(prod);
+            validator.validateProduct();
+            validator.validateMetadata();
+            validator.validateBands(new String[]{"i_VV", "q_VV", "Intensity_VV"});
         }
     }
 }

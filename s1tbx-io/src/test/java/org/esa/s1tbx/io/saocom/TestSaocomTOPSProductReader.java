@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.saocom;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -59,24 +60,29 @@ public class TestSaocomTOPSProductReader extends ReaderTest {
     @Test
     public void testReadTS_GEC_QP_Metadata2() throws Exception {
         Product prod = testReader(TS_GEC_QP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
     public void testReadTS_DI_QP_FolderMetadata() throws Exception {
         Product prod = testReader(TS_DI_QP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Sigma0_HH","Sigma0_HV","Sigma0_VV","Sigma0_VH"});
     }
 
     @Test
     public void testReadTS_SLC_QP_FolderMetadata() throws Exception {
         Product prod = testReader(TS_SLC_QP_MetadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
 
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
     }
 }

@@ -358,14 +358,18 @@ public class CoherenceOp extends Operator {
             allKeys.addAll(slaveMap.keySet());
             String[] keys  = allKeys.toArray(new String[0]);
 
-            for(int i=0; i < keys.length-1; ++i) {
+            for(int i = 0; i < keys.length - 1; ++i) {
                 String keyMaster = keys[i];
                 CplxContainer master = masterMap.get(keyMaster);
                 if(master == null) {
                     master = slaveMap.get(keyMaster);
                 }
+
                 String keySlave = keys[i+1];
                 CplxContainer slave = slaveMap.get(keySlave);
+                if (slave == null) {
+                    slave = masterMap.get(keySlave);
+                }
 
                 if ((master.polarisation == null || slave.polarisation == null) ||
                         (master.polarisation != null && slave.polarisation != null &&
@@ -430,9 +434,11 @@ public class CoherenceOp extends Operator {
                     targetBandNames.add(fepBand.getName());
                 }
 
-                String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
-                StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
-                                                     targetBandNames.toArray(new String[0]));
+                if (singleMaster) {
+                    String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
+                    StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
+                            targetBandNames.toArray(new String[0]));
+                }
             }
         } else {
             final int numSrcBands = sourceProduct.getNumBands();

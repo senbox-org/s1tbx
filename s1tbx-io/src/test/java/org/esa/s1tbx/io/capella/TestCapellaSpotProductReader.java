@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.capella;
 
 import org.esa.s1tbx.commons.test.MetadataValidator;
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -37,7 +38,7 @@ public class TestCapellaSpotProductReader extends ReaderTest {
     final static File inputSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC/CAPELLA_C02_SP_SLC_HH_20201209213329_20201209213332.tif");
     final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Spot/SLC");
 
-    final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
+    final static MetadataValidator.Options options = new MetadataValidator.Options();
 
     public TestCapellaSpotProductReader() {
         super(new CapellaProductReaderPlugIn());
@@ -56,24 +57,30 @@ public class TestCapellaSpotProductReader extends ReaderTest {
     @Test
     public void testOpeningSLCFolder() throws Exception {
         Product prod = testReader(inputSLCFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningSLCMetadata() throws Exception {
         Product prod = testReader(inputSLCMeta.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpeningSLCTif() throws Exception {
         Product prod = testReader(inputSLCTif.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH"});
     }
 }

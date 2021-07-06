@@ -375,7 +375,7 @@ public final class SARGeocoding {
             final int sourceImageWidth, final double firstLineUTC, final double lastLineUTC,
             final double groundRangeSpacing, final double slantRangeSpacing, final double zeroDopplerTime,
             final double slantRange, final double nearEdgeSlantRange,
-            final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
+            final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) throws Exception {
 
         if (zeroDopplerTime < Math.min(firstLineUTC, lastLineUTC) ||
                 zeroDopplerTime > Math.max(firstLineUTC, lastLineUTC)) {
@@ -404,7 +404,11 @@ public final class SARGeocoding {
     }
 
     public static double[] getSRGRCoefficients(final double zeroDopplerTime,
-                                               final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
+                                               final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) throws Exception {
+
+        if(srgrConvParams == null || srgrConvParams.length == 0) {
+            throw new Exception("SARGeoCoding: srgrConvParams not set");
+        }
 
         final double[] srgrCoefficients = new double[srgrConvParams[0].coefficients.length];
 

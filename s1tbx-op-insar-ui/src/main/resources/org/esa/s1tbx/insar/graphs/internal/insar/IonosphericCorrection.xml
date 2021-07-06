@@ -1,0 +1,43 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <fileList/>
+    </parameters>
+  </node>
+  <node id="IonosphericCorrection">
+    <operator>IonosphericCorrection</operator>
+    <sources>
+      <sourceProduct refid="ProductSet-Reader"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sigma>81</sigma>
+      <coherenceThreshold>0.6</coherenceThreshold>
+      <minCoherence>0.2</minCoherence>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="IonosphericCorrection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="ProductSet-Reader">
+      <displayPosition x="36.0" y="70.0"/>
+    </node>
+    <node id="IonosphericCorrection">
+      <displayPosition x="207.0" y="70.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="400.0" y="66.0"/>
+    </node>
+  </applicationData>
+</graph>

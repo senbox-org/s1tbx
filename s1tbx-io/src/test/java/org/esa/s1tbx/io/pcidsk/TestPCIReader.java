@@ -36,7 +36,7 @@ public class TestPCIReader extends ReaderTest {
     private final static String sep = S1TBXTests.sep;
     private final static File file = new File(S1TBXTests.inputPathProperty + sep +  "SAR/pcidsk/kompsat2_pcidsk_msc.pix");
 
-    final static ProductValidator.ValidationOptions productOptions = new ProductValidator.ValidationOptions();
+    final static ProductValidator.Options productOptions = new ProductValidator.Options();
 
     @Before
     public void setup() {
@@ -53,6 +53,8 @@ public class TestPCIReader extends ReaderTest {
     public void testOpeningFile() throws Exception {
         verifyTime = false;
         Product prod = testReader(file.toPath());
-        validateProduct(prod, productOptions);
+
+        ProductValidator validator = new ProductValidator(prod, productOptions);
+        validator.validateProduct();
     }
 }

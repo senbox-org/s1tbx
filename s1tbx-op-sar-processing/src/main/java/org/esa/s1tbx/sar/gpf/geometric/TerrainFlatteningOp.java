@@ -282,11 +282,15 @@ public final class TerrainFlatteningOp extends Operator {
         lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
         orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
 
-        if (srgrFlag) {
-            srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
-        } else {
-            nearEdgeSlantRange = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.slant_range_to_first_pixel);
+        final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
+        if (!sampleType.contains("COMPLEX")) {
+            isGRD = true;
         }
+
+        if (isGRD) {
+            srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
+        }
+        nearEdgeSlantRange = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.slant_range_to_first_pixel);
 
         final String mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
         final String pass = absRoot.getAttributeString(AbstractMetadata.PASS);
@@ -307,11 +311,6 @@ public final class TerrainFlatteningOp extends Operator {
 //        if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
 //            skipBistaticCorrection = true;
 //        }
-
-        final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
-        if (!sampleType.contains("COMPLEX")) {
-            isGRD = true;
-        }
     }
 
     /**
@@ -786,7 +785,7 @@ public final class TerrainFlatteningOp extends Operator {
 
     private void outputSimulatedArea(final int x0, final int y0, final int w, final int h,
                                      final double[][] simulatedImage, final Band targetBand,
-                                     final Map<Band, Tile> targetTiles) {
+                                     final Map<Band, Tile> targetTiles) throws Exception {
 
         final Tile targetTile = targetTiles.get(targetBand);
         final ProductData targetData = targetTile.getDataBuffer();
@@ -854,7 +853,9 @@ public final class TerrainFlatteningOp extends Operator {
                     tgtIndex.calculateStride(y);
                     srcIndex.calculateStride(y);
                     final double zeroDopplerTime = firstLineUTC + y*lineTimeInterval;
-                    final double[] srgrCoeff = SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams);
+                    final double[] srgrCoeff = isGRD && srgrConvParams != null ?
+                            SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams) : null;
+                    final boolean computeSRGR = srgrCoeff != null;
 
                     for (int x = x0; x < x0 + w; x++) {
                         final int xx = x - x0;
@@ -866,7 +867,7 @@ public final class TerrainFlatteningOp extends Operator {
                             final double aGamma = aBeta / FastMath.tan(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
                             if (simVal > threshold * aGamma) {
                                 simVal /= aBeta;
-                                if (isGRD) {
+                                if (computeSRGR) {
                                     simVal /= computeSRGRRatio(x, srgrCoeff);
 //                                    simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y) * Constants.DTOR);
                                 }
