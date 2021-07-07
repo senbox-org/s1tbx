@@ -16,14 +16,12 @@
 package org.esa.s1tbx.teststacks.productgroups;
 
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.s1tbx.insar.gpf.ProductGroupMergeOp;
+import org.esa.s1tbx.insar.gpf.coregistration.ProductGroupMergeOp;
 import org.esa.s1tbx.teststacks.StackTest;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.test.LongTestRunner;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.List;

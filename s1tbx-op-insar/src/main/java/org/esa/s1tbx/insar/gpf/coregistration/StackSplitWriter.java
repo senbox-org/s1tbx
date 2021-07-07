@@ -1,5 +1,5 @@
 
-package org.esa.s1tbx.insar.gpf;
+package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.product.StackSplit;
@@ -15,7 +15,6 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.awt.*;
 import java.io.File;

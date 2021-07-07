@@ -1,0 +1,40 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters>
+      <fileList/>
+    </parameters>
+  </node>
+  <node id="ProductGroupMerge">
+    <operator>ProductGroupMerge</operator>
+    <sources>
+      <sourceProduct refid="ProductSet-Reader"/>
+    </sources>
+    <parameters>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="ProductGroupMerge"/>
+    </sources>
+    <parameters>
+      <formatName>ProductGroup</formatName>
+      <file>target.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+	<node id="ProductSet-Reader">
+      <displayPosition y="102.0" x="72.0"/>
+    </node>
+    <node id="ProductGroupMerge">
+      <displayPosition y="102.0" x="201.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition y="170.0" x="319.0"/>
+    </node>
+  </applicationData>
+</graph>
