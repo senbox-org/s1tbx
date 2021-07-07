@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.teststacks.coregistration;
 
-import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
+import org.esa.s1tbx.teststacks.StackTest;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
@@ -39,7 +39,7 @@ import static org.junit.Assume.assumeTrue;
  * Unit test for CreateStackOp.
  */
 @RunWith(LongTestRunner.class)
-public class TestCreateStackOp extends ProcessorTest {
+public class TestCreateStackOp extends StackTest {
 
     private final static File asarBamFile1 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PNUPA20031203_061259_000000162022_00120_09192_0099.N1");
     private final static File asarBamFile2 = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Bam/ASA_IMS_1PXPDE20040211_061300_000000142024_00120_10194_0013.N1");

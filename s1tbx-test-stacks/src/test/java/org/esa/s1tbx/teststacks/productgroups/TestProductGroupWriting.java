@@ -16,9 +16,8 @@
 package org.esa.s1tbx.teststacks.productgroups;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.commons.test.ProcessorTest;
-import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.s1tbx.io.productgroup.support.ProductGroupIO;
+import org.esa.s1tbx.teststacks.StackTest;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.io.FileUtils;
@@ -32,9 +31,9 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for CreateStackOp.
+ * Unit test for ProductGroupWriting.
  */
-public class TestProductGroupWriting extends ProcessorTest {
+public class TestProductGroupWriting extends StackTest {
 
     private final static File f1 = new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame\\RS2_OK28321_PK282196_DK256363_FQ10W_20120613_001629_HH_VV_HV_VH_SLC.zip");
     private final static File f2 = new File("E:\\EO\\RS2\\ASMERS\\ManitobaFrame\\RS2_OK28321_PK282211_DK256378_FQ10W_20120707_001627_HH_VV_HV_VH_SLC.zip");
@@ -80,24 +79,6 @@ public class TestProductGroupWriting extends ProcessorTest {
 
         closeProducts(inputProducts2);
         outProduct2.dispose();
-        //assertTrue(FileUtils.deleteTree(tmpFolder));
-    }
-
-    private void closeProducts(final List<Product> products) {
-        for(Product product : products) {
-            if(product != null)
-                product.dispose();
-        }
-    }
-
-    private Product createStackProduct(final List<Product> products) {
-        CreateStackOp createStackOp = new CreateStackOp();
-        int cnt = 0;
-        for(Product product : products) {
-            createStackOp.setSourceProduct("input"+cnt, product);
-            ++cnt;
-        }
-
-        return createStackOp.getTargetProduct();
+        assertTrue(FileUtils.deleteTree(tmpFolder));
     }
 }

@@ -23,7 +23,6 @@ import org.esa.snap.core.dataio.dimap.DimapProductConstants;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.SystemUtils;
@@ -258,7 +257,6 @@ public class ProductGroupIO {
             int numTiles = tileIndices.length;
             pm.beginTask("Writing raster data...", numTiles);
             if (executor != null) {
-//                Finisher finisher = new Finisher(band.getName(), pm, semaphore, executor, numTiles);
                 Finisher finisher = new Finisher(pm, semaphore, executor, numTiles);
                 for (Point tileIndex : tileIndices) {
                     executor.execute(() -> {
@@ -311,7 +309,6 @@ public class ProductGroupIO {
             this.semaphore = semaphore;
             this.executor = executor;
             this.work = counter;
-
         }
 
         public synchronized void worked() {

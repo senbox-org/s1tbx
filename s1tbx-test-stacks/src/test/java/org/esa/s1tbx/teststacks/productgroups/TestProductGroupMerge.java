@@ -13,10 +13,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.teststacks.insar;
+package org.esa.s1tbx.teststacks.productgroups;
 
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.s1tbx.insar.gpf.InterferogramOp;
+import org.esa.s1tbx.insar.gpf.ProductGroupMergeOp;
 import org.esa.s1tbx.teststacks.StackTest;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
@@ -30,8 +30,8 @@ import java.util.List;
 
 import static org.junit.Assume.assumeTrue;
 
-@RunWith(LongTestRunner.class)
-public class TestInterferogram extends StackTest {
+
+public class TestProductGroupMerge extends StackTest {
 
     private final static File asarSantoriniFolder = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Santorini");
 
@@ -41,21 +41,37 @@ public class TestInterferogram extends StackTest {
         assumeTrue(asarSantoriniFolder + " not found", asarSantoriniFolder.exists());
     }
 
+    @Override
+    protected File createTmpFolder(final String folderName) {
+        File folder = new File("c:\\tmp\\" + folderName);
+        folder.mkdirs();
+        return folder;
+    }
+
     @Test
-    public void testStack1() throws Exception {
+    public void testProductGroupMerge() throws Exception {
+        final File tmpFolder = createTmpFolder("ProductGroupMerge");
         final List<Product> products = readProducts(asarSantoriniFolder);
+        final List<Product> firstPair = products.subList(0, 2);
 
-        Product coregisteredStack = coregister(products);
+        File trgFolder = new File(tmpFolder,"stack1");
+        Product stack1 = coregisterInterferogram(firstPair, trgFolder, "BEAM-DIMAP");
 
-        InterferogramOp interferogram = new InterferogramOp();
-        interferogram.setSourceProduct(coregisteredStack);
+        final List<Product> firstThree = products.subList(0, 1);
+        firstThree.add(products.get(2));
+        trgFolder = new File(tmpFolder,"stack2");
+        Product stack2 = coregisterInterferogram(firstThree, trgFolder, "BEAM-DIMAP");
 
-        Product trgProduct = interferogram.getTargetProduct();
+        ProductGroupMergeOp merge = new ProductGroupMergeOp();
+        merge.setSourceProducts(stack1, stack2);
 
-        File tmpFolder = createTmpFolder("stack1");
-        ProductIO.writeProduct(trgProduct, new File(tmpFolder,"stack.dim"), "BEAM-DIMAP", true);
+        Product trgProduct = merge.getTargetProduct();
 
-        trgProduct.dispose();
-        delete(tmpFolder);
+        trgFolder = new File(tmpFolder,"merged");
+        ProductIO.writeProduct(trgProduct, trgFolder, "BEAM-DIMAP", true);
+
+        stack1.dispose();
+        stack2.dispose();
+        //todo delete(tmpFolder);
     }
 }

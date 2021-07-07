@@ -1,10 +1,22 @@
+/*
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.teststacks.coregistration;
 
-import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
-import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
-import org.esa.s1tbx.insar.gpf.coregistration.CrossCorrelationOp;
-import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
+import org.esa.s1tbx.teststacks.StackTest;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -22,7 +34,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(LongTestRunner.class)
-public class TestCrossCorrelationCoregistrationStack extends ProcessorTest {
+public class TestCrossCorrelationCoregistrationStack extends StackTest {
 
     private final static File asarSantoriniFolder = new File(S1TBXTests.inputPathProperty + "/SAR/ASAR/Santorini");
     private final static File rs2ManitobaFolder = new File(S1TBXTests.inputPathProperty + "/SAR/RS2/Manitoba");
@@ -68,24 +80,6 @@ public class TestCrossCorrelationCoregistrationStack extends ProcessorTest {
 
         trgProduct.dispose();
         delete(tmpFolder);
-    }
-
-    public static Product coregister(final List<Product> products) {
-        CreateStackOp createStack = new CreateStackOp();
-        int cnt = 0;
-        for(Product product : products) {
-            createStack.setSourceProduct("input"+cnt, product);
-            ++cnt;
-        }
-
-        CrossCorrelationOp crossCorrelation = new CrossCorrelationOp();
-        crossCorrelation.setSourceProduct(createStack.getTargetProduct());
-
-        WarpOp warp = new WarpOp();
-        warp.setSourceProduct(crossCorrelation.getTargetProduct());
-        warp.setParameter("openResidualsFile", true);
-
-        return warp.getTargetProduct();
     }
 
     private static MetadataElement getWarpData(final Product product, final String bandName) {
