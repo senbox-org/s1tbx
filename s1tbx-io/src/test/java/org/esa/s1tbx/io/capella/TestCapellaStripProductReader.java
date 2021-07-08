@@ -34,13 +34,13 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestCapellaStripProductReader extends ReaderTest {
 
-    final static File inputGEOMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.json");
-    final static File inputGEOTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.tif");
-    final static File inputGEOFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO");
+    final static File inputSMGEOMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.json");
+    final static File inputSMGEOTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO/CAPELLA_C02_SM_GEO_HH_20201118185123_20201118185127.tif");
+    final static File inputSMGEOFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/GEO");
 
-    final static File inputSLCMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.json");
-    final static File inputSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.tif");
-    final static File inputSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC");
+    final static File inputSMSLCMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.json");
+    final static File inputSMSLCTif = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC/CAPELLA_C02_SM_SLC_HH_20201118185123_20201118185127.tif");
+    final static File inputSMSLCFolder = new File(S1TBXTests.inputPathProperty + "/SAR/Capella/Strip/SLC");
 
     final static MetadataValidator.Options options = new MetadataValidator.Options();
 
@@ -51,10 +51,10 @@ public class TestCapellaStripProductReader extends ReaderTest {
     @Before
     public void setUp() {
         // If any of the file does not exist: the test will be ignored
-        assumeTrue(inputGEOMeta + " not found", inputGEOMeta.exists());
-        assumeTrue(inputGEOFolder + " not found", inputGEOFolder.exists());
-        assumeTrue(inputSLCMeta + " not found", inputSLCMeta.exists());
-        assumeTrue(inputSLCFolder + " not found", inputSLCFolder.exists());
+        assumeTrue(inputSMGEOMeta + " not found", inputSMGEOMeta.exists());
+        assumeTrue(inputSMGEOFolder + " not found", inputSMGEOFolder.exists());
+        assumeTrue(inputSMSLCMeta + " not found", inputSMSLCMeta.exists());
+        assumeTrue(inputSMSLCFolder + " not found", inputSMSLCFolder.exists());
 
         options.validateSRGR = false;
         options.validateDopplerCentroids = false;
@@ -62,7 +62,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
 
     @Test
     public void testOpeningGEOFolder() throws Exception {
-        Product prod = testReader(inputGEOFolder.toPath());
+        Product prod = testReader(inputSMGEOFolder.toPath());
 
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
@@ -72,7 +72,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
 
     @Test
     public void testOpeningGEOMetadata() throws Exception {
-        Product prod = testReader(inputGEOMeta.toPath());
+        Product prod = testReader(inputSMGEOMeta.toPath());
 
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
@@ -82,7 +82,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
 
     @Test
     public void testOpeningGEOTif() throws Exception {
-        Product prod = testReader(inputGEOTif.toPath());
+        Product prod = testReader(inputSMGEOTif.toPath());
 
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
@@ -92,7 +92,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
 
     @Test
     public void testOpeningSLCFolder() throws Exception {
-        Product prod = testReader(inputSLCFolder.toPath());
+        Product prod = testReader(inputSMSLCFolder.toPath());
 
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
@@ -102,7 +102,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
 
     @Test
     public void testOpeningSLCMetadata() throws Exception {
-        Product prod = testReader(inputSLCMeta.toPath());
+        Product prod = testReader(inputSMSLCMeta.toPath());
 
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
@@ -112,7 +112,7 @@ public class TestCapellaStripProductReader extends ReaderTest {
 
     @Test
     public void testOpeningSLCTif() throws Exception {
-        Product prod = testReader(inputSLCTif.toPath());
+        Product prod = testReader(inputSMSLCTif.toPath());
 
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
