@@ -22,8 +22,8 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URISyntaxException;
 
+import static org.esa.s1tbx.io.spacety.TestSpacetyProductReader.*;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -55,8 +55,8 @@ public class TestSpacetyProductReaderPlugIn extends AbstractProductReaderPlugInT
         File dir = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE").toURI());
         File manifestFile = new File(getClass().getResource("S2A_MSIL1C_20170719T103021_N0205_R108_T33UUA_20170719T103023.SAFE/manifest.safe").toURI());
 
-        isInValidDecodeQualitification(dir);
-        isInValidDecodeQualitification(manifestFile);
+        isInValidDecodeQualification(dir);
+        isInValidDecodeQualification(manifestFile);
     }
 
     @Override
@@ -71,13 +71,13 @@ public class TestSpacetyProductReaderPlugIn extends AbstractProductReaderPlugInT
 
     @Test
     public void testValidDecodeQualification() {
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_sp1);
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_sp1_zip);
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm1);
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm1_zip);
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm2);
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_sm2_zip);
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_ns1);
-        isValidDecodeQualitification(TestSpacetyProductReader.slc_ns1_zip);
+        isValidDecodeQualification(slc_sp1);
+        isValidDecodeQualification(slc_sp1_zip);
+        isValidDecodeQualification(slc_sm1);
+        isValidDecodeQualification(slc_sm1_zip);
+        isValidDecodeQualification(slc_sm2);
+        isValidDecodeQualification(slc_sm2_zip);
+        isValidDecodeQualification(slc_ns1);
+        isValidDecodeQualification(slc_ns1_zip);
     }
 }

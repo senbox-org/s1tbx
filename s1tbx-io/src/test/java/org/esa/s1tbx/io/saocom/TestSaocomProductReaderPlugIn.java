@@ -19,6 +19,7 @@ import org.esa.s1tbx.io.AbstractProductReaderPlugInTest;
 import org.esa.snap.core.dataio.ProductReader;
 import org.junit.Test;
 
+import static org.esa.s1tbx.io.saocom.TestSaocomStripmapProductReader.*;
 import static org.junit.Assert.*;
 
 public class TestSaocomProductReaderPlugIn extends AbstractProductReaderPlugInTest {
@@ -56,16 +57,16 @@ public class TestSaocomProductReaderPlugIn extends AbstractProductReaderPlugInTe
 
     @Test
     public void testValidDecodeQualification() {
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_DP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_SP_MetadataFile2);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_SP_Folder);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GEC_QP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_GTC_QP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_DI_SP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_DI_DP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_DI_QP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_SLC_SP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_SLC_DP_MetadataFile);
-        isValidDecodeQualitification(TestSaocomStripmapProductReader.SM_SLC_QP_MetadataFile);
+        isValidDecodeQualification(SM_GEC_DP_MetadataFile);
+        isValidDecodeQualification(SM_GEC_SP_MetadataFile2);
+        isValidDecodeQualification(SM_GEC_SP_Folder);
+        isValidDecodeQualification(SM_GEC_QP_MetadataFile);
+        isValidDecodeQualification(SM_GTC_QP_MetadataFile);
+        isValidDecodeQualification(SM_DI_SP_MetadataFile);
+        isValidDecodeQualification(SM_DI_DP_MetadataFile);
+        isValidDecodeQualification(SM_DI_QP_MetadataFile);
+        isValidDecodeQualification(SM_SLC_SP_MetadataFile);
+        isValidDecodeQualification(SM_SLC_DP_MetadataFile);
+        isValidDecodeQualification(SM_SLC_QP_MetadataFile);
     }
 }

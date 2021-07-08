@@ -19,6 +19,8 @@ import org.esa.s1tbx.io.AbstractProductReaderPlugInTest;
 import org.esa.snap.core.dataio.ProductReader;
 import org.junit.Test;
 
+import static org.esa.s1tbx.io.capella.TestCapellaSpotProductReader.*;
+import static org.esa.s1tbx.io.capella.TestCapellaStripProductReader.*;
 import static org.junit.Assert.*;
 
 public class TestCapellaProductReaderPlugIn extends AbstractProductReaderPlugInTest {
@@ -56,14 +58,15 @@ public class TestCapellaProductReaderPlugIn extends AbstractProductReaderPlugInT
 
     @Test
     public void testValidDecodeQualification() {
-        isValidDecodeQualitification(TestCapellaSpotProductReader.inputSLCMeta);
-        isValidDecodeQualitification(TestCapellaSpotProductReader.inputSLCTif);
-        isValidDecodeQualitification(TestCapellaSpotProductReader.inputSLCFolder);
-        isValidDecodeQualitification(TestCapellaStripProductReader.inputGEOMeta);
-        isValidDecodeQualitification(TestCapellaStripProductReader.inputGEOTif);
-        isValidDecodeQualitification(TestCapellaStripProductReader.inputGEOFolder);
-        isValidDecodeQualitification(TestCapellaStripProductReader.inputSLCMeta);
-        isValidDecodeQualitification(TestCapellaStripProductReader.inputSLCTif);
-        isValidDecodeQualitification(TestCapellaStripProductReader.inputSLCFolder);
+        isValidDecodeQualification(inputSpotSLCMeta);
+        isValidDecodeQualification(inputSpotSLCTif);
+        isValidDecodeQualification(inputSpotSLCFolder);
+
+        isValidDecodeQualification(inputSMGEOMeta);
+        isValidDecodeQualification(inputSMGEOTif);
+        isValidDecodeQualification(inputSMGEOFolder);
+        isValidDecodeQualification(inputSMSLCMeta);
+        isValidDecodeQualification(inputSMSLCTif);
+        isValidDecodeQualification(inputSMSLCFolder);
     }
 }
