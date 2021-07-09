@@ -35,6 +35,7 @@ public class TestCrossCorrelationCoregistrationStack extends ProcessorTest {
     }
 
     @Test
+    @Ignore
     public void testStackSantorini() throws Exception {
         final List<Product> products = readProducts(asarSantoriniFolder);
 
