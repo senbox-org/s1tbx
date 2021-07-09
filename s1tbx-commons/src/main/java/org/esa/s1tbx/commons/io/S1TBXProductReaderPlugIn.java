@@ -35,7 +35,16 @@ public interface S1TBXProductReaderPlugIn extends ProductReaderPlugIn {
             final File[] fileList = folder.listFiles();
             if (fileList != null) {
                 for (File f : fileList) {
-                    if (isPrimaryMetadataFileName(f.getName())) {
+                    if (f.isDirectory()) {
+                        final File[] fileList2 = f.listFiles();
+                        if (fileList2 != null) {
+                            for (File f2 : fileList2) {
+                                if (isPrimaryMetadataFileName(f2.getName())) {
+                                    return f2;
+                                }
+                            }
+                        }
+                    } else if (isPrimaryMetadataFileName(f.getName())) {
                         return f;
                     }
                 }
