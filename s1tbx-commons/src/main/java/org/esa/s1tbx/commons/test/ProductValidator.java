@@ -154,7 +154,7 @@ public class ProductValidator {
                         + band.getRasterWidth() + " x " + band.getRasterHeight());
             }
 
-            if (inputProductValidator.isSARProduct()) {
+            if (isSAR()) {
                 validateSARBand(band);
             } else {
                 validateOpticalBand(band);
@@ -162,12 +162,21 @@ public class ProductValidator {
         }
     }
 
+    private boolean isSAR() {
+        return inputProductValidator.isSARProduct();
+    }
+
     private void validateSARBand(final Band band) throws Exception {
 
     }
 
     private void validateOpticalBand(final Band band) throws Exception {
-
+        if(band.getSpectralWavelength() == 0) {
+            //throw new Exception("Band " + band.getName() + " has no spectral wavelength");
+        }
+        if(band.getSpectralBandwidth() == 0) {
+            //throw new Exception("Band " + band.getName() + " has no spectral bandwidth");
+        }
     }
 
     private void verifyTiePointGrids() throws Exception {
