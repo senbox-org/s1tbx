@@ -268,7 +268,7 @@ public class ProductGroupWriterOp extends Operator {
         }
     }
 
-    private void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
+    private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect) throws IOException {
         for(Band trgBand : info.splitProduct.subsetProduct.getBands()) {
             if (trgBand instanceof VirtualBand) {
                 continue;

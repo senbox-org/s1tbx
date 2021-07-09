@@ -66,7 +66,7 @@ public class TestProductGroupMerge extends StackTest {
         Product trgProduct = merge.getTargetProduct();
 
         trgFolder = new File(tmpFolder,"merged");
-        ProductIO.writeProduct(trgProduct, trgFolder, "BEAM-DIMAP", true);
+        ProductIO.writeProduct(trgProduct, trgFolder, "ProductGroup", true);
 
         stack1.dispose();
         stack2.dispose();
@@ -93,7 +93,7 @@ public class TestProductGroupMerge extends StackTest {
         Product trgProduct = merge.getTargetProduct();
 
         trgFolder = new File(tmpFolder,"ifg_merged");
-        ProductIO.writeProduct(trgProduct, trgFolder, "BEAM-DIMAP", true);
+        ProductIO.writeProduct(trgProduct, trgFolder, "ProductGroup", true);
 
         stack1.dispose();
         stack2.dispose();
