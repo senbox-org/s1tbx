@@ -47,18 +47,18 @@ public class TestProductGroupMerge extends StackTest {
     }
 
     @Test
-    public void testProductGroupMerge() throws Exception {
-        final File tmpFolder = createTmpFolder("ProductGroupMerge");
+    public void testProductGroupMerge_Stack() throws Exception {
+        final File tmpFolder = createTmpFolder("ProductGroupMerge_Stack");
         final List<Product> products = readProducts(asarSantoriniFolder);
         final List<Product> firstPair = products.subList(0, 2);
 
         File trgFolder = new File(tmpFolder,"stack1");
-        Product stack1 = coregisterInterferogram(firstPair, trgFolder, "BEAM-DIMAP");
+        Product stack1 = coregister(firstPair, trgFolder, "BEAM-DIMAP");
 
         final List<Product> firstThree = products.subList(0, 1);
         firstThree.add(products.get(2));
         trgFolder = new File(tmpFolder,"stack2");
-        Product stack2 = coregisterInterferogram(firstThree, trgFolder, "BEAM-DIMAP");
+        Product stack2 = coregister(firstThree, trgFolder, "BEAM-DIMAP");
 
         ProductGroupMergeOp merge = new ProductGroupMergeOp();
         merge.setSourceProducts(stack1, stack2);
@@ -66,6 +66,33 @@ public class TestProductGroupMerge extends StackTest {
         Product trgProduct = merge.getTargetProduct();
 
         trgFolder = new File(tmpFolder,"merged");
+        ProductIO.writeProduct(trgProduct, trgFolder, "BEAM-DIMAP", true);
+
+        stack1.dispose();
+        stack2.dispose();
+        //todo delete(tmpFolder);
+    }
+
+    @Test
+    public void testProductGroupMerge_IfgStack() throws Exception {
+        final File tmpFolder = createTmpFolder("ProductGroupMerge_IfgStack");
+        final List<Product> products = readProducts(asarSantoriniFolder);
+        final List<Product> firstPair = products.subList(0, 2);
+
+        File trgFolder = new File(tmpFolder,"ifg_stack1");
+        Product stack1 = coregisterInterferogram(firstPair, trgFolder, "BEAM-DIMAP");
+
+        final List<Product> firstThree = products.subList(0, 1);
+        firstThree.add(products.get(2));
+        trgFolder = new File(tmpFolder,"ifg_stack2");
+        Product stack2 = coregisterInterferogram(firstThree, trgFolder, "BEAM-DIMAP");
+
+        ProductGroupMergeOp merge = new ProductGroupMergeOp();
+        merge.setSourceProducts(stack1, stack2);
+
+        Product trgProduct = merge.getTargetProduct();
+
+        trgFolder = new File(tmpFolder,"ifg_merged");
         ProductIO.writeProduct(trgProduct, trgFolder, "BEAM-DIMAP", true);
 
         stack1.dispose();

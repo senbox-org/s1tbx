@@ -58,6 +58,14 @@ public class StackTest extends ProcessorTest {
         return warp.getTargetProduct();
     }
 
+    protected Product coregister(final List<Product> srcProducts, final File trgFolder, final String format) throws IOException {
+        Product trgProduct = coregister(srcProducts);
+
+        ProductIO.writeProduct(trgProduct, trgFolder, format, true);
+
+        return trgProduct;
+    }
+
     protected Product coregisterInterferogram(final List<Product> srcProducts, final File trgFolder, final String format) throws IOException {
         Product coregisteredStack = coregister(srcProducts);
 

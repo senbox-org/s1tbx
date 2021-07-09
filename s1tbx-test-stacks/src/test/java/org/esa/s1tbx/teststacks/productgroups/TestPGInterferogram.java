@@ -47,8 +47,26 @@ public class TestPGInterferogram extends StackTest {
     }
 
     @Test
-    public void testStack1() throws Exception {
+    public void testStack() throws Exception {
         final File tmpFolder = createTmpFolder("stack1");
+        final List<Product> products = readProducts(asarSantoriniFolder);
+        final List<Product> firstPair = products.subList(0, 2);
+
+        File trgFolder = new File(tmpFolder,"stackPG");
+        Product stack1 = coregister(firstPair, trgFolder, "ProductGroup");
+
+        final List<Product> firstThree = products.subList(0, 3);
+        trgFolder = new File(tmpFolder,"stackPG");
+        Product stack2 = coregister(firstThree, trgFolder, "ProductGroup");
+
+        stack1.dispose();
+        stack2.dispose();
+        //todo delete(tmpFolder);
+    }
+
+    @Test
+    public void testIfgStack() throws Exception {
+        final File tmpFolder = createTmpFolder("ifg_stack");
         final List<Product> products = readProducts(asarSantoriniFolder);
         final List<Product> firstPair = products.subList(0, 2);
 
