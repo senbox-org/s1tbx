@@ -743,6 +743,10 @@ public class SpacetyDirectory extends XMLProductDirectory {
         final MetadataElement annotationElem = origProdRoot.getElement("annotation");
         final MetadataElement imgElem = annotationElem.getElement(annotation);
         final MetadataElement productElem = imgElem.getElement("product");
+        if(!productElem.containsElement("geolocationGrid")) {
+            return;
+        }
+
         final MetadataElement geolocationGrid = productElem.getElement("geolocationGrid");
         final MetadataElement geolocationGridPointList = geolocationGrid.getElement("geolocationGridPointList");
 
