@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * LeeSigma Speckle Filter
+ * Lee Sigma Speckle Filter
  */
 public class LeeSigma implements SpeckleFilter {
 
@@ -56,14 +56,14 @@ public class LeeSigma implements SpeckleFilter {
     private double A1, A2; // sigma range for amplitude
     private double I1, I2; // sigma range for intensity
     private int sigma;
-    private double ISigmaV;
-    private double ISigmaVSqr;
-    private double ISigmaVP; // revised sigmaV used in MMSE filter
-    private double ISigmaVPSqr;
-    private double ASigmaV;
-    private double ASigmaVSqr;
-    private double ASigmaVP; // revised sigmaV used in MMSE filter
-    private double ASigmaVPSqr;
+    private double IEtaV;
+    private double IEtaV2;
+    private double IEtaVP; // revised etaV used in MMSE filter
+    private double IEtaVP2;
+    private double AEtaV;
+    private double AEtaV2;
+    private double AEtaVP; // revised etaV used in MMSE filter
+    private double AEtaVP2;
     private int targetWindowSize = 0;
     private int halfTargetWindowSize = 0;
     private int targetSize = 5;
@@ -104,11 +104,11 @@ public class LeeSigma implements SpeckleFilter {
 
         halfTargetWindowSize = targetWindowSize / 2;
 
-        ISigmaV = 1.0 / Math.sqrt(numLooks);
-        ISigmaVSqr = ISigmaV * ISigmaV;
+        IEtaV = 1.0 / Math.sqrt(numLooks);
+        IEtaV2 = IEtaV * IEtaV;
 
-        ASigmaV = 0.5227 / Math.sqrt(numLooks);
-        ASigmaVSqr = ASigmaV * ASigmaV;
+        AEtaV = 0.5227 / Math.sqrt(numLooks);
+        AEtaV2 = AEtaV * AEtaV;
 
         setSigmaRange(sigmaStr);
     }
@@ -140,23 +140,23 @@ public class LeeSigma implements SpeckleFilter {
             if (sigma == 5) {
                 I1 = 0.436;
                 I2 = 1.920;
-                ISigmaVP = 0.4057;
+                IEtaVP = 0.4057;
             } else if (sigma == 6) {
                 I1 = 0.343;
                 I2 = 2.210;
-                ISigmaVP = 0.4954;
+                IEtaVP = 0.4954;
             } else if (sigma == 7) {
                 I1 = 0.254;
                 I2 = 2.582;
-                ISigmaVP = 0.5911;
+                IEtaVP = 0.5911;
             } else if (sigma == 8) {
                 I1 = 0.168;
                 I2 = 3.094;
-                ISigmaVP = 0.6966;
+                IEtaVP = 0.6966;
             } else if (sigma == 9) {
                 I1 = 0.084;
                 I2 = 3.941;
-                ISigmaVP = 0.8191;
+                IEtaVP = 0.8191;
             }
 
         } else if (numLooks == 2) {
@@ -164,23 +164,23 @@ public class LeeSigma implements SpeckleFilter {
             if (sigma == 5) {
                 I1 = 0.582;
                 I2 = 1.584;
-                ISigmaVP = 0.2763;
+                IEtaVP = 0.2763;
             } else if (sigma == 6) {
                 I1 = 0.501;
                 I2 = 1.755;
-                ISigmaVP = 0.3388;
+                IEtaVP = 0.3388;
             } else if (sigma == 7) {
                 I1 = 0.418;
                 I2 = 1.972;
-                ISigmaVP = 0.4062;
+                IEtaVP = 0.4062;
             } else if (sigma == 8) {
                 I1 = 0.327;
                 I2 = 2.260;
-                ISigmaVP = 0.4810;
+                IEtaVP = 0.4810;
             } else if (sigma == 9) {
                 I1 = 0.221;
                 I2 = 2.744;
-                ISigmaVP = 0.5699;
+                IEtaVP = 0.5699;
             }
 
         } else if (numLooks == 3) {
@@ -188,23 +188,23 @@ public class LeeSigma implements SpeckleFilter {
             if (sigma == 5) {
                 I1 = 0.652;
                 I2 = 1.458;
-                ISigmaVP = 0.2222;
+                IEtaVP = 0.2222;
             } else if (sigma == 6) {
                 I1 = 0.580;
                 I2 = 1.586;
-                ISigmaVP = 0.2736;
+                IEtaVP = 0.2736;
             } else if (sigma == 7) {
                 I1 = 0.505;
                 I2 = 1.751;
-                ISigmaVP = 0.3280;
+                IEtaVP = 0.3280;
             } else if (sigma == 8) {
                 I1 = 0.419;
                 I2 = 1.965;
-                ISigmaVP = 0.3892;
+                IEtaVP = 0.3892;
             } else if (sigma == 9) {
                 I1 = 0.313;
                 I2 = 2.320;
-                ISigmaVP = 0.4624;
+                IEtaVP = 0.4624;
             }
 
         } else if (numLooks == 4) {
@@ -212,50 +212,50 @@ public class LeeSigma implements SpeckleFilter {
             if (sigma == 5) {
                 I1 = 0.694;
                 I2 = 1.385;
-                ISigmaVP = 0.1921;
+                IEtaVP = 0.1921;
             } else if (sigma == 6) {
                 I1 = 0.630;
                 I2 = 1.495;
-                ISigmaVP = 0.2348;
+                IEtaVP = 0.2348;
             } else if (sigma == 7) {
                 I1 = 0.560;
                 I2 = 1.627;
-                ISigmaVP = 0.2825;
+                IEtaVP = 0.2825;
             } else if (sigma == 8) {
                 I1 = 0.480;
                 I2 = 1.804;
-                ISigmaVP = 0.3354;
+                IEtaVP = 0.3354;
             } else if (sigma == 9) {
                 I1 = 0.378;
                 I2 = 2.094;
-                ISigmaVP = 0.3991;
+                IEtaVP = 0.3991;
             }
         }
 
-        ISigmaVPSqr = ISigmaVP * ISigmaVP;
+        IEtaVP2 = IEtaVP * IEtaVP;
 
         if (numLooks == 1) {
 
             if (sigma == 5) {
                 A1 = 0.653997;
                 A2 = 1.40002;
-                ASigmaVP = 0.208349;
+                AEtaVP = 0.208349;
             } else if (sigma == 6) {
                 A1 = 0.578998;
                 A2 = 1.50601;
-                ASigmaVP = 0.255358;
+                AEtaVP = 0.255358;
             } else if (sigma == 7) {
                 A1 = 0.496999;
                 A2 = 1.63201;
-                ASigmaVP = 0.305303;
+                AEtaVP = 0.305303;
             } else if (sigma == 8) {
                 A1 = 0.403999;
                 A2 = 1.79501;
-                ASigmaVP = 0.361078;
+                AEtaVP = 0.361078;
             } else if (sigma == 9) {
                 A1 = 0.286;
                 A2 = 2.04301;
-                ASigmaVP = 0.426375;
+                AEtaVP = 0.426375;
             }
 
         } else if (numLooks == 2) {
@@ -263,23 +263,23 @@ public class LeeSigma implements SpeckleFilter {
             if (sigma == 5) {
                 A1 = 0.76;
                 A2 = 1.263;
-                ASigmaVP = 0.139021;
+                AEtaVP = 0.139021;
             } else if (sigma == 6) {
                 A1 = 0.705;
                 A2 = 1.332;
-                ASigmaVP = 0.169777;
+                AEtaVP = 0.169777;
             } else if (sigma == 7) {
                 A1 = 0.643;
                 A2 = 1.412;
-                ASigmaVP = 0.206675;
+                AEtaVP = 0.206675;
             } else if (sigma == 8) {
                 A1 = 0.568;
                 A2 = 1.515;
-                ASigmaVP = 0.244576;
+                AEtaVP = 0.244576;
             } else if (sigma == 9) {
                 A1 = 0.467;
                 A2 = 1.673;
-                ASigmaVP = 0.29107;
+                AEtaVP = 0.29107;
             }
 
         } else if (numLooks == 3) {
@@ -287,23 +287,23 @@ public class LeeSigma implements SpeckleFilter {
             if (sigma == 5) {
                 A1 = 0.806;
                 A2 = 1.21;
-                ASigmaVP = 0.109732;
+                AEtaVP = 0.109732;
             } else if (sigma == 6) {
                 A1 = 0.76;
                 A2 = 1.263;
-                ASigmaVP = 0.138001;
+                AEtaVP = 0.138001;
             } else if (sigma == 7) {
                 A1 = 0.708;
                 A2 = 1.327;
-                ASigmaVP = 0.163686;
+                AEtaVP = 0.163686;
             } else if (sigma == 8) {
                 A1 = 0.645;
                 A2 = 1.408;
-                ASigmaVP = 0.19597;
+                AEtaVP = 0.19597;
             } else if (sigma == 9) {
                 A1 = 0.557;
                 A2 = 1.531;
-                ASigmaVP = 0.234219;
+                AEtaVP = 0.234219;
             }
 
         } else if (numLooks == 4) {
@@ -311,26 +311,26 @@ public class LeeSigma implements SpeckleFilter {
             if (sigma == 5) {
                 A1 = 0.832;
                 A2 = 1.179;
-                ASigmaVP = 0.0894192;
+                AEtaVP = 0.0894192;
             } else if (sigma == 6) {
                 A1 = 0.793;
                 A2 = 1.226;
-                ASigmaVP = 0.112018;
+                AEtaVP = 0.112018;
             } else if (sigma == 7) {
                 A1 = 0.747;
                 A2 = 1.279;
-                ASigmaVP = 0.139243;
+                AEtaVP = 0.139243;
             } else if (sigma == 8) {
                 A1 = 0.691;
                 A2 = 1.347;
-                ASigmaVP = 0.167771;
+                AEtaVP = 0.167771;
             } else if (sigma == 9) {
                 A1 = 0.613;
                 A2 = 1.452;
-                ASigmaVP = 0.839;
+                AEtaVP = 0.201036;
             }
         }
-        ASigmaVPSqr = ASigmaVP * ASigmaVP;
+        AEtaVP2 = AEtaVP * AEtaVP;
     }
 
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) {
@@ -400,15 +400,15 @@ public class LeeSigma implements SpeckleFilter {
         final int sw = sourceTileRectangle.width;
         final int sh = sourceTileRectangle.height;
 
-        double sigmaVSqr, sigmaVPSqr, sigmaRangeLow, sigmaRangeHigh;
+        double etaV2, etaVP2, sigmaRangeLow, sigmaRangeHigh;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
-            sigmaVSqr = ASigmaVSqr;
-            sigmaVPSqr = ASigmaVPSqr;
+            etaV2 = AEtaV2;
+            etaVP2 = AEtaVP2;
             sigmaRangeLow = A1;
             sigmaRangeHigh = A2;
         } else {
-            sigmaVSqr = ISigmaVSqr;
-            sigmaVPSqr = ISigmaVPSqr;
+            etaV2 = IEtaV2;
+            etaVP2 = IEtaVP2;
             sigmaRangeLow = I1;
             sigmaRangeHigh = I2;
         }
@@ -418,8 +418,6 @@ public class LeeSigma implements SpeckleFilter {
 
         final boolean[][] isPointTarget = new boolean[h][w];
         final double[][] targetWindow = new double[targetWindowSize][targetWindowSize];
-        final double[][] filterWindow = new double[filterSize][filterSize];
-        double[] pixelsSelected;
 
         final int xMax = x0 + w;
         final int yMax = y0 + h;
@@ -441,14 +439,9 @@ public class LeeSigma implements SpeckleFilter {
                 if (y - halfSizeY < sy0 || y + halfSizeY > sy0 + sh - 1 ||
                         x - halfSizeX < sx0 || x + halfSizeX > sx0 + sw - 1) {
 
-                    getWindowPixels(x, y, sx0, sy0, sw, sh, sourceTile1, noDataValue, bandUnit,
-                                    sourceData1, sourceData2, filterWindow);
+                    filteredTile[yy][xx] = filterPixelWithAllValidPixels(v, x, y, sx0, sy0, sw, sh, sourceTile1,
+                            noDataValue, bandUnit, sourceData1, sourceData2, etaV2);
 
-                    pixelsSelected = getValidPixels(filterWindow, noDataValue);
-
-                    final double vEst = computeMMSEEstimate(v, pixelsSelected, sigmaVSqr, noDataValue);
-
-                    filteredTile[yy][xx] = vEst;
                     continue;
                 }
 
@@ -460,21 +453,10 @@ public class LeeSigma implements SpeckleFilter {
                     continue;
                 }
 
-                pixelsSelected = getValidPixels(targetWindow, noDataValue);
-                final double meanEst = computeMMSEEstimate(v, pixelsSelected, sigmaVSqr, noDataValue);
-                double[] sigmaRange = {meanEst * sigmaRangeLow, meanEst * sigmaRangeHigh};
+                final double[] sigmaRange = computeSigmaRange(v, targetWindow, noDataValue, sigmaRangeLow, sigmaRangeHigh, etaV2);
 
-                getWindowPixels(x, y, sx0, sy0, sw, sh, sourceTile1, noDataValue, bandUnit,
-                                sourceData1, sourceData2, filterWindow);
-
-                pixelsSelected = selectPixelsInSigmaRange(sigmaRange, filterWindow, noDataValue);
-                if (pixelsSelected.length == 0) {
-                    filteredTile[yy][xx] = v;
-                    continue;
-                }
-
-                final double vEst = computeMMSEEstimate(v, pixelsSelected, sigmaVPSqr, noDataValue);
-                filteredTile[yy][xx] = vEst;
+                filteredTile[yy][xx] = filterPixelWithAllPixelsInSigmaRange(v, x, y, sx0, sy0, sw, sh, sourceTile1,
+                        noDataValue, bandUnit, sourceData1, sourceData2, etaVP2, sigmaRange);
             }
         }
 
@@ -520,6 +502,21 @@ public class LeeSigma implements SpeckleFilter {
         } else {
             return srcData1.getElemDoubleAt(index);
         }
+    }
+
+    private double filterPixelWithAllValidPixels(final double v, final int x, final int y, final int sx0, final int sy0,
+                                                 final int sw, final int sh, final Tile sourceTile,
+                                                 final double noDataValue, final Unit.UnitType bandUnit,
+                                                 final ProductData srcData1, final ProductData srcData2,
+                                                 final double etaV2) {
+
+        final double[][] filterWindow = new double[filterSize][filterSize];
+
+        getWindowPixels(x, y, sx0, sy0, sw, sh, sourceTile, noDataValue, bandUnit, srcData1, srcData2, filterWindow);
+
+        final double[] validPixels = getValidPixels(filterWindow, noDataValue);
+
+        return computeMMSEEstimate(v, validPixels, etaV2, noDataValue);
     }
 
     private static void getWindowPixels(final int x, final int y, final int sx0, final int sy0, final int sw, final int sh,
@@ -610,15 +607,41 @@ public class LeeSigma implements SpeckleFilter {
         }
     }
 
-    private double computeMMSEWeight(
-            final double[] dataArray, final double meanY, final double sigmaVSqr, final double noDataValue) {
+    private double[] computeSigmaRange(final double v, final double[][] targetWindow, final double noDataValue,
+                                       final double sigmaRangeLow, final double sigmaRangeHigh, final double etaV2) {
 
-        final double varY = getVarianceValue(dataArray, dataArray.length, meanY, noDataValue);
+        final double[] validPixels = getValidPixels(targetWindow, noDataValue);
+        final double meanEst = computeMMSEEstimate(v, validPixels, etaV2, noDataValue);
+        return new double[]{meanEst * sigmaRangeLow, meanEst * sigmaRangeHigh};
+    }
+
+    private double filterPixelWithAllPixelsInSigmaRange(final double v, final int x, final int y, final int sx0,
+                                                        final int sy0, final int sw, final int sh, final Tile sourceTile,
+                                                        final double noDataValue, final Unit.UnitType bandUnit,
+                                                        final ProductData srcData1, final ProductData srcData2,
+                                                        final double etaVP2, final double[] sigmaRange) {
+
+        final double[][] filterWindow = new double[filterSize][filterSize];
+
+        getWindowPixels(x, y, sx0, sy0, sw, sh, sourceTile, noDataValue, bandUnit, srcData1, srcData2, filterWindow);
+
+        final double[] pixelsSelected = selectPixelsInSigmaRange(sigmaRange, filterWindow, noDataValue);
+        if (pixelsSelected.length == 0) {
+            return v;
+        }
+
+        return computeMMSEEstimate(v, pixelsSelected, etaVP2, noDataValue);
+    }
+
+    private double computeMMSEWeight(
+            final double[] dataArray, final double meanZ, final double etaV2, final double noDataValue) {
+
+        final double varY = getVarianceValue(dataArray, dataArray.length, meanZ, noDataValue);
         if (varY == 0.0) {
             return 0.0;
         }
 
-        double varX = (varY - meanY * meanY * sigmaVSqr) / (1 + sigmaVSqr);
+        double varX = (varY - meanZ * meanZ * etaV2) / (1 + etaV2);
         if (varX < 0.0) {
             varX = 0.0;
         }
@@ -646,11 +669,11 @@ public class LeeSigma implements SpeckleFilter {
     }
 
     private double computeMMSEEstimate(final double centerPixelValue, final double[] dataArray,
-                                       final double sigmaVSqr, final double noDataValue) {
+                                       final double etaV2, final double noDataValue) {
 
         final double mean = getMeanValue(dataArray, dataArray.length, noDataValue);
 
-        final double b = computeMMSEWeight(dataArray, mean, sigmaVSqr, noDataValue);
+        final double b = computeMMSEWeight(dataArray, mean, etaV2, noDataValue);
 
         return (1 - b) * mean + b * centerPixelValue;
     }
