@@ -21,11 +21,14 @@ import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.s1tbx.io.sentinel1.SafeManifest;
+import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
@@ -35,7 +38,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.imageio.stream.FileCacheImageInputStream;
+import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.*;
@@ -55,12 +58,24 @@ public class SpacetyDirectory extends XMLProductDirectory {
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>();
     private final S1TBXProductReaderPlugIn readerPlugIn;
 
+    private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
+    private Product bandProduct;
+    private String productType;
+
     private final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
     private final static Double NoDataValue = 0.0;
 
     public SpacetyDirectory(final File inputFile, final S1TBXProductReaderPlugIn readerPlugIn) {
         super(inputFile);
         this.readerPlugIn = readerPlugIn;
+    }
+
+    @Override
+    public void close() throws IOException  {
+        super.close();
+        if(bandProduct != null) {
+            bandProduct.dispose();
+        }
     }
 
     protected String getHeaderFileName() {
@@ -71,34 +86,35 @@ public class SpacetyDirectory extends XMLProductDirectory {
         final String name = getBandFileNameFromImage(imgPath);
         if ((name.endsWith("tiff"))) {
             try {
-                final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
-                final InputStream inStream = getInputStream(imgPath);
-                if(inStream.available() > 0) {
-                    final ImageInputStream imgStream = createImageInputStream(inStream, bandDimensions, isSLC());
+                ImageInputStream imgStream = null;
+                if(!productDir.isCompressed()) {
+                    File file = productDir.getFile(imgPath);
+                    imgStream = new FileImageInputStream(file);
+                } else {
+                    final InputStream inStream = getInputStream(imgPath);
+                    if (inStream.available() > 0) {
+                        final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
+                        imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    }
+                }
+                if(imgStream != null) {
+                    final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
+                            1, 1, ProductData.TYPE_INT32, productInputFile);
+                    bandImageFileMap.put(img.getName(), img);
 
-                    final ImageIOFile img = new ImageIOFile(name, imgStream,
-                            GeoTiffUtils.getTiffIIOReader(imgStream), productInputFile);
                     if(img.getNumBands() == 2) {
                         img.setDataType(ProductData.TYPE_INT16);
                     } else {
                         img.setDataType(ProductData.TYPE_INT32);
                     }
-                    bandImageFileMap.put(img.getName(), img);
+
+                    ProductReader reader = geoTiffPlugIn.createReaderInstance();
+                    bandProduct = reader.readProductNodes(productDir.getFile(imgPath), null);
                 }
             } catch (Exception e) {
                 SystemUtils.LOG.severe(imgPath +" not found");
             }
         }
-    }
-
-    public static ImageInputStream createImageInputStream(final InputStream inStream, final Dimension bandDimensions,
-                                                          final boolean isSLC) throws IOException {
-        final long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
-        if(isSLC && maxMemory < 8192L) {
-            SystemUtils.LOG.info("Less than 8K RAM. Using FileCacheImageInputStream");
-            return new FileCacheImageInputStream(inStream, ImageIOFile.createCacheDir());
-        }
-        return ImageIOFile.createImageInputStream(inStream, bandDimensions);
     }
 
     @Override
@@ -174,7 +190,7 @@ public class SpacetyDirectory extends XMLProductDirectory {
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         bandName = "Amplitude" + '_' + suffix;
-                        final Band band = new Band(bandName, ProductData.TYPE_INT16, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(NoDataValue);
@@ -272,6 +288,14 @@ public class SpacetyDirectory extends XMLProductDirectory {
                 final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
                 final String imgName = FileUtils.exchangeExtension(metadataFile, ".tiff");
                 imgBandMetadataMap.put(imgName, bandRootName);
+
+                productType = adsHeader.getAttributeString("productType");
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, adsHeader.getAttributeString("missionId"));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SWATH, swath);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.ACQUISITION_MODE, mode);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
@@ -612,6 +636,11 @@ public class SpacetyDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
+        if(bandProduct != null && bandProduct.getSceneGeoCoding() != null) {
+            ProductUtils.copyGeoCoding(bandProduct, product);
+            return;
+        }
+
         TiePointGrid latGrid = product.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
         if (latGrid != null && lonGrid != null) {
@@ -908,7 +937,7 @@ public class SpacetyDirectory extends XMLProductDirectory {
     }
 
     protected String getProductType() {
-        return "Level-1";
+        return productType;
     }
 
     public static void getListInEvenlySpacedGrid(
