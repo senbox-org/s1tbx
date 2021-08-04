@@ -157,7 +157,9 @@ public class ProductValidator {
             if (isSAR()) {
                 validateSARBand(band);
             } else {
-                validateOpticalBand(band);
+                if(!isFlagsBand(band)) {
+                    validateOpticalBand(band);
+                }
             }
         }
     }
@@ -166,16 +168,20 @@ public class ProductValidator {
         return inputProductValidator.isSARProduct();
     }
 
+    private static boolean isFlagsBand(final Band srcBand) {
+        return srcBand.isFlagBand() || (srcBand.getName().contains("flag") || srcBand.getName().contains("mask"));
+    }
+
     private void validateSARBand(final Band band) throws Exception {
 
     }
 
     private void validateOpticalBand(final Band band) throws Exception {
-        if(band.getSpectralWavelength() == 0) {
-            //throw new Exception("Band " + band.getName() + " has no spectral wavelength");
+        if(band.getSpectralWavelength() < 10) {
+            //throw new Exception("Band " + band.getName() + " has invalid spectral wavelength " + band.getSpectralWavelength());
         }
-        if(band.getSpectralBandwidth() == 0) {
-            //throw new Exception("Band " + band.getName() + " has no spectral bandwidth");
+        if(band.getSpectralBandwidth() < 1) {
+            //throw new Exception("Band " + band.getName() + " has invalid spectral bandwidth " + band.getSpectralBandwidth());
         }
     }
 

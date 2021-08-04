@@ -64,7 +64,7 @@ public class OpenSearch {
 
     public PageResult getPages(String searchURL) throws IOException {
         this.searchURL = searchURL;
-        ClientResponse response[] = new ClientResponse[1];
+        ClientResponse[] response = new ClientResponse[1];
         final Feed feed = connect(searchURL, "&start=" + 0 + "&rows=" + numRows, response);
         if (feed == null) {
             response[0].getInputStream().close();
@@ -84,7 +84,7 @@ public class OpenSearch {
 
     public SearchResult[] getSearchResults(final PageResult pageResult) throws Exception {
         final List<SearchResult> searchResults = new ArrayList<>();
-        final ClientResponse response[] = new ClientResponse[1];
+        final ClientResponse[] response = new ClientResponse[1];
         for (int item = 0; item < pageResult.totalResults; item += numRows) {
             final Feed feed = connect(searchURL, "&start=" + item + "&rows=" + numRows, response);
             if (feed == null) {
