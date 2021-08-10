@@ -1,8 +1,22 @@
+/*
+ * Copyright (C) 2021 SkyWatch Space Applications Inc. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.benchmark;
 
-import org.esa.s1tbx.commons.io.JSONUtils;
+import org.esa.s1tbx.commons.io.JSON;
 import org.esa.snap.core.util.StopWatch;
-import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.json.simple.JSONObject;
@@ -55,12 +69,12 @@ public abstract class Benchmark {
 
         final JSONObject json = readJSON(resultsFile);
         json.put(name, avgTime);
-        JSONUtils.writeJSON(json, resultsFile);
+        JSON.write(json, resultsFile);
     }
 
     private JSONObject readJSON(final File file) throws Exception {
         if(file.exists()) {
-            return (JSONObject) JSONUtils.loadJSONFile(file);
+            return (JSONObject) JSON.loadJSON(file);
         }
         return new JSONObject();
     }

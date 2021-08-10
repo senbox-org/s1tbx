@@ -40,7 +40,7 @@ public abstract class JSONProductDirectory extends AbstractProductDirectory {
     public void readProductDirectory() throws IOException {
         try {
             final File headerFile = getFile(getRootFolder() + getHeaderFileName());
-            this.json = (JSONObject) JSONUtils.loadJSONFile(headerFile);
+            this.json = (JSONObject) JSON.loadJSON(headerFile);
         } catch (Exception e) {
             throw new IOException(e);
         }
