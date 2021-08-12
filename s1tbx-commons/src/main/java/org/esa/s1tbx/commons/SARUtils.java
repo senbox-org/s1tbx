@@ -16,7 +16,6 @@
 package org.esa.s1tbx.commons;
 
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.eo.Constants;
 
@@ -37,7 +36,7 @@ public class SARUtils {
         final double radarFreq = AbstractMetadata.getAttributeDouble(absRoot,
                 AbstractMetadata.radar_frequency) * Constants.oneMillion; // Hz
         if (Double.compare(radarFreq, 0.0) <= 0) {
-            throw new OperatorException("Invalid radar frequency: " + radarFreq);
+            throw new Exception("Invalid radar frequency: " + radarFreq);
         }
         return Constants.lightSpeed / radarFreq;
     }
@@ -53,7 +52,7 @@ public class SARUtils {
         final double radarFreq = AbstractMetadata.getAttributeDouble(absRoot,
                 AbstractMetadata.radar_frequency) * Constants.oneMillion; // Hz
         if (Double.compare(radarFreq, 0.0) <= 0) {
-            throw new OperatorException("Invalid radar frequency: " + radarFreq);
+            throw new Exception("Invalid radar frequency: " + radarFreq);
         }
         return Constants.lightSpeed / radarFreq;
     }

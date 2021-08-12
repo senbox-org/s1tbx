@@ -1,0 +1,64 @@
+{
+  "testProducts": [
+    {
+      "id": "SAOCOM_Strip_SLC_SP",
+      "relativePath": "SAR/SAOCOM/Stripmap/SLC/SinglePol/33481-EOL1ASARSAO1A339416/S1A_OPER_SAR_EOSSP__CORE_L1A_OLF_20191128T125338.xemt",
+      "description": "SAOCOM Stripmap SLC SP product"
+    },
+    {
+      "id": "SAOCOM_Strip_SLC_DP",
+      "relativePath": "SAR/SAOCOM/Stripmap/SLC/DualPol/36587-EOL1ASARSAO1A339528/S1A_OPER_SAR_EOSSP__CORE_L1A_OLVF_20191128T135208.xemt",
+      "description": "SAOCOM Stripmap SLC DP product"
+    },
+    {
+      "id": "SAOCOM_Strip_SLC_QP",
+      "relativePath": "SAR/SAOCOM/Stripmap/SLC/QuadPol/45086-EOL1ASARSAO1A382215/S1A_OPER_SAR_EOSSP__CORE_L1A_OLVF_20191225T214531.xemt",
+      "description": "SAOCOM Stripmap SLC QP product"
+    },
+    {
+      "id": "SAOCOM_Strip_DI_SP",
+      "relativePath": "SAR/SAOCOM/Stripmap/DI/SinglePol/32897-EOL1BSARSAO1A329557/S1A_OPER_SAR_EOSSP__CORE_L1B_OLF_20191120T233614.xemt",
+      "description": "SAOCOM Stripmap DI SP product"
+    },
+    {
+      "id": "SAOCOM_Strip_DI_DP",
+      "relativePath": "SAR/SAOCOM/Stripmap/DI/DualPol/36579-EOL1BSARSAO1A339522/S1A_OPER_SAR_EOSSP__CORE_L1B_OLVF_20191128T135208.xemt",
+      "description": "SAOCOM Stripmap DI DP product"
+    },
+    {
+      "id": "SAOCOM_Strip_DI_QP",
+      "relativePath": "SAR/SAOCOM/Stripmap/DI/QuadPol/45116-EOL1BSARSAO1A403377/S1A_OPER_SAR_EOSSP__CORE_L1B_OLVF_20200103T183600.xemt",
+      "description": "SAOCOM Stripmap DI QP product"
+    },
+    {
+      "id": "SAOCOM_Strip_GEC_SP",
+      "relativePath": "SAR/SAOCOM/Stripmap/GEC/SinglePol/11245-EOL1CSARSAO1A198523/S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190814T135710.xemt",
+      "description": "SAOCOM Stripmap GEC SP product"
+    },
+    {
+      "id": "SAOCOM_Strip_GEC_DP",
+      "relativePath": "SAR/SAOCOM/Stripmap/GEC/DualPol/10793-EOL1CSARSAO1A185028/S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190801T145831.xemt",
+      "description": "SAOCOM Stripmap GEC DP product"
+    },
+    {
+      "id": "SAOCOM_Strip_GEC_QP",
+      "relativePath": "SAR/SAOCOM/Stripmap/GEC/QuadPol/11248-EOL1CSARSAO1A198533/S1A_OPER_SAR_EOSSP__CORE_L1C_OLVF_20190814T135731.xemt",
+      "description": "SAOCOM Stripmap GEC QP product"
+    },
+    {
+      "id": "SAOCOM_Strip_GTC_QP",
+      "relativePath": "SAR/SAOCOM/Stripmap/GTC/QuadPol/EOL1DSARSAO1A198541/11250-EOL1DSARSAO1A198541/S1A_OPER_SAR_EOSSP__CORE_L1D_OLVF_20190814T135724.xemt",
+      "description": "SAOCOM Stripmap GTC QP product"
+    },
+    {
+      "id": "SAOCOM_TopSAR_DI_QP",
+      "relativePath": "SAR/SAOCOM/TOPSAR/DI/42029-EOL1BSARSAO1A390515/S1A_OPER_SAR_EOSSP__CORE_L1B_OLF_20191228T014903.xemt",
+      "description": "SAOCOM TopSAR DI QP product"
+    },
+    {
+      "id": "SAOCOM_TopSAR_SLC_QP",
+      "relativePath": "SAR/SAOCOM/TOPSAR/SLC/41365-EOL1ASARSAO1A387069/S1A_OPER_SAR_EOSSP__CORE_L1A_OLF_20191228T014855.xemt",
+      "description": "SAOCOM TopSAR SLC QP product"
+    }
+  ]
+}

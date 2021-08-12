@@ -696,9 +696,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
     /**
      * Update metadata in the target product.
      *
-     * @throws OperatorException The exception.
+     * @throws Exception The exception.
      */
-    private void updateTargetProductMetadata() throws OperatorException {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.srgr_flag, 1);

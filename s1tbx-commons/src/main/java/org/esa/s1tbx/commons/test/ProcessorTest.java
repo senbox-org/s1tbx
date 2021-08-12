@@ -15,13 +15,16 @@
  */
 package org.esa.s1tbx.commons.test;
 
-import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProcessorTest {
 
@@ -31,63 +34,32 @@ public class ProcessorTest {
 
     protected File createTmpFolder(final String folderName) throws IOException {
         File folder = Files.createTempDirectory(folderName).toFile();
-        //File folder = new File("c:\\out\\" + folderName);
         folder.mkdirs();
         return folder;
     }
 
-    protected void validateProduct(final Product product) throws Exception {
-        validateProduct(product, null);
+    protected List<Product> readProducts(final File folder) throws IOException {
+        if(!folder.isDirectory()) {
+            throw new IOException("Expecting " + folder + " to be a directory");
+        }
+        final File[] files = folder.listFiles();
+        return readProducts(files);
     }
 
-    protected void validateProduct(final Product product, final ProductValidator.ValidationOptions options) throws Exception {
-        if(product == null) {
-            throw new Exception("Product is null");
+    protected List<Product> readProducts(final File[] files) throws IOException {
+        final List<Product> productList = new ArrayList<>();
+        if(files != null) {
+            for(File file : files) {
+                Product product = ProductIO.readProduct(file);
+                if(product != null) {
+                    productList.add(product);
+                }
+            }
         }
-        final ProductValidator productValidator = new ProductValidator(product, options);
-        productValidator.validate();
+        return productList;
     }
 
-    protected void validateMetadata(final Product product) throws Exception {
-        validateMetadata(product, null);
-    }
-
-    protected void validateMetadata(final Product product, final MetadataValidator.ValidationOptions options) throws Exception {
-        if(product == null) {
-            throw new Exception("Product is null");
-        }
-        final MetadataValidator metadataValidator = new MetadataValidator(product, options);
-        metadataValidator.validate();
-    }
-
-    protected void validateBands(final Product trgProduct, final String[] bandNames) throws Exception {
-        final Band[] bands = trgProduct.getBands();
-        if(bandNames.length != bands.length) {
-            String expectedBandNames = "";
-            for(String bandName : trgProduct.getBandNames()) {
-                if(!expectedBandNames.isEmpty())
-                    expectedBandNames += ", ";
-                expectedBandNames += bandName;
-            }
-            String actualBandNames = "";
-            for(String bandName : bandNames) {
-                if(!actualBandNames.isEmpty())
-                    actualBandNames += ", ";
-                actualBandNames += bandName;
-            }
-            throw new Exception("Expecting "+bandNames.length + " bands "+actualBandNames+" but found "+ bands.length +" "+ expectedBandNames);
-        }
-        for(String bandName : bandNames) {
-            Band band = trgProduct.getBand(bandName);
-            if(band == null) {
-                throw new Exception("Band "+ bandName +" not found");
-            }
-            if(band.getUnit() == null) {
-                throw new Exception("Band "+ bandName +" is missing a unit");
-            }
-            if(!band.isNoDataValueUsed()) {
-                throw new Exception("Band "+ bandName +" is not using a nodata value");
-            }
-        }
+    public static void delete(final File file) {
+        FileUtils.deleteTree(file);
     }
 }

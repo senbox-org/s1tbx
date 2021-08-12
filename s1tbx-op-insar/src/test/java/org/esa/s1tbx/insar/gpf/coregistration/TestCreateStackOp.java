@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,79 +16,124 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Unit test for CreateStackOp.
  */
-public class TestCreateStackOp {
+public class TestCreateStackOp extends ProcessorTest {
 
-    static {
-        TestUtils.initTestEnvironment();
-    }
     private final static OperatorSpi spi = new CreateStackOp.Spi();
 
     @Test
-    public void testOperator() throws Exception {
+    public void testCreateStackRefExtent() throws Exception {
 
         final CreateStackOp op = (CreateStackOp) spi.createOperator();
         assertNotNull(op);
 
-        final Product mstProduct = createTestProduct(40, 40, 30, 10, 35, 15);
-        final Product slvProduct1 = createTestProduct(40, 40, 31, 11, 36, 16);
+        int refW = 30, refH = 30;
+        final Product refProduct = createTestProduct(refW, refH);
+        final Product secProduct1 = createTestProduct(refW+10, refH+10);
 
-        //ProductIO.writeProduct(mstProduct, "c:\\data\\out\\mstProduct", "BEAM-DIMAP");
-        //ProductIO.writeProduct(slvProduct1, "c:\\data\\out\\slvProduct1", "BEAM-DIMAP");
-
-        op.setSourceProducts(mstProduct, slvProduct1);
+        op.setSourceProducts(refProduct, secProduct1);
         op.setTestParameters(CreateStackOp.MASTER_EXTENT, CreateStackOp.INITIAL_OFFSET_GEOLOCATION);
 
         // get targetProduct gets initialize to be executed
         final Product targetProduct = op.getTargetProduct();
         assertNotNull(targetProduct);
+        assertEquals(refW, targetProduct.getSceneRasterWidth());
+        assertEquals(refH, targetProduct.getSceneRasterHeight());
 
         final Band band = targetProduct.getBandAt(0);
         assertNotNull(band);
 
         // readPixels gets computeTiles to be executed
-        float[] floatValues = new float[1600];
-        band.readPixels(0, 0, 40, 40, floatValues, ProgressMonitor.NULL);
+        float[] pixels = new float[refW*refH];
+        band.readPixels(0, 0, refW, refH, pixels, ProgressMonitor.NULL);
 
-        //ProductIO.writeProduct(targetProduct, "c:\\data\\out\\targetProduct", "BEAM-DIMAP");
+        assertEquals(1.5f, pixels[0], 0.0001f);
+        assertEquals(11.5f, pixels[10], 0.0001f);
+        assertEquals(101.5f, pixels[100], 0.0001f);
     }
 
-    private static Product createTestProduct(final int w, final int h,
-                                             final double latTop, final double lonLeft,
-                                             final double latBottom, final double lonRight) {
+    @Test
+    public void testCreateStackMaxExtent() throws Exception {
 
-        final Product product = new Product("p", "ASA_IMP_1P", w, h);
+        final CreateStackOp op = (CreateStackOp) spi.createOperator();
+        assertNotNull(op);
 
-        final Band band = product.addBand("amplitude", ProductData.TYPE_FLOAT32);
-        band.setUnit(Unit.AMPLITUDE);
-        float[] floatValues = new float[w * h];
-        int i;
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                i = y * w + x;
-                floatValues[i] = 0;
-            }
-        }
-        band.setData(ProductData.createInstance(floatValues));
+        int refW = 30, refH = 30;
+        final Product refProduct = createTestProduct(refW, refH);
+        final Product secProduct1 = createTestProduct(refW+10, refH+10);
 
-        final float[] latCorners = new float[]{(float)latTop, (float)latTop, (float)latBottom, (float)latBottom};
-        final float[] lonCorners = new float[]{(float)lonLeft, (float)lonRight, (float)lonLeft, (float)lonRight};
+        op.setSourceProducts(refProduct, secProduct1);
+        op.setParameter("resamplingType", ResamplingFactory.BICUBIC_INTERPOLATION_NAME);
+        op.setTestParameters(CreateStackOp.MAX_EXTENT, CreateStackOp.INITIAL_OFFSET_GEOLOCATION);
 
-        ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
+        // get targetProduct gets initialize to be executed
+        final Product targetProduct = op.getTargetProduct();
+        assertNotNull(targetProduct);
+        assertEquals(53, targetProduct.getSceneRasterWidth());
+        assertEquals(35, targetProduct.getSceneRasterHeight());
 
+        final Band band = targetProduct.getBandAt(0);
+        assertNotNull(band);
+
+        // readPixels gets computeTiles to be executed
+        float[] pixels = new float[refW*refH];
+        band.readPixels(0, 0, refW, refH, pixels, ProgressMonitor.NULL);
+
+        assertEquals("pixels[0]", 0.0f, pixels[0], 0.0001f);
+        assertEquals("pixels[10]", 0.0f, pixels[10], 0.0001f);
+        assertEquals("pixels[100]", 96.69367f, pixels[100], 0.0001f);
+    }
+
+    @Test
+    public void testCreateStackMinExtent() throws Exception {
+
+        final CreateStackOp op = (CreateStackOp) spi.createOperator();
+        assertNotNull(op);
+
+        int refW = 30, refH = 30;
+        final Product refProduct = createTestProduct(refW, refH);
+        final Product secProduct1 = createTestProduct(refW+10, refH+10);
+
+        op.setSourceProducts(refProduct, secProduct1);
+        op.setParameter("resamplingType", ResamplingFactory.BICUBIC_INTERPOLATION_NAME);
+        op.setTestParameters(CreateStackOp.MIN_EXTENT, CreateStackOp.INITIAL_OFFSET_GEOLOCATION);
+
+        // get targetProduct gets initialize to be executed
+        final Product targetProduct = op.getTargetProduct();
+        assertNotNull(targetProduct);
+        assertEquals("getSceneRasterWidth", 29, targetProduct.getSceneRasterWidth());
+        assertEquals("getSceneRasterHeight", 29, targetProduct.getSceneRasterHeight());
+
+        final Band band = targetProduct.getBandAt(0);
+        assertNotNull(band);
+
+        // readPixels gets computeTiles to be executed
+        float[] pixels = new float[refW*refH];
+        band.readPixels(0, 0, refW, refH, pixels, ProgressMonitor.NULL);
+
+        assertEquals("pixels[0]", 0.0f, pixels[0], 0.0001f);
+        assertEquals("pixels[10]", 40.62154f, pixels[10], 0.0001f);
+        assertEquals("pixels[100]", 100.77306f, pixels[100], 0.0001f);
+    }
+
+    private static Product createTestProduct(final int w, final int h) {
+
+        Product product = TestUtils.createProduct("ASA_IMP_1P", w, h);
+        TestUtils.createBand(product, "amplitude", ProductData.TYPE_FLOAT32, Unit.AMPLITUDE, w, h, true);
         return product;
     }
 }

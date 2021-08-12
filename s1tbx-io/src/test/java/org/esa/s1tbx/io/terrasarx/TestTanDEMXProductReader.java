@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.terrasarx;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -52,9 +53,11 @@ public class TestTanDEMXProductReader extends ReaderTest {
     @Test
     public void testOpenMetadata() throws Exception {
         Product prod = testReader(metadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {
                 "i_HH_mst_29Aug2011","q_HH_mst_29Aug2011","Intensity_HH_mst_29Aug2011",
                 "i_HH_slv1_29Aug2011","q_HH_slv1_29Aug2011","Intensity_HH_slv1_29Aug2011"});
     }

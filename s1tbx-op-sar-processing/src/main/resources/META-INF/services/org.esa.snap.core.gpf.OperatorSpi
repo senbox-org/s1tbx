@@ -13,3 +13,4 @@ org.esa.s1tbx.sar.gpf.geometric.UpdateGeoRefOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.MultitemporalCompositingOp$Spi
 org.esa.s1tbx.sar.gpf.DeburstWSSOp$Spi
 org.esa.s1tbx.sar.gpf.MultilookOp$Spi
+org.esa.s1tbx.sar.gpf.BandPassFilterOp$Spi

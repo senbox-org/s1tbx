@@ -20,6 +20,7 @@ import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.ui.AppContext;
+import org.jlinda.core.coregistration.SimpleLUT;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,7 +36,7 @@ public class WarpOpUI extends BaseOperatorUI {
     private final JComboBox<String> warpPolynomialOrder = new JComboBox<>(new String[]{"1", "2", "3"});
     private final JComboBox<String> interpolationMethod = new JComboBox<>(new String[]{
             WarpOp.NEAREST_NEIGHBOR, WarpOp.BILINEAR, WarpOp.BICUBIC, WarpOp.BICUBIC2,
-            WarpOp.TRI, WarpOp.CC4P, WarpOp.CC6P, WarpOp.TS6P, WarpOp.TS8P, WarpOp.TS16P});
+            SimpleLUT.TRI, SimpleLUT.CC4P, SimpleLUT.CC6P, SimpleLUT.TS6P, SimpleLUT.TS8P, SimpleLUT.TS16P});
 
     private final JComboBox<String> rmsThreshold = new JComboBox<>(new String[]{"0.001", "0.05", "0.1", "0.5", "1.0"});
 

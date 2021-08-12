@@ -16,7 +16,7 @@
 
 <h3>Horizontal/Vertical Motion Operator</h3>
 <p class="MsoNormal">Given two (collocated) ascending and descending interferograms, this operator computes the horizontal
-    (East-West) and vertical motion.
+    (East-West) and vertical motion. It is assumed that the motion occurred in these two directions only.
 
 <h4>Input<br>
 </h4>
@@ -49,10 +49,10 @@
     The output of this operator is a product with the following bands:
         <ul>
             <li>
-            h_motion: East-West deformation in millimeters.
+            horizontalMotion: East-West deformation in millimeters.
             </li>
             <li>
-            v_motion: vertical deformation in millimeters.
+            verticalMotion: vertical deformation in millimeters.
             </li>
         </ul>
     <br>

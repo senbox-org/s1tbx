@@ -27,33 +27,48 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 public class ProductValidator {
 
     private final Product product;
-    private final ValidationOptions validationOptions;
+    private final Options productOptions;
     private final InputProductValidator inputProductValidator;
+    private Expected expected;
 
     private static final ProductData.UTC NO_TIME = new ProductData.UTC();
 
-    public static class ValidationOptions {
+    public static class Options {
         public boolean verifyGeoCoding = true;
         public boolean verifyBands = true;
         public boolean verifyTimes = true;
         public boolean verifyTiePointGrids = true;
     }
 
-    public ProductValidator(final Product product) {
+    public static class Expected {
+        public Boolean isSAR = null;
+        public Boolean isComplex = null;
+        public String productType = null;
+    }
+
+    public ProductValidator(final Product product) throws Exception {
         this(product, null);
     }
 
-    public ProductValidator(final Product product, final ValidationOptions options) {
+    public ProductValidator(final Product product, final Options options) throws Exception {
+        if(product == null) {
+            throw new Exception("Product is null");
+        }
         this.product = product;
-        this.validationOptions = options == null ? new ValidationOptions() : options;
+        this.productOptions = options == null ? new Options() : options;
         this.inputProductValidator = new InputProductValidator(product);
+        this.expected = new Expected();
     }
 
-    public void validate() throws Exception {
+    public void setExpected(final Expected expected) {
+        this.expected = expected;
+    }
+
+    public void validateProduct() throws Exception {
         if (product == null) {
             throw new Exception("product is null");
         }
-        if (validationOptions.verifyGeoCoding && product.getSceneGeoCoding() == null) {
+        if (productOptions.verifyGeoCoding && product.getSceneGeoCoding() == null) {
             throw new Exception("geocoding is null");
         }
         if (product.getMetadataRoot() == null) {
@@ -73,6 +88,8 @@ public class ProductValidator {
             throw new Exception("product scene raster dimensions are " + product.getSceneRasterWidth() +" x "+ product.getSceneRasterHeight());
         }
 
+        verifyExpected();
+
         verifyTimes();
         verifyBands();
         verifyTiePointGrids();
@@ -82,8 +99,26 @@ public class ProductValidator {
         return str == null || str.isEmpty() || str.equals(AbstractMetadata.NO_METADATA_STRING);
     }
 
+    private void verifyExpected() throws Exception {
+        if(expected.isSAR != null) {
+            if(inputProductValidator.isSARProduct() != expected.isSAR) {
+                throw new Exception("Expecting SAR product " + expected.isSAR);
+            }
+        }
+        if(expected.isComplex != null) {
+            if(inputProductValidator.isComplex() != expected.isComplex) {
+                throw new Exception("Expecting complex data " + expected.isComplex);
+            }
+        }
+        if(expected.productType != null) {
+            if(!product.getProductType().equals(expected.productType)) {
+                throw new Exception("Expecting productType "+ expected.productType + " but got " +product.getProductType());
+            }
+        }
+    }
+
     private void verifyTimes() throws Exception {
-        if (!validationOptions.verifyTimes) {
+        if (!productOptions.verifyTimes) {
             SystemUtils.LOG.warning("ProductValidator Skipping verify times");
             return;
         }
@@ -96,7 +131,7 @@ public class ProductValidator {
     }
 
     private void verifyBands() throws Exception {
-        if (!validationOptions.verifyBands) {
+        if (!productOptions.verifyBands) {
             SystemUtils.LOG.warning("ProductValidator Skipping verify bands");
             return;
         }
@@ -119,12 +154,22 @@ public class ProductValidator {
                         + band.getRasterWidth() + " x " + band.getRasterHeight());
             }
 
-            if (inputProductValidator.isSARProduct()) {
+            if (isSAR()) {
                 validateSARBand(band);
             } else {
-                validateOpticalBand(band);
+                if(!isFlagsBand(band)) {
+                    validateOpticalBand(band);
+                }
             }
         }
+    }
+
+    private boolean isSAR() {
+        return inputProductValidator.isSARProduct();
+    }
+
+    private static boolean isFlagsBand(final Band srcBand) {
+        return srcBand.isFlagBand() || (srcBand.getName().contains("flag") || srcBand.getName().contains("mask"));
     }
 
     private void validateSARBand(final Band band) throws Exception {
@@ -132,11 +177,16 @@ public class ProductValidator {
     }
 
     private void validateOpticalBand(final Band band) throws Exception {
-
+        if(band.getSpectralWavelength() < 10) {
+            //throw new Exception("Band " + band.getName() + " has invalid spectral wavelength " + band.getSpectralWavelength());
+        }
+        if(band.getSpectralBandwidth() < 1) {
+            //throw new Exception("Band " + band.getName() + " has invalid spectral bandwidth " + band.getSpectralBandwidth());
+        }
     }
 
     private void verifyTiePointGrids() throws Exception {
-        if (!validationOptions.verifyTiePointGrids) {
+        if (!productOptions.verifyTiePointGrids) {
             SystemUtils.LOG.warning("ProductValidator Skipping verify tie point grids");
             return;
         }
@@ -151,6 +201,49 @@ public class ProductValidator {
 //            if(slantRangeTimeTPG == null) {
 //                throw new Exception(OperatorUtils.TPG_SLANT_RANGE_TIME + " tie point grid is missing");
 //            }
+        }
+    }
+
+    public void validateMetadata() throws Exception {
+        validateMetadata(null);
+    }
+
+    public void validateMetadata(final MetadataValidator.Options options) throws Exception {
+        if(product == null) {
+            throw new Exception("Product is null");
+        }
+        final MetadataValidator metadataValidator = new MetadataValidator(product, options);
+        metadataValidator.validate();
+    }
+
+    public void validateBands(final String[] bandNames) throws Exception {
+        final Band[] bands = product.getBands();
+        if(bandNames.length != bands.length) {
+            String expectedBandNames = "";
+            for(String bandName : product.getBandNames()) {
+                if(!expectedBandNames.isEmpty())
+                    expectedBandNames += ", ";
+                expectedBandNames += bandName;
+            }
+            String actualBandNames = "";
+            for(String bandName : bandNames) {
+                if(!actualBandNames.isEmpty())
+                    actualBandNames += ", ";
+                actualBandNames += bandName;
+            }
+            throw new Exception("Expecting "+bandNames.length + " bands "+actualBandNames+" but found "+ bands.length +" "+ expectedBandNames);
+        }
+        for(String bandName : bandNames) {
+            Band band = product.getBand(bandName);
+            if(band == null) {
+                throw new Exception("Band "+ bandName +" not found");
+            }
+            if(band.getUnit() == null) {
+                throw new Exception("Band "+ bandName +" is missing a unit");
+            }
+            if(!band.isNoDataValueUsed()) {
+                throw new Exception("Band "+ bandName +" is not using a nodata value");
+            }
         }
     }
 }

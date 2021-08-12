@@ -18,7 +18,6 @@ package org.esa.s1tbx.commons;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.dem.ElevationModel;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
@@ -61,12 +60,11 @@ public final class SARGeocoding {
      * @param sensorPosition   Array of sensor positions for all range lines.
      * @param sensorVelocity   Array of sensor velocities for all range lines.
      * @return The zero Doppler time in days if it is found, -1 otherwise.
-     * @throws OperatorException The operator exception.
      */
     public static double getEarthPointZeroDopplerTime(final double firstLineUTC,
                                                       final double lineTimeInterval, final double wavelength,
                                                       final PosVector earthPoint, final PosVector[] sensorPosition,
-                                                      final PosVector[] sensorVelocity) throws OperatorException {
+                                                      final PosVector[] sensorVelocity) {
 
         // binary search is used in finding the zero doppler time
         int lowerBound = 0;
@@ -110,7 +108,7 @@ public final class SARGeocoding {
 
     public static double getEarthPointZeroDopplerTimeNewton(
             final double lineTimeInterval, final double wavelength,
-            final PosVector earthPoint, final OrbitStateVectors orbit) throws OperatorException {
+            final PosVector earthPoint, final OrbitStateVectors orbit) {
 
         final int numOrbitVec = orbit.orbitStateVectors.length;
 
@@ -168,11 +166,10 @@ public final class SARGeocoding {
      * @param earthPoint       The earth point in xyz coordinate.
      * @param orbit            The object holding orbit state vectors.
      * @return The zero Doppler time in days if it is found, NonValidZeroDopplerTime otherwise.
-     * @throws OperatorException The operator exception.
      */
     public static double getZeroDopplerTime(final double lineTimeInterval,
                                             final double wavelength, final PosVector earthPoint,
-                                            final OrbitStateVectors orbit) throws OperatorException {
+                                            final OrbitStateVectors orbit) {
 
         // loop through all orbit state vectors to find the adjacent two vectors
         final int numOrbitVec = orbit.orbitStateVectors.length;
@@ -375,7 +372,7 @@ public final class SARGeocoding {
             final int sourceImageWidth, final double firstLineUTC, final double lastLineUTC,
             final double groundRangeSpacing, final double slantRangeSpacing, final double zeroDopplerTime,
             final double slantRange, final double nearEdgeSlantRange,
-            final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
+            final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) throws Exception {
 
         if (zeroDopplerTime < Math.min(firstLineUTC, lastLineUTC) ||
                 zeroDopplerTime > Math.max(firstLineUTC, lastLineUTC)) {
@@ -404,7 +401,11 @@ public final class SARGeocoding {
     }
 
     public static double[] getSRGRCoefficients(final double zeroDopplerTime,
-                                               final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) {
+                                               final AbstractMetadata.SRGRCoefficientList[] srgrConvParams) throws Exception {
+
+        if(srgrConvParams == null || srgrConvParams.length == 0) {
+            throw new Exception("SARGeoCoding: srgrConvParams not set");
+        }
 
         final double[] srgrCoefficients = new double[srgrConvParams[0].coefficients.length];
 
@@ -839,9 +840,9 @@ public final class SARGeocoding {
      *
      * @param srcProduct The source product.
      * @return The incidence angle.
-     * @throws OperatorException The exceptions.
+     * @throws Exception The exceptions.
      */
-    private static double getIncidenceAngleAtCentreRangePixel(final Product srcProduct) throws OperatorException {
+    private static double getIncidenceAngleAtCentreRangePixel(final Product srcProduct) throws Exception {
 
         final int sourceImageWidth = srcProduct.getSceneRasterWidth();
         final int sourceImageHeight = srcProduct.getSceneRasterHeight();
@@ -849,7 +850,7 @@ public final class SARGeocoding {
         final int y = sourceImageHeight / 2;
         final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(srcProduct);
         if (incidenceAngle == null) {
-            throw new OperatorException("incidence_angle tie point grid not found in product");
+            throw new Exception("incidence_angle tie point grid not found in product");
         }
         return incidenceAngle.getPixelDouble(x, y) * Constants.DTOR;
     }
@@ -921,7 +922,7 @@ public final class SARGeocoding {
     public static void addLookDirection(final String name, final MetadataElement lookDirectionListElem, final int index,
                                         final int num, final int sourceImageWidth, final int sourceImageHeight,
                                         final double firstLineUTC, final double lineTimeInterval,
-                                        final boolean nearRangeOnLeft, final GeoCoding geoCoding) {
+                                        final boolean nearRangeOnLeft, final GeoCoding geoCoding) throws Exception {
 
         final MetadataElement lookDirectionElem = new MetadataElement(name + index);
 
@@ -931,7 +932,7 @@ public final class SARGeocoding {
         } else if (num > 1) {
             y = (index - 1) * sourceImageHeight / (num - 1);
         } else {
-            throw new OperatorException("Invalid number of look directions");
+            throw new Exception("Invalid number of look directions");
         }
 
         final double time = firstLineUTC + y * lineTimeInterval;

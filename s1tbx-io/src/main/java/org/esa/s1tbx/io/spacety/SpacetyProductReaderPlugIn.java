@@ -69,7 +69,7 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
                 if (filename.endsWith(".zip")) {
                     for(String prefix : PRODUCT_PREFIX) {
                         if(filename.startsWith(prefix) &&
-                                (ZipUtils.findInZip(path.toFile(), prefix, PRODUCT_HEADER_NAME, "") != null)) {
+                                (ZipUtils.findInZip(path.toFile(), "", PRODUCT_HEADER_NAME, "") != null)) {
                             return DecodeQualification.INTENDED;
                         }
                     }
