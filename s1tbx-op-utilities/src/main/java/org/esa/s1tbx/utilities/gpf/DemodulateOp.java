@@ -61,9 +61,9 @@ public class DemodulateOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    //@Parameter(description = "Do not demodulate master image", label = "Exclude Master",
+    //@Parameter(description = "Do not demodulate reference image", label = "Exclude Reference",
     //        defaultValue = "true")
-    private boolean excludeMaster = true;
+    private boolean excludeReference = true;
 
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
     private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
@@ -153,7 +153,7 @@ public class DemodulateOp extends Operator {
                 sourceBandQ = sourceProduct.getBand(bandName);
             }
         }
-        createTargetBands(sourceBandI, sourceBandQ, excludeMaster);
+        createTargetBands(sourceBandI, sourceBandQ, excludeReference);
 
         // Secondaries
         final String[] secondaryProductNames = StackUtils.getSlaveProductNames(sourceProduct);
@@ -207,7 +207,7 @@ public class DemodulateOp extends Operator {
     private void getProductMetadata() {
 
         // Reference
-        if (!excludeMaster) {
+        if (!excludeReference) {
             String[] referenceBandNames = StackUtils.getMasterBandNames(sourceProduct);
             for (String bandName : referenceBandNames) {
                 if (bandName.contains("i_")) {

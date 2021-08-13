@@ -67,7 +67,7 @@ public final class S1TBXOptionsPanelController extends OptionsPanelController {
         return null; // new HelpCtx("...ID") if you have a help set
     }
 
-    public JComponent getComponent(Lookup masterLookup) {
+    public JComponent getComponent(Lookup lookup) {
         return getPanel();
     }
 

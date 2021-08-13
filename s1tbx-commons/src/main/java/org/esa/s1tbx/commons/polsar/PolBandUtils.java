@@ -327,12 +327,12 @@ public class PolBandUtils {
 
     public static void saveNewBandNames(final Product targetProduct, final PolSourceBand[] srcBandList) throws Exception {
         if (StackUtils.isCoregisteredStack(targetProduct)) {
-            boolean masterProduct = true;
+            boolean referenceProduct = true;
             for (final PolSourceBand bandList : srcBandList) {
-                if (masterProduct) {
+                if (referenceProduct) {
                     final String[] bandNames = StackUtils.bandsToStringArray(bandList.targetBands);
                     StackUtils.saveMasterProductBandNames(targetProduct, bandNames);
-                    masterProduct = false;
+                    referenceProduct = false;
                 } else {
                     final String[] bandNames = StackUtils.bandsToStringArray(bandList.targetBands);
                     StackUtils.saveSlaveProductBandNames(targetProduct, bandList.productName, bandNames);
