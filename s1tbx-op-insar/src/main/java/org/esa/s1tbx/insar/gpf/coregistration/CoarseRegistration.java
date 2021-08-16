@@ -36,7 +36,7 @@ import java.util.Hashtable;
  * Image co-registration is fundamental for Interferometry SAR (InSAR) imaging and its applications, such as
  * DEM map generation and analysis. To obtain a high quality InSAR image, the individual complex images need
  * to be co-registered to sub-pixel accuracy. The co-registration is accomplished through an alignment of a
- * master image with a slave image.
+ * master image with a secondary image.
  * <p/>
  * To achieve the alignment of master and slave images, the first step is to generate a set of uniformly
  * spaced ground control points (GCPs) in the master image, along with the corresponding GCPs in the slave
@@ -118,15 +118,15 @@ public class CoarseRegistration {
      * @param pixelPos The GCP pixel position.
      * @return flag Return true if the GCP is within the image, false otherwise.
      */
-    private boolean checkSlaveGCPValidity(final PixelPos pixelPos) {
+    private boolean checkSecondaryGCPValidity(final PixelPos pixelPos) {
 
         return (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= slaveImageWidth - 1) &&
                 (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= slaveImageHeight - 1);
     }
 
-    public boolean getCoarseSlaveGCPPosition(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
+    public boolean getCoarseSecondaryGCPPosition(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
 
-        final double[] mI = getMasterImagette(mTile, mData, mGCPPixelPos);
+        final double[] mI = getReferenceImagette(mTile, mData, mGCPPixelPos);
 
         double rowShift = gcpTolerance + 1;
         double colShift = gcpTolerance + 1;
@@ -138,14 +138,14 @@ public class CoarseRegistration {
                 return false;
             }
 
-            if (!checkSlaveGCPValidity(sGCPPixelPos)) {
+            if (!checkSecondaryGCPValidity(sGCPPixelPos)) {
                 return false;
             }
 
             final double[] sI = getSlaveImagette(sTile, sData, sGCPPixelPos);
 
             final double[] shift = {0, 0};
-            if (!getSlaveGCPShift(shift, mI, sI)) {
+            if (!getSecondaryGCPShift(shift, mI, sI)) {
                 return false;
             }
 
@@ -162,7 +162,7 @@ public class CoarseRegistration {
         return true;
     }
 
-    private double[] getMasterImagette(final Tile tile, final ProductData data, final PixelPos gcpPixelPos) {
+    private double[] getReferenceImagette(final Tile tile, final ProductData data, final PixelPos gcpPixelPos) {
 
         final double[] imagette = new double[cWindowWidth * cWindowHeight];
         final int xul = (int) gcpPixelPos.x - cHalfWindowWidth + 1;
@@ -219,12 +219,12 @@ public class CoarseRegistration {
             return sI;
 
         } catch (Exception e) {
-            System.out.println("Error in getSlaveImagette");
+            System.out.println("Error in getSecondaryImagette");
             throw new OperatorException(e);
         }
     }
 
-    private boolean getSlaveGCPShift(final double[] shift, final double[] mI, final double[] sI) {
+    private boolean getSecondaryGCPShift(final double[] shift, final double[] mI, final double[] sI) {
 
         try {
             final PlanarImage crossCorrelatedImage = computeCrossCorrelatedImage(mI, sI);
@@ -262,7 +262,7 @@ public class CoarseRegistration {
 
             return true;
         } catch (Throwable t) {
-            System.out.println("getSlaveGCPShift failed " + t.getMessage());
+            System.out.println("getSecondaryGCPShift failed " + t.getMessage());
             return false;
         }
     }

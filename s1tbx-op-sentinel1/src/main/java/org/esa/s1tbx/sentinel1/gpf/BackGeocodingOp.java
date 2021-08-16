@@ -89,7 +89,7 @@ public final class BackGeocodingOp extends Operator {
     private double externalDEMNoDataValue = 0;
 
     @Parameter(defaultValue = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
-            description = "The method to be used when resampling the slave grid onto the reference image grid.",
+            description = "The method to be used when resampling the secondary grid onto the reference image grid.",
             label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
 
@@ -411,7 +411,7 @@ public final class BackGeocodingOp extends Operator {
             ++i;
         }
 
-        // set non-elevation areas to no data value for the master bands using the slave bands
+        // set non-elevation areas to no data value for the reference bands using the secondary bands
         DEMAssistedCoregistrationOp.setMasterValidPixelExpression(targetProduct, maskOutAreaWithoutElevation);
 
         if (outputDEM) {
@@ -508,11 +508,11 @@ public final class BackGeocodingOp extends Operator {
                 double[] extendedAmount = {0.0, 0.0, 0.0, 0.0};
                 computeExtendedAmount(ntx0, nty0, ntw, nth, extendedAmount);
 
-                for(SlaveData slaveData : slaveDataList) {
-                    //slaveData.print();
+                for(SlaveData secondaryData : slaveDataList) {
+                    //secondaryData.print();
 
                     computePartialTile(subSwathIndex, burstIndex, ntx0, nty0, ntw, nth, targetTileMap,
-                            slaveData, extendedAmount);
+                            secondaryData, extendedAmount);
                 }
             }
 
@@ -784,7 +784,7 @@ public final class BackGeocodingOp extends Operator {
         }
 
         final PixelPos[][] slavePixPos = new PixelPos[h][w];
-        final boolean isSuccessful = computeSlavePixPos(
+        final boolean isSuccessful = computeSecondaryPixPos(
                 subSwathIndex, mBurstIndex, sBurstIndex, x0, y0, w, h, extendedAmount, slavePixPos, slaveData, elevation);
 
         if (!isSuccessful) {
@@ -867,7 +867,7 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private boolean computeSlavePixPos(final int subSwathIndex, final int mBurstIndex, final int sBurstIndex,
+    private boolean computeSecondaryPixPos(final int subSwathIndex, final int mBurstIndex, final int sBurstIndex,
                                        final int x0, final int y0, final int w, final int h,
                                        final double[] extendedAmount, final PixelPos[][] slavePixelPos,
                                        final SlaveData slaveData,
@@ -1014,7 +1014,7 @@ public final class BackGeocodingOp extends Operator {
             return !allElementsAreNull;
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("computeSlavePixPos", e);
+            OperatorUtils.catchOperatorException("computeSecondaryPixPos", e);
         }
 
         return false;

@@ -564,7 +564,7 @@ public class OffsetTrackingOp extends Operator {
             }
 
             final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-            status.beginTask("Computing slave GCPs... ", gcpList.size());
+            status.beginTask("Computing secondary GCPs... ", gcpList.size());
 
             final ThreadExecutor executor = new ThreadExecutor();
 

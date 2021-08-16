@@ -209,13 +209,13 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         }
 
         for (InSARStackOverview.IfgPair slave : slaveList) {
-            final File slvFile = slcFileMap.get(slave.getSlaveMetadata());
-            if (!slvFile.equals(mstFile)) {
+            final File secFile = slcFileMap.get(slave.getSlaveMetadata());
+            if (!secFile.equals(mstFile)) {
                 try {
-                    final Product product = CommonReaders.readProduct(slvFile);
+                    final Product product = CommonReaders.readProduct(secFile);
                     final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
-                    final String[] slvValues = new String[]{
+                    final String[] secValues = new String[]{
                             product.getName(),
                             "Slave",
                             OperatorUtils.getAcquisitionDate(absRoot),
@@ -227,9 +227,9 @@ public class InSARStackOverviewDialog extends ModelessDialog {
                             String.valueOf(df.format(slave.getHeightAmb())),
                             String.valueOf(df.format(slave.getDopplerDifference()))
                     };
-                    outputFileModel.addFile(slvFile, slvValues);
+                    outputFileModel.addFile(secFile, secValues);
                 } catch (Exception e) {
-                    Dialogs.showError("Unable to read " + slvFile.getName() + '\n' + e.getMessage());
+                    Dialogs.showError("Unable to read " + secFile.getName() + '\n' + e.getMessage());
                 }
             }
         }

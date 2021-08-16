@@ -75,7 +75,7 @@ import java.util.List;
  * the same dimension and resolution as the original image. For detailed steps and parameters used in SAR
  * simulation, the reader is referred to help for SAR Simulation Operator.
  * <p>
- * 2. Co-registration: The simulated SAR image (master) and the original SAR image (slave) are co-registered
+ * 2. Co-registration: The simulated SAR image (reference) and the original SAR image (slave) are co-registered
  * and a WARP function is produced. The WARP function maps each pixel in the simulated SAR image to its
  * corresponding position in the original SAR image. For detailed steps and parameters used in co-registration,
  * the reader is referred to help for GCP Selection Operator.
@@ -592,7 +592,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
 
         String targetBandName;
-        for (int i = 1; i < sourceBands.length; i++) { // skip master band (i=0, simulated image)
+        for (int i = 1; i < sourceBands.length; i++) { // skip reference band (i=0, simulated image)
 
             final Band srcBand = sourceBands[i];
             String bandName = srcBand.getName();
@@ -780,7 +780,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
             if (slaveGCPGroup.getNodeCount() < 3) {
-                // find others for same slave product
+                // find others for same secondary products
                 for (Band band : sourceProduct.getBands()) {
                     if (band != srcBand && band != referenceBand) {
                         slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
@@ -1321,7 +1321,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 final PixelPos sGCPPos = sPin.getPixelPos();
 
                 // get initial slave GCP position
-                // Note: master GCP position is the same as the initial slave GCP position because master and slave
+                // Note: reference GCP position is the same as the initial slave GCP position because reference and secondary
                 //       now share the same geocoding.
                 final Placemark mPin = referenceGCPGroup.get(sPin.getName());
                 final PixelPos mGCPPos = mPin.getPixelPos();

@@ -43,7 +43,7 @@ https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=122
 * Integrate into the Product Library integration with SciHub
 * Add option to terrain correction to use a standard grid across images
 * Support for ALOS on demand products from ESA IPF
-* Topo Phase Removal handles multiple slave images correctly
+* Topo Phase Removal handles multiple secondary images correctly
 * DEM is oversampled in Terrain Flattening 
 * Error in Interferogram with TSX/TDX CoSSC data
 * RSTB output Polarisation Orientation Angle
@@ -56,7 +56,7 @@ https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=122
 https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11504
 
 ###New Features and Important Changes
-* Backgeocoding can handle multiple slave images
+* Backgeocoding can handle multiple secondary images
 * Kompsat-5 reader
 * StaMPS export
 * S1B orbit files handled

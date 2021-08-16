@@ -40,12 +40,12 @@ import java.util.HashMap;
         authors = "Alex McVittie",
         version = "1.0",
         copyright = "Copyright (C) 2020 by SkyWatch Space Applications Inc.",
-        description = "Generates a set of master-slave pairs from a coregistered stack for use in SBAS processing")
+        description = "Generates a set of reference-secondary pairs from a coregistered stack for use in SBAS processing")
 public class MultiMasterOp extends Operator{
     // Things this needs:
     // output folder
     // input coregistered stack product
-    @SourceProduct(alias = "source", label="Coregistered stack with single master and multiple (2 or more) slaves")
+    @SourceProduct(alias = "source", label="Coregistered stack with single reference and multiple (2 or more) secondaries")
     private Product sourceProduct;
     @Parameter(description = "Output folder", alias="outputFolder",
             defaultValue = "" , label = "Output folder location for putting coregistered image pairs into.")

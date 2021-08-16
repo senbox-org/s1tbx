@@ -142,8 +142,8 @@ public class CoherenceOp extends Operator {
     private Boolean singleMaster = true;
 
     // source
-    private Map<String, CplxContainer> masterMap = new HashMap<>();
-    private Map<String, CplxContainer> slaveMap = new HashMap<>();
+    private Map<String, CplxContainer> referenceMap = new HashMap<>();
+    private Map<String, CplxContainer> secondaryMap = new HashMap<>();
 
     private String[] polarisations;
     private String[] subswaths = new String[]{""};
@@ -160,8 +160,8 @@ public class CoherenceOp extends Operator {
     private int numSubSwaths = 0;
     private int subSwathIndex = 0;
 
-    private MetadataElement mstRoot = null;
-    private MetadataElement slvRoot = null;
+    private MetadataElement refRoot = null;
+    private MetadataElement secRoot = null;
     private org.jlinda.core.Point[] mstSceneCentreXYZ = null;
     private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
     private int sourceImageWidth;
@@ -196,11 +196,11 @@ public class CoherenceOp extends Operator {
         try {
             productTag = "coh";
 
-            mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            refRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             final MetadataElement slaveElem =
                     sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
             if (slaveElem != null) {
-                slvRoot = slaveElem.getElements()[0];
+                secRoot = slaveElem.getElements()[0];
             }
 
             if(singleMaster == null) {
@@ -264,24 +264,24 @@ public class CoherenceOp extends Operator {
 
     private void constructSourceMetadata() throws Exception {
 
-        // define sourceMaster/sourceSlave name tags
-        final String masterTag = "mst";
-        final String slaveTag = "slv";
+        // define sourceReference/sourceSecondary name tags
+        final String referenceTag = "mst";
+        final String secondaryTag = "slv";
 
-        // get sourceMaster & sourceSlave MetadataElement
+        // get sourceReference & sourceSecondary MetadataElement
 
-        // put sourceMaster metadata into the masterMap
-        metaMapPut(masterTag, mstRoot, sourceProduct, masterMap);
+        // put sourceReference metadata into the referenceMap
+        metaMapPut(referenceTag, refRoot, sourceProduct, referenceMap);
 
         // plug sourceSlave metadata into slaveMap
-        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-        if (slaveElem == null) {
-            slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
+        MetadataElement secondaryElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (secondaryElem == null) {
+            secondaryElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
         }
-        MetadataElement[] slaveRoot = slaveElem.getElements();
-        for (MetadataElement meta : slaveRoot) {
+        MetadataElement[] secondaryRoot = secondaryElem.getElements();
+        for (MetadataElement meta : secondaryRoot) {
             if(!meta.getName().contains(AbstractMetadata.ORIGINAL_PRODUCT_METADATA)) {
-                metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
+                metaMapPut(secondaryTag, meta, sourceProduct, secondaryMap);
             }
         }
     }
@@ -332,12 +332,12 @@ public class CoherenceOp extends Operator {
     private void constructTargetMetadata() {
 
         if(singleMaster) {
-            for (String keyMaster : masterMap.keySet()) {
+            for (String keyMaster : referenceMap.keySet()) {
 
-                CplxContainer master = masterMap.get(keyMaster);
+                CplxContainer master = referenceMap.get(keyMaster);
 
-                for (String keySlave : slaveMap.keySet()) {
-                    final CplxContainer slave = slaveMap.get(keySlave);
+                for (String keySlave : secondaryMap.keySet()) {
+                    final CplxContainer slave = secondaryMap.get(keySlave);
 
                     if ((master.polarisation == null || slave.polarisation == null) ||
                             (master.polarisation != null && slave.polarisation != null &&
@@ -354,21 +354,21 @@ public class CoherenceOp extends Operator {
             }
         } else {
             final SortedSet<String> allKeys = new TreeSet<>();
-            allKeys.addAll(masterMap.keySet());
-            allKeys.addAll(slaveMap.keySet());
+            allKeys.addAll(referenceMap.keySet());
+            allKeys.addAll(secondaryMap.keySet());
             String[] keys  = allKeys.toArray(new String[0]);
 
             for(int i = 0; i < keys.length - 1; ++i) {
                 String keyMaster = keys[i];
-                CplxContainer master = masterMap.get(keyMaster);
+                CplxContainer master = referenceMap.get(keyMaster);
                 if(master == null) {
-                    master = slaveMap.get(keyMaster);
+                    master = secondaryMap.get(keyMaster);
                 }
 
                 String keySlave = keys[i+1];
-                CplxContainer slave = slaveMap.get(keySlave);
+                CplxContainer slave = secondaryMap.get(keySlave);
                 if (slave == null) {
-                    slave = masterMap.get(keySlave);
+                    slave = referenceMap.get(keySlave);
                 }
 
                 if ((master.polarisation == null || slave.polarisation == null) ||

@@ -48,9 +48,9 @@ public class TimeSeriesTimes {
     public int getIndex(final Band band) {
         final Product product = band.getProduct();
         if (StackUtils.isCoregisteredStack(product)) {
-            ProductData.UTC slaveTime = getSecondaryTime(product, band);
-            if(slaveTime != null) {
-                return getIndex(slaveTime);
+            ProductData.UTC secondaryTime = getSecondaryTime(product, band);
+            if(secondaryTime != null) {
+                return getIndex(secondaryTime);
             }
             if (foundInReference(product, band)) {
                 return 0;

@@ -100,16 +100,16 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private boolean outputRangeAzimuthOffset = false;
 
     private Resampling selectedResampling;
-    private Product masterProduct;
-    private Product[] slaveProducts;
-    private Metadata mstMetadata = new Metadata();
-    private Metadata[] slvMetadatas;
+    private Product referenceProduct;
+    private Product[] secondaryProducts;
+    private final Metadata refMetadata = new Metadata();
+    private Metadata[] secMetadatas;
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
     private double demNoDataValue = 0; // no data value for DEM
     private double noDataValue = 0.0;
     private GeoCoding targetGeoCoding = null;
-    private final HashMap<Band, Band> slaveBandToTargetBandMap = new HashMap<>(2);
+    private final HashMap<Band, Band> secondaryBandToTargetBandMap = new HashMap<>(2);
     private static final double invalidIndex = -9999.0;
 
     private static final String PRODUCT_SUFFIX = "_Stack";
@@ -149,16 +149,16 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 throw new OperatorException("For coregistration of S-1 TOPS SLC products, please use S-1 Back Geocoding");
             }
 
-            masterProduct = sourceProduct[0];
-            slaveProducts = new Product[sourceProduct.length-1];
-            System.arraycopy(sourceProduct, 1, slaveProducts, 0, slaveProducts.length);
+            referenceProduct = sourceProduct[0];
+            secondaryProducts = new Product[sourceProduct.length-1];
+            System.arraycopy(sourceProduct, 1, secondaryProducts, 0, secondaryProducts.length);
 
-            getProductMetadata(masterProduct, mstMetadata);
-            slvMetadatas = new Metadata[slaveProducts.length];
+            getProductMetadata(referenceProduct, refMetadata);
+            secMetadatas = new Metadata[secondaryProducts.length];
             int i=0;
-            for(Product slaveProduct : slaveProducts) {
-                slvMetadatas[i] = new Metadata();
-                getProductMetadata(slaveProduct, slvMetadatas[i]);
+            for(Product slaveProduct : secondaryProducts) {
+                secMetadatas[i] = new Metadata();
+                getProductMetadata(slaveProduct, secMetadatas[i]);
                 ++i;
             }
 
@@ -166,7 +166,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 DEMFactory.checkIfDEMInstalled(demName);
             }
 
-            DEMFactory.validateDEM(demName, masterProduct);
+            DEMFactory.validateDEM(demName, referenceProduct);
 
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
             if(selectedResampling == null) {
@@ -177,7 +177,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             updateTargetProductMetadata();
 
-            noDataValue = masterProduct.getBandAt(0).getNoDataValue();
+            noDataValue = referenceProduct.getBandAt(0).getNoDataValue();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -246,18 +246,18 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(
-                OperatorUtils.createProductName(masterProduct.getName(), PRODUCT_SUFFIX),
-                masterProduct.getProductType(),
-                masterProduct.getSceneRasterWidth(),
-                masterProduct.getSceneRasterHeight());
+                OperatorUtils.createProductName(referenceProduct.getName(), PRODUCT_SUFFIX),
+                referenceProduct.getProductType(),
+                referenceProduct.getSceneRasterWidth(),
+                referenceProduct.getSceneRasterHeight());
 
-        ProductUtils.copyProductNodes(masterProduct, targetProduct);
+        ProductUtils.copyProductNodes(referenceProduct, targetProduct);
 
-        final java.util.List<String> masterProductBands = new ArrayList<>(masterProduct.getNumBands());
-        final String[] masterBandNames = masterProduct.getBandNames();
-        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
+        final java.util.List<String> masterProductBands = new ArrayList<>(referenceProduct.getNumBands());
+        final String[] masterBandNames = referenceProduct.getBandNames();
+        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(referenceProduct);
         for (String bandName : masterBandNames) {
-            if (masterProduct.getBand(bandName) instanceof VirtualBand) {
+            if (referenceProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
             }
 
@@ -266,7 +266,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             }
 
             final Band targetBand = ProductUtils.copyBand(
-                    bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
+                    bandName, referenceProduct, bandName + mstSuffix, targetProduct, true);
 
             masterProductBands.add(targetBand.getName());
 
@@ -276,13 +276,13 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             }
         }
 
-        final Band masterBand = masterProduct.getBand(masterBandNames[0]);
+        final Band masterBand = referenceProduct.getBand(masterBandNames[0]);
         final int masterBandWidth = masterBand.getRasterWidth();
         final int masterBandHeight = masterBand.getRasterHeight();
 
         final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
         int k = 0;
-        for(Product slaveProduct : slaveProducts) {
+        for(Product slaveProduct : secondaryProducts) {
             k++;
             final String[] slaveBandNames = slaveProduct.getBandNames();
             final String slvSuffix = StackUtils.SLV + k + StackUtils.createBandTimeStamp(slaveProduct);
@@ -306,7 +306,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 targetBand.setDescription(srcBand.getDescription());
                 targetProduct.addBand(targetBand);
                 targetBandToSlaveBandMap.put(targetBand, srcBand);
-                slaveBandToTargetBandMap.put(srcBand, targetBand);
+                secondaryBandToTargetBandMap.put(srcBand, targetBand);
 
                 if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
                     int idx = targetProduct.getBandIndex(targetBand.getName());
@@ -321,7 +321,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 targetProduct, masterProductBands.toArray(new String[masterProductBands.size()]));
 
         StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
-                masterProduct, targetBandToSlaveBandMap);
+                referenceProduct, targetBandToSlaveBandMap);
 
         // set non-elevation areas to no data value for the master bands using the slave bands
         setMasterValidPixelExpression(targetProduct, maskOutAreaWithoutElevation);
@@ -396,7 +396,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.coregistered_stack, 1);
 
         final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
-        for(Product slaveProduct : slaveProducts) {
+        for(Product slaveProduct : secondaryProducts) {
             final MetadataElement slvInputElem = ProductInformation.getInputProducts(slaveProduct);
             final MetadataAttribute[] slvInputProductAttrbList = slvInputElem.getAttributes();
             for (MetadataAttribute attrib : slvInputProductAttrbList) {
@@ -435,7 +435,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 getElevationModel();
             }
 
-            for(Metadata slaveMetadata : slvMetadatas) {
+            for(Metadata slaveMetadata : secMetadatas) {
                 final PixelPos[][] slavePixPos = computeSlavePixPos(tx0, ty0, tw, th, slaveMetadata);
 
                 if (slavePixPos == null) {
@@ -523,17 +523,17 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             final double[][] lon = new double[numLines][numPixels];
 
             final SARPosition mstSARPosition = new SARPosition(
-                    mstMetadata.firstLineTime,
-                    mstMetadata.lastLineTime,
-                    mstMetadata.lineTimeInterval,
-                    mstMetadata.wavelength,
-                    mstMetadata.rangeSpacing,
-                    mstMetadata.sourceImageWidth,
-                    mstMetadata.srgrFlag,
-                    mstMetadata.nearEdgeSlantRange,
-                    mstMetadata.nearRangeOnLeft,
-                    mstMetadata.orbit,
-                    mstMetadata.srgrConvParams
+                    refMetadata.firstLineTime,
+                    refMetadata.lastLineTime,
+                    refMetadata.lineTimeInterval,
+                    refMetadata.wavelength,
+                    refMetadata.rangeSpacing,
+                    refMetadata.sourceImageWidth,
+                    refMetadata.srgrFlag,
+                    refMetadata.nearEdgeSlantRange,
+                    refMetadata.nearRangeOnLeft,
+                    refMetadata.orbit,
+                    refMetadata.srgrConvParams
             );
             final SARPosition slvSARPosition = new SARPosition(
                     slvMetadata.firstLineTime,
@@ -591,7 +591,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             // Compute azimuth/range offsets for pixels in target tile using Delaunay interpolation
             final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, y0 + h - 1, x0, x0 + w - 1);
 
-            final double rgAzRatio = mstMetadata.rangeSpacing / mstMetadata.azimuthSpacing;
+            final double rgAzRatio = refMetadata.rangeSpacing / refMetadata.azimuthSpacing;
 
             final double[][] latArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
             final double[][] lonArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
@@ -758,7 +758,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             int k = 0;
             for (Band slvBand : slaveBands) {
-                final Band targetBand = slaveBandToTargetBandMap.get(slvBand);
+                final Band targetBand = secondaryBandToTargetBandMap.get(slvBand);
                 targetTile = targetTileMap.get(targetBand);
                 targetBuffers[k] = targetTile.getDataBuffer();
 

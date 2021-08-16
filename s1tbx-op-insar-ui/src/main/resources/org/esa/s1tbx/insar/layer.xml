@@ -366,7 +366,7 @@
     <folder name="LayerSources">
         <file name="GCPVectorLayerSource">
             <attr name="displayName" stringvalue="Coregistered GCP Movement Vector"/>
-            <attr name="description" stringvalue="Shows GCP movement from slave to master"/>
+            <attr name="description" stringvalue="Shows GCP movement from secondary to master"/>
             <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.insar.rcp.layersrc.GCPVectorLayerSource"/>
         </file>
     </folder>

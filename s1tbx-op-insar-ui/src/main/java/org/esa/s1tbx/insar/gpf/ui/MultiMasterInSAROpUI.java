@@ -358,7 +358,7 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
             // Generate graph
             final JFreeChart chart = ChartFactory.createXYLineChart(
-                    "Master-Slaves Plot",
+                    "Reference-Secondary Plot",
                     "Time [days]",
                     yAxisLabel,
                     dataset,

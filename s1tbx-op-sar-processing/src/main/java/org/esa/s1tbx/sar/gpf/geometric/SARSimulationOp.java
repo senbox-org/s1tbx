@@ -347,7 +347,7 @@ public final class SARSimulationOp extends Operator {
 
     private void addSelectedBands() {
 
-        // add simulated band first (which will be the master in GCP selection in SAR Sim TC)
+        // add simulated band first (which will be the reference in GCP selection in SAR Sim TC)
         Band targetBand = new Band(SIMULATED_BAND_NAME,
                 ProductData.TYPE_FLOAT32,
                 sourceImageWidth,

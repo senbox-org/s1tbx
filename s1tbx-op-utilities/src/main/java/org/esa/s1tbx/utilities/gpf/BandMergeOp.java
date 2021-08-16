@@ -34,11 +34,11 @@ import java.util.List;
 
 /**
  * The merge operator allows copying raster data from other products to a specified product. The first product provided
- * is considered the 'master product', into which the raster data coming from the other products is copied. Existing
+ * is considered the 'reference product', into which the raster data coming from the other products is copied. Existing
  * nodes are kept.
  * <p>
  * It is mandatory that the products share the same scene, that is, their width and height need to match with those of
- * the master product as well as their geographic position.
+ * the reference product as well as their geographic position.
  *
  * @author Olaf Danne
  * @author Norman Fomferra

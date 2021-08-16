@@ -248,7 +248,7 @@ public class IEMInverBase extends Operator {
 
         if (!StringUtils.isNumeric(slvStr1)) {
 
-            throw new OperatorException("Can't extract slave number from band name 1 " + s1 + ' ' + s2);
+            throw new OperatorException("Can't extract secondary number from band name 1 " + s1 + ' ' + s2);
         }
 
         final int rank1 = Integer.parseInt(slvStr1);
@@ -257,7 +257,7 @@ public class IEMInverBase extends Operator {
 
         if (!StringUtils.isNumeric(slvStr2)) {
 
-            throw new OperatorException("Can't extract slave number from band name 2 " + s1 + ' ' + s2);
+            throw new OperatorException("Can't extract secondary number from band name 2 " + s1 + ' ' + s2);
         }
 
         final int rank2 = Integer.parseInt(slvStr2);

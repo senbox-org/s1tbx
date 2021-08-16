@@ -135,7 +135,7 @@ public class HorizontalVerticalMotionOp extends Operator {
 
         final MetadataElement slavesHeadingAnglesElem = abs.getElement("Slaves_Heading_Angles");
         if (slavesHeadingAnglesElem == null) {
-            throw new OperatorException("Heading angles are missing for collocated slaves.");
+            throw new OperatorException("Heading angles are missing for collocated secondaries.");
         }
         if (abs.getAttributeString("PASS").equals("DESCENDING")) { // if collocation master is DSC
             headingDsc = abs.getAttributeDouble("centre_heading");

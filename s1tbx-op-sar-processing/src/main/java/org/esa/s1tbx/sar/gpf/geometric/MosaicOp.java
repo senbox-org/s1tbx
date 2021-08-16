@@ -71,7 +71,7 @@ public class MosaicOp extends Operator {
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
             defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-            description = "The method to be used when resampling the slave grid onto the reference image grid.",
+            description = "The method to be used when resampling the secondary grid onto the reference image grid.",
             label = "Resampling Type")
     private String resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
 

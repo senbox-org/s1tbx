@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The operator estimates the global azimuth offset between master and slave images using the Enhanced Spectral
+ * The operator estimates the global azimuth offset between reference and secondary images using the Enhanced Spectral
  * Diversity (ESD) approach. The estimation is done for a given sub-swath of a TOPS SLC product. Here it is assumed
  * that the source product is coregistered split product, i.e. the output of the S-1 Back Geocoding operator.
  * The estimation result is saved in a text file and will be used later in azimuth offset correction in the S-1

@@ -157,9 +157,9 @@ public class DemodulateOp extends Operator {
 
         // Secondaries
         final String[] secondaryProductNames = StackUtils.getSlaveProductNames(sourceProduct);
-        for (String slaveProductName : secondaryProductNames) {
-            final String[] slvBandNames = StackUtils.getSlaveBandNames(sourceProduct, slaveProductName);
-            for (String bandName : slvBandNames) {
+        for (String secondaryProductName : secondaryProductNames) {
+            final String[] secBandNames = StackUtils.getSlaveBandNames(sourceProduct, secondaryProductName);
+            for (String bandName : secBandNames) {
                 if (bandName.contains("i_")) {
                     sourceBandI = sourceProduct.getBand(bandName);
                 } else {
