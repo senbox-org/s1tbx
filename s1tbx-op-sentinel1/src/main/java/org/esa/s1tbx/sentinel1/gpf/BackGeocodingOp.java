@@ -107,8 +107,8 @@ public final class BackGeocodingOp extends Operator {
 
     private Resampling selectedResampling = null;
 
-    private Product masterProduct = null;
-    private List<SlaveData> slaveDataList = new ArrayList<>();
+    private Product referenceProduct = null;
+    private List<SlaveData> secondaryDataList = new ArrayList<>();
 
     private Sentinel1Utils mSU = null;
     private Sentinel1Utils.SubSwathInfo[] mSubSwath = null;
@@ -125,8 +125,8 @@ public final class BackGeocodingOp extends Operator {
     private boolean burstOffsetComputed = false;
     private String swathIndexStr = null;
 
-    private final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
-    private final HashMap<Band, SlaveData> targetBandToSlaveDataMap = new HashMap<>(2);
+    private final HashMap<Band, Band> targetBandToSecondaryBandMap = new HashMap<>(2);
+    private final HashMap<Band, SlaveData> targetBandToSecondaryDataMap = new HashMap<>(2);
 
     private static final double invalidIndex = -9999.0;
 
@@ -163,16 +163,16 @@ public final class BackGeocodingOp extends Operator {
 
             checkSourceProductValidity();
 
-            masterProduct = sourceProduct[0];
-            mSU = new Sentinel1Utils(masterProduct);
+            referenceProduct = sourceProduct[0];
+            mSU = new Sentinel1Utils(referenceProduct);
             mSubSwath = mSU.getSubSwath();
             mSU.computeDopplerRate();
             mSU.computeReferenceTime();
 
             for(Product product : sourceProduct) {
-                if(product.equals(masterProduct))
+                if(product.equals(referenceProduct))
                     continue;
-                slaveDataList.add(new SlaveData(product));
+                secondaryDataList.add(new SlaveData(product));
             }
 
             /*
@@ -185,7 +185,7 @@ public final class BackGeocodingOp extends Operator {
 			final String[] mSubSwathNames = mSU.getSubSwathNames();
             final String[] mPolarizations = mSU.getPolarizations();
 
-            for(SlaveData slaveData : slaveDataList) {
+            for(SlaveData slaveData : secondaryDataList) {
                 final String[] sSubSwathNames = slaveData.sSU.getSubSwathNames();
                 if (mSubSwathNames.length != 1 || sSubSwathNames.length != 1) {
                     throw new OperatorException("Split product is expected.");
@@ -208,7 +208,7 @@ public final class BackGeocodingOp extends Operator {
                 DEMFactory.checkIfDEMInstalled(demName);
             }
 
-            DEMFactory.validateDEM(demName, masterProduct);
+            DEMFactory.validateDEM(demName, referenceProduct);
 
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
             if(selectedResampling == null) {
@@ -218,8 +218,8 @@ public final class BackGeocodingOp extends Operator {
             createTargetProduct();
 
             final List<String> masterProductBands = new ArrayList<>();
-            for (String bandName : masterProduct.getBandNames()) {
-                if (masterProduct.getBand(bandName) instanceof VirtualBand) {
+            for (String bandName : referenceProduct.getBandNames()) {
+                if (referenceProduct.getBand(bandName) instanceof VirtualBand) {
                     continue;
                 }
                 masterProductBands.add(bandName + mstSuffix);
@@ -228,11 +228,11 @@ public final class BackGeocodingOp extends Operator {
             StackUtils.saveMasterProductBandNames(targetProduct,
                     masterProductBands.toArray(new String[masterProductBands.size()]));
             StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
-                    masterProduct, targetBandToSlaveBandMap);
+                    referenceProduct, targetBandToSecondaryBandMap);
 
             updateTargetProductMetadata();
 
-            final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, mSU.getPolarizations()[0]);
+            final Band masterBandI = getBand(referenceProduct, "i_", swathIndexStr, mSU.getPolarizations()[0]);
             if(masterBandI != null && masterBandI.isNoDataValueUsed()) {
                 noDataValue = masterBandI.getNoDataValue();
             }
@@ -293,17 +293,17 @@ public final class BackGeocodingOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(
-                masterProduct.getName() + PRODUCT_SUFFIX,
-                masterProduct.getProductType(),
-                masterProduct.getSceneRasterWidth(),
-                masterProduct.getSceneRasterHeight());
+                referenceProduct.getName() + PRODUCT_SUFFIX,
+                referenceProduct.getProductType(),
+                referenceProduct.getSceneRasterWidth(),
+                referenceProduct.getSceneRasterHeight());
 
-        ProductUtils.copyProductNodes(masterProduct, targetProduct);
+        ProductUtils.copyProductNodes(referenceProduct, targetProduct);
 
-        final String[] masterBandNames = masterProduct.getBandNames();
-        mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
+        final String[] masterBandNames = referenceProduct.getBandNames();
+        mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(referenceProduct);
         for (String bandName : masterBandNames) {
-            final Band srcBand = masterProduct.getBand(bandName);
+            final Band srcBand = referenceProduct.getBand(bandName);
             if (srcBand instanceof VirtualBand) {
                 continue;
             }
@@ -318,7 +318,7 @@ public final class BackGeocodingOp extends Operator {
                 targetProduct.addBand(targetBand);
 
             } else {
-                targetBand = ProductUtils.copyBand(bandName, masterProduct, bandName + mstSuffix,
+                targetBand = ProductUtils.copyBand(bandName, referenceProduct, bandName + mstSuffix,
                         targetProduct, true);
             }
 
@@ -328,7 +328,7 @@ public final class BackGeocodingOp extends Operator {
             }
         }
 
-        final Band masterBand = masterProduct.getBand(masterBandNames[0]);
+        final Band masterBand = referenceProduct.getBand(masterBandNames[0]);
         final int masterBandWidth = masterBand.getRasterWidth();
         final int masterBandHeight = masterBand.getRasterHeight();
 
@@ -344,17 +344,17 @@ public final class BackGeocodingOp extends Operator {
         }
 
         int i = 1;
-        for(SlaveData slaveData : slaveDataList) {
-            final String[] slaveBandNames = slaveData.slaveProduct.getBandNames();
-            final String slvSuffix = StackUtils.SLV + i + StackUtils.createBandTimeStamp(slaveData.slaveProduct);
-            slaveData.slvSuffix = slvSuffix;
-            for (String bandName : slaveBandNames) {
-                final Band srcBand = slaveData.slaveProduct.getBand(bandName);
+        for(SlaveData secondaryData : secondaryDataList) {
+            final String[] secondaryBandNames = secondaryData.slaveProduct.getBandNames();
+            final String secSuffix = StackUtils.SLV + i + StackUtils.createBandTimeStamp(secondaryData.slaveProduct);
+            secondaryData.slvSuffix = secSuffix;
+            for (String bandName : secondaryBandNames) {
+                final Band srcBand = secondaryData.slaveProduct.getBand(bandName);
                 if (srcBand instanceof VirtualBand) {
                     continue;
                 }
                 final Band targetBand = new Band(
-                        bandName + slvSuffix,
+                        bandName + secSuffix,
                         ProductData.TYPE_FLOAT32,
                         masterBandWidth,
                         masterBandHeight);
@@ -366,21 +366,21 @@ public final class BackGeocodingOp extends Operator {
                     targetBand.setNoDataValue(noDataValue);
                 }
                 targetProduct.addBand(targetBand);
-                targetBandToSlaveBandMap.put(targetBand, srcBand);
+                targetBandToSecondaryBandMap.put(targetBand, srcBand);
 
                 if (targetBand.getUnit().equals(Unit.IMAGINARY)) {
                     int idx = targetProduct.getBandIndex(targetBand.getName());
-                    ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx - 1), targetBand, slvSuffix);
+                    ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx - 1), targetBand, secSuffix);
                 }
 
-                targetBandToSlaveDataMap.put(targetBand, slaveData);
+                targetBandToSecondaryDataMap.put(targetBand, secondaryData);
             }
 
-            copySlaveMetadata(slaveData.slaveProduct);
+            copySlaveMetadata(secondaryData.slaveProduct);
 
             if (outputRangeAzimuthOffset) {
                 final Band azOffsetBand = new Band(
-                        "azOffset" + slvSuffix,
+                        "azOffset" + secSuffix,
                         ProductData.TYPE_FLOAT32,
                         masterBandWidth,
                         masterBandHeight);
@@ -389,7 +389,7 @@ public final class BackGeocodingOp extends Operator {
                 targetProduct.addBand(azOffsetBand);
 
                 final Band rgOffsetBand = new Band(
-                        "rgOffset" + slvSuffix,
+                        "rgOffset" + secSuffix,
                         ProductData.TYPE_FLOAT32,
                         masterBandWidth,
                         masterBandHeight);
@@ -400,7 +400,7 @@ public final class BackGeocodingOp extends Operator {
 
             if (outputDerampDemodPhase) {
                 final Band slvPhaseBand = new Band(
-                        "derampDemodPhase" + slvSuffix,
+                        "derampDemodPhase" + secSuffix,
                         ProductData.TYPE_FLOAT32,
                         masterBandWidth,
                         masterBandHeight);
@@ -447,7 +447,7 @@ public final class BackGeocodingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.coregistered_stack, 1);
 
         final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
-        for(SlaveData slaveData : slaveDataList) {
+        for(SlaveData slaveData : secondaryDataList) {
             final MetadataElement slvInputElem = ProductInformation.getInputProducts(slaveData.slaveProduct);
             final MetadataAttribute[] slvInputProductAttrbList = slvInputElem.getAttributes();
             for (MetadataAttribute attrib : slvInputProductAttrbList) {
@@ -508,7 +508,7 @@ public final class BackGeocodingOp extends Operator {
                 double[] extendedAmount = {0.0, 0.0, 0.0, 0.0};
                 computeExtendedAmount(ntx0, nty0, ntw, nth, extendedAmount);
 
-                for(SlaveData secondaryData : slaveDataList) {
+                for(SlaveData secondaryData : secondaryDataList) {
                     //secondaryData.print();
 
                     computePartialTile(subSwathIndex, burstIndex, ntx0, nty0, ntw, nth, targetTileMap,
@@ -581,7 +581,7 @@ public final class BackGeocodingOp extends Operator {
                         continue;
                     }
 
-                    for(SlaveData slaveData : slaveDataList) {
+                    for(SlaveData slaveData : secondaryDataList) {
                         if(slaveData.burstOffset != -9999)
                             continue;
 
@@ -608,7 +608,7 @@ public final class BackGeocodingOp extends Operator {
                     }
 
                     boolean allComputed = true;
-                    for(SlaveData slaveData : slaveDataList) {
+                    for(SlaveData slaveData : secondaryDataList) {
                         if (slaveData.burstOffset == -9999) {
                             allComputed = false;
                             break;
@@ -622,7 +622,7 @@ public final class BackGeocodingOp extends Operator {
                 }
             }
 
-            for(SlaveData slaveData : slaveDataList) {
+            for(SlaveData slaveData : secondaryDataList) {
                 slaveData.burstOffset = 0;
             }
             burstOffsetComputed = true;
@@ -827,8 +827,8 @@ public final class BackGeocodingOp extends Operator {
 
             // master bands
             if (disableReramp) {
-                final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, polarization);
-                final Band masterBandQ = getBand(masterProduct, "q_", swathIndexStr, polarization);
+                final Band masterBandI = getBand(referenceProduct, "i_", swathIndexStr, polarization);
+                final Band masterBandQ = getBand(referenceProduct, "q_", swathIndexStr, polarization);
                 final Tile masterTileI = getSourceTile(masterBandI, targetRectangle);
                 final Tile masterTileQ = getSourceTile(masterBandQ, targetRectangle);
 

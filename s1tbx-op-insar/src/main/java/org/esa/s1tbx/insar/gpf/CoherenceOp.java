@@ -138,7 +138,7 @@ public class CoherenceOp extends Operator {
             defaultValue = "100")
     private String tileExtensionPercent = "100";
 
-    @Parameter(label = "Single Master", defaultValue = "true")
+    @Parameter(label = "Single Reference", defaultValue = "true")
     private Boolean singleMaster = true;
 
     // source

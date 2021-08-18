@@ -89,8 +89,8 @@ public class AzimuthShiftEstimationUsingESDOp extends Operator {
     private String[] subSwathNames = null;
     private String[] polarizations = null;
 
-    private Map<String, CplxContainer> masterMap = new HashMap<>();
-    private Map<String, CplxContainer> slaveMap = new HashMap<>();
+    private Map<String, CplxContainer> referenceMap = new HashMap<>();
+    private Map<String, CplxContainer> secondaryMap = new HashMap<>();
     private Map<String, ProductContainer> targetMap = new HashMap<>();
     private Map<String, AzRgOffsets> targetOffsetMap = new HashMap<>();
 
@@ -152,7 +152,7 @@ public class AzimuthShiftEstimationUsingESDOp extends Operator {
     private void constructSourceMetadata() throws Exception {
 
         MetadataElement mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        metaMapPut(StackUtils.MST, mstRoot, sourceProduct, masterMap);
+        metaMapPut(StackUtils.MST, mstRoot, sourceProduct, referenceMap);
 
         final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
@@ -166,7 +166,7 @@ public class AzimuthShiftEstimationUsingESDOp extends Operator {
         MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
             if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
-                metaMapPut(StackUtils.SLV, meta, sourceProduct, slaveMap);
+                metaMapPut(StackUtils.SLV, meta, sourceProduct, secondaryMap);
         }
     }
 
@@ -215,13 +215,13 @@ public class AzimuthShiftEstimationUsingESDOp extends Operator {
 
     private void constructTargetMetadata() {
 
-        for (String keyMaster : masterMap.keySet()) {
-            CplxContainer master = masterMap.get(keyMaster);
-            for (String keySlave : slaveMap.keySet()) {
-                final CplxContainer slave = slaveMap.get(keySlave);
-                if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
-                    final String productName = keyMaster + '_' + keySlave;
-                    final ProductContainer product = new ProductContainer(productName, master, slave, true);
+        for (String keyReference : referenceMap.keySet()) {
+            CplxContainer reference = referenceMap.get(keyReference);
+            for (String keySecondary : secondaryMap.keySet()) {
+                final CplxContainer secondary = secondaryMap.get(keySecondary);
+                if (reference.polarisation == null || reference.polarisation.equals(secondary.polarisation)) {
+                    final String productName = keyReference + '_' + keySecondary;
+                    final ProductContainer product = new ProductContainer(productName, reference, secondary, true);
                     targetMap.put(productName, product);
                 }
             }

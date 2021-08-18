@@ -265,10 +265,10 @@ public class SpectralDiversityOp extends Operator {
     private String[] subSwathNames = null;
     private String[] polarizations = null;
 
-    private Map<String, CplxContainer> masterMap = new HashMap<>();  // master complex image map: master images indexed by <date>_<swath>_<polarization>
-    private Map<String, CplxContainer> slaveMap = new HashMap<>();  // slave complex images map: slave images indexed by <date>_<swath>_<polarization>
-    private Map<String, ProductContainer> targetMap = new HashMap<>();  // image pairs for the target bands: master-slave pairs indexed by masterKey_slave<i>Key (keys are the same in masterMap and slaveMap)
-    private Map<String, AzRgOffsets> targetOffsetMap = new HashMap<>();  // range and azimuth offsets for the target bands
+    private final Map<String, CplxContainer> referenceMap = new HashMap<>();  // master complex image map: reference images indexed by <date>_<swath>_<polarization>
+    private final Map<String, CplxContainer> secondaryMap = new HashMap<>();  // slave complex images map: secondary images indexed by <date>_<swath>_<polarization>
+    private final Map<String, ProductContainer> targetMap = new HashMap<>();  // image pairs for the target bands: reference-secondary pairs indexed by masterKey_slave<i>Key (keys are the same in referenceMap and secondaryMap)
+    private final Map<String, AzRgOffsets> targetOffsetMap = new HashMap<>();  // range and azimuth offsets for the target bands
 
     private static final int cohWin = 5; // window size for coherence calculation
     private static final int maxRangeShift = 1;
@@ -280,7 +280,7 @@ public class SpectralDiversityOp extends Operator {
     private WeightFunction weightFunction;
 
     // integration network
-    private Map<String, List<CplxContainer>> complexImages = new HashMap<>(); // map with lists of complex images (master is first), indexed by swath-polarization
+    private final Map<String, List<CplxContainer>> complexImages = new HashMap<>(); // map with lists of complex images (master is first), indexed by swath-polarization
     private int[][] arcs;
 
 
@@ -374,7 +374,7 @@ public class SpectralDiversityOp extends Operator {
         MetadataElement mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
 
-        metadataMapPut(StackUtils.MST, mstRoot, sourceProduct, masterMap, complexImages);
+        metadataMapPut(StackUtils.MST, mstRoot, sourceProduct, referenceMap, complexImages);
 
         // slave images
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
@@ -387,7 +387,7 @@ public class SpectralDiversityOp extends Operator {
         MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
             if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
-                metadataMapPut(StackUtils.SLV, meta, sourceProduct, slaveMap, complexImages);
+                metadataMapPut(StackUtils.SLV, meta, sourceProduct, secondaryMap, complexImages);
         }
     }
 
@@ -473,10 +473,10 @@ public class SpectralDiversityOp extends Operator {
 
     private void constructTargetMetadata() {
 
-        for (String keyMaster : masterMap.keySet()) {
-            CplxContainer master = masterMap.get(keyMaster);
-            for (String keySlave : slaveMap.keySet()) {
-                final CplxContainer slave = slaveMap.get(keySlave);
+        for (String keyMaster : referenceMap.keySet()) {
+            CplxContainer master = referenceMap.get(keyMaster);
+            for (String keySlave : secondaryMap.keySet()) {
+                final CplxContainer slave = secondaryMap.get(keySlave);
                 if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
                     final String productName = keyMaster + '_' + keySlave;
                     final ProductContainer product = new ProductContainer(productName, master, slave, true);
