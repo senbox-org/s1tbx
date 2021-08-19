@@ -54,7 +54,8 @@ public class OpenSearch {
             client.setSocketTimeout(TIMEOUT);
             client.setMaxConnectionsPerHost(2);
             if (System.getProperty("https.proxyHost") != null) {
-                client.setProxy(System.getProperty("https.proxyHost"),System.getProperty("https_proxyPort"));
+                client.setProxy(System.getProperty("https.proxyHost"),
+				Integer.parseInt(System.getProperty("https_proxyPort")));
             }
 
             client.addCredentials(host, null, null,
