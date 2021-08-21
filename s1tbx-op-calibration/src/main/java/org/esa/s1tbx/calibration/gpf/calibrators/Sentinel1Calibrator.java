@@ -675,7 +675,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
     }
 
     private static int getPixelIndex(final Sentinel1Utils.CalibrationVector calVec, final int lastIndex, final int x) {
-        if(lastIndex >= 0 && lastIndex < calVec.pixels.length-1 && x >- calVec.pixels[lastIndex] && x < calVec.pixels[lastIndex+1]) {
+        if(lastIndex >= 0 && lastIndex < calVec.pixels.length-1 && x >= calVec.pixels[lastIndex] && x < calVec.pixels[lastIndex+1]) {
             return lastIndex;
         }
         int index = Arrays.binarySearch(calVec.pixels, x);
