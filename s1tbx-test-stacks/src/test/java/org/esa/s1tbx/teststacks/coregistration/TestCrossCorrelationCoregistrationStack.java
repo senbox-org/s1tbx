@@ -47,6 +47,7 @@ public class TestCrossCorrelationCoregistrationStack extends StackTest {
     }
 
     @Test
+    @Ignore
     public void testStackSantorini() throws Exception {
         final List<Product> products = readProducts(asarSantoriniFolder);
 

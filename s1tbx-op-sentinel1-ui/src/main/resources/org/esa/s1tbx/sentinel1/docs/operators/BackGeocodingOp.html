@@ -110,9 +110,13 @@ coast in the co-registered images.<br>
 demodulation phases should be output as separated bands. This option is
 mostly for debugging purpose and not recommended for most users.</li><li>Disable
 Reramp: Checkbox indicating if deramped and demodulated master and
-slave bands should be output. This option should not be selected if the
+slave bands should be output. This option is generally not necessary if
+the
 coregistered master and slave bands will be used in generating
-interferogram. </li>
+interferogram. However, if this option is selected, we suggest you
+disable the "Mask out areas with no elevation" option. This is because
+the valid zeros in bands may be treated as invalid noDataValue and
+causes problem in the later on processing.&nbsp; </li>
 </ul>
 
 <p><img style="width: 636px; height: 491px;" alt="" src="images/backgeocodingUI.jpg"><br>
