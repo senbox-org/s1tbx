@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.productgroup.support;
 
-import org.esa.s1tbx.commons.io.JSONUtils;
+import org.esa.s1tbx.commons.io.JSON;
 import org.json.simple.JSONObject;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class TestProductGroupMetadataFile {
         metadataFile.write("productName", "productType", file);
         assertTrue(file.exists());
 
-        final JSONObject json = (JSONObject)JSONUtils.loadJSONFile(file);
+        final JSONObject json = (JSONObject)JSON.loadJSON(file);
         assertEquals("productName", json.get(ProductGroupMetadataFile.ID));
         assertEquals("productType", json.get(ProductGroupMetadataFile.PRODUCT_TYPE));
         assertEquals(ProductGroupMetadataFile.LATEST_VERSION, json.get(ProductGroupMetadataFile.PRODUCT_GROUP_VERSION));

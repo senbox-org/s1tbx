@@ -45,7 +45,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         final int numBands = 4;
         Product product = createStackProduct(numBands);
 
-        final File targetFolder = createTmpFolder("productgroups/group1");
+        final File targetFolder = createTmpFolder("productgroups-group1");
         File metadataFile = ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
 
         assertEquals(numBands, product.getNumBands());
@@ -70,7 +70,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         final int numBands = 4;
         Product product = createStackProduct(numBands);
 
-        final File targetFolder = createTmpFolder("productgroups/group2");
+        final File targetFolder = createTmpFolder("productgroups-group2");
         ProductIO.writeProduct(product, targetFolder, "ProductGroup", false, ProgressMonitor.NULL);
 
         File metadataFile = new File(targetFolder, ProductGroupMetadataFile.PRODUCT_GROUP_METADATA_FILE);
@@ -88,7 +88,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         final int numBands = 4;
         Product product = createStackProduct(numBands);
 
-        final File targetFolder = createTmpFolder("productgroups/group3");
+        final File targetFolder = createTmpFolder("productgroups-group3");
         File metadataFile = ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
 
         ProductGroupMetadataFile productGroupMetadataFile = new ProductGroupMetadataFile();
@@ -125,7 +125,7 @@ public class TestProductGroupWriter extends ProcessorTest {
         final int numBands = 4;
         Product product = createStackProduct(numBands);
 
-        final File targetFolder = createTmpFolder("productgroups/group4");
+        final File targetFolder = createTmpFolder("productgroups-group4");
         File metadataFile = ProductGroupIO.operatorWrite(product, targetFolder, "BEAM-DIMAP", ProgressMonitor.NULL);
 
         ProductGroupMetadataFile productGroupMetadataFile = new ProductGroupMetadataFile();
@@ -141,7 +141,7 @@ public class TestProductGroupWriter extends ProcessorTest {
 
         productGroupMetadataFile = new ProductGroupMetadataFile();
         productGroupMetadataFile.read(metadataFile);
-        assertEquals(2, productGroupMetadataFile.getAssets().length);
+        assertEquals(3, productGroupMetadataFile.getAssets().length);
         assertFalse(areSameUpdateDate(productGroupMetadataFile.getAssets()));
 
         PassThroughOp passThroughOp = new PassThroughOp();

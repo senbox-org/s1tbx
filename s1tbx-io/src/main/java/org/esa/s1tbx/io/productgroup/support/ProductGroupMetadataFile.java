@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.productgroup.support;
 
-import org.esa.s1tbx.commons.io.JSONUtils;
+import org.esa.s1tbx.commons.io.JSON;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -64,7 +64,7 @@ public class ProductGroupMetadataFile {
     }
 
     public void read(final File file) throws Exception {
-        final JSONObject json = (JSONObject)JSONUtils.loadJSONFile(file);
+        final JSONObject json = (JSONObject)JSON.loadJSON(file);
         if(json.containsKey(ID)) {
             productName = (String)json.get(ID);
         }
@@ -102,7 +102,7 @@ public class ProductGroupMetadataFile {
             asset.write(assetJSON);
         }
 
-        JSONUtils.writeJSON(json, file);
+        JSON.write(json, file);
         return file;
     }
 

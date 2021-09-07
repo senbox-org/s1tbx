@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 public class TestProductGroupReader extends ProcessorTest {
 
     private final static String resourcePath = "org/esa/s1tbx/io/productgroups/productgroup_1";
-    private final static String tmpFolder = "productgroups/productgroup_1";
+    private final static String tmpFolder = "productgroups-productgroup_1";
 
     @Before
     public void setup() throws IOException {
