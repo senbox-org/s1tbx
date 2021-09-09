@@ -285,12 +285,12 @@ public final class TerrainFlatteningOp extends Operator {
 
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
         if (!sampleType.contains("COMPLEX")) {
-            isGRD = true;
+            srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
+            if (srgrConvParams != null && srgrConvParams.length > 0) {
+                isGRD = true;
+            }
         }
 
-        if (isGRD) {
-            srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
-        }
         nearEdgeSlantRange = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.slant_range_to_first_pixel);
 
         final String mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
