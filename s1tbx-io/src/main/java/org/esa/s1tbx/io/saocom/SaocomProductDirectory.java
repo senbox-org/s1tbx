@@ -165,6 +165,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final VirtualDir virtualDir = getProductDir();
 
         final String[] metaFiles = virtualDir.list(internalPath);
+        Arrays.sort(metaFiles);
         for (String file : metaFiles) {
             if (file.endsWith(".xml")) {
                 try {
