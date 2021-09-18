@@ -25,7 +25,7 @@ import java.nio.file.Path;
 
 public interface S1TBXProductReaderPlugIn extends ProductReaderPlugIn {
 
-    String getProductMetadataFileExtension();
+    String[] getProductMetadataFileExtensions();
 
     String[] getProductMetadataFilePrefixes();
 
@@ -55,10 +55,12 @@ public interface S1TBXProductReaderPlugIn extends ProductReaderPlugIn {
                     return folder;
                 } else {
                     final File file = folderPath.toRealPath().toFile();
-                    File metadataFile = new File(file.getParentFile(),
-                            FileUtils.getFilenameWithoutExtension(file.getName()) + getProductMetadataFileExtension());
-                    if(metadataFile.exists() && isPrimaryMetadataFileName(metadataFile.getName())) {
-                        return metadataFile;
+                    final String fileName = FileUtils.getFilenameWithoutExtension(file.getName());
+                    for(String ext : getProductMetadataFileExtensions()) {
+                        File metadataFile = new File(file.getParentFile(), fileName+ext);
+                        if (metadataFile.exists() && isPrimaryMetadataFileName(metadataFile.getName())) {
+                            return metadataFile;
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -70,14 +72,16 @@ public interface S1TBXProductReaderPlugIn extends ProductReaderPlugIn {
 
     default boolean isPrimaryMetadataFileName(final String metadataFileName) {
         final String filename = metadataFileName.toUpperCase();
-        if (filename.endsWith(getProductMetadataFileExtension().toUpperCase())) {
-            final String[] prefixes = getProductMetadataFilePrefixes();
-            if(prefixes == null || prefixes.length == 0) {
-                return true;
-            }
-            for (String prefix : prefixes) {
-                if (filename.startsWith(prefix.toUpperCase())) {
+        for(String ext : getProductMetadataFileExtensions()) {
+            if (filename.endsWith(ext.toUpperCase())) {
+                final String[] prefixes = getProductMetadataFilePrefixes();
+                if (prefixes == null || prefixes.length == 0) {
                     return true;
+                }
+                for (String prefix : prefixes) {
+                    if (filename.startsWith(prefix.toUpperCase())) {
+                        return true;
+                    }
                 }
             }
         }
