@@ -48,46 +48,46 @@ public class TimeSeriesTimes {
     public int getIndex(final Band band) {
         final Product product = band.getProduct();
         if (StackUtils.isCoregisteredStack(product)) {
-            ProductData.UTC slaveTime = getSlaveTime(product, band);
-            if(slaveTime != null) {
-                return getIndex(slaveTime);
+            ProductData.UTC secondaryTime = getSecondaryTime(product, band);
+            if(secondaryTime != null) {
+                return getIndex(secondaryTime);
             }
-            if (foundInMaster(product, band)) {
+            if (foundInReference(product, band)) {
                 return 0;
             }
         }
         return getIndex(product.getStartTime());
     }
 
-    private static boolean foundInMaster(final Product product, final Band band) {
+    private static boolean foundInReference(final Product product, final Band band) {
         final String bandName = band.getName();
         final boolean isIntensity = bandName.startsWith("Intensity");
-        final String[] mstBandNames = StackUtils.getMasterBandNames(product);
-        for (String mstBand : mstBandNames) {
-            if (bandName.startsWith(mstBand))
+        final String[] refBandNames = StackUtils.getReferenceBandNames(product);
+        for (String refBand : refBandNames) {
+            if (bandName.startsWith(refBand))
                 return true;
-            if (isIntensity && mstBand.startsWith("i_")) {
-                mstBand = mstBand.replace("i_", "Intensity_");
-                if (mstBand.equals(bandName))
+            if (isIntensity && refBand.startsWith("i_")) {
+                refBand = refBand.replace("i_", "Intensity_");
+                if (refBand.equals(bandName))
                     return true;
             }
         }
         return false;
     }
 
-    public static ProductData.UTC getSlaveTime(final Product sourceProduct, final Band slvBand) {
-        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                AbstractMetadata.SLAVE_METADATA_ROOT);
-        if (slaveMetadataRoot != null) {
-            final String slvBandName = slvBand.getName();
-            final boolean isIntensity = slvBandName.startsWith("Intensity");
-            for (MetadataElement elem : slaveMetadataRoot.getElements()) {
-                final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
-                if (slvBandNames.contains(slvBandName))
+    public static ProductData.UTC getSecondaryTime(final Product sourceProduct, final Band secBand) {
+        final MetadataElement secondaryMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SECONDARY_METADATA_ROOT);
+        if (secondaryMetadataRoot != null) {
+            final String secBandName = secBand.getName();
+            final boolean isIntensity = secBandName.startsWith("Intensity");
+            for (MetadataElement elem : secondaryMetadataRoot.getElements()) {
+                final String secBandNames = elem.getAttributeString(AbstractMetadata.SECONDARY_BANDS, "");
+                if (secBandNames.contains(secBandName))
                     return elem.getAttributeUTC(AbstractMetadata.first_line_time);
                 if (isIntensity) {
-                    final String iName = slvBandName.replace("Intensity_", "i_");
-                    if (slvBandNames.contains(iName))
+                    final String iName = secBandName.replace("Intensity_", "i_");
+                    if (secBandNames.contains(iName))
                         return elem.getAttributeUTC(AbstractMetadata.first_line_time);
                 }
             }

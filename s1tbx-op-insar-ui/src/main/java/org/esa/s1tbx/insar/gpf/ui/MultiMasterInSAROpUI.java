@@ -47,9 +47,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * User interface for MultiMasterInSAROp
+ * User interface for MultiReferenceInSAROp
  */
-public class MultiMasterInSAROpUI extends BaseOperatorUI {
+public class MultiReferenceInSAROpUI extends BaseOperatorUI {
     // Components related to operator's input parameters
     private final JLabel orbitDegreeLabel = new JLabel("Orbit interpolation degree");
     private final JComboBox<Integer> orbitDegreeComboBox = new JComboBox(new Integer[]{1, 2, 3, 4, 5});
@@ -358,7 +358,7 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
             // Generate graph
             final JFreeChart chart = ChartFactory.createXYLineChart(
-                    "Master-Slaves Plot",
+                    "Reference-Secondaries Plot",
                     "Time [days]",
                     yAxisLabel,
                     dataset,
@@ -473,14 +473,14 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
         if (hasSourceProducts()) {
             final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
             final MetadataElement baselinesElem = abs.getElement("Baselines");
-            final MetadataElement masterElem = baselinesElem.getElements()[0];
+            final MetadataElement referenceElem = baselinesElem.getElements()[0];
 
-            final MetadataElement[] slavesElem = masterElem.getElements();
-            final double[][] metadata = new double[slavesElem.length][3];
-            for (int i = 0; i < slavesElem.length; i++) {
-                metadata[i][0] = -slavesElem[i].getAttributeDouble("Temp Baseline");
-                metadata[i][1] = slavesElem[i].getAttributeDouble("Doppler Difference");
-                metadata[i][2] = slavesElem[i].getAttributeDouble("Perp Baseline");
+            final MetadataElement[] secondariesElem = referenceElem.getElements();
+            final double[][] metadata = new double[secondariesElem.length][3];
+            for (int i = 0; i < secondariesElem.length; i++) {
+                metadata[i][0] = -secondariesElem[i].getAttributeDouble("Temp Baseline");
+                metadata[i][1] = secondariesElem[i].getAttributeDouble("Doppler Difference");
+                metadata[i][2] = secondariesElem[i].getAttributeDouble("Perp Baseline");
             }
             return metadata;
         }
@@ -492,13 +492,13 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
         if (hasSourceProducts()) {
             final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
             final MetadataElement baselinesElem = abs.getElement("Baselines");
-            final MetadataElement masterElem = baselinesElem.getElements()[0];
+            final MetadataElement referenceElem = baselinesElem.getElements()[0];
 
-            final String[] slavesNames = masterElem.getElementNames();
-            for (int i = 0; i < slavesNames.length; i++) {
-                slavesNames[i] = slavesNames[i].substring(7);
+            final String[] secondariesNames = referenceElem.getElementNames();
+            for (int i = 0; i < secondariesNames.length; i++) {
+                secondariesNames[i] = secondariesNames[i].substring(7);
             }
-            return slavesNames;
+            return secondariesNames;
         }
         return null;
     }

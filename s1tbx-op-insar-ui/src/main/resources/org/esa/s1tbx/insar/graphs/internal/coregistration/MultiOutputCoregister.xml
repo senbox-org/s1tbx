@@ -13,11 +13,11 @@
       <sourceProduct refid="ProductSet-Reader"/>
     </sources>
     <parameters>
-      <masterBands></masterBands>
+      <referenceBands></referenceBands>
       <sourceBands></sourceBands>
       <resamplingType>NONE</resamplingType>
       <initialOffsetMethod>ORBIT</initialOffsetMethod>
-      <extent>Master</extent>
+      <extent>Reference</extent>
     </parameters>
   </node>
   <node id="Cross-Correlation">
@@ -57,7 +57,7 @@
       <warpPolynomialOrder>2</warpPolynomialOrder>
       <interpolationMethod>Cubic convolution (6 points)</interpolationMethod>
       <openResidualsFile>false</openResidualsFile>
-	  <excludeMaster>true</excludeMaster>
+	  <excludeReference>true</excludeReference>
     </parameters>
   </node>
   <node id="Write">

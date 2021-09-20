@@ -66,10 +66,10 @@ public class StatBaselines implements InSARStatistic {
                 if(stackOverview == null)
                     return null;
 
-                final InSARStackOverview.IfgPair[] slaves = stackOverview[0].getMasterSlave();
+                final InSARStackOverview.IfgPair[] secondaries = stackOverview[0].getReferenceSecondary();
 
-                for (InSARStackOverview.IfgPair slave : slaves) {
-                    baselines.add(new CachedBaseline(slave));
+                for (InSARStackOverview.IfgPair secondary : secondaries) {
+                    baselines.add(new CachedBaseline(secondary));
                 }
                 cachedProduct = product;
                 cachedBaselines = baselines.toArray(new CachedBaseline[baselines.size()]);
@@ -196,17 +196,17 @@ public class StatBaselines implements InSARStatistic {
         private final String coherence;
         private final String hoa;
         private final String dopplerDifference;
-        private final InSARStackOverview.IfgPair slave;
+        private final InSARStackOverview.IfgPair secondary;
 
-        public CachedBaseline(InSARStackOverview.IfgPair slave) {
-            this.slave = slave;
-            this.perpendicularBaseline = df.format(slave.getPerpendicularBaseline());
-            this.temporalBaseline = df.format(slave.getTemporalBaseline());
-            this.coherence = df.format(slave.getCoherence());
-            this.hoa = df.format(slave.getHeightAmb());
-            this.dopplerDifference = df.format(slave.getDopplerDifference());
+        public CachedBaseline(InSARStackOverview.IfgPair secondary) {
+            this.secondary = secondary;
+            this.perpendicularBaseline = df.format(secondary.getPerpendicularBaseline());
+            this.temporalBaseline = df.format(secondary.getTemporalBaseline());
+            this.coherence = df.format(secondary.getCoherence());
+            this.hoa = df.format(secondary.getHeightAmb());
+            this.dopplerDifference = df.format(secondary.getDopplerDifference());
 
-            final MetadataElement absRoot = slave.getSlaveMetadata().getAbstractedMetadata();
+            final MetadataElement absRoot = secondary.getSecondaryMetadata().getAbstractedMetadata();
 
             productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
         }
@@ -226,7 +226,7 @@ public class StatBaselines implements InSARStatistic {
         }
 
         public InSARStackOverview.IfgPair getIfgPair() {
-            return slave;
+            return secondary;
         }
     }
 }

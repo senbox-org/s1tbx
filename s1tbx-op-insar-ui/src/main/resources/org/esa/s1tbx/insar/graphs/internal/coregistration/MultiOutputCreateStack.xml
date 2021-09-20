@@ -13,10 +13,10 @@
       <sourceProduct refid="ProductSet-Reader"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <masterBands/>
+      <referenceBands/>
       <sourceBands/>
       <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
-      <extent>Master</extent>
+      <extent>Reference</extent>
       <initialOffsetMethod>Product Geolocation</initialOffsetMethod>
     </parameters>
   </node>

@@ -15,25 +15,25 @@
     </tr>
     </tbody>
 </table>
-<h3>InSAR Stack Overview and Master Selection</h3>
+<h3>InSAR Stack Overview and Reference Selection</h3>
 
 <p>
     This function gives a general information about the interferometric stack. The information about the
     acquisition date, sensor, mode, as well as information about perpendicular and temporal baselines are being listed.
-    Also an estimate for the modeled (expected) coherence is being computed, and used in selection of the optimal master
+    Also an estimate for the modeled (expected) coherence is being computed, and used in selection of the optimal reference
     image for the InSAR stack.
 </p>
 
 <p>
-    The master image is selected such that the dispersion of the perpendicular baseline is as low as possible. The
-    master image is selected maximizing the (expected) stack coherence of the interferometric stack. The "optimal"
-    master implies improved visual interpretation of the interferograms and aids quality assessment.
+    The reference image is selected such that the dispersion of the perpendicular baseline is as low as possible. The
+    reference image is selected maximizing the (expected) stack coherence of the interferometric stack. The "optimal"
+    reference implies improved visual interpretation of the interferograms and aids quality assessment.
 </p>
 
-<h4>Implementation details for selection of master image</h4>&nbsp;
+<h4>Implementation details for selection of reference image</h4>&nbsp;
 
 <p>
-    The stack coherence for a stack with master image <i>m</i> is defined as:
+    The stack coherence for a stack with reference image <i>m</i> is defined as:
     <br><img style="" alt="" src="images/coherence_model_eq11.jpg"><br>
     <!--&nbsp;&nbsp;&nbsp;-->
 </p>
@@ -57,7 +57,7 @@
     The complex data (nor any other information from the source product bands) in modeling of the coherence and
     other parameters is <u>not</u> used at all. Thus this function can also be applied on the detected products,
     however, the interpretation of the modeled coherence and acceptance of recommendations for the
-    choice of the master image has to be performed with great care.
+    choice of the reference image has to be performed with great care.
 </p>
 
 <h5>Known issues:</h5>

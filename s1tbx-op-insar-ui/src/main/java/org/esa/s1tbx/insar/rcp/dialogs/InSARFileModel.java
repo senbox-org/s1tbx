@@ -24,7 +24,7 @@ public class InSARFileModel extends BaseFileModel implements FileTableModel {
 
     protected void setColumnData() {
         titles = new String[]{
-                "File Name", "Mst/Slv", "Acquisition", "Track", "Orbit",
+                "File Name", "Ref/Sec", "Acquisition", "Track", "Orbit",
                 "Bperp [m]", "Btemp [days]",
                 "Modeled Coherence",
                 "Height Ambg [m]", "Delta fDC [Hz]"

@@ -61,7 +61,7 @@
       <interpolationMethod>Bilinear interpolation</interpolationMethod>
       <demRefinement>false</demRefinement>
       <demName/>
-      <excludeMaster>false</excludeMaster>
+      <excludeReference>false</excludeReference>
       <openResidualsFile>false</openResidualsFile>
     </parameters>
   </node>

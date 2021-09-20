@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Find Optimal Master product for InSAR
+ * Find Optimal Reference product for InSAR
  */
 public class InSARStackOverviewDialog extends ModelessDialog {
 
@@ -65,7 +65,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
     private final JCheckBox searchDBCheckBox = new JCheckBox("Search Product Library");
 
     public InSARStackOverviewDialog() {
-        super(SnapApp.getDefault().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, "InSARStackOverview");
+        super(SnapApp.getDefault().getMainFrame(), "Stack Overview and Optimal InSAR Reference Selection", ModalDialog.ID_OK_CANCEL_HELP, "InSARStackOverview");
 
         getButton(ID_OK).setText("Overview");
         getButton(ID_CANCEL).setText("Close");
@@ -160,13 +160,13 @@ public class InSARStackOverviewDialog extends ModelessDialog {
 
             if (ifgStack == null) {
                 openBtn.setEnabled(false);
-                Dialogs.showWarning("Optimal master not found");
+                Dialogs.showWarning("Optimal reference not found");
             } else {
                 final InSARStackOverview dataStack = new InSARStackOverview();
-                final int masterIndex = dataStack.findOptimalMaster(ifgStack);
-                final InSARStackOverview.IfgPair[] slaveList = ifgStack[masterIndex].getMasterSlave();
+                final int referenceIndex = dataStack.findOptimalReference(ifgStack);
+                final InSARStackOverview.IfgPair[] secondaryList = ifgStack[referenceIndex].getReferenceSecondary();
 
-                updateData(slaveList, masterIndex);
+                updateData(secondaryList, referenceIndex);
 
                 openBtn.setEnabled(true);
                 ok = true;
@@ -184,52 +184,52 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         return ok;
     }
 
-    private void updateData(final InSARStackOverview.IfgPair[] slaveList, final int masterIndex) {
+    private void updateData(final InSARStackOverview.IfgPair[] secondaryList, final int referenceIndex) {
         outputFileModel.clear();
-        final File mstFile = slcFileMap.get(slaveList[masterIndex].getMasterMetadata());
+        final File refFile = slcFileMap.get(secondaryList[referenceIndex].getReferenceMetadata());
 
         try {
-            final Product productMst = CommonReaders.readProduct(mstFile);
-            final MetadataElement absRootMst = AbstractMetadata.getAbstractedMetadata(productMst);
-            final String[] mstValues = new String[]{
-                    productMst.getName(),
-                    "Master",
-                    OperatorUtils.getAcquisitionDate(absRootMst),
-                    String.valueOf(absRootMst.getAttributeInt(AbstractMetadata.REL_ORBIT, 0)),
-                    String.valueOf(absRootMst.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0)),
-                    String.valueOf(df.format(slaveList[masterIndex].getPerpendicularBaseline())),
-                    String.valueOf(df.format(slaveList[masterIndex].getTemporalBaseline())),
-                    String.valueOf(df.format(slaveList[masterIndex].getCoherence())),
-                    String.valueOf(df.format(slaveList[masterIndex].getHeightAmb())),
-                    String.valueOf(df.format(slaveList[masterIndex].getDopplerDifference()))
+            final Product productRef = CommonReaders.readProduct(refFile);
+            final MetadataElement absRootRef = AbstractMetadata.getAbstractedMetadata(productRef);
+            final String[] refValues = new String[]{
+                    productRef.getName(),
+                    "Reference",
+                    OperatorUtils.getAcquisitionDate(absRootRef),
+                    String.valueOf(absRootRef.getAttributeInt(AbstractMetadata.REL_ORBIT, 0)),
+                    String.valueOf(absRootRef.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0)),
+                    String.valueOf(df.format(secondaryList[referenceIndex].getPerpendicularBaseline())),
+                    String.valueOf(df.format(secondaryList[referenceIndex].getTemporalBaseline())),
+                    String.valueOf(df.format(secondaryList[referenceIndex].getCoherence())),
+                    String.valueOf(df.format(secondaryList[referenceIndex].getHeightAmb())),
+                    String.valueOf(df.format(secondaryList[referenceIndex].getDopplerDifference()))
             };
-            outputFileModel.addFile(mstFile, mstValues);
+            outputFileModel.addFile(refFile, refValues);
         } catch (Exception e) {
-            Dialogs.showError("Unable to read " + mstFile.getName() + '\n' + e.getMessage());
+            Dialogs.showError("Unable to read " + refFile.getName() + '\n' + e.getMessage());
         }
 
-        for (InSARStackOverview.IfgPair slave : slaveList) {
-            final File slvFile = slcFileMap.get(slave.getSlaveMetadata());
-            if (!slvFile.equals(mstFile)) {
+        for (InSARStackOverview.IfgPair secondary : secondaryList) {
+            final File secFile = slcFileMap.get(secondary.getSecondaryMetadata());
+            if (!secFile.equals(refFile)) {
                 try {
-                    final Product product = CommonReaders.readProduct(slvFile);
+                    final Product product = CommonReaders.readProduct(secFile);
                     final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
-                    final String[] slvValues = new String[]{
+                    final String[] secValues = new String[]{
                             product.getName(),
-                            "Slave",
+                            "Secondary",
                             OperatorUtils.getAcquisitionDate(absRoot),
                             String.valueOf(absRoot.getAttributeInt(AbstractMetadata.REL_ORBIT, 0)),
                             String.valueOf(absRoot.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0)),
-                            String.valueOf(df.format(slave.getPerpendicularBaseline())),
-                            String.valueOf(df.format(slave.getTemporalBaseline())),
-                            String.valueOf(df.format(slave.getCoherence())),
-                            String.valueOf(df.format(slave.getHeightAmb())),
-                            String.valueOf(df.format(slave.getDopplerDifference()))
+                            String.valueOf(df.format(secondary.getPerpendicularBaseline())),
+                            String.valueOf(df.format(secondary.getTemporalBaseline())),
+                            String.valueOf(df.format(secondary.getCoherence())),
+                            String.valueOf(df.format(secondary.getHeightAmb())),
+                            String.valueOf(df.format(secondary.getDopplerDifference()))
                     };
-                    outputFileModel.addFile(slvFile, slvValues);
+                    outputFileModel.addFile(secFile, secValues);
                 } catch (Exception e) {
-                    Dialogs.showError("Unable to read " + slvFile.getName() + '\n' + e.getMessage());
+                    Dialogs.showError("Unable to read " + secFile.getName() + '\n' + e.getMessage());
                 }
             }
         }
@@ -262,7 +262,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
             final InSARStackOverview dataStack = new InSARStackOverview();
             dataStack.setInput(imgList.toArray(new SLCImage[imgList.size()]), orbList.toArray(new Orbit[orbList.size()]));
 
-            final Worker worker = new Worker(SnapApp.getDefault().getMainFrame(), "Computing Optimal InSAR Master",
+            final Worker worker = new Worker(SnapApp.getDefault().getMainFrame(), "Computing Optimal InSAR Reference",
                                              dataStack);
             worker.executeWithBlocking();
 
@@ -278,9 +278,9 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         private final InSARStackOverview dataStack;
 
         Worker(final Component component, final String title,
-               final InSARStackOverview optimalMaster) {
+               final InSARStackOverview optimalReference) {
             super(component, title);
-            this.dataStack = optimalMaster;
+            this.dataStack = optimalReference;
         }
 
         @Override

@@ -29,8 +29,8 @@
             Simulation Operator</a>.
     </li>
 
-    <li><span style="font-weight: bold;">Co-registration:</span> The simulated SAR image (master) and the original SAR
-        image (slave)
+    <li><span style="font-weight: bold;">Co-registration:</span> The simulated SAR image (reference) and the original SAR
+        image (secondary)
         are co-registered and a WARP function is produced. The WARP function maps each pixel in the
         simulated SAR image to its corresponding position in the original SAR image. For detailed
         steps and parameters used in co-registration, please refer to the&nbsp;<a href="GCPSelectionOp.html">GCP
@@ -428,7 +428,7 @@ File</span> (for detected product only) and <span style="font-weight: bold;">Ext
     <li>Show
         Range and Azimuth Shifts: Checkbox indicating that range and azimuth
         shifts (in m) for all valid GCPs will be displayed. The row and column
-        shifts of each slave GCP away from its initial position are output to a
+        shifts of each secondary GCP away from its initial position are output to a
         text file.
     </li>
 </ol>
