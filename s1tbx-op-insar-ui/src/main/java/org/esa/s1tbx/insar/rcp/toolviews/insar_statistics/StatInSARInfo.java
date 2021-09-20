@@ -60,7 +60,7 @@ public class StatInSARInfo implements InSARStatistic {
                 final String orbitFile = absRoot.getAttributeString(AbstractMetadata.orbit_state_vector_file);
                 final int relOrbit = absRoot.getAttributeInt(AbstractMetadata.REL_ORBIT);
 
-                final String[] secondaryProductNames = StackUtils.getSecondaryProductNames(product);
+                final String[] secondaryProductNames = StackUtils.getSlaveProductNames(product);
                 final ProductData.UTC[] times = StackUtils.getProductTimes(product);
                 final String refTime = times[0].format();
 

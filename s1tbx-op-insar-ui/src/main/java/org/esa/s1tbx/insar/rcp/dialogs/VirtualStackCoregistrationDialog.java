@@ -97,7 +97,7 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
             return;
 
         final File referenceFile = fileList[0];
-        final File[] secondaryList = getsecondaryFileList();
+        final File[] secondaryList = getSecondaryFileList();
 
         int graphIndex = 0;
         for (File secondaryFile : secondaryList) {
@@ -114,7 +114,7 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
             setIO(graphExecutorList.get(graphIndex),
                   "Read", referenceFile,
                   "Write", targetFile, name, targetFormat);
-            setSecondaryIO(graphExecutorList.get(graphIndex),
+            setSlaveIO(graphExecutorList.get(graphIndex),
                        "ProductSet-Reader", referenceFile, new File[]{secondaryFile});
             ++graphIndex;
         }

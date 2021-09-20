@@ -49,7 +49,7 @@ import java.util.Map;
 /**
  * User interface for MultiReferenceInSAROp
  */
-public class MultiReferenceInSAROpUI extends BaseOperatorUI {
+public class MultiMasterInSAROpUI extends BaseOperatorUI {
     // Components related to operator's input parameters
     private final JLabel orbitDegreeLabel = new JLabel("Orbit interpolation degree");
     private final JComboBox<Integer> orbitDegreeComboBox = new JComboBox(new Integer[]{1, 2, 3, 4, 5});

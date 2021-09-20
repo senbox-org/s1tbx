@@ -163,8 +163,8 @@ public class InSARStackOverviewDialog extends ModelessDialog {
                 Dialogs.showWarning("Optimal reference not found");
             } else {
                 final InSARStackOverview dataStack = new InSARStackOverview();
-                final int referenceIndex = dataStack.findOptimalReference(ifgStack);
-                final InSARStackOverview.IfgPair[] secondaryList = ifgStack[referenceIndex].getReferenceSecondary();
+                final int referenceIndex = dataStack.findOptimalMaster(ifgStack);
+                final InSARStackOverview.IfgPair[] secondaryList = ifgStack[referenceIndex].getMasterSlave();
 
                 updateData(secondaryList, referenceIndex);
 
@@ -186,7 +186,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
 
     private void updateData(final InSARStackOverview.IfgPair[] secondaryList, final int referenceIndex) {
         outputFileModel.clear();
-        final File refFile = slcFileMap.get(secondaryList[referenceIndex].getReferenceMetadata());
+        final File refFile = slcFileMap.get(secondaryList[referenceIndex].getMasterMetadata());
 
         try {
             final Product productRef = CommonReaders.readProduct(refFile);
@@ -209,7 +209,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         }
 
         for (InSARStackOverview.IfgPair secondary : secondaryList) {
-            final File secFile = slcFileMap.get(secondary.getSecondaryMetadata());
+            final File secFile = slcFileMap.get(secondary.getSlaveMetadata());
             if (!secFile.equals(refFile)) {
                 try {
                     final Product product = CommonReaders.readProduct(secFile);

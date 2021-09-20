@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * User interface for MultiReferenceOp
  */
-public class MultiReferenceOpUI extends BaseOperatorUI {
+public class MultiMasterOpUI extends BaseOperatorUI {
 
     private static final JFileChooser outputDirectory = new JFileChooser();
 

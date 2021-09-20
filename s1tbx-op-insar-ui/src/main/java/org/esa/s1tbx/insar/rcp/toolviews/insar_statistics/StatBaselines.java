@@ -66,7 +66,7 @@ public class StatBaselines implements InSARStatistic {
                 if(stackOverview == null)
                     return null;
 
-                final InSARStackOverview.IfgPair[] secondaries = stackOverview[0].getReferenceSecondary();
+                final InSARStackOverview.IfgPair[] secondaries = stackOverview[0].getMasterSlave();
 
                 for (InSARStackOverview.IfgPair secondary : secondaries) {
                     baselines.add(new CachedBaseline(secondary));
@@ -206,7 +206,7 @@ public class StatBaselines implements InSARStatistic {
             this.hoa = df.format(secondary.getHeightAmb());
             this.dopplerDifference = df.format(secondary.getDopplerDifference());
 
-            final MetadataElement absRoot = secondary.getSecondaryMetadata().getAbstractedMetadata();
+            final MetadataElement absRoot = secondary.getSlaveMetadata().getAbstractedMetadata();
 
             productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
         }

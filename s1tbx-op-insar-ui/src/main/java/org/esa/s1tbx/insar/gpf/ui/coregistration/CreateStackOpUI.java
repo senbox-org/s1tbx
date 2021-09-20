@@ -57,7 +57,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private final JComboBox initialOffsetMethod = new JComboBox(new String[]{CreateStackOp.INITIAL_OFFSET_ORBIT,
             CreateStackOp.INITIAL_OFFSET_GEOLOCATION});
 
-    private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.REFERENCE_EXTENT,
+    private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.MASTER_EXTENT,
             CreateStackOp.MIN_EXTENT,
             CreateStackOp.MAX_EXTENT});
     private final JButton optimalReferenceButton = new JButton("Find Optimal Reference");
@@ -182,7 +182,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
             public void actionPerformed(ActionEvent e) {
                 if (sourceProducts != null) {
                     try {
-                        referenceProduct = InSARStackOverview.findOptimalReferenceProduct(sourceProducts);
+                        referenceProduct = InSARStackOverview.findOptimalMasterProduct(sourceProducts);
                         referenceProductLabel.setText(referenceProduct.getName());
                     } catch (Exception ex) {
                         Dialogs.showError("Error finding optimal reference: " + ex.getMessage());

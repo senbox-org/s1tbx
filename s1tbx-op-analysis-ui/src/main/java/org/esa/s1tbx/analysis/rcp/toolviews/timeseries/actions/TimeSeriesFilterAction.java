@@ -195,9 +195,9 @@ public class TimeSeriesFilterAction extends AbstractAction {
     }
 
     public static String getCoregBandName(final String bandName) {
-        int suffixLoc = bandName.indexOf(StackUtils.REF);
+        int suffixLoc = bandName.indexOf(StackUtils.MST);
         if (suffixLoc < 0) {
-            suffixLoc = bandName.indexOf(StackUtils.SEC);
+            suffixLoc = bandName.indexOf(StackUtils.SLV);
         }
         if (suffixLoc < 0) {
             suffixLoc = bandName.lastIndexOf('_');

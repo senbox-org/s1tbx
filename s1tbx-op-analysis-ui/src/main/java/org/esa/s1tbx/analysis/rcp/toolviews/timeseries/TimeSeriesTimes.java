@@ -62,7 +62,7 @@ public class TimeSeriesTimes {
     private static boolean foundInReference(final Product product, final Band band) {
         final String bandName = band.getName();
         final boolean isIntensity = bandName.startsWith("Intensity");
-        final String[] refBandNames = StackUtils.getReferenceBandNames(product);
+        final String[] refBandNames = StackUtils.getMasterBandNames(product);
         for (String refBand : refBandNames) {
             if (bandName.startsWith(refBand))
                 return true;
@@ -77,12 +77,12 @@ public class TimeSeriesTimes {
 
     public static ProductData.UTC getSecondaryTime(final Product sourceProduct, final Band secBand) {
         final MetadataElement secondaryMetadataRoot = sourceProduct.getMetadataRoot().getElement(
-                AbstractMetadata.SECONDARY_METADATA_ROOT);
+                AbstractMetadata.SLAVE_METADATA_ROOT);
         if (secondaryMetadataRoot != null) {
             final String secBandName = secBand.getName();
             final boolean isIntensity = secBandName.startsWith("Intensity");
             for (MetadataElement elem : secondaryMetadataRoot.getElements()) {
-                final String secBandNames = elem.getAttributeString(AbstractMetadata.SECONDARY_BANDS, "");
+                final String secBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
                 if (secBandNames.contains(secBandName))
                     return elem.getAttributeUTC(AbstractMetadata.first_line_time);
                 if (isIntensity) {
