@@ -97,6 +97,9 @@ public final class TerrainFlatteningOp extends Operator {
     @Parameter(defaultValue = "false", label = "Output Simulated Image")
     private Boolean outputSimulatedImage = false;
 
+    @Parameter(defaultValue = "false", label = "Output Terrain Flattened Sigma0")
+    private Boolean outputSigma0 = false;
+
     @Parameter(description = "The additional overlap percentage", interval = "[0, 1]", label = "Additional Overlap",
             defaultValue = "0.1")
     private Double additionalOverlap = 0.1;
@@ -139,8 +142,6 @@ public final class TerrainFlatteningOp extends Operator {
     private boolean nearRangeOnLeft = true;
     private boolean orbitOnWest = true;
 
-    // set this flag to true to output terrain flattened sigma0
-    private boolean outputSigma0 = false;
     private boolean detectShadow = true;
     private double threshold = 0.05;
     private boolean invalidSource = false;
@@ -284,12 +285,12 @@ public final class TerrainFlatteningOp extends Operator {
 
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
         if (!sampleType.contains("COMPLEX")) {
-            isGRD = true;
+            srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
+            if (srgrConvParams != null && srgrConvParams.length > 0) {
+                isGRD = true;
+            }
         }
 
-        if (isGRD) {
-            srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
-        }
         nearEdgeSlantRange = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.slant_range_to_first_pixel);
 
         final String mission = RangeDopplerGeocodingOp.getMissionType(absRoot);

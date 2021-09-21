@@ -1325,19 +1325,25 @@ public final class BackGeocodingOp extends Operator {
                             sourceRectangle.width, sourceRectangle.height, resamplingIndex);
 
                     final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
-                    final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
-                    final double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
                     final double cosPhase = FastMath.cos(samplePhase);
                     final double sinPhase = FastMath.sin(samplePhase);
-                    double rerampRemodI = sampleI * cosPhase + sampleQ * sinPhase;
-                    double rerampRemodQ = -sampleI * sinPhase + sampleQ * cosPhase;
+                    double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
+                    double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
 
-                    if (Double.isNaN(rerampRemodI)) {
+                    double rerampRemodI;
+                    if (Double.isNaN(sampleI)) {
+                        sampleI = noDataValue;
                         rerampRemodI = noDataValue;
+                    } else {
+                        rerampRemodI = sampleI * cosPhase + sampleQ * sinPhase;
                     }
 
-                    if (Double.isNaN(rerampRemodQ)) {
+                    double rerampRemodQ;
+                    if (Double.isNaN(sampleQ)) {
+                        sampleQ = noDataValue;
                         rerampRemodQ = noDataValue;
+                    } else {
+                        rerampRemodQ = -sampleI * sinPhase + sampleQ * cosPhase;
                     }
 
                     if (disableReramp) {

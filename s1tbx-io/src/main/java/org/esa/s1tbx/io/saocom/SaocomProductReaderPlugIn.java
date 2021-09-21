@@ -116,8 +116,8 @@ public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
     }
 
     @Override
-    public String getProductMetadataFileExtension() {
-        return SaocomConstants.METADATA_EXT;
+    public String[] getProductMetadataFileExtensions() {
+        return new String[] {SaocomConstants.METADATA_EXT};
     }
 
     @Override

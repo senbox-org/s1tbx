@@ -147,8 +147,8 @@ public class SpacetyProductReaderPlugIn implements S1TBXProductReaderPlugIn {
     }
 
     @Override
-    public String getProductMetadataFileExtension() {
-        return ".SAFE";
+    public String[] getProductMetadataFileExtensions() {
+        return new String[] {".SAFE"};
     }
 
     @Override
