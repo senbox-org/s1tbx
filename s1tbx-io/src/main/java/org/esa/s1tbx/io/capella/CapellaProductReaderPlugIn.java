@@ -140,8 +140,8 @@ public class CapellaProductReaderPlugIn implements S1TBXProductReaderPlugIn {
     }
 
     @Override
-    public String getProductMetadataFileExtension() {
-        return PRODUCT_EXT;
+    public String[] getProductMetadataFileExtensions() {
+        return new String[] {PRODUCT_EXT};
     }
 
     @Override

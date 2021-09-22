@@ -129,8 +129,8 @@ public class Gaofen3ProductReaderPlugIn implements S1TBXProductReaderPlugIn {
     }
 
     @Override
-    public String getProductMetadataFileExtension() {
-        return METADATA_EXT;
+    public String[] getProductMetadataFileExtensions() {
+        return new String[] {METADATA_EXT};
     }
 
     @Override
