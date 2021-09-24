@@ -217,6 +217,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         addBandAbstractedMetadata(absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
+        addRFIAbstractedMetadata(origProdRoot);
     }
 
     private void addProductInfoJSON(final MetadataElement origProdRoot) {
@@ -438,54 +439,43 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     private void addCalibrationAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
 
-        MetadataElement calibrationElement = origProdRoot.getElement("calibration");
-        if (calibrationElement == null) {
-            calibrationElement = new MetadataElement("calibration");
-            origProdRoot.addElement(calibrationElement);
-        }
-        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
-        final String[] filenames = listFiles(calibFolder);
-
-        if (filenames != null) {
-            for (String metadataFile : filenames) {
-                if (metadataFile.startsWith("calibration")) {
-
-                    final Document xmlDoc;
-                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
-                        xmlDoc = XMLSupport.LoadXML(is);
-                    }
-                    final Element rootElement = xmlDoc.getRootElement();
-                    final String name = metadataFile.replace("calibration-", "");
-                    final MetadataElement nameElem = new MetadataElement(name);
-                    calibrationElement.addElement(nameElem);
-                    AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
-                }
-            }
-        }
+        final String annotfolder = getRootFolder() + "annotation" + '/' + "calibration";
+        addMetadataFiles(origProdRoot, annotfolder, "calibration");
     }
 
     private void addNoiseAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
 
-        MetadataElement noiseElement = origProdRoot.getElement("noise");
-        if (noiseElement == null) {
-            noiseElement = new MetadataElement("noise");
-            origProdRoot.addElement(noiseElement);
+        final String annotfolder = getRootFolder() + "annotation" + '/' + "calibration";
+        addMetadataFiles(origProdRoot, annotfolder, "noise");
+    }
+
+    private void addRFIAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
+
+        final String annotfolder = getRootFolder() + "annotation" + '/' + "rfi";
+        addMetadataFiles(origProdRoot, annotfolder, "rfi");
+    }
+
+    private void addMetadataFiles(final MetadataElement origProdRoot, final String folder, final String name) throws IOException {
+
+        MetadataElement metaElement = origProdRoot.getElement(name);
+        if (metaElement == null) {
+            metaElement = new MetadataElement(name);
+            origProdRoot.addElement(metaElement);
         }
-        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
-        final String[] filenames = listFiles(calibFolder);
+        final String[] filenames = listFiles(folder);
 
         if (filenames != null) {
             for (String metadataFile : filenames) {
-                if (metadataFile.startsWith("noise")) {
+                if (metadataFile.startsWith(name)) {
 
                     final Document xmlDoc;
-                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
+                    try (final InputStream is = getInputStream(folder + '/' + metadataFile)) {
                         xmlDoc = XMLSupport.LoadXML(is);
                     }
                     final Element rootElement = xmlDoc.getRootElement();
-                    final String name = metadataFile.replace("noise-", "");
-                    final MetadataElement nameElem = new MetadataElement(name);
-                    noiseElement.addElement(nameElem);
+                    final String newName = metadataFile.replace(name+"-", "");
+                    final MetadataElement nameElem = new MetadataElement(newName);
+                    metaElement.addElement(nameElem);
                     AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
                 }
             }
