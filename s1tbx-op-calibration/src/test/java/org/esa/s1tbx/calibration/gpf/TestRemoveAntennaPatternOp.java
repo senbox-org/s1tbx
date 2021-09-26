@@ -98,7 +98,7 @@ public class TestRemoveAntennaPatternOp {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsASAR, "ENVISAT", productTypeExemptions, exceptionExemptions);
     }
 
-    @Test
+    //@Test
     public void testProcessAllERS() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsERS, "ERS CEOS", productTypeExemptions, exceptionExemptions);
