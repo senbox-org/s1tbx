@@ -452,14 +452,15 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     private void addMetadataFiles(final MetadataElement origProdRoot, final String folder, final String name) throws IOException {
 
-        MetadataElement metaElement = origProdRoot.getElement(name);
-        if (metaElement == null) {
-            metaElement = new MetadataElement(name);
-            origProdRoot.addElement(metaElement);
-        }
         final String[] filenames = listFiles(folder);
 
-        if (filenames != null) {
+        if (filenames != null && filenames.length > 0) {
+            MetadataElement metaElement = origProdRoot.getElement(name);
+            if (metaElement == null) {
+                metaElement = new MetadataElement(name);
+                origProdRoot.addElement(metaElement);
+            }
+
             for (String metadataFile : filenames) {
                 if (metadataFile.startsWith(name)) {
 

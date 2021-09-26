@@ -224,6 +224,8 @@ public abstract class AbstractProductDirectory {
                 }
             }
             return files.toArray(new String[0]);
+        } catch (FileNotFoundException e) {
+            return new String[]{};
         } catch (Exception e) {
             throw new IOException("Product is corrupt or incomplete\n"+e.getMessage());
         }
