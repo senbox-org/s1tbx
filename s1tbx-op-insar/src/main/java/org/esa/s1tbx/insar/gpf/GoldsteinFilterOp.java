@@ -161,7 +161,7 @@ public class GoldsteinFilterOp extends Operator {
 
             final Band srcBandI = sourceBands[i];
             final String unit = srcBandI.getUnit();
-            String nextUnit = null;
+            String nextUnit;
             if (unit == null) {
                 throw new OperatorException("band " + srcBandI.getName() + " requires a unit");
             } else if (unit.contains(Unit.DB)) {
@@ -185,10 +185,14 @@ public class GoldsteinFilterOp extends Operator {
 
             final Band targetBandI = targetProduct.addBand(srcBandI.getName(), ProductData.TYPE_FLOAT32);
             targetBandI.setUnit(unit);
+            targetBandI.setNoDataValueUsed(true);
+            targetBandI.setNoDataValue(srcBandI.getNoDataValue());
 
             final Band srcBandQ = sourceBands[i + 1];
             final Band targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT32);
             targetBandQ.setUnit(nextUnit);
+            targetBandQ.setNoDataValueUsed(true);
+            targetBandQ.setNoDataValue(srcBandQ.getNoDataValue());
 
             targetIQPair.put(targetBandI, targetBandQ);
 
