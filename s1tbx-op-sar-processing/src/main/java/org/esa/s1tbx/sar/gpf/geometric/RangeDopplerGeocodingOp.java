@@ -765,10 +765,16 @@ public class RangeDopplerGeocodingOp extends Operator {
     static Band addTargetBand(final Product targetProduct, final int targetImageWidth, final int targetImageHeight,
                               final String bandName, final String bandUnit, final Band sourceBand,
                               final int dataType) {
+        String name = bandName;
+        int cnt = 2;
+        while(targetProduct.containsBand(name)) {
+            name = bandName + cnt;
+            ++cnt;
+        }
 
-        if (targetProduct.getBand(bandName) == null) {
+        if (targetProduct.getBand(name) == null) {
 
-            final Band targetBand = new Band(bandName, dataType, targetImageWidth, targetImageHeight);
+            final Band targetBand = new Band(name, dataType, targetImageWidth, targetImageHeight);
 
             targetBand.setUnit(bandUnit);
             if (sourceBand != null) {
@@ -908,7 +914,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             final Set<Band> keySet = targetTiles.keySet();
             for (Band targetBand : keySet) {
 
-                if (targetBand.getName().equals("elevation")) {
+                if (targetBand.equals(elevationBand)) {
                     demBuffer = targetTiles.get(targetBand).getDataBuffer();
                     continue;
                 }
@@ -959,7 +965,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                 tgtTileList.add(td);
             }
 
-            final TileData[] tgtTiles = tgtTileList.toArray(new TileData[tgtTileList.size()]);
+            final TileData[] tgtTiles = tgtTileList.toArray(new TileData[0]);
             for (TileData tileData : tgtTiles) {
                 if (sourceRectangle != null) {
                     try {
