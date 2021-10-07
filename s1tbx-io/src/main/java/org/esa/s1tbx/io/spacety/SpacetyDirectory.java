@@ -128,8 +128,9 @@ public class SpacetyDirectory extends XMLProductDirectory {
             final String pol = bandMetadata.getAttributeString(AbstractMetadata.polarization);
             final String swath = bandMetadata.getAttributeString(AbstractMetadata.swath);
             final String mode = bandMetadata.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-            final int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
-            final int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
+            final Dimension dim = getProductDimensions(product.getMetadataRoot());
+            final int width = dim.width;
+            final int height = dim.height;
             int numImages = img.getNumImages();
             int numBands = img.getNumBands();
             boolean isComplexSample = false;
@@ -1014,25 +1015,13 @@ public class SpacetyDirectory extends XMLProductDirectory {
     }
 
     @Override
-    public Product createProduct() throws IOException {
-
-        final MetadataElement newRoot = addMetaData();
-        findImages(newRoot);
-
+    protected Dimension getProductDimensions(final MetadataElement newRoot) {
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        int w = bandProduct.getSceneRasterWidth();
+        int h = bandProduct.getSceneRasterHeight();
+        absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line, w);
+        absRoot.setAttributeInt(AbstractMetadata.num_output_lines, h);
 
-        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-
-        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
-        updateProduct(product, newRoot);
-
-        addBands(product);
-        addGeoCoding(product);
-
-        ReaderUtils.addMetadataIncidenceAngles(product);
-        ReaderUtils.addMetadataProductSize(product);
-
-        return product;
+        return new Dimension(w, h);
     }
 }
