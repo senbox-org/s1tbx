@@ -692,6 +692,8 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
                     final InputStream inStream = getInputStream(imgPath);
                     if (inStream.available() > 0) {
                         imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    } else {
+                        inStream.close();
                     }
                 }
                 if(imgStream != null) {

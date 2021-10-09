@@ -95,6 +95,8 @@ public class SpacetyDirectory extends XMLProductDirectory {
                     if (inStream.available() > 0) {
                         final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
                         imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    } else {
+                        inStream.close();
                     }
                 }
                 if(imgStream != null) {

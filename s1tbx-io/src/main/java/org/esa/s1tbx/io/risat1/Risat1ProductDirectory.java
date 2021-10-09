@@ -104,6 +104,8 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                     img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream), productInputFile);
                 }
                 bandImageFileMap.put(img.getName(), img);
+            } else {
+                inStream.close();
             }
         } else if (name.endsWith(".001") && name.contains("vdf_")) {
             final ProductReader ceosReader = ceosPlugIn.createReaderInstance();

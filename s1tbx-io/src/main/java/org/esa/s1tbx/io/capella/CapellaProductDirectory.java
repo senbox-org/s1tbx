@@ -200,6 +200,8 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                     final InputStream inStream = getInputStream(imgPath);
                     if (inStream.available() > 0) {
                         imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+                    } else {
+                        inStream.close();
                     }
                 }
                 if(imgStream != null) {
