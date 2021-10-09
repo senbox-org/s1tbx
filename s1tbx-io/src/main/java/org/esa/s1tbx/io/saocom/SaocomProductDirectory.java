@@ -446,6 +446,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     final ImageIOFile img = new ImageIOFile(imgPath, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_FLOAT64, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
+                } else {
+                    inStream.close();
                 }
             } catch (Exception e) {
                 SystemUtils.LOG.severe(imgPath + " not found");

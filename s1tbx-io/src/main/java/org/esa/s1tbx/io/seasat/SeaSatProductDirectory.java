@@ -87,6 +87,8 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
                 }
                 bandImageFileMap.put(img.getName(), img);
                 imageFile = getFile(imgPath);
+            } else {
+                inStream.close();
             }
         }
     }

@@ -651,6 +651,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_UINT16, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
+                } else {
+                    inStream.close();
                 }
             }
         }
