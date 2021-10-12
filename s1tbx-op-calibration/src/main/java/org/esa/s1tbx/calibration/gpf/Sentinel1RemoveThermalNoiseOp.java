@@ -84,6 +84,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean isTOPSARSLC = false;
     private String productType = null;
     private int numOfSubSwath = 1;
+    private int subsetOffsetX = 0;
+    private int subsetOffsetY = 0;
     private ThermalNoiseInfo[] noise = null;
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
     private List<String> selectedPolList = null;
@@ -135,6 +137,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
+            getSubsetOffset();
+
             getIPFVersion();
 
             getProductType();
@@ -164,6 +168,14 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    /**
+     * Get subset x and y offsets from abstract metadata.
+     */
+    private void getSubsetOffset() {
+        subsetOffsetX = absRoot.getAttributeInt(AbstractMetadata.subset_offset_x);
+        subsetOffsetY = absRoot.getAttributeInt(AbstractMetadata.subset_offset_y);
     }
 
     /**
@@ -498,6 +510,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final int y0 = targetTileRectangle.y;
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
+        final int sx0 = subsetOffsetX + x0; // tile start x coordinate in original image
+        final int sy0 = subsetOffsetY + y0; // tile start y coordinate in original image
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
 
         try {
@@ -505,7 +519,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             double[][] noiseBlock = null;
             if (version >= 2.9) {
-                noiseBlock = populateNoiseAzimuthBlock(x0, y0, w, h, targetBandName);
+                noiseBlock = populateNoiseAzimuthBlock(sx0, sy0, w, h, targetBandName);
             }
 
             Tile sourceRaster1 = null;
@@ -558,32 +572,33 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             for (int y = y0; y < maxY; ++y) {
                 srcIndex.calculateStride(y);
                 tgtIndex.calculateStride(y);
+                final int sy = y + subsetOffsetY;
 
                 double[] lut = new double[w];
                 if (absoluteCalibrationPerformed) {
-                    final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
+                    final int calVecIdx = calInfo.getCalibrationVectorIndex(sy);
                     final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
                     final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
                     final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
                     final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
                     final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
-                    final int pixelIdx0 = calVec.getPixelIndex(x0);
+                    final int pixelIdx0 = calVec.getPixelIndex(sx0);
 
                     if (version < 2.9) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
-                        computeTileScaledNoiseLUT(y, x0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
+                        computeTileScaledNoiseLUT(sy, sx0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
                                 vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
                     } else {
-                        computeTileScaledNoiseLUT(y, x0, y0, w, noiseBlock, calInfo, vec0.timeMJD, vec1.timeMJD,
+                        computeTileScaledNoiseLUT(sy, sx0, sy0, w, noiseBlock, calInfo, vec0.timeMJD, vec1.timeMJD,
                                 vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
                     }
 
                 } else {
                     if (version < 2.9) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
-                        computeTileNoiseLUT(y, x0, w, noiseInfo, lut);
+                        computeTileNoiseLUT(sy, sx0, w, noiseInfo, lut);
                     } else {
-                        computeTileNoiseLUT(y - y0, x0, w, noiseBlock, lut);
+                        computeTileNoiseLUT(sy - sy0, sx0, w, noiseBlock, lut);
                     }
                 }
 
