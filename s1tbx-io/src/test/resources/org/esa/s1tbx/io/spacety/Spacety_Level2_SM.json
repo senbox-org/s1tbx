@@ -1,0 +1,98 @@
+{
+	"decodeQualification": "INTENDED",
+	"id": "Spacety_Level2_SM",
+	"expectedContent": {
+		"metadata": [{
+				"path": "Original_Product_Metadata\/annotation\/bc1-sm-org-vv-20210606t100859-000963-0003c3-01.xml\/product\/generalAnnotation\/terrainHeightList\/terrainHeight\/azimuthTime",
+				"value": "2021-06-06T10:08:59.723995"
+			}, {
+				"path": "Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector8\/time",
+				"value": "06-JUN-2021 10:08:56.999000"
+			}, {
+				"path": "Original_Product_Metadata\/XFDU\/metadataSection\/metadataObject\/dataObjectPointer\/dataObjectID",
+				"value": "productbc1smorgvv20210606t1008590009630003c301"
+			}, {
+				"path": "Abstracted_Metadata\/Band_SM_VV\/band_names",
+				"value": "Amplitude_VV"
+			}, {
+				"path": "Original_Product_Metadata\/XFDU\/metadataSection\/metadataObject[6]\/metadataWrap\/xmlData\/platform\/instrument\/extension\/instrumentMode\/swath",
+				"value": "SM"
+			}, {
+				"path": "Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector12\/x_vel",
+				"value": "575.64"
+			}, {
+				"path": "Abstracted_Metadata\/Band_SM_VV\/calibration_factor",
+				"value": "99999.0"
+			}, {
+				"path": "Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector14\/y_vel",
+				"value": "-1383.79"
+			}, {
+				"path": "Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector17\/x_vel",
+				"value": "537.58"
+			}, {
+				"path": "Original_Product_Metadata\/annotation\/bc1-sm-org-vv-20210606t100859-000963-0003c3-01.xml\/product\/orthorectificationGeolocation\/ResampleMethod",
+				"value": "BiLinear"
+			}
+		],
+		"sceneHeight": 14673,
+		"sceneWidth": 9453,
+		"geoCoding": {
+			"coordinates": [{
+					"x": 4077.0,
+					"y": 7887.0,
+					"lon": 29.23011900030872,
+					"lat": -1.4563556057442077
+				}, {
+					"x": 7018.0,
+					"y": 9521.0,
+					"lon": 29.309417684600085,
+					"lat": -1.500588632092103
+				}
+			],
+			"reverseAccuracy": 9.64384526014328E-7
+		},
+		"startTime": "06-JUN-2021 10:08:59.723995",
+		"endTime": "06-JUN-2021 10:09:05.460999",
+		"bands": [{
+				"bandWidth": 9453,
+				"noDataValueUsed": "true",
+				"bandHeight": 14673,
+				"expectedPixels": [{
+						"x": 493,
+						"y": 2614,
+						"value": "NaN"
+					}, {
+						"x": 6476,
+						"y": 12480,
+						"value": 0.045306165
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Amplitude_VV",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "amplitude"
+			}, {
+				"bandWidth": 9453,
+				"noDataValueUsed": "true",
+				"bandHeight": 14673,
+				"expectedPixels": [{
+						"x": 2749,
+						"y": 3768,
+						"value": 2.7338063E-4
+					}, {
+						"x": 5771,
+						"y": 5359,
+						"value": 0.0014387819
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Intensity_VV",
+				"noDataValue": "0.0",
+				"description": "Intensity from complex data",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}
