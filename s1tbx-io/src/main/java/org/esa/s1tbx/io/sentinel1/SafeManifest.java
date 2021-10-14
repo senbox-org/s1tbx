@@ -72,22 +72,27 @@ public class SafeManifest {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, acqMode);
             } else if (id.equals("measurementOrbitReference")) {
                 final MetadataElement orbitReference = findElement(metadataObject, "orbitReference");
-                final MetadataElement orbitNumber = findElementContaining(orbitReference, "OrbitNumber", "type", "start");
-                final MetadataElement relativeOrbitNumber = findElementContaining(orbitReference, "relativeOrbitNumber", "type", "start");
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, orbitNumber.getAttributeInt("orbitNumber", defInt));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, relativeOrbitNumber.getAttributeInt("relativeOrbitNumber", defInt));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, orbitReference.getAttributeInt("cycleNumber", defInt));
-
-                String pass = orbitReference.getAttributeString("pass", defStr);
-                if (pass.equals(defStr)) {
-                    MetadataElement extension = orbitReference.getElement("extension");
-                    if(extension == null) { // spacety spelling error
-                        extension = orbitReference.getElement("extention");
+                if(orbitReference != null) {
+                    final MetadataElement orbitNumber = findElementContaining(orbitReference, "OrbitNumber", "type", "start");
+                    if (orbitNumber != null) {
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, orbitNumber.getAttributeInt("orbitNumber", defInt));
                     }
-                    final MetadataElement orbitProperties = extension.getElement("orbitProperties");
-                    pass = orbitProperties.getAttributeString("pass", defStr);
+                    final MetadataElement relativeOrbitNumber = findElementContaining(orbitReference, "relativeOrbitNumber", "type", "start");
+                    if (relativeOrbitNumber != null) {
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, relativeOrbitNumber.getAttributeInt("relativeOrbitNumber", defInt));
+                    }
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, orbitReference.getAttributeInt("cycleNumber", defInt));
+
+                    String pass = orbitReference.getAttributeString("pass", defStr);
+                    if (pass.equals(defStr)) {
+                        MetadataElement extension = orbitReference.getElement("extension");
+                        if(extension != null) {
+                            final MetadataElement orbitProperties = extension.getElement("orbitProperties");
+                            pass = orbitProperties.getAttributeString("pass", defStr);
+                        }
+                    }
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, pass);
                 }
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, pass);
             } else if (id.equals("measurementFrameSet")) {
 
             } else if (id.equals("generalProductInformation")) {
