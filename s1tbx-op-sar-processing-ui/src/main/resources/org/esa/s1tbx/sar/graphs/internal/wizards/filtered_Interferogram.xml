@@ -13,11 +13,11 @@
       <sourceProduct refid="1-ProductSet-Reader"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <masterBands/>
+      <referenceBands/>
       <sourceBands/>
       <resamplingType>NONE</resamplingType>
       <initialOffsetMethod>ORBIT</initialOffsetMethod>
-      <extent>Master</extent>
+      <extent>Reference</extent>
     </parameters>
   </node>
   <node id="Cross-Correlation">

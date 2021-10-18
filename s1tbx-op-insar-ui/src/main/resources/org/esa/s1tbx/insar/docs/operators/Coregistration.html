@@ -28,12 +28,12 @@ deformation analysis, etc.
 
 <p><br>
 The interferometric modules of the toolbox will
-accurately&nbsp;co-register one&nbsp;or more&nbsp;slave images with
-respect to a master image. The co-registration procedure is completely
+accurately&nbsp;co-register one&nbsp;or more&nbsp;secondary images with
+respect to a reference image. The co-registration procedure is completely
 automatic. Apart from defining the processing parameters, no additional
 input nor intervention from the user is required. For example the
 distribution of correlation (optimization) windows are done in
-automatic manner for both master and slave image. Also, the refinement
+automatic manner for both reference and secondary image. Also, the refinement
 of the coregistration offsets is done in a fully automatic way,
 including downloading and interpolation of the a-priori
 digitial-elevation-model.
@@ -49,12 +49,12 @@ is usually separated in two main steps: <i>coarse</i> and <i>fine</i>
 coregistration. In the coarse coregistration, the offsets are
 approximated either by using the satellite orbits and timing as a
 reference, and/or by defining an approximate common points in
-master/slave images and performing correlation matching with large
+reference/secondary images and performing correlation matching with large
 windows. The subsequent fine coregistration applies automation
 correlation technique to obtain sub-pixel alignment accuracy. After the
 coregistration offsets are computed, the estimation of the
-coregistration polynomial (CPM) and interferometric resampling of slave
-images to the master geometry is performed.
+coregistration polynomial (CPM) and interferometric resampling of secondary
+images to the reference geometry is performed.
 </p>
 
 <h4>Overview of Coregistration Processing Chain</h4>
@@ -93,10 +93,10 @@ now only complex (single-look-complex) data is supported.
 
 <h4>Create Stack</h4>
 
-<p> The Create Stack operator collocates the master and slave
-images based into a single reference (master) geometry. Basically the
-slave image data is subset into geometry of the master image. With
-performing this operation the master and slave images share the same
+<p> The Create Stack operator collocates the reference and secondary
+images based into a single reference (reference) geometry. Basically the
+secondary image data is subset into geometry of the reference image. With
+performing this operation the reference and secondary images share the same
 geo-positioning information, and have the similar dimensions. For
 overlap and geometry calculation either orbital data, or annotated
 tie-point-grids (i.e., ground-control-points) can be used. In other
@@ -114,11 +114,11 @@ More details on this operator are given in the operator help - <a href="CreateSt
 
 <p><br>
 The Cross Correlation operator creates an alignment
-between master and slave images by matching automatically distributed
-correlation optimization windows to their corresponding slave windows.
+between reference and secondary images by matching automatically distributed
+correlation optimization windows to their corresponding secondary windows.
 There are two steps: coarse and fine registration. The offsets between
-master and slave are computed by maximizing the cross-correlation
-between master and slave images on a series of imagettes defined across
+reference and secondary are computed by maximizing the cross-correlation
+between reference and secondary images on a series of imagettes defined across
 the images. First on coarse level, with large windows and lower
 oversampling factors, later on fine level, with smaller windows and
 higher oversampling factors.
@@ -133,9 +133,9 @@ Correlation</a>.
 <h4>Warp</h4>
 
 <p><br>
-With the master-slave offsets computed, a coregistration polynomial
+With the reference-secondary offsets computed, a coregistration polynomial
 (CPM) is estimated by the Warp operator, which resamples pixels in
-the slave image into pixels in the master image.
+the secondary image into pixels in the reference image.
 </p>
 
 <p><br>
@@ -162,8 +162,8 @@ for most of the interferometric combinations.
   <li>From the <span style="font-style: italic;">Radar</span> menu, in
 sub-menu <i>Coregistration</i>,
 select <i>Coregistration</i>.</li>
-  <li>Add a master product to the ProductSet Reader.</li>
-  <li>Add any slave products to the ProductSet reader or drag and drop
+  <li>Add a reference product to the ProductSet Reader.</li>
+  <li>Add any secondary products to the ProductSet reader or drag and drop
 products from a Project.</li>
   <li>In the CreateStack tab, select no resampling for InSAR products.
 A resampling method may be selected for detected product which are of

@@ -120,13 +120,13 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceProductPaths/>
-      <masterProductName/>
+      <referenceProductName/>
       <targetProductName>_collocated</targetProductName>
       <targetProductType>COLLOCATED</targetProductType>
-      <renameMasterComponents>true</renameMasterComponents>
-      <renameSlaveComponents>true</renameSlaveComponents>
-      <masterComponentPattern>${ORIGINAL_NAME}_M</masterComponentPattern>
-      <slaveComponentPattern>${ORIGINAL_NAME}_S${SLAVE_NUMBER_ID}</slaveComponentPattern>
+      <renameReferenceComponents>true</renameReferenceComponents>
+      <renameSecondaryComponents>true</renameSecondaryComponents>
+      <referenceComponentPattern>${ORIGINAL_NAME}_M</referenceComponentPattern>
+      <secondaryComponentPattern>${ORIGINAL_NAME}_S${SECONDARY_NUMBER_ID}</secondaryComponentPattern>
       <resamplingType>NEAREST_NEIGHBOUR</resamplingType>
     </parameters>
   </node>

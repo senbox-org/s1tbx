@@ -27,7 +27,7 @@ terrain-flattened and geometrically terrain corrected images together
 with their simulated local illuminated areas.<br><br>The operation requires input images in map geometry. Therefore the processing chain should be as the follows:<br><ol><li>Run Terrain Flattening operator with Output Simulate Image option selected;</li><li>Run Range Doppler Geocoding operator with the terrain-flattened images as input;</li><li>Run Create Stack with Maximum Extent option selected;</li><li>Run this operator with the stack created above as input.</li></ol><h4>Input and Output</h4><ul><li>The
 input to this operator should be a stack of terrain-flattened images. For polarimetric SAR
 product, it should be in T3, C3, C2 matrix format.&nbsp;</li><li>The
-output of this operator is a multitemporal composite&nbsp;image for each band in the master product. For polarimetric
+output of this operator is a multitemporal composite&nbsp;image for each band in the reference product. For polarimetric
 SAR product, the output is terrain flattened coherency or covariance
 matrices in T3, C3 or C2 format. </li></ul>
 <h4>Parameters Used</h4>&nbsp;&nbsp; No processing parameters are needed for this operator.<br>

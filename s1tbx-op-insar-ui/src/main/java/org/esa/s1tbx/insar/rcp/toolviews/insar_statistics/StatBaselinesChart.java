@@ -119,9 +119,9 @@ public class StatBaselinesChart implements InSARStatistic {
 
             final XYSeries series = new XYSeries("data");
             for (StatBaselines.CachedBaseline baseline : baselines) {
-                final InSARStackOverview.IfgPair slave = baseline.getIfgPair();
-                if(slave.getSlaveMetadata() != slave.getMasterMetadata()) {
-                    series.add(slave.getTemporalBaseline(), slave.getPerpendicularBaseline());
+                final InSARStackOverview.IfgPair secondary = baseline.getIfgPair();
+                if(secondary.getSlaveMetadata() != secondary.getMasterMetadata()) {
+                    series.add(secondary.getTemporalBaseline(), secondary.getPerpendicularBaseline());
                 }
             }
 

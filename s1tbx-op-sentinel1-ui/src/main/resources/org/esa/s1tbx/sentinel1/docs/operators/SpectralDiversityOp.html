@@ -23,8 +23,8 @@
   This operator implements the Network Enhanced Spectral Diversity (NESD) method for TOPS coregistration [1]. It
   performs the joint coregistration of a Sentinel-1 stack by creating a network (graph) of images and then estimating
   range and azimuth offsets by solving an optimization problem.
-  This operator estimates rigid azimuth and range offsets (i.e., constant for each image) with respect to a master
-  image considering the offsets of multiple slave-slave pairs.
+  This operator estimates rigid azimuth and range offsets (i.e., constant for each image) with respect to a reference
+  image considering the offsets of multiple secondary-secondary pairs.
   Note that, in this context, an <i>image</i> corresponds to the whole sub-swath of a split S-1 SLC.
 </span></p>
 
@@ -68,7 +68,7 @@
 
 <ul>
     <li>The input to this operator is the resulting product created by the S-1 Back Geocoding operator. It is a stack of
-        coregistered master and slave images for the same sub-swath and same polarization (e.g. IW1 - VV). <br>
+        coregistered reference and secondary images for the same sub-swath and same polarization (e.g. IW1 - VV). <br>
     </li>
 </ul>
 
@@ -77,8 +77,8 @@
 </h4>
 
 <ul>
-    <li>The output of the operator are the coregistered master and slave (I/Q) bands with the range and azimuth
-        shift corrections applied to the slave bands. <br>
+    <li>The output of the operator are the coregistered reference and secondary (I/Q) bands with the range and azimuth
+        shift corrections applied to the secondary bands. <br>
 
     </li>
 </ul>
@@ -223,9 +223,9 @@ This worklfow has two stages.
 
 <h6>2. Apply range and azimuth shifts</h6>
 <p class="MsoNormal"><span>
-    Apply Back Geocoding and Enhanced Spectral Diversity for each master-image specifying the range and azimuth shifts
+    Apply Back Geocoding and Enhanced Spectral Diversity for each reference-image specifying the range and azimuth shifts
     computed in stage 1. You can look them up in the <b>json</b> files. Please note that you must use the <b>same
-    master image as in stage 1</b>. In the, GUI you can specify the shifts as follows:<br>
+    reference image as in stage 1</b>. In the, GUI you can specify the shifts as follows:<br>
     <img alt="" src="images/distributed_ESD2.jpg"><br>
 </span></p>
 
@@ -234,7 +234,7 @@ This worklfow has two stages.
 </span></p>
 
 <p class="MsoNormal"><span>
-	Note that, as the application of shifts are independent for each master-slave pair, <b>stage 2</b> can be executed in parallel (in different processing nodes).
+	Note that, as the application of shifts are independent for each reference-secondary pair, <b>stage 2</b> can be executed in parallel (in different processing nodes).
 </span></p>
 
 

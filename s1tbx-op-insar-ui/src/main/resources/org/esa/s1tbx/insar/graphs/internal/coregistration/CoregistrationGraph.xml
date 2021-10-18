@@ -13,13 +13,13 @@
       <sourceProduct refid="ProductSet-Reader"/>
     </sources>
     <parameters>
-      <masterBands>
-      </masterBands>
+      <referenceBands>
+      </referenceBands>
       <sourceBands>
       </sourceBands>
       <resamplingType>NONE</resamplingType>
       <initialOffsetMethod>ORBIT</initialOffsetMethod>
-      <extent>Master</extent>
+      <extent>Reference</extent>
     </parameters>
   </node>
   <node id="Cross-Correlation">

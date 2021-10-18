@@ -39,10 +39,10 @@
       <sourceProduct.1 refid="Apply-Orbit-File(2)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <masterBands/>
+      <referenceBands/>
       <sourceBands/>
       <resamplingType>NONE</resamplingType>
-      <extent>Master</extent>
+      <extent>Reference</extent>
       <initialOffsetMethod>ORBIT</initialOffsetMethod>
     </parameters>
   </node>

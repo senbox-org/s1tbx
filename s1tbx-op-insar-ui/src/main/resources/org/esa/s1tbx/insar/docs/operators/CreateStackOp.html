@@ -20,22 +20,22 @@
     Create Stack is a component of <a href="../tutorials/coregistering_products.html">coregistration.</a>
     The <span style="font-style: italic;">Create Stack</span><em> </em>Operator
     allows&nbsp;collocating two spatially overlapping products. Collocating two
-    products implies that the pixel values of one product (the <em>slave</em>)
-    are resampled into the geographical raster of the other (the <em>master</em>).
+    products implies that the pixel values of one product (the <em>secondary</em>)
+    are resampled into the geographical raster of the other (the <em>reference</em>).
 
 </p><br>
 
-<p>When two products are collocated, the band data of the slave product
-    is resampled into the geographical raster of the master product.&nbsp;&nbsp;
-    In order to establish a mapping between the samples in the master and the
-    slave rasters, the geographical position of a master sample is used to find
-    the corresponding sample in the slave raster. If there is no sample for a
-    requested geographical position, the master sample is set to the no-data value
-    which was defined for the slave band. The collocation algorithm requires accurate
-    geopositioning information for both master and slave products. When necessary,
+<p>When two products are collocated, the band data of the secondary product
+    is resampled into the geographical raster of the reference product.&nbsp;&nbsp;
+    In order to establish a mapping between the samples in the reference and the
+    secondary rasters, the geographical position of a reference sample is used to find
+    the corresponding sample in the secondary raster. If there is no sample for a
+    requested geographical position, the reference sample is set to the no-data value
+    which was defined for the secondary band. The collocation algorithm requires accurate
+    geopositioning information for both reference and secondary products. When necessary,
     accurate geopositioning information may be provided by <a href="../visat/GcpManagement.html">ground control
         points</a>. The metadata
-    for the stack product is copied from the metadata of the master product.
+    for the stack product is copied from the metadata of the reference product.
 </p><h4>Resampling Methods Supported</h4>&nbsp;&nbsp;&nbsp;The user may choose between three different resampling
 methods:<br>
 <ul>
@@ -52,18 +52,18 @@ methods:<br>
 </ul>
 <h4>Output Extents</h4>&nbsp;&nbsp; User can select one of the following three extents for the collocated images:<br>
 <ul>
-    <li>Master: the master image extents (Master extents are always used with "None" resampling)</li>
+    <li>Reference: the reference image extents (Reference extents are always used with "None" resampling)</li>
     <li>Maximum: both the common coverage and the non overlapping areas</li>
     <li>Minimum: only the common coverage</li>
 </ul>
 <h4>Parameters Used</h4>&nbsp;&nbsp; The following parameters are used by this operator:
 <ol>
-    <li>Master Band: All bands (real or virtual) of the selected product. User can select
-        one band (for real image) or two bands (i and q bands for complex image) as master
+    <li>Reference Band: All bands (real or virtual) of the selected product. User can select
+        one band (for real image) or two bands (i and q bands for complex image) as reference
         band for co-registration.
     </li>
-    <li>Slave Band: All bands (real or virtual) of the selected product. User can select
-        one band (for real image) or two bands (i and q bands for complex image) as slave
+    <li>Secondary Band: All bands (real or virtual) of the selected product. User can select
+        one band (for real image) or two bands (i and q bands for complex image) as secondary
         band for co-registration.
     </li>
     <li>Resampling Type: It specifies the resampling method.</li>

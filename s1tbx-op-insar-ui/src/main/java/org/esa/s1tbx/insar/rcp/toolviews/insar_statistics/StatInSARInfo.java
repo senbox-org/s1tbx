@@ -55,22 +55,22 @@ public class StatInSARInfo implements InSARStatistic {
                 textarea.setText(InSARStatisticsTopComponent.EmptyMsg);
             } else {
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-                final String mstName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+                final String refName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
                 final String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
                 final String orbitFile = absRoot.getAttributeString(AbstractMetadata.orbit_state_vector_file);
                 final int relOrbit = absRoot.getAttributeInt(AbstractMetadata.REL_ORBIT);
 
-                final String[] slaveProductNames = StackUtils.getSlaveProductNames(product);
+                final String[] secondaryProductNames = StackUtils.getSlaveProductNames(product);
                 final ProductData.UTC[] times = StackUtils.getProductTimes(product);
-                final String mstTime = times[0].format();
+                final String refTime = times[0].format();
 
-                final StringBuilder slaveNames = new StringBuilder(255);
+                final StringBuilder secondaryNames = new StringBuilder(255);
                 int i = 1;
-                for (String slaveName : slaveProductNames) {
-                    slaveNames.append("<b>Slave Product " + i + ": </b>");
-                    slaveNames.append(slaveName.substring(0, slaveName.lastIndexOf('_')));
-                    slaveNames.append(" [" + times[i].format() + ']');
-                    slaveNames.append("<br>");
+                for (String secondaryName : secondaryProductNames) {
+                    secondaryNames.append("<b>Secondary Product " + i + ": </b>");
+                    secondaryNames.append(secondaryName.substring(0, secondaryName.lastIndexOf('_')));
+                    secondaryNames.append(" [" + times[i].format() + ']');
+                    secondaryNames.append("<br>");
                     ++i;
                 }
 
@@ -84,8 +84,8 @@ public class StatInSARInfo implements InSARStatistic {
                 final StringBuilder content = new StringBuilder(255);
                 content.append("<html>");
                 content.append("<b>Product: </b>" + product.getProductRefString() + ' ' + product.getName() + "<br>");
-                content.append("<b>Master Product: </b>" + mstName + " [" + mstTime + ']' + "<br>");
-                content.append(slaveNames.toString() + "<br>");
+                content.append("<b>Reference Product: </b>" + refName + " [" + refTime + ']' + "<br>");
+                content.append(secondaryNames.toString() + "<br>");
                 content.append("<b>Mode: </b>" + mode + "<br>");
                 content.append("<b>Orbit: </b>" + orbitFile + "<br>");
                 content.append(track);

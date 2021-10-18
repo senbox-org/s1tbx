@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Executes coregistration with multiple master/slave pair target products
+ * Executes coregistration with multiple reference/secondary pair target products
  */
 public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
 
@@ -74,20 +74,20 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
         }
     }
 
-    private File[] getSlaveFileList() {
+    private File[] getSecondaryFileList() {
         final File[] fileList = productSetPanel.getFileList();
         if (fileList == null || fileList.length == 0)
             return null;
 
-        final File masterFile = fileList[0];
+        final File referenceFile = fileList[0];
 
-        final List<File> slaveList = new ArrayList<>(fileList.length);
+        final List<File> secondaryList = new ArrayList<>(fileList.length);
         for (File f : fileList) {
-            if (f != masterFile) {
-                slaveList.add(f);
+            if (f != referenceFile) {
+                secondaryList.add(f);
             }
         }
-        return slaveList.toArray(new File[slaveList.size()]);
+        return secondaryList.toArray(new File[secondaryList.size()]);
     }
 
     @Override
@@ -96,26 +96,26 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
         if (fileList == null || fileList.length == 0)
             return;
 
-        final File masterFile = fileList[0];
-        final File[] slaveList = getSlaveFileList();
+        final File referenceFile = fileList[0];
+        final File[] secondaryList = getSecondaryFileList();
 
         int graphIndex = 0;
-        for (File slaveFile : slaveList) {
+        for (File secondaryFile : secondaryList) {
             String name;
             try {
-                final Product slvProduct = CommonReaders.readProduct(slaveFile);
-                name = slvProduct.getName();
+                final Product secProduct = CommonReaders.readProduct(secondaryFile);
+                name = secProduct.getName();
             } catch (IOException e) {
-                name = FileUtils.getFilenameWithoutExtension(slaveFile);
+                name = FileUtils.getFilenameWithoutExtension(secondaryFile);
             }
             final File targetFile = new File(productSetPanel.getTargetFolder(), name);
             final String targetFormat = productSetPanel.getTargetFormat();
 
             setIO(graphExecutorList.get(graphIndex),
-                  "Read", masterFile,
+                  "Read", referenceFile,
                   "Write", targetFile, name, targetFormat);
             setSlaveIO(graphExecutorList.get(graphIndex),
-                       "ProductSet-Reader", masterFile, new File[]{slaveFile});
+                       "ProductSet-Reader", referenceFile, new File[]{secondaryFile});
             ++graphIndex;
         }
     }

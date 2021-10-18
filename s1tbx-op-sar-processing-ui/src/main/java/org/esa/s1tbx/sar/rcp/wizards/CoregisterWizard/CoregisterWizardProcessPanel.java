@@ -79,9 +79,9 @@ public class CoregisterWizardProcessPanel extends WizardPanel {
     private void createPanel() {
 
         final JPanel textPanel = createTextPanel("Instructions",
-                "In the Create Stack tab, specify one master band or one real imaginary pair.\n" +
-                        "The stack will use the geocoding of the master product.\n" +
-                        "Select the slave bands to include in the stack.\n" +
+                "In the Create Stack tab, specify one reference band or one real imaginary pair.\n" +
+                        "The stack will use the geocoding of the reference product.\n" +
+                        "Select the secondary bands to include in the stack.\n" +
                         "In the GCP Selection tab, select the number of GCPs to use\nand the window size for cross correlation.\n" +
                         "In the Warp tab, select the desired pixel accuracy with the RMS threshold.\n" +
                         "Press finish to complete the processing.");

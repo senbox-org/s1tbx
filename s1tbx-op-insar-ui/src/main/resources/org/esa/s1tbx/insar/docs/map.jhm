@@ -26,7 +26,7 @@
     <mapID target="IntegerInterferogramOp" url="operators/IntegerInterferogramOp.html"/>
     <mapID target="InSARStackOverview" url="operators/InSARStackOverview.html"/>
     <mapID target="StampsExport" url="operators/StampsExportOp.html"/>
-    <mapID target="MultiMasterInSAROp" url="operators/MultiMasterInSAROp.html"/>
+    <mapID target="MultiReferenceInSAROp" url="operators/MultiReferenceInSAROp.html"/>
     <mapID target="HorizontalVerticalMotionOp" url="operators/HorizontalVerticalMotionOp.html"/>
     <mapID target="IonosphericCorrectionOp" url="operators/IonosphericCorrectionOp.html"/>
 
