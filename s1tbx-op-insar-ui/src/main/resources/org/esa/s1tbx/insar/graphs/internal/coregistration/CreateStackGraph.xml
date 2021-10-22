@@ -13,12 +13,12 @@
       <sourceProduct refid="1-ProductSet-Reader"/>
     </sources>
     <parameters>
-      <referenceBands/>
+      <masterBands/>
       <sourceBands/>
       <resamplingType>NONE</resamplingType>
 	  <initialOffsetMethod>ORBIT</initialOffsetMethod>
-	  <extent>Reference</extent>
-	  <includeReference>true</includeReference>
+	  <extent>Master</extent>
+	  <includeMaster>true</includeMaster>
     </parameters>
   </node>
   <node id="3-Write">

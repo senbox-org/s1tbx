@@ -61,11 +61,11 @@ public class GCPVectorLayer extends Layer {
                     final MetadataElement[] gcpElems = warpDataElem.getElements();
                     gcpList.clear();
                     for (MetadataElement gcpElem : gcpElems) {
-                        final double refX = gcpElem.getAttributeDouble("ref_x", 0);
-                        final double refY = gcpElem.getAttributeDouble("ref_y", 0);
+                        final double refX = gcpElem.getAttributeDouble("mst_x", 0);
+                        final double refY = gcpElem.getAttributeDouble("mst_y", 0);
 
-                        final double secX = gcpElem.getAttributeDouble("sec_x", 0);
-                        final double secY = gcpElem.getAttributeDouble("sec_y", 0);
+                        final double secX = gcpElem.getAttributeDouble("slv_x", 0);
+                        final double secY = gcpElem.getAttributeDouble("slv_y", 0);
 
                         gcpList.add(new GCPData(refX, refY, secX, secY));
                     }

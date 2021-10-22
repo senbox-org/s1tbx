@@ -41,10 +41,10 @@
       <sourceProduct.1 refid="BandSelect(2)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <referenceBands/>
+      <masterBands/>
       <sourceBands/>
       <resamplingType>NONE</resamplingType>
-      <extent>Reference</extent>
+      <extent>Master</extent>
       <initialOffsetMethod>ORBIT</initialOffsetMethod>
     </parameters>
   </node>

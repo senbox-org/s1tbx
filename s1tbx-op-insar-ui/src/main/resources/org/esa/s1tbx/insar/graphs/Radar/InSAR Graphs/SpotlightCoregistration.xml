@@ -6,10 +6,10 @@
       <sourceProduct.2 refid="ProductSet-Reader"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <referenceBands/>
+      <masterBands/>
       <sourceBands/>
       <resamplingType>NONE</resamplingType>
-      <extent>Reference</extent>
+      <extent>Master</extent>
       <initialOffsetMethod>Orbit</initialOffsetMethod>
     </parameters>
   </node>
@@ -58,7 +58,7 @@
       <interpolationMethod>Cubic convolution (6 points)</interpolationMethod>
       <demRefinement>false</demRefinement>
       <demName>SRTM 3Sec</demName>
-      <excludeReference>false</excludeReference>
+      <excludeMaster>false</excludeMaster>
       <openResidualsFile>false</openResidualsFile>
     </parameters>
   </node>
