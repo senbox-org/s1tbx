@@ -204,7 +204,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
             enableSubtractTopographicPhaseParameters(subtractTopographicPhase);
         }
 
-        paramVal = (Boolean) paramMap.get("singleReference");
+        paramVal = (Boolean) paramMap.get("singleMaster");
         if (paramVal != null) {
             singleReference = paramVal;
             singleReferenceCheckBox.setSelected(singleReference);
@@ -274,7 +274,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
 			paramMap.put("orbitDegree", orbitDegreeStr.getSelectedItem());
 		}
 
-        paramMap.put("singleReference", singleReference);
+        paramMap.put("singleMaster", singleReference);
 
         paramMap.put("subtractTopographicPhase", subtractTopographicPhase);
         if (subtractTopographicPhase) {

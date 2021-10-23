@@ -99,12 +99,12 @@
       <sourceProduct.1 refid="Calibration(2)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <referenceBands>
-      </referenceBands>
+      <masterBands>
+      </masterBands>
       <sourceBands>
       </sourceBands>
       <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
-      <extent>Reference</extent>
+      <extent>Master</extent>
     </parameters>
   </node>
   <node id="Cross-Correlation">

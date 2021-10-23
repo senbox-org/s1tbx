@@ -120,12 +120,12 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceProductPaths/>
-      <referenceProductName/>
+      <masterProductName/>
       <targetProductName>_collocated</targetProductName>
       <targetProductType>COLLOCATED</targetProductType>
-      <renameReferenceComponents>true</renameReferenceComponents>
+      <renameMasterComponents>true</renameMasterComponents>
       <renameSecondaryComponents>true</renameSecondaryComponents>
-      <referenceComponentPattern>${ORIGINAL_NAME}_M</referenceComponentPattern>
+      <masterComponentPattern>${ORIGINAL_NAME}_M</masterComponentPattern>
       <secondaryComponentPattern>${ORIGINAL_NAME}_S${SECONDARY_NUMBER_ID}</secondaryComponentPattern>
       <resamplingType>NEAREST_NEIGHBOUR</resamplingType>
     </parameters>
@@ -138,7 +138,7 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
       <region></region>
-      <referenceBand/>
+      <masterBand/>
       <geoRegion/>
       <subSamplingX>1</subSamplingX>
       <subSamplingY>1</subSamplingY>
@@ -155,7 +155,7 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
       <region></region>
-      <referenceBand/>
+      <masterBand/>
       <geoRegion/>
       <subSamplingX>1</subSamplingX>
       <subSamplingY>1</subSamplingY>
