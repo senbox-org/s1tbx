@@ -90,6 +90,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
     private List<String> selectedPolList = null;
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
+    private final HashMap<String, String> targetNoiseBandNameToImageBandName = new HashMap<>(2);
 
     // For after IPF 2.9.0 ...
     private double version = 0.0f;
@@ -438,6 +439,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final String targetNoiseBandName = createTargetNoiseBandName(targetBandName);
             if (targetProduct.getBand(targetNoiseBandName) == null) {
 
+                targetNoiseBandNameToImageBandName.put(targetNoiseBandName, targetBandName);
+
                 final Band targetBand = new Band(
                         targetNoiseBandName,
                         ProductData.TYPE_FLOAT32,
@@ -698,7 +701,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
     }
 
-    private void computeTileNoise(String targetBandName, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    private void computeTileNoise(String targetNoiseBandName, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;
@@ -710,6 +713,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBandName);
 
         try {
+            final String targetBandName = targetNoiseBandNameToImageBandName.get(targetNoiseBandName);
             double[][] noiseBlock = null;
             if (version >= 2.9) {
                 noiseBlock = populateNoiseAzimuthBlock(sx0, sy0, w, h, targetBandName);
