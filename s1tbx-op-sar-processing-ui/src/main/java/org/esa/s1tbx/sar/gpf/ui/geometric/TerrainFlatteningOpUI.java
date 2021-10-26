@@ -45,6 +45,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private static final String externalDEMStr = "External DEM";
     private final JCheckBox externalDEMApplyEGMCheckBox = new JCheckBox("External DEM Apply EGM");
     private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
+    private final JCheckBox outputGamma0CheckBox = new JCheckBox("Output Terrain Flattened Gamma0");
     private final JCheckBox outputSigma0CheckBox = new JCheckBox("Output Terrain Flattened Sigma0");
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
@@ -207,7 +208,12 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
         gbc.gridy++;
         contentPane.add(externalDEMApplyEGMCheckBox, gbc);
+        gbc.gridx = 1;
+        contentPane.add(outputGamma0CheckBox, gbc);
+        outputGamma0CheckBox.setSelected(true);
+        outputGamma0CheckBox.setEnabled(false);
         gbc.gridy++;
+        gbc.gridx = 0;
         contentPane.add(outputSimulatedImageCheckBox, gbc);
         gbc.gridx = 1;
         contentPane.add(outputSigma0CheckBox, gbc);
