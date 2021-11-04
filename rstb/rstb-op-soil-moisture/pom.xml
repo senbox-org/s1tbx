@@ -39,7 +39,7 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>net.sf</groupId>
+            <groupId>net.sourceforge</groupId>
             <artifactId>javaml</artifactId>
             <version>0.1.7</version>
         </dependency>
