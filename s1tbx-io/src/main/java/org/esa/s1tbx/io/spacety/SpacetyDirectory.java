@@ -639,7 +639,7 @@ public class SpacetyDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
-        if(bandProduct != null && bandProduct.getSceneGeoCoding() != null) {
+        if(!productType.equals("SLC") && bandProduct != null && bandProduct.getSceneGeoCoding() != null) {
             ProductUtils.copyGeoCoding(bandProduct, product);
             return;
         }
