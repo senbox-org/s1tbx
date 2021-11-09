@@ -31,6 +31,9 @@ import java.util.Map;
 
 /**
  * Perform Cameron decomposition for given tile.
+ *
+ * [1] Cameron, W.L., Youssef, N.N., and Leung, L.K., Simulated polarimetric signatures of primitive geometrical
+ *     shapes, IEEE Transaction on Geoscience Remote Sensing, 34(3), 793 803, May 1996.
  */
 public class Cameron extends DecompositionBase implements Decomposition, QuadPolProcessor {
 
@@ -45,6 +48,7 @@ public class Cameron extends DecompositionBase implements Decomposition, QuadPol
     private final static String I_VV = "i_VV";
     private final static String Q_VV = "q_VV";
 
+    private final static double eps = 1e-10;
 
     public Cameron(final PolBandUtils.PolSourceBand[] srcBandList, final MATRIX sourceProductType,
                     final int windowSize, final int srcImageWidth, final int srcImageHeight) {
@@ -129,7 +133,7 @@ public class Cameron extends DecompositionBase implements Decomposition, QuadPol
 
                     getComplexScatterMatrix(srcIndex.getIndex(x), dataBuffers, Sr, Si);
 
-                    final CDD data = getKrogagerDecomposition(Sr, Si);
+                    final CDD data = getCameronDecomposition(Sr, Si);
 
                     final int idx = trgIndex.getIndex(x);
                     for (final Band band : bandList.targetBands) {
@@ -162,7 +166,7 @@ public class Cameron extends DecompositionBase implements Decomposition, QuadPol
         }
     }
 
-    public static CDD getKrogagerDecomposition(final double[][] Sr, final double[][] Si) {
+    public static CDD getCameronDecomposition(final double[][] Sr, final double[][] Si) {
 
         final double sHHr = Sr[0][0];
         final double sHHi = Si[0][0];
@@ -171,6 +175,7 @@ public class Cameron extends DecompositionBase implements Decomposition, QuadPol
         final double sVVr = Sr[1][1];
         final double sVVi = Si[1][1];
 
+        // Compute alpha, beta and gamma (Pauli decomposition coefficients)
         final double sqrt2 = Math.sqrt(2.0);
         final double alphaR = (sHHr + sVVr) / sqrt2;
         final double alphaI = (sHHi + sVVi) / sqrt2;
@@ -179,29 +184,73 @@ public class Cameron extends DecompositionBase implements Decomposition, QuadPol
         final double gammaR = sHVr * sqrt2;
         final double gammaI = sHVi * sqrt2;
 
-        final double span = Math.sqrt(sHHr*sHHr + sHHi*sHHi + 2.0*sHVr*sHVr + 2.0*sHVi*sHVi + sVVr*sVVr + sVVi*sVVi);
+        // Compute ||S|| as in Eq. 45
+        final double a = Math.sqrt(sHHr * sHHr + sHHi * sHHi + 2.0 * sHVr * sHVr + 2.0 * sHVi * sHVi +
+                sVVr * sVVr + sVVi * sVVi);
 
-        final double tmp1 = 2.0 * (betaR*gammaR + betaI*gammaI);
-        final double tmp2 = betaR*betaR + betaI*betaI - gammaR*gammaR - gammaI*gammaI;
-        final double tmp3 = Math.sqrt(tmp1*tmp1 + tmp2*tmp2);
-        final double sinKai = tmp1 / tmp3;
-        final double cosKai = tmp2 / tmp3;
-        final double tmp4r = cosKai*(sHHr - sVVr) + 2.0*sinKai*sHVr;
-        final double tmp4i = cosKai*(sHHi - sVVi) + 2.0*sinKai*sHVi;
+        // Compute beta*conj(gamma) + conj(beta)*gamma
+        final double tmp1 = 2.0 * (betaR * gammaR + betaI * gammaI);
 
-        final double iHH = alphaR/sqrt2 + 0.5*cosKai*tmp4r;
-        final double qHH = alphaI/sqrt2 + 0.5*cosKai*tmp4i;
-        final double iHV = 0.5*sinKai*tmp4r;
-        final double qHV = 0.5*sinKai*tmp4i;
-        final double iVV = alphaR/sqrt2 - 0.5*cosKai*tmp4r;
-        final double qVV = alphaI/sqrt2 - 0.5*cosKai*tmp4i;
+        // Compute |beta|^2 - |gamma|^2
+        final double tmp2 = betaR * betaR + betaI * betaI - gammaR * gammaR - gammaI * gammaI;
 
-        final double sMaxNorm = Math.sqrt(iHH*iHH + qHH*qHH + 2.0*iHV*iHV + 2.0*qHV*qHV + iVV*iVV + qVV*qVV);
-        final double ssMaxR = sHHr*iHH - sHHi*qHH + 2.0*(sHVr*iHV - sHVi*qHV) + sVVr*iVV - sVVi*qVV;
-        final double ssMaxI = sHHr*qHH + sHHi*iHH + 2.0*(sHVr*qHV + sHVi*iHV) + sVVr*qVV + sVVi*iVV;
-        final double tau = Math.acos(Math.sqrt(ssMaxR * ssMaxR + ssMaxI * ssMaxI) / (span * sMaxNorm));
+        // Compute sqrt(tmp1^2 + tmp2^2)
+        final double tmp3 = Math.sqrt(tmp1 * tmp1 + tmp2 * tmp2);
 
-        return new CDD(iHH, qHH, iHV, qHV, iVV, qVV, span, tau);
+        // Compute angle Chi as in Eq. 36, 37 and 38
+        double chi = 0.0;
+        if (Math.abs(tmp1) < eps || Math.abs(tmp2) < eps) {
+            chi = 0.0;
+        } else {
+            final double sinChi = tmp1 / tmp3;
+            final double cosChi = tmp2 / tmp3;
+            if (cosChi > 0.0) {
+                chi = Math.asin(sinChi);
+            } else {
+                if (sinChi > 0.0) {
+                    chi = Math.PI - Math.asin(sinChi);
+                } else {
+                    chi = -Math.PI - Math.asin(sinChi);
+                }
+            }
+        }
+
+        // Compute epsilon
+        final double halfChi = chi / 2.0;
+        final double cosHalfChi = Math.cos(halfChi);
+        final double sinHalfChi = Math.sin(halfChi);
+        final double epsilonR = betaR * cosHalfChi + gammaR * sinHalfChi;
+        final double epsilonI = betaI * cosHalfChi + gammaI * sinHalfChi;
+
+        // Compute DS as in Eq. 34 and 35
+        final double dsHHi = (alphaR + cosHalfChi * epsilonR) / sqrt2;
+        final double dsHHq = (alphaI + cosHalfChi * epsilonI) / sqrt2;
+        final double dsHVi = sinHalfChi * epsilonR / sqrt2;
+        final double dsHVq = sinHalfChi * epsilonI / sqrt2;
+        final double dsVVi = (alphaR - cosHalfChi * epsilonR) / sqrt2;
+        final double dsVVq = (alphaI - cosHalfChi * epsilonI) / sqrt2;
+
+        // Compute ||DS||
+        final double dsNorm = Math.sqrt(dsHHi * dsHHi + dsHHq * dsHHq + 2.0 * dsHVi * dsHVi + 2.0 * dsHVq * dsHVq +
+                dsVVi * dsVVi + dsVVq * dsVVq);
+
+        // Compute Smax as Eq. 42
+        final double sMaxHHi = dsHHi / dsNorm;
+        final double sMaxHHq = dsHHq / dsNorm;
+        final double sMaxHVi = dsHVi / dsNorm;
+        final double sMaxHVq = dsHVq / dsNorm;
+        final double sMaxVVi = dsVVi / dsNorm;
+        final double sMaxVVq = dsVVq / dsNorm;
+
+        // Compute S*DS
+        final double sDsR = sHHr * dsHHi - sHHi * dsHHq + 2.0 * (sHVr * dsHVi - sHVi * dsHVq) + sVVr * dsVVi - sVVi * dsVVq;
+        final double sDsI = sHHr * dsHHq + sHHi * dsHHi + 2.0 * (sHVr * dsHVq + sHVi * dsHVi) + sVVr * dsVVq + sVVi * dsVVi;
+
+        // Compute tau as in Eq. 46
+        final double tau = Math.acos(Math.sqrt(sDsR * sDsR + sDsI * sDsI) / (a * dsNorm));
+
+        // Output Smax, span and tau
+        return new CDD(sMaxHHi, sMaxHHq, sMaxHVi, sMaxHVq, sMaxVVi, sMaxVVq, a, tau);
     }
 
     public static class CDD {
