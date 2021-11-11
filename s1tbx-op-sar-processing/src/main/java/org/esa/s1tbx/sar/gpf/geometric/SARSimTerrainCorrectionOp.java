@@ -149,8 +149,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
     @Parameter(defaultValue = "true", label = "Save selected source band")
     private boolean saveSelectedSourceBand = true;
 
-    @Parameter(defaultValue = "false", label = "Output complex data")
-    private boolean outputComplex = false;
+//    @Parameter(defaultValue = "false", label = "Output complex data")
+//    private boolean outputComplex = false;
 
     @Parameter(defaultValue = "false", label = "Apply radiometric normalization")
     private boolean applyRadiometricNormalization = false;
@@ -943,7 +943,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
             };
 
             final RangeDopplerGeocodingOp.TileData td = new RangeDopplerGeocodingOp.TileData(
-                    targetTiles.get(targetBand), srcBands, isPolsar, outputComplex,
+//                    targetTiles.get(targetBand), srcBands, isPolsar, outputComplex,
+                    targetTiles.get(targetBand), srcBands, isPolsar,
                     targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling,
                     null, null);
 
