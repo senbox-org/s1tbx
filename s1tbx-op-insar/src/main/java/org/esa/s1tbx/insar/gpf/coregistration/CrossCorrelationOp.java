@@ -195,11 +195,6 @@ public class CrossCorrelationOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             final boolean isComplex = validator.isComplex();
 
-            if (isComplex) {
-                applyFineRegistration = true;
-                inSAROptimized = true;
-            }
-
             cWindowWidth = Integer.parseInt(coarseRegistrationWindowWidth);
             cWindowHeight = Integer.parseInt(coarseRegistrationWindowHeight);
             cHalfWindowWidth = cWindowWidth / 2;
@@ -209,6 +204,11 @@ public class CrossCorrelationOp extends Operator {
             colUpSamplingFactor = Integer.parseInt(columnInterpFactor);
 
             getMasterBands();
+
+            if (isComplex && complexCoregistration) {
+                applyFineRegistration = true;
+                inSAROptimized = true;
+            }
 
             // parameters: Fine
             if(applyFineRegistration) {
