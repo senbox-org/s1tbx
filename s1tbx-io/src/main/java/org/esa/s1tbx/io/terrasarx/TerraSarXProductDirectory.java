@@ -703,6 +703,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     @Override
     protected void addGeoCoding(final Product product) {
+        if (product.getSceneGeoCoding() != null) {
+            return;
+        }
+
         File level1ProductDir = getBaseDir();
         if (getHeaderFileName().startsWith("TDM")) {
             // Using the master product is important here.
