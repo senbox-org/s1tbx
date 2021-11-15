@@ -45,7 +45,7 @@
     global geodetic ellipsoid reference WGS84 (and height in meters) are properly supported.</p>
 
 <p>Various different types of Digital Elevation
-    models can be used (ACE, GETASSE30,&nbsp;ASTER, SRTM 3Sec&nbsp;GeoTiff).</p><p>The
+    models can be used (ACE2_5Min, ACE_30, ASTER_1Sec, CFEM, Copernicus30m, Copernicus90m, GETASSE30, SRTM 1Sec, SRTM 3Sec&nbsp;GeoTiff).</p><p>The
 STRM v.4 (3&#8221; tiles) from the Joint Research Center FTP (xftp.jrc.it)
 will automatically be downloaded in tiles for&nbsp; the area covered by
 the image to be orthorectified. The tiles will be downloaded to the
@@ -55,7 +55,7 @@ your user folder.</p>
 
 
 <p>Please
-    note that for ACE and SRTM, the height information (being referred to
+    note that for ACE, Copernicus and SRTM, the height information (being referred to
     geoid EGM96) is automatically corrected to obtain height relative to
     the WGS84 ellipsoid. For Aster Dem height correction is not yet
     applied. </p>
@@ -360,22 +360,20 @@ Please note that the simplified approach&nbsp; where Noise Equivalent Beta Naugh
     </li>
     <li>Map
         Projection: The map projection types.&nbsp;By default the output
-        image will be expressed in WGS84 latlong geographic coordinate.
-    </li>
-    <li>Save DEM as a band: Checkbox indicating that DEM will be saved as a band in the
-        target product.
-    </li>
-    <li>Save local incidence angle as a band: Checkbox indicating that local incidence
-        angle will be saved as a band in the target product.
-    </li>
-    <li>Save projected (into the range plane) local incidence angle as a band: Checkbox indicating that the
-        projected local incidence angle will be saved as a band in the target product.
-    </li>
-    <li>Save selected source band: Checkbox indicating that orthorectified
+        image will be expressed in WGS84 latlong geographic coordinate.</li><li>Mask
+out areas without elevation: Checkbox indicating that areas (e.g. sea)
+where DEM is not available will be masked out as no data
+value.&nbsp;&nbsp;</li><li>Selected source band: Checkbox indicating that orthorectified
         images of user selected bands will be saved without applying
         radiometric normalization.
     </li>
-    <li>Apply radiometric normalization: Checkbox indicating that radiometric normalization will be applied to the
+    <li>DEM as a band: Checkbox indicating that DEM will be saved as a band in the
+        target product.</li><li>Latitude and Longitude: Checkbox indicating that latitude and longitude bands will be saved in the target product.&nbsp;</li><li>Incidence angle ellipsoid: Checkbox indicating that the tie point grid incidence angle will be saved as a band in the target product.&nbsp;</li>
+    <li>Local incidence angle: Checkbox indicating that local incidence
+        angle will be saved as a band in the target product.
+    </li>
+    <li>Projected (into the range plane) local incidence angle: Checkbox indicating that the
+        projected local incidence angle will be saved as a band in the target product.</li><li>Layover Shadow Mask: Checkbox indicating that the layover and shadow mask will be saved in the target product.&nbsp;</li><li>Apply radiometric normalization: Checkbox indicating that radiometric normalization will be applied to the
         orthorectified image.
     </li>
     <li>Save Sigma0 as a band: Checkbox indicating that sigma0 will be
@@ -399,7 +397,7 @@ File</span> (for detected product only) and <span style="font-weight: bold;">Ext
     </li>
 </ol>
 <i ,j="">
-<br></i><p><i ,j=""><img style="width: 500px; height: 607px;" alt="" src="images/range_doppler_dlg.JPG"><br></i></p>
+<br></i><p><i ,j=""><img style="width: 508px; height: 679px;" alt="" src="images/range_doppler_dlg.JPG"><br></i></p>
 
 <p><i ,j="">
     </i></p>
