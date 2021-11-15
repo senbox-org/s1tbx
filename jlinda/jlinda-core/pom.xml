@@ -41,9 +41,9 @@
         </dependency>
         <dependency>
             <groupId>edu.emory.mathcs</groupId>
-            <artifactId>jtransforms</artifactId>
-            <version>2.3</version>
-        </dependency>
+            <artifactId>JTransforms</artifactId>
+            <version>2.4</version>
+        </dependency>        
     </dependencies>
     
     <build>

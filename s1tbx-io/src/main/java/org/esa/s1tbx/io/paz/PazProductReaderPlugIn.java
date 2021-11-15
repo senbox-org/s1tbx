@@ -44,7 +44,7 @@ public class PazProductReaderPlugIn implements ProductReaderPlugIn {
         }
         final String filename = path.getFileName().toString().toUpperCase();
         for (String prefix : PazConstants.HEADER_PREFIX) {
-            if (filename.startsWith(prefix) && filename.toLowerCase().endsWith(PazConstants.METADATA_EXT)) {
+            if (filename.startsWith(prefix) && filename.toLowerCase().contains("_sar_")) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -134,7 +134,7 @@ public class PazProductReaderPlugIn implements ProductReaderPlugIn {
                 if (file.isDirectory())
                     return true;
                 for (String header : PazConstants.HEADER_PREFIX) {
-                    if (name.startsWith(header) && name.toLowerCase().endsWith(PazConstants.METADATA_EXT)) {
+                    if (name.startsWith(header) && name.toLowerCase().contains("_sar_")) {
                         return true;
                     }
                 }

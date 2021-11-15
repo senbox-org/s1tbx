@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.Map;
 
 /**
- * User interface for MultiMasterOp
+ * User interface for MultiReferenceOp
  */
 public class MultiMasterOpUI extends BaseOperatorUI {
 

@@ -24,7 +24,7 @@
                     <tocitem text="Phase to Displacement" target="PhaseToDisplacementOp"/>
                     <tocitem text="Phase to Elevation" target="PhaseToElevationOp"/>
                     <tocitem text="Integer Interferogram Combination" target="IntegerInterferogramOp"/>
-                    <tocitem text="Multi-Master InSAR" target="MultiMasterInSAROp"/>
+                    <tocitem text="Multi-Reference InSAR" target="MultiReferenceInSAROp"/>
                     <tocitem text="Horizontal/Vertical Motion" target="HorizontalVerticalMotionOp"/>
                     <tocitem text="Ionospheric Correction" target="IonosphericCorrectionOp"/>
                 </tocitem>

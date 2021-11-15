@@ -234,13 +234,13 @@ public final class TOPSARSplitOp extends Operator {
     /**
      * Find bursts (i.e. firstBurstIndex and lastBurstIndex) that overlap AOI WKT
      */
-    private void findValidBurstsBasedOnWkt() {
+    private void findValidBurstsBasedOnWkt() throws Exception {
         // Read AOI polygon
         Geometry aoi = null;
         try {
             aoi = new WKTReader().read(wktAoi);
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new Exception("Unable to parse wktAoi", e);
         }
 
         // Read burst polygons and check if it intersects AOI
@@ -271,6 +271,10 @@ public final class TOPSARSplitOp extends Operator {
             if (aoi.intersects(burst)) {
                 validSelBursts.add(burst_i + 1);
             }
+        }
+
+        if(validSelBursts.isEmpty()) {
+            throw new Exception("wktAOI does not overlap any burst");
         }
 
         firstBurstIndex = Collections.min(validSelBursts);
@@ -434,21 +438,27 @@ public final class TOPSARSplitOp extends Operator {
 
     private void removeBursts(final MetadataElement origMeta) {
 
-        MetadataElement annotation = origMeta.getElement("annotation");
+        final MetadataElement annotation = origMeta.getElement("annotation");
         if (annotation == null) {
             throw new OperatorException("Annotation Metadata not found");
         }
 
         final MetadataElement[] elems = annotation.getElements();
         for (MetadataElement elem : elems) {
-            final MetadataElement product = elem.getElement("product");
-            final MetadataElement swathTiming = product.getElement("swathTiming");
-            final MetadataElement burstList = swathTiming.getElement("burstList");
-            burstList.setAttributeString("count", Integer.toString(lastBurstIndex - firstBurstIndex + 1));
-            final MetadataElement[] burstListElem = burstList.getElements();
-            for (int i = 0; i < burstListElem.length; i++) {
-                if (i < firstBurstIndex - 1 || i > lastBurstIndex - 1) {
-                    burstList.removeElement(burstListElem[i]);
+            if(elem.containsElement("product")) {
+                final MetadataElement product = elem.getElement("product");
+                if(product.containsElement("swathTiming")) {
+                    final MetadataElement swathTiming = product.getElement("swathTiming");
+                    if(swathTiming.containsElement("burstList")) {
+                        final MetadataElement burstList = swathTiming.getElement("burstList");
+                        burstList.setAttributeString("count", Integer.toString(lastBurstIndex - firstBurstIndex + 1));
+                        final MetadataElement[] burstListElem = burstList.getElements();
+                        for (int i = 0; i < burstListElem.length; i++) {
+                            if (i < firstBurstIndex - 1 || i > lastBurstIndex - 1) {
+                                burstList.removeElement(burstListElem[i]);
+                            }
+                        }
+                    }
                 }
             }
         }

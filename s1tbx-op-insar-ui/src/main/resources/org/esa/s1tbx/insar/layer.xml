@@ -41,16 +41,16 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="Coregistration"/>
             </file>
-            <file name="org-esa-s1tbx-insar-gpf-MultiMasterInSAR-Action.instance">
+            <file name="org-esa-s1tbx-insar-gpf-MultiReferenceInSAR-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Multi-Master InSAR"/>
-                <attr name="operatorName" stringvalue="MultiMasterInSAR"/>
-                <attr name="dialogTitle" stringvalue="Multi-Master InSAR"/>
-                <attr name="ShortDescription" stringvalue="Multi-Master InSAR processing."/>
+                <attr name="displayName" stringvalue="Multi-Reference InSAR"/>
+                <attr name="operatorName" stringvalue="MultiReferenceInSAR"/>
+                <attr name="dialogTitle" stringvalue="Multi-Reference InSAR"/>
+                <attr name="ShortDescription" stringvalue="Multi-Reference InSAR processing."/>
                 <attr name="targetProductNameSuffix" stringvalue="_mmifg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="MultiMasterInSAROp"/>
+                <attr name="helpId" stringvalue="MultiReferenceInSAROp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-HorizontalVerticalMotion-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -107,16 +107,16 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="PCA"/>
             </file>
-            <file name="org-esa-s1tbx-insar-gpf-MultiMasterOp-Action.instance">
+            <file name="org-esa-s1tbx-insar-gpf-MultiReferenceOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                <attr name="displayName" stringvalue="Split stack into multiple masters"/>
-                <attr name="graphFile" stringvalue="coregistration/MultiMasterStackGenerator.xml"/>
-                <attr name="dialogTitle" stringvalue="Split stack into multiple masters"/>
-                <attr name="ShortDescription" stringvalue="Split stack into multiple masters"/>
+                <attr name="displayName" stringvalue="Split stack into multiple references"/>
+                <attr name="graphFile" stringvalue="coregistration/MultiReferenceStackGenerator.xml"/>
+                <attr name="dialogTitle" stringvalue="Split stack into multiple references"/>
+                <attr name="ShortDescription" stringvalue="Split stack into multiple references"/>
                 <attr name="targetProductNameSuffix" stringvalue="_pca"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="MultiMaster"/>
+                <attr name="helpId" stringvalue="MultiReference"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -240,8 +240,8 @@
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-StackSplit-Action.instance"/>
                         <attr name="position" intvalue="300"/>
                     </file>
-                    <file name="org-esa-s1tbx-insar-gpf-MultiMasterOp-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-MultiMasterOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-insar-gpf-MultiReferenceOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-MultiReferenceOp-Action.instance"/>
                         <attr name="position" intvalue="400"/>
                     </file>
                 </folder>
@@ -270,8 +270,8 @@
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-IntegerInterferogram-Action.instance"/>
                         <attr name="position" intvalue="760"/>
                     </file>
-                   <file name="org-esa-s1tbx-insar-gpf-MultiMasterInSAR-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-MultiMasterInSAR-Action.instance"/>
+                   <file name="org-esa-s1tbx-insar-gpf-MultiReferenceInSAR-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-MultiReferenceInSAR-Action.instance"/>
                         <attr name="position" intvalue="770"/>
                    </file>
                     <file name="org-esa-s1tbx-insar-gpf-HorizontalVerticalMotion-Action.shadow">
@@ -309,9 +309,9 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.insar.gpf.ui.MultiMasterOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.MultiMasterOpUI"/>
-            <attr name="operatorName" stringvalue="MultiMasterStackGenerator"/>
+        <file name="org.esa.s1tbx.insar.gpf.ui.MultiReferenceOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.MultiReferenceOpUI"/>
+            <attr name="operatorName" stringvalue="MultiReferenceStackGenerator"/>
         </file>
         <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.CreateStackOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.CreateStackOpUI"/>
@@ -357,16 +357,16 @@
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.StampsExportOpUI"/>
             <attr name="operatorName" stringvalue="StampsExport"/>
         </file>
-	<file name="org.esa.s1tbx.insar.gpf.ui.MultiMasterInSAROpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.MultiMasterInSAROpUI"/>
-            <attr name="operatorName" stringvalue="MultiMasterInSAR"/>
+	<file name="org.esa.s1tbx.insar.gpf.ui.MultiReferenceInSAROpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.MultiReferenceInSAROpUI"/>
+            <attr name="operatorName" stringvalue="MultiReferenceInSAR"/>
         </file>
     </folder>
 
     <folder name="LayerSources">
         <file name="GCPVectorLayerSource">
             <attr name="displayName" stringvalue="Coregistered GCP Movement Vector"/>
-            <attr name="description" stringvalue="Shows GCP movement from slave to master"/>
+            <attr name="description" stringvalue="Shows GCP movement from secondary to reference"/>
             <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.insar.rcp.layersrc.GCPVectorLayerSource"/>
         </file>
     </folder>

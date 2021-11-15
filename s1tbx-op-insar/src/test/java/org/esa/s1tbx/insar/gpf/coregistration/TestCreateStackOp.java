@@ -83,8 +83,8 @@ public class TestCreateStackOp extends ProcessorTest {
         // get targetProduct gets initialize to be executed
         final Product targetProduct = op.getTargetProduct();
         assertNotNull(targetProduct);
-        assertEquals(53, targetProduct.getSceneRasterWidth());
-        assertEquals(35, targetProduct.getSceneRasterHeight());
+        assertEquals(52, targetProduct.getSceneRasterWidth());
+        assertEquals(34, targetProduct.getSceneRasterHeight());
 
         final Band band = targetProduct.getBandAt(0);
         assertNotNull(band);
@@ -95,7 +95,7 @@ public class TestCreateStackOp extends ProcessorTest {
 
         assertEquals("pixels[0]", 0.0f, pixels[0], 0.0001f);
         assertEquals("pixels[10]", 0.0f, pixels[10], 0.0001f);
-        assertEquals("pixels[100]", 96.69367f, pixels[100], 0.0001f);
+        assertEquals("pixels[100]", 94.68987f, pixels[100], 0.0001f);
     }
 
     @Test

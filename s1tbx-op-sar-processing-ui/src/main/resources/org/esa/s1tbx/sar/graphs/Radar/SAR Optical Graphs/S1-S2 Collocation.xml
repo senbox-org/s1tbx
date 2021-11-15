@@ -124,9 +124,9 @@
       <targetProductName>_collocated</targetProductName>
       <targetProductType>COLLOCATED</targetProductType>
       <renameMasterComponents>true</renameMasterComponents>
-      <renameSlaveComponents>true</renameSlaveComponents>
+      <renameSecondaryComponents>true</renameSecondaryComponents>
       <masterComponentPattern>${ORIGINAL_NAME}_M</masterComponentPattern>
-      <slaveComponentPattern>${ORIGINAL_NAME}_S${SLAVE_NUMBER_ID}</slaveComponentPattern>
+      <secondaryComponentPattern>${ORIGINAL_NAME}_S${SECONDARY_NUMBER_ID}</secondaryComponentPattern>
       <resamplingType>NEAREST_NEIGHBOUR</resamplingType>
     </parameters>
   </node>
@@ -138,7 +138,7 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
       <region></region>
-      <referenceBand/>
+      <masterBand/>
       <geoRegion/>
       <subSamplingX>1</subSamplingX>
       <subSamplingY>1</subSamplingY>
@@ -155,7 +155,7 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
       <region></region>
-      <referenceBand/>
+      <masterBand/>
       <geoRegion/>
       <subSamplingX>1</subSamplingX>
       <subSamplingY>1</subSamplingY>

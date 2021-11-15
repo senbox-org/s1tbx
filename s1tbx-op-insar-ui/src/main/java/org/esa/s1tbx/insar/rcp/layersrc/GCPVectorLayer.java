@@ -61,13 +61,13 @@ public class GCPVectorLayer extends Layer {
                     final MetadataElement[] gcpElems = warpDataElem.getElements();
                     gcpList.clear();
                     for (MetadataElement gcpElem : gcpElems) {
-                        final double mstX = gcpElem.getAttributeDouble("mst_x", 0);
-                        final double mstY = gcpElem.getAttributeDouble("mst_y", 0);
+                        final double refX = gcpElem.getAttributeDouble("mst_x", 0);
+                        final double refY = gcpElem.getAttributeDouble("mst_y", 0);
 
-                        final double slvX = gcpElem.getAttributeDouble("slv_x", 0);
-                        final double slvY = gcpElem.getAttributeDouble("slv_y", 0);
+                        final double secX = gcpElem.getAttributeDouble("slv_x", 0);
+                        final double secY = gcpElem.getAttributeDouble("slv_y", 0);
 
-                        gcpList.add(new GCPData(mstX, mstY, slvX, slvY));
+                        gcpList.add(new GCPData(refX, refY, secX, secY));
                     }
                 }
             }
@@ -93,20 +93,20 @@ public class GCPVectorLayer extends Layer {
         graphics.setColor(Color.RED);
         for (GCPData gcp : gcpList) {
             GraphicShape.drawArrow(graphics, screenPixel,
-                    (int) gcp.slvX, (int) gcp.slvY,
-                    (int) gcp.mstX, (int) gcp.mstY, 50);
+                    (int) gcp.secX, (int) gcp.secY,
+                    (int) gcp.refX, (int) gcp.refY, 50);
         }
     }
 
     private static class GCPData {
-        public final double mstX, mstY;
-        public final double slvX, slvY;
+        public final double refX, refY;
+        public final double secX, secY;
 
         public GCPData(double mX, double mY, double sX, double sY) {
-            this.mstX = mX;
-            this.mstY = mY;
-            this.slvX = sX;
-            this.slvY = sY;
+            this.refX = mX;
+            this.refY = mY;
+            this.secX = sX;
+            this.secY = sY;
         }
     }
 }

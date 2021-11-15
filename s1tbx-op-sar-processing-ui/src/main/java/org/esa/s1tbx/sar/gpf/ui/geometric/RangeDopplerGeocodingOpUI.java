@@ -79,7 +79,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     final JLabel sourcePixelSpacingsLabelPart2 = new JLabel("0.0(m) x 0.0(m)");
 
     final JCheckBox nodataValueAtSeaCheckBox = new JCheckBox("Mask out areas without elevation");
-    final JCheckBox outputComplexCheckBox = new JCheckBox("Output complex data");
+//    final JCheckBox outputComplexCheckBox = new JCheckBox("Output complex data");
     final JCheckBox saveDEMCheckBox = new JCheckBox("DEM");
     final JCheckBox saveLatLonCheckBox = new JCheckBox("Latitude & Longitude");
     final JCheckBox saveIncidenceAngleFromEllipsoidCheckBox = new JCheckBox("Incidence angle from ellipsoid");
@@ -98,7 +98,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     final JButton externalAuxFileBrowseButton = new JButton("...");
 
     private Boolean nodataValueAtSea = true;
-    private Boolean outputComplex = false;
+//    private Boolean outputComplex = false;
     private Boolean saveDEM = false;
     private Boolean saveLatLon = false;
     private Boolean saveIncidenceAngleFromEllipsoid = false;
@@ -184,11 +184,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 nodataValueAtSea = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
-        outputComplexCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                outputComplex = (e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
+//        outputComplexCheckBox.addItemListener(new ItemListener() {
+//            public void itemStateChanged(ItemEvent e) {
+//                outputComplex = (e.getStateChange() == ItemEvent.SELECTED);
+//            }
+//        });
         saveDEMCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 saveDEM = (e.getStateChange() == ItemEvent.SELECTED);
@@ -395,11 +395,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 savedRangePixelSpacing = rangePixelSpacing;
             }
 
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            if(absRoot != null) {
-                boolean isComplex = absRoot.getAttributeString(AbstractMetadata.sample_type).equals("COMPLEX");
-                outputComplexCheckBox.setEnabled(isComplex);
-            }
+//            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+//            if(absRoot != null) {
+//                boolean isComplex = absRoot.getAttributeString(AbstractMetadata.sample_type).equals("COMPLEX");
+//                outputComplexCheckBox.setEnabled(isComplex);
+//            }
         }
 
         final File extDEMFile = (File) paramMap.get("externalDEMFile");
@@ -423,11 +423,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             nodataValueAtSeaCheckBox.setSelected(nodataValueAtSea);
         }
 
-        paramVal = (Boolean) paramMap.get("outputComplex");
-        if (paramVal != null) {
-            outputComplex = paramVal;
-            outputComplexCheckBox.setSelected(outputComplex);
-        }
+//        paramVal = (Boolean) paramMap.get("outputComplex");
+//        if (paramVal != null) {
+//            outputComplex = paramVal;
+//            outputComplexCheckBox.setSelected(outputComplex);
+//        }
 
         paramVal = (Boolean) paramMap.get("saveDEM");
         if (paramVal != null) {
@@ -609,7 +609,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         }
 
         paramMap.put("nodataValueAtSea", nodataValueAtSea);
-        paramMap.put("outputComplex", outputComplex);
+//        paramMap.put("outputComplex", outputComplex);
         paramMap.put("saveDEM", saveDEM);
         paramMap.put("saveLatLon", saveLatLon);
         paramMap.put("saveIncidenceAngleFromEllipsoid", saveIncidenceAngleFromEllipsoid);
@@ -675,8 +675,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         if (!useAvgSceneHeight) {
             gbc.gridy++;
             contentPane.add(nodataValueAtSeaCheckBox, gbc);
-            gbc.gridx = 1;
-            contentPane.add(outputComplexCheckBox, gbc);
+//            gbc.gridx = 1;
+//            contentPane.add(outputComplexCheckBox, gbc);
         }
 
         gbc.gridx = 0;

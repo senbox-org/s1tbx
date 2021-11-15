@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class CoherenceOpUI extends BaseOperatorUI {
 
-    private final JCheckBox singleMasterCheckBox = new JCheckBox("Single Master");
+    private final JCheckBox singleReferenceCheckBox = new JCheckBox("Single Reference");
     private final JCheckBox squarePixelCheckBox = new JCheckBox("Square Pixel");
     private final JCheckBox independentWindowSizeCheckBox = new JCheckBox("Independent Window Sizes");
     private final JCheckBox subtractFlatEarthPhaseCheckBox = new JCheckBox("Subtract flat-earth phase");
@@ -65,7 +65,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
 
     private Boolean squarePixel = true;
     private Boolean subtractFlatEarthPhase = false;
-    private Boolean singleMaster = true;
+    private Boolean singleReference = true;
     private final CoherenceOp.DerivedParams param = new CoherenceOp.DerivedParams();
 
     private Boolean subtractTopographicPhase = false;
@@ -131,9 +131,9 @@ public class CoherenceOpUI extends BaseOperatorUI {
             }
         });
 
-        singleMasterCheckBox.addItemListener(new ItemListener() {
+        singleReferenceCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                singleMaster = (e.getStateChange() == ItemEvent.SELECTED);
+                singleReference = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -206,8 +206,8 @@ public class CoherenceOpUI extends BaseOperatorUI {
 
         paramVal = (Boolean) paramMap.get("singleMaster");
         if (paramVal != null) {
-            singleMaster = paramVal;
-            singleMasterCheckBox.setSelected(singleMaster);
+            singleReference = paramVal;
+            singleReferenceCheckBox.setSelected(singleReference);
         }
 
 //        orbitDegree.setText(String.valueOf(paramMap.get("orbitDegree")));
@@ -274,7 +274,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
 			paramMap.put("orbitDegree", orbitDegreeStr.getSelectedItem());
 		}
 
-        paramMap.put("singleMaster", singleMaster);
+        paramMap.put("singleMaster", singleReference);
 
         paramMap.put("subtractTopographicPhase", subtractTopographicPhase);
         if (subtractTopographicPhase) {
@@ -306,7 +306,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        contentPane.add(singleMasterCheckBox, gbc);
+        contentPane.add(singleReferenceCheckBox, gbc);
 
         gbc.gridy++;
         contentPane.add(subtractFlatEarthPhaseCheckBox, gbc);

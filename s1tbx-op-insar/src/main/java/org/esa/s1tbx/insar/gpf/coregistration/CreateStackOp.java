@@ -16,7 +16,9 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.CRSGeoCodingHandler;
 import org.esa.s1tbx.commons.Resolution;
+import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -690,12 +692,28 @@ public class CreateStackOp extends Operator {
             dim = (long) sceneWidth * (long) sceneHeight;
         }
 
-        targetProduct = new Product(masterProduct.getName(),
+        final Product tempProduct = new Product(masterProduct.getName(),
                                     masterProduct.getProductType(),
                                     sceneWidth, sceneHeight);
 
-        ProductUtils.copyProductNodes(masterProduct, targetProduct);
-        OperatorUtils.addGeoCoding(targetProduct, scnProp);
+        ProductUtils.copyProductNodes(masterProduct, tempProduct);
+        OperatorUtils.addGeoCoding(tempProduct, scnProp);
+
+        try {
+            final double pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSize);
+
+            final CRSGeoCodingHandler crsHandler = new CRSGeoCodingHandler(tempProduct, "WGS84(DD)",
+                    pixelSpacingInDegree, pixelSize,false, 0, 0);
+
+            targetProduct = new Product(masterProduct.getName(),
+                    masterProduct.getProductType(), crsHandler.getTargetWidth(), crsHandler.getTargetHeight());
+
+            ProductUtils.copyProductNodes(masterProduct, targetProduct);
+
+            targetProduct.setSceneGeoCoding(crsHandler.getCrsGeoCoding());
+        } catch (Exception e) {
+            throw new OperatorException(e);
+        }
     }
 
     private void computeTargetSlaveCoordinateOffsets_GCP() {

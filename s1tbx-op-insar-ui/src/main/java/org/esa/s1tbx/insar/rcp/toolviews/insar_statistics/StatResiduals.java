@@ -90,8 +90,8 @@ public class StatResiduals implements InSARStatistic {
     }
 
     private static File getResidualFile(final MetadataElement absRoot) {
-        final String mstName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
-        return new File(ResourceUtils.getReportFolder(), mstName + "_residual.txt");
+        final String refName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+        return new File(ResourceUtils.getReportFolder(), refName + "_residual.txt");
     }
 
     private static String readFile(final File file) {
@@ -119,7 +119,7 @@ public class StatResiduals implements InSARStatistic {
                 MetadataElement warpDataElem = bandElem.getElement("WarpData");
                 if (warpDataElem != null) {
                     final MetadataElement[] GCPElems = warpDataElem.getElements();
-                    formatter.format("%15s %15s %15s %15s %15s %20s\n", "GCP", "mst_x", "mst_y", "slv_x", "slv_y", "rms");
+                    formatter.format("%15s %15s %15s %15s %15s %20s\n", "GCP", "ref_x", "ref_y", "sec_x", "sec_y", "rms");
 
                     for (MetadataElement GCPElem : GCPElems) {
                         formatter.format("%15s", GCPElem.getName());

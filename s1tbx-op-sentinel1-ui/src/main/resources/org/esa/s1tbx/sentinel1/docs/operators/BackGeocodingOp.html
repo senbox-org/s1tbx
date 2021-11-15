@@ -23,14 +23,14 @@
 </table>
 <h3>Sentinel-1 Back Geocoding</h3>
 <p class="MsoNormal"><span>This operator co-registers two S-1 SLC
-split products (master and slave) of the same sub-swath using the
+split products (reference and secondary) of the same sub-swath using the
 orbits of the two products and a Digital Elevation Model
 (DEM).<br>
 </span></p>
-<p class="MsoNormal"><span></span>In resampling the slave images into master
-frame, deramp and demodulation are performed first to the slave image,
+<p class="MsoNormal"><span></span>In resampling the secondary images into reference
+frame, deramp and demodulation are performed first to the secondary image,
 then the truncated-sinc interpolation is performed. Finally, the reramp
-and remodulation are applied to the interpolated slave image. <br>
+and remodulation are applied to the interpolated secondary image. <br>
 <span style=""></span></p>
  
 <h4>Input <br>
@@ -39,7 +39,7 @@ and remodulation are applied to the interpolated slave image. <br>
 
 <ul>
   <li>Before running this operator, user should first run S-1 TOPS
-Split operator to both master and slave products to get the same
+Split operator to both reference and secondary products to get the same
 sub-swath and same polarization data for co-registration (e.g. IW1 -
 VV). <br>
   </li>
@@ -56,7 +56,7 @@ achieve better co-registration result.<br>
 
 
 <ul>
-  <li>The output of the operator are the co-registered master and slave bands in I/Q format. <br>
+  <li>The output of the operator are the co-registered reference and secondary bands in I/Q format. <br>
 
   </li>
 </ul>
@@ -109,10 +109,10 @@ coast in the co-registered images.<br>
   <li>Output Deramp and Demod Phase: Checkbox indicating if deramp and
 demodulation phases should be output as separated bands. This option is
 mostly for debugging purpose and not recommended for most users.</li><li>Disable
-Reramp: Checkbox indicating if deramped and demodulated master and
-slave bands should be output. This option is generally not necessary if
+Reramp: Checkbox indicating if deramped and demodulated reference and
+secondary bands should be output. This option is generally not necessary if
 the
-coregistered master and slave bands will be used in generating
+coregistered reference and secondary bands will be used in generating
 interferogram. However, if this option is selected, we suggest you
 disable the "Mask out areas with no elevation" option. This is because
 the valid zeros in bands may be treated as invalid noDataValue and
