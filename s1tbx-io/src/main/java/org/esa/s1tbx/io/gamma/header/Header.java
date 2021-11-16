@@ -168,5 +168,13 @@ public class Header {
         }
         return headerElem;
     }
+
+    public double getAzimuthSpacing() {
+        return headerParser.getDouble(GammaConstants.HEADER_KEY_AZIMUTH_PIXEL_SPACING, 0);
+    }
+
+    public double getRangeSpacing() {
+        return headerParser.getDouble(GammaConstants.HEADER_KEY_RANGE_PIXEL_SPACING, 0);
+    }
 }
 
