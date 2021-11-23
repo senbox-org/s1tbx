@@ -258,7 +258,11 @@ public final class TerrainFlatteningOp extends Operator {
         final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
 
         if (externalDEMFile == null) {
-            if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
+            if (demName.contains("Copernicus 30m Global DEM") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
+                overSamplingFactor = Math.ceil(30.0 / minSpacing);
+            } else if (demName.contains("Copernicus 90m Global DEM") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
+                overSamplingFactor = Math.ceil(90.0 / minSpacing);
+            } else if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
                 overSamplingFactor = Math.ceil(90.0 / minSpacing);
             } else if (demName.contains("SRTM 1Sec HGT") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
                 overSamplingFactor = Math.ceil(30.0 / minSpacing);
