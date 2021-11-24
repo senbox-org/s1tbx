@@ -42,15 +42,15 @@ public class Yang extends DecompositionBase implements Decomposition, QuadPolPro
     private final static String TWO_A0 = "2A0_b";
     private final static String B0_PLUS_B = "B0_plus_B_r";
     private final static String B0_MINUS_B = "B0_minus_B_g";
-    private final static String A0 = "A0";
-    private final static String B0 = "B0";
-    private final static String B = "B";
-    private final static String C = "C";
-    private final static String D = "D";
-    private final static String E = "E";
-    private final static String F = "F";
-    private final static String G = "G";
-    private final static String H = "H";
+    private final static String T11 = "T11";
+    private final static String T12_REAL = "T12_real";
+    private final static String T12_IMAG = "T12_image";
+    private final static String T13_REAL = "T13_real";
+    private final static String T13_IMAG = "T13_imag";
+    private final static String T22 = "T22";
+    private final static String T23_REAL = "T23_real";
+    private final static String T23_IMAG = "T23_imag";
+    private final static String T33 = "T33";
 
 
     public Yang(final PolBandUtils.PolSourceBand[] srcBandList, final MATRIX sourceProductType,
@@ -84,15 +84,15 @@ public class Yang extends DecompositionBase implements Decomposition, QuadPolPro
             targetBandNameList.add(TWO_A0);
         }
         if (outputHuynenParamSet1) {
-            targetBandNameList.add(A0);
-            targetBandNameList.add(B0);
-            targetBandNameList.add(B);
-            targetBandNameList.add(C);
-            targetBandNameList.add(D);
-            targetBandNameList.add(E);
-            targetBandNameList.add(F);
-            targetBandNameList.add(G);
-            targetBandNameList.add(H);
+            targetBandNameList.add(T11);
+            targetBandNameList.add(T12_REAL);
+            targetBandNameList.add(T12_IMAG);
+            targetBandNameList.add(T13_REAL);
+            targetBandNameList.add(T13_IMAG);
+            targetBandNameList.add(T22);
+            targetBandNameList.add(T23_REAL);
+            targetBandNameList.add(T23_IMAG);
+            targetBandNameList.add(T33);
         }
 
         return targetBandNameList.toArray(new String[targetBandNameList.size()]);
@@ -107,11 +107,10 @@ public class Yang extends DecompositionBase implements Decomposition, QuadPolPro
     public void setBandUnit(final String targetBandName, final Band targetBand) {
         if (targetBandName.equals(B0_PLUS_B) || targetBandName.equals(B0_MINUS_B) || targetBandName.equals(TWO_A0)) {
             targetBand.setUnit(Unit.INTENSITY_DB);
-        } else if (targetBandName.equals(A0) || targetBandName.equals(B0) || targetBandName.equals(B)) {
-            targetBand.setUnit(Unit.INTENSITY);
-        } else if (targetBandName.equals(C) || targetBandName.equals(E) || targetBandName.equals(H)) {
+        } else if (targetBandName.equals(T11) || targetBandName.equals(T22) || targetBandName.equals(T33) ||
+                targetBandName.equals(T12_REAL) || targetBandName.equals(T13_REAL) || targetBandName.equals(T23_REAL)) {
             targetBand.setUnit(Unit.REAL);
-        } else if (targetBandName.equals(D) || targetBandName.equals(F) || targetBandName.equals(G)) {
+        } else if (targetBandName.equals(T12_IMAG) || targetBandName.equals(T13_IMAG) || targetBandName.equals(T23_IMAG)) {
             targetBand.setUnit(Unit.IMAGINARY);
         }
     }
@@ -399,37 +398,37 @@ public class Yang extends DecompositionBase implements Decomposition, QuadPolPro
             if (outputHuynenParamSet0) {
                 if (targetBandName.equals(TWO_A0))
                     dataBuffer.setElemFloatAt(idx,
-                            (float) (10.0 * Math.log10(2.0 * hp.A0)));
+                            (float) (10.0 * Math.log10(hp.T11)));
 //                            (float) scaleDb(2.0 * hp.A0, bandList.spanMin, bandList.spanMax));
                 else if (targetBandName.equals(B0_PLUS_B))
                     dataBuffer.setElemFloatAt(idx,
-                            (float) (10.0 * Math.log10(hp.B0 + hp.B)));
+                            (float) (10.0 * Math.log10(hp.T22)));
 //                            (float) scaleDb(hp.B0 + hp.B, bandList.spanMin, bandList.spanMax));
                 else if (targetBandName.equals(B0_MINUS_B))
                     dataBuffer.setElemFloatAt(idx,
-                            (float) (10.0 * Math.log10(hp.B0 - hp.B)));
+                            (float) (10.0 * Math.log10(hp.T33)));
 //                            (float) scaleDb(hp.B0 - hp.B, bandList.spanMin, bandList.spanMax));
             }
 
             if (outputHuynenParamSet1) {
-                if (targetBandName.equals(A0))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.A0);
-                else if (targetBandName.equals(B0))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.B0);
-                else if (targetBandName.equals(B))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.B);
-                else if (targetBandName.equals(C))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.C);
-                else if (targetBandName.equals(D))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.D);
-                else if (targetBandName.equals(E))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.E);
-                else if (targetBandName.equals(F))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.F);
-                else if (targetBandName.equals(G))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.G);
-                else if (targetBandName.equals(H))
-                    dataBuffer.setElemFloatAt(idx, (float) hp.H);
+                if (targetBandName.equals(T11))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T11);
+                else if (targetBandName.equals(T12_REAL))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T12_real);
+                else if (targetBandName.equals(T12_IMAG))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T12_imag);
+                else if (targetBandName.equals(T13_REAL))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T13_real);
+                else if (targetBandName.equals(T13_IMAG))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T13_imag);
+                else if (targetBandName.equals(T22))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T22);
+                else if (targetBandName.equals(T23_REAL))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T23_real);
+                else if (targetBandName.equals(T23_IMAG))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T23_imag);
+                else if (targetBandName.equals(T33))
+                    dataBuffer.setElemFloatAt(idx, (float) hp.T33);
             }
         }
     }
@@ -449,27 +448,27 @@ public class Yang extends DecompositionBase implements Decomposition, QuadPolPro
     }
 
     public static class HuynenParameters {
-        public final double A0;
-        public final double B0;
-        public final double B;
-        public final double C;
-        public final double D;
-        public final double E;
-        public final double F;
-        public final double G;
-        public final double H;
+        public final double T11;
+        public final double T12_real;
+        public final double T12_imag;
+        public final double T13_real;
+        public final double T13_imag;
+        public final double T22;
+        public final double T23_real;
+        public final double T23_imag;
+        public final double T33;
 
         public HuynenParameters(final double A0, final double B0, final double B, final double C, final double D,
                    final double E, final double F, final double G, final double H) {
-            this.A0 = A0;
-            this.B0 = B0;
-            this.B = B;
-            this.C = C;
-            this.D = D;
-            this.E = E;
-            this.F = F;
-            this.G = G;
-            this.H = H;
+            this.T11 = 2.0 * A0;
+            this.T12_real = C;
+            this.T12_imag = -D;
+            this.T13_real = H;
+            this.T13_imag = G;
+            this.T22 = B0 + B;
+            this.T23_real = E;
+            this.T23_imag = F;
+            this.T33 = B0 - B;
         }
     }
 }
