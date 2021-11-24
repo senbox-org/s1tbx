@@ -57,8 +57,8 @@
 					}
 				],
 				"name": "latitude",
-				"subSamplingY": "3588.0",
-				"subSamplingX": "3025.0"
+				"subSamplingY": "3588.222222222222",
+				"subSamplingX": "3025.8888888888887"
 			},
 			{
 				"offsetX": "0.5",
@@ -76,8 +76,8 @@
 					}
 				],
 				"name": "longitude",
-				"subSamplingY": "3588.0",
-				"subSamplingX": "3025.0"
+				"subSamplingY": "3588.222222222222",
+				"subSamplingX": "3025.8888888888887"
 			},
 			{
 				"offsetX": "0.0",
@@ -131,7 +131,7 @@
 				{
 					"x": 20219.0,
 					"y": 20955.0,
-					"lon": 138.92644299013203,
+					"lon": 138.92627886988183,
 					"lat": 35.3534129010446
 				}
 			],

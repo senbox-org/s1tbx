@@ -1,1 +1,169 @@
-{"decodeQualification":"INTENDED","id":"SAOCOM_Strip_GEC_QP","expectedContent":{"metadata":[{"path":"Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector5\/time","value":"23-DEC-2018 10:31:10.010000"},{"path":"Original_Product_Metadata\/Channel[3]\/StateVectorData\/vSV_mOs\/val[12]\/val","value":"6587.39163966652"},{"path":"Original_Product_Metadata\/product\/dataFile\/components\/component[25]\/componentTitle","value":"Quality Log"},{"path":"Original_Product_Metadata\/Channel[4]\/RasterInfo\/SamplesStep\/unit","value":"m"},{"path":"Original_Product_Metadata\/Channel[2]\/DataStatistics\/MinQ","value":"0"},{"path":"Original_Product_Metadata\/product\/features\/scene\/timeFrame\/timePeriod\/endTime","value":"2018-12-23T10:31:17.349981"},{"path":"Original_Product_Metadata\/Channel[3]\/GroundCornerPoints\/Center\/Point\/val[3]\/unit","value":"m"},{"path":"Original_Product_Metadata\/product\/productionHistory\/software\/inputs\/input[3]\/value\/value","value":"34"},{"path":"Original_Product_Metadata\/Channel[4]\/StateVectorData\/vSV_mOs\/val[20]\/val","value":"-3816.77493584219"},{"path":"Original_Product_Metadata\/Channel[3]\/StateVectorData\/vSV_mOs\/val[10]\/val","value":"49.3975847485975"}],"tiePointGrids":[{"offsetX":"0.0","offsetY":"0.0","expectedPixels":[{"x":251,"y":1259,"value":23.315008},{"x":3295,"y":6012,"value":24.706984}],"name":"incident_angle","subSamplingY":"2356.3333333333335","subSamplingX":"1603.6666666666667"},{"offsetX":"0.0","offsetY":"0.0","expectedPixels":[{"x":1399,"y":1815,"value":6.1050994E14},{"x":2937,"y":2582,"value":6.2284146E14}],"name":"slant_range_time","subSamplingY":"2356.3333333333335","subSamplingX":"1603.6666666666667"}],"sceneHeight":7069,"sceneWidth":4811,"geoCoding":{"coordinates":[{"x":2075.0,"y":3800.0,"lon":-61.82902265149572,"lat":-27.246072149132498},{"x":3571.0,"y":4587.0,"lon":-61.70721214421809,"lat":-27.301403364128603}],"reverseAccuracy":4.321918822824955E-9},"startTime":"23-DEC-2018 10:31:10.068172","endTime":"23-DEC-2018 10:31:17.349981","bands":[{"bandWidth":4811,"noDataValueUsed":"true","bandHeight":7069,"expectedPixels":[{"x":2646,"y":5268,"value":0.21691032},{"x":2926,"y":6563,"value":"NaN"}],"spectralWavelength":"0.0","spectralBandwidth":"0.0","name":"Sigma0_HH","noDataValue":"0.0","geophysicalUnit":"intensity"},{"bandWidth":4811,"noDataValueUsed":"true","bandHeight":7069,"expectedPixels":[{"x":761,"y":4708,"value":"NaN"},{"x":2497,"y":6457,"value":"NaN"}],"spectralWavelength":"0.0","spectralBandwidth":"0.0","name":"Sigma0_HV","noDataValue":"0.0","geophysicalUnit":"intensity"},{"bandWidth":4811,"noDataValueUsed":"true","bandHeight":7069,"expectedPixels":[{"x":3637,"y":3425,"value":0.02500653},{"x":4574,"y":3434,"value":"NaN"}],"spectralWavelength":"0.0","spectralBandwidth":"0.0","name":"Sigma0_VH","noDataValue":"0.0","geophysicalUnit":"intensity"},{"bandWidth":4811,"noDataValueUsed":"true","bandHeight":7069,"expectedPixels":[{"x":1637,"y":6358,"value":"NaN"},{"x":47,"y":3327,"value":"NaN"}],"spectralWavelength":"0.0","spectralBandwidth":"0.0","name":"Sigma0_VV","noDataValue":"0.0","geophysicalUnit":"intensity"}]}}
+{
+	"decodeQualification": "INTENDED",
+	"id": "SAOCOM_Strip_GEC_QP",
+	"expectedContent": {
+		"metadata": [{
+				"path": "Abstracted_Metadata\/Orbit_State_Vectors\/orbit_vector5\/time",
+				"value": "23-DEC-2018 10:31:10.010000"
+			}, {
+				"path": "Original_Product_Metadata\/Channel[3]\/StateVectorData\/vSV_mOs\/val[12]\/val",
+				"value": "6587.39163966652"
+			}, {
+				"path": "Original_Product_Metadata\/product\/dataFile\/components\/component[25]\/componentTitle",
+				"value": "Quality Log"
+			}, {
+				"path": "Original_Product_Metadata\/Channel[4]\/RasterInfo\/SamplesStep\/unit",
+				"value": "m"
+			}, {
+				"path": "Original_Product_Metadata\/Channel[2]\/DataStatistics\/MinQ",
+				"value": "0"
+			}, {
+				"path": "Original_Product_Metadata\/product\/features\/scene\/timeFrame\/timePeriod\/endTime",
+				"value": "2018-12-23T10:31:17.349981"
+			}, {
+				"path": "Original_Product_Metadata\/Channel[3]\/GroundCornerPoints\/Center\/Point\/val[3]\/unit",
+				"value": "m"
+			}, {
+				"path": "Original_Product_Metadata\/product\/productionHistory\/software\/inputs\/input[3]\/value\/value",
+				"value": "34"
+			}, {
+				"path": "Original_Product_Metadata\/Channel[4]\/StateVectorData\/vSV_mOs\/val[20]\/val",
+				"value": "-3816.77493584219"
+			}, {
+				"path": "Original_Product_Metadata\/Channel[3]\/StateVectorData\/vSV_mOs\/val[10]\/val",
+				"value": "49.3975847485975"
+			}
+		],
+		"tiePointGrids": [{
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 251,
+						"y": 1259,
+						"value": 23.315008
+					}, {
+						"x": 3295,
+						"y": 6012,
+						"value": 24.706984
+					}
+				],
+				"name": "incident_angle",
+				"subSamplingY": "2356.3333333333335",
+				"subSamplingX": "1603.6666666666667"
+			}, {
+				"offsetX": "0.0",
+				"offsetY": "0.0",
+				"expectedPixels": [{
+						"x": 1399,
+						"y": 1815,
+						"value": 6.1050994E14
+					}, {
+						"x": 2937,
+						"y": 2582,
+						"value": 6.2284146E14
+					}
+				],
+				"name": "slant_range_time",
+				"subSamplingY": "2356.3333333333335",
+				"subSamplingX": "1603.6666666666667"
+			}
+		],
+		"sceneHeight": 7069,
+		"sceneWidth": 4811,
+		"geoCoding": {
+			"coordinates": [{
+					"x": 2075.0,
+					"y": 3800.0,
+					"lon": -61.82902265149572,
+					"lat": -27.246072149132498
+				}, {
+					"x": 3571.0,
+					"y": 4587.0,
+					"lon": -61.70721214421809,
+					"lat": -27.301403364128603
+				}
+			],
+			"reverseAccuracy": 4.321918822824955E-9
+		},
+		"startTime": "23-DEC-2018 10:31:10.068172",
+		"endTime": "23-DEC-2018 10:31:17.349981",
+		"bands": [{
+				"bandWidth": 4811,
+				"noDataValueUsed": "true",
+				"bandHeight": 7069,
+				"expectedPixels": [{
+						"x": 2646,
+						"y": 5268,
+						"value": 0.21691032
+					}, {
+						"x": 2926,
+						"y": 6563,
+						"value": "NaN"
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Sigma0_HH",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "intensity"
+			}, {
+				"bandWidth": 4811,
+				"noDataValueUsed": "true",
+				"bandHeight": 7069,
+				"expectedPixels": [{
+						"x": 761,
+						"y": 4708,
+						"value": "NaN"
+					}, {
+						"x": 2497,
+						"y": 6457,
+						"value": "NaN"
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Sigma0_HV",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "intensity"
+			}, {
+				"bandWidth": 4811,
+				"noDataValueUsed": "true",
+				"bandHeight": 7069,
+				"expectedPixels": [{
+						"x": 3637,
+						"y": 3425,
+						"value": 0.02500653
+					}, {
+						"x": 4574,
+						"y": 3434,
+						"value": "NaN"
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Sigma0_VH",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "intensity"
+			}, {
+				"bandWidth": 4811,
+				"noDataValueUsed": "true",
+				"bandHeight": 7069,
+				"expectedPixels": [{
+						"x": 1637,
+						"y": 6358,
+						"value": "NaN"
+					}, {
+						"x": 47,
+						"y": 3327,
+						"value": "NaN"
+					}
+				],
+				"spectralWavelength": "0.0",
+				"spectralBandwidth": "0.0",
+				"name": "Sigma0_VV",
+				"noDataValue": "0.0",
+				"geophysicalUnit": "intensity"
+			}
+		]
+	}
+}
