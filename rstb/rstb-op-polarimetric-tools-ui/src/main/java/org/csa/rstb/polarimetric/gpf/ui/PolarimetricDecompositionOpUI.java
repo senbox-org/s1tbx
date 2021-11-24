@@ -62,7 +62,7 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
     private final JCheckBox outputTouziParamSet3CheckBox = new JCheckBox("Psi 3, Tau 3, Alpha 3, Phi 3");
 
     private final JCheckBox outputHuynenParamSet0CheckBox = new JCheckBox("2A0, B0_plus_B, B0_minus_B (in dB)");
-    private final JCheckBox outputHuynenParamSet1CheckBox = new JCheckBox("A0, B0, B, C, D, E, F, G, H");
+    private final JCheckBox outputHuynenParamSet1CheckBox = new JCheckBox("Pure target T0");
 
     private boolean outputHAAlpha = true;
     private boolean outputBetaDeltaGammaLambda = false;
