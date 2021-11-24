@@ -181,12 +181,8 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
     public static KDD getKrogagerDecomposition(final double[][] Tr, final double[][] Ti) {
 
         final double A0 = 0.5 * Tr[0][0];
-        final double C = Tr[0][1];
-        final double D = -Ti[0][1];
-        final double H = Tr[0][2];
-        final double G = Ti[0][2];
-        final double B0 = (C * C + D * D + G * G + H * H) / (4.0 * A0);
-        final double F = (C * G + D * H) / (2.0 * A0);
+        final double B0 = 0.5 * (Tr[1][1] + Tr[2][2]);
+        final double F = Ti[1][2];
 
         return new KDD(A0, B0, F);
     }
