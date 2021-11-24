@@ -144,13 +144,20 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
                         continue;
                     }
 
-                    getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
+                    getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
+                            sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+
+//                    getCoherencyMatrixT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
 
                     final KDD data = getKrogagerDecomposition(Tr, Ti);
 
-                    kd = 10.0 * Math.log10(data.kd);
-                    kh = 10.0 * Math.log10(data.kh);
-                    ks = 10.0 * Math.log10(data.ks);
+//                    kd = 10.0 * Math.log10(data.kd);
+//                    kh = 10.0 * Math.log10(data.kh);
+//                    ks = 10.0 * Math.log10(data.ks);
+
+                    kd = data.kd;
+                    kh = data.kh;
+                    ks = data.ks;
 
 //                    kd = scaleDb(data.kd, bandList.spanMin, bandList.spanMax);
 //                    kh = scaleDb(data.kh, bandList.spanMin, bandList.spanMax);
@@ -174,8 +181,12 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
     public static KDD getKrogagerDecomposition(final double[][] Tr, final double[][] Ti) {
 
         final double A0 = 0.5 * Tr[0][0];
-        final double B0 = 0.5 * (Tr[1][1] + Tr[2][2]);
-        final double F = Ti[1][2];
+        final double C = Tr[0][1];
+        final double D = -Ti[0][1];
+        final double H = Tr[0][2];
+        final double G = Ti[0][2];
+        final double B0 = (C * C + D * D + G * G + H * H) / (4.0 * A0);
+        final double F = (C * G + D * H) / (2.0 * A0);
 
         return new KDD(A0, B0, F);
     }
@@ -186,9 +197,9 @@ public class Krogager extends DecompositionBase implements Decomposition, QuadPo
         public final double ks;
 
         public KDD(final double A0, final double B0, final double F) {
-            this.ks = 2.0 * A0;
-            this.kd = 2.0 * (B0 - FastMath.abs(F));
-            this.kh = 4.0 * (B0 - FastMath.sqrt(B0 * B0 - F * F));
+            this.ks = FastMath.sqrt(A0);
+            this.kd = FastMath.sqrt(B0 - FastMath.abs(F));
+            this.kh = FastMath.sqrt(B0 + FastMath.abs(F)) - FastMath.sqrt(B0 - FastMath.abs(F));
         }
     }
 }
