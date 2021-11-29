@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -46,18 +46,17 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Calibration for Sentinel1 data products.
+ * Calibration for Spacety data products.
  */
 
-public final class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
+public final class SpacetyCalibrator extends BaseCalibrator implements Calibrator {
 
-    private static final String[] SUPPORTED_MISSIONS = new String[] {"SENTINEL-1A","SENTINEL-1B"};
+    private static final String[] SUPPORTED_MISSIONS = new String[] {"Spacety"};
 
     private CalibrationInfo[] calibration = null;
     private boolean isMultiSwath = false;
-    private boolean priorToIPFV234 = false;
     protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<>(2);
-    private java.util.List<String> selectedPolList = null;
+    private List<String> selectedPolList = null;
     private boolean outputSigmaBand = false;
     private boolean outputGammaBand = false;
     private boolean outputBetaBand = false;
@@ -72,7 +71,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public Sentinel1Calibrator() {
+    public SpacetyCalibrator() {
     }
 
     @Override
@@ -85,7 +84,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
      */
     public void setExternalAuxFile(File file) throws OperatorException {
         if (file != null) {
-            throw new OperatorException("No external auxiliary file should be selected for Sentinel1 product");
+            throw new OperatorException("No external auxiliary file should be selected for Spacety product");
         }
     }
 
@@ -126,13 +125,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
 
     private void validate(final Product sourceProduct) throws OperatorException {
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
-        validator.checkIfSentinel1Product();
-        validator.checkAcquisitionMode(new String[]{"IW", "EW", "SM"});
-        validator.checkProductType(new String[]{"SLC", "GRD"});
-        // Need to check for isComplex because it is OK to calibrate GRD product which are always debursted.
-        if(validator.isComplex() && validator.isTOPSARProduct() && validator.isDebursted()) {
-            throw new OperatorException("Calibration should be applied before deburst");
-        }
+        validator.checkProductType(new String[]{"SLC"});
 
         isMultiSwath = validator.isMultiSwath();
     }
@@ -151,12 +144,6 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
             validate(sourceProduct);
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-
-            priorToIPFV234 = priorToIPFV234();
-            if (priorToIPFV234) {
-                SystemUtils.LOG.warning("The calibration LUT for this product could be incorrect and " +
-                        "therefore the calibration result may not be reliable.");
-            }
 
             getSampleType();
 
@@ -177,12 +164,6 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-    }
-
-    private boolean priorToIPFV234() throws OperatorException {
-        final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-        final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
-        return (version < 2.34f);
     }
 
     /**
@@ -220,7 +201,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
      * Get calibration vectors from metadata.
      */
     public static CalibrationInfo[] getCalibrationVectors(
-            final Product sourceProduct, final java.util.List<String> selectedPolList,
+            final Product sourceProduct, final List<String> selectedPolList,
             final boolean getSigmaLUT, final boolean getBetaLUT, final boolean getGammaLUT,
             final boolean getDNLUT) throws IOException {
 

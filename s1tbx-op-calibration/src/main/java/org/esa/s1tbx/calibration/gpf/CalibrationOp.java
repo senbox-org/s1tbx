@@ -17,6 +17,7 @@ package org.esa.s1tbx.calibration.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.SpacetyCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.snap.core.datamodel.*;
@@ -139,6 +140,10 @@ public class CalibrationOp extends Operator {
 
             if (calibrator instanceof Sentinel1Calibrator) {
                 Sentinel1Calibrator cal = (Sentinel1Calibrator) calibrator;
+                cal.setUserSelections(sourceProduct,
+                        selectedPolarisations, outputSigmaBand, outputGammaBand, outputBetaBand, outputDNBand);
+            } else if (calibrator instanceof SpacetyCalibrator) {
+                SpacetyCalibrator cal = (SpacetyCalibrator) calibrator;
                 cal.setUserSelections(sourceProduct,
                         selectedPolarisations, outputSigmaBand, outputGammaBand, outputBetaBand, outputDNBand);
             }
