@@ -196,7 +196,7 @@ public class SpacetyDirectory extends XMLProductDirectory {
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
-                        band.setNoDataValue(NoDataValue);
+                        band.setNoDataValue(-9999.0f);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
@@ -294,7 +294,8 @@ public class SpacetyDirectory extends XMLProductDirectory {
 
                 productType = adsHeader.getAttributeString("productType");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, adsHeader.getAttributeString("missionId"));
+                String mission = adsHeader.getAttributeString("missionId");
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "Spacety");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SWATH, swath);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
