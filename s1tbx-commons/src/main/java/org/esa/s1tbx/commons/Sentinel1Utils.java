@@ -519,8 +519,9 @@ public final class Sentinel1Utils {
 
             final int[] pixelArray = new int[count];
             final float[] noiseLUTArray = new float[count];
-            addToArray(pixelArray, 0, pixel, " ");
-            addToArray(noiseLUTArray, 0, noiseLUT, " ");
+            final String delim = pixel.contains("\t") ? "\t" : " ";
+            addToArray(pixelArray, 0, pixel, delim);
+            addToArray(noiseLUTArray, 0, noiseLUT, delim);
 
             noiseVectorList.add(new NoiseVector(time, line, pixelArray, noiseLUTArray));
         }
@@ -566,14 +567,15 @@ public final class Sentinel1Utils {
             final String pixel = pixelElem.getAttributeString("pixel");
             final int count = Integer.parseInt(pixelElem.getAttributeString("count"));
             final int[] pixelArray = new int[count];
-            addToArray(pixelArray, 0, pixel, " ");
+            final String delim = pixel.contains("\t") ? "\t" : " ";
+            addToArray(pixelArray, 0, pixel, delim);
 
             float[] sigmaNoughtArray = null;
             if (outputSigmaBand) {
                 final MetadataElement sigmaNoughtElem = calibrationVectorElem.getElement("sigmaNought");
                 final String sigmaNought = sigmaNoughtElem.getAttributeString("sigmaNought");
                 sigmaNoughtArray = new float[count];
-                addToArray(sigmaNoughtArray, 0, sigmaNought, " ");
+                addToArray(sigmaNoughtArray, 0, sigmaNought, delim);
             }
 
             float[] betaNoughtArray = null;
@@ -581,7 +583,7 @@ public final class Sentinel1Utils {
                 final MetadataElement betaNoughtElem = calibrationVectorElem.getElement("betaNought");
                 final String betaNought = betaNoughtElem.getAttributeString("betaNought");
                 betaNoughtArray = new float[count];
-                addToArray(betaNoughtArray, 0, betaNought, " ");
+                addToArray(betaNoughtArray, 0, betaNought, delim);
             }
 
             float[] gammaArray = null;
@@ -589,7 +591,7 @@ public final class Sentinel1Utils {
                 final MetadataElement gammaElem = calibrationVectorElem.getElement("gamma");
                 final String gamma = gammaElem.getAttributeString("gamma");
                 gammaArray = new float[count];
-                addToArray(gammaArray, 0, gamma, " ");
+                addToArray(gammaArray, 0, gamma, delim);
             }
 
             float[] dnArray = null;
@@ -597,7 +599,7 @@ public final class Sentinel1Utils {
                 final MetadataElement dnElem = calibrationVectorElem.getElement("dn");
                 final String dn = dnElem.getAttributeString("dn");
                 dnArray = new float[count];
-                addToArray(dnArray, 0, dn, " ");
+                addToArray(dnArray, 0, dn, delim);
             }
 
             calibrationVectorList.add(new CalibrationVector(
@@ -946,7 +948,8 @@ public final class Sentinel1Utils {
         final String vectorStr = vectorElem.getAttributeString(vectorName);
         final int count = Integer.parseInt(vectorElem.getAttributeString("count"));
         float[] vectorArray = new float[count];
-        addToArray(vectorArray, 0, vectorStr, " ");
+        final String delim = vectorStr.contains("\t") ? "\t" : " ";
+        addToArray(vectorArray, 0, vectorStr, delim);
 
         return vectorArray;
     }
@@ -992,8 +995,9 @@ public final class Sentinel1Utils {
             final String noiseLUT = attribute.getData().getElemString();
             final int[] pixelArray = new int[count];
             final float[] noiseLUTArray = new float[count];
-            addToArray(pixelArray, 0, pixel, " ");
-            addToArray(noiseLUTArray, 0, noiseLUT, " ");
+            final String delim = pixel.contains("\t") ? "\t" : " ";
+            addToArray(pixelArray, 0, pixel, delim);
+            addToArray(noiseLUTArray, 0, noiseLUT, delim);
 
             noiseVectorList.add(new NoiseVector(time, line, pixelArray, noiseLUTArray));
         }
@@ -1016,8 +1020,9 @@ public final class Sentinel1Utils {
             final String noiseLUT = attribute.getData().getElemString();
             final int[] lineArray = new int[count];
             final float[] noiseLUTArray = new float[count];
-            addToArray(lineArray, 0, line, " ");
-            addToArray(noiseLUTArray, 0, noiseLUT, " ");
+            final String delim = line.contains("\t") ? "\t" : " ";
+            addToArray(lineArray, 0, line, delim);
+            addToArray(noiseLUTArray, 0, noiseLUT, delim);
             //System.out.println("Sentinel1Utils.getAzimuthNoiseVector: count = " + count);
             /*for (int i = 0; i < count; i++) {
                  System.out.println("Sentinel1Utils.getAzimuthNoiseVector: " + lineArray[i] + " -> " + noiseLUTArray[i]);
@@ -1062,14 +1067,15 @@ public final class Sentinel1Utils {
             final String pixel = pixelElem.getAttributeString("pixel");
             final int count = Integer.parseInt(pixelElem.getAttributeString("count"));
             final int[] pixelArray = new int[count];
-            addToArray(pixelArray, 0, pixel, " ");
+            final String delim = pixel.contains("\t") ? "\t" : " ";
+            addToArray(pixelArray, 0, pixel, delim);
 
             float[] sigmaNoughtArray = null;
             if (outputSigmaBand) {
                 final MetadataElement sigmaNoughtElem = calibrationVectorElem.getElement("sigmaNought");
                 final String sigmaNought = sigmaNoughtElem.getAttributeString("sigmaNought");
                 sigmaNoughtArray = new float[count];
-                addToArray(sigmaNoughtArray, 0, sigmaNought, " ");
+                addToArray(sigmaNoughtArray, 0, sigmaNought, delim);
             }
 
             float[] betaNoughtArray = null;
@@ -1077,7 +1083,7 @@ public final class Sentinel1Utils {
                 final MetadataElement betaNoughtElem = calibrationVectorElem.getElement("betaNought");
                 final String betaNought = betaNoughtElem.getAttributeString("betaNought");
                 betaNoughtArray = new float[count];
-                addToArray(betaNoughtArray, 0, betaNought, " ");
+                addToArray(betaNoughtArray, 0, betaNought, delim);
             }
 
             float[] gammaArray = null;
@@ -1085,7 +1091,7 @@ public final class Sentinel1Utils {
                 final MetadataElement gammaElem = calibrationVectorElem.getElement("gamma");
                 final String gamma = gammaElem.getAttributeString("gamma");
                 gammaArray = new float[count];
-                addToArray(gammaArray, 0, gamma, " ");
+                addToArray(gammaArray, 0, gamma, delim);
             }
 
             float[] dnArray = null;
@@ -1093,7 +1099,7 @@ public final class Sentinel1Utils {
                 final MetadataElement dnElem = calibrationVectorElem.getElement("dn");
                 final String dn = dnElem.getAttributeString("dn");
                 dnArray = new float[count];
-                addToArray(dnArray, 0, dn, " ");
+                addToArray(dnArray, 0, dn, delim);
             }
 
             calibrationVectorList.add(new CalibrationVector(
