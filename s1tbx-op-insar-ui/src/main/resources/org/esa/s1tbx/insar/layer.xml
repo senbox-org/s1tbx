@@ -41,16 +41,16 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="Coregistration"/>
             </file>
-            <file name="org-esa-s1tbx-insar-gpf-MultiReferenceInSAR-Action.instance">
+            <file name="org-esa-s1tbx-insar-gpf-MultiMasterInSAR-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Multi-Reference InSAR"/>
-                <attr name="operatorName" stringvalue="MultiReferenceInSAR"/>
+                <attr name="operatorName" stringvalue="MultiMasterInSAR"/>
                 <attr name="dialogTitle" stringvalue="Multi-Reference InSAR"/>
                 <attr name="ShortDescription" stringvalue="Multi-Reference InSAR processing."/>
                 <attr name="targetProductNameSuffix" stringvalue="_mmifg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="MultiReferenceInSAROp"/>
+                <attr name="helpId" stringvalue="MultiMasterInSAROp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-HorizontalVerticalMotion-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -270,8 +270,8 @@
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-IntegerInterferogram-Action.instance"/>
                         <attr name="position" intvalue="760"/>
                     </file>
-                   <file name="org-esa-s1tbx-insar-gpf-MultiReferenceInSAR-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-MultiReferenceInSAR-Action.instance"/>
+                   <file name="org-esa-s1tbx-insar-gpf-MultiMasterInSAR-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-MultiMasterInSAR-Action.instance"/>
                         <attr name="position" intvalue="770"/>
                    </file>
                     <file name="org-esa-s1tbx-insar-gpf-HorizontalVerticalMotion-Action.shadow">
@@ -357,9 +357,9 @@
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.StampsExportOpUI"/>
             <attr name="operatorName" stringvalue="StampsExport"/>
         </file>
-	<file name="org.esa.s1tbx.insar.gpf.ui.MultiReferenceInSAROpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.MultiReferenceInSAROpUI"/>
-            <attr name="operatorName" stringvalue="MultiReferenceInSAR"/>
+	<file name="org.esa.s1tbx.insar.gpf.ui.MultiMasterInSAROpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.MultiMasterInSAROpUI"/>
+            <attr name="operatorName" stringvalue="MultiMasterInSAR"/>
         </file>
     </folder>
 

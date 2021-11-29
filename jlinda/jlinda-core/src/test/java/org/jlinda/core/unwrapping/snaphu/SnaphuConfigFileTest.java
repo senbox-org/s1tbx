@@ -64,7 +64,7 @@ public class SnaphuConfigFileTest {
     @Test
     public void testBuildConfFile() throws Exception {
 
-        snaphuConfigFile.buildConfFile();
+        snaphuConfigFile.buildConfFile("");
 
         // write buffer for testing
         try {

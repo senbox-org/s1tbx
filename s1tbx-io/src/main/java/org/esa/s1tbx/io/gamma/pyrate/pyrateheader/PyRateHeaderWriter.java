@@ -48,6 +48,7 @@ public class PyRateHeaderWriter {
     protected String baseFileName;
     private ProductData.UTC dateDay;  // start date to the day
     public boolean isPhase = false;
+    public boolean isCoherence = false;
     private final static double daysToSeconds = 12 * 60 * 60;
 
 
@@ -185,79 +186,104 @@ public class PyRateHeaderWriter {
     }
 
     public void writeHeaders(Product phaseProduct, File [] files) throws IOException{
-        String mstDate = getDateString(phaseProduct, true);
-        String slvDate = getDateString(phaseProduct, false);
+        String [] mstDate = getDateString(phaseProduct, true);
+        String [] slvDate = getDateString(phaseProduct, false);
 
-        double mstAngle = getIncidenceAngle(phaseProduct, true);
-        double slvAngle = getIncidenceAngle(phaseProduct, false);
+        double [] mstAngle = getIncidenceAngle(phaseProduct, true);
+        double [] slvAngle = getIncidenceAngle(phaseProduct, false);
 
-        double mstFreq = getRadarFrequencyHz(phaseProduct, true);
-        double slvFreq = getRadarFrequencyHz(phaseProduct, false);
+        double [] mstFreq = getRadarFrequencyHz(phaseProduct, true);
+        double [] slvFreq = getRadarFrequencyHz(phaseProduct, false);
 
         writeHeaderFile(mstDate, mstFreq, mstAngle, files[0]);
+
+
+
         writeHeaderFile(slvDate, slvFreq, slvAngle, files[1]);
 
     }
 
-    private void writeHeaderFile(String date, double frequency, double incidenceAngle, File outputFile) throws IOException {
-        final String oldEOL = System.getProperty("line.separator");
-        System.setProperty("line.separator", "\n");
-        final FileOutputStream out = new FileOutputStream(outputFile);
-        try (final PrintStream p = new PrintStream(out)) {
-            p.println(this.date + sep + date);
-            p.println(this.frequency + sep + frequency + this.frequency_unit);
-            p.println(this.incidence + sep + incidenceAngle + this.incidence_unit);
-            p.flush();
-        } catch (Exception e) {
-            throw new IOException("GammaWriter unable to write par file " + e.getMessage());
-        } finally {
-            System.setProperty("line.separator", oldEOL);
+    private void writeHeaderFile(String [] date, double [] frequency, double [] incidenceAngle, File outputFile) throws IOException {
+        File parentFile = outputFile.getParentFile();
+
+        for(int x = 0; x < date.length; x++){
+            final String oldEOL = System.getProperty("line.separator");
+            String fileName = date[x].split(" ")[0] + date[x].split(" ")[1] + date[x].split(" ")[2] + "_slc.par";
+            System.setProperty("line.separator", "\n");
+            final FileOutputStream out = new FileOutputStream(new File(parentFile, fileName));
+            try (final PrintStream p = new PrintStream(out)) {
+                p.println(this.date + sep + date[x]);
+                p.println(this.frequency + sep + frequency[x] + this.frequency_unit);
+                p.println(this.incidence + sep + incidenceAngle[x] + this.incidence_unit);
+                p.flush();
+            } catch (Exception e) {
+                throw new IOException("GammaWriter unable to write par file " + e.getMessage());
+            } finally {
+                System.setProperty("line.separator", oldEOL);
+            }
         }
+
+
     }
 
-    private double getRadarFrequencyHz(Product phaseProduct, boolean master) throws IOException {
+    private double [] getRadarFrequencyHz(Product phaseProduct, boolean master) throws IOException {
         if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
+        double [] freqs;
+        MetadataElement [] slvRootS = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements();
 
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
-
-        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
-        if (absRoot.containsAttribute("multimaster_split")){
-            absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
-            slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[1];
-        }
-        double freq;
         if(master){
-            freq = absRoot.getAttributeDouble("radar_frequency") * 1000000;
+            freqs = new double[1];
         }else{
-            freq = slvRoot.getAttributeDouble("radar_frequency") * 1000000;
+            freqs = new double[slvRootS.length];
         }
-        return freq;
+
+
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+
+        if(master){
+            freqs[0] = absRoot.getAttributeDouble("radar_frequency") * 1000000;
+        }else{
+            for(int x = 0; x < slvRootS.length; x++){
+                freqs[x] = slvRootS[x].getAttributeDouble("radar_frequency") * 1000000;
+            }
+        }
+        return freqs;
     }
 
-    private double getIncidenceAngle(Product phaseProduct, boolean master) throws IOException{
+    private double [] getIncidenceAngle(Product phaseProduct, boolean master) throws IOException{
         if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
             throw new IOException("Product is not a coregistered slave/master pair.");
+        }
+        double [] incidenceAngles;
+        MetadataElement [] slvRootS = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements();
+
+
+        if(master){
+            incidenceAngles = new double[1];
+        }else{
+            incidenceAngles = new double[slvRootS.length];
+
         }
 
         MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
         MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
-        if (absRoot.containsAttribute("multimaster_split")){
-            absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
-            slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[1];
-        }
-        double [] angles = new double[2];
         if(master){
+            double [] angles = new double[2];
             angles[0] = absRoot.getAttributeDouble("incidence_near");
             angles[1] = absRoot.getAttributeDouble("incidence_far");
+            incidenceAngles[0] = (angles[0] + angles[1]) / 2;
         }else{
-            angles[0] = slvRoot.getAttributeDouble("incidence_near");
-            angles[1] = slvRoot.getAttributeDouble("incidence_far");
+            for(int x = 0; x < slvRootS.length; x++){
+                double [] angles = new double[2];
+                angles[0] = slvRootS[x].getAttributeDouble("incidence_near");
+                angles[1] = slvRootS[x].getAttributeDouble("incidence_far");
+                incidenceAngles[x] = (angles[0] + angles[1]) / 2;
+            }
         }
-        // Return average of near and far angles TODO assess if this is the correct approach
-        return (angles[0] + angles[1]) / 2;
+        return incidenceAngles;
     }
 
     public static  String getDoubleDateString(Product phaseProduct) throws IOException{
@@ -298,39 +324,50 @@ public class PyRateHeaderWriter {
         return dateString;
     }
 
-    private static String getDateString(Product phaseProduct, boolean master) throws IOException{
+    private static String [] getDateString(Product phaseProduct, boolean master) throws IOException{
         MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         String dateString = "";
         if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
-        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
-        if (absRoot.containsAttribute("multimaster_split")){
-            absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
-            slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[1];
+        MetadataElement [] slvRootS = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements();
+
+        String [] svts; //
+        if(master){
+            svts = new String[1];
+        }else{
+            svts = new String[slvRootS.length];
         }
-        String svt = "";
         if(master){
             // Get master time
-            svt = absRoot.getAttributeString("STATE_VECTOR_TIME");
+            svts[0] = absRoot.getAttributeString("STATE_VECTOR_TIME");
         }else{
-            //Get slave data
-            svt = slvRoot.getAttributeString("STATE_VECTOR_TIME");
+            int x = 0;
+            for(MetadataElement curSlvRoot : slvRootS){
+                svts[x] = curSlvRoot.getAttributeString("STATE_VECTOR_TIME");
+                x++;
+            }
         }
-        String d = svt.split(" ")[0];
-        String t = svt.split(" ")[1];
 
-        String day = d.split("-")[0];
-        String month = getMonthNum(d.split("-")[1]);
-        String year = d.split("-")[2];
+        for(int x = 0; x < svts.length; x++){
+            String d = svts[x].split(" ")[0];
+            String t = svts[x].split(" ")[1];
 
-        String hour = t.split(":")[0];
-        String minute = t.split(":")[1];
-        String second = t.split(":")[2];
+            String day = d.split("-")[0];
+            String month = getMonthNum(d.split("-")[1]);
+            String year = d.split("-")[2];
 
-        dateString = year + " " + month + " " + day + " "
-                + hour + " " + minute + " " + second;
-        return dateString;
+            String hour = t.split(":")[0];
+            String minute = t.split(":")[1];
+            String second = t.split(":")[2];
+
+            svts[x] = year + " " + month + " " + day + " "
+                    + hour + " " + minute + " " + second;
+        }
+
+
+
+        return svts;
 
     }
 

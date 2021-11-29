@@ -84,6 +84,7 @@ public class PyRateGammaProductWriter  extends AbstractProductWriter {
         } else {
             headerWriter = new PyRateHeaderWriter(this, srcProduct, outputFile);
             headerWriter.isPhase = true;
+            headerWriter.isCoherence = true;
         }
         headerWriter.writeParFile();
     }
