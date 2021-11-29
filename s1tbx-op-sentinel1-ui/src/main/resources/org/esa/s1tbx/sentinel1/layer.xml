@@ -93,6 +93,16 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="BackGeocodingOp"/>
             </file>
+            <file name="org-esa-s1tbx-sentinel1-gpf-tops-split-orbit-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="S-1 TOPS Split Apply Orbit"/>
+                <attr name="graphFile" stringvalue="sentinel1/Sentinel1-TOPS-Split-Orbit.xml"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS Split Apply Orbit"/>
+                <attr name="ShortDescription" stringvalue="S1 TOPS preprocessing before backgeocoding"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="TOPSARSplitOp"/>
+            </file>
             <file name="org-esa-s1tbx-sentinel1-gpf-SpectralDiversityOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -195,6 +205,10 @@
                     <file name="separator.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="135"/>
+                    </file>
+                    <file name="org-esa-s1tbx-sentinel1-gpf-tops-split-orbit-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-tops-split-orbit-Action.instance"/>
+                        <attr name="position" intvalue="180"/>
                     </file>
                     <file name="org-esa-s1tbx-sentinel1-gpf-BackGeocodingOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-BackGeocodingOp-Action.instance"/>
