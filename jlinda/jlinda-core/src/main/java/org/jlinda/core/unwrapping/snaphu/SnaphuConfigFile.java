@@ -71,7 +71,7 @@ public class SnaphuConfigFile {
         return configFileBuffer;
     }
 
-    public void buildConfFile() throws Exception {
+    public void buildConfFile(String phaseName) throws Exception {
 
         // Mid point
         final double lineMid = 0.5d * dataWindow.lines() + 0.5;
@@ -103,7 +103,7 @@ public class SnaphuConfigFile {
         formattedConfig.format("#\n");
         formattedConfig.format("# Command to call snaphu:\n");
         formattedConfig.format("# \n");
-        formattedConfig.format("#       snaphu -f snaphu.conf " + IN_FILE_NAME + " " + DIMENSIONS + "\n");
+        formattedConfig.format("#       snaphu -f " + phaseName + "snaphu.conf " + IN_FILE_NAME + " " + DIMENSIONS + "\n");
         formattedConfig.format("\n");
 
         formattedConfig.format("#########################\n");
