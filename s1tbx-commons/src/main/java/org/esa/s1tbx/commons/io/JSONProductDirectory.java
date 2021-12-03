@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.commons.io;
 
-import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -26,8 +25,6 @@ import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class JSONProductDirectory extends AbstractProductDirectory {
 
@@ -86,25 +83,6 @@ public abstract class JSONProductDirectory extends AbstractProductDirectory {
             }
         }
         return root;
-    }
-
-    public static GeoPos[] parseCoordinates(final JSONArray node) {
-        final List<GeoPos> geoPosList = new ArrayList<>();
-        for (Object o : node) {
-            if (!(o instanceof JSONArray))
-                continue;
-
-            final JSONArray latLonList = (JSONArray) o;
-            for (Object latlon : latLonList) {
-                if (!(latlon instanceof JSONArray))
-                    continue;
-                final JSONArray coordList = (JSONArray) latlon;
-
-                GeoPos geoPos = new GeoPos((Double)coordList.get(0), (Double)coordList.get(1));
-                geoPosList.add(geoPos);
-            }
-        }
-        return geoPosList.toArray(new GeoPos[geoPosList.size()]);
     }
 
     protected abstract void addAbstractedMetadataHeader(final MetadataElement root) throws IOException;
