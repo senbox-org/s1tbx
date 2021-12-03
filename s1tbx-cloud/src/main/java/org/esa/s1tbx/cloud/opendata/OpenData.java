@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.cloud.opendata;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.apache.olingo.odata2.api.edm.Edm;
 import org.apache.olingo.odata2.api.edm.EdmEntityContainer;
 import org.apache.olingo.odata2.api.ep.EntityProvider;
@@ -66,7 +65,7 @@ public class OpenData {
             fileName = fileName + extension;
         }
         final File outFile = new File(outputFolder, fileName);
-        download(id, downloadURL, entry, outFile, ProgressMonitor.NULL);
+        download(id, downloadURL, entry, outFile);
         return outFile;
     }
 
@@ -87,7 +86,7 @@ public class OpenData {
         }
     }
 
-    private void download(final String id, final String downloadURL, final Entry entry, final File outFile, final ProgressMonitor pm) {
+    private void download(final String id, final String downloadURL, final Entry entry, final File outFile) {
 
         //final String download = odataRoot+"Products('" + id + "')" + "/$value";
 
@@ -96,7 +95,7 @@ public class OpenData {
         while ((entryFp == null || entryFp.getSize() != entry.contentLength)) {
 
             entryFp = HTTPDownloader.getEntryFilePropertyFromUrlString(downloadURL, outFile,
-                    entry.contentLength, entry.contentType, userName, password, pm);
+                    entry.contentLength, entry.contentType, userName, password);
 
             if (entryFp != null && entryFp.getSize() == entry.contentLength) {
                 break;

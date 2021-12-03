@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.cloud.opendata;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.apache.olingo.odata2.api.commons.HttpStatusCodes;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -39,7 +38,8 @@ class HTTPDownloader {
 
     public enum ExtractorStatus {
 
-        STARTING("Starting"), PROCESSING_QUERY("Processing query"), DOWNLOADING("Downloading"), STALLED("Stalled"), FORCE_STOP("Force Stop"), FINISHED("Finished");
+        STARTING("Starting"), PROCESSING_QUERY("Processing query"),
+        DOWNLOADING("Downloading"), STALLED("Stalled"), FORCE_STOP("Force Stop"), FINISHED("Finished");
         private String value = null;
         ExtractorStatus(String value) { this.value = value; }
     }
@@ -56,8 +56,7 @@ class HTTPDownloader {
 
     public static EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, File outFile,
                                                                       long completeFileSize,  String contentType,
-                                                                      String user, String password,
-                                                                      ProgressMonitor pm) {
+                                                                      String user, String password) {
         final DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outFile, completeFileSize);
 
         HttpURLConnection connection = null;
@@ -82,9 +81,6 @@ class HTTPDownloader {
             if (outFile.exists()) {
 
                 downloadedFileSize = outFile.length();
-
-                int mbLength = (int)((completeFileSize - downloadedFileSize)/1024);
-                pm.beginTask("Downloading", mbLength);
 
                 if (downloadedFileSize < completeFileSize) {
 
@@ -115,13 +111,9 @@ class HTTPDownloader {
 
                         randomAccessfile.write(data, 0, bytesread);
                         downloadedFileSize += bytesread;
-                        pm.worked((int)(downloadedFileSize/1024));
                     }
                 }
             } else {
-
-                int mbLength = (int)(completeFileSize/1024);
-                pm.beginTask("Downloading", mbLength);
 
                 connection.connect();
                 try {
@@ -147,7 +139,6 @@ class HTTPDownloader {
                     if (bytesBuffered > MB) { //flush after 1MB
                         bytesBuffered = 0;
                         bout.flush();
-                        pm.worked((int)(downloadedFileSize/1024));
                     }
                 }
             }
@@ -155,8 +146,6 @@ class HTTPDownloader {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            pm.done();
-
             if (bout != null) {
                 try {
                     bout.flush();
@@ -231,18 +220,6 @@ class HTTPDownloader {
             }
         }
         return byteArrayChecksum;
-    }
-
-    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
-
-    private static String bytesToHex(byte[] bytes) {
-        final char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 
     private static void checkStatus(final HttpURLConnection connection) throws IOException {
