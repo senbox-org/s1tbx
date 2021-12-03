@@ -31,15 +31,6 @@
 
     <packaging>nbm</packaging>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <application.dir>../../snap-desktop/snap-application/target/snap</application.dir>
-
-        <json-simple.version>1.1.1</json-simple.version>
-        <jackson.version>2.11.3</jackson.version>
-        <json-schema-validator.version>1.0.39</json-schema-validator.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -53,55 +44,20 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>${json-simple.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.networknt</groupId>
-            <artifactId>json-schema-validator</artifactId>
-            <version>${json-schema-validator.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-cloud</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!--plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-conf-files</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${application.dir}/etc/</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>etc</directory>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin-->
-
             <plugin>
                 <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.s1tbx.*</publicPackage>
-                        <publicPackage>org.json.simple.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

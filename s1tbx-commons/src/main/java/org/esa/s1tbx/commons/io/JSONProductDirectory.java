@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.commons.io;
 
+import org.esa.s1tbx.cloud.json.JSON;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
