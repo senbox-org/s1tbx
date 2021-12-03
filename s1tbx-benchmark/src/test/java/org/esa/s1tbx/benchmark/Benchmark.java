@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.benchmark;
 
-import org.esa.s1tbx.commons.io.JSON;
+import org.esa.s1tbx.cloud.json.JSON;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;

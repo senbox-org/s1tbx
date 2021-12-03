@@ -14,6 +14,14 @@
 	
     <packaging>nbm</packaging>
 
+    <properties>
+        <json-simple.version>1.1.1</json-simple.version>
+        <jackson.version>2.11.3</jackson.version>
+        <json-schema-validator.version>1.0.39</json-schema-validator.version>
+        <abdera.version>1.1.3</abdera.version>
+        <olingo.version>2.0.8</olingo.version>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -23,14 +31,31 @@
         </dependency>
 
         <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json-simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${json-schema-validator.version}</version>
+        </dependency>
+
+        <!-- to be replaced -->
+        <dependency>
             <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-core</artifactId>
-            <version>1.1.3</version>
+            <version>${abdera.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-client</artifactId>
-            <version>1.1.3</version>
+            <version>${abdera.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>xml-apis</groupId>
@@ -45,12 +70,12 @@
         <dependency>
             <groupId>org.apache.olingo</groupId>
             <artifactId>olingo-odata2-api</artifactId>
-            <version>2.0.8</version>
+            <version>${olingo.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.olingo</groupId>
             <artifactId>olingo-odata2-core</artifactId>
-            <version>2.0.8</version>
+            <version>${olingo.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.ws.rs</groupId>
@@ -73,6 +98,8 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.s1tbx.*</publicPackage>
+                        <publicPackage>org.json.simple.*</publicPackage>
+                        <publicPackage>com.fasterxml.jackson.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
