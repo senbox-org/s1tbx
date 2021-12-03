@@ -32,10 +32,7 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-graph-builder</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-gpf</artifactId>
@@ -43,55 +40,66 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-raster</artifactId>
             <version>${snap.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-cloud</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-calibration</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-sar-processing</artifactId>
             <version>${s1tbx.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-utilities</artifactId>
             <version>${s1tbx.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-sentinel1</artifactId>
             <version>${s1tbx.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.iceye.esa.snap</groupId>
             <artifactId>iceye-slc-reader</artifactId>
             <version>${iceye.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.csa.rstb</groupId>
             <artifactId>rstb-io</artifactId>
             <version>${rstb.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.csa.rstb</groupId>
             <artifactId>rstb-op-polarimetric-tools</artifactId>
             <version>${rstb.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

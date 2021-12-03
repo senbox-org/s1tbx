@@ -140,7 +140,6 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.s1tbx.*</publicPackage>
-                        <publicPackage>com.lowagie.text.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
