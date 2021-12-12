@@ -68,6 +68,11 @@
             <artifactId>jlinda-nest-ui</artifactId>
             <version>${jlinda.version}</version>
         </dependency>
+		<dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-cloud</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-commons</artifactId>
