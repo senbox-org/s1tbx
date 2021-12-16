@@ -60,7 +60,7 @@
 				"expectedPixels": [{
 						"x": 493,
 						"y": 2614,
-						"value": "NaN"
+						"value": "0.0"
 					}, {
 						"x": 6476,
 						"y": 12480,
@@ -70,7 +70,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "Amplitude_VV",
-				"noDataValue": "0.0",
+				"noDataValue": "-9999.0",
 				"geophysicalUnit": "amplitude"
 			}, {
 				"bandWidth": 9453,
@@ -89,7 +89,7 @@
 				"spectralWavelength": "0.0",
 				"spectralBandwidth": "0.0",
 				"name": "Intensity_VV",
-				"noDataValue": "0.0",
+				"noDataValue": "-9999.0",
 				"description": "Intensity from complex data",
 				"geophysicalUnit": "intensity"
 			}
