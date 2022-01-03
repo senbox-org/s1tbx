@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.cloud.opensearch;
+package org.esa.s1tbx.orbits.io.sentinel1;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
@@ -36,11 +36,15 @@ import java.util.List;
 
 /**
  * OpenSearch interface for searching
+ *
+ * @Deprecated Abdera needs to be replaced
  */
+@Deprecated
 public class OpenSearch {
 
     private final AbderaClient client;
     private String searchURL;
+    private final UsernamePasswordCredentials credentials;
 
     private final static int numRows = 100; // 100 is maximum allowed by SciHub
     private final static int TIMEOUT = 60000; // milliseconds
@@ -54,8 +58,8 @@ public class OpenSearch {
             client.setSocketTimeout(TIMEOUT);
             client.setMaxConnectionsPerHost(2);
 
-            client.addCredentials(host, null, null,
-                                  new UsernamePasswordCredentials(userName, password));
+            this.credentials = new UsernamePasswordCredentials(userName, password);
+            client.addCredentials(host, null, null, credentials);
             AbderaClient.registerTrustManager();
         } catch (URISyntaxException e) {
             throw new IOException(e);

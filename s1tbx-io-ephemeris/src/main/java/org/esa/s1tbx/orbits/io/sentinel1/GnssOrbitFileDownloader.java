@@ -16,7 +16,6 @@
 package org.esa.s1tbx.orbits.io.sentinel1;
 
 import org.esa.s1tbx.cloud.opendata.OpenData;
-import org.esa.s1tbx.cloud.opensearch.OpenSearch;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.downloadable.SSLUtil;
 import org.esa.snap.core.util.StringUtils;
