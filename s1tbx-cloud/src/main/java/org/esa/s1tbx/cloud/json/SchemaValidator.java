@@ -44,6 +44,7 @@ public class SchemaValidator {
             for (ValidationMessage msg : errors) {
                 System.out.println(msg);
             }
+            throw new Exception(errors.size() + " schema validation errors found " + errors.iterator().next().getMessage());
         }
     }
 
