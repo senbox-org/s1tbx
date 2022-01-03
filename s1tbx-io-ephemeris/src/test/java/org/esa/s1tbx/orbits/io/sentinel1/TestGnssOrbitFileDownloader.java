@@ -16,10 +16,6 @@
 package org.esa.s1tbx.orbits.io.sentinel1;
 
 import org.esa.s1tbx.cloud.opendata.OpenData;
-import org.esa.s1tbx.cloud.opensearch.OpenSearch;
-import org.esa.s1tbx.orbits.io.sentinel1.GnssOrbitFileDownloader;
-import org.esa.s1tbx.orbits.io.sentinel1.Sentinel1OrbitFileReader;
-import org.esa.s1tbx.orbits.io.sentinel1.SentinelPODOrbitFile;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
