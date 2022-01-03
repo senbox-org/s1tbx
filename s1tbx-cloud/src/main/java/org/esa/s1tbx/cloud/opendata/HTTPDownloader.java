@@ -26,7 +26,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-class HTTPDownloader {
+public class HTTPDownloader {
 
     private static final String HTTP_HEADER_ACCEPT = "Accept";
     private static final String HTTP_METHOD_PUT = "PUT";
@@ -288,12 +288,12 @@ class HTTPDownloader {
         }
     }
 
-    private static class SeHttpAuthenticator extends Authenticator {
+    public static class SeHttpAuthenticator extends Authenticator {
 
         private final String user;
         private final String password;
 
-        SeHttpAuthenticator(String user, String password) {
+        public SeHttpAuthenticator(String user, String password) {
             this.user = user;
             this.password = password;
         }
