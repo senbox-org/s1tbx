@@ -253,7 +253,12 @@ public class CoherenceOp extends Operator {
             }
 
             final String[] polarisationsInBandNames = OperatorUtils.getPolarisations(sourceProduct);
-            polarisations = InterferogramOp.getPolsSharedByMstSlv(sourceProduct, polarisationsInBandNames);
+            if (singleMaster){
+              polarisations = InterferogramOp.getPolsSharedByMstSlv(sourceProduct, polarisationsInBandNames);
+            }
+            else{
+              polarisations = polarisationsInBandNames;
+            }
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -292,13 +297,13 @@ public class CoherenceOp extends Operator {
                             final Map<String, CplxContainer> map) throws Exception {
 
         for (String swath : subswaths) {
-            final String subswath = swath.isEmpty() ? "" : '_' + swath.toUpperCase();
+            final String subswath = swath.isEmpty() ? "" : swath.toUpperCase()+'_';
 
             for (String polarisation : polarisations) {
-                final String pol = polarisation.isEmpty() ? "" : '_' + polarisation.toUpperCase();
+                final String pol = polarisation.isEmpty() ? "" : polarisation.toUpperCase()+'_';
 
                 // map key: ORBIT NUMBER
-                String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
+                String mapKey = pol + subswath + root.getAttributeInt(AbstractMetadata.ABS_ORBIT);
 
                 // metadata: construct classes and define bands
                 final String date = OperatorUtils.getAcquisitionDate(root);
