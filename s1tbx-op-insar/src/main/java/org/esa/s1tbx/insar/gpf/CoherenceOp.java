@@ -29,6 +29,7 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.FileElevationModel;
@@ -436,6 +437,10 @@ public class CoherenceOp extends Operator {
 
                 if (singleMaster) {
                     String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
+                    if (slvProductName == null){
+                        SystemUtils.LOG.warning("createTargetProduct: slvProductName is null");
+                        continue;
+                    }
                     StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
                             targetBandNames.toArray(new String[0]));
                 }
