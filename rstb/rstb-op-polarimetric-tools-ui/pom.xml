@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.csa.rstb</groupId>
         <artifactId>rstb</artifactId>
-        <version>8.0.1</version>
+        <version>8.0.6cv</version>
     </parent>
 
     <name>RSTB Polarimetric SAR Tools UI</name>
