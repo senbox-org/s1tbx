@@ -63,7 +63,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-worldwind</artifactId>
-            <version>${desktop.version}</version>
+            <version>${snap.version}</version>
         </dependency>
 
 
