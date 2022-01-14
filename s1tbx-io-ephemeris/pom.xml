@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.6cv</version>
+        <version>8.6cv</version>
     </parent>
 
     <artifactId>s1tbx-io-ephemeris</artifactId>

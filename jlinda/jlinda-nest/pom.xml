@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jlinda</artifactId>
         <groupId>org.jlinda</groupId>
-        <version>8.0.6cv</version>
+        <version>8.6cv</version>
     </parent>
 
     <name>jLinda SNAP Support</name>
