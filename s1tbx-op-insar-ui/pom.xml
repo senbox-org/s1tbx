@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-tango</artifactId>
-            <version>${desktop.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-product-library-ui-v2</artifactId>
-            <version>${desktop.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>

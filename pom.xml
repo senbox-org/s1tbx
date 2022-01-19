@@ -25,8 +25,7 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>8.0.3cv</snap.version>
-        <desktop.version>8.0.0</desktop.version>
+        <snap.version>8.0.3.6cv</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
@@ -214,12 +213,12 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf-ui</artifactId>
-				<version>${desktop.version}</version>
+				<version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-ui</artifactId>
-				<version>${desktop.version}</version>
+				<version>${snap.version}</version>
             </dependency>
 
             <dependency>
@@ -249,19 +248,19 @@
 			<dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-graph-builder</artifactId>
-			    <version>${desktop.version}</version>
+			    <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-dem</artifactId>
-                <version>${desktop.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-rcp</artifactId>
-                <version>${desktop.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
