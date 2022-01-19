@@ -178,6 +178,8 @@ public class GammaReader extends SARReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, header.getAzimuthLooks());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, isCoregistered ? 1 : 0);
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, header.getAzimuthSpacing());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, header.getRangeSpacing());
     }
 
     protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
