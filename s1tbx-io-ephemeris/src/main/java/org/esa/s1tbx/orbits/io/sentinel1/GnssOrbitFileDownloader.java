@@ -114,13 +114,16 @@ public class GnssOrbitFileDownloader {
     }
 
     private static String convertOrbitType(final String orbitType) throws Exception {
-        if (orbitType.startsWith(RESORB) || orbitType.startsWith(SentinelPODOrbitFile.RESTITUTED)) {
-            return RESORB;
+        switch (orbitType) {
+            case RESORB:
+            case SentinelPODOrbitFile.RESTITUTED:
+                return RESORB;
+            case POEORB:
+            case SentinelPODOrbitFile.PRECISE:
+                return POEORB;
+            default:
+                throw new Exception("Unsupported orbit type " + orbitType);
         }
-        if (orbitType.startsWith(POEORB) || orbitType.startsWith(SentinelPODOrbitFile.PRECISE)) {
-            return POEORB;
-        }
-        throw new Exception("Unsupported orbit type " + orbitType);
     }
 
     private static String convertMissionPrefix(final String missionPrefix) throws Exception {
