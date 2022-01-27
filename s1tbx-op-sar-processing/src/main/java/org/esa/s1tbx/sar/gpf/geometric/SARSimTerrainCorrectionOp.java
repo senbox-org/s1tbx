@@ -149,8 +149,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
     @Parameter(defaultValue = "true", label = "Save selected source band")
     private boolean saveSelectedSourceBand = true;
 
-    @Parameter(defaultValue = "false", label = "Output complex data")
-    private boolean outputComplex = false;
+//    @Parameter(defaultValue = "false", label = "Output complex data")
+//    private boolean outputComplex = false;
 
     @Parameter(defaultValue = "false", label = "Apply radiometric normalization")
     private boolean applyRadiometricNormalization = false;
@@ -411,11 +411,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
 
-        skipBistaticCorrection = absRoot.getAttributeInt("bistatic_correction_applied", 0) == 1;
+        skipBistaticCorrection = absRoot.getAttributeInt(AbstractMetadata.bistatic_correction_applied, 0) == 1;
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
-        wavelength = SARUtils.getRadarFrequency(absRoot);
+        wavelength = SARUtils.getRadarWavelength(absRoot);
 
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
@@ -696,9 +696,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
     /**
      * Update metadata in the target product.
      *
-     * @throws OperatorException The exception.
+     * @throws Exception The exception.
      */
-    private void updateTargetProductMetadata() throws OperatorException {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.srgr_flag, 1);
@@ -943,7 +943,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
             };
 
             final RangeDopplerGeocodingOp.TileData td = new RangeDopplerGeocodingOp.TileData(
-                    targetTiles.get(targetBand), srcBands, isPolsar, outputComplex,
+//                    targetTiles.get(targetBand), srcBands, isPolsar, outputComplex,
+                    targetTiles.get(targetBand), srcBands, isPolsar,
                     targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling,
                     null, null);
 

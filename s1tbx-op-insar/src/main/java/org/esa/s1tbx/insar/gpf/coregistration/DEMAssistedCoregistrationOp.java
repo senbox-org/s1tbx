@@ -205,7 +205,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         metadata.srgrFlag = AbstractMetadata.getAttributeBoolean(metadata.absRoot, AbstractMetadata.srgr_flag);
 
-        metadata.wavelength = SARUtils.getRadarFrequency(metadata.absRoot);
+        metadata.wavelength = SARUtils.getRadarWavelength(metadata.absRoot);
 
         metadata.rangeSpacing = AbstractMetadata.getAttributeDouble(
                 metadata.absRoot, AbstractMetadata.range_spacing);
@@ -243,10 +243,10 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     /**
      * Create target product.
      */
-    private void createTargetProduct() {
+    private void createTargetProduct() throws Exception {
 
         targetProduct = new Product(
-                masterProduct.getName() + PRODUCT_SUFFIX,
+                OperatorUtils.createProductName(masterProduct.getName(), PRODUCT_SUFFIX),
                 masterProduct.getProductType(),
                 masterProduct.getSceneRasterWidth(),
                 masterProduct.getSceneRasterHeight());
@@ -354,7 +354,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         if(maskOutAreaWithoutElevation) {
             Band slvBand = null;
             for(Band tgtBand : targetProduct.getBands()) {
-                if(StackUtils.isSlaveBand(tgtBand, targetProduct)) {
+                if(StackUtils.isSlaveBand(tgtBand.getName(), targetProduct)) {
                     slvBand = tgtBand;
                     break;
                 }
@@ -362,7 +362,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             if(slvBand != null) {
                 for (Band tgtBand : targetProduct.getBands()) {
-                    if (StackUtils.isMasterBand(tgtBand, targetProduct)) {
+                    if (StackUtils.isMasterBand(tgtBand.getName(), targetProduct)) {
                         tgtBand.setValidPixelExpression(slvBand.getName());
                     }
                 }

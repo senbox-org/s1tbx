@@ -51,7 +51,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     }
 
     protected String getHeaderFileName() {
-        return Sentinel1Constants.PRODUCT_HEADER_NAME;
+        return Sentinel1ProductReaderPlugIn.PRODUCT_HEADER_NAME;
     }
 
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {

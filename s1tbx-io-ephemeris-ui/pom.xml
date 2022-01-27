@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!--
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+  -->
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.esa.s1tbx</groupId>
+        <artifactId>s1tbx</artifactId>
+        <version>8.0.6-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>s1tbx-io-ephemeris-ui</artifactId>
+    <name>S1TBX IO Orbit Ephemeris UI</name>
+    <description>Orbit Ephemeris UI</description>
+
+    <packaging>nbm</packaging>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-sar-processing</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io-ephemeris</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-rcp</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-graph-builder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-engine-utilities</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-calibration</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-insar</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-dem</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-annotations-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-javahelp</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.netbeans.utilities</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.esa.s1tbx.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -79,13 +79,14 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     final JLabel sourcePixelSpacingsLabelPart2 = new JLabel("0.0(m) x 0.0(m)");
 
     final JCheckBox nodataValueAtSeaCheckBox = new JCheckBox("Mask out areas without elevation");
-    final JCheckBox outputComplexCheckBox = new JCheckBox("Output complex data");
+//    final JCheckBox outputComplexCheckBox = new JCheckBox("Output complex data");
     final JCheckBox saveDEMCheckBox = new JCheckBox("DEM");
     final JCheckBox saveLatLonCheckBox = new JCheckBox("Latitude & Longitude");
     final JCheckBox saveIncidenceAngleFromEllipsoidCheckBox = new JCheckBox("Incidence angle from ellipsoid");
     final JCheckBox saveLocalIncidenceAngleCheckBox = new JCheckBox("Local incidence angle");
     final JCheckBox saveProjectedLocalIncidenceAngleCheckBox = new JCheckBox("Projected local incidence angle");
     final JCheckBox saveSelectedSourceBandCheckBox = new JCheckBox("Selected source band");
+    final JCheckBox saveLayoverShadowMaskCheckBox = new JCheckBox("Layover Shadow Mask");
     final JCheckBox applyRadiometricNormalizationCheckBox = new JCheckBox("Apply radiometric normalization");
     final JCheckBox saveBetaNoughtCheckBox = new JCheckBox("Save Beta0 band");
     final JCheckBox saveGammaNoughtCheckBox = new JCheckBox("Save Gamma0 band");
@@ -97,13 +98,14 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     final JButton externalAuxFileBrowseButton = new JButton("...");
 
     private Boolean nodataValueAtSea = true;
-    private Boolean outputComplex = false;
+//    private Boolean outputComplex = false;
     private Boolean saveDEM = false;
     private Boolean saveLatLon = false;
     private Boolean saveIncidenceAngleFromEllipsoid = false;
     private Boolean saveLocalIncidenceAngle = false;
     private Boolean saveProjectedLocalIncidenceAngle = false;
     private Boolean saveSelectedSourceBand = false;
+    private Boolean saveLayoverShadowMask = false;
     private Boolean applyRadiometricNormalization = false;
     private Boolean saveBetaNought = false;
     private Boolean saveGammaNought = false;
@@ -182,11 +184,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 nodataValueAtSea = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
-        outputComplexCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                outputComplex = (e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
+//        outputComplexCheckBox.addItemListener(new ItemListener() {
+//            public void itemStateChanged(ItemEvent e) {
+//                outputComplex = (e.getStateChange() == ItemEvent.SELECTED);
+//            }
+//        });
         saveDEMCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 saveDEM = (e.getStateChange() == ItemEvent.SELECTED);
@@ -215,6 +217,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         saveSelectedSourceBandCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 saveSelectedSourceBand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        saveLayoverShadowMaskCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -388,11 +395,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 savedRangePixelSpacing = rangePixelSpacing;
             }
 
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            if(absRoot != null) {
-                boolean isComplex = absRoot.getAttributeString(AbstractMetadata.sample_type).equals("COMPLEX");
-                outputComplexCheckBox.setEnabled(isComplex);
-            }
+//            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+//            if(absRoot != null) {
+//                boolean isComplex = absRoot.getAttributeString(AbstractMetadata.sample_type).equals("COMPLEX");
+//                outputComplexCheckBox.setEnabled(isComplex);
+//            }
         }
 
         final File extDEMFile = (File) paramMap.get("externalDEMFile");
@@ -416,11 +423,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             nodataValueAtSeaCheckBox.setSelected(nodataValueAtSea);
         }
 
-        paramVal = (Boolean) paramMap.get("outputComplex");
-        if (paramVal != null) {
-            outputComplex = paramVal;
-            outputComplexCheckBox.setSelected(outputComplex);
-        }
+//        paramVal = (Boolean) paramMap.get("outputComplex");
+//        if (paramVal != null) {
+//            outputComplex = paramVal;
+//            outputComplexCheckBox.setSelected(outputComplex);
+//        }
 
         paramVal = (Boolean) paramMap.get("saveDEM");
         if (paramVal != null) {
@@ -457,6 +464,12 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveSelectedSourceBand = paramVal;
             saveSelectedSourceBandCheckBox.setSelected(saveSelectedSourceBand);
         }
+
+        saveLayoverShadowMaskCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
 
         paramVal = (Boolean) paramMap.get("applyRadiometricNormalization");
         if (paramVal != null) {
@@ -596,13 +609,14 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         }
 
         paramMap.put("nodataValueAtSea", nodataValueAtSea);
-        paramMap.put("outputComplex", outputComplex);
+//        paramMap.put("outputComplex", outputComplex);
         paramMap.put("saveDEM", saveDEM);
         paramMap.put("saveLatLon", saveLatLon);
         paramMap.put("saveIncidenceAngleFromEllipsoid", saveIncidenceAngleFromEllipsoid);
         paramMap.put("saveLocalIncidenceAngle", saveLocalIncidenceAngle);
         paramMap.put("saveProjectedLocalIncidenceAngle", saveProjectedLocalIncidenceAngle);
         paramMap.put("saveSelectedSourceBand", saveSelectedSourceBand);
+        paramMap.put("saveLayoverShadowMask", saveLayoverShadowMask);
         paramMap.put("applyRadiometricNormalization", applyRadiometricNormalization);
         paramMap.put("saveBetaNought", saveBetaNought);
         paramMap.put("saveGammaNought", saveGammaNought);
@@ -661,8 +675,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         if (!useAvgSceneHeight) {
             gbc.gridy++;
             contentPane.add(nodataValueAtSeaCheckBox, gbc);
-            gbc.gridx = 1;
-            contentPane.add(outputComplexCheckBox, gbc);
+//            gbc.gridx = 1;
+//            contentPane.add(outputComplexCheckBox, gbc);
         }
 
         gbc.gridx = 0;
@@ -688,6 +702,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             gbc2.gridx = 2;
             saveBandsPanel.add(saveProjectedLocalIncidenceAngleCheckBox, gbc2);
         }
+        gbc2.gridy++;
+        gbc2.gridx = 0;
+        saveBandsPanel.add(saveLayoverShadowMaskCheckBox, gbc2);
 
         gbc.gridwidth = 2;
         contentPane.add(saveBandsPanel, gbc);

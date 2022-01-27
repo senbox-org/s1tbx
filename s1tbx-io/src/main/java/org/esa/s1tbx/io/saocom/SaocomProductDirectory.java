@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.*;
-import java.util.List;
 
 /**
  * This class represents a product directory.
@@ -166,6 +165,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         final VirtualDir virtualDir = getProductDir();
 
         final String[] metaFiles = virtualDir.list(internalPath);
+        Arrays.sort(metaFiles);
         for (String file : metaFiles) {
             if (file.endsWith(".xml")) {
                 try {
@@ -446,6 +446,8 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     final ImageIOFile img = new ImageIOFile(imgPath, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_FLOAT64, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
+                } else {
+                    inStream.close();
                 }
             } catch (Exception e) {
                 SystemUtils.LOG.severe(imgPath + " not found");
@@ -521,7 +523,7 @@ public class SaocomProductDirectory extends XMLProductDirectory {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         bandName = "Sigma0" + '_' + suffix;
                         final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
-                        band.setUnit(Unit.AMPLITUDE);
+                        band.setUnit(Unit.INTENSITY);
                         band.setNoDataValueUsed(true);
                         band.setNoDataValue(0);
 
@@ -619,10 +621,6 @@ public class SaocomProductDirectory extends XMLProductDirectory {
 
         populateIncidenceAngles();
 
-        //final float[] flippedSlantRangeCorners = new float[4];
-        //final float[] flippedIncidenceCorners = new float[4];
-        //getFlippedCorners(product, flippedSlantRangeCorners, flippedIncidenceCorners);
-
         if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
             final float[] fineAngles = new float[gridWidth * gridHeight];
             ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
@@ -633,13 +631,20 @@ public class SaocomProductDirectory extends XMLProductDirectory {
             product.addTiePointGrid(incidentAngleGrid);
         }
 
-//        final float[] fineSlantRange = new float[gridWidth * gridHeight];
-//        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
-//
-//        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
-//                subSamplingX, subSamplingY, fineSlantRange);
-//        slantRangeGrid.setUnit(Unit.NANOSECONDS);
-//        product.addTiePointGrid(slantRangeGrid);
+        populateSlantRangeTimes(product);
+
+        if (product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME) == null) {
+            final float[] fineSlantRangeTimes = new float[gridWidth * gridHeight];
+            ReaderUtils.createFineTiePointGrid(
+                    2, 2, gridWidth, gridHeight, slantRangeCorners, fineSlantRangeTimes);
+
+            final TiePointGrid slantRangeTimeGrid = new TiePointGrid(
+                    OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
+                    subSamplingX, subSamplingY, fineSlantRangeTimes);
+
+            slantRangeTimeGrid.setUnit(Unit.NANOSECONDS);
+            product.addTiePointGrid(slantRangeTimeGrid);
+        }
     }
 
     private void populateIncidenceAngles() {
@@ -739,6 +744,22 @@ public class SaocomProductDirectory extends XMLProductDirectory {
         }
         incidenceCorners[2] = incidenceCorners[0];
         incidenceCorners[3] = incidenceCorners[1];
+    }
+
+    private void populateSlantRangeTimes(final Product product) {
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement productElem = origProdRoot.getElement("product");
+        final MetadataElement featuresElem = productElem.getElement("features");
+        final MetadataElement imageAttributesElem = featuresElem.getElement("imageAttributes");
+        final MetadataElement swathInfoElem = imageAttributesElem.getElement("SwathInfo");
+        final MetadataElement rasterInfoElem = swathInfoElem.getElement("RasterInfo");
+        final double samplesStart = rasterInfoElem.getAttributeDouble("SamplesStart") * 1e9; // s to ns
+        final double samplesStep = rasterInfoElem.getAttributeDouble("SamplesStep") * 1e9; // s to ns
+        slantRangeCorners[0] = samplesStart;
+        slantRangeCorners[1] = samplesStart + (product.getSceneRasterWidth() - 1) * samplesStep;
+        slantRangeCorners[2] = slantRangeCorners[0];
+        slantRangeCorners[3] = slantRangeCorners[1];
     }
 
     private void getFlippedCorners(Product product,

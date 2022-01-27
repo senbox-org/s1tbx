@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 SkyWatch Space Applications Inc. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.benchmark;
 
 import com.bc.ceres.binding.dom.DefaultDomElement;
@@ -70,7 +85,7 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Benchmark b = new Benchmark(name) {
             @Override
             protected void execute() throws Exception {
-                process(name, false);
+                process(name, outputFolder, false);
             }
         };
         b.run();
@@ -80,7 +95,7 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Benchmark b = new Benchmark(name) {
             @Override
             protected void execute() throws Exception {
-                process(name, true);
+                process(name, outputFolder, true);
             }
         };
         b.run();
@@ -90,13 +105,13 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Benchmark b = new Benchmark(name) {
             @Override
             protected void execute() throws Exception {
-                processGraph(grdFile, name);
+                processGraph(grdFile, outputFolder, name);
             }
         };
         b.run();
     }
 
-    private void process(final String name, final boolean useWriteOp) throws IOException {
+    private void process(final String name, final File outputFolder, final boolean useWriteOp) throws IOException {
         final Product srcProduct = read(grdFile);
 
         SpeckleFilterOp op = new SpeckleFilterOp();
@@ -105,13 +120,16 @@ public class TestBenchmark_SpeckleFilters extends BaseBenchmarks {
         Product trgProduct = op.getTargetProduct();
 
         if(useWriteOp) {
-            writeGPF(trgProduct, DIMAP);
+            writeGPF(trgProduct, outputFolder, DIMAP);
         } else {
-            write(trgProduct, DIMAP);
+            write(trgProduct, outputFolder, DIMAP);
         }
+
+        trgProduct.dispose();
+        srcProduct.dispose();
     }
 
-    private void processGraph(final File file, final String name) throws Exception {
+    private void processGraph(final File file, final File outputFolder, final String name) throws Exception {
 
         final Graph graph = new Graph("graph");
 

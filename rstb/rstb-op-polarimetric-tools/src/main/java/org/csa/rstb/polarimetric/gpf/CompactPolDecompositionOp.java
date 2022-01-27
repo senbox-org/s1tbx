@@ -19,6 +19,7 @@ import org.csa.rstb.polarimetric.gpf.decompositions_cp.CP_HAlpha;
 import org.csa.rstb.polarimetric.gpf.decompositions_cp.CP_MChi;
 import org.csa.rstb.polarimetric.gpf.decompositions_cp.CP_MDelta;
 import org.csa.rstb.polarimetric.gpf.decompositions_cp.CP_RVOG;
+import org.csa.rstb.polarimetric.gpf.decompositions_cp.CP_MF3CC;
 import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.polarimetric.gpf.decompositions.Decomposition;
 import org.csa.rstb.polarimetric.gpf.support.CompactPolProcessor;
@@ -58,6 +59,7 @@ public final class CompactPolDecompositionOp extends Operator {
     public static final String M_DELTA_DECOMPOSITION = "M-Delta Decomposition";
     public static final String H_ALPHA_DECOMPOSITION = "H-Alpha Decomposition";
     public static final String RVOG_DECOMPOSITION = "2 Layer RVOG Model Based Decomposition";
+    public static final String MF3CC_DECOMPOSITION = "Model-free 3-component decomposition";
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -65,7 +67,7 @@ public final class CompactPolDecompositionOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {M_CHI_DECOMPOSITION, M_DELTA_DECOMPOSITION, H_ALPHA_DECOMPOSITION, RVOG_DECOMPOSITION},
+    @Parameter(valueSet = {M_CHI_DECOMPOSITION, M_DELTA_DECOMPOSITION, H_ALPHA_DECOMPOSITION, RVOG_DECOMPOSITION, MF3CC_DECOMPOSITION},
             defaultValue = M_CHI_DECOMPOSITION, label = "Decomposition")
     private String decomposition = M_CHI_DECOMPOSITION;
 
@@ -98,7 +100,8 @@ public final class CompactPolDecompositionOp extends Operator {
     protected void SetDecomposition(final String s) {
 
         if (s.equals(M_CHI_DECOMPOSITION) || s.equals(M_DELTA_DECOMPOSITION) ||
-                s.equals(H_ALPHA_DECOMPOSITION) || s.equals(RVOG_DECOMPOSITION)) {
+                s.equals(H_ALPHA_DECOMPOSITION) || s.equals(RVOG_DECOMPOSITION) ||
+                s.equals(MF3CC_DECOMPOSITION)) {
             decomposition = s;
         } else {
             throw new OperatorException(s + " is an invalid decomposition name.");
@@ -182,6 +185,9 @@ public final class CompactPolDecompositionOp extends Operator {
             case RVOG_DECOMPOSITION:
                 return new CP_RVOG(srcBandList, sourceProductType, compactMode, windowSizeX, windowSizeY, outputRVOG,
                         sourceImageWidth, sourceImageHeight);
+            case MF3CC_DECOMPOSITION:
+                return new CP_MF3CC(srcBandList, sourceProductType, compactMode, windowSizeX, windowSizeY,
+                        sourceImageWidth, sourceImageHeight);
         }
         return null;
     }
@@ -204,7 +210,7 @@ public final class CompactPolDecompositionOp extends Operator {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
         absRoot.setAttributeString(AbstractMetadata.compact_mode, compactMode);

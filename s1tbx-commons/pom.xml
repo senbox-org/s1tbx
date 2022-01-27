@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <name>S1TBX Commons</name>
@@ -34,6 +34,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <application.dir>../../snap-desktop/snap-application/target/snap</application.dir>
+
+        <json-simple.version>1.1.1</json-simple.version>
+        <jackson.version>2.11.3</jackson.version>
+        <json-schema-validator.version>1.0.39</json-schema-validator.version>
     </properties>
 
     <dependencies>
@@ -49,15 +53,21 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-gpf</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
+            <version>${json-simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${json-schema-validator.version}</version>
         </dependency>
     </dependencies>
 

@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.io.risat1;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.PropertyMapProductDirectory;
 import org.esa.s1tbx.commons.io.SARReader;
@@ -33,8 +32,6 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
@@ -107,6 +104,8 @@ public class Risat1ProductDirectory extends PropertyMapProductDirectory {
                     img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream), productInputFile);
                 }
                 bandImageFileMap.put(img.getName(), img);
+            } else {
+                inStream.close();
             }
         } else if (name.endsWith(".001") && name.contains("vdf_")) {
             final ProductReader ceosReader = ceosPlugIn.createReaderInstance();

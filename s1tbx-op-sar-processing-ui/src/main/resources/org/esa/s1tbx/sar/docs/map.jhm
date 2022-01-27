@@ -16,9 +16,9 @@
     <mapID target="ALOSDeskewingOp" url="operators/ALOSDeskewingOp.html"/>
     <mapID target="TerrainFlatteningOp" url="operators/TerrainFlatteningOp.html"/>
     <mapID target="UpdateGeoRefOp" url="operators/UpdateGeoRefOp.html"/>
+    <mapID target="MultitemporalCompositingOp" url="operators/MultitemporalCompositingOp.html"/>
 
     <!--SAR Operators-->
-    <mapID target="ApplyOrbitFileOp" url="operators/ApplyOrbitFileOp.html"/>
     <mapID target="MultilookOp" url="operators/MultilookOp.html"/>
     <mapID target="SpeckleFilterOp" url="operators/SpeckleFilterOp.html"/>
     <mapID target="MultiTemporalSpeckleFilterOp" url="operators/MultiTemporalSpeckleFilterOp.html"/>

@@ -4,8 +4,6 @@ import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.Window;
 
-import java.util.Random;
-
 public class MathUtils {
 
     public static boolean isEven(long value) {

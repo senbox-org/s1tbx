@@ -18,7 +18,6 @@ package org.esa.s1tbx.commons.polsar;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -121,7 +120,7 @@ public class PolBandUtils {
      * @param srcProduct        the input product
      * @param sourceProductType The source product type
      * @return QuadSourceBand[]
-     * @throws OperatorException if sourceProduct is not quad-pol
+     * @throws Exception if sourceProduct is not quad-pol
      */
     public static PolSourceBand[] getSourceBands(final Product srcProduct,
                                                   final MATRIX sourceProductType) throws Exception {
@@ -224,7 +223,7 @@ public class PolBandUtils {
         return null;
     }
 
-    private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames) {
+    private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames) throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
         final boolean isComplex = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX");
@@ -244,7 +243,7 @@ public class PolBandUtils {
             }
 
             if(bandList.size() < 4) {
-                throw new OperatorException("A full polarization product is expected as input.");
+                throw new Exception("A full polarization product is expected as input.");
             }
             return bandList.toArray(new Band[bandList.size()]);
         }
@@ -295,13 +294,13 @@ public class PolBandUtils {
         }
 
         if (validBandCnt != 8) {
-            throw new OperatorException("A full polarization product is expected as input.");
+            throw new Exception("A full polarization product is expected as input.");
         }
         return sourceBands;
     }
 
     private static Band[] getProductBands(final Product srcProduct, final String[] srcBandNames,
-                                          final String[] validBandNames) throws OperatorException {
+                                          final String[] validBandNames) throws Exception {
 
         final Band[] sourceBands = new Band[validBandNames.length];
 
@@ -309,7 +308,7 @@ public class PolBandUtils {
         for (final String bandName : srcBandNames) {
             final Band band = srcProduct.getBand(bandName);
             if (band == null) {
-                throw new OperatorException("Band " + bandName + " not found");
+                throw new Exception("Band " + bandName + " not found");
             }
 
             for (final String validName : validBandNames) {
@@ -321,12 +320,12 @@ public class PolBandUtils {
         }
 
         if (validBandCnt != validBandNames.length) {
-            throw new OperatorException("Input is not a valid polarimetric matrix");
+            throw new Exception("Input is not a valid polarimetric matrix");
         }
         return sourceBands;
     }
 
-    public static void saveNewBandNames(final Product targetProduct, final PolSourceBand[] srcBandList) {
+    public static void saveNewBandNames(final Product targetProduct, final PolSourceBand[] srcBandList) throws Exception {
         if (StackUtils.isCoregisteredStack(targetProduct)) {
             boolean masterProduct = true;
             for (final PolSourceBand bandList : srcBandList) {

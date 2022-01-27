@@ -44,14 +44,14 @@ public class ImageIOFile {
     private int sceneWidth = 0;
     private int sceneHeight = 0;
     private int dataType;
-    private int numImages = 1;
-    private int numBands = 1;
+    private int numImages;
+    private int numBands;
     private ImageInfo imageInfo = null;
     private IndexCoding indexCoding = null;
     private boolean isIndexed = false;
     private final File productInputFile;
 
-    private ImageInputStream stream = null;
+    private ImageInputStream stream;
     private ImageReader reader;
 
     private static final boolean useFileCache = Config.instance().preferences().getBoolean("s1tbx.readers.useFileCache", false);
@@ -222,6 +222,10 @@ public class ImageIOFile {
         return dataType;
     }
 
+    public void setDataType(final int dataType) {
+        this.dataType = dataType;
+    }
+
     public int getNumImages() {
         return numImages;
     }
@@ -304,6 +308,7 @@ public class ImageIOFile {
         public final int bandSampleOffset;
         public final ImageIOFile img;
         public final boolean isImaginary;
+        public boolean isComplexSample;
         public Band realBand, imaginaryBand;
 
         public BandInfo(final Band band, final ImageIOFile imgFile, final int id, final int offset) {
@@ -311,11 +316,16 @@ public class ImageIOFile {
             imageID = id;
             bandSampleOffset = offset;
             isImaginary = band.getUnit() != null && band.getUnit().equals(Unit.IMAGINARY);
+            isComplexSample = false;
             if(isImaginary) {
                 imaginaryBand = band;
             } else {
                 realBand = band;
             }
+        }
+
+        public void setComplexSample(final boolean isComplexSample) {
+            this.isComplexSample = isComplexSample;
         }
 
         public void setRealBand(final Band band) {
@@ -337,7 +347,7 @@ public class ImageIOFile {
 
     public static ImageInputStream createImageInputStream(final InputStream inStream, final Dimension bandDimensions) throws IOException {
         final long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
-        final long size = (bandDimensions.width*bandDimensions.height *32L) / 1024 / 1024;
+        final long size = bandDimensions.width / 1024 * bandDimensions.height /1024 * 32L;
         if(useFileCache || freeMemory < 100L || size > 15000L) {
             SystemUtils.LOG.info("Using FileCacheImageInputStream");
             return new FileCacheImageInputStream(inStream, createCacheDir());

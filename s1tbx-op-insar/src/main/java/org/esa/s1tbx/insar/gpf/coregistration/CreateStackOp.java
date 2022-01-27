@@ -16,6 +16,9 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.commons.CRSGeoCodingHandler;
+import org.esa.s1tbx.commons.Resolution;
+import org.esa.s1tbx.commons.SARGeocoding;
 import org.esa.snap.core.subset.PixelSubsetRegion;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -195,7 +198,7 @@ public class CreateStackOp extends Operator {
             switch (extent) {
                 case MASTER_EXTENT:
 
-                    targetProduct = new Product(masterProduct.getName() + PRODUCT_SUFFIX,
+                    targetProduct = new Product(OperatorUtils.createProductName(masterProduct.getName(), PRODUCT_SUFFIX),
                                                 masterProduct.getProductType(),
                                                 masterProduct.getSceneRasterWidth(),
                                                 masterProduct.getSceneRasterHeight());
@@ -308,7 +311,7 @@ public class CreateStackOp extends Operator {
             copySlaveMetadata();
 
             StackUtils.saveMasterProductBandNames(targetProduct,
-                                                  masterProductBands.toArray(new String[masterProductBands.size()]));
+                                                  masterProductBands.toArray(new String[0]));
             StackUtils.saveSlaveProductNames(sourceProduct, targetProduct, masterProduct, sourceRasterMap);
 
             updateMetadata();
@@ -338,7 +341,9 @@ public class CreateStackOp extends Operator {
             }
 
             // set non-elevation areas to no data value for the master bands using the slave bands
-            DEMAssistedCoregistrationOp.setMasterValidPixelExpression(targetProduct, true);
+            if (!extent.equals(MAX_EXTENT)) {
+                DEMAssistedCoregistrationOp.setMasterValidPixelExpression(targetProduct, true);
+            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -417,7 +422,8 @@ public class CreateStackOp extends Operator {
                 //System.out.println();
             }
 
-        } catch (Exception e) {
+        } catch (Error | Exception e) {
+            // only log the warning and continue
             SystemUtils.LOG.warning("Unable to calculate baselines. " + e.getMessage());
         }
     }
@@ -565,7 +571,7 @@ public class CreateStackOp extends Operator {
                 }
             }
         }
-        return bandList.toArray(new Band[bandList.size()]);
+        return bandList.toArray(new Band[0]);
     }
 
     private Product getProduct(final String productName, final String bandName) {
@@ -594,7 +600,7 @@ public class CreateStackOp extends Operator {
 
     private String getProductName(final String name) {
         if (name.contains("::"))
-            return name.substring(name.indexOf("::") + 2, name.length());
+            return name.substring(name.indexOf("::") + 2);
         return sourceProduct[0].getName();
     }
 
@@ -664,18 +670,16 @@ public class CreateStackOp extends Operator {
     /**
      * Maximum extents consists of the overall area
      */
-    private void determineMaxExtents() throws Exception {
+    private void determineMaxExtents() {
 
         final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
         OperatorUtils.computeImageGeoBoundary(sourceProduct, scnProp);
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(masterProduct);
-        double pixelSize = 1;
-        if(absRoot != null) {
-            final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-            final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-            pixelSize = Math.min(rangeSpacing, azimuthSpacing);
-        }
+        final Resolution resolution = new Resolution(masterProduct);
+        final double rangeSpacing = resolution.getResX();
+        final double azimuthSpacing = resolution.getResY();
+        double pixelSize = Math.min(rangeSpacing, azimuthSpacing);
+
         OperatorUtils.getSceneDimensions(pixelSize, scnProp);
 
         int sceneWidth = scnProp.sceneWidth;
@@ -688,11 +692,28 @@ public class CreateStackOp extends Operator {
             dim = (long) sceneWidth * (long) sceneHeight;
         }
 
-        targetProduct = new Product(masterProduct.getName(),
+        final Product tempProduct = new Product(masterProduct.getName(),
                                     masterProduct.getProductType(),
                                     sceneWidth, sceneHeight);
 
-        OperatorUtils.addGeoCoding(targetProduct, scnProp);
+        ProductUtils.copyProductNodes(masterProduct, tempProduct);
+        OperatorUtils.addGeoCoding(tempProduct, scnProp);
+
+        try {
+            final double pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSize);
+
+            final CRSGeoCodingHandler crsHandler = new CRSGeoCodingHandler(tempProduct, "WGS84(DD)",
+                    pixelSpacingInDegree, pixelSize,false, 0, 0);
+
+            targetProduct = new Product(masterProduct.getName(),
+                    masterProduct.getProductType(), crsHandler.getTargetWidth(), crsHandler.getTargetHeight());
+
+            ProductUtils.copyProductNodes(masterProduct, targetProduct);
+
+            targetProduct.setSceneGeoCoding(crsHandler.getCrsGeoCoding());
+        } catch (Exception e) {
+            throw new OperatorException(e);
+        }
     }
 
     private void computeTargetSlaveCoordinateOffsets_GCP() {
@@ -926,7 +947,7 @@ public class CreateStackOp extends Operator {
         }
     }
 
-    public static void checkPixelSpacing(final Product[] sourceProducts) throws Exception {
+    public static void checkPixelSpacing(final Product[] sourceProducts) {
         double savedRangeSpacing = 0.0;
         double savedAzimuthSpacing = 0.0;
         for (final Product prod : sourceProducts) {

@@ -3,18 +3,6 @@
 
     <folder name="Actions">
         <folder name="Operators">
-            <file name="org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Apply Orbit File"/>
-                <attr name="operatorName" stringvalue="Apply-Orbit-File"/>
-                <attr name="dialogTitle" stringvalue="Apply Orbit File"/>
-                <attr name="targetProductNameSuffix"  stringvalue="_Orb"/>
-                <attr name="ShortDescription" stringvalue="Apply Orbit File to update orbit state vectors"/>
-                <attr name="helpId" stringvalue="ApplyOrbitFileOp"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-            </file>
-
             <file name="org-esa-s1tbx-sar-gpf-geometric-GeolocationGridGeocodingOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -125,6 +113,17 @@
                 <attr name="helpId" stringvalue="TerrainFlatteningOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-MultitemporalCompositingOp-Action.instance">
+                <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Multitemporal Compositing"/>
+                <attr name="operatorName" stringvalue="Multitemporal-Compositing"/>
+                <attr name="dialogTitle" stringvalue="Multitemporal Compositing"/>
+                <attr name="targetProductNameSuffix" stringvalue="_MCTF"/>
+                <attr name="ShortDescription" stringvalue="Multitemporal Compositing"/>
+                <attr name="helpId" stringvalue="MultitemporalCompositingOp"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
             <file name="org-esa-s1tbx-sar-gpf-filtering-SpeckleFilterOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -206,16 +205,15 @@
 
     <folder name="Menu">
         <folder name="Radar">
-            <attr name="position" intvalue="510"/>
-            <file name="org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.shadow">
-                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.instance"/>
-                <attr name="position" intvalue="50"/>
-            </file>
             <folder name="Radiometric">
                 <attr name="position" intvalue="100"/>
                 <file name="org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.instance"/>
                     <attr name="position" intvalue="120"/>
+                </file>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-MultitemporalCompositingOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-MultitemporalCompositingOp-Action.instance"/>
+                    <attr name="position" intvalue="130"/>
                 </file>
             </folder>
             <folder name="Speckle Filtering">
@@ -304,10 +302,6 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.sar.gpf.ui.orbits.ApplyOrbitFileOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.orbits.ApplyOrbitFileOpUI"/>
-            <attr name="operatorName" stringvalue="Apply-Orbit-File"/>
-        </file>
         <file name="org.esa.s1tbx.sar.gpf.ui.MultilookOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.MultilookOpUI"/>
             <attr name="operatorName" stringvalue="Multilook"/>

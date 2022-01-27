@@ -78,7 +78,6 @@ public final class TOPSARSplitOp extends Operator {
     @Parameter(description = "WKT polygon to be used for selecting bursts", label = "WKT Area of Interest")
     private String wktAoi = null;
 
-    private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwathInfo = null;
     private int subSwathIndex = 0;
     private ProductSubsetBuilder subsetBuilder = null;
@@ -112,7 +111,7 @@ public final class TOPSARSplitOp extends Operator {
                 subswath = acquisitionMode + '1';
             }
 
-            su = new Sentinel1Utils(sourceProduct);
+            final Sentinel1Utils su = new Sentinel1Utils(sourceProduct);
             subSwathInfo = su.getSubSwath();
             for (int i = 0; i < subSwathInfo.length; i++) {
                 if (subSwathInfo[i].subSwathName.contains(subswath)) {
@@ -169,7 +168,7 @@ public final class TOPSARSplitOp extends Operator {
                     selectedTPGList.add(srcTPG.getName());
                 }
             }
-            subsetDef.addNodeNames(selectedTPGList.toArray(new String[selectedTPGList.size()]));
+            subsetDef.addNodeNames(selectedTPGList.toArray(new String[0]));
 
             final int x = 0;
             final int y = (firstBurstIndex - 1) * subSwathInfo[subSwathIndex - 1].linesPerBurst;
@@ -235,13 +234,13 @@ public final class TOPSARSplitOp extends Operator {
     /**
      * Find bursts (i.e. firstBurstIndex and lastBurstIndex) that overlap AOI WKT
      */
-    private void findValidBurstsBasedOnWkt() {
+    private void findValidBurstsBasedOnWkt() throws Exception {
         // Read AOI polygon
         Geometry aoi = null;
         try {
             aoi = new WKTReader().read(wktAoi);
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new Exception("Unable to parse wktAoi", e);
         }
 
         // Read burst polygons and check if it intersects AOI
@@ -272,6 +271,10 @@ public final class TOPSARSplitOp extends Operator {
             if (aoi.intersects(burst)) {
                 validSelBursts.add(burst_i + 1);
             }
+        }
+
+        if(validSelBursts.isEmpty()) {
+            throw new Exception("wktAOI does not overlap any burst");
         }
 
         firstBurstIndex = Collections.min(validSelBursts);
@@ -405,6 +408,7 @@ public final class TOPSARSplitOp extends Operator {
         removeElements(origMeta, "annotation");
         removeElements(origMeta, "calibration");
         removeElements(origMeta, "noise");
+        removeElements(origMeta, "rfi");
         removeBursts(origMeta);
         updateImageInformation(origMeta);
     }
@@ -434,21 +438,27 @@ public final class TOPSARSplitOp extends Operator {
 
     private void removeBursts(final MetadataElement origMeta) {
 
-        MetadataElement annotation = origMeta.getElement("annotation");
+        final MetadataElement annotation = origMeta.getElement("annotation");
         if (annotation == null) {
             throw new OperatorException("Annotation Metadata not found");
         }
 
         final MetadataElement[] elems = annotation.getElements();
         for (MetadataElement elem : elems) {
-            final MetadataElement product = elem.getElement("product");
-            final MetadataElement swathTiming = product.getElement("swathTiming");
-            final MetadataElement burstList = swathTiming.getElement("burstList");
-            burstList.setAttributeString("count", Integer.toString(lastBurstIndex - firstBurstIndex + 1));
-            final MetadataElement[] burstListElem = burstList.getElements();
-            for (int i = 0; i < burstListElem.length; i++) {
-                if (i < firstBurstIndex - 1 || i > lastBurstIndex - 1) {
-                    burstList.removeElement(burstListElem[i]);
+            if(elem.containsElement("product")) {
+                final MetadataElement product = elem.getElement("product");
+                if(product.containsElement("swathTiming")) {
+                    final MetadataElement swathTiming = product.getElement("swathTiming");
+                    if(swathTiming.containsElement("burstList")) {
+                        final MetadataElement burstList = swathTiming.getElement("burstList");
+                        burstList.setAttributeString("count", Integer.toString(lastBurstIndex - firstBurstIndex + 1));
+                        final MetadataElement[] burstListElem = burstList.getElements();
+                        for (int i = 0; i < burstListElem.length; i++) {
+                            if (i < firstBurstIndex - 1 || i > lastBurstIndex - 1) {
+                                burstList.removeElement(burstListElem[i]);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -483,10 +493,10 @@ public final class TOPSARSplitOp extends Operator {
     }
 
     public String format(final ProductData.UTC utc) {
-        final Calendar calendar = utc.createCalendar();
+        final Calendar calendar = ProductData.UTC.createCalendar();
         calendar.add(Calendar.DATE, utc.getDaysFraction());
         calendar.add(Calendar.SECOND, (int) utc.getSecondsFraction());
-        final DateFormat dateFormat = utc.createDateFormat("yyyy-MM-dd_HH:mm:ss");  // 2015-02-05T20:25:19.830824
+        final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");  // 2015-02-05T20:25:19.830824
         final Date time = calendar.getTime();
         final String dateString = dateFormat.format(time);
         final String microsString = String.valueOf(utc.getMicroSecondsFraction());

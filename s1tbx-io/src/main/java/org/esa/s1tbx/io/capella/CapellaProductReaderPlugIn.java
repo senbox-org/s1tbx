@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Skywatch. https://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,28 +15,32 @@
  */
 package org.esa.s1tbx.io.capella;
 
+import org.esa.s1tbx.commons.io.S1TBXFileFilter;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Locale;
 
 /**
  * The ReaderPlugIn for Capella Product Format.
  */
-public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
+public class CapellaProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
+    private static final String PRODUCT_FORMAT = "Capella";
     private final static String PLUGIN_DESCRIPTION = "Capella Product Format";
-    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class, InputStream.class};
+
+    private static final String[] PRODUCT_PREFIX = new String[] {"CAPELLA_", "ARL_"};
+    private static final String PRODUCT_EXT = "_extended.json";
+    private static final String METADATA_EXT = ".json";
+    private static final String IMAGE_GEOTIFF_EXT = ".tif";
+
+    private final Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -45,6 +49,7 @@ public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
      * @param input any input object
      * @return true if this product reader can decode the given input, otherwise false.
      */
+    @Override
     public DecodeQualification getDecodeQualification(final Object input) {
 
         final Path path = ReaderUtils.getPathFromInput(input);
@@ -52,7 +57,7 @@ public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
             try {
                 String realName = path.toRealPath().getFileName().toString();
                 if (ZipUtils.isZip(path)) {
-                    for(String prefix : CapellaProductConstants.PRODUCT_PREFIX) {
+                    for(String prefix : PRODUCT_PREFIX) {
                         if (realName.startsWith(prefix)) {
                             return DecodeQualification.INTENDED;
                         }
@@ -68,46 +73,14 @@ public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    public static File findMetadataFile(final Path folderPath) {
-        final File folder = folderPath.toFile();
-        if (folder.isDirectory()) {
-            final File[] fileList = folder.listFiles();
-            if (fileList != null) {
-                for (File f : fileList) {
-                    if (isValidProductName(f)) {
-                        return f;
-                    }
-                }
-            }
-        } else {
-            try {
-                final File file = folderPath.toRealPath().toFile();
-                if (isValidProductName(file)) {
-                    return folder;
-                } else {
-                    File metadataFile = new File(file.getParentFile(),
-                            FileUtils.getFilenameWithoutExtension(file.getName()) + CapellaProductConstants.PRODUCT_EXT);
-                    if(metadataFile.exists()) {
-                        return metadataFile;
-                    }
-                }
-            } catch (IOException e) {
-                SystemUtils.LOG.severe("Unable to findMetadataFile " + e.getMessage());
-            }
-        }
-        return null;
-    }
-
-    public static boolean isValidProductName(final File file) {
-        final String filename = file.getName().toUpperCase();
-        if(filename.endsWith(CapellaProductConstants.PRODUCT_EXT.toUpperCase())) {
-            for (String prefix : CapellaProductConstants.PRODUCT_PREFIX) {
-                if (filename.startsWith(prefix)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    /**
+     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
+     *
+     * @return a new reader instance, never <code>null</code>
+     */
+    @Override
+    public ProductReader createReaderInstance() {
+        return new CapellaProductReader(this);
     }
 
     /**
@@ -119,21 +92,14 @@ public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
         return VALID_INPUT_TYPES;
     }
 
-    /**
-     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
-     *
-     * @return a new reader instance, never <code>null</code>
-     */
-    public ProductReader createReaderInstance() {
-        return new CapellaProductReader(this);
-    }
-
+    @Override
     public SnapFileFilter getProductFileFilter() {
-        return new FileFilter();
+        return new S1TBXFileFilter(this);
     }
 
     /**
@@ -141,8 +107,9 @@ public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
-        return new String[] {CapellaProductConstants.PRODUCT_FORMAT};
+        return new String[] {PRODUCT_FORMAT};
     }
 
     /**
@@ -153,8 +120,9 @@ public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
-        return  new String[] {CapellaProductConstants.METADATA_EXT};
+        return  new String[] {METADATA_EXT};
     }
 
     /**
@@ -166,32 +134,18 @@ public class CapellaProductReaderPlugIn implements ProductReaderPlugIn {
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(final Locale locale) {
         return PLUGIN_DESCRIPTION;
     }
 
-    public static class FileFilter extends SnapFileFilter {
+    @Override
+    public String[] getProductMetadataFileExtensions() {
+        return new String[] {PRODUCT_EXT};
+    }
 
-        public FileFilter() {
-            super();
-            setFormatName(CapellaProductConstants.PRODUCT_FORMAT);
-            setExtensions(new String[] {CapellaProductConstants.METADATA_EXT});
-            setDescription(PLUGIN_DESCRIPTION);
-        }
-
-        /**
-         * Tests whether or not the given file is accepted by this filter. The default implementation returns
-         * <code>true</code> if the given file is a directory or the path string ends with one of the registered extensions.
-         * if no extension are defined, the method always returns <code>true</code>
-         *
-         * @param file the file to be or not be accepted.
-         * @return <code>true</code> if given file is accepted by this filter
-         */
-        public boolean accept(final File file) {
-            if (super.accept(file)) {
-                return file.isDirectory() || findMetadataFile(file.toPath()) != null;
-            }
-            return false;
-        }
+    @Override
+    public String[] getProductMetadataFilePrefixes() {
+        return PRODUCT_PREFIX;
     }
 }

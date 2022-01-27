@@ -39,14 +39,14 @@ public class TestSentinel1ProductReader extends ReaderTest {
 
     private final static File inputGRDFolder = new File(TestData.inputSAR + File.separator + "S1" + File.separator + "AWS" + File.separator + "S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
 
-    private String[] productTypeExemptions = {"RAW","OCN"};
+    private final String[] productTypeExemptions = {"RAW","OCN"};
 
     private final static String inputS1 = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "S1" + S1TBXTests.sep ;
     private final static File[] rootPathsSentinel1 = S1TBXTests.loadFilePath(inputS1);
 
     private final static File inputS1_GRDFile = TestData.inputS1_GRD;
 
-    final static ProductValidator.ValidationOptions productOptions = new ProductValidator.ValidationOptions();
+    final static ProductValidator.Options productOptions = new ProductValidator.Options();
 
     @Before
     public void setUp() {
@@ -83,56 +83,70 @@ public class TestSentinel1ProductReader extends ReaderTest {
     @Test
     public void testOpeningFile() throws Exception {
         Product prod = testReader(inputS1_AnnotGRD.toPath().resolve("manifest.safe"));
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {});
+
+        final ProductValidator validator = new ProductValidator(prod, productOptions);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {});
     }
 
     @Test
     public void testOpeningBandlessMetadataFile1() throws Exception {
         Product prod = testReader(inputS1_meta1GRD.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {});
+
+        final ProductValidator validator = new ProductValidator(prod, productOptions);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {});
     }
 
     @Test
     public void testOpeningBandlessMetadataFile2() throws Exception {
         Product prod = testReader(inputS1_meta2GRD.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {});
+
+        final ProductValidator validator = new ProductValidator(prod, productOptions);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {});
     }
 
     @Test
     public void testOpeningAnnotFolder() throws Exception {
         Product prod = testReader(inputS1_AnnotGRD.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {});
+
+        final ProductValidator validator = new ProductValidator(prod, productOptions);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {});
     }
 
     @Test
     public void testOpeningZip() throws Exception {
         Product prod = testReader(inputS1_GRDFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningAnnotationProduct() throws Exception {
         Product prod = testReader(inputS1_AnnotGRDZip.toPath());
-        validateProduct(prod, productOptions);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {});
+
+        final ProductValidator validator = new ProductValidator(prod, productOptions);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {});
     }
 
     @Test
     public void testOpeningFolder() throws Exception {
         Product prod = testReader(inputGRDFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_VV","Intensity_VV","Amplitude_VH","Intensity_VH"});
     }
 }

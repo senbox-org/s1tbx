@@ -71,7 +71,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     }
 
     protected String getHeaderFileName() {
-        return Sentinel1Constants.PRODUCT_HEADER_NAME;
+        return Sentinel1ProductReaderPlugIn.PRODUCT_HEADER_NAME;
     }
 
     protected String getRelativePathToImageFolder() {
@@ -90,6 +90,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                                 1, 1, ProductData.TYPE_INT32, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
+                } else {
+                    inStream.close();
                 }
             } catch (Exception e) {
                 SystemUtils.LOG.severe(imgPath +" not found");
@@ -120,7 +122,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             final String pol = bandMetadata.getAttributeString(AbstractMetadata.polarization);
             final int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             final int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
-            final String mode = absRoot.getAttributeString(ACQUISITION_MODE);
             int numImages = img.getNumImages();
 
             String tpgPrefix = "";
@@ -206,7 +207,9 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
-        addManifestMetadata(getProductName(), absRoot, origProdRoot, false);
+        final SafeManifest safeManifest = new SafeManifest();
+        safeManifest.addManifestMetadata(getProductName(), absRoot, origProdRoot, false);
+
         acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
 
@@ -216,6 +219,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         addBandAbstractedMetadata(absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
+        addRFIAbstractedMetadata(origProdRoot);
     }
 
     private void addProductInfoJSON(final MetadataElement origProdRoot) {
@@ -231,106 +235,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 }
             } catch(Exception e) {
                //throw new IOException("Unable to read productInfo " + e.getMessage(), e);
-            }
-        }
-    }
-
-    static void addManifestMetadata(final String productName, final MetadataElement absRoot,
-                                    final MetadataElement origProdRoot, boolean isOCN) {
-        final String defStr = NO_METADATA_STRING;
-        final int defInt = AbstractMetadata.NO_METADATA;
-
-        final MetadataElement XFDU = origProdRoot.getElement("XFDU");
-        final MetadataElement informationPackageMap = XFDU.getElement("informationPackageMap");
-        final MetadataElement contentUnit = informationPackageMap.getElement("contentUnit");
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
-        final String descriptor = contentUnit.getAttributeString("textInfo", defStr);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, descriptor);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
-
-        final MetadataElement metadataSection = XFDU.getElement("metadataSection");
-        final MetadataElement[] metadataObjectList = metadataSection.getElements();
-        final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
-
-        for (MetadataElement metadataObject : metadataObjectList) {
-            final String id = metadataObject.getAttributeString("ID", defStr);
-            if (id.endsWith("Annotation") || id.endsWith("Schema")) {
-                // continue;
-            } else if (id.equals("processing")) {
-                final MetadataElement processing = findElement(metadataObject, "processing");
-                final MetadataElement facility = processing.getElement("facility");
-                final MetadataElement software = facility.getElement("software");
-                final String org = facility.getAttributeString("organisation");
-                final String name = software.getAttributeString("name");
-                final String version = software.getAttributeString("version");
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org + ' ' + name + ' ' + version);
-
-                final ProductData.UTC start = getTime(processing, "start", sentinelDateFormat);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, start);
-            } else if (id.equals("acquisitionPeriod")) {
-                final MetadataElement acquisitionPeriod = findElement(metadataObject, "acquisitionPeriod");
-                final ProductData.UTC startTime = getTime(acquisitionPeriod, "startTime", sentinelDateFormat);
-                final ProductData.UTC stopTime = getTime(acquisitionPeriod, "stopTime", sentinelDateFormat);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-
-            } else if (id.equals("platform")) {
-                final MetadataElement platform = findElement(metadataObject, "platform");
-                String missionName = platform.getAttributeString("familyName", "Sentinel-1");
-                final String number = platform.getAttributeString("number", defStr);
-                if (!missionName.equals("ENVISAT"))
-                    missionName += number;
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, missionName);
-
-                final MetadataElement instrument = platform.getElement("instrument");
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SWATH, instrument.getAttributeString("swath", defStr));
-                String acqMode = instrument.getAttributeString("mode", defStr);
-                if (acqMode == null || acqMode.equals(defStr)) {
-                    final MetadataElement extensionElem = instrument.getElement("extension");
-                    if (extensionElem != null) {
-                        final MetadataElement instrumentModeElem = extensionElem.getElement("instrumentMode");
-                        if (instrumentModeElem != null)
-                            acqMode = instrumentModeElem.getAttributeString("mode", defStr);
-                    }
-                }
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, acqMode);
-            } else if (id.equals("measurementOrbitReference")) {
-                final MetadataElement orbitReference = findElement(metadataObject, "orbitReference");
-                final MetadataElement orbitNumber = findElementContaining(orbitReference, "OrbitNumber", "type", "start");
-                final MetadataElement relativeOrbitNumber = findElementContaining(orbitReference, "relativeOrbitNumber", "type", "start");
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, orbitNumber.getAttributeInt("orbitNumber", defInt));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, relativeOrbitNumber.getAttributeInt("relativeOrbitNumber", defInt));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, orbitReference.getAttributeInt("cycleNumber", defInt));
-
-                String pass = orbitReference.getAttributeString("pass", defStr);
-                if (pass.equals(defStr)) {
-                    final MetadataElement extension = orbitReference.getElement("extension");
-                    final MetadataElement orbitProperties = extension.getElement("orbitProperties");
-                    pass = orbitProperties.getAttributeString("pass", defStr);
-                }
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, pass);
-            } else if (id.equals("measurementFrameSet")) {
-
-            } else if (id.equals("generalProductInformation")) {
-                MetadataElement generalProductInformation = findElement(metadataObject, "generalProductInformation");
-                if (generalProductInformation == null)
-                    generalProductInformation = findElement(metadataObject, "standAloneProductInformation");
-
-                String productType = "unknown";
-                if (isOCN) {
-                    productType = "OCN";
-                } else {
-                    if (generalProductInformation != null)
-                        productType = generalProductInformation.getAttributeString("productType", defStr);
-                }
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-                if (productType.contains("SLC")) {
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "COMPLEX");
-                } else {
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "DETECTED");
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
-                }
             }
         }
     }
@@ -512,7 +416,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height, heightSum / filenames.length);
 
-        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
     }
 
     private double getBandTerrainHeight(final MetadataElement prodElem) {
@@ -532,77 +436,48 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     private void addCalibrationAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
 
-        MetadataElement calibrationElement = origProdRoot.getElement("calibration");
-        if (calibrationElement == null) {
-            calibrationElement = new MetadataElement("calibration");
-            origProdRoot.addElement(calibrationElement);
-        }
-        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
-        final String[] filenames = listFiles(calibFolder);
-
-        if (filenames != null) {
-            for (String metadataFile : filenames) {
-                if (metadataFile.startsWith("calibration")) {
-
-                    final Document xmlDoc;
-                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
-                        xmlDoc = XMLSupport.LoadXML(is);
-                    }
-                    final Element rootElement = xmlDoc.getRootElement();
-                    final String name = metadataFile.replace("calibration-", "");
-                    final MetadataElement nameElem = new MetadataElement(name);
-                    calibrationElement.addElement(nameElem);
-                    AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
-                }
-            }
-        }
+        final String annotfolder = getRootFolder() + "annotation" + '/' + "calibration";
+        addMetadataFiles(origProdRoot, annotfolder, "calibration");
     }
 
     private void addNoiseAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
 
-        MetadataElement noiseElement = origProdRoot.getElement("noise");
-        if (noiseElement == null) {
-            noiseElement = new MetadataElement("noise");
-            origProdRoot.addElement(noiseElement);
-        }
-        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
-        final String[] filenames = listFiles(calibFolder);
+        final String annotfolder = getRootFolder() + "annotation" + '/' + "calibration";
+        addMetadataFiles(origProdRoot, annotfolder, "noise");
+    }
 
-        if (filenames != null) {
+    private void addRFIAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
+
+        final String annotfolder = getRootFolder() + "annotation" + '/' + "rfi";
+        addMetadataFiles(origProdRoot, annotfolder, "rfi");
+    }
+
+    private void addMetadataFiles(final MetadataElement origProdRoot, final String folder, final String name) throws IOException {
+
+        final String[] filenames = listFiles(folder);
+
+        if (filenames != null && filenames.length > 0) {
+            MetadataElement metaElement = origProdRoot.getElement(name);
+            if (metaElement == null) {
+                metaElement = new MetadataElement(name);
+                origProdRoot.addElement(metaElement);
+            }
+
             for (String metadataFile : filenames) {
-                if (metadataFile.startsWith("noise")) {
+                if (metadataFile.startsWith(name)) {
 
                     final Document xmlDoc;
-                    try (final InputStream is = getInputStream(calibFolder + '/' + metadataFile)) {
+                    try (final InputStream is = getInputStream(folder + '/' + metadataFile)) {
                         xmlDoc = XMLSupport.LoadXML(is);
                     }
                     final Element rootElement = xmlDoc.getRootElement();
-                    final String name = metadataFile.replace("noise-", "");
-                    final MetadataElement nameElem = new MetadataElement(name);
-                    noiseElement.addElement(nameElem);
+                    final String newName = metadataFile.replace(name+"-", "");
+                    final MetadataElement nameElem = new MetadataElement(newName);
+                    metaElement.addElement(nameElem);
                     AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
                 }
             }
         }
-    }
-
-    private static MetadataElement findElement(final MetadataElement elem, final String name) {
-        final MetadataElement metadataWrap = elem.getElement("metadataWrap");
-        final MetadataElement xmlData = metadataWrap.getElement("xmlData");
-        return xmlData.getElement(name);
-    }
-
-    private static MetadataElement findElementContaining(final MetadataElement parent, final String elemName,
-                                                         final String attribName, final String attValue) {
-        final MetadataElement[] elems = parent.getElements();
-        for (MetadataElement elem : elems) {
-            if (elem.getName().equalsIgnoreCase(elemName) && elem.containsAttribute(attribName)) {
-                String value = elem.getAttributeString(attribName);
-                if (value != null && value.equalsIgnoreCase(attValue))
-                    return elem;
-            }
-        }
-        return null;
     }
 
     private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitList) {

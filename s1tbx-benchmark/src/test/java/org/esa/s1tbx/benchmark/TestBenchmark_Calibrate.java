@@ -1,21 +1,29 @@
+/*
+ * Copyright (C) 2021 SkyWatch Space Applications Inc. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.benchmark;
 
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.polarimetric.gpf.PolarimetricDecompositionOp;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
-import org.esa.s1tbx.sar.gpf.MultilookOp;
-import org.esa.s1tbx.sar.gpf.geometric.EllipsoidCorrectionRDOp;
-import org.esa.s1tbx.sar.gpf.geometric.RangeDopplerGeocodingOp;
-import org.esa.s1tbx.sar.gpf.geometric.TerrainFlatteningOp;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.core.gpf.graph.GraphProcessor;
 import org.esa.snap.core.gpf.graph.Node;
 import org.esa.snap.core.gpf.graph.NodeSource;
-import org.esa.snap.raster.gpf.texture.GLCMOp;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -42,7 +50,7 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " productIO.write") {
             @Override
             protected void execute() throws Exception {
-                process(grdFile, false);
+                process(grdFile, outputFolder, false);
             }
         };
         b.run();
@@ -52,7 +60,7 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GPF.write") {
             @Override
             protected void execute() throws Exception {
-                process(grdFile, true);
+                process(grdFile, outputFolder, true);
             }
         };
         b.run();
@@ -62,13 +70,13 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GraphProcessor") {
             @Override
             protected void execute() throws Exception {
-                processGraph(grdFile);
+                processGraph(grdFile, outputFolder);
             }
         };
         b.run();
     }
 
-    private void process(final File file, final boolean useWriteOp) throws Exception {
+    private void process(final File file, final File outputFolder, final boolean useWriteOp) throws Exception {
         final Product srcProduct = read(file);
 
         CalibrationOp op = new CalibrationOp();
@@ -76,13 +84,16 @@ public class TestBenchmark_Calibrate extends BaseBenchmarks {
         Product trgProduct = op.getTargetProduct();
 
         if(useWriteOp) {
-            writeGPF(trgProduct, DIMAP);
+            writeGPF(trgProduct, outputFolder, DIMAP);
         } else {
-            write(trgProduct, DIMAP);
+            write(trgProduct, outputFolder, DIMAP);
         }
+
+        trgProduct.dispose();
+        srcProduct.dispose();
     }
 
-    private void processGraph(final File file) throws Exception {
+    private void processGraph(final File file, final File outputFolder) throws Exception {
 
         final Graph graph = new Graph("graph");
 

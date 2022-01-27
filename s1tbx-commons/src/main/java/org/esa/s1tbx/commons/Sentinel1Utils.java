@@ -17,15 +17,14 @@ package org.esa.s1tbx.commons;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.*;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -82,26 +81,26 @@ public final class Sentinel1Utils {
         }
     }
 
-    private void getMetadataRoot() {
+    private void getMetadataRoot() throws IOException {
 
         final MetadataElement root = sourceProduct.getMetadataRoot();
         if (root == null) {
-            throw new OperatorException("Root Metadata not found");
+            throw new IOException("Root Metadata not found");
         }
 
         absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         if (absRoot == root) {
-            throw new OperatorException(AbstractMetadata.ABSTRACT_METADATA_ROOT + " not found.");
+            throw new IOException(AbstractMetadata.ABSTRACT_METADATA_ROOT + " not found.");
         }
 
         origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         if (origProdRoot == root) {
-            throw new OperatorException("Original_Product_Metadata not found.");
+            throw new IOException("Original_Product_Metadata not found.");
         }
 
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
         if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException(mission + " is not a valid mission for Sentinel1 product.");
+            throw new IOException(mission + " is not a valid mission for Sentinel1 product.");
         }
     }
 
@@ -110,7 +109,7 @@ public final class Sentinel1Utils {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         this.srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
-        this.wavelength = SARUtils.getRadarFrequency(absRoot);
+        this.wavelength = SARUtils.getRadarWavelength(absRoot);
         this.rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         this.azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
         this.firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
@@ -161,7 +160,7 @@ public final class Sentinel1Utils {
         }
 
         if (polList.size() > 0) {
-            polarizations =  polList.toArray(new String[polList.size()]);
+            polarizations =  polList.toArray(new String[0]);
             Arrays.sort(polarizations);
             return;
         }
@@ -186,7 +185,7 @@ public final class Sentinel1Utils {
                 }
             }
         }
-        polarizations = polList.toArray(new String[polList.size()]);
+        polarizations = polList.toArray(new String[0]);
         Arrays.sort(polarizations);
     }
 
@@ -218,7 +217,7 @@ public final class Sentinel1Utils {
                 }
             }
         }
-        subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
+        subSwathNames =  subSwathNameList.toArray(new String[0]);
         Arrays.sort(subSwathNames);
         numOfSubSwath = subSwathNames.length;
     }
@@ -226,7 +225,7 @@ public final class Sentinel1Utils {
     /**
      * Get parameters for all sub-swaths.
      */
-    private void getSubSwathParameters() {
+    private void getSubSwathParameters() throws IOException {
 
         subSwath = new SubSwathInfo[numOfSubSwath];
         for (int i = 0; i < numOfSubSwath; i++) {
@@ -243,11 +242,11 @@ public final class Sentinel1Utils {
      * @param subSwathName Sub-swath name string.
      * @return The root metadata element.
      */
-    private MetadataElement getSubSwathMetadata(final String subSwathName) {
+    private MetadataElement getSubSwathMetadata(final String subSwathName) throws IOException {
 
         MetadataElement annotation = origProdRoot.getElement("annotation");
         if (annotation == null) {
-            throw new OperatorException("Annotation Metadata not found");
+            throw new IOException("Annotation Metadata not found");
         }
 
         final MetadataElement[] elems = annotation.getElements();
@@ -266,7 +265,7 @@ public final class Sentinel1Utils {
      * @param subSwathMetadata The root metadata element of a given sub-swath.
      * @param subSwath         The SubSwathInfo object.
      */
-    private static void getSubSwathParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
+    private static void getSubSwathParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) throws IOException {
 
         final MetadataElement product = subSwathMetadata.getElement("product");
         final MetadataElement imageAnnotation = product.getElement("imageAnnotation");
@@ -324,8 +323,8 @@ public final class Sentinel1Utils {
 
                 final MetadataElement firstValidSampleElem = listElem.getElement("firstValidSample");
                 final MetadataElement lastValidSampleElem = listElem.getElement("lastValidSample");
-                subSwath.firstValidSample[k] = Sentinel1Utils.getIntArray(firstValidSampleElem, "firstValidSample");
-                subSwath.lastValidSample[k] = Sentinel1Utils.getIntArray(lastValidSampleElem, "lastValidSample");
+                subSwath.firstValidSample[k] = getIntArray(firstValidSampleElem, "firstValidSample");
+                subSwath.lastValidSample[k] = getIntArray(lastValidSampleElem, "lastValidSample");
 
                 int firstValidLineIdx = -1;
                 int lastValidLineIdx = -1;
@@ -449,8 +448,8 @@ public final class Sentinel1Utils {
             for (MetadataElement listElem : antennaPatternListElem) {
                 final MetadataElement slantRangeTimeElem = listElem.getElement("slantRangeTime");
                 final MetadataElement elevationAngleElem = listElem.getElement("elevationAngle");
-                subSwath.apSlantRangeTime[k] = Sentinel1Utils.getDoubleArray(slantRangeTimeElem, "slantRangeTime");
-                subSwath.apElevationAngle[k] = Sentinel1Utils.getDoubleArray(elevationAngleElem, "elevationAngle");
+                subSwath.apSlantRangeTime[k] = getDoubleArray(slantRangeTimeElem, "slantRangeTime");
+                subSwath.apElevationAngle[k] = getDoubleArray(elevationAngleElem, "elevationAngle");
                 k++;
             }
         }
@@ -525,7 +524,7 @@ public final class Sentinel1Utils {
 
             noiseVectorList.add(new NoiseVector(time, line, pixelArray, noiseLUTArray));
         }
-        return noiseVectorList.toArray(new NoiseVector[noiseVectorList.size()]);
+        return noiseVectorList.toArray(new NoiseVector[0]);
     }
 
     /**
@@ -604,13 +603,13 @@ public final class Sentinel1Utils {
             calibrationVectorList.add(new CalibrationVector(
                     time, line, pixelArray, sigmaNoughtArray, betaNoughtArray, gammaArray, dnArray));
         }
-        return calibrationVectorList.toArray(new CalibrationVector[calibrationVectorList.size()]);
+        return calibrationVectorList.toArray(new CalibrationVector[0]);
     }
 
     /**
      * Compute range-dependent Doppler rate Ka(r) for each burst.
      */
-    private void computeRangeDependentDopplerRate() {
+    private void computeRangeDependentDopplerRate() throws IOException {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final AzimuthFmRate[] azFmRateList = getAzimuthFmRateList(subSwath[s].subSwathName);
@@ -627,7 +626,7 @@ public final class Sentinel1Utils {
         isRangeDependDopplerRateAvailable = true;
     }
 
-    private AzimuthFmRate[] getAzimuthFmRateList(final String subSwathName) {
+    private AzimuthFmRate[] getAzimuthFmRateList(final String subSwathName) throws IOException {
 
         final MetadataElement subSwathMetadata = getSubSwathMetadata(subSwathName);
         final MetadataElement product = subSwathMetadata.getElement("product");
@@ -665,7 +664,7 @@ public final class Sentinel1Utils {
     /**
      * Compute Doppler rate Kt(r) for each burst.
      */
-    public void computeDopplerRate() {
+    public void computeDopplerRate() throws IOException {
 
         if (orbit == null) {
             getProductOrbit();
@@ -700,7 +699,7 @@ public final class Sentinel1Utils {
     /**
      * Compute range-dependent reference time t_ref for each burst.
      */
-    public void computeReferenceTime() {
+    public void computeReferenceTime() throws IOException {
 
         if (!isDopplerCentroidAvailable) {
             computeDopplerCentroid();
@@ -732,7 +731,7 @@ public final class Sentinel1Utils {
     /**
      * Compute range-dependent Doppler centroid for each burst.
      */
-    private void computeDopplerCentroid() {
+    private void computeDopplerCentroid() throws IOException {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
@@ -754,7 +753,7 @@ public final class Sentinel1Utils {
         isDopplerCentroidAvailable = true;
     }
 
-    private DCPolynomial[] getDCEstimateList(final String subSwathName) {
+    private DCPolynomial[] getDCEstimateList(final String subSwathName) throws IOException {
 
         final MetadataElement subSwathMetadata = getSubSwathMetadata(subSwathName);
         final MetadataElement product = subSwathMetadata.getElement("product");
@@ -998,7 +997,7 @@ public final class Sentinel1Utils {
 
             noiseVectorList.add(new NoiseVector(time, line, pixelArray, noiseLUTArray));
         }
-        return noiseVectorList.toArray(new NoiseVector[noiseVectorList.size()]);
+        return noiseVectorList.toArray(new NoiseVector[0]);
     }
 
     public static NoiseAzimuthVector[] getAzimuthNoiseVector(final MetadataElement azimNoiseVectorListElem) {
@@ -1042,7 +1041,7 @@ public final class Sentinel1Utils {
             noiseVectorList.add(new NoiseAzimuthVector(swath, firstAzimuthLine, firstRangeSample, lastAzimuthLine, lastRangeSample, lineArray, noiseLUTArray));
         }
 
-        return noiseVectorList.toArray(new NoiseAzimuthVector[noiseVectorList.size()]);
+        return noiseVectorList.toArray(new NoiseAzimuthVector[0]);
     }
 
     //todo: This function is currently used by Sentinel1CalibratorOp and should be replaced later by the function above.
@@ -1100,7 +1099,7 @@ public final class Sentinel1Utils {
             calibrationVectorList.add(new CalibrationVector(
                     time, line, pixelArray, sigmaNoughtArray, betaNoughtArray, gammaArray, dnArray));
         }
-        return calibrationVectorList.toArray(new CalibrationVector[calibrationVectorList.size()]);
+        return calibrationVectorList.toArray(new CalibrationVector[0]);
     }
 
     //todo: This function is used by Sentinel1CalibratorOp and should be replaced by getPolarizations() function later.
@@ -1118,7 +1117,7 @@ public final class Sentinel1Utils {
         }
 
         if (polList.size() > 0) {
-            final String[] polArray = polList.toArray(new String[polList.size()]);
+            final String[] polArray = polList.toArray(new String[0]);
             Arrays.sort(polArray);
             return polArray;
         }
@@ -1145,7 +1144,7 @@ public final class Sentinel1Utils {
             }
         }
 
-        final String[] polArray = polList.toArray(new String[polList.size()]);
+        final String[] polArray = polList.toArray(new String[0]);
         Arrays.sort(polArray);
         return polArray;
     }
@@ -1164,7 +1163,7 @@ public final class Sentinel1Utils {
         }
 
         if (swathList.size() > 0) {
-            return swathList.toArray(new String[swathList.size()]);
+            return swathList.toArray(new String[0]);
         }
 
         final Product sourceProduct = absRoot.getProduct();
@@ -1179,7 +1178,7 @@ public final class Sentinel1Utils {
                 }
             }
         }
-        return swathList.toArray(new String[swathList.size()]);
+        return swathList.toArray(new String[0]);
     }
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
@@ -1454,11 +1453,11 @@ public final class Sentinel1Utils {
         }
     }
 
-    private static int[] getIntArray(final MetadataElement elem, final String tag) {
+    private static int[] getIntArray(final MetadataElement elem, final String tag) throws IOException {
 
         final MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
-            throw new OperatorException(tag + " attribute not found");
+            throw new IOException(tag + " attribute not found");
         }
 
         int[] array = null;
@@ -1470,7 +1469,7 @@ public final class Sentinel1Utils {
                 try {
                     array[i] = Integer.parseInt(items[i]);
                 } catch (NumberFormatException e) {
-                    throw new OperatorException("Failed in getting" + tag + " array");
+                    throw new IOException("Failed in getting" + tag + " array");
                 }
             }
         }
@@ -1478,11 +1477,11 @@ public final class Sentinel1Utils {
         return array;
     }
 
-    private static double[] getDoubleArray(final MetadataElement elem, final String tag) {
+    private static double[] getDoubleArray(final MetadataElement elem, final String tag) throws IOException {
 
         final MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
-            throw new OperatorException(tag + " attribute not found");
+            throw new IOException(tag + " attribute not found");
         }
 
         double[] array = null;
@@ -1494,7 +1493,7 @@ public final class Sentinel1Utils {
                 try {
                     array[i] = Double.parseDouble(items[i]);
                 } catch (NumberFormatException e) {
-                    throw new OperatorException("Failed in getting" + tag + " array");
+                    throw new IOException("Failed in getting" + tag + " array");
                 }
             }
         }
@@ -1574,10 +1573,10 @@ public final class Sentinel1Utils {
         public double[][] incidenceAngle;
 
         // Noise vectors
-        public Map<String, NoiseVector[]> noise = new HashMap<>();
+        public final Map<String, NoiseVector[]> noise = new HashMap<>();
 
         // Calibration vectors
-        public Map<String, CalibrationVector[]> calibration = new HashMap<>();
+        public final Map<String, CalibrationVector[]> calibration = new HashMap<>();
 
     }
 

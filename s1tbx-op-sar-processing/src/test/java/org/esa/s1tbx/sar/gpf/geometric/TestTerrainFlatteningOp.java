@@ -22,7 +22,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -76,8 +75,7 @@ public class TestTerrainFlatteningOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-//        final float[] expected = new float[] { 1.0318922f, 1.2852304f, 0.27729207f, 0.11070535f };
-        final float[] expected = new float[] { 1.0276077f, 1.2938701f, 0.27414513f, 0.111722656f };
+        final float[] expected = new float[] { 0.63482225f, 0.79944354f, 0.16941425f, 0.069053054f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 200, 200, expected);
     }
 

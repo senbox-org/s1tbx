@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Skywatch. https://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,9 +17,9 @@ package org.esa.s1tbx.io.capella;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.io.ImageIOFile;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.io.DataCache;
-import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -44,6 +44,7 @@ public class CapellaProductReader extends SARReader {
 
     private CapellaProductDirectory dataDir;
     private final DataCache cache;
+    private final S1TBXProductReaderPlugIn readerPlugIn;
 
     /**
      * Constructs a new abstract product reader.
@@ -51,11 +52,11 @@ public class CapellaProductReader extends SARReader {
      * @param readerPlugIn the reader plug-in which created this reader, can be <code>null</code> for internal reader
      *                     implementations
      */
-    public CapellaProductReader(final ProductReaderPlugIn readerPlugIn) {
+    public CapellaProductReader(final S1TBXProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
-        cache = new DataCache();
+        this.cache = new DataCache();
+        this.readerPlugIn = readerPlugIn;
     }
-
 
     @Override
     public void close() throws IOException {
@@ -76,25 +77,29 @@ public class CapellaProductReader extends SARReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
+        try {
+            Object input = getInput();
+            if (input instanceof InputStream) {
+                throw new IOException("InputStream not supported");
+            }
 
-        Object input = getInput();
-        if (input instanceof InputStream) {
-            throw new IOException("InputStream not supported");
+            final Path path = getPathFromInput(input);
+            File metadataFile = readerPlugIn.findMetadataFile(path);
+
+            dataDir = new CapellaProductDirectory(metadataFile);
+            dataDir.readProductDirectory();
+            final Product product = dataDir.createProduct();
+
+            addCommonSARMetadata(product);
+            product.getGcpGroup();
+            product.setFileLocation(metadataFile);
+            product.setProductReader(this);
+
+            return product;
+        } catch (Throwable e) {
+            handleReaderException(e);
         }
-
-        final Path path = getPathFromInput(input);
-        File metadataFile = CapellaProductReaderPlugIn.findMetadataFile(path);
-
-        dataDir = new CapellaProductDirectory(metadataFile);
-        dataDir.readProductDirectory();
-        final Product product = dataDir.createProduct();
-
-        addCommonSARMetadata(product);
-        product.getGcpGroup();
-        product.setFileLocation(metadataFile);
-        product.setProductReader(this);
-
-        return product;
+        return null;
     }
 
     @Override

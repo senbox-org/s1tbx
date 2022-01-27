@@ -187,7 +187,7 @@ public class Collocator {
             return tile.getHeight();
         }
 
-        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) {
             boolean allValid = true;
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {

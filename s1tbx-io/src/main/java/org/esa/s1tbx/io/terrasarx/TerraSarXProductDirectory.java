@@ -23,6 +23,7 @@ import org.esa.s1tbx.commons.io.SARReader;
 import org.esa.s1tbx.commons.io.XMLProductDirectory;
 import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.s1tbx.io.sunraster.SunRasterReader;
+import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -31,9 +32,11 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
@@ -165,7 +168,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
         final Element slaveRootElement = slaveDoc.getRootElement();
 
-        final MetadataElement slaveRoot = new MetadataElement("Slave_Metadata");
+        final MetadataElement slaveRoot = new MetadataElement(AbstractMetadata.SLAVE_METADATA_ROOT);
         AbstractMetadataIO.AddXMLMetadata(slaveRootElement, AbstractMetadata.addOriginalProductMetadata(slaveRoot));
         addAbstractedMetadataHeader(slaveRoot);
 
@@ -486,7 +489,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             // modify abstracted metadata
         }
 
-        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
     }
 
     private void findImagesForTanDemX(final MetadataElement newRoot) throws IOException {
@@ -631,6 +634,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
+    private Product bandProduct = null;
+    private static final GeoTiffProductReaderPlugIn geoTiffPlugIn = new GeoTiffProductReaderPlugIn();
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
         if (imgPath.toUpperCase().endsWith("COS")) {
             final File file = new File(getBaseDir(), imgPath);
@@ -648,9 +653,16 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     if (imgStream == null)
                         throw new IOException("Unable to open " + imgPath);
 
+                    if (bandProduct == null && !isCompressed() && (productType.contains("EEC")) || productType.contains("GEC")) {
+                        final ProductReader geoTiffReader = geoTiffPlugIn.createReaderInstance();
+                        bandProduct = geoTiffReader.readProductNodes(new File(getBaseDir(), imgPath), null);
+                    }
+
                     final ImageIOFile img = new ImageIOFile(name, imgStream, GeoTiffUtils.getTiffIIOReader(imgStream),
                             1, 1, ProductData.TYPE_UINT16, productInputFile);
                     bandImageFileMap.put(img.getName(), img);
+                } else {
+                    inStream.close();
                 }
             }
         }
@@ -691,6 +703,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     @Override
     protected void addGeoCoding(final Product product) {
+        if (product.getSceneGeoCoding() != null) {
+            return;
+        }
+
         File level1ProductDir = getBaseDir();
         if (getHeaderFileName().startsWith("TDM")) {
             // Using the master product is important here.
@@ -1023,8 +1039,28 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     @Override
     protected void addBands(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
-        final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
+        final int width, height;
+        if(bandProduct != null) {
+            width = bandProduct.getSceneRasterWidth();
+            height = bandProduct.getSceneRasterHeight();
+
+            if (product.getSceneGeoCoding() == null && bandProduct.getSceneGeoCoding() != null &&
+                    product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
+                    product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
+                bandProduct.transferGeoCodingTo(product, null);
+                Dimension tileSize = bandProduct.getPreferredTileSize();
+                if (tileSize == null) {
+                    tileSize = ImageManager.getPreferredTileSize(bandProduct);
+                }
+                product.setPreferredTileSize(tileSize);
+            }
+            bandProduct.dispose();
+            bandProduct = null;
+        } else {
+            width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+            height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        }
 
         final Set<String> ImageKeys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : ImageKeys) {
@@ -1106,7 +1142,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
 
             if (mission.contains("TDM")) {
-                final MetadataElement slaveMetadata = absRoot.getParentElement().getElement("Slave_Metadata");
+                final MetadataElement slaveMetadata = absRoot.getParentElement().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
 
                 slaveMetadata.setAttributeString("Master_bands", masterBands);
 

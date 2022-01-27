@@ -16,9 +16,7 @@
 package org.esa.s1tbx.commons.io;
 
 import com.bc.ceres.core.VirtualDir;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -226,6 +224,8 @@ public abstract class AbstractProductDirectory {
                 }
             }
             return files.toArray(new String[0]);
+        } catch (FileNotFoundException e) {
+            return new String[]{};
         } catch (Exception e) {
             throw new IOException("Product is corrupt or incomplete\n"+e.getMessage());
         }
@@ -304,6 +304,7 @@ public abstract class AbstractProductDirectory {
 
         addGeoCoding(product);
         addTiePointGrids(product);
+        setLatLongMetadata(product);
 
         ReaderUtils.addMetadataIncidenceAngles(product);
         ReaderUtils.addMetadataProductSize(product);
@@ -335,35 +336,29 @@ public abstract class AbstractProductDirectory {
         product.setDescription(absRoot.getAttributeString(AbstractMetadata.SPH_DESCRIPTOR));
     }
 
-    protected static float[][] getBoundingBox(float [][] coordinateList){
-        final float [][] boundingBox = new float[4][2];
-        float minX, minY, maxX, maxY;
-        minX = coordinateList[0][0];
-        minY = coordinateList[0][1];
-        maxX = coordinateList[0][0];
-        maxY = coordinateList[0][1];
+    private static void setLatLongMetadata(final Product product) {
 
-        for(float [] coordinate: coordinateList){
-            if (coordinate[0] < minX){
-                minX = coordinate[0];
-            }
-            else if (coordinate[0] > maxX){
-                maxX = coordinate[0];
-            }
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
+        if(geoCoding != null) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            
+            final GeoPos geoPos = new GeoPos();
+            final int w = product.getSceneRasterWidth();
+            final int h = product.getSceneRasterHeight();
 
-            if (coordinate[1] < minY){
-                minY = coordinate[1];
-            }
-            else if (coordinate[1] > maxY){
-                maxY = coordinate[1];
-            }
+            geoCoding.getGeoPos(new PixelPos(0, 0), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(w, 0), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, geoPos.lon);
+
+            geoCoding.getGeoPos(new PixelPos(0, h), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, geoPos.lon);
+            geoCoding.getGeoPos(new PixelPos(w, h), geoPos);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, geoPos.lat);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, geoPos.lon);
         }
-
-        boundingBox[0] = new float[]{minX, maxY}; // UL
-        boundingBox[1] = new float[]{maxX, maxY}; // UR
-        boundingBox[2] = new float[]{minX, minY}; // LL
-        boundingBox[3] = new float[]{maxX, minY}; // LR
-
-        return boundingBox;
     }
 }

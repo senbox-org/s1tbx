@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jlinda</artifactId>
         <groupId>org.jlinda</groupId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <name>jLinda SNAP Support</name>
@@ -24,37 +24,30 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-core</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-jai</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-gpf</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-commons</artifactId>
-            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jblas</groupId>

@@ -6,7 +6,7 @@ public class GeoUtils {
 
     /* compute tile geocorners at height defined in float[4] array */
     public static GeoPoint[] computeCorners(
-            final SLCImage meta, final Orbit orbit, final Window tile, final float height[]) throws Exception {
+            final SLCImage meta, final Orbit orbit, final Window tile, final float[] height) throws Exception {
 
         if (height.length != 4) {
             throw new IllegalArgumentException("input height array has to have 4 elements");
@@ -53,7 +53,7 @@ public class GeoUtils {
 
     /* compute input tile geocorners on ellipsoid */
     public static GeoPoint[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile) throws Exception {
-        final float height[] = new float[4];
+        final float[] height = new float[4];
         return computeCorners(meta, orbit, tile, height);
     }
 

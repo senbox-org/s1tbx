@@ -6,11 +6,12 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>s1tbx-io-ephemeris</artifactId>
     <name>S1TBX IO Orbit Ephemeris</name>
+	<description>Orbit Ephemeris</description>
 	
     <packaging>nbm</packaging>
 
@@ -25,6 +26,10 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
@@ -36,19 +41,17 @@
             <artifactId>s1tbx-commons</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-cloud</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-test-utils</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     

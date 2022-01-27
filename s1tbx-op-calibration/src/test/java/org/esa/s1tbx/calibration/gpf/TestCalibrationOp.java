@@ -133,7 +133,7 @@ public class TestCalibrationOp {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsASAR, "ENVISAT", productTypeExemptions, null);
     }
 
-    @Test
+    //@Test
     public void testProcessAllERS() throws Exception {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsERS, "ERS CEOS", productTypeExemptions, null);
     }

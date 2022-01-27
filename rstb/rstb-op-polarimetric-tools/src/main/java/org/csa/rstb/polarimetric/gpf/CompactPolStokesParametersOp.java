@@ -295,7 +295,7 @@ public final class CompactPolStokesParametersOp extends Operator implements Comp
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);

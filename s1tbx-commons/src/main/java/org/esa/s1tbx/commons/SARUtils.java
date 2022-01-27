@@ -16,7 +16,6 @@
 package org.esa.s1tbx.commons;
 
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.eo.Constants;
 
@@ -26,16 +25,34 @@ import org.esa.snap.engine_utilities.eo.Constants;
 public class SARUtils {
     /**
      * Get radar frequency from the abstracted metadata (in Hz).
+     * Replaced by getRadarWavelength()
      *
      * @param absRoot the AbstractMetadata
      * @return wavelength
      * @throws Exception The exceptions.
      */
+    @Deprecated
     public static double getRadarFrequency(final MetadataElement absRoot) throws Exception {
         final double radarFreq = AbstractMetadata.getAttributeDouble(absRoot,
                 AbstractMetadata.radar_frequency) * Constants.oneMillion; // Hz
         if (Double.compare(radarFreq, 0.0) <= 0) {
-            throw new OperatorException("Invalid radar frequency: " + radarFreq);
+            throw new Exception("Invalid radar frequency: " + radarFreq);
+        }
+        return Constants.lightSpeed / radarFreq;
+    }
+
+    /**
+     * Get radar wavelength from the abstracted metadata (in nm).
+     *
+     * @param absRoot the AbstractMetadata
+     * @return wavelength
+     * @throws Exception The exceptions.
+     */
+    public static double getRadarWavelength(final MetadataElement absRoot) throws Exception {
+        final double radarFreq = AbstractMetadata.getAttributeDouble(absRoot,
+                AbstractMetadata.radar_frequency) * Constants.oneMillion; // Hz
+        if (Double.compare(radarFreq, 0.0) <= 0) {
+            throw new Exception("Invalid radar frequency: " + radarFreq);
         }
         return Constants.lightSpeed / radarFreq;
     }

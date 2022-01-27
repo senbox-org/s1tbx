@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
@@ -42,15 +43,18 @@ public class TestS1GRDInputProductValidator extends ReaderTest {
     @Test
     public void TestSentinel1GRDProduct() throws Exception {
         final Product prod = testReader(TestData.inputS1_GRD.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
 
-        final InputProductValidator validator = new InputProductValidator(prod);
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_VH", "Intensity_VH", "Amplitude_VV", "Intensity_VV"});
 
-        validator.checkIfSentinel1Product();
-        validator.checkProductType(new String[]{"GRD"});
-        validator.checkIfTOPSARBurstProduct(false);
-        validator.checkAcquisitionMode(new String[]{"SM"});
+//        final InputProductValidator validator = new InputProductValidator(prod);
+//
+//        validator.checkIfSentinel1Product();
+//        validator.checkProductType(new String[]{"GRD"});
+//        validator.checkIfTOPSARBurstProduct(false);
+//        validator.checkAcquisitionMode(new String[]{"SM"});
     }
 }
 

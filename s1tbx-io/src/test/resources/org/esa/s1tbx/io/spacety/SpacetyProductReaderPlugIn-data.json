@@ -1,0 +1,24 @@
+{
+  "testProducts": [
+    {
+      "id": "Spacety_SLC_NS",
+      "relativePath": "SAR/Spacety/SLC/BC1_NS_SLC_1SSV_20210326T012419_000395_00018B/manifest.safe",
+      "description": "Spacety SLC NS product"
+    },
+    {
+      "id": "Spacety_SLC_SM",
+      "relativePath": "SAR/Spacety/SLC/BC1_SM_SLC_1SSV_20210324T214340_000394_00018A/manifest.safe",
+      "description": "Spacety SLC SM product"
+    },
+    {
+      "id": "Spacety_SLC_SP",
+      "relativePath": "SAR/Spacety/SLC/BC1_SP_SLC_1SSV_20210405T201755_000480_0001E0/manifest.safe",
+      "description": "Spacety SLC SP product"
+    },
+    {
+      "id": "Spacety_Level2_SM",
+      "relativePath": "SAR/Spacety/Level2/BC1_SM_ORG_2SSV_20210606T100859_000963_0003C3.zip",
+      "description": "Spacety Level2 SM product"
+    }
+  ]
+}

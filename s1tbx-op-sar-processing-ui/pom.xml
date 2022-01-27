@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>s1tbx-op-sar-processing-ui</artifactId>
@@ -33,11 +33,6 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-sar-processing</artifactId>
-            <version>${s1tbx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io-ephemeris</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
@@ -55,6 +50,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-rcp</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

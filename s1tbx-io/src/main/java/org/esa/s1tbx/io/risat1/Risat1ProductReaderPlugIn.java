@@ -45,12 +45,14 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
             if (metadataFile != null) {
                 return DecodeQualification.INTENDED;
             }
-            final String filename = path.getFileName().toString().toLowerCase();
-            if (filename.endsWith(".zip") && ZipUtils.findInZip(path.toFile(), "", Risat1Constants.BAND_HEADER_NAME)) {
-                return DecodeQualification.INTENDED;
+            File file = path.toFile();
+            if(file.isFile()) {
+                final String filename = file.getName().toLowerCase();
+                if (filename.endsWith(".zip") && ZipUtils.findInZip(file, "", Risat1Constants.BAND_HEADER_NAME, "") != null) {
+                    return DecodeQualification.INTENDED;
+                }
             }
         }
-        //todo zip stream
 
         return DecodeQualification.UNABLE;
     }

@@ -44,7 +44,9 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
     private final JCheckBox externalDEMApplyEGMCheckBox = new JCheckBox("External DEM Apply EGM");
-//    private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
+    private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
+    private final JCheckBox outputGamma0CheckBox = new JCheckBox("Output Terrain Flattened Gamma0");
+    private final JCheckBox outputSigma0CheckBox = new JCheckBox("Output Terrain Flattened Sigma0");
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JTextField externalDEMFile = new JTextField("");
@@ -56,7 +58,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
     private Double extNoDataValue = 0.0;
     private Boolean externalDEMApplyEGM = false;
-//    private Boolean outputSimulatedImage = false;
+    private Boolean outputSimulatedImage = false;
+    private Boolean outputSigma0 = false;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
@@ -100,11 +103,17 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
             }
         });
 
-//        outputSimulatedImageCheckBox.addItemListener(new ItemListener() {
-//            public void itemStateChanged(ItemEvent e) {
-//                outputSimulatedImage = (e.getStateChange() == ItemEvent.SELECTED);
-//            }
-//        });
+        outputSimulatedImageCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputSimulatedImage = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
+        outputSigma0CheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputSigma0 = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
 
         return new JScrollPane(panel);
     }
@@ -135,7 +144,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         }
 
         externalDEMApplyEGMCheckBox.setSelected(externalDEMApplyEGM);
-//        outputSimulatedImageCheckBox.setSelected(outputSimulatedImage);
+        outputSimulatedImageCheckBox.setSelected(outputSimulatedImage);
+        outputSigma0CheckBox.setSelected(outputSigma0);
 
         additionalOverlap.setText(String.valueOf(paramMap.get("additionalOverlap")));
         oversamplingMultiple.setText(String.valueOf(paramMap.get("oversamplingMultiple")));
@@ -162,7 +172,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         }
 
         paramMap.put("externalDEMApplyEGM", externalDEMApplyEGM);
-//        paramMap.put("outputSimulatedImage", outputSimulatedImage);
+        paramMap.put("outputSimulatedImage", outputSimulatedImage);
+        paramMap.put("outputSigma0", outputSigma0);
 
         final String additionalOverlapStr = additionalOverlap.getText();
         if (additionalOverlapStr != null && !additionalOverlapStr.isEmpty()) {
@@ -197,8 +208,15 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
         gbc.gridy++;
         contentPane.add(externalDEMApplyEGMCheckBox, gbc);
-//        gbc.gridy++;
-//        contentPane.add(outputSimulatedImageCheckBox, gbc);
+        gbc.gridx = 1;
+        contentPane.add(outputGamma0CheckBox, gbc);
+        outputGamma0CheckBox.setSelected(true);
+        outputGamma0CheckBox.setEnabled(false);
+        gbc.gridy++;
+        gbc.gridx = 0;
+        contentPane.add(outputSimulatedImageCheckBox, gbc);
+        gbc.gridx = 1;
+        contentPane.add(outputSigma0CheckBox, gbc);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Additional Overlap Percentage[0,1]:", additionalOverlap);
         gbc.gridy++;

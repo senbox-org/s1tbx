@@ -84,10 +84,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean isTOPSARSLC = false;
     private String productType = null;
     private int numOfSubSwath = 1;
+    private int subsetOffsetX = 0;
+    private int subsetOffsetY = 0;
     private ThermalNoiseInfo[] noise = null;
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
     private List<String> selectedPolList = null;
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
+    private final HashMap<String, String> targetNoiseBandNameToImageBandName = new HashMap<>(2);
 
     // For after IPF 2.9.0 ...
     private double version = 0.0f;
@@ -95,6 +98,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean isGRD = false;
 
     public static float trgFloorValue = 0.01234567890000f;
+
+    public static final String NOISE_EQUIVALENT_SIGMA_ZERO = "NESZ";
+    public static final String NOISE_EQUIVALENT_BETA_ZERO = "NEBZ";
+    public static final String NOISE_EQUIVALENT_GAMMA_ZERO = "NEGZ";
+    public static final String NOISE_EQUIVALENT_POWER = "NEP";
 
     private static final String PRODUCT_SUFFIX = "_NR";
 
@@ -135,6 +143,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
+            getSubsetOffset();
+
             getIPFVersion();
 
             getProductType();
@@ -164,6 +174,14 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    /**
+     * Get subset x and y offsets from abstract metadata.
+     */
+    private void getSubsetOffset() {
+        subsetOffsetX = absRoot.getAttributeInt(AbstractMetadata.subset_offset_x);
+        subsetOffsetY = absRoot.getAttributeInt(AbstractMetadata.subset_offset_y);
     }
 
     /**
@@ -416,6 +434,25 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 targetBand.setNoDataValueUsed(true);
                 targetProduct.addBand(targetBand);
             }
+
+            // add target noise band
+            final String targetNoiseBandName = createTargetNoiseBandName(targetBandName);
+            if (targetProduct.getBand(targetNoiseBandName) == null) {
+
+                targetNoiseBandNameToImageBandName.put(targetNoiseBandName, targetBandName);
+
+                final Band targetBand = new Band(
+                        targetNoiseBandName,
+                        ProductData.TYPE_FLOAT32,
+                        srcBand.getRasterWidth(),
+                        srcBand.getRasterHeight());
+
+                targetBand.setUnit(Unit.DB);
+                targetBand.setDescription(srcBand.getDescription());
+                targetBand.setNoDataValue(srcBand.getNoDataValue());
+                targetBand.setNoDataValueUsed(true);
+                targetProduct.addBand(targetBand);
+            }
         }
     }
 
@@ -438,6 +475,32 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
 
         return "Intensity" + pol;
+    }
+
+    /**
+     * Create target noise band name for given target bane name.
+     *
+     * @param targetBandName Target band name string.
+     * @return Target noise band name string.
+     */
+    private String createTargetNoiseBandName(final String targetBandName) {
+
+        if (targetBandName.contains("Intensity")) {
+            return targetBandName.replace("Intensity", NOISE_EQUIVALENT_POWER);
+        } else if (targetBandName.contains("Sigma0")) {
+            return targetBandName.replace("Sigma0", NOISE_EQUIVALENT_SIGMA_ZERO);
+        } else if (targetBandName.contains("Beta0")) {
+            return targetBandName.replace("Beta0", NOISE_EQUIVALENT_BETA_ZERO);
+        } else if (targetBandName.contains("Gamma0")) {
+            return targetBandName.replace("Gamma0", NOISE_EQUIVALENT_GAMMA_ZERO);
+        } else {
+            throw new OperatorException("Invalid target band name: " + targetBandName);
+        }
+    }
+
+    private boolean isNoiseBand(final String targetBandName) {
+        return targetBandName.contains(NOISE_EQUIVALENT_POWER) || targetBandName.contains(NOISE_EQUIVALENT_SIGMA_ZERO) ||
+                targetBandName.contains(NOISE_EQUIVALENT_BETA_ZERO) || targetBandName.contains(NOISE_EQUIVALENT_GAMMA_ZERO);
     }
 
     /**
@@ -493,19 +556,32 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
+        // Here the noise is output separately from the image using computeTile instead of computeTileStack is because
+        // we need to handle S1 SLC product in which the image bands from different sub-swaths have different size
+        // and computeTileStack cannot handle bands in different sizes properly
+        final String targetBandName = targetBand.getName();
+        if (!isNoiseBand(targetBandName)) {
+            computeTileImage(targetBandName, targetTile, pm);
+        } else { // noise band
+            computeTileNoise(targetBandName, targetTile, pm);
+        }
+    }
+
+    private void computeTileImage(String targetBandName, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;
         final int y0 = targetTileRectangle.y;
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
-        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
+        final int sx0 = subsetOffsetX + x0; // tile start x coordinate in original image
+        final int sy0 = subsetOffsetY + y0; // tile start y coordinate in original image
+        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBandName);
 
         try {
-            final String targetBandName = targetBand.getName();
-
             double[][] noiseBlock = null;
             if (version >= 2.9) {
-                noiseBlock = populateNoiseAzimuthBlock(x0, y0, w, h, targetBandName);
+                noiseBlock = populateNoiseAzimuthBlock(sx0, sy0, w, h, targetBandName);
             }
 
             Tile sourceRaster1 = null;
@@ -529,7 +605,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             final double srcNoDataValue = sourceBand1.getNoDataValue();
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
-            final ProductData trgData = targetTile.getDataBuffer();
+            final ProductData tgtData = targetTile.getDataBuffer();
             final TileIndex srcIndex = new TileIndex(sourceRaster1);
             final TileIndex tgtIndex = new TileIndex(targetTile);
             final int maxY = y0 + h;
@@ -558,32 +634,33 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             for (int y = y0; y < maxY; ++y) {
                 srcIndex.calculateStride(y);
                 tgtIndex.calculateStride(y);
+                final int sy = y + subsetOffsetY;
 
                 double[] lut = new double[w];
                 if (absoluteCalibrationPerformed) {
-                    final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
+                    final int calVecIdx = calInfo.getCalibrationVectorIndex(sy);
                     final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
                     final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
                     final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
                     final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
                     final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
-                    final int pixelIdx0 = calVec.getPixelIndex(x0);
+                    final int pixelIdx0 = calVec.getPixelIndex(sx0);
 
                     if (version < 2.9) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
-                        computeTileScaledNoiseLUT(y, x0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
+                        computeTileScaledNoiseLUT(sy, sx0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
                                 vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
                     } else {
-                        computeTileScaledNoiseLUT(y, x0, y0, w, noiseBlock, calInfo, vec0.timeMJD, vec1.timeMJD,
+                        computeTileScaledNoiseLUT(sy, sx0, sy0, w, noiseBlock, calInfo, vec0.timeMJD, vec1.timeMJD,
                                 vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
                     }
 
                 } else {
                     if (version < 2.9) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
-                        computeTileNoiseLUT(y, x0, w, noiseInfo, lut);
+                        computeTileNoiseLUT(sy, sx0, w, noiseInfo, lut);
                     } else {
-                        computeTileNoiseLUT(y - y0, x0, w, noiseBlock, lut);
+                        computeTileNoiseLUT(sy - sy0, sx0, w, noiseBlock, lut);
                     }
                 }
 
@@ -605,7 +682,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     }
 
                     if(dn2 == srcNoDataValue) {
-                        trgData.setElemDoubleAt(tgtIdx, srcNoDataValue);
+                        tgtData.setElemDoubleAt(tgtIdx, srcNoDataValue);
                         continue;
                     }
 
@@ -616,7 +693,81 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                         // Eq-1 in Section 6 of MPC-0392 DI-MPC-TN Issue 1.1 2017,Nov.28 "Thermal Denoising of Products Generated by the S-1 IPF"
                         value = (dn2 == 0.0?trgFloorValue:dn2);
                     }
-                    trgData.setElemDoubleAt(tgtIdx, value);
+                    tgtData.setElemDoubleAt(tgtIdx, value);
+                }
+            }
+        } catch (Throwable e) {
+            throw new OperatorException(e.getMessage());
+        }
+    }
+
+    private void computeTileNoise(String targetNoiseBandName, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+
+        final Rectangle targetTileRectangle = targetTile.getRectangle();
+        final int x0 = targetTileRectangle.x;
+        final int y0 = targetTileRectangle.y;
+        final int w = targetTileRectangle.width;
+        final int h = targetTileRectangle.height;
+        final int sx0 = subsetOffsetX + x0; // tile start x coordinate in original image
+        final int sy0 = subsetOffsetY + y0; // tile start y coordinate in original image
+        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBandName);
+
+        try {
+            final String targetBandName = targetNoiseBandNameToImageBandName.get(targetNoiseBandName);
+            double[][] noiseBlock = null;
+            if (version >= 2.9) {
+                noiseBlock = populateNoiseAzimuthBlock(sx0, sy0, w, h, targetBandName);
+            }
+
+            final ProductData tgtData = targetTile.getDataBuffer();
+            final TileIndex tgtIndex = new TileIndex(targetTile);
+            final int maxY = y0 + h;
+            final int maxX = x0 + w;
+
+            Sentinel1Calibrator.CalibrationInfo calInfo = null;
+            Sentinel1Calibrator.CALTYPE calType = null;
+            if (absoluteCalibrationPerformed) {
+                calInfo = getCalInfo(targetBandName);
+                calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
+            }
+
+            int tgtIdx;
+            for (int y = y0; y < maxY; ++y) {
+                tgtIndex.calculateStride(y);
+                final int sy = y + subsetOffsetY;
+
+                double[] lut = new double[w];
+                if (absoluteCalibrationPerformed) {
+                    final int calVecIdx = calInfo.getCalibrationVectorIndex(sy);
+                    final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
+                    final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
+                    final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
+                    final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+                    final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
+                    final int pixelIdx0 = calVec.getPixelIndex(sx0);
+
+                    if (version < 2.9) {
+                        final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
+                        computeTileScaledNoiseLUT(sy, sx0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
+                                vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
+                    } else {
+                        computeTileScaledNoiseLUT(sy, sx0, sy0, w, noiseBlock, calInfo, vec0.timeMJD, vec1.timeMJD,
+                                vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
+                    }
+
+                } else {
+                    if (version < 2.9) {
+                        final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
+                        computeTileNoiseLUT(sy, sx0, w, noiseInfo, lut);
+                    } else {
+                        computeTileNoiseLUT(sy - sy0, sx0, w, noiseBlock, lut);
+                    }
+                }
+
+                for (int x = x0; x < maxX; ++x) {
+                    final int xx = x - x0;
+                    tgtIdx = tgtIndex.getIndex(x);
+                    tgtData.setElemDoubleAt(tgtIdx, 10.0 * Math.log10(lut[xx]));
                 }
             }
         } catch (Throwable e) {

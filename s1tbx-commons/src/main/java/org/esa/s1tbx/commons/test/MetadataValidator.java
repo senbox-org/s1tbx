@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.commons.test;
 
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -11,22 +26,32 @@ public class MetadataValidator {
 
     private final Product product;
     private final MetadataElement absRoot;
-    private final ValidationOptions validationOptions;
+    private final Options metadataOptions;
+    private final InputProductValidator inputProductValidator;
+    private Expected expected;
 
-    public static class ValidationOptions {
+    public static class Options {
         public boolean validateOrbitStateVectors = true;
         public boolean validateSRGR = true;
         public boolean validateDopplerCentroids = true;
     }
 
-    public MetadataValidator(final Product product) {
-        this(product, null);
+    public static class Expected {
+        public Boolean isSAR = null;
+        public Boolean isComplex = null;
+        public String productType = null;
     }
 
-    public MetadataValidator(final Product product, final ValidationOptions options) {
+    public MetadataValidator(final Product product, final Options options) {
         this.product = product;
         this.absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        this.validationOptions = options == null ? new ValidationOptions() : options;
+        this.metadataOptions = options == null ? new Options() : options;
+        this.inputProductValidator = new InputProductValidator(product);
+        this.expected = new Expected();
+    }
+
+    public void setExpected(final Expected expected) {
+        this.expected = expected;
     }
 
     public void validate() throws Exception {
@@ -38,11 +63,30 @@ public class MetadataValidator {
         verifyStr(AbstractMetadata.SPH_DESCRIPTOR);
         verifyStr(AbstractMetadata.PASS);
 
-        final InputProductValidator validator = new InputProductValidator(product);
-        if(validator.isSARProduct()) {
+        verifyExpected();
+
+        if(inputProductValidator.isSARProduct()) {
             validateSAR();
         } else {
             validateOptical();
+        }
+    }
+
+    private void verifyExpected() throws Exception {
+        if(expected.isSAR != null) {
+            if(inputProductValidator.isSARProduct() != expected.isSAR) {
+                throw new Exception("Expecting SAR product " + expected.isSAR);
+            }
+        }
+        if(expected.isComplex != null) {
+            if(inputProductValidator.isComplex() != expected.isComplex) {
+                throw new Exception("Expecting complex data " + expected.isComplex);
+            }
+        }
+        if(expected.productType != null) {
+            if(!product.getProductType().equals(expected.productType)) {
+                throw new Exception("Expecting productType "+ expected.productType + " but got " +product.getProductType());
+            }
         }
     }
 
@@ -82,8 +126,8 @@ public class MetadataValidator {
     }
 
     private void verifySRGR() throws Exception {
-        if(!validationOptions.validateSRGR) {
-            SystemUtils.LOG.warning("Skipping SRGR validation");
+        if(!metadataOptions.validateSRGR) {
+            SystemUtils.LOG.warning("MetadataValidator Skipping SRGR validation");
             return;
         }
         if(isSLC()) {
@@ -118,8 +162,8 @@ public class MetadataValidator {
     }
 
     private void verifyOrbitStateVectors() throws Exception {
-        if(!validationOptions.validateOrbitStateVectors) {
-            SystemUtils.LOG.warning("Skipping orbit state vector validation");
+        if(!metadataOptions.validateOrbitStateVectors) {
+            SystemUtils.LOG.warning("MetadataValidator Skipping orbit state vector validation");
             return;
         }
 
@@ -133,14 +177,31 @@ public class MetadataValidator {
             if(orbit_vector0 != null) {
                 throw new Exception("Orbit State Vectors should start from 1");
             }
+            final MetadataElement orbit_vector1 = orbitElem.getElement(AbstractMetadata.orbit_vector +1);
+            if(orbit_vector1 == null) {
+                throw new Exception("Orbit State Vectors not found");
+            } else  {
+                double xPos = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_x_pos);
+                double yPos = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_y_pos);
+                double zPos = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_z_pos);
+                double xVel = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_x_vel);
+                double yVel = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_y_vel);
+                double zVel = orbit_vector1.getAttributeDouble(AbstractMetadata.orbit_vector_z_vel);
+                if(xPos == 0 || yPos == 0 || zPos == 0  || xVel == 0 || yVel == 0 || zVel == 0) {
+                    throw new Exception("Orbit State Vectors incomplete");
+                }
+                if(!orbit_vector1.containsAttribute(AbstractMetadata.orbit_vector_time)) {
+                    throw new Exception("Orbit State Vectors missing time");
+                }
+            }
         } else {
             throw new Exception("Orbit State Vectors not found");
         }
     }
 
     private void verifyDopplerCentroids() throws Exception {
-        if(!validationOptions.validateDopplerCentroids) {
-            SystemUtils.LOG.warning("Skipping doppler centroid validation");
+        if(!metadataOptions.validateDopplerCentroids) {
+            SystemUtils.LOG.warning("MetadataValidator Skipping doppler centroid validation");
             return;
         }
         if(!isSLC()) {

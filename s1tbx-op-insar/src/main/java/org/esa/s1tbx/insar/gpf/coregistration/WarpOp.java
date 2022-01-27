@@ -53,7 +53,6 @@ import javax.media.jai.RenderedOp;
 import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -106,8 +105,8 @@ public class WarpOp extends Operator {
     private int warpPolynomialOrder = 2;
 
     @Parameter(valueSet = {NEAREST_NEIGHBOR, BILINEAR, BICUBIC, BICUBIC2,
-            TRI, CC4P, CC6P, TS6P, TS8P, TS16P}, defaultValue = CC6P, label = "Interpolation Method")
-    private String interpolationMethod = CC6P;
+            SimpleLUT.TRI, SimpleLUT.CC4P, SimpleLUT.CC6P, SimpleLUT.TS6P, SimpleLUT.TS8P, SimpleLUT.TS16P}, defaultValue = SimpleLUT.CC6P, label = "Interpolation Method")
+    private String interpolationMethod = SimpleLUT.CC6P;
 
     //@Parameter(description = "Optimize for Interferometry",
     //        defaultValue = "false", label = "InSAR Optimized")
@@ -128,7 +127,7 @@ public class WarpOp extends Operator {
     private InterpolationTable interpTable;
 
     @Parameter(description = "Show the Residuals file in a text viewer", defaultValue = "false", label = "Show Residuals")
-    private Boolean openResidualsFile;
+    private Boolean openResidualsFile = false;
 
     private Band masterBand;
     private boolean complexCoregistration;
@@ -138,12 +137,6 @@ public class WarpOp extends Operator {
     public static final String BILINEAR = "Bilinear interpolation";
     public static final String BICUBIC = "Bicubic interpolation";
     public static final String BICUBIC2 = "Bicubic2 interpolation";
-    public static final String TRI = SimpleLUT.TRI;
-    public static final String CC4P = SimpleLUT.CC4P;
-    public static final String CC6P = SimpleLUT.CC6P;
-    public static final String TS6P = SimpleLUT.TS6P;
-    public static final String TS8P = SimpleLUT.TS8P;
-    public static final String TS16P = SimpleLUT.TS16P;
 
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
     private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
@@ -228,20 +221,20 @@ public class WarpOp extends Operator {
                 case BICUBIC2:
                     interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2);
                     break;
-                case CC4P:
-                    constructInterpolationTable(CC4P);
+                case SimpleLUT.CC4P:
+                    constructInterpolationTable(SimpleLUT.CC4P);
                     break;
-                case CC6P:
-                    constructInterpolationTable(CC6P);
+                case SimpleLUT.CC6P:
+                    constructInterpolationTable(SimpleLUT.CC6P);
                     break;
-                case TS6P:
-                    constructInterpolationTable(TS6P);
+                case SimpleLUT.TS6P:
+                    constructInterpolationTable(SimpleLUT.TS6P);
                     break;
-                case TS8P:
-                    constructInterpolationTable(TS8P);
+                case SimpleLUT.TS8P:
+                    constructInterpolationTable(SimpleLUT.TS8P);
                     break;
-                case TS16P:
-                    constructInterpolationTable(TS16P);
+                case SimpleLUT.TS16P:
+                    constructInterpolationTable(SimpleLUT.TS16P);
                     break;
                 default:
                     interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
@@ -503,7 +496,7 @@ public class WarpOp extends Operator {
         }
     }
 
-    private synchronized void createDEM() throws IOException {
+    private synchronized void createDEM() {
 
         final Resampling resampling = ResamplingFactory.createResampling(ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
 
@@ -564,7 +557,7 @@ public class WarpOp extends Operator {
                 // find others for same slave product
                 final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
                 for (Band band : sourceProduct.getBands()) {
-                    if (band != srcBand) {
+                    if (band != srcBand && !StringUtils.contains(masterBandNames, band.getName())) {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if (slvProductName != null && slvProductName.equals(productName)) {
                             slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
@@ -753,7 +746,7 @@ public class WarpOp extends Operator {
         interpTable = new InterpolationTable(padding, kernelLength, subsampleBits, precisionBits, lutArrayFloats);
     }
 
-    private static File getResidualsFile(final Product sourceProduct) {
+    public static File getResidualsFile(final Product sourceProduct) {
         final String fileName = sourceProduct.getName() + "_residual.txt";
         return new File(ResourceUtils.getReportFolder(), fileName);
     }

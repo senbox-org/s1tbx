@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <name>S1TBX Rich Client Platform</name>
@@ -79,6 +79,12 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-smart-configurator</artifactId>
+            <version>${snap.version}</version>
         </dependency>
 
         <dependency>

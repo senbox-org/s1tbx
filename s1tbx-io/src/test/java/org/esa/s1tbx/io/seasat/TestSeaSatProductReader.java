@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.seasat;
 
 import org.esa.s1tbx.commons.test.MetadataValidator;
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
@@ -36,7 +37,7 @@ public class TestSeaSatProductReader extends ReaderTest {
     private final static File metadataFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR/Seasat/SS_00263_STD_F0886_tif/SS_00263_STD_F0886.xml");
     private final static File zipFile = new File(S1TBXTests.inputPathProperty + S1TBXTests.sep +"SAR/Seasat/SS_00263_STD_F0886_tif.zip");
 
-    final static MetadataValidator.ValidationOptions options = new MetadataValidator.ValidationOptions();
+    final static MetadataValidator.Options options = new MetadataValidator.Options();
 
     @Before
     public void setUp() {
@@ -53,16 +54,20 @@ public class TestSeaSatProductReader extends ReaderTest {
     @Test
     public void testOpenMetadata() throws Exception {
         Product prod = testReader(metadataFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
     public void testOpenZip() throws Exception {
         Product prod = testReader(zipFile.toPath());
-        validateProduct(prod);
-        validateMetadata(prod, options);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata(options);
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 }

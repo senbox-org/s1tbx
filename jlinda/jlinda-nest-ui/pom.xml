@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jlinda</artifactId>
         <groupId>org.jlinda</groupId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <name>jLinda SNAP Support UI</name>
@@ -14,7 +14,7 @@
     <description>SNAP InSAR utilities and operators</description>
 
     <packaging>nbm</packaging>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.jlinda</groupId>
@@ -29,17 +29,14 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-core</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-ui</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -52,7 +49,6 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -61,7 +57,6 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
-            <version>${snap.version}</version>
         </dependency>
 
         <dependency>

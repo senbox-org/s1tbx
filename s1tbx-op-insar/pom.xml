@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>s1tbx-op-insar</artifactId>
@@ -61,7 +61,6 @@
         <dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
-            <version>${s1tbx.version}</version>
         </dependency>
     </dependencies>
 

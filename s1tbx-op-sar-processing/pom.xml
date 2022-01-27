@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>s1tbx-op-sar-processing</artifactId>
@@ -52,11 +52,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io-ephemeris</artifactId>
-            <version>${s1tbx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-calibration</artifactId>
         </dependency>
         <dependency>
@@ -71,18 +66,6 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-smart-configurator</artifactId>
-            <version>${snap.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-test-utils</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

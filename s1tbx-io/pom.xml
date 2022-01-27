@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>s1tbx-io</artifactId>
@@ -63,6 +63,10 @@
             <groupId>uk.me.jstott</groupId>
             <artifactId>jcoord</artifactId>
             <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
         </dependency>
     </dependencies>
     

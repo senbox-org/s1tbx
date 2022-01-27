@@ -1,9 +1,21 @@
+/*
+ * Copyright (C) 2021 SkyWatch. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.io.gamma.pyrate.pyrateheader;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.io.gamma.GammaProductWriter;
-import org.esa.s1tbx.io.gamma.pyrate.pyrateheader.GammaConstants;
-import org.esa.s1tbx.io.gamma.header.HeaderWriter;
 import org.esa.s1tbx.io.gamma.pyrate.PyRateGammaProductWriter;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.SystemUtils;
@@ -39,14 +51,11 @@ public class PyRateHeaderWriter {
     private final static double daysToSeconds = 12 * 60 * 60;
 
 
-
-
     public PyRateHeaderWriter(PyRateGammaProductWriter writer, Product srcProduct, File userOutputFile) {
         this.writer = writer;
         this.srcProduct = srcProduct;
         this.isComplex = false;
         this.isCoregistered = false;
-
 
         absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
         if (absRoot != null) {
@@ -75,6 +84,7 @@ public class PyRateHeaderWriter {
             }
         }
     }
+
     private File createParFile(final File file) {
         String name = FileUtils.getFilenameWithoutExtension(file);
         String ext = FileUtils.getExtension(name);
@@ -92,6 +102,7 @@ public class PyRateHeaderWriter {
 
         return new File(file.getParent(), name);
     }
+
     private File [] createParFiles(File file){
         try{
             File master = new File(file.getParentFile().getAbsolutePath() + "/" + getDateStringKey(srcProduct, true) + "_slc" + this.PAR_EXTENSION);
@@ -102,6 +113,7 @@ public class PyRateHeaderWriter {
             return null;
         }
     }
+
     public void writeParFile() throws IOException {
         if (isPhase){
             if (outputFiles == null){
@@ -157,9 +169,8 @@ public class PyRateHeaderWriter {
         }
         */
 
-
-
     }
+
     public int getHighestElemSize() {
         int highestElemSize = 0;
         for (Band band : srcProduct.getBands()) {
@@ -172,7 +183,6 @@ public class PyRateHeaderWriter {
         }
         return highestElemSize;
     }
-
 
     public void writeHeaders(Product phaseProduct, File [] files) throws IOException{
         String mstDate = getDateString(phaseProduct, true);
@@ -205,18 +215,17 @@ public class PyRateHeaderWriter {
         }
     }
 
-
     private double getRadarFrequencyHz(Product phaseProduct, boolean master) throws IOException {
-        if (! phaseProduct.getMetadataRoot().containsElement("Slave_Metadata")){
+        if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
 
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
-        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
         if (absRoot.containsAttribute("multimaster_split")){
-            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
-            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+            absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[1];
         }
         double freq;
         if(master){
@@ -228,16 +237,16 @@ public class PyRateHeaderWriter {
     }
 
     private double getIncidenceAngle(Product phaseProduct, boolean master) throws IOException{
-        if (! phaseProduct.getMetadataRoot().containsElement("Slave_Metadata")){
+        if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
 
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
-        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
         if (absRoot.containsAttribute("multimaster_split")){
-            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
-            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+            absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[1];
         }
         double [] angles = new double[2];
         if(master){
@@ -250,20 +259,22 @@ public class PyRateHeaderWriter {
         // Return average of near and far angles TODO assess if this is the correct approach
         return (angles[0] + angles[1]) / 2;
     }
+
     public static  String getDoubleDateString(Product phaseProduct) throws IOException{
         return getDateStringKey(phaseProduct, true) + "-" + getDateStringKey(phaseProduct, false);
     }
+
     public static String getDateStringKey(Product phaseProduct, boolean master) throws IOException {
-        if (! phaseProduct.getMetadataRoot().containsElement("Slave_Metadata")){
+        if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
 
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
-        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
         if (absRoot.containsAttribute("multimaster_split")){
-            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
-            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+            absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[1];
         }
         String dateString = "";
 
@@ -286,16 +297,17 @@ public class PyRateHeaderWriter {
         dateString = year + month  + day;
         return dateString;
     }
+
     private static String getDateString(Product phaseProduct, boolean master) throws IOException{
-        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement("Abstracted_Metadata");
+        MetadataElement absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         String dateString = "";
-        if (! phaseProduct.getMetadataRoot().containsElement("Slave_Metadata")){
+        if (! phaseProduct.getMetadataRoot().containsElement(AbstractMetadata.SLAVE_METADATA_ROOT)){
             throw new IOException("Product is not a coregistered slave/master pair.");
         }
-        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
+        MetadataElement slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
         if (absRoot.containsAttribute("multimaster_split")){
-            absRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[0];
-            slvRoot = phaseProduct.getMetadataRoot().getElement("Slave_Metadata").getElements()[1];
+            absRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0];
+            slvRoot = phaseProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[1];
         }
         String svt = "";
         if(master){
@@ -321,6 +333,7 @@ public class PyRateHeaderWriter {
         return dateString;
 
     }
+
     private static String getMonthNum (String m){
         switch(m){
             case "JAN":
@@ -466,6 +479,7 @@ public class PyRateHeaderWriter {
         p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MAJOR_AXIS + sep + String.valueOf(Constants.semiMajorAxis) + sep + 'm');
         p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MINOR_AXIS + sep + String.valueOf(Constants.semiMinorAxis) + sep + 'm');
     }
+
     protected String getDataType() {
         int highestElemSize = getHighestElemSize();
 

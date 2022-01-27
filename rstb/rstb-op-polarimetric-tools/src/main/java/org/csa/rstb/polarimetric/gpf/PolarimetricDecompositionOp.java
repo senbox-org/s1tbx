@@ -58,7 +58,9 @@ public final class PolarimetricDecompositionOp extends Operator {
     @Parameter(valueSet = {SINCLAIR_DECOMPOSITION, PAULI_DECOMPOSITION, FREEMAN_DURDEN_DECOMPOSITION,
             GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION,
             YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, H_ALPHA_DECOMPOSITION,
-            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION}, defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
+            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION, HUYNEN_DECOMPOSITION, YANG_DECOMPOSITION,
+            KROGAGER_DECOMPOSITION, CAMERON_DECOMPOSITION, MF3CF_DECOMPOSITION, MF4CF_DECOMPOSITION},
+            defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
     private String decomposition = SINCLAIR_DECOMPOSITION;
 
     @Parameter(description = "The sliding window size", interval = "[1, 100]", defaultValue = "5", label = "Window Size")
@@ -92,6 +94,13 @@ public final class PolarimetricDecompositionOp extends Operator {
     @Parameter(description = "Output psi3, tau3, alpha3, phi3", defaultValue = "false", label = "Psi 3, Tau 3, Alpha 3, Phi 3")
     private boolean outputTouziParamSet3 = false;
 
+    // Huynen flags
+    @Parameter(description = "Output 2A0_b, B0_plus_B, B0_minus_B", defaultValue = "true", label = "2A0_b, B0_plus_B, B0_minus_B")
+    private boolean outputHuynenParamSet0 = true;
+
+    @Parameter(description = "Output A0, B0, B, C, D, E, F, G, H", defaultValue = "false", label = "A0, B0, B, C, D, E, F, G, H")
+    private boolean outputHuynenParamSet1 = false;
+
     public static final String SINCLAIR_DECOMPOSITION = "Sinclair Decomposition";
     public static final String PAULI_DECOMPOSITION = "Pauli Decomposition";
     public static final String FREEMAN_DURDEN_DECOMPOSITION = "Freeman-Durden Decomposition";
@@ -102,6 +111,12 @@ public final class PolarimetricDecompositionOp extends Operator {
     public static final String H_ALPHA_DECOMPOSITION = "H-Alpha Dual Pol Decomposition";
     public static final String CLOUDE_DECOMPOSITION = "Cloude Decomposition";
     public static final String TOUZI_DECOMPOSITION = "Touzi Decomposition";
+    public static final String HUYNEN_DECOMPOSITION = "Huynen Decomposition";
+    public static final String YANG_DECOMPOSITION = "Yang Decomposition";
+    public static final String KROGAGER_DECOMPOSITION = "Krogager Decomposition";
+    public static final String CAMERON_DECOMPOSITION = "Cameron Decomposition";
+    public static final String MF3CF_DECOMPOSITION = "Model-free 3-component Decomposition";
+    public static final String MF4CF_DECOMPOSITION = "Model-free 4-component Decomposition";
 
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType = null;
@@ -117,8 +132,9 @@ public final class PolarimetricDecompositionOp extends Operator {
         if (s.equals(SINCLAIR_DECOMPOSITION) || s.equals(PAULI_DECOMPOSITION) ||
                 s.equals(FREEMAN_DURDEN_DECOMPOSITION) || s.equals(YAMAGUCHI_DECOMPOSITION) ||
                 s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) || s.equals(H_ALPHA_DECOMPOSITION) ||
-                s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) ||
-                s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
+                s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) || s.equals(HUYNEN_DECOMPOSITION) ||
+                s.equals(YANG_DECOMPOSITION) || s.equals(KROGAGER_DECOMPOSITION) || s.equals(CAMERON_DECOMPOSITION) ||
+                s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION) || s.equals(MF3CF_DECOMPOSITION) || s.equals(MF4CF_DECOMPOSITION)) {
             decomposition = s;
         } else {
             throw new OperatorException(s + " is an invalid decomposition name.");
@@ -139,6 +155,11 @@ public final class PolarimetricDecompositionOp extends Operator {
         outputBetaDeltaGammaLambda = BetaDeltaGammaLambda;
         outputAlpha123 = Alpha123;
         outputLambda123 = Lambda123;
+    }
+
+    protected void setHuynenParameters(final boolean set0, final boolean set1) {
+        outputHuynenParamSet0 = set0;
+        outputHuynenParamSet1 = set1;
     }
 
     /**
@@ -226,6 +247,12 @@ public final class PolarimetricDecompositionOp extends Operator {
             case VANZYL_DECOMPOSITION:
                 return new vanZyl(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight);
+            case MF3CF_DECOMPOSITION:
+                return new MF3CF(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case MF4CF_DECOMPOSITION:
+                return new MF4CF(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
             case CLOUDE_DECOMPOSITION:
                 return new Cloude(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight);
@@ -246,6 +273,22 @@ public final class PolarimetricDecompositionOp extends Operator {
                         outputTouziParamSet1,
                         outputTouziParamSet2,
                         outputTouziParamSet3);
+            case HUYNEN_DECOMPOSITION:
+                return new Huynen(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight,
+                        outputHuynenParamSet0,
+                        outputHuynenParamSet1);
+            case YANG_DECOMPOSITION:
+                return new Yang(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight,
+                        outputHuynenParamSet0,
+                        outputHuynenParamSet1);
+            case KROGAGER_DECOMPOSITION:
+                return new Krogager(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case CAMERON_DECOMPOSITION:
+                return new Cameron(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
         }
         return null;
     }
@@ -268,7 +311,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     /**
      * Update metadata in the target product.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);

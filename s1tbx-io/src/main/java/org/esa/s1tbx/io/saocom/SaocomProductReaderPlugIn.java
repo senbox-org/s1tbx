@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 by SkyWatch Space Applications Inc. http://www.skywatch.com
+ * Copyright (C) 2021 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,20 +15,20 @@
  */
 package org.esa.s1tbx.io.saocom;
 
+import org.esa.s1tbx.commons.io.S1TBXFileFilter;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Locale;
 
 /**
  * The ReaderPlugIn for Saocom products.
  */
-public class SaocomProductReaderPlugIn implements ProductReaderPlugIn {
+public class SaocomProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -37,16 +37,14 @@ public class SaocomProductReaderPlugIn implements ProductReaderPlugIn {
      * @param input any input object
      * @return true if this product reader can decode the given input, otherwise false.
      */
+    @Override
     public DecodeQualification getDecodeQualification(final Object input) {
         final Path path = ReaderUtils.getPathFromInput(input);
         if (path == null) {
             return DecodeQualification.UNABLE;
         }
-        final String filename = path.getFileName().toString().toUpperCase();
-        for (String prefix : SaocomConstants.METADATA_PREFIX) {
-            if (filename.startsWith(prefix) && filename.toLowerCase().endsWith(SaocomConstants.METADATA_EXT)) {
-                return DecodeQualification.INTENDED;
-            }
+        if (findMetadataFile(path) != null) {
+            return DecodeQualification.INTENDED;
         }
         return DecodeQualification.UNABLE;
     }
@@ -60,6 +58,7 @@ public class SaocomProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
         return SaocomConstants.VALID_INPUT_TYPES;
     }
@@ -69,12 +68,14 @@ public class SaocomProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a new reader instance, never <code>null</code>
      */
+    @Override
     public ProductReader createReaderInstance() {
         return new SaocomProductReader(this);
     }
 
+    @Override
     public SnapFileFilter getProductFileFilter() {
-        return new FileFilter();
+        return new S1TBXFileFilter(this);
     }
 
     /**
@@ -82,6 +83,7 @@ public class SaocomProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
         return SaocomConstants.getFormatNames();
     }
@@ -94,6 +96,7 @@ public class SaocomProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
         return SaocomConstants.getFormatFileExtensions();
     }
@@ -107,39 +110,18 @@ public class SaocomProductReaderPlugIn implements ProductReaderPlugIn {
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(final Locale locale) {
         return SaocomConstants.getPluginDescription();
     }
 
-    public static class FileFilter extends SnapFileFilter {
+    @Override
+    public String[] getProductMetadataFileExtensions() {
+        return new String[] {SaocomConstants.METADATA_EXT};
+    }
 
-        public FileFilter() {
-            super();
-            setFormatName(SaocomConstants.getFormatNames()[0]);
-            setExtensions(SaocomConstants.getFormatFileExtensions());
-            setDescription(SaocomConstants.getPluginDescription());
-        }
-
-        /**
-         * Tests whether or not the given file is accepted by this filter. The default implementation returns
-         * <code>true</code> if the given file is a directory or the path string ends with one of the registered extensions.
-         * if no extension are defined, the method always returns <code>true</code>
-         *
-         * @param file the file to be or not be accepted.
-         * @return <code>true</code> if given file is accepted by this filter
-         */
-        public boolean accept(final File file) {
-            if (super.accept(file)) {
-                final String name = file.getName().toUpperCase();
-                if (file.isDirectory())
-                    return true;
-                for (String header : SaocomConstants.METADATA_PREFIX) {
-                    if (name.startsWith(header) && name.toLowerCase().endsWith(SaocomConstants.METADATA_EXT)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+    @Override
+    public String[] getProductMetadataFilePrefixes() {
+        return SaocomConstants.METADATA_PREFIX;
     }
 }

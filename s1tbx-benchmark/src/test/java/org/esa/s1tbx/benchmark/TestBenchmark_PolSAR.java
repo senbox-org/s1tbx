@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 SkyWatch Space Applications Inc. https://www.skywatch.com
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.benchmark;
 
 import com.bc.ceres.binding.dom.DefaultDomElement;
@@ -74,7 +89,7 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " productIO.write") {
             @Override
             protected void execute() throws Exception {
-                process(name, param, false);
+                process(name, param, false, outputFolder);
             }
         };
         b.run();
@@ -84,7 +99,7 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GPF.write") {
             @Override
             protected void execute() throws Exception {
-                process(name, param, true);
+                process(name, param, true, outputFolder);
             }
         };
         b.run();
@@ -94,13 +109,13 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Benchmark b = new Benchmark(name + " GraphProcessor") {
             @Override
             protected void execute() throws Exception {
-                processGraph(qpFile, name, param);
+                processGraph(qpFile, outputFolder, name, param);
             }
         };
         b.run();
     }
 
-    private void process(final String name, final String param, final boolean useWriteOp) throws Exception {
+    private void process(final String name, final String param, final boolean useWriteOp, final File outputFolder) throws Exception {
         final Product srcProduct = read(qpFile);
 
         final PolarimetricDecompositionOp op = new PolarimetricDecompositionOp();
@@ -112,13 +127,16 @@ public class TestBenchmark_PolSAR extends BaseBenchmarks {
         Product trgProduct = op.getTargetProduct();
 
         if(useWriteOp) {
-            writeGPF(trgProduct, DIMAP);
+            writeGPF(trgProduct, outputFolder, DIMAP);
         } else {
-            write(trgProduct, DIMAP);
+            write(trgProduct, outputFolder, DIMAP);
         }
+
+        trgProduct.dispose();
+        srcProduct.dispose();
     }
 
-    private void processGraph(final File file, final String name, final String param) throws Exception {
+    private void processGraph(final File file, final File outputFolder, final String name, final String param) throws Exception {
 
         final Graph graph = new Graph("graph");
 

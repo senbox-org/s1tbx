@@ -6,9 +6,9 @@
 
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar">
-            <tocitem text="Apply Orbit Correction" target="ApplyOrbitFileOp"/>
             <tocitem text="Radiometric">
                 <tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
+                <tocitem text="Multitemporal Compositing" target="MultitemporalCompositingOp"/>
             </tocitem>
             <tocitem text="Speckle Filtering">
                 <tocitem text="Speckle Filter" target="SpeckleFilterOp"/>

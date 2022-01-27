@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.io.radarsat2;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;
@@ -40,8 +39,6 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
@@ -361,7 +358,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         }
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency, prf);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate, rangeSamplingRate);
-        AbstractMetadata.setAttribute(absRoot, "bistatic_correction_applied", 1);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.bistatic_correction_applied, 1);
 
         final MetadataElement geographicInformation = imageAttributes.getElement("geographicInformation");
         if (geographicInformation != null) {

@@ -5,9 +5,9 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>8.0.1cv</version>
+    <version>8.0.6-SNAPSHOT</version>
     <name>Sentinel-1 Toolbox</name>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1</url>
     <description>Tools for SAR Earth Observation</description>
     
     <packaging>pom</packaging>
@@ -25,17 +25,17 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>8.0.3.6cv</snap.version>
+        <snap.version>8.0.9-SNAPSHOT</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
             It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
-        <s1tbx.version>8.0.1cv</s1tbx.version>
-        <rstb.version>8.0.1cv</rstb.version>
-        <jlinda.version>8.0.1cv</jlinda.version>
-        <iceye.version>8.0.1cv</iceye.version>
+        <s1tbx.version>${project.version}</s1tbx.version>
+        <rstb.version>${project.version}</rstb.version>
+        <jlinda.version>${project.version}</jlinda.version>
+        <iceye.version>${project.version}</iceye.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <buildDate>${maven.build.timestamp}</buildDate>
         
@@ -49,9 +49,11 @@
 		<module>jlinda</module>
         <module>rstb</module>
 		<module>s1tbx-benchmark</module>
+		<module>s1tbx-cloud</module>
         <module>s1tbx-commons</module>
 		<module>s1tbx-io</module>
 		<module>s1tbx-io-ephemeris</module>
+		<module>s1tbx-io-ephemeris-ui</module>
         <module>s1tbx-op-analysis-ui</module>
 		<module>s1tbx-op-calibration</module>
         <module>s1tbx-op-calibration-ui</module>
@@ -67,6 +69,7 @@
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
 		<module>s1tbx-rcp</module>
+		<module>s1tbx-test-stacks</module>
 		<module>snap_iceye_reader</module>
         
         <module>s1tbx-kit</module>
@@ -395,11 +398,6 @@
 	            <artifactId>commons-net</artifactId>
 	            <version>3.5</version>
 	        </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.6</version>
-            </dependency>
             
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -447,14 +445,14 @@
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.11.3</version>
+                <version>1.14.2</version>
             </dependency>
 			
-			<dependency>
-				<groupId>edu.emory.mathcs</groupId>
-				<artifactId>jtransforms</artifactId>
-				<version>2.3</version>
-			</dependency>
+            <dependency>
+                <groupId>edu.emory.mathcs</groupId>
+                <artifactId>JTransforms</artifactId>
+                <version>2.4</version>
+            </dependency>
 	        <dependency>
 	            <groupId>org.jblas</groupId>
 	            <artifactId>jblas</artifactId>
@@ -615,6 +613,7 @@
                     <configuration>
                         <moduleType>normal</moduleType>
                         <licenseName>GPL 3</licenseName>
+                        <homePageUrl>https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1</homePageUrl>
                         <licenseFile>${project.basedir}/../LICENSE.html</licenseFile>
                         <cluster>${brandingToken}</cluster>
                         <brandingToken>${brandingToken}</brandingToken>
@@ -716,7 +715,7 @@
                     </execution>
                 </executions>
             </plugin>
-			<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.6</version>
@@ -740,10 +739,17 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>generate-code-coverage-report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
-		
+
     </build>
 
     <developers>

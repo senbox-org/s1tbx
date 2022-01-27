@@ -15,11 +15,11 @@
  */
 package org.csa.rstb.io.rcm;
 
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -71,81 +71,90 @@ public class TestEODMSRCMProductReader extends ReaderTest {
     @Test
     public void testOpeningGRDManifest() throws Exception {
         Product prod = testReader(inputGRDManifest.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
-    }
 
-//    @Test
-//    @Ignore("not implemented")
-//    public void testOpeningGRDZip() throws Exception {
-//        Product prod = testReader(inputGRDZip.toPath());
-//        validateProduct(prod);
-//        validateMetadata(prod);
-//        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
-//    }
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+    }
 
     @Test
     public void testOpeningGRDFolder() throws Exception {
         Product prod = testReader(inputGRDFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRCManifest() throws Exception {
         Product prod = testReader(inputGRCManifest.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningGRCFolder() throws Exception {
         Product prod = testReader(inputGRCFolder.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH", "Amplitude_HV","Intensity_HV"});
     }
 
     @Test
     public void testOpeningQP_SLC() throws Exception {
         Product prod = testReader(inputQP_SLC.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV","i_VV","q_VV","Intensity_VV", "i_VH","q_VH","Intensity_VH"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_HH","q_HH","Intensity_HH", "i_HV","q_HV","Intensity_HV","i_VV","q_VV","Intensity_VV", "i_VH","q_VH","Intensity_VH"});
     }
 
     @Test
     public void testOpeningCP_SLC() throws Exception {
         Product prod = testReader(inputCP_SLC.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_RCH","q_RCH","Intensity_RCH","i_RCV","q_RCV","Intensity_RCV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_RCH","q_RCH","Intensity_RCH","i_RCV","q_RCV","Intensity_RCV"});
     }
 
     @Test
     public void testOpeningCP_GCC() throws Exception {
         Product prod = testReader(inputCP_GCC.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH","Amplitude_RCV","Intensity_RCV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_RCH","Intensity_RCH","Amplitude_RCV","Intensity_RCV"});
     }
 
     @Test
     public void testOpeningCP_GRC() throws Exception {
         Product prod = testReader(inputCP_GRC.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"i_RCH","q_RCH","Intensity_RCH","i_RCV","q_RCV","Intensity_RCV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"i_RCH","q_RCH","Intensity_RCH","i_RCV","q_RCV","Intensity_RCV"});
     }
 
     @Test
     public void testOpeningCP_GRD() throws Exception {
         Product prod = testReader(inputCP_GRD.toPath());
-        validateProduct(prod);
-        validateMetadata(prod);
-        validateBands(prod, new String[] {"Amplitude_RCH","Intensity_RCH", "Amplitude_RCV","Intensity_RCV"});
+
+        final ProductValidator validator = new ProductValidator(prod);
+        validator.validateProduct();
+        validator.validateMetadata();
+        validator.validateBands(new String[] {"Amplitude_RCH","Intensity_RCH", "Amplitude_RCV","Intensity_RCV"});
     }
 }

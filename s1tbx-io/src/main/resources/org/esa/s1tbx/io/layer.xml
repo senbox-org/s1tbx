@@ -67,6 +67,15 @@
                 <attr name="helpId" stringvalue="importCosmoSkymed"/>
                 <attr name="ShortDescription" stringvalue="Open Cosmo-Skymed data product."/>
             </file>
+            <file name="org-esa-s1tbx-io-importGaofen3.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="GAOFEN3"/>
+                <attr name="formatName" stringvalue="Gaofen3"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importGaofen3"/>
+                <attr name="ShortDescription" stringvalue="Open Gaofen-3 data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importKompsat5.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -252,6 +261,10 @@
                     <file name="org-esa-s1tbx-io-ceos-importERSProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importERSProduct.instance"/>
                         <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importGaofen3.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importGaofen3.instance"/>
+                        <attr name="position" intvalue="550"/>
                     </file>
                     <file name="org-esa-s1tbx-io-ceos-importJERSCEOSProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importJERSCEOSProduct.instance"/>

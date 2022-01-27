@@ -73,7 +73,7 @@ public final class SliceAssemblyOp extends Operator {
     // The slice products will be in order in the array: 1st (top) slice is the 1st element in the array followed by
     // 2nd slice and so on.
     private Product[] sliceProducts;
-    private Map<Band, BandLines[]> bandLineMap = new HashMap<>();
+    private final Map<Band, BandLines[]> bandLineMap = new HashMap<>();
 
     // This is the raster width and height of the target product
     private int targetWidth = 0, targetHeight = 0;
@@ -81,20 +81,20 @@ public final class SliceAssemblyOp extends Operator {
     // Map a swath such as "IW1" to the assembled image height and width.
     // For GRD, use "" for swath.
     // height is 1st element. width is 2nd element.
-    private Map<String, int[]> swathAssembledImageDimMap = new HashMap<>();
+    private final Map<String, int[]> swathAssembledImageDimMap = new HashMap<>();
 
     // Map a slice product and swath such as "IW1" to the image height and width.
     // For GRD, use "" for swath.
     // height is 1st element. width is 2nd element.
-    private Map<Product, Map<String, int[]>> sliceSwathImageDimMap = new HashMap<>();
+    private final Map<Product, Map<String, int[]>> sliceSwathImageDimMap = new HashMap<>();
 
-    private Map<String, TiePointGeoCoding> swathGeocodingMap = new HashMap<>();
+    private final Map<String, TiePointGeoCoding> swathGeocodingMap = new HashMap<>();
 
     // Burst information for each band in slice product (for SLC only)
-    private Map<Band, BurstDimension> sliceBandBurstDimMap = new HashMap<>();
+    private final Map<Band, BurstDimension> sliceBandBurstDimMap = new HashMap<>();
 
     // Target burst information for each swath (for SLC only)
-    private Map<String, BurstDimension> targetSwathBurstDimMap = new HashMap<>();
+    private final Map<String, BurstDimension> targetSwathBurstDimMap = new HashMap<>();
 
     private boolean isMultiSwath = false;
 
@@ -159,7 +159,7 @@ public final class SliceAssemblyOp extends Operator {
 
     private void getIPFVersion() {
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-        version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
+        version = Double.parseDouble(procSysId.substring(procSysId.lastIndexOf(" ")));
         //System.out.println("Sentinel1RemoveThermalNoiseOp: IPF version = " + version);
     }
 
@@ -198,7 +198,7 @@ public final class SliceAssemblyOp extends Operator {
         // Note that "If productSet makes any guarantees as to what order its elements
         // are returned by its iterator, toArray() must return the elements in
         // the same order".
-        return productSet.values().toArray(new Product[productSet.size()]);
+        return productSet.values().toArray(new Product[0]);
     }
 
     private static MetadataElement getGeneralProductInformation(final MetadataElement origMetaRoot) {
@@ -533,8 +533,10 @@ public final class SliceAssemblyOp extends Operator {
         for (Band srcBand : sourceBands) {
             boolean selectedPol = false;
             for (String pol : selectedPolarisations) {
-                if (srcBand.getName().contains(pol))
+                if (srcBand.getName().contains(pol)) {
                     selectedPol = true;
+                    break;
+                }
             }
             if (!selectedPol)
                 continue;
@@ -1227,30 +1229,6 @@ public final class SliceAssemblyOp extends Operator {
         targetVectorList.setAttributeString("count", Integer.toString(idx));
     }
 
-    private static int[] getPixelSpacings(MetadataElement pixel, final String msg) {
-
-        final String pixelsStr = pixel.getAttributeString("pixel");
-        final String[] pixelsArrayOfStr = pixelsStr.split(" ");
-        final int numPixels = pixelsArrayOfStr.length;
-        if (numPixels < 2) {
-            throw new OperatorException("Too few pixels " + numPixels + " for " + msg);
-        }
-
-        final int pixelCount = Integer.parseInt(pixel.getAttributeString("count"));
-        if (pixelCount != numPixels) {
-            throw new OperatorException("wrong pixel count " + pixelCount + ' ' + numPixels + " for " + msg);
-        }
-
-        final int[] pixelSpacings = new int[numPixels - 1];
-        for (int i = 0; i < numPixels - 1; i++) {
-            final int pixel0 = Integer.parseInt(pixelsArrayOfStr[i]);
-            final int pixel1 = Integer.parseInt(pixelsArrayOfStr[i + 1]);
-            pixelSpacings[i] = pixel1 - pixel0;
-        }
-
-        return pixelSpacings;
-    }
-
     private static int getLastPixel(final MetadataElement vector) {
 
         final MetadataElement pixel = vector.getElement("pixel");
@@ -1268,11 +1246,13 @@ public final class SliceAssemblyOp extends Operator {
         return element.getElement(vectorListName);
     }
 
-    private void updateCalibrationOrNoise(final String dataName) {
+    private void updateAnnotation(final String dataName) {
 
         // dataName should be "calibration" or "noise"
-
-        final Product lastSliceProduct = sliceProducts[sliceProducts.length - 1];
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        if(!targetOrigProdRoot.containsElement(dataName)) {
+            return;
+        }
 
         // The calibration or noise data in metadata in targetProduct at this point is copied from the 1st slice.
         // So we need to concatenate the vectors from the 2nd to last slices to target.
@@ -1294,7 +1274,7 @@ public final class SliceAssemblyOp extends Operator {
         // TODO: slice to have pixels:
         // TODO: 0 40 80 ... 20040 20080 20086
 
-        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        final Product lastSliceProduct = sliceProducts[sliceProducts.length - 1];
         final MetadataElement[] targetDataElems = getElementsToUpdate(targetOrigProdRoot, dataName);
 
         // loop through each s1...-nnn.xml where nnn is the image number
@@ -1735,6 +1715,78 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private void updateRFI() {
+        final String dataName = "rfi";
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        if(!targetOrigProdRoot.containsElement(dataName)) {
+            return;
+        }
+
+        final Product lastSliceProduct = sliceProducts[sliceProducts.length - 1];
+        final MetadataElement[] targetDataElems = getElementsToUpdate(targetOrigProdRoot, dataName);
+
+        // loop through each s1...-nnn.xml where nnn is the image number
+        for (MetadataElement target : targetDataElems) {
+
+            final String swathID = extractSwathIdentifier(target.getName()); // e.g. "iw" for GRD or "iw1" for SLC
+            final MetadataElement targetDat = target.getElement(dataName);
+
+            // Update stopTime in adsHeader
+            final MetadataElement targetADSHeader = targetDat.getElement("adsHeader");
+            final String imageNum = extractImageNumber(target.getName()); // e.g. "001"
+            final ProductData lastSliceStopTime = getStopTime(lastSliceProduct, imageNum);
+            AbstractMetadata.setAttribute(targetADSHeader, "stopTime", lastSliceStopTime.getElemString());
+            final String pol = targetADSHeader.getAttributeString("polarisation");
+
+            final MetadataElement rfiDetectionReportListElem = targetDat.getElement("rfiDetectionFromNoiseReportList");
+            final MetadataElement burstReportElem = targetDat.getElement("rfiBurstReportList");
+
+            int rfiDetectionReportCount = rfiDetectionReportListElem.getNumElements();
+            int burstReportCount = burstReportElem.getNumElements();
+
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                final Product sliceProduct = sliceProducts[i];
+                final MetadataElement sliceOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(sliceProduct);
+                if(!sliceOrigProdRoot.containsElement(dataName)) {
+                    continue;
+                }
+
+                final MetadataElement[] sliceDataElems = getElementsToUpdate(sliceOrigProdRoot, dataName);
+                for (MetadataElement slice : sliceDataElems) {
+
+                    final String sliceSwathID = extractSwathIdentifier(slice.getName()); // e.g. "iw" for GRD or "iw1" for SLC
+                    if(!swathID.equals(sliceSwathID)) {
+                        continue;
+                    }
+                    final MetadataElement sliceDat = slice.getElement(dataName);
+
+                    final MetadataElement sliceADSHeader = sliceDat.getElement("adsHeader");
+                    final String slicePol = sliceADSHeader.getAttributeString("polarisation");
+                    if(!pol.equals(slicePol)) {
+                        continue;
+                    }
+
+                    final MetadataElement sliceRfiDetectionReportListElem = sliceDat.getElement("rfiDetectionFromNoiseReportList");
+                    final MetadataElement sliceBurstReportElem = sliceDat.getElement("rfiBurstReportList");
+
+                    for(MetadataElement rfiDetectionReport : sliceRfiDetectionReportListElem.getElements()) {
+                        rfiDetectionReportListElem.addElement(rfiDetectionReport.createDeepClone());
+                        rfiDetectionReportCount++;
+                    }
+
+                    for(MetadataElement burstReport : sliceBurstReportElem.getElements()) {
+                        burstReportElem.addElement(burstReport.createDeepClone());
+                        burstReportCount++;
+                    }
+                }
+            }
+
+            rfiDetectionReportListElem.setAttributeString("count", String.valueOf(rfiDetectionReportCount));
+            burstReportElem.setAttributeString("count", String.valueOf(burstReportCount));
+        }
+    }
+
     private void updateTargetProductMetadata() throws Exception {
 
         // All the metadata has been copied from the 1st slice product to the assembled target product.
@@ -1777,6 +1829,7 @@ public final class SliceAssemblyOp extends Operator {
                 for (String pol : selectedPolarisations) {
                     if (elemName.contains(pol)) {
                         containsPol = true;
+                        break;
                     }
                 }
                 if(!containsPol) {
@@ -1807,12 +1860,13 @@ public final class SliceAssemblyOp extends Operator {
             dopList.addAll(Arrays.asList(dop));
         }
 
-        AbstractMetadata.setOrbitStateVectors(absTgt, orbVectorList.toArray(new OrbitStateVector[orbVectorList.size()]));
-        AbstractMetadata.setSRGRCoefficients(absTgt, srgrList.toArray(new AbstractMetadata.SRGRCoefficientList[srgrList.size()]));
-        AbstractMetadata.setDopplerCentroidCoefficients(absTgt, dopList.toArray(new AbstractMetadata.DopplerCentroidCoefficientList[dopList.size()]));
+        AbstractMetadata.setOrbitStateVectors(absTgt, orbVectorList.toArray(new OrbitStateVector[0]));
+        AbstractMetadata.setSRGRCoefficients(absTgt, srgrList.toArray(new AbstractMetadata.SRGRCoefficientList[0]));
+        AbstractMetadata.setDopplerCentroidCoefficients(absTgt, dopList.toArray(new AbstractMetadata.DopplerCentroidCoefficientList[0]));
 
-        updateCalibrationOrNoise("calibration");
-        updateCalibrationOrNoise("noise");
+        updateAnnotation("calibration");
+        updateAnnotation("noise");
+        updateRFI();
 
         updateImageInformation();
 
@@ -1850,7 +1904,7 @@ public final class SliceAssemblyOp extends Operator {
                 int end = height;
                 bandLineList.add(new BandLines(srcBand, start, end));
             }
-            final BandLines[] lines = bandLineList.toArray(new BandLines[bandLineList.size()]);
+            final BandLines[] lines = bandLineList.toArray(new BandLines[0]);
             bandLineMap.put(targetBand, lines);
         }
     }

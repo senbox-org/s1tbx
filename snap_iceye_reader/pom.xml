@@ -6,12 +6,12 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>8.0.1cv</version>
+        <version>8.0.6-SNAPSHOT</version>
     </parent>
 
     <groupId>com.iceye.esa.snap</groupId>
     <artifactId>iceye-slc-reader</artifactId>
-    <version>8.0.1cv</version>
+    <version>8.0.6-SNAPSHOT</version>
     <name>ICEYE Product readers</name>
     <packaging>nbm</packaging>
 
