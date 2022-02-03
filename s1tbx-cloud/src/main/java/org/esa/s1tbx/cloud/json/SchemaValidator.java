@@ -34,17 +34,28 @@ public class SchemaValidator {
     }
 
     public void validate(final String schemaPath, final JSONObject json) throws Exception {
+        validate(schemaPath, json, false);
+    }
+
+    public void validate(final String schemaPath, final JSONObject json, final boolean silent) throws Exception {
         final JsonSchema schema = getJsonSchemaFromClasspath(schemaPath);
         final JsonNode node = getJsonNodeFromStringContent(json.toJSONString());
         final Set<ValidationMessage> errors = schema.validate(node);
+        String allErrors = "";
 
         if(!errors.isEmpty()) {
+            System.out.println();
+            System.out.println(schemaPath);
             System.out.println(json.toJSONString());
 
             for (ValidationMessage msg : errors) {
                 System.out.println(msg);
+                allErrors += msg +"\n";
             }
-            throw new Exception(errors.size() + " schema validation errors found " + errors.iterator().next().getMessage());
+        }
+
+        if(!silent && !allErrors.isEmpty()) {
+            throw new Exception(errors.size() + " schema validation errors found \n" + allErrors);
         }
     }
 
