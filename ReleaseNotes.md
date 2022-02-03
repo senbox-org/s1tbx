@@ -1,3 +1,21 @@
+#New in S1TBX 9.0
+
+* Support for updated Sentinel-1 format
+* Noise Power Image for ARD
+* Ionospheric estimation and correction using a splitbandwidth approach 
+* Retrieval of Vertical and E W motion components from a pair of interferograms
+* Gamma-to-Sigma ratio image in Terrain Flattening
+* InSAR Coherence calculation for image segments 
+* Estimate noise equivalent beta0, sigma0 and gamma0 in Thermal Noise Removal
+* Sentinel-1 Burst Subsets in SAFE Format
+* PyRate workflow and tutorial
+* Kennaugh Matrix, Huynen, Krogager, Cameron, Yang decompositions
+* Contributed Radar Vegetation Indices
+* Support for Cosmo-Skymed SG
+* Support for Gaofen-3
+* Support for Spacety
+
+
 #New in S1TBX 8.0
 
 * Updated support for RCM 
