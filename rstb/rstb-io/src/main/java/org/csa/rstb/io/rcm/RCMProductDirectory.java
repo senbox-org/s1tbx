@@ -146,7 +146,10 @@ public class RCMProductDirectory extends XMLProductDirectory {
         final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : keys) {
             final ImageIOFile img = bandImageFileMap.get(key);
-            final String name = img.getName().toLowerCase();
+            String name = img.getName().toLowerCase();
+            if(name.contains("/")) {
+                name = name.substring(name.lastIndexOf("/")+1);
+            }
 
             for (int i = 0; i < img.getNumImages(); ++i) {
                 try {
