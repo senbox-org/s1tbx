@@ -99,8 +99,8 @@
 					}
 				],
 				"name": "latitude",
-				"subSamplingY": "894.2222222222222",
-				"subSamplingX": "880.7777777777778"
+				"subSamplingY": "894.0",
+				"subSamplingX": "880.0"
 			},
 			{
 				"offsetX": "0.5",
@@ -118,8 +118,8 @@
 					}
 				],
 				"name": "longitude",
-				"subSamplingY": "894.2222222222222",
-				"subSamplingX": "880.7777777777778"
+				"subSamplingY": "894.0",
+				"subSamplingX": "880.0"
 			}
 		],
 		"sceneHeight": 8048,
