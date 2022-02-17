@@ -434,24 +434,27 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 targetBand.setNoDataValueUsed(true);
                 targetProduct.addBand(targetBand);
             }
+        }
 
-            // add target noise band
+        // add target noise band
+        for (String targetBandName : targetBandNameToSourceBandName.keySet()) {
+            final Band targetBand = targetProduct.getBand(targetBandName);
             final String targetNoiseBandName = createTargetNoiseBandName(targetBandName);
             if (targetProduct.getBand(targetNoiseBandName) == null) {
 
                 targetNoiseBandNameToImageBandName.put(targetNoiseBandName, targetBandName);
 
-                final Band targetBand = new Band(
+                final Band targetNoiseBand = new Band(
                         targetNoiseBandName,
                         ProductData.TYPE_FLOAT32,
-                        srcBand.getRasterWidth(),
-                        srcBand.getRasterHeight());
+                        targetBand.getRasterWidth(),
+                        targetBand.getRasterHeight());
 
                 targetBand.setUnit(Unit.DB);
-                targetBand.setDescription(srcBand.getDescription());
-                targetBand.setNoDataValue(srcBand.getNoDataValue());
+                targetBand.setDescription(targetBand.getDescription());
+                targetBand.setNoDataValue(targetBand.getNoDataValue());
                 targetBand.setNoDataValueUsed(true);
-                targetProduct.addBand(targetBand);
+                targetProduct.addBand(targetNoiseBand);
             }
         }
     }
