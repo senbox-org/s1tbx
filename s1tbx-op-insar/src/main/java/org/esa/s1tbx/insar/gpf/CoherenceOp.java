@@ -352,7 +352,9 @@ public class CoherenceOp extends Operator {
                     }
                 }
             }
+
         } else {
+
             final SortedSet<String> allKeys = new TreeSet<>();
             allKeys.addAll(masterMap.keySet());
             allKeys.addAll(slaveMap.keySet());
@@ -365,22 +367,25 @@ public class CoherenceOp extends Operator {
                     master = slaveMap.get(keyMaster);
                 }
 
-                String keySlave = keys[i+1];
-                CplxContainer slave = slaveMap.get(keySlave);
-                if (slave == null) {
-                    slave = masterMap.get(keySlave);
-                }
+                for (int j = i + 1; j < keys.length; ++j) {
+                    String keySlave = keys[j];
+                    CplxContainer slave = slaveMap.get(keySlave);
+                    if (slave == null) {
+                        slave = masterMap.get(keySlave);
+                    }
 
-                if ((master.polarisation == null || slave.polarisation == null) ||
-                        (master.polarisation != null && slave.polarisation != null &&
-                                master.polarisation.equals(slave.polarisation))) {
-                    // generate name for product bands
-                    final String productName = keyMaster + '_' + keySlave;
+                    if ((master.polarisation == null || slave.polarisation == null) ||
+                            (master.polarisation != null && slave.polarisation != null &&
+                                    master.polarisation.equals(slave.polarisation))) {
+                        // generate name for product bands
+                        final String productName = keyMaster + '_' + keySlave;
 
-                    final ProductContainer productContainer = new ProductContainer(productName, master, slave, false);
+                        final ProductContainer productContainer = new ProductContainer(productName, master, slave, false);
 
-                    // put ifg-product bands into map
-                    targetMap.put(productName, productContainer);
+                        // put ifg-product bands into map
+                        targetMap.put(productName, productContainer);
+                        break;
+                    }
                 }
             }
         }
