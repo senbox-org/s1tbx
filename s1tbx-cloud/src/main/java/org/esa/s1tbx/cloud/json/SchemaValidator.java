@@ -30,6 +30,8 @@ import java.util.Set;
 
 public class SchemaValidator {
 
+    private static final JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+
     public SchemaValidator() {
     }
 
@@ -59,10 +61,6 @@ public class SchemaValidator {
         }
     }
 
-    private JsonSchemaFactory getSchemaFactory() {
-        return JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-    }
-
     protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
         InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
 
@@ -82,18 +80,18 @@ public class SchemaValidator {
 
     protected JsonSchema getJsonSchemaFromClasspath(String name) {
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
-        return getSchemaFactory().getSchema(is);
+        return schemaFactory.getSchema(is);
     }
 
     protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) {
-        return getSchemaFactory().getSchema(schemaContent);
+        return schemaFactory.getSchema(schemaContent);
     }
 
     protected JsonSchema getJsonSchemaFromUrl(String url) throws Exception {
-        return getSchemaFactory().getSchema(new URI(url));
+        return schemaFactory.getSchema(new URI(url));
     }
 
     protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
-        return getSchemaFactory().getSchema(jsonNode);
+        return schemaFactory.getSchema(jsonNode);
     }
 }
