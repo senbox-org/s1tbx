@@ -427,8 +427,8 @@ public class Gaofen3ProductDirectory extends XMLProductDirectory  {
                 // Sanity check:
                 PixelPos _idx = new PixelPos();
                 geocoding.getPixelPos(geoRPC, _idx);
-                assert idx.x == _idx.x;
-                assert idx.y == _idx.y;
+                assert Math.abs(idx.x - _idx.x) < 0.001;
+                assert Math.abs(idx.y - _idx.y) < 0.001;
             }
 
             // Initiate Jacobian and residual:
