@@ -29,6 +29,8 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -194,7 +196,9 @@ public class CapellaProductDirectory extends JSONProductDirectory {
                 ImageInputStream imgStream = null;
                 if(!productDir.isCompressed()) {
                     File file = productDir.getFile(imgPath);
-                    imgStream = new FileImageInputStream(file);
+                    if (file.exists() && file.length() > 0) {
+                        imgStream = new FileImageInputStream(file);
+                    }
                 } else {
                     final Dimension bandDimensions = new Dimension(width, height);
                     final InputStream inStream = getInputStream(imgPath);
@@ -228,6 +232,10 @@ public class CapellaProductDirectory extends JSONProductDirectory {
 
     @Override
     protected void addBands(final Product product) {
+
+        if(bandImageFileMap.isEmpty()) {
+            return;
+        }
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
@@ -362,6 +370,33 @@ public class CapellaProductDirectory extends JSONProductDirectory {
     protected void addGeoCoding(final Product product) {
         if(bandProduct != null) {
             ProductUtils.copyGeoCoding(bandProduct, product);
+        }
+
+        if(product.getSceneGeoCoding() == null) {
+            try {
+                final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+                final MetadataElement productMetadata = origProdRoot.getElement("ProductMetadata");
+                final MetadataElement collect = productMetadata.getElement("collect");
+                final MetadataElement image = collect.getElement("image");
+                final MetadataElement imageGeometry = image.getElement("image_geometry");
+
+                if(imageGeometry.containsElement("coordinate_system")) {
+                    final MetadataElement coordinateSystem = imageGeometry.getElement("coordinate_system");
+                    final MetadataElement geotransform = imageGeometry.getElement("geotransform");
+
+                    double easting = geotransform.getAttributeDouble("geotransform1");
+                    double northing = geotransform.getAttributeDouble("geotransform4");
+                    double pixelSizeX = image.getAttributeDouble("pixel_spacing_column");
+                    double pixelSizeY = image.getAttributeDouble("pixel_spacing_row");
+
+                    final CoordinateReferenceSystem crs = CRS.parseWKT(coordinateSystem.getAttributeString("WKT"));
+                    CrsGeoCoding crsGeoCoding = new CrsGeoCoding(crs, product.getSceneRasterWidth(), product.getSceneRasterHeight(),
+                            easting, northing, pixelSizeX, pixelSizeY, 0, 0);
+                    product.setSceneGeoCoding(crsGeoCoding);
+                }
+            } catch (Exception e) {
+                SystemUtils.LOG.severe("unable to create geocoding");
+            }
         }
     }
 
