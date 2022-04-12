@@ -72,8 +72,8 @@ public class OilSpillDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(description = "Background window dimension (km)", defaultValue = "4.5", label = "Background Window Dimension (km)")
-    private double backgroundWindowDim = 4.5;
+    @Parameter(description = "Background window dimension (km)", defaultValue = "0.5", label = "Background Window Dimension (km)")
+    private double backgroundWindowDim = 0.5;
 
     @Parameter(description = "Threshold shift from background mean", defaultValue = "2.0", label = "Threshold Shift (dB)")
     private double k = 2.0;
@@ -265,22 +265,29 @@ public class OilSpillDetectionOp extends Operator {
             final ProductData srcBuffer = sourceTile.getDataBuffer();
             final Double noDataValue = sourceBand.getNoDataValue();
 
+            if(srcBuffer.getType() != ProductData.TYPE_FLOAT32) {
+                throw new OperatorException("Oil spill inputs should be calibrated");
+            }
+            float[] data = (float[])srcBuffer.getElems();
+            int dminX = tx0-x0, dminY = ty0-y0;
+            int dmaxX = w, dmaxY = h;
+
             final TileIndex trgIndex = new TileIndex(targetTile);
-            final TileIndex srcIndex = new TileIndex(sourceTile);    // src and trg tile are different size
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
-            for (int ty = ty0; ty < maxy; ty++) {
+
+            for (int ty = ty0, y = dminY; ty < maxy && y < dmaxY; ty++, y++) {
+                int ds = y * w;
                 trgIndex.calculateStride(ty);
-                srcIndex.calculateStride(ty);
-                for (int tx = tx0; tx < maxx; tx++) {
-                    final double v = srcBuffer.getElemDoubleAt(srcIndex.getIndex(tx));
+                for (int tx = tx0, x = dminX; tx < maxx && x < dmaxX; tx++, x++) {
+                    double v = data[x + ds];
                     if (noDataValue.equals(v)) {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 0);
                         continue;
                     }
 
-                    final double backgroundMean = computeBackgroundMean(tx, ty, sourceTile, noDataValue);
+                    final double backgroundMean = computeBackgroundMean(data, x, y, dmaxX, dmaxY, w, noDataValue);
                     if (backgroundMean != noDataValue && v < backgroundMean / kInLinearScale) {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 1);
                     } else {
@@ -296,27 +303,27 @@ public class OilSpillDetectionOp extends Operator {
     /**
      * Compute the mean value for pixels in a given sliding window.
      *
-     * @param tx          The x coordinate of the central point of the sliding window.
-     * @param ty          The y coordinate of the central point of the sliding window.
-     * @param sourceTile  The source image tile.
+     * @param x          The x coordinate of the central point of the sliding window.
+     * @param y          The y coordinate of the central point of the sliding window.
+     * @param maxX       max x of data
+     * @param maxX       max y of data
+     * @param width      width of data rect
      * @param noDataValue the place holder for no data
      * @return The mena value.
      */
-    private double computeBackgroundMean(final int tx, final int ty, final Tile sourceTile, final double noDataValue) {
+    private double computeBackgroundMean(float[] data, int x, int y, int maxX, int maxY, int width, final double noDataValue) {
 
-        final int x0 = Math.max(tx - halfBackgroundWindowSize, 0);
-        final int y0 = Math.max(ty - halfBackgroundWindowSize, 0);
-        final int xMax = Math.min(tx + halfBackgroundWindowSize, sourceImageWidth - 1);
-        final int yMax = Math.min(ty + halfBackgroundWindowSize, sourceImageHeight - 1);
-        final ProductData srcData = sourceTile.getDataBuffer();
-        final TileIndex tileIndex = new TileIndex(sourceTile);
+        final int x0 = Math.max(x - halfBackgroundWindowSize, 0);
+        final int y0 = Math.max(y - halfBackgroundWindowSize, 0);
+        final int xMax = Math.min(x + halfBackgroundWindowSize, maxX-1);
+        final int yMax = Math.min(y + halfBackgroundWindowSize, maxY-1);
 
         double mean = 0.0;
         int numPixels = 0;
-        for (int y = y0; y <= yMax; y++) {
-            tileIndex.calculateStride(y);
-            for (int x = x0; x <= xMax; x++) {
-                final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
+        for (int yy = y0; yy < yMax; yy++) {
+            int stride = yy * width;
+            for (int xx = x0; xx < xMax; xx++) {
+                double v = data[xx + stride];
                 if (v != noDataValue) {
                     mean += v;
                     numPixels++;
