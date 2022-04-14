@@ -44,6 +44,7 @@ import java.util.Map;
 public class InterferogramOpUI extends BaseOperatorUI {
 
     private final JCheckBox subtractFlatEarthPhaseCheckBox = new JCheckBox("Subtract flat-earth phase");
+    private final JCheckBox outputFlatEarthPhaseCheckBox = new JCheckBox("Output flat-earth phase");
     private final JCheckBox subtractTopographicPhaseCheckBox = new JCheckBox("Subtract topographic phase");
     private final JCheckBox includeCoherenceCheckBox = new JCheckBox("Include coherence estimation");
     private final JCheckBox squarePixelCheckBox = new JCheckBox("Square Pixel");
@@ -56,7 +57,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
 
     private final JComboBox<Integer> srpPolynomialDegreeStr = new JComboBox(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8});
     private final JComboBox<Integer> srpNumberPointsStr = new JComboBox(new Integer[]{301, 401, 501, 601, 701, 801, 901, 1001});
-    private final JComboBox<Integer> orbitDegreeStr = new JComboBox(new Integer[]{1, 2, 3, 4, 5});
+    private final JComboBox<Integer> orbitDegreeStr = new JComboBox(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
 
     private static final JLabel cohWinAzLabel = new JLabel("Coherence Azimuth Window Size");
     private static final JLabel cohWinRgLabel = new JLabel("Coherence Range Window Size");
@@ -65,6 +66,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
     private static final JLabel orbitDegreeStrLabel = new JLabel("Orbit interpolation degree");
 
     private Boolean subtractFlatEarthPhase = false;
+    private Boolean outputFlatEarthPhase = false;
     private Boolean includeCoherence = true;
     private Boolean squarePixel = true;
     private final CoherenceOp.DerivedParams param = new CoherenceOp.DerivedParams();
@@ -103,11 +105,19 @@ public class InterferogramOpUI extends BaseOperatorUI {
                     srpPolynomialDegreeStr.setEnabled(true);
                     srpNumberPointsStr.setEnabled(true);
                     orbitDegreeStr.setEnabled(true);
+                    outputFlatEarthPhaseCheckBox.setEnabled(true);
                 } else {
                     srpPolynomialDegreeStr.setEnabled(false);
                     srpNumberPointsStr.setEnabled(false);
                     orbitDegreeStr.setEnabled(false);
+                    outputFlatEarthPhaseCheckBox.setEnabled(false);
                 }
+            }
+        });
+
+        outputFlatEarthPhaseCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputFlatEarthPhase = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -232,6 +242,13 @@ public class InterferogramOpUI extends BaseOperatorUI {
             subtractFlatEarthPhaseCheckBox.setSelected(subtractFlatEarthPhase);
         }
 
+        paramVal = (Boolean) paramMap.get("outputFlatEarthPhase");
+        if (paramVal != null) {
+            outputFlatEarthPhase = paramVal;
+        }
+        outputFlatEarthPhaseCheckBox.setSelected(outputFlatEarthPhase);
+        outputFlatEarthPhaseCheckBox.setEnabled(subtractFlatEarthPhase);
+
         srpPolynomialDegreeStr.setSelectedItem(paramMap.get("srpPolynomialDegree"));
         srpNumberPointsStr.setSelectedItem(paramMap.get("srpNumberPoints"));
         orbitDegreeStr.setSelectedItem(paramMap.get("orbitDegree"));
@@ -339,6 +356,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
             paramMap.put("srpPolynomialDegree", srpPolynomialDegreeStr.getSelectedItem());
             paramMap.put("srpNumberPoints", srpNumberPointsStr.getSelectedItem());
             paramMap.put("orbitDegree", orbitDegreeStr.getSelectedItem());
+            paramMap.put("OUTPUT_PHASE", outputFlatEarthPhase);
         }
 
         paramMap.put("subtractTopographicPhase", subtractTopographicPhase);
@@ -377,6 +395,10 @@ public class InterferogramOpUI extends BaseOperatorUI {
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
         contentPane.add(subtractFlatEarthPhaseCheckBox, gbc);
+
+        gbc.gridy++;
+        contentPane.add(outputFlatEarthPhaseCheckBox, gbc);
+        outputFlatEarthPhaseCheckBox.setEnabled(false);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, srpPolynomialDegreeStrLabel, srpPolynomialDegreeStr);

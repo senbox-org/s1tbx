@@ -72,6 +72,9 @@ public class InterferogramOp extends Operator {
     @Parameter(defaultValue = "true", label = "Subtract flat-earth phase")
     private boolean subtractFlatEarthPhase = true;
 
+    @Parameter(defaultValue = "false", label = "Output flat-earth phase")
+    private boolean OUTPUT_PHASE = false;
+    
     @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8"},
             description = "Order of 'Flat earth phase' polynomial",
             defaultValue = "5",
@@ -84,7 +87,7 @@ public class InterferogramOp extends Operator {
             label = "Number of \"Flat Earth\" estimation points")
     private int srpNumberPoints = 501;
 
-    @Parameter(valueSet = {"1", "2", "3", "4", "5"},
+    @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
             description = "Degree of orbit (polynomial) interpolator",
             defaultValue = "3",
             label = "Orbit interpolation degree")
@@ -139,7 +142,7 @@ public class InterferogramOp extends Operator {
 
     @Parameter(defaultValue = "false", label = "Output Lat/Lon")
     private boolean outputLatLon = false;
-
+    
     // flat_earth_polynomial container
     private Map<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
     private boolean flatEarthEstimated = false;
@@ -173,7 +176,6 @@ public class InterferogramOp extends Operator {
     private MetadataElement mstRoot = null;
 
     private static final boolean CREATE_VIRTUAL_BAND = true;
-    private static final boolean OUTPUT_PHASE = false;
     private static final String PRODUCT_SUFFIX = "_Ifg";
     private static final String FLAT_EARTH_PHASE = "flat_earth_phase";
     private static final String TOPO_PHASE = "topo_phase";
