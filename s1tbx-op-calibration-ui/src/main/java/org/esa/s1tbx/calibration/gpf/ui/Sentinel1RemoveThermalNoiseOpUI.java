@@ -37,8 +37,10 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
 
     private final JList<String> polList = new JList<>();
     private final JCheckBox removeThermalNoiseCheckBox = new JCheckBox("Remove Thermal Noise");
+    private final JCheckBox outputNoiseCheckBox = new JCheckBox("Output Noise");
     private final JCheckBox reIntroduceThermalNoiseCheckBox = new JCheckBox("Re-Introduce Thermal Noise");
     private boolean removeThermalNoise = false;
+    private boolean outputNoise = false;
     private boolean reIntroduceThermalNoise = false;
 
     @Override
@@ -54,9 +56,12 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
                 if (removeThermalNoise) {
                     reIntroduceThermalNoise = false;
                     reIntroduceThermalNoiseCheckBox.setSelected(false);
+                    outputNoiseCheckBox.setEnabled(true);
                 } else {
                     reIntroduceThermalNoise = true;
                     reIntroduceThermalNoiseCheckBox.setSelected(true);
+                    outputNoiseCheckBox.setEnabled(false);
+                    outputNoiseCheckBox.setSelected(false);
                 }
             }
         });
@@ -67,10 +72,19 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
                 if (reIntroduceThermalNoise) {
                     removeThermalNoise = false;
                     removeThermalNoiseCheckBox.setSelected(false);
+                    outputNoiseCheckBox.setEnabled(false);
+                    outputNoiseCheckBox.setSelected(false);
                 } else {
                     removeThermalNoise = true;
                     removeThermalNoiseCheckBox.setSelected(true);
+                    outputNoiseCheckBox.setEnabled(true);
                 }
+            }
+        });
+
+        outputNoiseCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputNoise = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -100,6 +114,12 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
             reIntroduceThermalNoise = paramVal;
             reIntroduceThermalNoiseCheckBox.setSelected(reIntroduceThermalNoise);
         }
+
+        paramVal = (Boolean) paramMap.get("outputNoise");
+        if (paramVal != null) {
+            outputNoise = paramVal;
+            outputNoiseCheckBox.setSelected(outputNoise);
+        }
     }
 
     @Override
@@ -114,6 +134,7 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
 
         paramMap.put("removeThermalNoise", removeThermalNoise);
         paramMap.put("reIntroduceThermalNoise", reIntroduceThermalNoise);
+        paramMap.put("outputNoise", outputNoise);
     }
 
     private JComponent createPanel() {
@@ -126,7 +147,10 @@ public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
         gbc.gridx = 0;
         gbc.gridy++;
         contentPane.add(removeThermalNoiseCheckBox, gbc);
+        gbc.gridx = 1;
+        contentPane.add(outputNoiseCheckBox, gbc);
 
+        gbc.gridx = 0;
         gbc.gridy++;
         contentPane.add(reIntroduceThermalNoiseCheckBox, gbc);
 

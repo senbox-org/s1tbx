@@ -70,6 +70,9 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     @Parameter(description = "Remove thermal noise", defaultValue = "true", label = "Remove Thermal Noise")
     private Boolean removeThermalNoise = true;
 
+    @Parameter(description = "Output noise", defaultValue = "false", label = "Output Noise")
+    private Boolean outputNoise = false;
+
     @Parameter(description = "Re-introduce thermal noise", defaultValue = "false", label = "Re-Introduce Thermal Noise")
     private Boolean reIntroduceThermalNoise = false;
 
@@ -437,24 +440,26 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         }
 
         // add target noise band
-        for (String targetBandName : targetBandNameToSourceBandName.keySet()) {
-            final Band targetBand = targetProduct.getBand(targetBandName);
-            final String targetNoiseBandName = createTargetNoiseBandName(targetBandName);
-            if (targetProduct.getBand(targetNoiseBandName) == null) {
+        if (outputNoise) {
+            for (String targetBandName : targetBandNameToSourceBandName.keySet()) {
+                final Band targetBand = targetProduct.getBand(targetBandName);
+                final String targetNoiseBandName = createTargetNoiseBandName(targetBandName);
+                if (targetProduct.getBand(targetNoiseBandName) == null) {
 
-                targetNoiseBandNameToImageBandName.put(targetNoiseBandName, targetBandName);
+                    targetNoiseBandNameToImageBandName.put(targetNoiseBandName, targetBandName);
 
-                final Band targetNoiseBand = new Band(
-                        targetNoiseBandName,
-                        ProductData.TYPE_FLOAT32,
-                        targetBand.getRasterWidth(),
-                        targetBand.getRasterHeight());
+                    final Band targetNoiseBand = new Band(
+                            targetNoiseBandName,
+                            ProductData.TYPE_FLOAT32,
+                            targetBand.getRasterWidth(),
+                            targetBand.getRasterHeight());
 
-                targetNoiseBand.setUnit(Unit.DB);
-                targetNoiseBand.setDescription(targetBand.getDescription());
-                targetNoiseBand.setNoDataValue(targetBand.getNoDataValue());
-                targetNoiseBand.setNoDataValueUsed(true);
-                targetProduct.addBand(targetNoiseBand);
+                    targetNoiseBand.setUnit(Unit.DB);
+                    targetNoiseBand.setDescription(targetBand.getDescription());
+                    targetNoiseBand.setNoDataValue(targetBand.getNoDataValue());
+                    targetNoiseBand.setNoDataValueUsed(true);
+                    targetProduct.addBand(targetNoiseBand);
+                }
             }
         }
     }
