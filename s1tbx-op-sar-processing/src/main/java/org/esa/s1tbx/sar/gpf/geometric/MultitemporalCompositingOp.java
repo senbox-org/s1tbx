@@ -139,15 +139,15 @@ public class MultitemporalCompositingOp extends Operator {
                 final String srcBandName = srcBand.getName();
                 if(srcBandName.contains(targetBandName)) {
                     sourceBandList.add(srcBand);
-                    final Band simImgBand = getSimulatedImageBand(srcBandName);
-                    if (simImgBand == null) {
-                        throw new OperatorException("Simulated image band not found for source band " + srcBandName);
-                    }
-                    if (!simImgBandList.contains(simImgBand)) {
-                        simImgBandList.add(simImgBand);
-                    }
+                } else if (srcBandName.contains(SIMULATED_IMAGE)) {
+                    simImgBandList.add(srcBand);
                 }
             }
+
+            if (sourceBandList.size() != simImgBandList.size()) {
+                throw new OperatorException("Source bands and Simulated image bands do not match");
+            }
+
             final Band[] sourceBands = sourceBandList.toArray(new Band[0]);
             final Band[] simImgBands = simImgBandList.toArray(new Band[0]);
             final int numSourceBands = sourceBands.length;
