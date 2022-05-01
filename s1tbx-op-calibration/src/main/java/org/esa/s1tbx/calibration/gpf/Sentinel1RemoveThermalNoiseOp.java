@@ -85,6 +85,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean inputGammaBand = false;
     private boolean inputDNBand = false;
     private boolean isTOPSARSLC = false;
+    private boolean isSM = false;
     private String productType = null;
     private int numOfSubSwath = 1;
     private int subsetOffsetX = 0;
@@ -201,6 +202,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final String imageName = annotationDataSetListElem[0].getName();
         isTOPS = mode.contains("IW") || mode.contains("EW");
         isGRD = productType.contains("GRD");
+        isSM = mode.contains("SM");
     }
 
     /**
@@ -540,7 +542,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private double[][] populateNoiseAzimuthBlock(
             final int x0, final int y0, final int w, final int h, final String targetBandName) {
 
-        if (version >= 2.9) {
+        if (version >= 2.9 && !isSM) {
             final TimeMaps timeMaps = new TimeMaps();
 
             if (isGRD) {
@@ -588,7 +590,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         try {
             double[][] noiseBlock = null;
-            if (version >= 2.9) {
+            if (version >= 2.9 && !isSM) {
                 noiseBlock = populateNoiseAzimuthBlock(sx0, sy0, w, h, targetBandName);
             }
 
@@ -654,7 +656,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
                     final int pixelIdx0 = calVec.getPixelIndex(sx0);
 
-                    if (version < 2.9) {
+                    if (version < 2.9 || isSM) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
                         computeTileScaledNoiseLUT(sy, sx0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
                                 vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
@@ -664,7 +666,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     }
 
                 } else {
-                    if (version < 2.9) {
+                    if (version < 2.9 || isSM) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
                         computeTileNoiseLUT(sy, sx0, w, noiseInfo, lut);
                     } else {
@@ -723,7 +725,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         try {
             final String targetBandName = targetNoiseBandNameToImageBandName.get(targetNoiseBandName);
             double[][] noiseBlock = null;
-            if (version >= 2.9) {
+            if (version >= 2.9 && !isSM) {
                 noiseBlock = populateNoiseAzimuthBlock(sx0, sy0, w, h, targetBandName);
             }
 
@@ -754,7 +756,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
                     final int pixelIdx0 = calVec.getPixelIndex(sx0);
 
-                    if (version < 2.9) {
+                    if (version < 2.9 || isSM) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
                         computeTileScaledNoiseLUT(sy, sx0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
                                 vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
@@ -764,7 +766,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     }
 
                 } else {
-                    if (version < 2.9) {
+                    if (version < 2.9 || isSM) {
                         final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
                         computeTileNoiseLUT(sy, sx0, w, noiseInfo, lut);
                     } else {
@@ -930,7 +932,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @param lut       The noise LUT.
      */
     private static void computeTileNoiseLUT(final int y, final int x0, final int w,
-                                     final ThermalNoiseInfo noiseInfo, final double[] lut) {
+                                            final ThermalNoiseInfo noiseInfo, final double[] lut) {
         try {
             final int noiseVecIdx = getNoiseVectorIndex(y, noiseInfo);
             final Sentinel1Utils.NoiseVector noiseVector0 = noiseInfo.noiseVectorList[noiseVecIdx];
