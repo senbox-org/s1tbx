@@ -7,8 +7,8 @@
       <file></file>
     </parameters>
   </node>
-  <node id="MultiReferenceStackGenerator">
-    <operator>MultiReferenceStackGenerator</operator>
+  <node id="MultiMasterStackGenerator">
+    <operator>MultiMasterStackGenerator</operator>
     <sources>
       <sourceProduct refid="Read"/>
     </sources>
@@ -21,7 +21,7 @@
     <node id="Read">
             <displayPosition x="37.0" y="134.0"/>
     </node>
-    <node id="MultiReferenceStackGenerator">
+    <node id="MultiMasterStackGenerator">
       <displayPosition x="140.0" y="133.0"/>
     </node>
   </applicationData>

@@ -111,7 +111,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Split stack into multiple references"/>
-                <attr name="graphFile" stringvalue="coregistration/MultiReferenceStackGenerator.xml"/>
+                <attr name="graphFile" stringvalue="coregistration/MultiMasterStackGenerator.xml"/>
                 <attr name="dialogTitle" stringvalue="Split stack into multiple references"/>
                 <attr name="ShortDescription" stringvalue="Split stack into multiple references"/>
                 <attr name="targetProductNameSuffix" stringvalue="_pca"/>
