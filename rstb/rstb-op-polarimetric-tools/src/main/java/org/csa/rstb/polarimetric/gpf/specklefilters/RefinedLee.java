@@ -77,8 +77,20 @@ public class RefinedLee implements PolarimetricSpeckleFilter {
                 subWindowSize = 5;
                 stride = 3;
                 break;
+            case 13:
+                subWindowSize = 5;
+                stride = 4;
+                break;
+            case 15:
+                subWindowSize = 7;
+                stride = 4;
+                break;
+            case 17:
+                subWindowSize = 7;
+                stride = 5;
+                break;
             default:
-                throw new OperatorException("Unknown window size: " + filterSize);
+                throw new OperatorException("Refined Lee filter supports windows size of 5, 7, 9, 11, 13, 15 and 17");
         }
 
         convSize = filterSize * (halfFilterSize + 1);
