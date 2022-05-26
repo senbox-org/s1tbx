@@ -55,8 +55,9 @@ public class RCMProductDirectory extends XMLProductDirectory {
 
     private String productName = RCMConstants.MISSION;
     private String productType = RCMConstants.MISSION;
-    private final String productDescription = "";
+    private boolean isMLC = false;
 
+    private final String productDescription = "";
     private static final GeoTiffProductReaderPlugIn geotiffPlugIn = new GeoTiffProductReaderPlugIn();
     private final List<Product> bandProducts = new ArrayList<>();
     private final Map<String, String> polarizationMap = new HashMap<>(4);
@@ -143,31 +144,32 @@ public class RCMProductDirectory extends XMLProductDirectory {
         final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
         final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
 
-        final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
-        for (String key : keys) {
-            final ImageIOFile img = bandImageFileMap.get(key);
-            String name = img.getName().toLowerCase();
-            if(name.contains("/")) {
-                name = name.substring(name.lastIndexOf("/")+1);
-            }
+        if (isMLC) {
+            addC2Bands(product, width, height);
+        } else {
+            final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
+            for (String key : keys) {
+                final ImageIOFile img = bandImageFileMap.get(key);
+                final String name = getImageName(img);
 
-            for (int i = 0; i < img.getNumImages(); ++i) {
-                try {
-                    if (name.contains("_hh")) {
-                        addBand(product, img, width, height, "HH");
-                    } else if (name.contains("_hv")) {
-                        addBand(product, img, width, height, "HV");
-                    } else if (name.contains("_vv")) {
-                        addBand(product, img, width, height, "VV");
-                    } else if (name.contains("_vh")) {
-                        addBand(product, img, width, height, "VH");
-                    } else if (name.contains("_ch")) {
-                        addBand(product, img, width, height, "RCH");
-                    } else if (name.contains("_cv")) {
-                        addBand(product, img, width, height, "RCV");
+                for (int i = 0; i < img.getNumImages(); ++i) {
+                    try {
+                        if (name.contains("_hh")) {
+                            addBand(product, img, width, height, "HH");
+                        } else if (name.contains("_hv")) {
+                            addBand(product, img, width, height, "HV");
+                        } else if (name.contains("_vv")) {
+                            addBand(product, img, width, height, "VV");
+                        } else if (name.contains("_vh")) {
+                            addBand(product, img, width, height, "VH");
+                        } else if (name.contains("_ch")) {
+                            addBand(product, img, width, height, "RCH");
+                        } else if (name.contains("_cv")) {
+                            addBand(product, img, width, height, "RCV");
+                        }
+                    } catch (IOException e) {
+                        SystemUtils.LOG.severe("Unable to read band " + name +" "+ e);
                     }
-                } catch (IOException e) {
-                    SystemUtils.LOG.severe("Unable to read band " + name +" "+ e);
                 }
             }
         }
@@ -188,6 +190,44 @@ public class RCMProductDirectory extends XMLProductDirectory {
                 break;
             }
         }
+    }
+
+    private void addC2Bands(final Product product, final int width, final int height) {
+
+        final ImageIOFile imgCH = getImageFile("_ch");
+        final ImageIOFile imgCX = getImageFile("_xc");
+        final ImageIOFile imgCV = getImageFile("_cv");
+
+        try {
+            addBand(product, "C11", width, height, imgCH, 0, Unit.INTENSITY);
+            addBand(product, "C12_real", width, height, imgCX, 0, Unit.REAL);
+            addBand(product, "C12_imag", width, height, imgCX, 1, Unit.IMAGINARY);
+            addBand(product, "C22", width, height, imgCV, 0, Unit.INTENSITY);
+        } catch (IOException e) {
+            SystemUtils.LOG.severe("Unable to read some band of this MLC product " + e);
+        }
+    }
+
+    private ImageIOFile getImageFile(final String pol) {
+
+        final Set<String> keys = bandImageFileMap.keySet();
+        for (String key : keys) {
+            final ImageIOFile img = bandImageFileMap.get(key);
+            String name = getImageName(img);
+            if(name.contains(pol)) {
+                return img;
+            }
+        }
+        return null;
+    }
+
+    private String getImageName(final ImageIOFile img) {
+
+        String name = img.getName().toLowerCase();
+        if (name.contains("/")) {
+            name = name.substring(name.lastIndexOf("/") + 1);
+        }
+        return name;
     }
 
     private void addBand(final Product product, final ImageIOFile img, final int width, final int height,
@@ -290,6 +330,7 @@ public class RCMProductDirectory extends XMLProductDirectory {
         if(productType.equals("SLC") || productType.equals("GRC")) {
             setSLC(true);
         }
+        isMLC = productType.equals("MLC");
 
         final MetadataElement imageReferenceAttributes = productElem.getElement("imageReferenceAttributes");
         final MetadataElement sceneAttributes = productElem.getElement("sceneAttributes");
