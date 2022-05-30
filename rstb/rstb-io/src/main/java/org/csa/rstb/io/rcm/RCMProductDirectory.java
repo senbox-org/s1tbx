@@ -327,10 +327,10 @@ public class RCMProductDirectory extends XMLProductDirectory {
 
         productType = generalProcessingInformation.getAttributeString("productType");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-        if(productType.equals("SLC") || productType.equals("GRC")) {
+        isMLC = productType.equals("MLC");
+        if(productType.equals("SLC") || productType.equals("GRC") || isMLC) {
             setSLC(true);
         }
-        isMLC = productType.equals("MLC");
 
         final MetadataElement imageReferenceAttributes = productElem.getElement("imageReferenceAttributes");
         final MetadataElement sceneAttributes = productElem.getElement("sceneAttributes");
