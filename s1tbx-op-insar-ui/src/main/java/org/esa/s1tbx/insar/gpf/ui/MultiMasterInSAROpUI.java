@@ -472,17 +472,19 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
         if (hasSourceProducts()) {
             final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            final MetadataElement baselinesElem = abs.getElement("Baselines");
-            final MetadataElement referenceElem = baselinesElem.getElements()[0];
+            if(abs.containsElement("Baselines")) {
+                final MetadataElement baselinesElem = abs.getElement("Baselines");
+                final MetadataElement referenceElem = baselinesElem.getElements()[0];
 
-            final MetadataElement[] secondariesElem = referenceElem.getElements();
-            final double[][] metadata = new double[secondariesElem.length][3];
-            for (int i = 0; i < secondariesElem.length; i++) {
-                metadata[i][0] = -secondariesElem[i].getAttributeDouble("Temp Baseline");
-                metadata[i][1] = secondariesElem[i].getAttributeDouble("Doppler Difference");
-                metadata[i][2] = secondariesElem[i].getAttributeDouble("Perp Baseline");
+                final MetadataElement[] secondariesElem = referenceElem.getElements();
+                final double[][] metadata = new double[secondariesElem.length][3];
+                for (int i = 0; i < secondariesElem.length; i++) {
+                    metadata[i][0] = -secondariesElem[i].getAttributeDouble("Temp Baseline");
+                    metadata[i][1] = secondariesElem[i].getAttributeDouble("Doppler Difference");
+                    metadata[i][2] = secondariesElem[i].getAttributeDouble("Perp Baseline");
+                }
+                return metadata;
             }
-            return metadata;
         }
         return null;
     }
@@ -491,14 +493,16 @@ public class MultiMasterInSAROpUI extends BaseOperatorUI {
 
         if (hasSourceProducts()) {
             final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
-            final MetadataElement baselinesElem = abs.getElement("Baselines");
-            final MetadataElement referenceElem = baselinesElem.getElements()[0];
+            if(abs.containsElement("Baselines")) {
+                final MetadataElement baselinesElem = abs.getElement("Baselines");
+                final MetadataElement referenceElem = baselinesElem.getElements()[0];
 
-            final String[] secondariesNames = referenceElem.getElementNames();
-            for (int i = 0; i < secondariesNames.length; i++) {
-                secondariesNames[i] = secondariesNames[i].substring(7);
+                final String[] secondariesNames = referenceElem.getElementNames();
+                for (int i = 0; i < secondariesNames.length; i++) {
+                    secondariesNames[i] = secondariesNames[i].substring(7);
+                }
+                return secondariesNames;
             }
-            return secondariesNames;
         }
         return null;
     }
