@@ -47,6 +47,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
     private final JCheckBox outputGamma0CheckBox = new JCheckBox("Output Terrain Flattened Gamma0");
     private final JCheckBox outputSigma0CheckBox = new JCheckBox("Output Terrain Flattened Sigma0");
+    private final JCheckBox nodataValueAtSeaCheckBox = new JCheckBox("Mask out areas without elevation");
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JTextField externalDEMFile = new JTextField("");
@@ -60,6 +61,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private Boolean externalDEMApplyEGM = false;
     private Boolean outputSimulatedImage = false;
     private Boolean outputSigma0 = false;
+    private Boolean nodataValueAtSea = true;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
@@ -115,6 +117,12 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
             }
         });
 
+        nodataValueAtSeaCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                nodataValueAtSea = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
         return new JScrollPane(panel);
     }
 
@@ -146,6 +154,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         externalDEMApplyEGMCheckBox.setSelected(externalDEMApplyEGM);
         outputSimulatedImageCheckBox.setSelected(outputSimulatedImage);
         outputSigma0CheckBox.setSelected(outputSigma0);
+        nodataValueAtSeaCheckBox.setSelected(nodataValueAtSea);
 
         additionalOverlap.setText(String.valueOf(paramMap.get("additionalOverlap")));
         oversamplingMultiple.setText(String.valueOf(paramMap.get("oversamplingMultiple")));
@@ -174,6 +183,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         paramMap.put("externalDEMApplyEGM", externalDEMApplyEGM);
         paramMap.put("outputSimulatedImage", outputSimulatedImage);
         paramMap.put("outputSigma0", outputSigma0);
+        paramMap.put("nodataValueAtSea", nodataValueAtSea);
 
         final String additionalOverlapStr = additionalOverlap.getText();
         if (additionalOverlapStr != null && !additionalOverlapStr.isEmpty()) {
@@ -217,6 +227,9 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         contentPane.add(outputSimulatedImageCheckBox, gbc);
         gbc.gridx = 1;
         contentPane.add(outputSigma0CheckBox, gbc);
+        gbc.gridy++;
+        gbc.gridx = 0;
+        contentPane.add(nodataValueAtSeaCheckBox, gbc);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Additional Overlap Percentage[0,1]:", additionalOverlap);
         gbc.gridy++;
