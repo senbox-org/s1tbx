@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ceos version="1.0" mission="strix">
+    <rec name="skipBytes" type="0" num="8"/> <!-- skip header -->
+    <!--rec name="Record Number" type="4" num="1"/>
+    <rec name="First Record Subtype" type="3" num="1"/>
+    <rec name="Record Type Code" type="3" num="1"/>
+    <rec name="Second Record Subtype" type="3" num="1"/>
+    <rec name="Third Record Subtype" type="3" num="1"/-->
+    <rec name="Record Length" type="4" num="1"/>
+
+    <rec name="Ascii code character" type="1" num="2"/>
+    <rec name="skipBytes" type="0" num="2"/>
+    <rec name="File Pointer Number" type="2" num="4"/> <!--Reference File Number for StriX-->
+    <rec name="File ID" type="1" num="16"/> <!--Reference File ID for StriX-->
+    <rec name="File class" type="1" num="28"/> <!--Reference File class for StriX-->
+    <rec name="File class code" type="1" num="4"/> <!--Reference File class code for StriX-->
+    <rec name="File datatype" type="1" num="28"/> <!--Reference File datatype for StriX-->
+    <rec name="File datatype Code" type="1" num="4"/> <!--Reference File datatype code for StriX-->
+    <rec name="Number of records" type="2" num="8"/> <!--Number of records in reference file for StriX-->
+    <rec name="FirstRecordLength in reference file" type="2" num="8"/> <!-- FirstRecordLength in reference file for StriX-->
+    <rec name="MaxRecordLength in reference file" type="2" num="8"/> <!-- MaxRecordLength in reference file for StriX-->
+    <rec name="RecordLengthType" type="1" num="12"/> <!-- RecordLengthType of reference file for StriX-->
+    <rec name="RecordLengthTypeCode" type="1" num="4"/> <!-- RecordLengthTypeCode of reference file for StriX-->
+    <rec name="FirstRecordVolumeNumber" type="2" num="2"/>
+    <rec name="FinalRecordVolumeNumber" type="2" num="2"/>
+    <rec name="ReferencedFilePortionStart" type="2" num="8"/>
+    <rec name="ReferencedFilePortionEnd" type="2" num="8"/>
+    <rec name="skipBytes" type="0" num="200"/>
+</ceos>
