@@ -74,6 +74,7 @@ public abstract class CEOSProductDirectory {
         binaryReader.close();
 
         productType = volumeDirectoryFile.getProductType();
+        System.out.println(productType);
         if (null == productType || productType.equals("unknown"))
             throw new IOException("Unable to read level 0 product");
 

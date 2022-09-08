@@ -31,7 +31,7 @@ import java.io.File;
  */
 public class TestIceyeReader extends ReaderTest {
 
-    public static final String TESTING_IMAGE_PATH = "/home/ahmad/Documents/Projects/snap/test";
+    public static final String TESTING_IMAGE_PATH = "/home/kobis/Downloads/ICEYE_Strip_Example_SAR_Dataset_Singapore_Strait_12_2021_Image_2";
 
     private final static String inputIceyeFolder = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "Iceye" + S1TBXTests.sep ;
     private final static File[] iceyeSLCFiles = S1TBXTests.loadFilePath(inputIceyeFolder + "SLC");

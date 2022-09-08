@@ -73,7 +73,7 @@
 		<module>snap_iceye_reader</module>
         
         <module>s1tbx-kit</module>
-	</modules>
+    </modules>
 	
     <organization>
         <name>SkyWatch Space Applications Inc.</name>
