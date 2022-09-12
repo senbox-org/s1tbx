@@ -47,7 +47,7 @@ public class CeosRecordHeader {
         } catch (Exception e) {
             System.out.println("CeosRecordHeader " + e.toString() + ':' +e.getCause().toString());
         }
-        System.out.println("\nrec "+recordNum+" type "+recordTypeCode+" length "+recordLength);
+        //System.out.println("\nrec "+recordNum+" type "+recordTypeCode+" length "+recordLength);
 
         // reset to start pos
         reader.seek(startPos);
