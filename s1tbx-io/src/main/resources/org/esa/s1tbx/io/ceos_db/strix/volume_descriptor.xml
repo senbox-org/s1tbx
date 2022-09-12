@@ -29,7 +29,7 @@
     <rec name="Logical volume preparation country" type="1" num="12"/>
     <rec name="Logical volume preparing agency" type="1" num="8"/>
     <rec name="Logical volume preparing facility" type="1" num="12"/>
-    <rec name="Number of file pointer records" type="2" num="4"/>
+    <rec name="Number of filepointer records" type="2" num="4"/>
     <rec name="Number of records" type="2" num="4"/>
     <rec name="Volume descriptor spare area" type="0" num="92"/>
     <rec name="skipBytes" type="0" num="100"/>
