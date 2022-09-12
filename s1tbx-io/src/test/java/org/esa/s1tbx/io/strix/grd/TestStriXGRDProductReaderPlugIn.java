@@ -1,15 +1,15 @@
 
-package org.esa.s1tbx.io.synspective;
+package org.esa.s1tbx.io.strix.grd;
 
 import org.esa.s1tbx.io.AbstractProductReaderPlugInTest;
 import org.esa.snap.core.dataio.ProductReader;
 import org.junit.Test;
 
 
-import static org.esa.s1tbx.io.synspective.TestStriXGRDProductReader.inputSLGGRDMeta;
-import static org.esa.s1tbx.io.synspective.TestStriXGRDProductReader.inputSLGRDFolder;
-import static org.esa.s1tbx.io.synspective.TestStriXGRDProductReader.inputSMGGRDMeta;
-import static org.esa.s1tbx.io.synspective.TestStriXGRDProductReader.inputSMGRDFolder;
+import static org.esa.s1tbx.io.strix.grd.TestStriXGRDProductReader.inputSLGRDMeta;
+import static org.esa.s1tbx.io.strix.grd.TestStriXGRDProductReader.inputSLGRDFolder;
+import static org.esa.s1tbx.io.strix.grd.TestStriXGRDProductReader.inputSMGRDMeta;
+import static org.esa.s1tbx.io.strix.grd.TestStriXGRDProductReader.inputSMGRDFolder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -49,10 +49,10 @@ public class TestStriXGRDProductReaderPlugIn extends AbstractProductReaderPlugIn
 
     @Test
     public void testValidDecodeQualification() {
-        isValidDecodeQualification(inputSMGGRDMeta);
+        isValidDecodeQualification(inputSMGRDMeta);
         isValidDecodeQualification(inputSMGRDFolder);
 
-        isValidDecodeQualification(inputSLGGRDMeta);
+        isValidDecodeQualification(inputSLGRDMeta);
         isValidDecodeQualification(inputSLGRDFolder);
     }
 }

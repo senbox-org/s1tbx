@@ -1,5 +1,5 @@
 
-package org.esa.s1tbx.io.synspective;
+package org.esa.s1tbx.io.strix.grd;
 
 import org.esa.s1tbx.commons.io.S1TBXFileFilter;
 import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
@@ -18,8 +18,8 @@ import java.util.Locale;
  */
 public class StriXGRDProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
-    private static final String PRODUCT_FORMAT = "StriX";
-    private final static String PLUGIN_DESCRIPTION = "Synspective StriX Product Format";
+    private static final String PRODUCT_FORMAT = "StriX GRD";
+    private final static String PLUGIN_DESCRIPTION = "Synspective StriX GRD Product Format";
 
     private static final String[] PRODUCT_PREFIX = new String[] {"PAR-"};
     private static final String PRODUCT_EXT = ".xml";

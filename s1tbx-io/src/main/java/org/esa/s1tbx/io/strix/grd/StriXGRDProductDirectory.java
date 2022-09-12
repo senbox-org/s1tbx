@@ -1,5 +1,5 @@
 
-package org.esa.s1tbx.io.synspective;
+package org.esa.s1tbx.io.strix.grd;
 
 import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.commons.io.SARReader;

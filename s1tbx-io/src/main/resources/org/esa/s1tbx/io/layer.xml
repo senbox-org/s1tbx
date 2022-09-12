@@ -202,6 +202,15 @@
                 <attr name="helpId" stringvalue="importUAVSAR"/>
                 <attr name="ShortDescription" stringvalue="Import a UAVSAR Product"/>
             </file>
+            <file name="org-esa-s1tbx-io-importStriXGRD.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="StriX GRD"/>
+                <attr name="formatName" stringvalue="StriX GRD"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importStriX"/>
+                <attr name="ShortDescription" stringvalue="Open StriX GRD data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importStriX.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -312,6 +321,14 @@
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importSpacety.instance"/>
                         <attr name="position" intvalue="910"/>
                     </file>
+                    <file name="org-esa-s1tbx-io-importStriXGRD.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importStriXGRD.instance"/>
+                        <attr name="position" intvalue="950"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importStriX.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importStriX.instance"/>
+                        <attr name="position" intvalue="960"/>
+                    </file>
                     <file name="org-esa-s1tbx-io-importTerraSarXProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTerraSarXProduct.instance"/>
                         <attr name="position" intvalue="1000"/>
@@ -324,11 +341,6 @@
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importUAVSAR.instance"/>
                         <attr name="position" intvalue="1200"/>
                     </file>
-                    <file name="org-esa-s1tbx-io-importStriX.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importStriX.instance"/>
-                        <attr name="position" intvalue="1300"/>
-                    </file>
-
                 </folder>
                 <folder name="Generic Formats">
                     <!--file name="org-esa-s1tbx-io-importPCIDSK.shadow">
