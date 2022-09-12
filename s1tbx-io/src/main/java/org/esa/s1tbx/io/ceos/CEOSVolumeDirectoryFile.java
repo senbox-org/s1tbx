@@ -37,9 +37,9 @@ public class CEOSVolumeDirectoryFile implements CEOSFile {
     private final static String filePointerDefinitionFile = "file_pointer_record.xml";
     private final static String text_recordDefinitionFile = "text_record.xml";
 
-    private static Document volDescXML;
-    private static Document filePointerXML;
-    private static Document textRecXML;
+    private Document volDescXML;
+    private Document filePointerXML;
+    private Document textRecXML;
 
     public CEOSVolumeDirectoryFile(final BinaryFileReader binaryReader, final String mission) throws IOException {
         if (volDescXML == null)
