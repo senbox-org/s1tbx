@@ -29,9 +29,11 @@ public class StriXLeaderFile extends CEOSLeaderFile {
     private final static Document attitudeXML = BinaryDBReader.loadDefinitionFile(mission, attitude_recordDefinitionFile);
     private final static Document radiometricXML = BinaryDBReader.loadDefinitionFile(mission, radiometric_recordDefinitionFile);
     private final static Document dataQualityXML = BinaryDBReader.loadDefinitionFile(mission, dataQuality_recordDefinitionFile);
+
     public StriXLeaderFile(final ImageInputStream stream) throws IOException {
         this(stream, leaderXML);
     }
+
     public StriXLeaderFile(final ImageInputStream stream, final Document fdrXML) throws IOException {
 
         final BinaryFileReader reader = new BinaryFileReader(stream);
@@ -104,6 +106,7 @@ public class StriXLeaderFile extends CEOSLeaderFile {
         if (getProductLevel() == StriXConstants.LEVEL1_0)
             throw new IOException("StriX L0 products are not supported");
     }
+
     protected void readFacilityRelatedRecords(final BinaryFileReader reader) {
         for (int i = 0; i < leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
             try {
@@ -129,6 +132,7 @@ public class StriXLeaderFile extends CEOSLeaderFile {
             }
         }
     }
+
     public final int getProductLevel() {
         if (productLevel < 0) {
             String level = null;

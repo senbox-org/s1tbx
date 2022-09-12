@@ -42,19 +42,23 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 
     private float[] rangeDist;
     private boolean isProductIPF = false;
+
     public StriXProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
 
         constants = new StriXConstants();
         productDir = dir;
     }
+
     public int getProductLevel() {
         return leaderFile.getProductLevel();
     }
+
     @Override
     public CEOSImageFile getImageFile(final Band band) {
         return bandImageFileMap.get(band.getName());
     }
+
     @Override
     public void close() throws IOException {
         for (int i = 0; i < imageFiles.length; i++) {
@@ -63,6 +67,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         }
         imageFiles = null;
     }
+
     @Override
     protected void readProductDirectory() throws IOException {
         readVolumeDirectoryFileStream();
@@ -104,6 +109,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
             isProductSLC = true;
         }
     }
+
     @Override
     public Product createProduct() throws IOException {
         final Product product = new Product(getProductName(),
@@ -163,6 +169,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         updateMetadata(product);
         return product;
     }
+
     private Band createBand(final Product product, final String name, final String unit, final StriXImageFile imageFile) {
 
         final Band band = createBand(product, name, unit, imageFile.getBitsPerSample());
@@ -199,6 +206,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
             product.addTiePointGrid(incidentAngleGrid);
         }
     }
+
     private static void addTPGGeoCoding(final Product product, final double refLat, final double refLon) throws IOException {
 
         final int gridWidth = 11;
@@ -307,6 +315,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         product.addTiePointGrid(lonGrid);
         product.setSceneGeoCoding(tpGeoCoding);
     }
+
     /**
      * Compute accurate target geo position.
      *
@@ -332,6 +341,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 
         return geoPos;
     }
+
     private static boolean checkStateVectorValidity(OrbitStateVector[] orbitStateVectors) {
 
         if (orbitStateVectors == null) {
@@ -349,6 +359,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 
         return true;
     }
+
     /**
      * Get orbit information for given time.
      *
@@ -375,6 +386,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
                 Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc),
                 Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc));
     }
+
     private void addMetaData(final Product product) throws IOException {
         final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
 
@@ -404,6 +416,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 
         addAbstractedMetadataHeader(product);
     }
+
     private void addAbstractedMetadataHeader(final Product product) {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(product.getMetadataRoot());
@@ -600,6 +613,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
             return 0;
         return 1;
     }
+
     private ProductData.UTC getStartTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
                                          final String tagInSummary) {
         ProductData.UTC time = getUTCScanStartTime(sceneRec, null);
@@ -778,6 +792,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         }
         return time;
     }
+
 //    private static void addGeoCodingFromWorkReport(Product product) {
 //
 //        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -851,6 +866,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 //            }
 //        }
 //    }
+
     private static void addGeoCodingFromPixelToLatLonCoefficients(final Product product,
                                                                   final BinaryRecord facilityRecord) {
 
@@ -941,6 +957,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         product.addTiePointGrid(lonGrid);
         product.setSceneGeoCoding(tpGeoCoding);
     }
+
     private static void updateMetadata(final Product product) {
         final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) return;
@@ -972,6 +989,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 //            addSRGR(product);
 //        }
     }
+
     private String getProductName() {
         return getMission() + '-' + volumeDirectoryFile.getProductName();
     }
@@ -985,7 +1003,6 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         }
         return true;
     }
-
 
     protected void updateProductType() {
         String prodType = productType.toUpperCase();
@@ -1076,6 +1093,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
             }
         }
     }
+
     private static double[] computePolynomialCoefficients(
             double slantRangeToFirstPixel, double slantRangeToMidPixel, double slantRangeToLastPixel, int imageWidth) {
 
@@ -1089,6 +1107,7 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         final Matrix x = A.solve(b);
         return x.getColumnPackedCopy();
     }
+
     public boolean isSTRIX() throws IOException {
         final String volumeId = getVolumeId().toUpperCase();
         final String logicalVolumeId = getLogicalVolumeId().toUpperCase();
