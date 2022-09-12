@@ -57,6 +57,6 @@ public class TestStriXProductReader extends ReaderTest {
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
         validator.validateMetadata(options);
-        validator.validateBands(new String[] {"Amplitude_VV", "Intensity_VV"});
+        validator.validateBands(new String[] {"i_VV", "q_VV", "Intensity_VV"});
     }
 }
