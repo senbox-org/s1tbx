@@ -1,7 +1,6 @@
 package org.esa.s1tbx.io.strix;
 
 import org.esa.s1tbx.io.binary.BinaryDBReader;
-//import org.esa.s1tbx.io.strix.StriXLeaderFile;
 import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
@@ -13,6 +12,5 @@ public class StriXTrailerFile extends StriXLeaderFile {
 
     public StriXTrailerFile(final ImageInputStream stream) throws IOException {
         super(stream, trailerXML);
-
     }
 }

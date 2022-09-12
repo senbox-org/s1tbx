@@ -4,7 +4,6 @@ import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CeosRecordHeader;
-import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
 import org.esa.s1tbx.io.ceos.CEOSLeaderFile;
 import org.esa.snap.core.util.SystemUtils;
 import org.jdom2.Document;
