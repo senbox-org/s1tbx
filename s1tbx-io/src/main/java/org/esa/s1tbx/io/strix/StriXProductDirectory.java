@@ -99,11 +99,6 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 
         sceneWidth = imageFiles[0].getRasterWidth();
         sceneHeight = imageFiles[0].getRasterHeight();
-        for (final StriXImageFile imageFile : imageFiles) {
-            if (sceneWidth != imageFile.getRasterWidth() || sceneHeight != imageFile.getRasterHeight()) {
-                //throw new IOException("ALOS2 ScanSAR products are not currently supported.");
-            }
-        }
 
         if(leaderFile.getProductLevel() == StriXConstants.LEVEL1_1) {
             isProductSLC = true;
@@ -431,7 +426,9 @@ public class StriXProductDirectory extends CEOSProductDirectory {
 
         //mph
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, getProductType());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, getMode(productType));
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
                 sceneRec.getAttributeString("Product type descriptor"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
@@ -1004,12 +1001,22 @@ public class StriXProductDirectory extends CEOSProductDirectory {
         return true;
     }
 
-    protected void updateProductType() {
+    private void updateProductType() {
         String prodType = productType.toUpperCase();
         while (prodType.endsWith("A") || prodType.endsWith("D") || prodType.endsWith("U") || prodType.endsWith("_")) {
             prodType = prodType.substring(0, prodType.length() - 1);
         }
         productType = prodType;
+    }
+
+    private String getMode(final String productType) {
+        if(productType.contains("SM"))
+            return "StripMap";
+        else if(productType.contains("SL"))
+            return "Spotlight";
+        else if(productType.contains("SC"))
+            return "ScanSAR";
+        return "-";
     }
 
     public void readTiePointGridRasterData(final TiePointGrid tpg, Rectangle destRect, ProductData destBuffer, ProgressMonitor pm) {
