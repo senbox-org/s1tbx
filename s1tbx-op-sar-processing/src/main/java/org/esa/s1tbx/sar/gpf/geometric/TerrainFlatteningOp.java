@@ -809,7 +809,8 @@ public final class TerrainFlatteningOp extends Operator {
             final int yy = y - y0;
             tgtIndex.calculateStride(y);
             final double zeroDopplerTime = firstLineUTC + y*lineTimeInterval;
-            final double[] srgrCoeff = SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams);
+            final double[] srgrCoeff = isGRD && srgrConvParams != null ?
+                    SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams) : null;
 
             for (int x = x0; x < x0 + w; x++) {
                 final int xx = x - x0;
