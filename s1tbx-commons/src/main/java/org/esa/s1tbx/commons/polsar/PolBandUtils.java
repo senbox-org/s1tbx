@@ -509,7 +509,8 @@ public class PolBandUtils {
     }
 
     public static boolean useRCMConvention() {
-        String property = System.getProperty(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention", "true");
-        return Boolean.parseBoolean(property);
+//        String property = System.getProperty(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention", "true");
+//        return Boolean.parseBoolean(property);
+        return false;
     }
 }
