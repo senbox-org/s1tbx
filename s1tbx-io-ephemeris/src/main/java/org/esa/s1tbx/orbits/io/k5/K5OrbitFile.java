@@ -69,8 +69,8 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
             final File destFolder = getDestFolder(orbitType, year, month);
             throw new IOException("No valid orbit file found for " + timeStr +
-                                                "\nOrbit files may be downloaded from " + remoteURL
-                                                + "\nand placed in " + destFolder.getAbsolutePath());
+                    "\nOrbit files may be downloaded from " + remoteURL
+                    + "\nand placed in " + destFolder.getAbsolutePath());
         }
 
         // read content of the orbit file
@@ -86,7 +86,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
     }
 
     private File findOrbitFile(final String orbitType,
-                                      final double stateVectorTime, final int year, final int month) throws Exception {
+                               final double stateVectorTime, final int year, final int month) throws Exception {
         final String prefix = "LEOORB_" + year;
 
         final File orbitFileFolder = getDestFolder(orbitType, year, month);
@@ -217,12 +217,12 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
         final double normalizedTime = utc - t0;
 
         return new Orbits.OrbitVector(utc,
-                                      Maths.polyVal(normalizedTime, xPosCoeff),
-                                      Maths.polyVal(normalizedTime, yPosCoeff),
-                                      Maths.polyVal(normalizedTime, zPosCoeff),
-                                      Maths.polyVal(normalizedTime, xVelCoeff),
-                                      Maths.polyVal(normalizedTime, yVelCoeff),
-                                      Maths.polyVal(normalizedTime, zVelCoeff));
+                Maths.polyVal(normalizedTime, xPosCoeff),
+                Maths.polyVal(normalizedTime, yPosCoeff),
+                Maths.polyVal(normalizedTime, zPosCoeff),
+                Maths.polyVal(normalizedTime, xVelCoeff),
+                Maths.polyVal(normalizedTime, yVelCoeff),
+                Maths.polyVal(normalizedTime, zVelCoeff));
     }
 
     private List<Orbits.OrbitVector> readOrbitFile(final File file) throws Exception {
