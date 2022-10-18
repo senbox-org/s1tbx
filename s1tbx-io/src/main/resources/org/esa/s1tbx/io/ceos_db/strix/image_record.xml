@@ -12,16 +12,16 @@
 	<rec name="Sensor acquisition year" type="4" num="1"/>
 	<rec name="Sensor acquisition day of year" type="4" num="1"/>
 	<rec name="Sensor acquisition milliseconds of day" type="4" num="1"/>
-	
-	<rec name="SAR channel indicator" type="3" num="2"/>
-	<rec name="SAR channel code" type="3" num="2"/>
-	<rec name="Transmitted polarization" type="3" num="2"/>
-	<rec name="Received polarization" type="3" num="2"/>
+
+	<rec name="SAR channel indicator" type="6" num="1"/>
+	<rec name="SAR channel code" type="6" num="1"/>
+	<rec name="Transmitted polarization" type="6" num="1"/>
+	<rec name="Received polarization" type="6" num="1"/>
 	
 	<rec name="PRF" type="4" num="1"/>
 	<rec name="Scan ID for SCAN SAR mode" type="4" num="1"/>
-	<rec name="Onboard Range compressed flag" type="3" num="2"/>
-	<rec name="Pulse chirp type designator" type="3" num="2"/>
+	<rec name="Onboard Range compressed flag" type="6" num="1"/>
+	<rec name="Pulse chirp type designator" type="6" num="1"/>
 	<rec name="Chirp length" type="4" num="1"/>
 	<rec name="Chirp constant coefficient" type="4" num="1"/>
 	<rec name="Chirp linear coefficient" type="4" num="1"/>
