@@ -58,6 +58,10 @@ public class Risat1ProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     private static File findMetadataFile(final File folder) {
+        // be careful with file systems that do not have a parent for each item
+        if (folder == null) {
+            return null;
+        }
         if (folder.isDirectory()) {
             final File[] fileList = folder.listFiles();
             File bandMetaFile = null;
