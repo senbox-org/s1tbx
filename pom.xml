@@ -88,7 +88,7 @@
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
-            <url>http://www.gnu.org/licenses/gpl.html</url>
+            <url>https://www.gnu.org/licenses/gpl.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -106,7 +106,7 @@
     <repositories>
         <repository>
             <id>central</id>
-            <url>http://repo1.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
             <id>snap-repo-public</id>
@@ -563,7 +563,7 @@
 						<aggregate>true</aggregate>
 						<maxmemory>600m</maxmemory>
 						<links>
-	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
+	                            <link>https://docs.oracle.com/javase/8/docs/api/</link>
 	                    </links>
 	                    <subpackages>
                             org.esa.s1tbx:org.csa.rstb:org.esa.snap:org.esa.snap.core:org.esa.snap.util:org.esa.snap.visat:org.esa.snap.core.jexp
