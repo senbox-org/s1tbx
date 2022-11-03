@@ -47,7 +47,6 @@ import java.util.Map;
 public class CP_MF3CC extends DecompositionBase implements Decomposition, CompactPolProcessor {
 
     private final String compactMode;
-    private final boolean useRCMConvention;
 
     private static final String RED = "MF3CC_even_r";
     private static final String GREEN = "MF3CC_diffused_g";
@@ -61,7 +60,6 @@ public class CP_MF3CC extends DecompositionBase implements Decomposition, Compac
         super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
 
         this.compactMode = compactMode;
-        useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     public String getSuffix() {
@@ -146,7 +144,7 @@ public class CP_MF3CC extends DecompositionBase implements Decomposition, Compac
 
                     StokesParameters.computeCompactPolStokesVector(Cr, Ci, g);
 
-                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode, useRCMConvention);
+                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode);
 
                     final double SC = (g[0] - g[3]) / 2.0;
                     final double OC = (g[0] + g[3]) / 2.0;

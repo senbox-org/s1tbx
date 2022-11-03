@@ -41,7 +41,6 @@ public class CP_HAlpha extends HAlphaC2 implements CompactPolProcessor {
 
     private final String compactMode;
     private final boolean computeAlphaByT3;
-    private final boolean useRCMConvention;
 
     public CP_HAlpha(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                      final String compactMode, final int windowSizeX, final int windowSizeY,
@@ -50,7 +49,6 @@ public class CP_HAlpha extends HAlphaC2 implements CompactPolProcessor {
 
         this.compactMode = compactMode;
         this.computeAlphaByT3 = computeAlphaByT3;
-        this.useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     /**
@@ -113,7 +111,7 @@ public class CP_HAlpha extends HAlphaC2 implements CompactPolProcessor {
 
                         StokesParameters.computeCompactPolStokesVector(Cr, Ci, g);
 
-                        HAAlpha data = computeHAAlphaByT3(Cr, Ci, g, compactMode, useRCMConvention);
+                        HAAlpha data = computeHAAlphaByT3(Cr, Ci, g, compactMode);
 
                         for (TargetInfo target : targetInfo) {
 
@@ -161,7 +159,7 @@ public class CP_HAlpha extends HAlphaC2 implements CompactPolProcessor {
     }
 
     public static HAlphaC2.HAAlpha computeHAAlphaByT3(
-            final double[][] Cr, double[][] Ci, final double[] g, final String compactMode, final boolean useRCMConvention) {
+            final double[][] Cr, double[][] Ci, final double[] g, final String compactMode) {
 
         final HAlphaC2.HAAlpha data = new HAlphaC2.HAAlpha();
         final double[][] EigenVectRe = new double[2][2];
@@ -175,11 +173,10 @@ public class CP_HAlpha extends HAlphaC2 implements CompactPolProcessor {
         data.entropy = -(p[0] * Math.log(p[0] + Constants.EPS) + p[1] * Math.log(p[1] + Constants.EPS)) / Math.log(2);
         data.anisotropy = (p[0] - p[1]) / (p[0] + p[1] + Constants.EPS);
 
-        if (compactMode.equals(CompactPolProcessor.lch) && !useRCMConvention ||
-                compactMode.equals(CompactPolProcessor.rch) && useRCMConvention) {
-            data.alpha = 0.5 * Math.atan2(Math.sqrt(g[1] * g[1] + g[2] * g[2]), g[3]) * MathUtils.RTOD;   // LHC
+        if (compactMode.equals(CompactPolProcessor.lch)) {
+            data.alpha = 0.5 * Math.atan2(Math.sqrt(g[1] * g[1] + g[2] * g[2]), -g[3]) * MathUtils.RTOD;   // LHC
         } else {
-            data.alpha = 0.5 * Math.atan2(Math.sqrt(g[1] * g[1] + g[2] * g[2]), -g[3]) * MathUtils.RTOD;  // RHC
+            data.alpha = 0.5 * Math.atan2(Math.sqrt(g[1] * g[1] + g[2] * g[2]), g[3]) * MathUtils.RTOD;  // RHC
         }
 
         return data;

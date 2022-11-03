@@ -38,32 +38,30 @@ public class StokesParameters {
      * @param compactMode RCH or LCH compact mode
      * @return The Stokes parameters.
      */
-    public static StokesParameters computeStokesParameters(
-            final double[] g, final String compactMode, final boolean useRCMConvention) {
+    public static StokesParameters computeStokesParameters(final double[] g, final String compactMode) {
 
         final StokesParameters parameters = new StokesParameters();
 
         parameters.DegreeOfPolarization = Math.sqrt(g[1] * g[1] + g[2] * g[2] + g[3] * g[3]) / g[0];
         parameters.DegreeOfDepolarization = 1 - parameters.DegreeOfPolarization;
 
-        if (compactMode.equals(CompactPolProcessor.lch) && !useRCMConvention ||
-                compactMode.equals(CompactPolProcessor.rch) && useRCMConvention) {
+        if (compactMode.equals(CompactPolProcessor.lch)) {
 
             parameters.DegreeOfCircularity = -g[3] / (g[0] * parameters.DegreeOfPolarization);
-            parameters.circularPolarizationRatio = (g[0] - g[3]) / (g[0] + g[3]);
-            parameters.RelativePhase = Math.atan2(-g[3], g[2]);
-            parameters.Alphas = 0.5 * Math.atan2(Math.sqrt(g[1] * g[1] + g[2] * g[2]), g[3]);
-            parameters.Conformity = g[3] / g[0];
-            parameters.PhasePhi = Math.atan2(g[2], g[1]);
-
-        } else {
-            //  Right Circular Hybrid Mode
-            parameters.DegreeOfCircularity = g[3] / (g[0] * parameters.DegreeOfPolarization);
             parameters.circularPolarizationRatio = (g[0] + g[3]) / (g[0] - g[3]);
-            parameters.RelativePhase = Math.atan2(g[3], g[2]);
+            parameters.RelativePhase = Math.atan2(-g[3], g[2]);
             parameters.Alphas = 0.5 * Math.atan2(Math.sqrt(g[1] * g[1] + g[2] * g[2]), -g[3]);
             parameters.Conformity = -g[3] / g[0];
             parameters.PhasePhi = Math.atan2(-g[2], g[1]);
+
+        } else { //  Right Circular Hybrid Mode
+
+            parameters.DegreeOfCircularity = g[3] / (g[0] * parameters.DegreeOfPolarization);
+            parameters.circularPolarizationRatio = (g[0] - g[3]) / (g[0] + g[3]);
+            parameters.RelativePhase = Math.atan2(g[3], g[2]);
+            parameters.Alphas = 0.5 * Math.atan2(Math.sqrt(g[1] * g[1] + g[2] * g[2]), g[3]);
+            parameters.Conformity = g[3] / g[0];
+            parameters.PhasePhi = Math.atan2(g[2], g[1]);
         }
 
         parameters.DegreeOfEllipticity = FastMath.tan(0.5 * FastMath.asin(parameters.DegreeOfCircularity));
@@ -84,7 +82,7 @@ public class StokesParameters {
         g[0] = Cr[0][0] + Cr[1][1];
         g[1] = Cr[0][0] - Cr[1][1];
         g[2] = 2 * Cr[0][1];
-        g[3] = -2 * Ci[0][1];
+        g[3] = 2 * Ci[0][1];
     }
 
     /**

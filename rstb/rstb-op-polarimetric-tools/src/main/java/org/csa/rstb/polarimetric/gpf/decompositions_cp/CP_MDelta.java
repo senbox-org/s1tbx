@@ -37,7 +37,6 @@ import java.util.Map;
 public class CP_MDelta extends DecompositionBase implements Decomposition, CompactPolProcessor {
 
     private final String compactMode;
-    private final boolean useRCMConvention;
 
     private static final String RED = "MDelta_r";
     private static final String GREEN = "MDelta_g";
@@ -50,7 +49,6 @@ public class CP_MDelta extends DecompositionBase implements Decomposition, Compa
         super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
 
         this.compactMode = compactMode;
-        useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     public String getSuffix() {
@@ -132,16 +130,16 @@ public class CP_MDelta extends DecompositionBase implements Decomposition, Compa
 
                     StokesParameters.computeCompactPolStokesVector(Cr, Ci, g);
 
-                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode, useRCMConvention);
+                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode);
 
                     for (TargetInfo target : targetInfo) {
 
                         if (target.colour == TargetBandColour.R) {
-                            v = sp.DegreeOfPolarization * g[0] * (1 + FastMath.sin(sp.RelativePhase)) / 2.0;
+                            v = Math.sqrt(sp.DegreeOfPolarization * g[0] * (1 - FastMath.sin(sp.RelativePhase)) / 2.0);
                         } else if (target.colour == TargetBandColour.G) {
-                            v = sp.DegreeOfDepolarization * g[0];
+                            v = Math.sqrt(sp.DegreeOfDepolarization * g[0]);
                         } else if (target.colour == TargetBandColour.B) {
-                            v = sp.DegreeOfPolarization * g[0] * (1 - FastMath.sin(sp.RelativePhase)) / 2.0;
+                            v = Math.sqrt(sp.DegreeOfPolarization * g[0] * (1 + FastMath.sin(sp.RelativePhase)) / 2.0);
                         }
 
                         target.dataBuffer.setElemFloatAt(index, (float) v);
