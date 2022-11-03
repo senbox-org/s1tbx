@@ -102,7 +102,6 @@ public final class CompactPolStokesParametersOp extends Operator implements Comp
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private String compactMode = null;
-    private boolean useRCMConvention = false;
     private PolBandUtils.MATRIX sourceProductType = null;
     private PolBandUtils.PolSourceBand[] srcBandList;
 
@@ -205,8 +204,6 @@ public final class CompactPolStokesParametersOp extends Operator implements Comp
         if (!compactMode.equals(CompactPolProcessor.rch) && !compactMode.equals(CompactPolProcessor.lch)) {
             throw new OperatorException("Right/Left Circular Hybrid Mode is expected.");
         }
-
-        useRCMConvention = PolBandUtils.useRCMConvention();
     }
 
     /**
@@ -361,7 +358,7 @@ public final class CompactPolStokesParametersOp extends Operator implements Comp
 
                         StokesParameters.computeCompactPolStokesVector(Cr, Ci, g);
 
-                        StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode, useRCMConvention);
+                        StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode);
 
                         for (final TileData tileData : tileDataList) {
 
