@@ -29,7 +29,7 @@ public class TestStriXGRDProductReaderPlugIn extends AbstractProductReaderPlugIn
 
     @Test
     public void testGetFormatNames() {
-        assertArrayEquals(new String[]{"StriX"}, plugin.getFormatNames());
+        assertArrayEquals(new String[]{"StriX GRD"}, plugin.getFormatNames());
     }
 
     @Test

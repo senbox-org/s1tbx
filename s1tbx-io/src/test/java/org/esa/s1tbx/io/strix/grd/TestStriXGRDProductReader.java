@@ -7,6 +7,7 @@ import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.S1TBXTests;
 import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -17,6 +18,7 @@ import static org.junit.Assume.assumeTrue;
  * Test Product Reader.
  *
  */
+@Ignore
 public class TestStriXGRDProductReader extends ReaderTest {
 
     final static File inputSMGRDMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Synspective/GRD/STRIX-A_SM_GRD_GeoTIFF_202111_044_2021-11-11T133724Z/PAR-20211111133724_SMGRD.xml");

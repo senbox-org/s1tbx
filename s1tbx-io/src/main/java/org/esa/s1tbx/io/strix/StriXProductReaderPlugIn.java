@@ -5,6 +5,7 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
+import java.io.File;
 import java.nio.file.Path;
 
 public class StriXProductReaderPlugIn extends CEOSProductReaderPlugIn {
@@ -25,6 +26,17 @@ public class StriXProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final Path path) {
         final String name = path.getFileName().toString().toUpperCase();
+        if(path.toFile().isDirectory()) {
+            File folder = path.toFile();
+            File[] files = folder.listFiles();
+            if(files != null) {
+                for (File file : files) {
+                    if (isVolumeFile(file.getName())) {
+                        return DecodeQualification.INTENDED;
+                    }
+                }
+            }
+        }
         if(name.contains("STRIX")) {
             for (String prefix : constants.getVolumeFilePrefix()) {
                 if (name.startsWith(prefix)) {
