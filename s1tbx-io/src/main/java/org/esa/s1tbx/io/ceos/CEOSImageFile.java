@@ -499,7 +499,7 @@ public abstract class CEOSImageFile {
 
     private static void copyLine1Of2(final float[] srcLine, final float[] destLine, final int sourceStepX) {
         for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = (int) srcLine[i << 1];
+            destLine[x] = srcLine[i << 1];
         }
     }
 
@@ -529,7 +529,7 @@ public abstract class CEOSImageFile {
     private static void copyLine2Of2(final float[] srcLine, final float[] destLine, final int sourceStepX) {
         final int length = destLine.length;
         for (int x = 0, i = 0; x < length; ++x, i += sourceStepX) {
-            destLine[x] = (int) srcLine[(i << 1) + 1];
+            destLine[x] = srcLine[(i << 1) + 1];
         }
     }
 

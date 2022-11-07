@@ -1079,19 +1079,16 @@ public class StriXProductDirectory extends CEOSProductDirectory {
                 final double a0 = sceneRec.getAttributeDouble("Incidence angle constant term");
                 final double a1 = sceneRec.getAttributeDouble("Incidence angle linear term");
                 final double a2 = sceneRec.getAttributeDouble("Incidence angle quadratic term");
-                final double a3 = sceneRec.getAttributeDouble("Incidence angle cubic term");
-                final double a4 = sceneRec.getAttributeDouble("Incidence angle fourth term");
-                final double a5 = sceneRec.getAttributeDouble("Incidence angle fifth term");
-
+//                final double a3 = sceneRec.getAttributeDouble("Incidence angle cubic term");
+//                final double a4 = sceneRec.getAttributeDouble("Incidence angle fourth term");
+//                final double a5 = sceneRec.getAttributeDouble("Incidence angle fifth term");
+                final double inc_cen = sceneRec.getAttributeDouble("Incidence angle at scene centre");
                 final float[] angles = new float[gridWidth * gridHeight];
                 int k = 0;
                 for (int j = destRect.y; j < gridHeight; j++) {
                     for (int i = destRect.x; i < gridWidth; i++) {
                         angles[k] = (float) ((a0 + a1 * rangeDist[k] / 1000.0 +
-                                a2 * FastMath.pow(rangeDist[k] / 1000.0, 2.0) +
-                                a3 * FastMath.pow(rangeDist[k] / 1000.0, 3.0) +
-                                a4 * FastMath.pow(rangeDist[k] / 1000.0, 4.0) +
-                                a5 * FastMath.pow(rangeDist[k] / 1000.0, 5.0)) * Constants.RTOD);
+                                a2 * FastMath.pow(rangeDist[k] / 1000.0, 2.0)) * Constants.RTOD);
                         k++;
                     }
                 }
