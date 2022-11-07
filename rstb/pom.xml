@@ -52,7 +52,7 @@
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
-            <url>http://www.gnu.org/licenses/gpl.html</url>
+            <url>https://www.gnu.org/licenses/gpl.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
