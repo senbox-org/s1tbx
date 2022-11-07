@@ -18,7 +18,6 @@ import static org.junit.Assume.assumeTrue;
  * Test Product Reader.
  *
  */
-@Ignore
 public class TestStriXGRDProductReader extends ReaderTest {
 
     final static File inputSMGRDMeta = new File(S1TBXTests.inputPathProperty + "/SAR/Synspective/GRD/STRIX-A_SM_GRD_GeoTIFF_202111_044_2021-11-11T133724Z/PAR-20211111133724_SMGRD.xml");
@@ -67,6 +66,7 @@ public class TestStriXGRDProductReader extends ReaderTest {
     }
 
     @Test
+    @Ignore("range spacing missing in metadata")
     public void testOpeningSL_GRD_Folder() throws Exception {
         Product prod = testReader(inputSLGRDFolder.toPath());
 
@@ -77,6 +77,7 @@ public class TestStriXGRDProductReader extends ReaderTest {
     }
 
     @Test
+    @Ignore("range spacing missing in metadata")
     public void testOpeningSL_GRD_Metadata() throws Exception {
         Product prod = testReader(inputSLGRDMeta.toPath());
 

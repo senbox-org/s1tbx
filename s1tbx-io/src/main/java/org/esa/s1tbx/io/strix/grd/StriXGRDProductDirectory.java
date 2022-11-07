@@ -8,6 +8,7 @@ import org.esa.s1tbx.io.geotiffxml.GeoTiffUtils;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -73,6 +74,9 @@ public class StriXGRDProductDirectory extends XMLProductDirectory {
         final MetadataElement EarthObservationEquipment = using.getElement("EarthObservationEquipment");
         final MetadataElement sensor = EarthObservationEquipment.getElement("sensor");
 
+        final MetadataElement metaDataProperty = EarthObservation.getElement("metaDataProperty");
+        final MetadataElement EarthObservationMetaData = metaDataProperty.getElement("EarthObservationMetaData");
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, getMode(sensor.getAttributeString("operationalMode")));
 
         final MetadataElement acquisitionParameters = EarthObservationEquipment.getElement("acquisitionParameters");
@@ -100,7 +104,7 @@ public class StriXGRDProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, width);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, height);
 
-        if(EarthObservation.containsElement("validTile")) {
+        if(EarthObservation.containsElement("validTime")) {
             final MetadataElement validTime = EarthObservation.getElement("validTime");
             final MetadataElement timePeriod = validTime.getElement("TimePeriod");
 
@@ -110,10 +114,26 @@ public class StriXGRDProductDirectory extends XMLProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, lastLineTime);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
                     ReaderUtils.getLineTimeInterval(firstLineTime, lastLineTime, height));
+        } else {
+            final MetadataElement vendorSpecific = EarthObservationMetaData.getElement("vendorSpecific");
+            if(vendorSpecific != null) {
+                for(MetadataElement specificInformation : vendorSpecific.getElements()) {
+                    if(specificInformation.containsAttribute("localAttribute")) {
+                        final MetadataAttribute localAttribute = specificInformation.getAttribute("localAttribute");
+                        if(localAttribute.getData().getElemString().equals("sceneCenterDateTime")) {
+                            final MetadataAttribute localValue = specificInformation.getAttribute("localValue");
+                            final String timeStr = ReaderUtils.createValidUTCString(localValue.getData().getElemString(),
+                                    new char[]{':','.','-'}, ' ').trim();
+                            final ProductData.UTC centerTime =  AbstractMetadata.parseUTC(timeStr, sentinelDateFormat);
+                            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, centerTime);
+                            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, centerTime);
+                            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, 0.0);
+                        }
+                    }
+                }
+            }
         }
 
-        final MetadataElement metaDataProperty = EarthObservation.getElement("metaDataProperty");
-        final MetadataElement EarthObservationMetaData = metaDataProperty.getElement("EarthObservationMetaData");
         final MetadataElement processing = EarthObservationMetaData.getElement("processing");
         final MetadataElement processingInformation = processing.getElement("ProcessingInformation");
 
@@ -219,6 +239,7 @@ public class StriXGRDProductDirectory extends XMLProductDirectory {
             for (Band band : bandProduct.getBands()) {
                 final String trgBandName = "Amplitude" + '_' + pol;
                 Band trgBand = ProductUtils.copyBand(band.getName(), bandProduct, trgBandName, product, true);
+                trgBand.setUnit(Unit.AMPLITUDE);
                 trgBand.setNoDataValueUsed(true);
                 trgBand.setNoDataValue(0);
                 trgBand.setGeoCoding(band.getGeoCoding());
