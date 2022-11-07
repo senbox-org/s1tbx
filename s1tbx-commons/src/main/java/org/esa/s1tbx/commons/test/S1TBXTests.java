@@ -54,6 +54,7 @@ public class S1TBXTests {
     public final static File[] rootPathsALOS2 = loadFilePath("test.rootPathALOS2", inputSAR + "ALOS2");
     public final static File[] rootPathsCosmoSkymed = loadFilePath("test.rootPathCosmoSkymed", inputSAR + "Cosmo");
     public final static File[] rootPathsIceye = loadFilePath("test.rootPathIceye", inputSAR + "Iceye");
+    public final static File[] rootPathsStriX = loadFilePath("test.rootPathStriX", inputSAR + "Synpective");
 
     public static int subsetX = 0;
     public static int subsetY = 0;

@@ -23,6 +23,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -80,6 +81,12 @@ public class TestCalibrationOp {
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
         TestUtils.comparePixels(targetProduct, bandName, expected);
+    }
+
+    @Test
+    @Ignore
+    public void testProcessAllRadarsat1() throws Exception {
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsRadarsat1, "RADARSAT-1", productTypeExemptions, null);
     }
 
     @Test
