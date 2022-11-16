@@ -16,7 +16,7 @@
 
     <properties>
         <json-simple.version>1.1.1</json-simple.version>
-        <jackson.version>2.11.3</jackson.version>
+        <jackson.version>2.12.7.1</jackson.version>
         <json-schema-validator.version>1.0.39</json-schema-validator.version>
         <olingo.version>2.0.8</olingo.version>
     </properties>
