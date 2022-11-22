@@ -149,8 +149,10 @@ public class StriXGRDProductDirectory extends XMLProductDirectory {
 
         if(processingInformation.containsElement("sarProcessingParameter")) {
             final MetadataElement sarProcessingParameter = processingInformation.getElement("sarProcessingParameter");
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, sarProcessingParameter.getAttributeInt("numberOfRangeLooks"));
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, sarProcessingParameter.getAttributeInt("numberOfAzimuthLooks"));
+            if(sarProcessingParameter.containsAttribute("numberOfRangeLooks")) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks, sarProcessingParameter.getAttributeInt("numberOfRangeLooks"));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks, sarProcessingParameter.getAttributeInt("numberOfAzimuthLooks"));
+            }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, sarProcessingParameter.getAttributeDouble("rangePixelSpacing"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, sarProcessingParameter.getAttributeDouble("azimuthPixelSpacing"));
         }
@@ -187,7 +189,11 @@ public class StriXGRDProductDirectory extends XMLProductDirectory {
 
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) {
         final String name = getBandFileNameFromImage(imgPath);
-        final String imageName = productName.replace("PAR", "IMG-"+pol);
+        String prefix = "IMG";
+        if(!productName.startsWith("PAR-"+pol)) {
+            prefix += "-"+pol;
+        }
+        final String imageName = productName.replace("PAR", prefix);
         if ((name.endsWith("tif")) && name.startsWith(imageName) && !name.contains("preview")) {
             try {
                 if(!productDir.isCompressed()) {
