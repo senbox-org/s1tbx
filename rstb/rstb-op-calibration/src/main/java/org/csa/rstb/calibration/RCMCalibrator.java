@@ -501,7 +501,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
         final TileIndex tgtIndex = new TileIndex(targetTile);
 
-        double sigma = 0.0, dn, i, q, phaseTerm = 0.0;
+        double sigma = 0.0, dn, dn2, i, q, phaseTerm = 0.0;
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
             tgtIndex.calculateStride(y);
@@ -517,21 +517,20 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
                 } else if (srcBandUnit == Unit.UnitType.REAL) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
-                    dn = Math.sqrt(i * i + q * q);
-                    if (dn > 0.0) {
+                    dn2 = i * i + q * q;
+                    if (dn2 > 0.0) {
                         if (tgtBandUnit == Unit.UnitType.REAL) {
-                            phaseTerm = i / dn;
+                            phaseTerm = (i*i - q*q) / dn2;
                         } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                            phaseTerm = q / dn;
+                            phaseTerm = 2.0*i*q / dn2;
                         }
                     } else {
                         phaseTerm = 0.0;
                     }
 
-                    sigma = dn * dn / gains[x - x0];
+                    sigma = dn2 / gains[x - x0];
                     if (outputImageInComplex) {
-                        sigma = Math.sqrt(sigma) * phaseTerm;
-//                        sigma *= phaseTerm;
+                        sigma *= phaseTerm;
                     }
                     trgData.setElemDoubleAt(tgtIdx, sigma);
 
