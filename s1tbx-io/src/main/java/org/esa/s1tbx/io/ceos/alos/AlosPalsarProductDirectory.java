@@ -341,6 +341,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         //todo causes lazy tpg to load
         // ReaderUtils.addMetadataIncidenceAngles(product);
+        addIncidenceAngles(product);
 
         if(isESAProduct(product)){
             addSRGR(product);
@@ -412,6 +413,47 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    private static void addIncidenceAngles(final Product product) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final MetadataElement opm = product.getMetadataRoot().getElement("Original_Product_Metadata");
+        if (opm == null) {
+            return;
+        }
+
+        MetadataElement leader = opm.getElement("Leader");
+        if (leader == null) {
+            return;
+        }
+
+        MetadataElement scene_parameters = leader.getElement("Scene Parameters");
+        if (scene_parameters == null) {
+            return;
+        }
+
+        final double a0 = scene_parameters.getAttributeDouble("Incidence angle constant term");
+        final double a1 = scene_parameters.getAttributeDouble("Incidence angle linear term");
+        final double a2 = scene_parameters.getAttributeDouble("Incidence angle quadratic term");
+        final double a3 = scene_parameters.getAttributeDouble("Incidence angle cubic term");
+        final double a4 = scene_parameters.getAttributeDouble("Incidence angle fourth term");
+        final double a5 = scene_parameters.getAttributeDouble("Incidence angle fifth term");
+
+        final double nearRangeKm = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel) / 1000.0;
+        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing);
+        final double farRangeKm = nearRangeKm + rangeSpacing * product.getSceneRasterWidth() / 1000.0;
+
+        final double incidenceNear = (a0 + a1 * nearRangeKm + a2 * FastMath.pow(nearRangeKm, 2.0) +
+                a3 * FastMath.pow(nearRangeKm, 3.0) + a4 * FastMath.pow(nearRangeKm, 4.0) +
+                a5 * FastMath.pow(nearRangeKm, 5.0)) * Constants.RTOD;
+
+        final double incidenceFar = (a0 + a1 * farRangeKm + a2 * FastMath.pow(farRangeKm, 2.0) +
+                a3 * FastMath.pow(farRangeKm, 3.0) + a4 * FastMath.pow(farRangeKm, 4.0) +
+                a5 * FastMath.pow(farRangeKm, 5.0)) * Constants.RTOD;
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, incidenceNear);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, incidenceFar);
     }
 
     public void readTiePointGridRasterData(final TiePointGrid tpg, Rectangle destRect, ProductData destBuffer, ProgressMonitor pm) {
