@@ -433,7 +433,15 @@ public class StriXProductDirectory extends CEOSProductDirectory {
                 sceneRec.getAttributeString("Product type descriptor"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
+        final double headingAngle = sceneRec.getAttributeDouble("Sensor clock angle");
+        String look_direction;
+        // -90 -> left, +90 -> right
+        if (headingAngle < 0)
+            look_direction = "left";
+        else
+            look_direction = "right";
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, look_direction);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
