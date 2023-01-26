@@ -263,23 +263,23 @@ public final class TerrainFlatteningOp extends Operator {
 
         if (externalDEMFile == null) {
             if (demName.contains("Copernicus 30m Global DEM") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-                overSamplingFactor = Math.ceil(30.0 / minSpacing);
+                overSamplingFactor = Math.ceil(30.0 / minSpacing) + 1;
             } else if (demName.contains("Copernicus 90m Global DEM") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
-                overSamplingFactor = Math.ceil(90.0 / minSpacing);
+                overSamplingFactor = Math.ceil(90.0 / minSpacing) + 1;
             } else if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0)) {
-                overSamplingFactor = Math.ceil(90.0 / minSpacing);
+                overSamplingFactor = Math.ceil(90.0 / minSpacing) + 1;
             } else if (demName.contains("SRTM 1Sec HGT") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-                overSamplingFactor = Math.ceil(30.0 / minSpacing);
+                overSamplingFactor = Math.ceil(30.0 / minSpacing) + 1;
             } else if (demName.contains("SRTM 1Sec Grid") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-                overSamplingFactor = Math.ceil(30.0 / minSpacing);
+                overSamplingFactor = Math.ceil(30.0 / minSpacing) + 1;
             } else if (demName.contains("ASTER 1sec GDEM") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0)) {
-                overSamplingFactor = Math.ceil(30.0 / minSpacing);
+                overSamplingFactor = Math.ceil(30.0 / minSpacing) + 1;
             } else if (demName.contains("ACE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
-                overSamplingFactor = Math.ceil(1000.0 / minSpacing);
+                overSamplingFactor = Math.ceil(1000.0 / minSpacing) + 1;
             } else if (demName.contains("ACE2_5Min") && (rangeSpacing < 10000.0 || azimuthSpacing < 10000.0)) {
-                overSamplingFactor = Math.ceil(1000.0 / minSpacing);
+                overSamplingFactor = Math.ceil(1000.0 / minSpacing) + 1;
             } else if (demName.contains("GETASSE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
-                overSamplingFactor = Math.ceil(1000.0 / minSpacing);
+                overSamplingFactor = Math.ceil(1000.0 / minSpacing) + 1;
             }
             overSamplingFactor *= oversamplingMultiple;
         }
