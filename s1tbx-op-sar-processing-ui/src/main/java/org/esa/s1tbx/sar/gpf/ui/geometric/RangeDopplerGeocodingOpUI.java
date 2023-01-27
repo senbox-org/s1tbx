@@ -351,8 +351,6 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             try {
                 azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProducts[0]);
                 rangePixelSpacing = SARGeocoding.getRangePixelSpacing(sourceProducts[0]);
-                azimuthPixelSpacing = (double) ((int) (azimuthPixelSpacing * 100 + 0.5)) / 100.0;
-                rangePixelSpacing = (double) ((int) (rangePixelSpacing * 100 + 0.5)) / 100.0;
             } catch (Exception e) {
                 azimuthPixelSpacing = 0.0;
                 rangePixelSpacing = 0.0;
