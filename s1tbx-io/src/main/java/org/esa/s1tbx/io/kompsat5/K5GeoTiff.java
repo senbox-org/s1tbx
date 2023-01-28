@@ -124,48 +124,15 @@ public class K5GeoTiff implements K5Format {
                 } else if (name.endsWith("TIF") & !name.contains("GIM") & (name.contains("_GEC_") || name.contains("_GTC_") || name.contains("_WEC_") || name.contains("_WTC_"))) {
                     final String polarization = getPolarization(name);
                     product = ProductIO.readProduct(file, "GeoTiff");
-                    final Band bandProduct = product.getBandAt(0);
+                    final Band band = product.getBandAt(0);
 
-                    bandProduct.setName("Amplitude_" + polarization);
-                    bandProduct.setNoDataValueUsed(true);
-                    bandProduct.setNoDataValue(0);
-                    bandProduct.setUnit(Unit.AMPLITUDE);
-                    SARReader.createVirtualIntensityBand(product, bandProduct, "_" + polarization);
+                    band.setName("Amplitude_" + polarization);
+                    band.setNoDataValueUsed(true);
+                    band.setNoDataValue(0);
+                    band.setUnit(Unit.AMPLITUDE);
+                    SARReader.createVirtualIntensityBand(product, band, "_" + polarization);
                 }
-
-                // add GIM
-/*
-                else if (name.endsWith("TIF") & !name.contains("GIM") & (name.contains("_GEC_") ||name.contains("_GTC_") || name.contains("_WEC_") || name.contains("_WTC_"))){
-                    final String polarization = getPolarization(name);
-
-                    final Product productTmp = ProductIO.readProduct(file, "GeoTiff");
-                    final Band bandProduct = productTmp.getBandAt(0);
-
-                    bandProduct.setName("Amplitude_" + polarization);
-                    bandProduct.setNoDataValueUsed(true);
-                    bandProduct.setNoDataValue(0);
-                    bandProduct.setUnit(Unit.AMPLITUDE);
-
-                    for (File f : files) {
-                        final String fname = f.getName().toUpperCase();
-                        if (fname.endsWith("TIF") & fname.contains("GIM") & (fname.contains("_GEC_") ||fname.contains("_GTC_") || fname.contains("_WEC_") || fname.contains("_WTC_"))){
-                            product = ProductIO.readProduct(f, "GeoTiff");
-                            product.setFileLocation(file);
-                            final Band bandGIM = product.getBandAt(0);
-                            String bnameGIM = "GIM";
-                            bandGIM.setName(bnameGIM);
-                            bandGIM.setNoDataValue(255);
-                            bandGIM.setNoDataValueUsed(true);
-                            bandGIM.setUnit(Unit.DEGREES);
-                            //product.addBand(bandGIM);
-                        }
-                    }
-                    product.addBand(bandProduct);
-                    SARReader.createVirtualIntensityBand(product, bandProduct,"_" + polarization);
-                }
-*/
             }
-
         }
     }
 
@@ -247,17 +214,6 @@ public class K5GeoTiff implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("OrbitNumber"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("OrbitDirection"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));
-
-/*
-        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "SceneSensingStartUTC", standardDateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "SceneSensingStopUTC", standardDateFormat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        product.setStartTime(startTime);
-        product.setEndTime(stopTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
-*/
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                 product.getSceneRasterHeight());
@@ -455,14 +411,14 @@ public class K5GeoTiff implements K5Format {
                     lastLineTime = globalElem.getAttributeDouble("S01_B001_Azimuth_Last_Time") / (24 * 3600); // in days
                 }
             }
-            double lineTimeInterval = bandElem.getAttributeDouble("LineTimeInterval"); // in s
+            double lineTimeInterval = bandElem.getAttributeDouble("LineTimeInterval", AbstractMetadata.NO_METADATA); // in s
             final ProductData.UTC startTime = new ProductData.UTC(referenceUTC + firstLineTime);
             final ProductData.UTC stopTime = new ProductData.UTC(referenceUTC + lastLineTime);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
             product.setStartTime(startTime);
             product.setEndTime(stopTime);
-            if (lineTimeInterval == 0 || lastLineTime == AbstractMetadata.NO_METADATA) {
+            if (lineTimeInterval == 0 || lineTimeInterval == AbstractMetadata.NO_METADATA) {
                 lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);
@@ -670,6 +626,7 @@ public class K5GeoTiff implements K5Format {
 
     public void close() {
         if (product != null) {
+            product.dispose();
             product = null;
         }
     }

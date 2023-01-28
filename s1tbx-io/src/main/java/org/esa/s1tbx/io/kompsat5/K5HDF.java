@@ -94,9 +94,6 @@ public class K5HDF implements K5Format {
         }
         removeQuickLooks(variableListMap);
 
-//      final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
-//      final Variable gimVariable = getGIMVariable(variableListMap, rasterDim);
-//      final Variable[] tiePointGridVariables = NetCDFUtils.getTiePointGridVariables(variableListMap, rasterVariables);
         final Variable[] rasterVariables = getRasterVariables(variableListMap);
         this.netcdfFile = netcdfFile;
         variableMap = new NcVariableMap(rasterVariables);
@@ -123,7 +120,6 @@ public class K5HDF implements K5Format {
             if (var.getDimension(0).getLength() > productHeight) {
                 productHeight = var.getDimension(0).getLength();
             }
-            ;
         }
 
         product = new Product(productName, productType, productWidth, productHeight, reader);
@@ -134,7 +130,6 @@ public class K5HDF implements K5Format {
         addMetadataToProduct();
         addBandsToProduct(rasterVariables);
 
-
         addGeocodingToProduct(product);
 
         return product;
@@ -142,6 +137,7 @@ public class K5HDF implements K5Format {
 
     public void close() throws IOException {
         if (product != null) {
+            product.dispose();
             product = null;
             variableMap.clear();
             variableMap = null;
@@ -164,19 +160,7 @@ public class K5HDF implements K5Format {
                 }
             }
         });
-        return list.toArray(new Variable[list.size()]);
-    }
-
-    // not use getGIMVariable
-    private static Variable getGIMVariable(final Map<NcRasterDim, List<Variable>> variableLists,
-                                           final NcRasterDim rasterDim) {
-        final List<Variable> varList = variableLists.get(rasterDim);
-        for (Variable var : varList) {
-            if (var.getShortName().equals("GIM")) {
-                return var;
-            }
-        }
-        return null;
+        return list.toArray(new Variable[0]);
     }
 
     private static void removeQuickLooks(final Map<NcRasterDim, List<Variable>> variableListMap) {
@@ -229,7 +213,7 @@ public class K5HDF implements K5Format {
             final String[] swathId = {"S01", "S02", "S03", "S04"};
             for (String swath : swathId) {
                 for (final Variable variable : variableMap.getAll()) {
-                    ;
+
                     if (variable.getParentGroup().getShortName().equals(swath)) {
                         NetCDFUtils.addAttributes(origMetadataRoot, variable.getShortName(), variable.getAttributes());
                     }
@@ -277,17 +261,6 @@ public class K5HDF implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(productType));
 
         useFloatBands = globalElem.getAttributeString("Sample_Format").equals("FLOAT");
-/*
-
-        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        product.setStartTime(startTime);
-        product.setEndTime(stopTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                                      ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
-*/
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                 product.getSceneRasterHeight());
@@ -383,15 +356,6 @@ public class K5HDF implements K5Format {
         addDopplerCentroidCoefficients(absRoot, globalElem);
     }
 
-    private Band getNonGIMBand() {
-        for (Band band : product.getBands()) {
-            if (!band.getName().equals("GIM")) {
-                return band;
-            }
-        }
-        return product.getBandAt(0);
-    }
-
     private void addSlantRangeToFirstPixel() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement oriRoot = AbstractMetadata.getOriginalProductMetadata(product);
@@ -409,17 +373,6 @@ public class K5HDF implements K5Format {
         final double slantRangeTime = Double.valueOf(bandElem.getAttributeString("ZeroDopplerRangeFirstTime")); //s
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
                 slantRangeTime * Constants.halfLightSpeed);
-
-
-        /*
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement bandElem = getBandElement(getNonGIMBand());
-        if (bandElem != null) {
-            final double slantRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0); //s
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                                          slantRangeTime * Constants.halfLightSpeed);
-        }
-         */
     }
 
     private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement globalElem) {
@@ -518,7 +471,7 @@ public class K5HDF implements K5Format {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
             product.setStartTime(startTime);
             product.setEndTime(stopTime);
-            if (lineTimeInterval == 0 || lastLineTime == AbstractMetadata.NO_METADATA) {
+            if (lineTimeInterval == 0 || lineTimeInterval == AbstractMetadata.NO_METADATA) {
                 lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);

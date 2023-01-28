@@ -165,6 +165,11 @@ public class TestCalibrationOp {
     }
 
     @Test
+    public void testProcessAllK5() throws Exception {
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsK5, "Kompsat5", productTypeExemptions, exceptionExemptions);
+    }
+
+    @Test
     @Ignore
     public void testProcessAllJERS() throws Exception {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsJERS, "JERS", productTypeExemptions, exceptionExemptions);
