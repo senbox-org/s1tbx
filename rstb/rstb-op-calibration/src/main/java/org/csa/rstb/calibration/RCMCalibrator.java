@@ -23,10 +23,12 @@ import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -48,6 +50,7 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
     private final Map<String, CalibrationLUT> gainsMap = new HashMap<>();
     private int subsetOffsetX = 0;
     private int subsetOffsetY = 0;
+    private String productType = null;
 
     private boolean inputSigma0 = false;
     private boolean isSLC = false;
@@ -182,6 +185,8 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
             return "ch";
         } else if (bandNameLower.contains("_cv") || bandNameLower.contains("_rcv") || bandNameLower.contains("_lcv")) {
             return "cv";
+        } else if (bandNameLower.contains("_xc")) {
+            return "xc";
         } else {
             throw new OperatorException("Not handled polarization");
         }
@@ -203,6 +208,239 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
     }
 
+    /**
+     * Create target product.
+     */
+    @Override
+    public Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames) {
+
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
+
+        addSelectedBands(sourceProduct, sourceBandNames);
+
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+
+        return targetProduct;
+    }
+
+    private void addSelectedBands(final Product sourceProduct, final String[] sourceBandNames) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+
+        if (outputImageInComplex) {
+            if (productType != null && productType.equals("MLC")) {
+                outputInComplexMLC(sourceProduct, sourceBandNames);
+            } else {
+                outputInComplex(sourceProduct, sourceBandNames);
+            }
+        } else {
+            outputInIntensity(sourceProduct, sourceBandNames);
+        }
+    }
+
+    private void outputInComplexMLC(final Product sourceProduct, final String[] sourceBandNames) {
+
+        final Band[] sourceBands = getSourceBands(sourceProduct, sourceBandNames, false);
+
+        for (int i = 0; i < sourceBands.length; ++i) {
+
+            final Band srcBandI = sourceBands[i];
+            final String unit = srcBandI.getUnit();
+            String nextUnit = null;
+            if (unit == null) {
+                throw new OperatorException("band " + srcBandI.getName() + " requires a unit");
+            } else if (unit.contains(Unit.DB)) {
+                throw new OperatorException("Calibration of bands in dB is not supported");
+            } else if (unit.contains(Unit.IMAGINARY)) {
+                throw new OperatorException("I and Q bands should be selected in pairs");
+            } else if (unit.contains(Unit.REAL)) {
+                if (i + 1 >= sourceBands.length) {
+                    throw new OperatorException("I and Q bands should be selected in pairs");
+                }
+                nextUnit = sourceBands[i + 1].getUnit();
+                if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
+                    throw new OperatorException("I and Q bands should be selected in pairs");
+                }
+            }
+
+            if (unit.contains(Unit.INTENSITY)) {
+                final String[] srcBandNames = {srcBandI.getName()};
+                targetBandNameToSourceBandName.put(srcBandNames[0], srcBandNames);
+                final Band targetBandI = targetProduct.addBand(srcBandNames[0], ProductData.TYPE_FLOAT32);
+                targetBandI.setUnit(unit);
+                targetBandI.setNoDataValueUsed(true);
+            } else { // Unit.REAL
+                final Band srcBandQ = sourceBands[i + 1];
+                final String[] srcBandNames = {srcBandI.getName(), srcBandQ.getName()};
+                targetBandNameToSourceBandName.put(srcBandNames[0], srcBandNames);
+                final Band targetBandI = targetProduct.addBand(srcBandNames[0], ProductData.TYPE_FLOAT32);
+                targetBandI.setUnit(unit);
+                targetBandI.setNoDataValueUsed(true);
+
+                targetBandNameToSourceBandName.put(srcBandNames[1], srcBandNames);
+                final Band targetBandQ = targetProduct.addBand(srcBandNames[1], ProductData.TYPE_FLOAT32);
+                targetBandQ.setUnit(nextUnit);
+                targetBandQ.setNoDataValueUsed(true);
+                i++;
+            }
+        }
+    }
+
+    private void outputInComplex(final Product sourceProduct, final String[] sourceBandNames) {
+
+        final Band[] sourceBands = getSourceBands(sourceProduct, sourceBandNames, false);
+
+        for (int i = 0; i < sourceBands.length; i += 2) {
+
+            final Band srcBandI = sourceBands[i];
+            final String unit = srcBandI.getUnit();
+            String nextUnit = null;
+            if (unit == null) {
+                throw new OperatorException("band " + srcBandI.getName() + " requires a unit");
+            } else if (unit.contains(Unit.DB)) {
+                throw new OperatorException("Calibration of bands in dB is not supported");
+            } else if (unit.contains(Unit.IMAGINARY)) {
+                throw new OperatorException("I and Q bands should be selected in pairs");
+            } else if (unit.contains(Unit.REAL)) {
+                if (i + 1 >= sourceBands.length) {
+                    throw new OperatorException("I and Q bands should be selected in pairs");
+                }
+                nextUnit = sourceBands[i + 1].getUnit();
+                if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
+                    throw new OperatorException("I and Q bands should be selected in pairs");
+                }
+            } else {
+                throw new OperatorException("Please select I and Q bands in pairs only");
+            }
+
+            final Band srcBandQ = sourceBands[i + 1];
+            final String[] srcBandNames = {srcBandI.getName(), srcBandQ.getName()};
+            targetBandNameToSourceBandName.put(srcBandNames[0], srcBandNames);
+            final Band targetBandI = targetProduct.addBand(srcBandNames[0], ProductData.TYPE_FLOAT32);
+            targetBandI.setUnit(unit);
+            targetBandI.setNoDataValueUsed(true);
+
+            targetBandNameToSourceBandName.put(srcBandNames[1], srcBandNames);
+            final Band targetBandQ = targetProduct.addBand(srcBandNames[1], ProductData.TYPE_FLOAT32);
+            targetBandQ.setUnit(nextUnit);
+            targetBandQ.setNoDataValueUsed(true);
+
+            final String suffix = '_' + OperatorUtils.getSuffixFromBandName(srcBandI.getName());
+            ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
+        }
+    }
+
+    private void outputInIntensity(final Product sourceProduct, final String[] sourceBandNames) {
+
+        final Band[] sourceBands = getSourceBands(sourceProduct, sourceBandNames, false);
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        String targetBandName;
+        for (int i = 0; i < sourceBands.length; i++) {
+
+            final Band srcBand = sourceBands[i];
+            final String unit = srcBand.getUnit();
+            if (unit == null) {
+                throw new OperatorException("band " + srcBand.getName() + " requires a unit");
+            }
+
+            String targetUnit = Unit.INTENSITY;
+            int targetType = ProductData.TYPE_FLOAT32;
+
+            if (unit.contains(Unit.DB)) {
+
+                throw new OperatorException("Calibration of bands in dB is not supported");
+            } else if (unit.contains(Unit.PHASE)) {
+
+                final String[] srcBandNames = {srcBand.getName()};
+                targetBandName = srcBand.getName();
+                targetType = srcBand.getDataType();
+                targetUnit = Unit.PHASE;
+                if (targetProduct.getBand(targetBandName) == null) {
+                    targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
+                }
+
+            } else if (unit.contains(Unit.IMAGINARY)) {
+
+                throw new OperatorException("Real and imaginary bands should be selected in pairs");
+
+            } else if (unit.contains(Unit.REAL)) {
+                if (i + 1 >= sourceBands.length)
+                    throw new OperatorException("Real and imaginary bands should be selected in pairs");
+
+                final String nextUnit = sourceBands[i + 1].getUnit();
+                if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
+                    throw new OperatorException("Real and imaginary bands should be selected in pairs");
+                }
+                final String[] srcBandNames = new String[2];
+                srcBandNames[0] = srcBand.getName();
+                srcBandNames[1] = sourceBands[i + 1].getName();
+                targetBandName = createTargetBandName(srcBandNames[0], absRoot);
+                ++i;
+                if (targetProduct.getBand(targetBandName) == null) {
+                    targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
+                }
+
+            } else {
+
+                final String[] srcBandNames = {srcBand.getName()};
+                targetBandName = createTargetBandName(srcBandNames[0], absRoot);
+                if (targetProduct.getBand(targetBandName) == null) {
+                    targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
+                }
+            }
+
+            // add band only if it doesn't already exist
+            if (targetProduct.getBand(targetBandName) == null) {
+                final Band targetBand = new Band(targetBandName,
+                        targetType,
+                        srcBand.getRasterWidth(),
+                        srcBand.getRasterHeight());
+
+                if (outputImageScaleInDb && !targetUnit.equals(Unit.PHASE)) {
+                    targetUnit = Unit.INTENSITY_DB;
+                }
+                targetBand.setUnit(targetUnit);
+                targetBand.setNoDataValueUsed(true);
+                targetBand.setNoDataValue(srcBand.getNoDataValue());
+                targetProduct.addBand(targetBand);
+            }
+        }
+    }
+
+    private String createTargetBandName(final String srcBandName, final MetadataElement absRoot) {
+
+        String pol;
+        if (productType.contains("MLC")) {
+            pol = getBandPolarizationMLC(srcBandName);
+        } else {
+            pol = OperatorUtils.getBandPolarization(srcBandName, absRoot);
+        }
+
+        String targetBandName = "Sigma0";
+        if (pol != null && !pol.isEmpty()) {
+            targetBandName = "Sigma0_" + pol.toUpperCase();
+        }
+        if (outputImageScaleInDb) {
+            targetBandName += "_dB";
+        }
+        return targetBandName;
+    }
+
+    private String getBandPolarizationMLC(final String srcBandName) {
+        if (srcBandName.contains("C11")) {
+            return "ch";
+        } else if (srcBandName.contains("C22")) {
+            return "cv";
+        } else {
+            return "xc";
+        }
+    }
+
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -214,6 +452,96 @@ public class RCMCalibrator extends BaseCalibrator implements Calibrator {
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+
+        if (productType != null && productType.contains("MLC")) {
+            computeTileMLC(targetBand, targetTile);
+        } else {
+            computeTile(targetBand, targetTile);
+        }
+    }
+
+    private void computeTileMLC(final Band targetBand, final Tile targetTile) throws OperatorException {
+
+        final Rectangle targetTileRectangle = targetTile.getRectangle();
+        final int x0 = targetTileRectangle.x;
+        final int y0 = targetTileRectangle.y;
+        final int w = targetTileRectangle.width;
+        final int h = targetTileRectangle.height;
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
+
+        Tile sourceRaster1 = null;
+        ProductData srcData1 = null;
+        ProductData srcData2 = null;
+        Band sourceBand1 = null;
+
+        final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
+        if (srcBandNames.length == 1) {
+            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
+            srcData1 = sourceRaster1.getDataBuffer();
+        } else {
+            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+            final Band sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
+            final Tile sourceRaster2 = calibrationOp.getSourceTile(sourceBand2, targetTileRectangle);
+            srcData1 = sourceRaster1.getDataBuffer();
+            srcData2 = sourceRaster2.getDataBuffer();
+        }
+
+        final String pol = getBandPolarizationMLC(srcBandNames[0]);
+        final CalibrationLUT sigmaLUT = gainsMap.get(pol);
+        final int offset = sigmaLUT.offset;
+        final double[] gains = sigmaLUT.getGains(x0 + subsetOffsetX, w);
+
+        final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
+        final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
+
+        final ProductData trgData = targetTile.getDataBuffer();
+        final TileIndex srcIndex = new TileIndex(sourceRaster1);
+        final TileIndex tgtIndex = new TileIndex(targetTile);
+
+        double sigma = 0.0, dn, dn2, i, q, phaseTerm = 0.0;
+        for (int y = y0; y < maxY; ++y) {
+            srcIndex.calculateStride(y);
+            tgtIndex.calculateStride(y);
+
+            for (int x = x0; x < maxX; ++x) {
+                final int srcIdx = srcIndex.getIndex(x);
+                final int tgtIdx = tgtIndex.getIndex(x);
+
+                if (srcBandUnit == Unit.UnitType.INTENSITY) {
+                    dn = srcData1.getElemDoubleAt(srcIdx);
+                    sigma = dn * dn / gains[x - x0];
+                    trgData.setElemDoubleAt(tgtIdx, sigma);
+                } else if (srcBandUnit == Unit.UnitType.REAL) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
+                    if (dn2 > 0.0) {
+                        if (tgtBandUnit == Unit.UnitType.REAL) {
+                            phaseTerm = (i*i - q*q) / dn2;
+                        } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                            phaseTerm = 2.0*i*q / dn2;
+                        }
+                    } else {
+                        phaseTerm = 0.0;
+                    }
+
+                    sigma = dn2 / gains[x - x0];
+                    if (outputImageInComplex) {
+                        sigma *= phaseTerm;
+                    }
+                    trgData.setElemDoubleAt(tgtIdx, sigma);
+
+                } else {
+                    throw new OperatorException("RCM Calibration: unhandled unit");
+                }
+            }
+        }
+    }
+
+    private void computeTile(final Band targetBand, final Tile targetTile) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;

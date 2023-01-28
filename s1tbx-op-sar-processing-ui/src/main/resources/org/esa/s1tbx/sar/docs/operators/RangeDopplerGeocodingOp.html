@@ -44,8 +44,9 @@
 <p>Currently, only the DEMs with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) referred to
     global geodetic ellipsoid reference WGS84 (and height in meters) are properly supported.</p>
 
-<p>Various different types of Digital Elevation
-    models can be used (ACE2_5Min, ACE_30, ASTER_1Sec, CFEM, Copernicus30m, Copernicus90m, GETASSE30, SRTM 1Sec, SRTM 3Sec&nbsp;GeoTiff).</p><p>The
+<p>Various different types of Digital Elevation models can be used
+(ACE2_5Min, ACE_30, ASTER_1Sec, CFEM, Copernicus30m, Copernicus90m,
+GETASSE30, SRTM 1Sec, SRTM 3Sec&nbsp;GeoTiff).</p><p>The
 STRM v.4 (3&#8221; tiles) from the Joint Research Center FTP (xftp.jrc.it)
 will automatically be downloaded in tiles for&nbsp; the area covered by
 the image to be orthorectified. The tiles will be downloaded to the
@@ -363,12 +364,18 @@ Please note that the simplified approach&nbsp; where Noise Equivalent Beta Naugh
         image will be expressed in WGS84 latlong geographic coordinate.</li><li>Mask
 out areas without elevation: Checkbox indicating that areas (e.g. sea)
 where DEM is not available will be masked out as no data
-value.&nbsp;&nbsp;</li><li>Selected source band: Checkbox indicating that orthorectified
+value.&nbsp;</li><li>&nbsp;Output
+complex data: Checkbox indicating that the terrain correction result
+will be saved in complex format. The geocoded phase will not be
+phase-corrected and therefore its use for InSAR applications is
+strongly discouraged.&nbsp;</li><li>Selected source band: Checkbox indicating that orthorectified
         images of user selected bands will be saved without applying
         radiometric normalization.
     </li>
     <li>DEM as a band: Checkbox indicating that DEM will be saved as a band in the
-        target product.</li><li>Latitude and Longitude: Checkbox indicating that latitude and longitude bands will be saved in the target product.&nbsp;</li><li>Incidence angle ellipsoid: Checkbox indicating that the tie point grid incidence angle will be saved as a band in the target product.&nbsp;</li>
+        target product.</li><li>Latitude and Longitude: Checkbox indicating that latitude and longitude bands will be saved in the target product.&nbsp;</li><li>Incidence
+angle ellipsoid: Checkbox indicating that the tie point grid incidence
+angle will be saved as a band in the target product.&nbsp;</li>
     <li>Local incidence angle: Checkbox indicating that local incidence
         angle will be saved as a band in the target product.
     </li>
@@ -397,7 +404,7 @@ File</span> (for detected product only) and <span style="font-weight: bold;">Ext
     </li>
 </ol>
 <i ,j="">
-<br></i><p><i ,j=""><img style="width: 508px; height: 679px;" alt="" src="images/range_doppler_dlg.JPG"><br></i></p>
+<br></i><p><i ,j=""><img style="width: 509px; height: 680px;" alt="" src="images/range_doppler_dlg.JPG"><br></i></p>
 
 <p><i ,j="">
     </i></p>

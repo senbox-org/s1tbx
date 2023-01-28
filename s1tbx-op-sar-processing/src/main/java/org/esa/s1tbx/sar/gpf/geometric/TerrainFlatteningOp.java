@@ -37,6 +37,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.EarthGravitationalModel96;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
@@ -99,6 +100,9 @@ public final class TerrainFlatteningOp extends Operator {
 
     @Parameter(defaultValue = "false", label = "Output Terrain Flattened Sigma0")
     private Boolean outputSigma0 = false;
+
+    @Parameter(defaultValue = "true", label = "Mask out areas with no elevation", description = "Mask the sea with no data value (faster)")
+    private boolean nodataValueAtSea = true;
 
     @Parameter(description = "The additional overlap percentage", interval = "[0, 1]", label = "Additional Overlap",
             defaultValue = "0.1")
@@ -567,12 +571,17 @@ public final class TerrainFlatteningOp extends Operator {
             final int rows = (int) Math.round((latMax - latMin) / demResolution);
             final int cols = (int) Math.round((lonMax - lonMin) / demResolution);
 
+            final EarthGravitationalModel96 egm = EarthGravitationalModel96.instance();
             final double[][] height = new double[rows][cols];
             for (int i = 0; i < rows; ++i) {
                 final double lat = latMax - i * demResolution;
                 for (int j = 0; j < cols; ++j) {
                     final double lon = lonMin + j * demResolution;
-                    height[i][j] = dem.getElevation(new GeoPos(lat, lon));
+                    Double alt = dem.getElevation(new GeoPos(lat, lon));
+                    if (alt.equals(demNoDataValue) && !nodataValueAtSea) { // get corrected elevation for 0
+                        alt = (double) egm.getEGM(lat, lon);
+                    }
+                    height[i][j] = alt;
                 }
             }
             final ResamplingRaster resamplingRaster = new ResamplingRaster(demNoDataValue, height);
@@ -800,7 +809,8 @@ public final class TerrainFlatteningOp extends Operator {
             final int yy = y - y0;
             tgtIndex.calculateStride(y);
             final double zeroDopplerTime = firstLineUTC + y*lineTimeInterval;
-            final double[] srgrCoeff = SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams);
+            final double[] srgrCoeff = isGRD && srgrConvParams != null ?
+                    SARGeocoding.getSRGRCoefficients(zeroDopplerTime, srgrConvParams) : null;
 
             for (int x = x0; x < x0 + w; x++) {
                 final int xx = x - x0;

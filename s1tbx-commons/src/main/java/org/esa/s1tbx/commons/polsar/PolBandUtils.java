@@ -507,9 +507,4 @@ public class PolBandUtils {
         return bandName.length() > elemPrefix.length() &&
                 bandName.substring(1, elemPrefix.length()+1).equals(elemPrefix);
     }
-
-    public static boolean useRCMConvention() {
-        String property = System.getProperty(SystemUtils.getApplicationContextId() + ".hybridmode.useRCMConvention", "true");
-        return Boolean.parseBoolean(property);
-    }
 }
