@@ -61,7 +61,7 @@ public class TestKompsat5ProductReader extends ReaderTest {
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
         validator.validateMetadata();
-        validator.validateBands(new String[] {"GIM","Amplitude_HH","Intensity_HH"});
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
@@ -71,7 +71,7 @@ public class TestKompsat5ProductReader extends ReaderTest {
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
         validator.validateMetadata();
-        validator.validateBands(new String[] {"GIM", "Amplitude_HH","Intensity_HH"});
+        validator.validateBands(new String[] {"Amplitude_HH","Intensity_HH"});
     }
 
     @Test
@@ -81,7 +81,7 @@ public class TestKompsat5ProductReader extends ReaderTest {
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
         validator.validateMetadata();
-        validator.validateBands(new String[] {"GIM", "i_HH", "q_HH", "Intensity_HH"});
+        validator.validateBands(new String[] {"i_HH", "q_HH", "Intensity_HH"});
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TestKompsat5ProductReader extends ReaderTest {
         final ProductValidator validator = new ProductValidator(prod);
         validator.validateProduct();
         validator.validateMetadata();
-        validator.validateBands(new String[] {"GIM", "i_HH", "q_HH", "Intensity_HH"});
+        validator.validateBands(new String[] {"i_HH", "q_HH", "Intensity_HH"});
     }
 
     @Test

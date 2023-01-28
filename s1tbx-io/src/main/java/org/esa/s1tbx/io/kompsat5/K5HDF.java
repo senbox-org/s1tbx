@@ -33,6 +33,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -67,12 +68,14 @@ public class K5HDF implements K5Format {
     private boolean useFloatBands = false;
     private boolean isComplex = false;
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-
     private final Map<Band, Variable> bandMap = new HashMap<>(10);
+    private final Map<Band, TiePointGeoCoding> bandGeocodingMap = new HashMap<>(5);
+
 
     public K5HDF(final ProductReaderPlugIn readerPlugIn, final Kompsat5Reader reader) {
         this.readerPlugIn = readerPlugIn;
         this.reader = reader;
+
     }
 
     public Product open(final File inputFile) throws IOException {
@@ -80,52 +83,61 @@ public class K5HDF implements K5Format {
         if (netcdfFile == null) {
             close();
             throw new IllegalFileFormatException(inputFile.getName() +
-                                                         " Could not be interpreted by the reader.");
+                    " Could not be interpreted by the reader.");
         }
 
         final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
         if (variableListMap.isEmpty()) {
             close();
             throw new IllegalFileFormatException("No netCDF variables found which could\n" +
-                                                         "be interpreted as remote sensing bands.");  /*I18N*/
+                    "be interpreted as remote sensing bands.");  /*I18N*/
         }
         removeQuickLooks(variableListMap);
 
-        final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
-        final Variable[] rasterVariables = getRasterVariables(variableListMap, rasterDim);
-        final Variable gimVariable = getGIMVariable(variableListMap, rasterDim);
-        final Variable[] tiePointGridVariables = NetCDFUtils.getTiePointGridVariables(variableListMap, rasterVariables);
-
+        final Variable[] rasterVariables = getRasterVariables(variableListMap);
         this.netcdfFile = netcdfFile;
         variableMap = new NcVariableMap(rasterVariables);
         yFlipped = false;
 
         final NcAttributeMap globalAttributes = NcAttributeMap.create(this.netcdfFile);
-
         final String productType = NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]);
 
-        final int rasterWidth = rasterDim.getDimX().getLength();
-        final int rasterHeight = rasterDim.getDimY().getLength();
+        // set product name
+        final String productName;
+        if (inputFile.getName().toUpperCase().endsWith(".H5")) {
+            productName = inputFile.getName().toUpperCase().replace(".H5", "");
+        } else if (inputFile.getName().toUpperCase().endsWith("_AUX.XML")) {
+            productName = inputFile.getName().toUpperCase().replace("_AUX.XML", "");
+        } else {
+            productName = inputFile.getName();
+        }
 
-        product = new Product(inputFile.getName(), productType, rasterWidth, rasterHeight, reader);
+        int productWidth = 0;
+        int productHeight = 0;
+
+        for (Variable var : rasterVariables) {
+            productWidth += var.getDimension(1).getLength();
+            if (var.getDimension(0).getLength() > productHeight) {
+                productHeight = var.getDimension(0).getLength();
+            }
+        }
+
+        product = new Product(productName, productType, productWidth, productHeight, reader);
+
         product.setFileLocation(inputFile);
         product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
 
         addMetadataToProduct();
         addBandsToProduct(rasterVariables);
 
-        addSlantRangeToFirstPixel();
-        addFirstLastLineTimes(product);
-        addSRGRCoefficients(product);
-
-        addTiePointGridsToProduct(tiePointGridVariables, gimVariable);
-        addGeoCodingToProduct(product, rasterDim);
+        addGeocodingToProduct(product);
 
         return product;
     }
 
     public void close() throws IOException {
         if (product != null) {
+            product.dispose();
             product = null;
             variableMap.clear();
             variableMap = null;
@@ -134,21 +146,21 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private static Variable[] getRasterVariables(final Map<NcRasterDim, List<Variable>> variableLists, final NcRasterDim rasterDim) {
+    private static Variable[] getRasterVariables(final Map<NcRasterDim, List<Variable>> variableLists) {
         final List<Variable> list = new ArrayList<>(5);
-        list.addAll(variableLists.get(rasterDim));
-        return list.toArray(new Variable[0]);
-    }
-
-    private static Variable getGIMVariable(final Map<NcRasterDim, List<Variable>> variableLists,
-                                           final NcRasterDim rasterDim) {
-        final List<Variable> varList = variableLists.get(rasterDim);
-        for (Variable var : varList) {
-            if (var.getShortName().equals("GIM")) {
-                return var;
+        // WIDE SWATH's L1A reads S01 swath only
+        variableLists.forEach((NcRasterDim rasterDim, List<Variable> varList) -> {
+            for (Variable var : varList) {
+                if (!var.getShortName().equals("GIM")) {
+                    String varParent = var.getParentGroup().getShortName();
+                    if (varParent.equals("S01") || var.getShortName().equals("MBI")) {
+                        list.add(var);
+                        break;
+                    }
+                }
             }
-        }
-        return null;
+        });
+        return list.toArray(new Variable[0]);
     }
 
     private static void removeQuickLooks(final Map<NcRasterDim, List<Variable>> variableListMap) {
@@ -190,19 +202,28 @@ public class K5HDF implements K5Format {
     }
 
     private void addMetadataToProduct() {
-
         try {
             final MetadataElement origMetadataRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
             NetCDFUtils.addAttributes(origMetadataRoot, NetcdfConstants.GLOBAL_ATTRIBUTES_NAME,
-                                      netcdfFile.getGlobalAttributes());
+                    netcdfFile.getGlobalAttributes());
 
             addAuxXML(product);
 
-            for (final Variable variable : variableMap.getAll()) {
-                NetCDFUtils.addAttributes(origMetadataRoot, variable.getShortName(), variable.getAttributes());
+            // to be updated : read scansar
+            final String[] swathId = {"S01", "S02", "S03", "S04"};
+            for (String swath : swathId) {
+                for (final Variable variable : variableMap.getAll()) {
+
+                    if (variable.getParentGroup().getShortName().equals(swath)) {
+                        NetCDFUtils.addAttributes(origMetadataRoot, variable.getShortName(), variable.getAttributes());
+                    }
+                }
             }
 
             addAbstractedMetadataHeader(product, product.getMetadataRoot());
+            addSlantRangeToFirstPixel();
+            addFirstLastLineTimes(product);
+            addSRGRCoefficients(product);
         } catch (Exception e) {
             SystemUtils.LOG.severe("Error reading metadata for " + product.getName() + ": " + e.getMessage());
         }
@@ -227,13 +248,13 @@ public class K5HDF implements K5Format {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "Kompsat5");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                                      ReaderUtils.getTime(globalElem, "Product_Generation_UTC", standardDateFormat));
+                ReaderUtils.getTime(globalElem, "Product_Generation_UTC", standardDateFormat));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                                      globalElem.getAttributeString("Processing_Centre"));
+                globalElem.getAttributeString("Processing_Centre"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,
-                                      globalElem.getAttributeString("Look_Side").toLowerCase());
+                globalElem.getAttributeString("Look_Side").toLowerCase());
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction"));
@@ -241,28 +262,19 @@ public class K5HDF implements K5Format {
 
         useFloatBands = globalElem.getAttributeString("Sample_Format").equals("FLOAT");
 
-        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        product.setStartTime(startTime);
-        product.setEndTime(stopTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                                      ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
-
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                                      product.getSceneRasterHeight());
+                product.getSceneRasterHeight());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                                      product.getSceneRasterWidth());
+                product.getSceneRasterWidth());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                                      globalElem.getAttributeDouble("Radar_Frequency") / Constants.oneMillion);
+                globalElem.getAttributeDouble("Radar_Frequency") / Constants.oneMillion);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
-                                      globalElem.getAttributeString("Focusing_Algorithm_ID"));
+                globalElem.getAttributeString("Focusing_Algorithm_ID"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
-                                      globalElem.getAttributeString("Ellipsoid_Designator"));
+                globalElem.getAttributeString("Ellipsoid_Designator"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
                 auxRoot.getAttributeDouble("RangeProcessingNumberofLooks", 1));
@@ -271,7 +283,7 @@ public class K5HDF implements K5Format {
 
         if (productType.contains("GEC")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection,
-                                          globalElem.getAttributeString("Projection_ID"));
+                    globalElem.getAttributeString("Projection_ID"));
         }
 
         final String rngSpreadComp = globalElem.getAttributeString(
@@ -287,24 +299,24 @@ public class K5HDF implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag, antElevComp.equals("NONE") ? 0 : 1);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_inc_angle,
-                                      globalElem.getAttributeDouble("Reference_Incidence_Angle"));
+                globalElem.getAttributeDouble("Reference_Incidence_Angle"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_slant_range,
-                                      globalElem.getAttributeDouble("Reference_Slant_Range"));
+                globalElem.getAttributeDouble("Reference_Slant_Range"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ref_slant_range_exp,
-                                      globalElem.getAttributeDouble("Reference_Slant_Range_Exponent"));
+                globalElem.getAttributeDouble("Reference_Slant_Range_Exponent"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.rescaling_factor,
-                                      globalElem.getAttributeDouble("Rescaling_Factor"));
+                globalElem.getAttributeDouble("Rescaling_Factor"));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isComplex ? 0 : 1);
 
         final MetadataElement s01Elem = globalElem.getElement("S01");
         if (s01Elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                                          s01Elem.getAttributeDouble("PRF"));
+                    s01Elem.getAttributeDouble("PRF"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                                          s01Elem.getAttributeDouble("Sampling_Rate") / Constants.oneMillion);
+                    s01Elem.getAttributeDouble("Sampling_Rate") / Constants.oneMillion);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
-                                          s01Elem.getAttributeString("Polarisation"));
+                    s01Elem.getAttributeString("Polarisation"));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = s01Elem.getAttributeDouble("Range_Focusing_Bandwidth"); // Hz
@@ -317,11 +329,11 @@ public class K5HDF implements K5Format {
         } else {
             final String prefix = "S01_";
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                                          globalElem.getAttributeDouble(prefix + "PRF"));
+                    globalElem.getAttributeDouble(prefix + "PRF"));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                                          globalElem.getAttributeDouble(prefix + "Sampling_Rate") / Constants.oneMillion);
+                    globalElem.getAttributeDouble(prefix + "Sampling_Rate") / Constants.oneMillion);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
-                                          globalElem.getAttributeString(prefix + "Polarisation"));
+                    globalElem.getAttributeString(prefix + "Polarisation"));
 
             // add Range and Azimuth bandwidth
             final double rangeBW = globalElem.getAttributeDouble(prefix + "Range_Focusing_Bandwidth"); // Hz
@@ -334,33 +346,33 @@ public class K5HDF implements K5Format {
         final MetadataElement s02Elem = globalElem.getElement("S02");
         if (s02Elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
-                                          s02Elem.getAttributeString("Polarisation"));
-        } else if(globalElem.containsAttribute("S02_Polarisation")) {
+                    s02Elem.getAttributeString("Polarisation"));
+        } else if (globalElem.containsAttribute("S02_Polarisation")) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
-                                          globalElem.getAttributeString("S02_Polarisation"));
+                    globalElem.getAttributeString("S02_Polarisation"));
         }
 
         addOrbitStateVectors(absRoot, globalElem);
         addDopplerCentroidCoefficients(absRoot, globalElem);
     }
 
-    private Band getNonGIMBand() {
-        for(Band band : product.getBands()) {
-            if(!band.getName().equals("GIM")) {
-                return band;
-            }
-        }
-        return product.getBandAt(0);
-    }
-
     private void addSlantRangeToFirstPixel() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement bandElem = getBandElement(getNonGIMBand());
-        if (bandElem != null) {
-            final double slantRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0); //s
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                                          slantRangeTime * Constants.halfLightSpeed);
+        final MetadataElement oriRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement auxElem = oriRoot.getElement("Auxiliary");
+        final MetadataElement rootElem = auxElem.getElement("Root");
+        MetadataElement bandElem;
+        if (rootElem.getElement("MBI") != null) {
+            bandElem = rootElem.getElement("MBI");
+        } else {
+            MetadataElement subSwathsElem = rootElem.getElement("SubSwaths");
+            MetadataElement subSwathElem = subSwathsElem.getElement("SubSwath");
+            bandElem = subSwathElem.getElement("SBI");
         }
+
+        final double slantRangeTime = Double.valueOf(bandElem.getAttributeString("ZeroDopplerRangeFirstTime")); //s
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+                slantRangeTime * Constants.halfLightSpeed);
     }
 
     private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement globalElem) {
@@ -410,7 +422,7 @@ public class K5HDF implements K5Format {
         dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
         AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
-                                                ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+                ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
         AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, 0.0);
 
         for (int i = 0; i < 6; i++) {
@@ -419,7 +431,7 @@ public class K5HDF implements K5Format {
             final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             dopplerListElem.addElement(coefElem);
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                                                    ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                    ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
         }
     }
@@ -429,11 +441,11 @@ public class K5HDF implements K5Format {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
-        final MetadataElement bandElem = getBandElement(getNonGIMBand());
+        final MetadataElement bandElem = getBandElement();
 
         if (bandElem != null) {
             final double referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat).getMJD(); // in days
-            double firstLineTime = bandElem.getAttributeDouble("Zero_Doppler_Azimuth_First_Time", 0) / (24 * 3600); // in days
+            double firstLineTime = Double.valueOf(bandElem.getAttributeDouble("ZeroDopplerAzimuthFirstTime")) / (24 * 3600); // in days
             if (firstLineTime == 0) {
                 final MetadataElement s01Elem = globalElem.getElement("S01");
                 if (s01Elem != null) {
@@ -442,7 +454,7 @@ public class K5HDF implements K5Format {
                     firstLineTime = globalElem.getAttributeDouble("S01_B001_Azimuth_First_Time") / (24 * 3600); // in days
                 }
             }
-            double lastLineTime = bandElem.getAttributeDouble("Zero_Doppler_Azimuth_Last_Time", 0) / (24 * 3600); // in days
+            double lastLineTime = bandElem.getAttributeDouble("ZeroDopplerAzimuthLastTime") / (24 * 3600); // in days
             if (lastLineTime == 0) {
                 final MetadataElement s01Elem = globalElem.getElement("S01");
                 if (s01Elem != null) {
@@ -451,7 +463,7 @@ public class K5HDF implements K5Format {
                     lastLineTime = globalElem.getAttributeDouble("S01_B001_Azimuth_Last_Time") / (24 * 3600); // in days
                 }
             }
-            double lineTimeInterval = bandElem.getAttributeDouble("Line_Time_Interval", 0); // in s
+            double lineTimeInterval = Double.valueOf(bandElem.getAttributeDouble("LineTimeInterval", AbstractMetadata.NO_METADATA)); // in s
             final ProductData.UTC startTime = new ProductData.UTC(referenceUTC + firstLineTime);
             final ProductData.UTC stopTime = new ProductData.UTC(referenceUTC + lastLineTime);
 
@@ -459,7 +471,7 @@ public class K5HDF implements K5Format {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
             product.setStartTime(startTime);
             product.setEndTime(stopTime);
-            if (lineTimeInterval == 0 || lastLineTime == AbstractMetadata.NO_METADATA) {
+            if (lineTimeInterval == 0 || lineTimeInterval == AbstractMetadata.NO_METADATA) {
                 lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             }
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);
@@ -479,9 +491,9 @@ public class K5HDF implements K5Format {
 
         final double referenceRange = attribute.getData().getElemDouble();
 
-        final MetadataElement bandElem = getBandElement(getNonGIMBand());
-        final double rangeSpacing = bandElem.getAttributeDouble("Column_Spacing", AbstractMetadata.NO_METADATA);
+        final MetadataElement bandElem = getBandElement();
 
+        final double rangeSpacing = Double.valueOf(bandElem.getAttributeString("ColumnSpacing", String.valueOf(AbstractMetadata.NO_METADATA)));
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
         final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list);
         srgrCoefficientsElem.addElement(srgrListElem);
@@ -489,7 +501,7 @@ public class K5HDF implements K5Format {
         final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                                                ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
+                ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
         AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
         final int numCoeffs = 6;
@@ -505,7 +517,7 @@ public class K5HDF implements K5Format {
             srgrListElem.addElement(coefElem);
 
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
-                                                    ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
+                    ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
 
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, srgrCoeff);
         }
@@ -523,32 +535,19 @@ public class K5HDF implements K5Format {
     private void addBandsToProduct(final Variable[] variables) {
         int cnt = 1;
         for (Variable variable : variables) {
-            final int height = variable.getDimension(0).getLength();
             final int width = variable.getDimension(1).getLength();
-            if(variable.getShortName().contains("GIM")) {
-                final Band band = useFloatBands ?
-                        NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_UINT16) :
-                        NetCDFUtils.createBand(variable, width, height);
-                createUniqueBandName(product, band, "GIM");
-                band.setNoDataValue(255);
-                band.setNoDataValueUsed(true);
-                band.setUnit(Unit.DEGREES);
-                product.addBand(band);
-                bandMap.put(band, variable);
-                continue;
-            }
+            final int height = variable.getDimension(0).getLength();
 
             String cntStr = "";
-            final String polStr = getPolarization(product, cnt);
-            if (polStr != null) {
-                cntStr = '_' + polStr;
-            } else {
-                cntStr = "_" + cnt;
+            if (variables.length > 0) {
+                final String polStr = getPolarization(product, cnt);
+                if (variables.length == 1) {
+                    cntStr = '_' + polStr;
+                }
             }
-            ++cnt;
 
             if (isComplex) {     // add i and q
-                final Band bandI = useFloatBands ?
+                Band bandI = useFloatBands ?
                         NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
                         NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandI, 'i' + cntStr);
@@ -558,7 +557,7 @@ public class K5HDF implements K5Format {
                 product.addBand(bandI);
                 bandMap.put(bandI, variable);
 
-                final Band bandQ = useFloatBands ?
+                Band bandQ = useFloatBands ?
                         NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
                         NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandQ, 'q' + cntStr);
@@ -586,17 +585,18 @@ public class K5HDF implements K5Format {
     }
 
     private static String getPolarization(final Product product, final int cnt) {
-
-        final MetadataElement globalElem = AbstractMetadata.getOriginalProductMetadata(product).getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
-        if (globalElem != null) {
-            final MetadataElement s01Elem = globalElem.getElement("S0" + cnt);
-            if (s01Elem != null) {
-                final String polStr = s01Elem.getAttributeString("Polarisation", "");
+        final MetadataElement auxElem = AbstractMetadata.getOriginalProductMetadata(product).getElement("Auxiliary");
+        final MetadataElement rootElem = auxElem.getElement("Root");
+        final MetadataElement subSwathsElem = rootElem.getElement("SubSwaths");
+        if (subSwathsElem != null) {
+            final MetadataElement subSwathElem = subSwathsElem.getElement("SubSwath");
+            if (subSwathElem != null) {
+                final String polStr = subSwathElem.getAttributeString("Polarisation");
                 if (!polStr.isEmpty())
                     return polStr;
             } else {
                 final String prefix = "S0" + cnt + '_';
-                final String polStr = globalElem.getAttributeString(prefix + "Polarisation", "");
+                final String polStr = subSwathElem.getAttributeString(prefix + "Polarisation", "");
                 if (!polStr.isEmpty())
                     return polStr;
             }
@@ -613,7 +613,8 @@ public class K5HDF implements K5Format {
         }
     }
 
-    private void addTiePointGridsToProduct(final Variable[] variables, final Variable gimVariable) {
+    // change parameter
+    private void addGeocodingToProduct(final Product product) {
 //        for (Variable variable : variables) {
 //            final int rank = variable.getRank();
 //            final int gridWidth = variable.getDimension(rank - 1).getLength();
@@ -626,24 +627,133 @@ public class K5HDF implements K5Format {
 //            product.addTiePointGrid(tpg);
 //        }
 
-        final MetadataElement bandElem = getBandElement(getNonGIMBand());
-        addIncidenceAnglesSlantRangeTime(product, bandElem);
-        addGeocodingFromMetadata(product, bandElem);
+        final MetadataElement bandElem = getBandElement();
+//      addIncidenceAnglesSlantRangeTime(product, bandElem);
+//      addGeocodingFromMetadata(product, bandElem);
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final MetadataElement sbiElem = AbstractMetadata.getOriginalProductMetadata(product).getElement("SBI");
+
+        try {
+            String str = bandElem.getAttributeString("TopLeftGeodeticCoordinates");
+            final float latUL = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonUL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+            str = bandElem.getAttributeString("TopRightGeodeticCoordinates");
+            final float latUR = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonUR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+            str = bandElem.getAttributeString("BottomLeftGeodeticCoordinates");
+            final float latLL = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonLL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+            str = bandElem.getAttributeString("BottomRightGeodeticCoordinates");
+            final float latLR = Float.parseFloat(str.substring(0, str.indexOf(',')));
+            final float lonLR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
+
+            absRoot.setAttributeDouble(AbstractMetadata.first_near_lat, latUL);
+            absRoot.setAttributeDouble(AbstractMetadata.first_near_long, lonUL);
+            absRoot.setAttributeDouble(AbstractMetadata.first_far_lat, latUR);
+            absRoot.setAttributeDouble(AbstractMetadata.first_far_long, lonUR);
+            absRoot.setAttributeDouble(AbstractMetadata.last_near_lat, latLL);
+            absRoot.setAttributeDouble(AbstractMetadata.last_near_long, lonLL);
+            absRoot.setAttributeDouble(AbstractMetadata.last_far_lat, latLR);
+            absRoot.setAttributeDouble(AbstractMetadata.last_far_long, lonLR);
+
+            final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
+            final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
+
+            int gridWidth = 10;
+            int gridHeight = 10;
+            final float subSamplingX = product.getSceneRasterWidth() / (float) (gridWidth - 1);
+            final float subSamplingY = product.getSceneRasterHeight() / (float) (gridHeight - 1);
+
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
+                    bandElem.getAttributeDouble("ColumnSpacing", AbstractMetadata.NO_METADATA));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
+                    bandElem.getAttributeDouble("LineSpacing", AbstractMetadata.NO_METADATA));
+
+            TiePointGrid latGrid;
+            TiePointGrid lonGrid;
+
+            if (product.getTiePointGrid(OperatorUtils.TPG_LATITUDE) != null) {
+                latGrid = product.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
+                return;
+            }
+            if (product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE) != null) {
+                lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
+                return;
+            }
+
+            final double nearRangeAngle = Double.valueOf(bandElem.getAttributeDouble("NearIncidenceAngle", 0));
+            final double farRangeAngle = Double.valueOf(bandElem.getAttributeDouble("FarIncidenceAngle", 0));
+
+            final double firstRangeTime = Double.valueOf(bandElem.getAttributeDouble("ZeroDopplerRangeFirstTime", 0)) * Constants.oneBillion;
+            final double lastRangeTime = Double.valueOf(bandElem.getAttributeDouble("ZeroDopplerRangeLastTime", 0)) * Constants.oneBillion;
+
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, nearRangeAngle);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, farRangeAngle);
+
+            final float[] incidenceCorners = new float[]{(float) nearRangeAngle, (float) farRangeAngle, (float) nearRangeAngle, (float) farRangeAngle};
+            final float[] slantRange = new float[]{(float) firstRangeTime, (float) lastRangeTime, (float) firstRangeTime, (float) lastRangeTime};
+
+            float[] fineLatTiePoints = new float[gridWidth * gridHeight];
+            float[] fineLonTiePoints = new float[gridWidth * gridHeight];
+            final float[] fineAngles = new float[gridWidth * gridHeight];
+            final float[] fineTimes = new float[gridWidth * gridHeight];
+
+            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latCorners, fineLatTiePoints);
+            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonCorners, fineLonTiePoints);
+            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
+            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, slantRange, fineTimes);
+
+            latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.0, 0.0,
+                    subSamplingX, subSamplingY, fineLatTiePoints);
+            latGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(latGrid);
+
+
+            lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.0, 0.0,
+                    subSamplingX, subSamplingY, fineLonTiePoints);
+            lonGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(lonGrid);
+
+
+            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0.0, 0.0,
+                    subSamplingX, subSamplingY, fineAngles);
+            incidentAngleGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(incidentAngleGrid);
+
+            final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0.0, 0.0,
+                    subSamplingX, subSamplingY, fineTimes);
+            slantRangeGrid.setUnit(Unit.NANOSECONDS);
+            product.addTiePointGrid(slantRangeGrid);
+
+
+            TiePointGeoCoding tpGridLatLon = new TiePointGeoCoding(latGrid, lonGrid);
+            product.setSceneGeoCoding(tpGridLatLon);
+
+            final Band[] bands = product.getBands();
+            for (Band band : bands) {
+                band.setGeoCoding(bandGeocodingMap.get(band));
+            }
+
+//          ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            // continue
+        }
     }
 
     private static void addIncidenceAnglesSlantRangeTime(final Product product, final MetadataElement bandElem) {
         if (bandElem == null) return;
-
-        final int gridWidth = 11;
-        final int gridHeight = 11;
+        int gridWidth = Math.min(10, Math.max(2, product.getSceneRasterWidth()));
+        int gridHeight = Math.min(10, Math.max(2, product.getSceneRasterHeight()));
         final float subSamplingX = product.getSceneRasterWidth() / (float) (gridWidth - 1);
         final float subSamplingY = product.getSceneRasterHeight() / (float) (gridHeight - 1);
 
-        final double nearRangeAngle = bandElem.getAttributeDouble("Near_Incidence_Angle", 0);
-        final double farRangeAngle = bandElem.getAttributeDouble("Far_Incidence_Angle", 0);
+        final double nearRangeAngle = Double.parseDouble(bandElem.getAttributeString("NearIncidenceAngle", "0"));
+        final double farRangeAngle = Double.parseDouble(bandElem.getAttributeString("FarIncidenceAngle", "0"));
 
-        final double firstRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0) * Constants.oneBillion;
-        final double lastRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_Last_Time", 0) * Constants.oneBillion;
+        final double firstRangeTime = Double.parseDouble(bandElem.getAttributeString("ZeroDopplerRangeFirstTime", "0")) * Constants.oneBillion;
+        final double lastRangeTime = Double.parseDouble(bandElem.getAttributeString("ZeroDopplerRangeLastTime", "0")) * Constants.oneBillion;
 
         final float[] incidenceCorners = new float[]{(float) nearRangeAngle, (float) farRangeAngle, (float) nearRangeAngle, (float) farRangeAngle};
         final float[] slantRange = new float[]{(float) firstRangeTime, (float) lastRangeTime, (float) firstRangeTime, (float) lastRangeTime};
@@ -655,46 +765,52 @@ public class K5HDF implements K5Format {
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, slantRange, fineTimes);
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                                                                subSamplingX, subSamplingY, fineAngles);
+                subSamplingX, subSamplingY, fineAngles);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
-                                                             subSamplingX, subSamplingY, fineTimes);
+                subSamplingX, subSamplingY, fineTimes);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         product.addTiePointGrid(slantRangeGrid);
     }
 
-    private MetadataElement getBandElement(final Band band) {
-        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
-        final Variable variable = bandMap.get(band);
-        final String varName = variable.getShortName();
-        MetadataElement bandElem = null;
-        for (MetadataElement elem : root.getElements()) {
-            if (elem.getName().equalsIgnoreCase(varName)) {
-                bandElem = elem;
-                break;
-            }
+    private MetadataElement getBandElement() {
+        final MetadataElement originalProductMetadata = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement auxElem = originalProductMetadata.getElement("Auxiliary");
+        final MetadataElement rootElem = auxElem.getElement("Root");
+        final MetadataElement subSwathElem = rootElem.getElement("SubSwaths").getElement("SubSwath");
+        final MetadataElement sbiElem = subSwathElem.getElement("SBI");
+        final MetadataElement mbiElem = rootElem.getElement("MBI");
+
+        if (sbiElem == null && mbiElem == null) {
+            //
+        }
+
+        MetadataElement bandElem;
+        if (rootElem.getAttributeString("AcquisitionMode").equals("WIDE SWATH")
+                && (rootElem.getAttributeString("ProductType").contains("GEC") || rootElem.getAttributeString("ProductType").contains("GTC"))) {
+            bandElem = rootElem.getElement("MBI");
+        } else {
+            bandElem = subSwathElem.getElement("SBI");
         }
         return bandElem;
     }
 
     private static void addGeocodingFromMetadata(final Product product, final MetadataElement bandElem) {
-        if (bandElem == null) return;
-
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         try {
-            String str = bandElem.getAttributeString("Top_Left_Geodetic_Coordinates");
+            String str = bandElem.getAttributeString("TopLeftGeodeticCoordinates");
             final float latUL = Float.parseFloat(str.substring(0, str.indexOf(',')));
             final float lonUL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
-            str = bandElem.getAttributeString("Top_Right_Geodetic_Coordinates");
+            str = bandElem.getAttributeString("TopRightGeodeticCoordinates");
             final float latUR = Float.parseFloat(str.substring(0, str.indexOf(',')));
             final float lonUR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
-            str = bandElem.getAttributeString("Bottom_Left_Geodetic_Coordinates");
+            str = bandElem.getAttributeString("BottomLeftGeodeticCoordinates");
             final float latLL = Float.parseFloat(str.substring(0, str.indexOf(',')));
             final float lonLL = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
-            str = bandElem.getAttributeString("Bottom_Right_Geodetic_Coordinates");
+            str = bandElem.getAttributeString("BottomRightGeodeticCoordinates");
             final float latLR = Float.parseFloat(str.substring(0, str.indexOf(',')));
             final float lonLR = Float.parseFloat(str.substring(str.indexOf(',') + 1, str.lastIndexOf(',')));
 
@@ -708,12 +824,13 @@ public class K5HDF implements K5Format {
             absRoot.setAttributeDouble(AbstractMetadata.last_far_long, lonLR);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                                          bandElem.getAttributeDouble("Column_Spacing", AbstractMetadata.NO_METADATA));
+                    bandElem.getAttributeDouble("ColumnSpacing", AbstractMetadata.NO_METADATA));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                                          bandElem.getAttributeDouble("Line_Spacing", AbstractMetadata.NO_METADATA));
+                    bandElem.getAttributeDouble("LineSpacing", AbstractMetadata.NO_METADATA));
 
             final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
             final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
+
 
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
         } catch (Exception e) {
@@ -733,8 +850,8 @@ public class K5HDF implements K5Format {
 
         final int sceneHeight = product.getSceneRasterHeight();
         final int sceneWidth = product.getSceneRasterWidth();
-        destHeight = Math.min(destHeight, sceneHeight-sourceOffsetY);
-        destWidth = Math.min(destWidth, sceneWidth-destOffsetX);
+        destHeight = Math.min(destHeight, sceneHeight - sourceOffsetY);
+        destWidth = Math.min(destWidth, sceneWidth - destOffsetX);
 
         final int y0 = yFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
