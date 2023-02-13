@@ -250,7 +250,8 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
             final double firstLineTime = Sentinel1Utils.getTime(adsHeaderElem, "startTime").getMJD();
             final double lastLineTime = Sentinel1Utils.getTime(adsHeaderElem, "stopTime").getMJD();
             final int numOfLines = getNumOfLines(origProdRoot, pol, subSwath);
-            final int count = calVecListElem.getAttributeInt("count");
+            final int count = calVecListElem.containsAttribute("count") ? calVecListElem.getAttributeInt("count") :
+                    calVecListElem.getNumElements();
             final Sentinel1Utils.CalibrationVector[] calibrationVectorList =
                     Sentinel1Utils.getCalibrationVector(
                             calVecListElem, getSigmaLUT, getBetaLUT, getGammaLUT, getDNLUT);
