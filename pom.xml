@@ -43,6 +43,7 @@
         <netcdf.version>5.3.1</netcdf.version>
         <jblas.version>1.2.5</jblas.version>
         <junit.version>4.13.1</junit.version>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
   
 	<modules>
