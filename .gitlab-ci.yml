@@ -33,3 +33,35 @@ stages:
 
 mvn-sonar:
   image: "registry.hub.docker.com/library/maven:3.6.3-jdk-11"
+
+# Report on Github cf https://ecp-ci.gitlab.io/docs/guides/build-status-gitlab.html
+.report-status:
+  image: curlimages/curl  
+  variables:
+    URL: "https://api.github.com/repos/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/statuses/${CI_COMMIT_SHA}"
+    STATUS_NAME: snap-ci
+  script:
+    # For complete details on the GitHub API please see:
+    # https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status
+    - |-
+      curl -X POST $URL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GITHUB_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" -d '{"state": "'$CI_JOB_NAME'", "context": "'$STATUS_NAME'", "target_url": "'$CI_PIPELINE_URL'", "description": "The build status"}'
+  environment:
+    name: reporting-github
+  dependencies: []
+
+pending:
+  stage: .pre
+  extends:
+    - .report-status
+
+success:
+  stage: .post
+  extends:
+    - .report-status
+
+failure:
+  stage: .post
+  extends:
+    - .report-status
+  rules:
+    - when: on_failure
