@@ -44,6 +44,8 @@
         <jblas.version>1.2.5</jblas.version>
         <junit.version>4.13.1</junit.version>
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <sonar.java.binaries>**/classes</sonar.java.binaries>
+        <sonar.exclusions>*/src</sonar.exclusions>
     </properties>
   
 	<modules>
