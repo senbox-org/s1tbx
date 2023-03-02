@@ -227,47 +227,12 @@ public class CalibrationOpUI extends BaseOperatorUI {
                 outputBetaBandCheckBox.setVisible(false);
                 outputDNBandCheckBox.setVisible(false);
 
+                saveInComplexCheckBox.setSelected(false);
+
                 if (sampleType.equals("COMPLEX")) {
-
                     saveInComplexCheckBox.setEnabled(true);
-                    saveInComplexCheckBox.setSelected(false);
-
-                    if (saveInComplex) {
-                        saveInDbCheckBox.setEnabled(false);
-                        createGamma0VirtualBandCheckBox.setEnabled(false);
-                        createBeta0VirtualBandCheckBox.setEnabled(false);
-                        saveInDbCheckBox.setSelected(false);
-                        createGamma0VirtualBandCheckBox.setSelected(false);
-                        createBeta0VirtualBandCheckBox.setSelected(false);
-
-                        outputSigmaBandCheckBox.setEnabled(false);
-                        outputGammaBandCheckBox.setEnabled(false);
-                        outputBetaBandCheckBox.setEnabled(false);
-                        outputDNBandCheckBox.setEnabled(false);
-                        outputSigmaBandCheckBox.setSelected(false);
-                        outputGammaBandCheckBox.setSelected(false);
-                        outputBetaBandCheckBox.setSelected(false);
-                        outputDNBandCheckBox.setSelected(false);
-
-                    } else {
-                        saveInDbCheckBox.setEnabled(true);
-                        createGamma0VirtualBandCheckBox.setEnabled(true);
-                        createBeta0VirtualBandCheckBox.setEnabled(true);
-
-                        outputSigmaBandCheckBox.setVisible(true);
-                        outputGammaBandCheckBox.setVisible(true);
-                        outputBetaBandCheckBox.setVisible(true);
-                        outputDNBandCheckBox.setVisible(true);
-                    }
-
                 } else {
                     saveInComplexCheckBox.setEnabled(false);
-                    saveInComplexCheckBox.setSelected(false);
-
-                    outputSigmaBandCheckBox.setVisible(true);
-                    outputGammaBandCheckBox.setVisible(true);
-                    outputBetaBandCheckBox.setVisible(true);
-                    outputDNBandCheckBox.setVisible(true);
                 }
 
                 if (mission.startsWith("SENTINEL-1")) {
@@ -275,13 +240,16 @@ public class CalibrationOpUI extends BaseOperatorUI {
                     OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(absRoot),
                             (String[]) paramMap.get("selectedPolarisations"));
 
-                    DialogUtils.enableComponents(auxFileLabel, auxFile, false);
-                    DialogUtils.enableComponents(externalAuxFileLabel, externalAuxFile, false);
+
                     DialogUtils.enableComponents(bandListLabel, bandListPane, false);
                     saveInDbCheckBox.setVisible(false);
                     createGamma0VirtualBandCheckBox.setVisible(false);
                     createBeta0VirtualBandCheckBox.setVisible(false);
                     DialogUtils.enableComponents(polListLabel, polListPane, true);
+                    outputSigmaBandCheckBox.setVisible(true);
+                    outputGammaBandCheckBox.setVisible(true);
+                    outputBetaBandCheckBox.setVisible(true);
+                    outputDNBandCheckBox.setVisible(true);
                 }
             }
 
