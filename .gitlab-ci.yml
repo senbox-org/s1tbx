@@ -16,7 +16,8 @@ include:
 # variables
 variables:
   MAVEN_IMAGE: "registry.hub.docker.com/library/maven:3.6.3-jdk-8"
-
+  MVN_FORBID_SNAPSHOT_DEPENDENCIES_DISABLED: "true"
+  BUILD_FOR_INSTALLER: "false"
 
 # your pipeline stages
 stages:
@@ -33,6 +34,8 @@ stages:
 
 mvn-sonar:
   image: "registry.hub.docker.com/library/maven:3.6.3-jdk-11"
+  rules:
+    - if: $BUILD_FOR_INSTALLER == "false"
 
 # Report on Github cf https://ecp-ci.gitlab.io/docs/guides/build-status-gitlab.html
 .report-status:
@@ -48,6 +51,8 @@ mvn-sonar:
   environment:
     name: reporting-github
   dependencies: []
+  rules:
+    - if: $BUILD_FOR_INSTALLER == "false"
 
 pending:
   stage: .pre
