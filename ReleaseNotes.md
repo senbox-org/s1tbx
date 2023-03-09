@@ -1,9 +1,12 @@
 
+#Update 9.0.3
+https://senbox.atlassian.net/projects/SNAP/versions/12822/tab/release-report-all-issues
+
 #Update 9.0.2
-https://senbox.atlassian.net/issues/?jql=project%20%3D%2010202%20AND%20fixVersion%20%3D%2012816%20ORDER%20BY%20priority%20DESC%2C%20key%20ASC
+https://senbox.atlassian.net/projects/SITBX/versions/12816/tab/release-report-all-issues
 
 #Update 9.0.1
-https://senbox.atlassian.net/issues/?jql=project%20%3D%2010202%20AND%20fixVersion%20%3D%2012815%20ORDER%20BY%20priority%20DESC%2C%20key%20ASC
+https://senbox.atlassian.net/projects/SITBX/versions/12815/tab/release-report-all-issues
 
 #New in S1TBX 9.0
 
