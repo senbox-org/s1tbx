@@ -31,8 +31,8 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestS1OCNInputProductValidator extends ReaderTest {
 
-    private final static File inputS1_IW_metaOCN = new File(TestData.inputSAR+"S1"+File.separator+"OCN/S1A_IW_OCN__2SDV_20170317T221705_20170317T221730_015738_019E85_FACA.zip");
-    private final static File inputS1_WV_metaOCN = new File(TestData.inputSAR+"S1"+File.separator+"OCN/S1A_WV_OCN__2SSV_20150630T131602_20150630T133818_006603_008CD6_19BF.zip");
+    public final static File inputS1_IW_metaOCN = new File(TestData.inputSAR+"S1/OCN/S1A_IW_OCN__2SDV_20170317T221705_20170317T221730_015738_019E85_FACA.zip");
+    public final static File inputS1_WV_metaOCN = new File(TestData.inputSAR+"S1/OCN/S1A_WV_OCN__2SSV_20150630T131602_20150630T133818_006603_008CD6_19BF.zip");
 
     public TestS1OCNInputProductValidator() {
         super(new Sentinel1ProductReaderPlugIn());

@@ -38,19 +38,19 @@ public class TestS1SLCInputProductValidator extends ReaderTest {
     @Before
     public void setUp() {
         // If any of the file does not exist: the test will be ignored
-        assumeTrue(TestData.inputS1_StripmapSLC + " not found", TestData.inputS1_StripmapSLC.exists());
+        assumeTrue(TestData.inputS1_SLC + " not found", TestData.inputS1_SLC.exists());
     }
 
     @Test
     public void TestSentinel1SLCProduct() throws Exception {
-        final Product sourceProduct = ProductIO.readProduct(TestData.inputS1_StripmapSLC);
+        final Product sourceProduct = ProductIO.readProduct(TestData.inputS1_SLC);
         if(sourceProduct != null) {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
 
             validator.checkIfSentinel1Product();
             validator.checkProductType(new String[]{"SLC"});
-            validator.checkIfTOPSARBurstProduct(false);
-            validator.checkAcquisitionMode(new String[]{"SM"});
+            validator.checkIfTOPSARBurstProduct(true);
+            validator.checkAcquisitionMode(new String[]{"IW"});
         }
     }
 }

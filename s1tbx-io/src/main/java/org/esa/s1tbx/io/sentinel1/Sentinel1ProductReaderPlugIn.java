@@ -15,9 +15,10 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
+import org.esa.s1tbx.commons.io.S1TBXFileFilter;
+import org.esa.s1tbx.commons.io.S1TBXProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
@@ -31,16 +32,15 @@ import java.util.Locale;
 /**
  * The ReaderPlugIn for Sentinel1 products.
  */
-public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
+public class Sentinel1ProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
     private final static String[] FORMAT_NAMES = new String[]{"SENTINEL-1"};
-    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{"safe", "zip"};
+    private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{".safe", ".zip"};
     private final static String PLUGIN_DESCRIPTION = "SENTINEL-1 Products";      /*I18N*/
 
-    private final static String PRODUCT_HEADER_PREFIX = "MANIFEST";
+    private final static String PRODUCT_PREFIX = "MANIFEST";
     final static String PRODUCT_HEADER_NAME = "manifest.safe";
-
-    private final static String INDICATION_KEY = "SAFE";
+    final static String PRODUCT_EXT = ".SAFE";
 
     private final static Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
 
@@ -67,22 +67,24 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
             }
 
-            final String filename = path.getFileName().toString().toLowerCase();
-            if (filename.equals(PRODUCT_HEADER_NAME)) {
-                if (isLevel1(path) || isLevel2(path) || isLevel0(path)) {
+            if(path.getFileName() != null) {
+                final String filename = path.getFileName().toString().toLowerCase();
+                if (filename.equals(PRODUCT_HEADER_NAME)) {
+                    if (isLevel1(path) || isLevel2(path) || isLevel0(path)) {
+                        return DecodeQualification.INTENDED;
+                    }
+                }
+                if (filename.endsWith(".zip") && filename.startsWith("s1") &&
+                        (ZipUtils.findInZip(path.toFile(), "s1", PRODUCT_HEADER_NAME) ||
+                                ZipUtils.findInZip(path.toFile(), "rs2", PRODUCT_HEADER_NAME))) {
                     return DecodeQualification.INTENDED;
                 }
-            }
-            if (filename.endsWith(".zip") && filename.startsWith("s1") &&
-                    (ZipUtils.findInZip(path.toFile(), "s1", PRODUCT_HEADER_NAME) ||
-                    ZipUtils.findInZip(path.toFile(), "rs2", PRODUCT_HEADER_NAME))) {
-                return DecodeQualification.INTENDED;
-            }
-            if(filename.startsWith("s1") && filename.endsWith(".safe") && Files.isDirectory(path)) {
-                Path manifest = path.resolve(PRODUCT_HEADER_NAME);
-                if(Files.exists(manifest)) {
-                    if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest)) {
-                        return DecodeQualification.INTENDED;
+                if (filename.startsWith("s1") && filename.endsWith(".safe") && Files.isDirectory(path)) {
+                    Path manifest = path.resolve(PRODUCT_HEADER_NAME);
+                    if (Files.exists(manifest)) {
+                        if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest)) {
+                            return DecodeQualification.INTENDED;
+                        }
                     }
                 }
             }
@@ -151,6 +153,45 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return false;
     }
 
+    public static class FileFilter extends SnapFileFilter {
+
+        public FileFilter() {
+            super();
+            setFormatName(FORMAT_NAMES[0]);
+            setExtensions(FORMAT_FILE_EXTENSIONS);
+            setDescription(PLUGIN_DESCRIPTION);
+        }
+
+        /**
+         * Tests whether or not the given file is accepted by this filter. The default implementation returns
+         * <code>true</code> if the given file is a directory or the path string ends with one of the registered extensions.
+         * if no extension are defined, the method always returns <code>true</code>
+         *
+         * @param file the file to be or not be accepted.
+         * @return <code>true</code> if given file is accepted by this filter
+         */
+        public boolean accept(final File file) {
+            if (super.accept(file)) {
+                final String name = file.getName().toUpperCase();
+                return file.isDirectory() || (name.startsWith(PRODUCT_PREFIX) &&
+                        name.endsWith(PRODUCT_EXT)) ||
+                        (name.startsWith("S1") && name.endsWith(".ZIP"));
+            }
+            return false;
+        }
+
+    }
+
+    /**
+     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
+     *
+     * @return a new reader instance, never <code>null</code>
+     */
+    @Override
+    public ProductReader createReaderInstance() {
+        return new Sentinel1ProductReader(this);
+    }
+
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
      * <p>
@@ -165,19 +206,9 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return VALID_INPUT_TYPES;
     }
 
-    /**
-     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
-     *
-     * @return a new reader instance, never <code>null</code>
-     */
-    @Override
-    public ProductReader createReaderInstance() {
-        return new Sentinel1ProductReader(this);
-    }
-
     @Override
     public SnapFileFilter getProductFileFilter() {
-        return new FileFilter();
+        return new S1TBXFileFilter(this);
     }
 
     /**
@@ -217,32 +248,13 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return PLUGIN_DESCRIPTION;
     }
 
-    public static class FileFilter extends SnapFileFilter {
+    @Override
+    public String[] getProductMetadataFileExtensions() {
+        return new String[] {PRODUCT_EXT};
+    }
 
-        public FileFilter() {
-            super();
-            setFormatName(FORMAT_NAMES[0]);
-            setExtensions(FORMAT_FILE_EXTENSIONS);
-            setDescription(PLUGIN_DESCRIPTION);
-        }
-
-        /**
-         * Tests whether or not the given file is accepted by this filter. The default implementation returns
-         * <code>true</code> if the given file is a directory or the path string ends with one of the registered extensions.
-         * if no extension are defined, the method always returns <code>true</code>
-         *
-         * @param file the file to be or not be accepted.
-         * @return <code>true</code> if given file is accepted by this filter
-         */
-        public boolean accept(final File file) {
-            if (super.accept(file)) {
-                final String name = file.getName().toUpperCase();
-                return file.isDirectory() || (name.startsWith(PRODUCT_HEADER_PREFIX) &&
-                        name.endsWith(INDICATION_KEY)) ||
-                        (name.startsWith("S1") && name.endsWith(".ZIP"));
-            }
-            return false;
-        }
-
+    @Override
+    public String[] getProductMetadataFilePrefixes() {
+        return new String[] {PRODUCT_PREFIX};
     }
 }

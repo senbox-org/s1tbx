@@ -19,7 +19,6 @@ import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.s1tbx.commons.test.ReaderTest;
 import org.esa.s1tbx.commons.test.TestData;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,13 +47,6 @@ public class TestS1GRDInputProductValidator extends ReaderTest {
         validator.validateProduct();
         validator.validateMetadata();
         validator.validateBands(new String[] {"Amplitude_VH", "Intensity_VH", "Amplitude_VV", "Intensity_VV"});
-
-//        final InputProductValidator validator = new InputProductValidator(prod);
-//
-//        validator.checkIfSentinel1Product();
-//        validator.checkProductType(new String[]{"GRD"});
-//        validator.checkIfTOPSARBurstProduct(false);
-//        validator.checkAcquisitionMode(new String[]{"SM"});
     }
 }
 
