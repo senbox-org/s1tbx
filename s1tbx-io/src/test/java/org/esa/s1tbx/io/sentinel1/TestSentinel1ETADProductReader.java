@@ -29,13 +29,14 @@ import static org.junit.Assume.assumeTrue;
 /**
  * Validates input products using commonly used verifications
  */
-public class TestS1ETADProductReader extends ReaderTest {
+public class TestSentinel1ETADProductReader extends ReaderTest {
 
-    private final static File inputS1ETAD_IW = new File(TestData.inputSAR+"S1_ETAD/ETAD/IW-Philippines/S1A_IW_ETA__AXSV_20200124T095712_20200124T095837_030941_038D5C_270C.SAFE/manifest.safe");
-    private final static File inputS1ETAD_SM = new File(TestData.inputSAR+"S1_ETAD/ETAD/SM-Nigeria/S1A_S6_ETA__AXDV_20190810T044708_20190810T044822_028502_0338D0_985E.SAFE/manifest.safe");
+    public final static File inputS1ETAD_IW = new File(TestData.inputSAR+"S1_ETAD/ETAD/IW-Philippines/S1A_IW_ETA__AXSV_20200124T095712_20200124T095837_030941_038D5C_270C.SAFE/manifest.safe");
+    public final static File inputS1ETAD_SM = new File(TestData.inputSAR+"S1_ETAD/ETAD/SM-Nigeria/S1A_S6_ETA__AXDV_20190810T044708_20190810T044822_028502_0338D0_985E.SAFE/manifest.safe");
+    public final static File inputS1ETAD_SM_ZIP = new File(TestData.inputSAR+"S1_ETAD/ETAD/SM-Nigeria.zip");
 
-    public TestS1ETADProductReader() {
-        super(new Sentinel1ProductReaderPlugIn());
+    public TestSentinel1ETADProductReader() {
+        super(new Sentinel1ETADProductReaderPlugIn());
     }
 
     @Before
@@ -43,11 +44,25 @@ public class TestS1ETADProductReader extends ReaderTest {
         // If any of the file does not exist: the test will be ignored
         assumeTrue(inputS1ETAD_IW + " not found", inputS1ETAD_IW.exists());
         assumeTrue(inputS1ETAD_SM + " not found", inputS1ETAD_SM.exists());
+        assumeTrue(inputS1ETAD_SM_ZIP + " not found", inputS1ETAD_SM_ZIP.exists());
     }
 
     @Test
     public void TestS1ETAD_SM() throws Exception {
         final Product sourceProduct = testReader(inputS1ETAD_SM.toPath());
+        if(sourceProduct != null) {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+
+            validator.checkIfSentinel1Product();
+            validator.checkProductType(new String[]{"OCN"});
+            validator.checkIfTOPSARBurstProduct(false);
+            validator.checkAcquisitionMode(new String[]{"IW"});
+        }
+    }
+
+    @Test
+    public void TestS1ETAD_SM_ZIP() throws Exception {
+        final Product sourceProduct = testReader(inputS1ETAD_SM_ZIP.toPath());
         if(sourceProduct != null) {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
 

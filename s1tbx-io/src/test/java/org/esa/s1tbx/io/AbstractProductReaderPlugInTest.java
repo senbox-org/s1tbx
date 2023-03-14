@@ -61,13 +61,13 @@ public abstract class AbstractProductReaderPlugInTest {
             return;
         }
         DecodeQualification decodeQualification = plugin.getDecodeQualification(file);
-        assertEquals("DecodeQualification="+decodeQualification,
+        assertEquals(file.getPath() + " DecodeQualification="+decodeQualification,
                 DecodeQualification.INTENDED, decodeQualification);
     }
 
     protected void isInValidDecodeQualification(final File file) {
         DecodeQualification decodeQualification = plugin.getDecodeQualification(file);
-        assertEquals("DecodeQualification="+decodeQualification,
+        assertEquals(file.getPath() + " DecodeQualification="+decodeQualification,
                 DecodeQualification.UNABLE, decodeQualification);
     }
 

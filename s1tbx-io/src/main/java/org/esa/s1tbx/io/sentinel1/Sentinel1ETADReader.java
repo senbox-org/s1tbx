@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2023 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -87,7 +87,7 @@ public class Sentinel1ETADReader {
         }
     }
 
-    private final Sentinel1Level2Directory dataDir;
+    private final Sentinel1ETADDirectory dataDir;
     private String mode;
 
     // For WV, there can be more than one MDS .nc file. See Table 4-3 in Product Spec v2/7 (S1-RS-MDA-52-7441).
@@ -143,7 +143,7 @@ public class Sentinel1ETADReader {
 
     //------------------------------------------------------------------------------------------------------------------
 
-    public Sentinel1ETADReader(final Sentinel1Level2Directory dataDir) {
+    public Sentinel1ETADReader(final Sentinel1ETADDirectory dataDir) {
 
         this.dataDir = dataDir;
     }

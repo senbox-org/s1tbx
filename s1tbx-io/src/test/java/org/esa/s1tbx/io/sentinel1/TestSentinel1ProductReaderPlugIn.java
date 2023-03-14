@@ -53,5 +53,9 @@ public class TestSentinel1ProductReaderPlugIn extends AbstractProductReaderPlugI
 
         isValidDecodeQualification(TestS1OCNInputProductValidator.inputS1_IW_metaOCN);
         isValidDecodeQualification(TestS1OCNInputProductValidator.inputS1_WV_metaOCN);
+
+        isInValidDecodeQualification(TestSentinel1ETADProductReader.inputS1ETAD_IW);
+        isInValidDecodeQualification(TestSentinel1ETADProductReader.inputS1ETAD_SM);
+        isInValidDecodeQualification(TestSentinel1ETADProductReader.inputS1ETAD_SM_ZIP);
     }
 }
