@@ -1,0 +1,9 @@
+# included templates
+include:
+  - 'https://gitlab.com/senbox-org/snap-engine/raw/master/.gitlab-ci.yml'
+
+mvn-build:
+  artifacts:
+    paths:
+      - "${MAVEN_PROJECT_DIR}/s1tbx-kit/target"
+      - "${MAVEN_PROJECT_DIR}/target"
