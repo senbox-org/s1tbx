@@ -79,7 +79,6 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
     private PolBandUtils.MATRIX sourceProductType = null;
     private double sigma = 0.0;
     private Random random = new Random();
-    private boolean useRCMConvention = false;
 
     private static final String quarterPi = "PI/4 Mode";
     private static final String dcp = "Dual Circular Polarimetric Mode";
@@ -132,7 +131,6 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
-            useRCMConvention = PolBandUtils.useRCMConvention();
 
             if (simulateNoiseFloor) {
                 sigma = Math.sqrt(FastMath.pow(10.0, noisePower / 10.0) / 2.0);
@@ -398,28 +396,6 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
                         }
                     }
                 }
-                /*
-                final int numElems = tileDataList[0].dataBuffer.getNumElems();
-                for(int idx = 0; idx < numElems; ++idx) {
-
-                    PolOpUtils.getComplexScatterMatrix(idx, dataBuffers, Sr, Si);
-
-                    Sr[0][1] = 0.5*(Sr[0][1] + Sr[1][0]);
-                    Sr[1][0] = Sr[0][1];
-                    Si[0][1] = 0.5*(Si[0][1] + Si[1][0]);
-                    Si[1][0] = Si[0][1];
-
-                    CP.computeCompactPolCovarianceMatrixC2(compactMode, useRCMConvention, Sr, Si, Cr, Ci);
-
-                    for (final TileData tileData : tileDataList){
-
-                        if(tileData.elem.isImaginary) {
-                            tileData.dataBuffer.setElemFloatAt(idx, (float)Ci[tileData.elem.i][tileData.elem.j]);
-                        } else {
-                            tileData.dataBuffer.setElemFloatAt(idx, (float)Cr[tileData.elem.i][tileData.elem.j]);
-                        }
-                    }
-                }*/
             } catch (Throwable e) {
                 OperatorUtils.catchOperatorException(getId(), e);
             }
@@ -492,7 +468,7 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
                             Si[1][0] = Si[0][1];
                         }
 
-                        computeCompactPolScatteringVector(compactMode, useRCMConvention, Sr, Si, kr, ki);
+                        computeCompactPolScatteringVector(compactMode, Sr, Si, kr, ki);
 
                         for (final TileData tileData : tileDataList) {
 
@@ -505,29 +481,6 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
                     }
                 }
 
-                /*
-                final int numElems = tileDataList[0].dataBuffer.getNumElems();
-                for(int idx = 0; idx < numElems; ++idx) {
-
-                    PolOpUtils.getComplexScatterMatrix(idx, dataBuffers, Sr, Si);
-
-                    Sr[0][1] = 0.5*(Sr[0][1] + Sr[1][0]);
-                    Sr[1][0] = Sr[0][1];
-                    Si[0][1] = 0.5*(Si[0][1] + Si[1][0]);
-                    Si[1][0] = Si[0][1];
-
-                    CP.computeCompactPolScatteringVector(compactMode, useRCMConvention, Sr, Si, kr, ki);
-
-                    for (final TileData tileData : tileDataList){
-
-                        if(tileData.elem.isImaginary) {
-                            tileData.dataBuffer.setElemFloatAt(idx, (float)ki[tileData.elem.i]);
-                        } else {
-                            tileData.dataBuffer.setElemFloatAt(idx, (float)kr[tileData.elem.i]);
-                        }
-                    }
-                }
-                */
             } catch (Throwable e) {
                 OperatorUtils.catchOperatorException(getId(), e);
             }
@@ -549,7 +502,7 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
         final double[] kr = new double[2];
         final double[] ki = new double[2];
 
-        computeCompactPolScatteringVector(compactMode, useRCMConvention, scatterRe, scatterIm, kr, ki);
+        computeCompactPolScatteringVector(compactMode, scatterRe, scatterIm, kr, ki);
 
         computeCovarianceMatrixC2(kr, ki, Cr, Ci);
     }
@@ -564,8 +517,7 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
      * @param ki          Imaginary part of the scattering vector
      */
     public static void computeCompactPolScatteringVector(
-            final String compactMode, final boolean useRCMConvention,
-            final double[][] scatterRe, final double[][] scatterIm,
+            final String compactMode, final double[][] scatterRe, final double[][] scatterIm,
             final double[] kr, final double[] ki) {
 
         final double sHHr = scatterRe[0][0];
@@ -582,12 +534,12 @@ public final class CompactPolDataSimulationOp extends Operator implements QuadPo
             ki[0] = (sHHi + sHVi) / Constants.sqrt2;
             kr[1] = (sVVr + sVHr) / Constants.sqrt2;
             ki[1] = (sVVi + sVHi) / Constants.sqrt2;
-        } else if (compactMode.equals(CompactPolProcessor.rch) && !useRCMConvention || compactMode.equals(CompactPolProcessor.lch) && useRCMConvention) {
+        } else if (compactMode.equals(CompactPolProcessor.rch)) {
             kr[0] = (sHHr + sHVi) / Constants.sqrt2;
             ki[0] = (sHHi - sHVr) / Constants.sqrt2;
             kr[1] = (sVHr + sVVi) / Constants.sqrt2;
             ki[1] = (sVHi - sVVr) / Constants.sqrt2;
-        } else if (compactMode.equals(CompactPolProcessor.lch) && !useRCMConvention || compactMode.equals(CompactPolProcessor.rch) && useRCMConvention) {
+        } else if (compactMode.equals(CompactPolProcessor.lch)) {
             kr[0] = (sHHr - sHVi) / Constants.sqrt2;
             ki[0] = (sHHi + sHVr) / Constants.sqrt2;
             kr[1] = (sVHr - sVVi) / Constants.sqrt2;

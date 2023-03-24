@@ -1,3 +1,13 @@
+
+#Update 9.0.3
+https://senbox.atlassian.net/projects/SNAP/versions/12822/tab/release-report-all-issues
+
+#Update 9.0.2
+https://senbox.atlassian.net/projects/SITBX/versions/12816/tab/release-report-all-issues
+
+#Update 9.0.1
+https://senbox.atlassian.net/projects/SITBX/versions/12815/tab/release-report-all-issues
+
 #New in S1TBX 9.0
 
 * Support for updated Sentinel-1 format

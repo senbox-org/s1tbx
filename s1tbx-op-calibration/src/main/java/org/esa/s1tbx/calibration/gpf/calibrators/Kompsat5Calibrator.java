@@ -18,6 +18,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -40,8 +41,9 @@ import java.util.List;
 
 public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
-    private static final String[] SUPPORTED_MISSIONS = new String[] {"Kompsat5"};
+    private static final String[] SUPPORTED_MISSIONS = new String[]{"Kompsat5"};
 
+    private String productType = null;
     private String acquisitionMode = null;
     private double referenceIncidenceAngle = 0.0;
     private double rescalingFactor = 0.0;
@@ -55,6 +57,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     private boolean highResolutionMode = false;
     private double gimRescalingFactor = 0.0;
     private double gimOffset = 0.0;
+    private Product productGIM;
     private Band gimBand = null;
     private TiePointGrid incidenceAngleTPG = null;
     private boolean inputSigma0 = false;
@@ -109,11 +112,15 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 throw new OperatorException(mission + " is not a valid mission for Kompsat-5 Calibration");
             }
 
-            final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+            // change global variable for L1C, L1D
+            productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+
+            /*
             if (!productType.equals("SCS_B") && !productType.equals("SCS_U") &&
                     !productType.equals("SCS_A") && !productType.equals("SCS_W")) {
                 throw new OperatorException(productType + " product is not supported");
             }
+            */
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
                 if (outputImageInComplex) {
@@ -124,27 +131,43 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
             // HIGH RESOLUTION / STANDARD / WIDE SWATH
             acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-            switch (acquisitionMode) {
-                case "HIGH RESOLUTION":
-                    cellSize = computeCellSize();
-                    highResolutionMode = true;
-                    break;
-                case "STANDARD":
-                    highResolutionMode = false;
-                    break;
-                default:
-                    throw new OperatorException("Only High Resolution and Standard modes are currently supported");
+            if (acquisitionMode.equals("WIDE SWATH")) {
+                throw new OperatorException("Only High Resolution and Standard modes are currently supported");
             }
+
+            cellSize = computeCellSize();
 
             referenceIncidenceAngle = absRoot.getAttributeDouble(
                     AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
 
+            // not use GIM in h5 format
+            // get GIM file from source path
+            if (sourceProduct.getFileLocation() != null) {
+                final File[] files = sourceProduct.getFileLocation().getParentFile().listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        final String fname = file.getName().toUpperCase();
+                        if (fname.contains("GIM") && (fname.endsWith("TIF"))) {
+                            productGIM = ProductIO.readProduct(file, "GeoTiff");
+                            gimBand = productGIM.getBandAt(0);
+                            getGIMParameters();
+                        }
+                    }
+                }
+            }
+
+            if (gimBand == null) {
+                incidenceAngleTPG = OperatorUtils.getIncidenceAngle(sourceProduct);
+            }
+
+            /*
             gimBand = sourceProduct.getBand(GIM_BAND_NAME);
             if (gimBand == null) {
                 incidenceAngleTPG = OperatorUtils.getIncidenceAngle(sourceProduct);
             } else {
                 getGIMParameters();
             }
+            */
 
             rescalingFactor = absRoot.getAttributeDouble(AbstractMetadata.rescaling_factor);
             if (rescalingFactor == 0.0) {
@@ -153,10 +176,14 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
             getCalibrationConstant();
 
+            /*
             calibrationFactor = rescalingFactor * rescalingFactor * calibrationConstant;
             if (highResolutionMode) {
                 calibrationFactor /= cellSize;
             }
+            */
+            calibrationFactor = calibrationConstant / cellSize;
+
 
             windowSize = 9; // hardcoded for now
             halfWindowSize = windowSize / 2;
@@ -199,12 +226,48 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         return sourceBandList.toArray(new Band[sourceBandList.size()]);
     }
 
+    // get parameters from aux due to use both hdf & geotiff
     private void getGIMParameters() {
+        final MetadataElement auxElem = origMetadataRoot.getElement("Auxiliary");
+        final MetadataElement rootElem = auxElem.getElement("Root");
+        final MetadataElement subSwathsElem = rootElem.getElement("SubSwaths");
+        final MetadataElement subSwathElem = subSwathsElem.getElement("SubSwath");
+        final MetadataElement gimElem = subSwathElem.getElement("GIM");
+        gimOffset = gimElem.getAttributeDouble("Offset");
+        gimRescalingFactor = gimElem.getAttributeDouble("RescalingFactor");
+
+        /*
         final MetadataElement gimElem = origMetadataRoot.getElement("GIM");
         gimOffset = gimElem.getAttributeDouble("Offset");
         gimRescalingFactor = gimElem.getAttributeDouble("Rescaling_Factor");
+        */
     }
 
+    // get parameters from aux due to use both hdf & geotiff
+    private double computeCellSize() {
+        final MetadataElement auxElem = origMetadataRoot.getElement("Auxiliary");
+        final MetadataElement rootElem = auxElem.getElement("Root");
+        final MetadataElement subSwathsElem = rootElem.getElement("SubSwaths");
+        final MetadataElement subSwathElem = subSwathsElem.getElement("SubSwath");
+        final MetadataElement sbiElem = subSwathElem.getElement("SBI");
+        final MetadataElement mbiElem = rootElem.getElement("MBI");
+
+        double columnSpacing;
+        double lineSpacing;
+
+        if (acquisitionMode.equals("WIDE SWATH")) {
+            columnSpacing = mbiElem.getAttributeDouble("ColumnSpacing");
+            lineSpacing = mbiElem.getAttributeDouble("LineSpacing");
+        } else {
+            columnSpacing = sbiElem.getAttributeDouble("ColumnSpacing");
+            lineSpacing = sbiElem.getAttributeDouble("LineSpacing");
+        }
+
+        return columnSpacing * lineSpacing;
+    }
+
+    //not use
+    /*
     private double computeCellSize() {
         final MetadataElement auxElem = origMetadataRoot.getElement("Auxiliary");
         final MetadataElement rootElem = auxElem.getElement("Root");
@@ -215,6 +278,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 subSwathElem.getAttributeDouble("AzimuthInstrumentGeometricResolution");
         return azimuthInstrumentGeometricResolution * Constants.lightSpeed / (2.0*rangeFocusingBandwidth);
     }
+    */
 
     /**
      * Get calibration constant from product original metadata.
@@ -272,7 +336,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        sigma *= calibrationFactor * Math.sin(localIncidenceAngle*Constants.DTOR);
+        sigma *= calibrationFactor * Math.sin(localIncidenceAngle * Constants.DTOR);
 
         if (outputImageScaleInDb) { // convert calibration result to dB
             if (sigma < underFlowFloat) {
@@ -377,8 +441,13 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                         throw new OperatorException("Kompsat-5 Calibration: unhandled unit");
                     }
 
-                    final double incidenceAngle = getIncidenceAngle(x, y, gimBandData, srcIdx)*Constants.DTOR;
-                    sigma = calibrationFactor * dn * Math.sin(incidenceAngle);
+                    // apply L1C, L1D
+                    if (productType.equals("GEC_B") || productType.equals("GTC_B")) {
+                        sigma = calibrationFactor * Math.abs(dn * rescalingFactor * rescalingFactor);
+                    } else {
+                        final double incidenceAngle = FastMath.abs(Math.sin(Math.toRadians(getIncidenceAngle(x, y, gimBandData, srcIdx))));
+                        sigma = calibrationFactor * Math.abs(dn * rescalingFactor * rescalingFactor) * incidenceAngle;
+                    }
 
                     if (isComplex && outputImageInComplex) {
                         sigma = Math.sqrt(sigma) * phaseTerm;
@@ -398,7 +467,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-// The following function performs calibration on averaged DN values using a sliding window as suggested in the
+    // The following function performs calibration on averaged DN values using a sliding window as suggested in the
 //   equations. But the calibration result visually is poor than that where no average is performed.
    /*
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -543,7 +612,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                     dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0);
                 }
 
-                final double incidenceAngle = getIncidenceAngle(xx, yy, gimBandData, srcIdx)*Constants.DTOR;
+                final double incidenceAngle = getIncidenceAngle(xx, yy, gimBandData, srcIdx) * Constants.DTOR;
                 dn2Sum += dn2 * Math.sin(incidenceAngle);
                 count++;
             }
@@ -556,13 +625,21 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     }
 
     private double getIncidenceAngle(final int x, final int y, final ProductData gimBandData, final int srcIdx) {
-
+        if (gimBand != null) {
+            final double gim = gimBandData.getElemDoubleAt(srcIdx);
+            return gim * gimRescalingFactor - gimOffset;
+        } else {
+            //throw new OperatorException("Cannot calibrate the product because GIM file not exists");
+            return incidenceAngleTPG.getPixelDouble(x, y);
+        }
+        /*
         if (gimBand != null) {
             final double gim = gimBandData.getElemDoubleAt(srcIdx);
             return gim*gimRescalingFactor - gimOffset;
         } else {
             return incidenceAngleTPG.getPixelDouble(x, y);
         }
+        */
     }
 
     public void removeFactorsForCurrentTile(Band targetBand, Tile targetTile,

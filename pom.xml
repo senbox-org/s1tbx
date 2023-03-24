@@ -5,7 +5,7 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>9.0.1.1cv</version>
+    <version>9.0.4-SNAPSHOT</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1</url>
     <description>Tools for SAR Earth Observation</description>
@@ -25,17 +25,17 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-        <snap.version>9.0.3.1cv</snap.version>
+        <snap.version>9.0.4</snap.version>
         <!--
             s1tbx.version is the Maven module version.
             s1tbx.nbmSpecVersion is the NetBeans module specification version.
             It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
-        <s1tbx.version>9.0.1.1cv</s1tbx.version>
-        <rstb.version>9.0.1.1cv</rstb.version>
-        <jlinda.version>9.0.1.1cv</jlinda.version>
-        <iceye.version>9.0.1.1cv</iceye.version>
+        <s1tbx.version>9.0.4-SNAPSHOT</s1tbx.version>
+        <rstb.version>9.0.4-SNAPSHOT</rstb.version>
+        <jlinda.version>9.0.4-SNAPSHOT</jlinda.version>
+        <iceye.version>9.0.4-SNAPSHOT</iceye.version>
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <buildDate>${maven.build.timestamp}</buildDate>
         
@@ -43,6 +43,10 @@
         <netcdf.version>5.3.1</netcdf.version>
         <jblas.version>1.2.5</jblas.version>
         <junit.version>4.13.1</junit.version>
+
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <sonar.java.binaries>**/classes</sonar.java.binaries>
+        <sonar.exclusions>*/src</sonar.exclusions>
     </properties>
   
 	<modules>
@@ -88,7 +92,7 @@
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
-            <url>http://www.gnu.org/licenses/gpl.html</url>
+            <url>https://www.gnu.org/licenses/gpl.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -106,12 +110,12 @@
     <repositories>
         <repository>
             <id>central</id>
-            <url>http://repo1.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-public/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -127,7 +131,7 @@
         <pluginRepository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-public/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -143,13 +147,13 @@
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-releases/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-releases/</url>
             <uniqueVersion>false</uniqueVersion>
         </repository>
         <snapshotRepository>
             <id>snap-repo-public</id>
             <name>Public Maven Snapshot Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-snapshot/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-snapshot/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
@@ -395,7 +399,7 @@
 			<dependency>
 	            <groupId>commons-net</groupId>
 	            <artifactId>commons-net</artifactId>
-	            <version>3.5</version>
+	            <version>3.9.0</version>
 	        </dependency>
             
             <dependency>
@@ -563,7 +567,7 @@
 						<aggregate>true</aggregate>
 						<maxmemory>600m</maxmemory>
 						<links>
-	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
+	                            <link>https://docs.oracle.com/javase/8/docs/api/</link>
 	                    </links>
 	                    <subpackages>
                             org.esa.s1tbx:org.csa.rstb:org.esa.snap:org.esa.snap.core:org.esa.snap.util:org.esa.snap.visat:org.esa.snap.core.jexp

@@ -133,7 +133,7 @@ public class TestCalibrationOp {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsASAR, "ENVISAT", productTypeExemptions, null);
     }
 
-    //@Test
+    @Test
     public void testProcessAllERS() throws Exception {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsERS, "ERS CEOS", productTypeExemptions, null);
     }
@@ -162,5 +162,22 @@ public class TestCalibrationOp {
     @Test
     public void testProcessAllSentinel1() throws Exception {
         testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsSentinel1, "SENTINEL-1", productTypeExemptions, exceptionExemptions);
+    }
+
+    @Test
+    public void testProcessAllK5() throws Exception {
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsK5, "Kompsat5", productTypeExemptions, exceptionExemptions);
+    }
+
+    @Test
+    @Ignore
+    public void testProcessAllJERS() throws Exception {
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsJERS, "JERS", productTypeExemptions, exceptionExemptions);
+    }
+
+    @Test
+    @Ignore
+    public void testProcessAllIceye() throws Exception {
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsIceye, "ICEYE", productTypeExemptions, exceptionExemptions);
     }
 }

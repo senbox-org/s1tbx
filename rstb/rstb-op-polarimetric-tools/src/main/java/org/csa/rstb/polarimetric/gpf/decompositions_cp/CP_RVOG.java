@@ -40,7 +40,6 @@ import java.util.Map;
 public class CP_RVOG extends DecompositionBase implements Decomposition, CompactPolProcessor {
 
     private final String compactMode;
-    private final boolean useRCMConvention;
     private final boolean outputRVOG;
 
     private static final String RED = "RVOG_dbl_r";
@@ -59,7 +58,6 @@ public class CP_RVOG extends DecompositionBase implements Decomposition, Compact
         super(srcBandList, sourceProductType, windowSizeX, windowSizeY, srcImageWidth, srcImageHeight);
 
         this.compactMode = compactMode;
-        useRCMConvention = PolBandUtils.useRCMConvention();
         this.outputRVOG = outputRVOG;
     }
 
@@ -146,7 +144,7 @@ public class CP_RVOG extends DecompositionBase implements Decomposition, Compact
 
                     StokesParameters.computeCompactPolStokesVector(Cr, Ci, g);
 
-                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode, useRCMConvention);
+                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode);
 
                     for (int i = 0; i < bandList.targetBands.length; ++i) {
                         final String targetBandName = bandList.targetBands[i].getName();
@@ -215,7 +213,7 @@ public class CP_RVOG extends DecompositionBase implements Decomposition, Compact
 
                     StokesParameters.computeCompactPolStokesVector(Cr, Ci, g);
 
-                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode, useRCMConvention);
+                    StokesParameters sp = StokesParameters.computeStokesParameters(g, compactMode);
 
                     for (TargetInfo target : targetInfo) {
 

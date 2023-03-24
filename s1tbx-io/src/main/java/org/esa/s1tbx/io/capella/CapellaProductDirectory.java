@@ -115,7 +115,7 @@ public class CapellaProductDirectory extends JSONProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor, scaleFactor);
         if (radiometry.contains("nought")) {
             calibration = radiometry.contains("gamma") ? "Gamma0" : radiometry.contains("sigma") ? "Sigma0" : "Beta0";
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, 1);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.abs_calibration_flag, radiometry.contains("sigma")?1:0);
         }
 
         if(isSLC()) {

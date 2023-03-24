@@ -23,13 +23,13 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>9.0.1.1cv</version>
+        <version>9.0.4-SNAPSHOT</version>
     </parent>
 
     <name>RADARSAT Toolbox</name>
     <groupId>org.csa.rstb</groupId>
     <artifactId>rstb</artifactId>
-    <version>9.0.1.1cv</version>
+    <version>9.0.4-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -52,7 +52,7 @@
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
-            <url>http://www.gnu.org/licenses/gpl.html</url>
+            <url>https://www.gnu.org/licenses/gpl.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
