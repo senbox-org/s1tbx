@@ -150,8 +150,6 @@ public class Sentinel1ETADReader {
 
     public void addImageFile(final File file, final String name) throws IOException {
 
-        //System.out.println("Sentinel1OCNReader.addImageFile: file = " + file + "; name = " + name);
-
         // The image file here is the MDS .nc file.
         String imgNum = name.substring(name.lastIndexOf("-")+1, name.length());
 
@@ -177,14 +175,10 @@ public class Sentinel1ETADReader {
 
     public void addNetCDFMetadata(final MetadataElement annotationElement) {
 
-        //System.out.println("Sentinel1OCNReader.addNetCDFMetadata: annotationElement = " + annotationElement.getName());
-
         List<String> keys = new ArrayList<>(bandNCFileMap.keySet());
         Collections.sort(keys);
 
         for (String imgNum : keys) { // for each MDS which is a .nc file
-
-            //System.out.println("Sentinel1OCNReader.addNetCDFMetadataAndBands: file = " + file);
 
             final NCFileData data = bandNCFileMap.get(imgNum);
             final NetcdfFile netcdfFile = data.netcdfFile;
@@ -293,6 +287,7 @@ public class Sentinel1ETADReader {
                         break;
                     case 2: {
                         bandName += variable.getFullName();
+                        bandName = bandName.replace("/", "_");
                         addBand(product, bandName, variable, shape[1], shape[0]);
                         bandNameNCFileMap.put(bandName, netcdfFile);
 
@@ -347,33 +342,6 @@ public class Sentinel1ETADReader {
                 }
             }
         }
-    }
-
-    public void addGeoCodingToBands(final Product product) {
-
-    /*    final Band[] bands = product.getBands();
-
-        for (Band band : bands) {
-
-            final String bandName = band.getName();
-            if (bandName.substring(7).equals("rvlRadVel") ||
-                bandName.substring(7).equals("owiWindSpeed")    ) {
-
-                final String bandNamePrefix = bandName.substring(0,10);
-                final Band latBand = product.getBand(bandNamePrefix + "Lat");
-                final Band lonBand = product.getBand(bandNamePrefix + "Lon");
-
-                if (latBand == null || lonBand == null) {
-                    System.out.println("Sentinel1OCNReader.addDisplayBands: missing " + bandName + " Lat and/or Lon: latBand is " + latBand + " lonBand is " + lonBand);
-                    continue;
-                }
-
-                final int searchRadius = 5; // TODO No idea what this should be
-                PixelGeoCoding pixGeoCoding = new PixelGeoCoding(latBand, lonBand, null, searchRadius);
-                band.setGeoCoding(pixGeoCoding);
-            }
-        }
-*/
     }
 
     public void addWindDataToVectorNodes(final Product product){
@@ -481,12 +449,13 @@ public class Sentinel1ETADReader {
 
         Band[] bands = product.getBands();
         for (Band band : bands) {
-            for (String s : map.keySet())
-            if (band.getName().contains(s)) {
-                final String attributeName = map.get(s);
-                attributeDescriptors.add(VectorUtils.createAttribute(attributeName, Double.class));
-                windBands.add(band);
-                bandToAttributeName.put(band, attributeName);
+            for (String s : map.keySet()) {
+                if (band.getName().contains(s)) {
+                    final String attributeName = map.get(s);
+                    attributeDescriptors.add(VectorUtils.createAttribute(attributeName, Double.class));
+                    windBands.add(band);
+                    bandToAttributeName.put(band, attributeName);
+                }
             }
         }
 
@@ -540,20 +509,6 @@ public class Sentinel1ETADReader {
     public void readData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                          int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) {
-
-        /*
-        System.out.println("Sentinel1OCNReader.readData: sourceOffsetX = " + sourceOffsetX +
-                " sourceOffsetY = " + sourceOffsetY +
-                " sourceWidth = " + sourceWidth +
-                " sourceHeight = " +  sourceHeight +
-                " sourceStepX = " + sourceStepX +
-                " sourceStepY = " + sourceStepY +
-                " destOffsetX = " + destOffsetX +
-                " destOffsetY = " + destOffsetY +
-                " destWidth = " + destWidth +
-                " destHeight = " + destHeight +
-                " destBuffer.getNumElems() = " + destBuffer.getNumElems());
-        */
 
         // Can source and destination have different height and width? TODO
         if (sourceWidth != destWidth || sourceHeight != destHeight) {
@@ -743,20 +698,6 @@ public class Sentinel1ETADReader {
         } catch (InvalidRangeException e) {
 
             SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank4Variable: InvalidRangeException when reading variable " + var.getFullName());
-        }
-    }
-
-    private void dumpVariableValues(final Variable variable, final String bandName) {
-
-        try {
-            Array arr = variable.read();
-            for (int i = 0; i < arr.getSize(); i++) {
-                System.out.println("Sentinel1OCNReader: " + variable.getFullName() + "[" + i + "] = " + arr.getFloat(i));
-            }
-
-        } catch (IOException e) {
-
-            System.out.println("Sentinel1OCNReader: failed to read variable " + variable.getFullName() + " for band " + bandName);
         }
     }
 }
