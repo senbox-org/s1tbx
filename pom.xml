@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-	
+
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
     <version>10.0.0-SNAPSHOT</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1</url>
     <description>Tools for SAR Earth Observation</description>
-    
+
     <packaging>pom</packaging>
-    
-	<properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.version>RELEASE82</netbeans.version>
-        <doc-windows.version>1.0</doc-windows.version>
         <javahelp.version>2.0.05</javahelp.version>
-        <brandingToken>s1tbx</brandingToken>		
-		<user.language>en</user.language>
-		
-		<skipTests>false</skipTests>
+        <brandingToken>s1tbx</brandingToken>
+        <user.language>en</user.language>
+
+        <skipTests>false</skipTests>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
@@ -47,37 +47,37 @@
         <sonar.java.binaries>**/classes</sonar.java.binaries>
         <sonar.exclusions>*/src</sonar.exclusions>
     </properties>
-  
-	<modules>
-		<module>jlinda</module>
+
+    <modules>
+        <module>jlinda</module>
         <module>rstb</module>
-		<module>s1tbx-benchmark</module>
-		<module>s1tbx-cloud</module>
+        <module>s1tbx-benchmark</module>
+        <module>s1tbx-cloud</module>
         <module>s1tbx-commons</module>
-		<module>s1tbx-io</module>
-		<module>s1tbx-io-ephemeris</module>
-		<module>s1tbx-io-ephemeris-ui</module>
+        <module>s1tbx-io</module>
+        <module>s1tbx-io-ephemeris</module>
+        <module>s1tbx-io-ephemeris-ui</module>
         <module>s1tbx-op-analysis-ui</module>
-		<module>s1tbx-op-calibration</module>
+        <module>s1tbx-op-calibration</module>
         <module>s1tbx-op-calibration-ui</module>
-		<module>s1tbx-op-feature-extraction</module>
+        <module>s1tbx-op-feature-extraction</module>
         <module>s1tbx-op-feature-extraction-ui</module>
         <module>s1tbx-op-insar</module>
         <module>s1tbx-op-insar-ui</module>
         <module>s1tbx-op-ocean-ui</module>
-		<module>s1tbx-op-sar-processing</module>
+        <module>s1tbx-op-sar-processing</module>
         <module>s1tbx-op-sar-processing-ui</module>
-		<module>s1tbx-op-sentinel1</module>
+        <module>s1tbx-op-sentinel1</module>
         <module>s1tbx-op-sentinel1-ui</module>
-		<module>s1tbx-op-utilities</module>
+        <module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
-		<module>s1tbx-rcp</module>
-		<module>s1tbx-test-stacks</module>
-		<module>snap_iceye_reader</module>
-        
+        <module>s1tbx-rcp</module>
+        <module>s1tbx-test-stacks</module>
+        <module>snap_iceye_reader</module>
+
         <module>s1tbx-kit</module>
-	</modules>
-	
+    </modules>
+
     <organization>
         <name>SkyWatch Space Applications Inc.</name>
         <url>https://www.skywatch.com</url>
@@ -85,9 +85,9 @@
     <inceptionYear>2007</inceptionYear>
 
     <prerequisites>
-       <maven>3.0.5</maven>
+        <maven>3.0.5</maven>
     </prerequisites>
-    
+
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
@@ -100,10 +100,10 @@
         <system>JIRA</system>
         <url>https://senbox.atlassian.net/</url>
     </issueManagement>
-    
+
     <scm>
-	 <connection>scm:git:git://github.com/senbox-org/s1tbx.git</connection>
-     <url>https://github.com/senbox-org/s1tbx.git</url>
+        <connection>scm:git:git://github.com/senbox-org/s1tbx.git</connection>
+        <url>https://github.com/senbox-org/s1tbx.git</url>
     </scm>
 
     <repositories>
@@ -156,7 +156,7 @@
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
-	
+
     <dependencyManagement>
         <dependencies>
 
@@ -185,40 +185,40 @@
                 <artifactId>ceres-glayer</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-			
-			<dependency>
+
+            <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>ceres-jai</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-			
-			<dependency>
+
+            <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>ceres-metadata</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-			
+
             <!-- SNAP Modules ############################################# -->
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-				<version>${snap.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf</artifactId>
-				<version>${snap.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf-ui</artifactId>
-				<version>${snap.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-ui</artifactId>
-				<version>${snap.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
@@ -239,16 +239,16 @@
                 <version>${snap.version}</version>
             </dependency>
 
-			<dependency>
+            <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-			
-			<dependency>
+
+            <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-graph-builder</artifactId>
-			    <version>${snap.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
@@ -269,20 +269,20 @@
                 <version>${hdf.version}</version>
             </dependency>
 
-			<dependency>
+            <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>netcdfAll</artifactId>
                 <version>${netcdf.version}</version>
             </dependency>
 
-			<dependency>
+            <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-netcdf</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-			
-			<!--
-			<dependency>
+
+            <!--
+            <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
                 <version>1.4.1.1</version>
@@ -336,15 +336,15 @@
                 <artifactId>org-openide-windows</artifactId>
                 <version>${netbeans.version}</version>
             </dependency>
-            
-	        <!-- jlinda Modules ############################################# -->
-			
-			<dependency>
+
+            <!-- jlinda Modules ############################################# -->
+
+            <dependency>
                 <groupId>org.jlinda</groupId>
                 <artifactId>jlinda-core</artifactId>
                 <version>${jlinda.version}</version>
             </dependency>
-			
+
             <!-- S1TBX Modules ############################################# -->
 
             <dependency>
@@ -357,7 +357,7 @@
                 <artifactId>s1tbx-commons</artifactId>
                 <version>${s1tbx.version}</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-rcp</artifactId>
                 <version>${s1tbx.version}</version>
@@ -367,7 +367,7 @@
                 <artifactId>s1tbx-op-calibration</artifactId>
                 <version>${s1tbx.version}</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-io</artifactId>
                 <version>${s1tbx.version}</version>
@@ -379,7 +379,7 @@
             </dependency>
 
             <!-- Apache ############################################# -->
-            
+
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
@@ -395,12 +395,12 @@
                 <artifactId>commons-codec</artifactId>
                 <version>1.10</version>
             </dependency>
-			<dependency>
-	            <groupId>commons-net</groupId>
-	            <artifactId>commons-net</artifactId>
-	            <version>3.9.0</version>
-	        </dependency>
-            
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>3.9.0</version>
+            </dependency>
+
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
@@ -442,25 +442,25 @@
                 <scope>test</scope>
             </dependency>
 
-			<!-- JSoup -->
+            <!-- JSoup -->
 
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>1.14.2</version>
             </dependency>
-			
+
             <dependency>
                 <groupId>edu.emory.mathcs</groupId>
                 <artifactId>JTransforms</artifactId>
                 <version>2.4</version>
             </dependency>
-	        <dependency>
-	            <groupId>org.jblas</groupId>
-	            <artifactId>jblas</artifactId>
-				<version>${jblas.version}</version>
-	        </dependency>
-		
+            <dependency>
+                <groupId>org.jblas</groupId>
+                <artifactId>jblas</artifactId>
+                <version>${jblas.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -471,25 +471,25 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
-	
+
     <build>
-		<pluginManagement>
-	        <plugins>
-	            <plugin>
-	                <artifactId>maven-compiler-plugin</artifactId>
-					<version>3.5.1</version>
-	                <configuration>
-	                    <source>1.8</source>
-	                    <target>1.8</target>
-	                    <debug>true</debug>
-	                    <encoding>UTF-8</encoding>
-						<optimize>true</optimize>
-						<excludes>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.5.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <debug>true</debug>
+                        <encoding>UTF-8</encoding>
+                        <optimize>true</optimize>
+                        <excludes>
                             <exclude>.gitignore</exclude>
                         </excludes>
-	                </configuration>
-	            </plugin>
-				
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.1.0</version>
@@ -518,28 +518,28 @@
                         </execution>
                     </executions>
                 </plugin>
-            
-				<plugin>
+
+                <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>2.8.2</version>
                 </plugin>
-				<plugin>
+                <plugin>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>2.5.2</version>
                 </plugin>
-				<plugin>
+                <plugin>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.5.1</version>
                 </plugin>
-				<plugin>
+                <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-					<version>3.0.0</version>
+                    <version>3.0.0</version>
                 </plugin>
-				<plugin>
-			        <groupId>org.codehaus.mojo</groupId>
-			        <artifactId>versions-maven-plugin</artifactId>
-			        <version>2.3</version>
-			     </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.3</version>
+                </plugin>
 
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
@@ -558,33 +558,33 @@
                     </configuration>
                 </plugin>
 
-				<plugin>
-	                <groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.10.4</version>
-					<configuration>
-						<aggregate>true</aggregate>
-						<maxmemory>600m</maxmemory>
-						<links>
-	                            <link>https://docs.oracle.com/javase/8/docs/api/</link>
-	                    </links>
-	                    <subpackages>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                    <configuration>
+                        <aggregate>true</aggregate>
+                        <maxmemory>600m</maxmemory>
+                        <links>
+                            <link>https://docs.oracle.com/javase/8/docs/api/</link>
+                        </links>
+                        <subpackages>
                             org.esa.s1tbx:org.csa.rstb:org.esa.snap:org.esa.snap.core:org.esa.snap.util:org.esa.snap.visat:org.esa.snap.core.jexp
                         </subpackages>
-	                    <quiet>false</quiet>
-					</configuration>
-	            </plugin>
-				
+                        <quiet>false</quiet>
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M3</version>
+                    <version>3.0.0-M3</version>
                     <configuration>
-					    <enableAssertions>true</enableAssertions>
-						<!--  to test from the command line mvn test -DskipTests=false -->
+                        <enableAssertions>true</enableAssertions>
+                        <!--  to test from the command line mvn test -DskipTests=false -->
                         <skipTests>${skipTests}</skipTests>
                         <printSummary>true</printSummary>
-						<disableXmlReport>false</disableXmlReport>
-						<redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <disableXmlReport>false</disableXmlReport>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <excludes>
                             <exclude>**/TestRaster.java</exclude>
                             <exclude>**/TestHelper$1.java</exclude>
@@ -595,12 +595,12 @@
                                 <value>target/test-data</value>
                             </property>
                         </systemProperties>
-						<argLine>${surefire.jvm.args} @{argLine}</argLine>
+                        <argLine>${surefire.jvm.args} @{argLine}</argLine>
                     </configuration>
-                    
+
                 </plugin>
 
-				<plugin>
+                <plugin>
                     <groupId>org.apache.netbeans.utilities</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
                     <version>4.4</version>
@@ -645,7 +645,7 @@
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
                         </execution>
-						<execution>
+                        <execution>
                             <id>create-nbmImplVersion</id>
                             <goals>
                                 <goal>regex-property</goal>
@@ -672,13 +672,13 @@
             </plugins>
         </pluginManagement>
 
-        
-		<plugins>
-			<plugin>
+
+        <plugins>
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
                     <filesets>
-						<fileset>
+                        <fileset>
                             <directory>target</directory>
                             <includes>
                                 <include>**/*</include>
@@ -694,7 +694,7 @@
                 <version>1.19</version>
             </plugin>
 
-			<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>3.0.0-M2</version>
@@ -770,11 +770,11 @@
             <email>jun@skywatch.com</email>
             <organization>SkyWatch Space Applications Inc</organization>
             <roles>
-				<role>SAR Scientist</role>
+                <role>SAR Scientist</role>
                 <role>Software Engineering</role>
             </roles>
         </developer>
-		<developer>
+        <developer>
             <id>alex</id>
             <name>Alex McVittie</name>
             <email>alex@skywatch.com</email>
@@ -801,15 +801,15 @@
                 <role>Software Engineering</role>
             </roles>
         </developer>
-		<developer>
-			<id>pmar</id>
-			<name>Petar Marinkovic</name>
+        <developer>
+            <id>pmar</id>
+            <name>Petar Marinkovic</name>
             <email>petar.marinkovic@ppolabs.com</email>
             <organization>PPO.labs</organization>
             <roles>
                 <role>InSAR Guru</role>
             </roles>
-		</developer>
+        </developer>
         <developer>
             <id>norman</id>
             <name>Norman Fomferra</name>
@@ -819,7 +819,7 @@
                 <role>BEAM Project Manager</role>
             </roles>
         </developer>
-		<developer>
+        <developer>
             <id>marcop</id>
             <name>Marco Peters</name>
             <email>marco.peters@brockmann-consult.de</email>
@@ -837,7 +837,7 @@
                 <role>Java Developer</role>
             </roles>
         </developer>
-		<developer>
+        <developer>
             <id>ralf</id>
             <name>Ralf Quast</name>
             <email>ralf.quast@brockmann-consult.de</email>
@@ -867,12 +867,12 @@
     </developers>
 
     <profiles>
-		<profile>
+        <profile>
             <id>benchmark</id>
             <modules>
-				<module>s1tbx-benchmark</module>
+                <module>s1tbx-benchmark</module>
             </modules>
-		</profile>
+        </profile>
     </profiles>
 
 </project>
