@@ -62,6 +62,7 @@ public class TestSentinel1ETADProductReaderPlugIn extends AbstractProductReaderP
     public void testValidDecodeQualification() {
         isValidDecodeQualification(TestSentinel1ETADProductReader.inputS1ETAD_IW);
         isValidDecodeQualification(TestSentinel1ETADProductReader.inputS1ETAD_SM);
+        isValidDecodeQualification(TestSentinel1ETADProductReader.inputS1ETAD_SM_ZIP);
 
         isInValidDecodeQualification(TestData.inputS1_GRD);
         isInValidDecodeQualification(inputGRDFolder);

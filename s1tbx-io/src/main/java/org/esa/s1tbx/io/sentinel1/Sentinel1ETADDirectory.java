@@ -32,7 +32,7 @@ import java.io.IOException;
  */
 public class Sentinel1ETADDirectory extends XMLProductDirectory implements Sentinel1Directory {
 
-    private Sentinel1ETADReader etadReader = null;
+    private Sentinel1ETADNetCDFReader etadReader = null;
 
     public Sentinel1ETADDirectory(final File inputFile) {
         super(inputFile);
@@ -50,7 +50,7 @@ public class Sentinel1ETADDirectory extends XMLProductDirectory implements Senti
         final String name = getBandFileNameFromImage(imgPath);
         if (name.endsWith(".nc")) {
             if (etadReader == null) {
-                etadReader = new Sentinel1ETADReader(this);
+                etadReader = new Sentinel1ETADNetCDFReader(this);
             }
             File file = new File(getBaseDir(), imgPath);
             if(isCompressed()) {
@@ -58,6 +58,10 @@ public class Sentinel1ETADDirectory extends XMLProductDirectory implements Senti
             }
             etadReader.addImageFile(file, name);
         }
+    }
+
+    public Sentinel1ETADNetCDFReader getEtadReader() {
+        return etadReader;
     }
 
     @Override
@@ -73,22 +77,17 @@ public class Sentinel1ETADDirectory extends XMLProductDirectory implements Senti
         final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
         final SafeManifest safeManifest = new SafeManifest();
-        safeManifest.addManifestMetadata(getProductName(), absRoot, origProdRoot, true);
-
-        // get metadata for each band
-        addBandAbstractedMetadata(origProdRoot);
-    }
-
-    private void addBandAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
-
-        MetadataElement annotationElement = origProdRoot.getElement("annotation");
-        if (annotationElement == null) {
-            annotationElement = new MetadataElement("annotation");
-            origProdRoot.addElement(annotationElement);
-        }
+        safeManifest.addManifestMetadata(getProductName(), absRoot, origProdRoot, false);
+        absRoot.setAttributeString(AbstractMetadata.PRODUCT_TYPE, "ETAD");
 
         if (etadReader != null) {
-            // add netcdf metadata for OCN product
+            MetadataElement annotationElement = origProdRoot.getElement("annotation");
+            if (annotationElement == null) {
+                annotationElement = new MetadataElement("annotation");
+                origProdRoot.addElement(annotationElement);
+            }
+
+            // add netcdf metadata to product
             etadReader.addNetCDFMetadata(annotationElement);
         }
     }
@@ -109,7 +108,7 @@ public class Sentinel1ETADDirectory extends XMLProductDirectory implements Senti
     }
 
     protected String getProductType() {
-        return "Level-2 OCN";
+        return "ETAD";
     }
 
     public ProductData.UTC getTime(final MetadataElement elem, final String tag) {
@@ -144,9 +143,6 @@ public class Sentinel1ETADDirectory extends XMLProductDirectory implements Senti
         addGeoCoding(product);
 
         ReaderUtils.addMetadataProductSize(product);
-
-        etadReader.addWindDataToVectorNodes(product);
-        //OCNReader.addOSWDataToVectorNode(product);
 
         return product;
     }

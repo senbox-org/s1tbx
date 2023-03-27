@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2023 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -96,9 +96,6 @@ public class Sentinel1ETADProductReader extends SARReader {
             final Product product = dataDir.createProduct();
             product.setFileLocation(inputPath.toFile());
             product.setProductReader(this);
-            if (dataDir instanceof Sentinel1Level2Directory) {
-                ((Sentinel1Level2Directory) dataDir).addGeoCodingToBands(product);
-            }
             addCommonSARMetadata(product);
 
             setQuicklookBandName(product);
@@ -133,14 +130,10 @@ public class Sentinel1ETADProductReader extends SARReader {
                                                    destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                                                    bandInfo.imageID, bandInfo.bandSampleOffset);
             }
-        } else if (dataDir instanceof Sentinel1Level2Directory) {
+        } else if (dataDir instanceof Sentinel1ETADDirectory) {
 
-            final Sentinel1Level2Directory s1L1Dir = (Sentinel1Level2Directory) dataDir;
-            if (s1L1Dir.getOCNReader() == null) {
-                throw new IOException("Sentinel1OCNReader not found");
-            }
-
-            s1L1Dir.getOCNReader().readData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+            final Sentinel1ETADDirectory s1L1Dir = (Sentinel1ETADDirectory) dataDir;
+            s1L1Dir.getEtadReader().readData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
                                             sourceStepX, sourceStepY, destBand, destOffsetX,
                                             destOffsetY, destWidth, destHeight, destBuffer);
         }

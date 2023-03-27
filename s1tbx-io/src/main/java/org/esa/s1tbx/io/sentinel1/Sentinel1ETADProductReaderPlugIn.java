@@ -70,8 +70,7 @@ public class Sentinel1ETADProductReaderPlugIn implements S1TBXProductReaderPlugI
                     }
                 }
                 if (filename.endsWith(".zip") && filename.startsWith("s1") && filename.contains(IDENTIFIER.toLowerCase()) &&
-                        (ZipUtils.findInZip(path.toFile(), "s1", PRODUCT_HEADER_NAME) ||
-                                ZipUtils.findInZip(path.toFile(), "rs2", PRODUCT_HEADER_NAME))) {
+                        (ZipUtils.findInZip(path.toFile(), "s1", PRODUCT_HEADER_NAME))) {
                     return DecodeQualification.INTENDED;
                 }
             }
