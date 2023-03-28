@@ -16,6 +16,7 @@ org.esa.s1tbx.io.risat1.Risat1ProductReaderPlugIn
 org.esa.s1tbx.io.saocom.SaocomProductReaderPlugIn
 org.esa.s1tbx.io.seasat.SeaSatProductReaderPlugIn
 org.esa.s1tbx.io.sentinel1.Sentinel1ProductReaderPlugIn
+org.esa.s1tbx.io.sentinel1.Sentinel1ETADProductReaderPlugIn
 org.esa.s1tbx.io.snaphu.SNAPHUProductReaderPlugIn
 org.esa.s1tbx.io.spacety.SpacetyProductReaderPlugIn
 org.esa.s1tbx.io.strix.grd.StriXGRDProductReaderPlugIn

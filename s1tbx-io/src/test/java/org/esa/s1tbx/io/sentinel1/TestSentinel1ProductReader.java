@@ -32,16 +32,16 @@ import static org.junit.Assume.assumeTrue;
  */
 public class TestSentinel1ProductReader extends ReaderTest {
 
-    private final static File inputS1_AnnotGRD = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.SAFE");
-    private final static File inputS1_AnnotGRDZip = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.zip");
-    private final static File inputS1_meta1GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless1"+File.separator+"manifest.safe");
-    private final static File inputS1_meta2GRD = new File(TestData.inputSAR+"S1"+File.separator+"bandless2"+File.separator+"manifest.safe");
+    public final static File inputS1_AnnotGRD = new File(TestData.inputSAR+"S1/S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.SAFE");
+    public final static File inputS1_AnnotGRDZip = new File(TestData.inputSAR+"S1/S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.zip");
+    public final static File inputS1_meta1GRD = new File(TestData.inputSAR+"S1/bandless1/manifest.safe");
+    public final static File inputS1_meta2GRD = new File(TestData.inputSAR+"S1/bandless2/manifest.safe");
 
-    private final static File inputGRDFolder = new File(TestData.inputSAR + File.separator + "S1" + File.separator + "AWS" + File.separator + "S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
+    public final static File inputGRDFolder = new File(TestData.inputSAR + "S1/AWS/S1A_IW_GRDH_1SDV_20180719T002854_20180719T002919_022856_027A78_042A");
 
     private final String[] productTypeExemptions = {"RAW","OCN"};
 
-    private final static String inputS1 = S1TBXTests.inputPathProperty + S1TBXTests.sep + "SAR" + S1TBXTests.sep  + "S1" + S1TBXTests.sep ;
+    private final static String inputS1 = S1TBXTests.inputPathProperty + "/SAR/S1/";
     private final static File[] rootPathsSentinel1 = S1TBXTests.loadFilePath(inputS1);
 
     private final static File inputS1_GRDFile = TestData.inputS1_GRD;

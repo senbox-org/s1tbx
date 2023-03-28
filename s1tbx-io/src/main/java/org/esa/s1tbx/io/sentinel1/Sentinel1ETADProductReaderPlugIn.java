@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2023 by SkyWatch Space Applications Inc. http://www.skywatch.com
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,30 +24,25 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 
 /**
- * The ReaderPlugIn for Sentinel1 products.
+ * The ReaderPlugIn for Sentinel1 ETAD products.
  */
-public class Sentinel1ProductReaderPlugIn implements S1TBXProductReaderPlugIn {
+public class Sentinel1ETADProductReaderPlugIn implements S1TBXProductReaderPlugIn {
 
-    private final static String[] FORMAT_NAMES = new String[]{"SENTINEL-1"};
+    private final static String[] FORMAT_NAMES = new String[]{"SENTINEL-1 ETAD"};
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{".safe", ".zip"};
-    private final static String PLUGIN_DESCRIPTION = "SENTINEL-1 Products";      /*I18N*/
+    private final static String PLUGIN_DESCRIPTION = "SENTINEL-1 ETAD Products";      /*I18N*/
 
     private final static String PRODUCT_PREFIX = "MANIFEST";
     final static String PRODUCT_HEADER_NAME = "manifest.safe";
     final static String PRODUCT_EXT = ".SAFE";
+    final static String IDENTIFIER = "_ETA_";
 
     private final static Class[] VALID_INPUT_TYPES = new Class[]{Path.class, File.class, String.class};
-
-    private final static String ANNOTATION = "annotation";
-    private final static String MEASUREMENT = "measurement";
-
-    private final static String[] annotation_prefixes = new String[] {"s1", "s2-", "s3-", "s4-", "s5-", "s6-", "iw", "ew", "rs2", "asa"};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -71,93 +66,21 @@ public class Sentinel1ProductReaderPlugIn implements S1TBXProductReaderPlugIn {
                 final String filename = path.getFileName().toString().toLowerCase();
                 if (filename.equals(PRODUCT_HEADER_NAME)) {
                     if(isETAD(path)) {
-                        return DecodeQualification.UNABLE;
-                    }
-                    if (isLevel1(path) || isLevel2(path) || isLevel0(path)) {
                         return DecodeQualification.INTENDED;
                     }
                 }
-                if (filename.endsWith(".zip") && filename.startsWith("s1") && !filename.contains("_eta_") &&
-                        (ZipUtils.findInZip(path.toFile(), "s1", PRODUCT_HEADER_NAME) ||
-                                ZipUtils.findInZip(path.toFile(), "rs2", PRODUCT_HEADER_NAME))) {
+                if (filename.endsWith(".zip") && filename.startsWith("s1") && filename.contains(IDENTIFIER.toLowerCase()) &&
+                        (ZipUtils.findInZip(path.toFile(), "s1", PRODUCT_HEADER_NAME))) {
                     return DecodeQualification.INTENDED;
-                }
-                if (filename.startsWith("s1") && filename.endsWith(".safe") && Files.isDirectory(path)) {
-                    Path manifest = path.resolve(PRODUCT_HEADER_NAME);
-                    if (Files.exists(manifest)) {
-                        if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest)) {
-                            return DecodeQualification.INTENDED;
-                        }
-                    }
                 }
             }
         }
-        //todo zip stream
 
         return DecodeQualification.UNABLE;
     }
 
     static boolean isETAD(final Path path) {
-        return path.toString().toUpperCase().contains("_ETA_");
-    }
-
-    static boolean isLevel1(final Path path) {
-        if (ZipUtils.isZip(path)) {
-            if(ZipUtils.findInZip(path.toFile(), "s1", ".tiff")) {
-                return true;
-            }
-            final String name = path.getFileName().toString().toUpperCase();
-            return name.contains("_1AS") || name.contains("_1AD") || name.contains("_1SS") || name.contains("_1SD");
-        } else {
-            final File annotationFolder = path.getParent().resolve(ANNOTATION).toFile();
-            return annotationFolder.exists() && checkFolder(annotationFolder, ".xml");
-        }
-    }
-
-    static boolean isLevel2(final Path path) {
-        if (ZipUtils.isZip(path)) {
-            return ZipUtils.findInZip(path.toFile(), "s1", ".nc");
-        } else {
-            final File measurementFolder = path.getParent().resolve(MEASUREMENT).toFile();
-            return measurementFolder.exists() && checkFolder(measurementFolder, ".nc");
-        }
-    }
-
-    static boolean isLevel0(final Path path) {
-        if (ZipUtils.isZip(path)) {
-            return ZipUtils.findInZip(path.toFile(), "s1", ".dat");
-        } else {
-            return checkFolder(path.getParent().toFile(), ".dat");
-        }
-    }
-
-    static void validateInput(final Path path) throws IOException {
-        if (ZipUtils.isZip(path)) {
-            if(!ZipUtils.findInZip(path.toFile(), "s1", ".tiff")) {
-                throw new IOException("measurement folder is missing in product");
-            }
-        } else {
-            if (!Files.exists(path.getParent().resolve(ANNOTATION))) {
-                throw new IOException("annotation folder is missing in product");
-            }
-        }
-    }
-
-    private static boolean checkFolder(final File folder, final String extension) {
-        final File[] files = folder.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                final String name = f.getName().toLowerCase();
-                if (f.isFile()) {
-                    for(String prefix : annotation_prefixes) {
-                        if(name.startsWith(prefix) && (extension == null || name.endsWith(extension))) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        return path.toString().toUpperCase().contains(IDENTIFIER);
     }
 
     /**
@@ -167,7 +90,7 @@ public class Sentinel1ProductReaderPlugIn implements S1TBXProductReaderPlugIn {
      */
     @Override
     public ProductReader createReaderInstance() {
-        return new Sentinel1ProductReader(this);
+        return new Sentinel1ETADProductReader(this);
     }
 
     /**

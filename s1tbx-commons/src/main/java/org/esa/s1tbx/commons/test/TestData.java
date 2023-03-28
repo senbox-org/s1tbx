@@ -58,7 +58,8 @@ public class TestData {
     public final static File inputALOS_Zip = new File(inputSAR + "ALOS" +sep + "ALPSRS267172700-L1.5.zip");
 
     //S1
-    public final static File inputS1_GRD = new File(inputSAR + "S1" + sep + "S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip");
-    public final static File inputS1_GRDSubset = new File(inputSAR + "S1" + sep + "subset_0_of_subset_1_of_S1A_S1_GRDH_1SDH_20150828T165902_20150828T165921_007466_00A4B2_84A5.dim");
-    public final static File inputS1_StripmapSLC = new File(inputSAR + "S1" + sep + "subset_2_S1A_S1_SLC__1SSV_20140807T142342_20140807T142411_001835_001BC1_05AA.dim");
+    public final static File inputS1_GRD = new File(inputSAR + "S1/S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip");
+    public final static File inputS1_GRDSubset = new File(inputSAR + "S1/subset_0_of_subset_1_of_S1A_S1_GRDH_1SDH_20150828T165902_20150828T165921_007466_00A4B2_84A5.dim");
+    public final static File inputS1_SLC = new File(inputSAR + "S1/S1A_IW_SLC__1SDV_20180620T222319_20180620T222347_022446_026E52_B227.zip");
+    public final static File inputS1_StripmapSLC = new File(inputSAR + "S1/subset_2_S1A_S1_SLC__1SSV_20140807T142342_20140807T142411_001835_001BC1_05AA.dim");
 }
