@@ -345,6 +345,11 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         if(isESAProduct(product)){
             addSRGR(product);
+        } else {
+            final String mapProjection = absRoot.getAttributeString(AbstractMetadata.map_projection);
+            if (!mapProjection.equals("Geocoded")) {
+                computeSRGR(product);
+            }
         }
     }
     private static boolean isESAProduct(final Product product){
@@ -414,6 +419,166 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             e.printStackTrace();
         }
     }
+
+    private static void computeSRGR(final Product product) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final double grPixelSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing);
+        final int sceneWidth = product.getSceneRasterWidth();
+        final int sceneHeight = product.getSceneRasterHeight();
+
+        final double slrPixelSpacing = computeSlantRangePixelSpacing(absRoot);
+
+        final double satHeight = computeSatelliteHeight(absRoot);
+        if (satHeight == 0.0) {
+            return;
+        }
+
+        final double centerLat = getCenterLatitude(product, sceneWidth, sceneHeight);
+        final double radius = computeEarthRadius(centerLat);
+
+        final double slrTo1stPixel = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel); // in m
+
+        final double grTo1stPixel = computeGroundRange(satHeight, radius, slrTo1stPixel);
+
+        final int slrImageWidth = computeSlantRangeImageWidth(satHeight, radius, slrTo1stPixel, slrPixelSpacing,
+                grTo1stPixel, grPixelSpacing, sceneWidth);
+
+        final double[] polynomialCoef = computeSRGRCoefficients(slrImageWidth, slrTo1stPixel, slrPixelSpacing,
+                grTo1stPixel, satHeight, radius);
+
+        addSRGRToMetadata(product, polynomialCoef);
+    }
+
+    private static double computeSlantRangePixelSpacing(final MetadataElement absRoot) {
+
+        final double rangeSamplingRate = absRoot.getAttributeDouble(AbstractMetadata.range_sampling_rate); // in MHz
+        return Constants.halfLightSpeed / (rangeSamplingRate * Constants.oneMillion);
+    }
+
+    private static double computeSatelliteHeight(final MetadataElement absRoot) {
+
+        OrbitStateVector[] orbitStateVectors;
+        try {
+            orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
+        } catch (Exception e) {
+            return 0.0;
+        }
+        final int i = orbitStateVectors.length / 2;
+        final double xPos = orbitStateVectors[i].x_pos; // m
+        final double yPos = orbitStateVectors[i].y_pos; // m
+        final double zPos = orbitStateVectors[i].z_pos; // m
+        return Math.sqrt(xPos*xPos + yPos*yPos + zPos*zPos);
+    }
+
+    private static double getCenterLatitude(final Product product, final int sceneWidth, final int sceneHeight) {
+
+        final GeoCoding geocoding = product.getSceneGeoCoding();
+        final GeoPos geoPos = new GeoPos();
+        geocoding.getGeoPos(new PixelPos(sceneWidth/2.0, sceneHeight/2.0), geoPos);
+        return geoPos.lat;
+    }
+
+    private static double computeEarthRadius(final double latitude) {
+
+        final double a = Constants.semiMajorAxis;
+        final double b = Constants.semiMinorAxis;
+        final double c = Math.cos(latitude * Constants.DTOR);
+        final double s = Math.sin(latitude * Constants.DTOR);
+        return a*b / Math.sqrt(b*b*c*c + a*a*s*s);
+
+        // alternative algorithm
+//        final double a2 = a*a;
+//        final double b2 = b*b;
+//        final double c2 = c*c;
+//        final double s2 = s*s;
+//        return Math.sqrt((a2*a2*c2 + b2*b2*s2) / (a2*c2 + b2*s2));
+    }
+
+    private static double computeGroundRange(final double satelliteHeight, final double earthRadius,
+                                             final double slantRange) {
+
+        return earthRadius * Math.acos((satelliteHeight * satelliteHeight + earthRadius * earthRadius -
+                slantRange * slantRange) / (2.0 * satelliteHeight * earthRadius));
+    }
+
+    private static int computeSlantRangeImageWidth(final double satelliteHeight, final double earthRadius,
+                                                   final double slrTo1stPixel, final double slrPixelSpacing,
+                                                   final double grTo1stPixel, final double grPixelSpacing,
+                                                   final int sceneWidth) {
+
+        int lowIdx = 0;
+        int upIdx = 100000;
+        while (upIdx - lowIdx > 1) {
+            final int mid = (lowIdx + upIdx) / 2;
+            final double slr = slrTo1stPixel + mid * slrPixelSpacing;
+            final double gr = computeGroundRange(satelliteHeight, earthRadius, slr);
+            final double grIdx = (gr - grTo1stPixel) / grPixelSpacing;
+            if (grIdx < sceneWidth - 1) {
+                lowIdx = mid;
+            } else if (grIdx > sceneWidth - 1) {
+                upIdx = mid;
+            } else {
+                return mid;
+            }
+        }
+        return lowIdx;
+    }
+
+    private static double[] computeSRGRCoefficients(final int slrImageWidth, final double slrTo1stPixel,
+                                                    final double slrPixelSpacing, final double grTo1stPixel,
+                                                    final double satHeight, final double radius) {
+
+        final int numRangePoints = 100;
+        final int polynomialOrder = 3;//4;
+
+        // compute slant range array
+        final double[] slantRangeArray = new double[numRangePoints - 1];
+        final int pixelsBetweenPoints = slrImageWidth / numRangePoints;
+        final double slantDistanceBetweenPoints = slrPixelSpacing * pixelsBetweenPoints;
+        for (int i = 0; i < numRangePoints - 1; i++) {
+            slantRangeArray[i] = slrTo1stPixel + slantDistanceBetweenPoints * (i + 1);
+        }
+
+        // compute ground range array
+        final double[] groundRangeArray = new double[numRangePoints - 1];
+        for (int i = 0; i < numRangePoints - 1; i++) {
+            groundRangeArray[i] = computeGroundRange(satHeight, radius, slantRangeArray[i]) - grTo1stPixel;
+        }
+
+        // compute SRGR coefficients
+        final Matrix A = Maths.createVandermondeMatrix(groundRangeArray, polynomialOrder);
+        final Matrix b = new Matrix(slantRangeArray, numRangePoints - 1);
+        final Matrix x = A.solve(b);
+
+        return x.getColumnPackedCopy();
+    }
+
+    private static void addSRGRToMetadata(final Product product, final double[] polynomialCoef) {
+
+        final int numCoeff = polynomialCoef.length;
+        final MetadataElement absRoot = product.getMetadataRoot().getElement("Abstracted_Metadata");
+        if(!absRoot.containsElement("SRGR_Coefficients")){
+            MetadataElement srgr_coef = new MetadataElement("SRGR_Coefficients");
+            absRoot.addElement(srgr_coef);
+        }
+        final MetadataElement srgr_coefficients = absRoot.getElement("SRGR_Coefficients");
+        final MetadataElement srgr_coef_list1 = new MetadataElement("srgr_coef_list.1");
+
+        for (int i = 0; i < numCoeff; ++i) {
+            MetadataAttribute srgr_coef = new MetadataAttribute("srgr_coef", ProductData.TYPE_FLOAT64);
+            srgr_coef.getData().setElemFloat((float) polynomialCoef[i]);
+            MetadataElement ce = new MetadataElement("coefficient." + (i + 1));
+            ce.addAttribute(srgr_coef);
+            srgr_coef_list1.addElement(ce);
+        }
+        srgr_coefficients.addElement(srgr_coef_list1);
+        srgr_coef_list1.addAttribute(absRoot.getElement("Doppler_Centroid_Coefficients").getElement("dop_coef_list").getAttribute("zero_doppler_time"));
+        MetadataAttribute ground_range_origin = new MetadataAttribute("ground_range_origin", ProductData.TYPE_FLOAT64);
+        ground_range_origin.getData().setElemFloat((float) 0.0);
+        srgr_coef_list1.addAttribute(ground_range_origin);
+    }
+
 
     private static void addIncidenceAngles(final Product product) {
 
@@ -898,7 +1063,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, isGroundRange());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, getMapProjection());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.map_projection, getMapProjection(absRoot));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.geo_ref_system,
                 sceneRec.getAttributeString("Ellipsoid designator"));
 
@@ -930,11 +1095,12 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         return 1;
     }
 
-    private String getMapProjection() {
-        if (leaderFile.getMapProjRecord() == null) return " ";
-        final String projDesc = leaderFile.getMapProjRecord().getAttributeString("Map projection descriptor").toLowerCase();
-        if (projDesc.contains("geo") || getProductType().contains("1.5G"))
+    private String getMapProjection(final MetadataElement absRoot) {
+        final String prodType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).toLowerCase();
+        final String procSysID = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier).toLowerCase();
+        if (procSysID.contains("esa") && prodType.contains("gec") || prodType.contains("1.5g")) {
             return "Geocoded";
+        }
         return " ";
     }
 
