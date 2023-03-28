@@ -69,7 +69,7 @@ public class TestSentinel1ETADProductReader extends ReaderTest {
             validator.checkIfSentinel1Product();
             validator.checkProductType(new String[]{"ETAD"});
             validator.checkIfTOPSARBurstProduct(false);
-            validator.checkAcquisitionMode(new String[]{"IW"});
+            validator.checkAcquisitionMode(new String[]{"S6"});
         }
     }
 
