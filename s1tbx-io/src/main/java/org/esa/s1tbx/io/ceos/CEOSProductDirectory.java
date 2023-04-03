@@ -215,10 +215,15 @@ public abstract class CEOSProductDirectory {
 
     protected static String getPass(final BinaryRecord mapProjRec, final BinaryRecord sceneRec) {
         if (mapProjRec != null) {
-            final Double heading = mapProjRec.getAttributeDouble("Platform heading at nadir corresponding to scene centre");
+            Double heading = mapProjRec.getAttributeDouble("Platform heading at nadir corresponding to scene centre");
             if (heading != null) {
-                if (heading > 90 && heading < 270) return "DESCENDING";
-                else return "ASCENDING";
+                if (heading < 0.0)
+                    heading += 360.0;
+
+                if (heading > 90 && heading < 270)
+                    return "DESCENDING";
+                else
+                    return "ASCENDING";
             }
         }
         if (sceneRec != null) {
