@@ -711,7 +711,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final double polyCoef[] = new double[4];
         final BinaryRecord sceneRec = leaderFile.getSceneRecord();
 
-        if (rangeDist == null) {
+        if (tpg.getData() == null) {
             rangeDist = new float[gridWidth * gridHeight];
             polyCoef[0] = sceneRec.getAttributeDouble("Image range to slant constant term");
             polyCoef[1] = sceneRec.getAttributeDouble("Image range to slant linear term");

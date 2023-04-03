@@ -17,13 +17,13 @@ package org.esa.s1tbx.io.ceos.alos;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
+import org.esa.s1tbx.commons.io.ImageIOFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.awt.Rectangle;
@@ -85,8 +85,15 @@ public class AlosPalsarProductReader extends CEOSProductReader {
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
         try {
+            final Product product = dataDir.createProduct();
+            final MetadataElement absMeta = AbstractMetadata.getAbstractedMetadata(product);
+            final boolean isAscending = absMeta.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+            final boolean isESAProduct = absMeta.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier).contains("ESA");
             final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) this.dataDir;
+            final boolean flipToSARGeometry = !isESAProduct && isAscending && dataDir.getProductLevel() == AlosPalsarConstants.LEVEL1_5;
             final AlosPalsarImageFile imageFile = (AlosPalsarImageFile) dataDir.getImageFile(destBand);
+            final int imageHeight = imageFile.getRasterHeight();
+
             if (dataDir.isSLC()) {
                 boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");
 
@@ -104,11 +111,18 @@ public class AlosPalsarProductReader extends CEOSProductReader {
                             destBuffer, oneOf2, pm);
                 }
             } else {
-                imageFile.readBandRasterDataShort(sourceOffsetX, sourceOffsetY,
-                        sourceWidth, sourceHeight,
-                        sourceStepX, sourceStepY,
-                        destWidth,
-                        destBuffer, pm);
+                if (flipToSARGeometry) {
+                    imageFile.readBandRasterDataShort(sourceOffsetX, imageHeight - sourceOffsetY - destHeight,
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth, destBuffer, flipToSARGeometry, pm);
+                } else {
+                    imageFile.readBandRasterDataShort(sourceOffsetX, sourceOffsetY,
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destWidth,
+                            destBuffer, pm);
+                }
             }
 
         } catch (Exception e) {

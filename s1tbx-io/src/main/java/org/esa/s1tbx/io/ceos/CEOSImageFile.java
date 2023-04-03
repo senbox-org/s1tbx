@@ -147,6 +147,17 @@ public abstract class CEOSImageFile {
                                         final int sourceWidth, final int sourceHeight,
                                         final int sourceStepX, final int sourceStepY,
                                         final int destWidth, final ProductData destBuffer, ProgressMonitor pm) {
+
+        readBandRasterDataShort(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
+                destWidth, destBuffer,false, pm);
+    }
+
+    public void readBandRasterDataShort(final int sourceOffsetX, final int sourceOffsetY,
+                                        final int sourceWidth, final int sourceHeight,
+                                        final int sourceStepX, final int sourceStepY,
+                                        final int destWidth, final ProductData destBuffer,
+                                        final boolean flipToSARGeometry, ProgressMonitor pm) {
+
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * ProductData.getElemSize(destBuffer.getType());
         final long xpos = startPosImageRecords + imageHeaderLength + x;
@@ -169,7 +180,11 @@ public abstract class CEOSImageFile {
                 }
 
                 // Copy source line into destination buffer
-                final int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                if (flipToSARGeometry) {
+                    currentLineIndex = (sourceMaxY - y) * destWidth;
+                }
+
                 if (sourceStepX == 1) {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
