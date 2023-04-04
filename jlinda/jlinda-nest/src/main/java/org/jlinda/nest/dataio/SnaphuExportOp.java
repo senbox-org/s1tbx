@@ -8,10 +8,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.Operator;
-import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.*;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
@@ -91,6 +88,12 @@ public class SnaphuExportOp extends Operator {
 
     public SnaphuExportOp() {
         setRequiresAllBands(true);
+    }
+
+    @Override
+    public void setSourceProduct(Product sourceProduct) {
+        setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME, sourceProduct);
+        this.sourceProduct = sourceProduct;
     }
 
     @Override

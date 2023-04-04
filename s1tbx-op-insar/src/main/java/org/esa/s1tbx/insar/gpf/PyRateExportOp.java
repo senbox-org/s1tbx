@@ -1,5 +1,6 @@
 package org.esa.s1tbx.insar.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -35,10 +36,31 @@ public class PyRateExportOp extends Operator {
     @Parameter(description = "Include coherence", defaultValue = "true")
     private Boolean includeCoherenceBands = true;
 
+    @Parameter(description = "SNAPHU binary location", defaultValue = "snaphu")
+    private String snaphuLocation = "snaphu";
+
+    @Parameter(description = "Run TOPSAR Deburst", defaultValue = "false")
+    private boolean runTOPSARDeburst = false;
+
 
 
     @Override
     public void initialize() throws OperatorException {
+
+    }
+
+    private void validateIfMultiMaster(){
+
+
+    }
+
+    private void process(){
+        // Step 1: Validate input product to check if it is a multi-reference InSAR stack
+
+        // Step 2: Produce interferograms
+
+        // Step 3: Run de-burst, if
+
 
     }
 }

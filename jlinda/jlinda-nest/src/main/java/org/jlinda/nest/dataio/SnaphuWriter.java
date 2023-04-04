@@ -1,6 +1,7 @@
 package org.jlinda.nest.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.lang.WordUtils;
 import org.esa.s1tbx.commons.io.FileImageOutputStreamExtImpl;
 import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductReader;
@@ -9,6 +10,7 @@ import org.esa.snap.core.dataio.dimap.DimapProductConstants;
 import org.esa.snap.core.dataio.dimap.DimapProductReader;
 import org.esa.snap.core.dataio.dimap.EnviHeader;
 import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.metadata.MetadataInspector;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
@@ -24,6 +26,7 @@ import org.jlinda.core.unwrapping.snaphu.SnaphuParameters;
 import javax.imageio.stream.ImageOutputStream;
 import java.io.*;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,7 +89,7 @@ public class SnaphuWriter extends AbstractProductWriter {
         deleteRemovedNodes();
 
         // dump snaphu config file
-        createSnaphuConfFile();
+        createSnaphuConfFile(getSourceProduct());
 
     }
 
@@ -214,7 +217,7 @@ public class SnaphuWriter extends AbstractProductWriter {
 
         // at the very end also save SnaphuConfig file
         try {
-            createSnaphuConfFile();
+            createSnaphuConfFile(getSourceProduct());
         } catch (Exception ignored) {
         }
 
@@ -410,38 +413,139 @@ public class SnaphuWriter extends AbstractProductWriter {
         return _outputDir;
     }
 
-    private void createSnaphuConfFile() throws IOException {
+    private Band [] getBands(Product product, String searchTerm){
+        int numBands = 0;
+        ArrayList<Band> bands = new ArrayList<>();
+        for (Band b: product.getBands()){
+            if (b.getName().toLowerCase().contains(searchTerm)){
+                numBands+=1;
+                bands.add(b);
+            }
+        }
+        if(numBands > 0) {
+            Band [] bandArray = new Band[bands.size()];
+            return bands.toArray(bandArray);
+        }else{
+            return new Band[]{};
+        }
+    }
+    private Band [] getCoherenceBands(Product product){
+        return getBands(product, "coh");
+    }
+    private Band [] getPhaseBands(Product product){
+        return getBands(product, "phase");
+    }
+    private Band getCorrespondingCoherenceBand(Band phaseBand, Band [] coherenceBands){
+        String phaseBandName = phaseBand.getName();
+        String phaseBandDateRange = phaseBandName.replace("Phase_ifg_", "");
+        for(Band coherenceBand: coherenceBands){
+            String coherenceBandName = coherenceBand.getName();
+            String coherenceBandDateRange = coherenceBandName.replace("coh_", "");
+            if(phaseBandDateRange.equals(coherenceBandDateRange)){
+                return coherenceBand;
+            }
+        }
+        return null;
+    }
 
-        final Product sourceProduct = getSourceProduct();
+    private String toSentenceCase(String word){
+        char [] chars = word.toUpperCase().toCharArray();
+        for (int x = 1; x < chars.length; x++){
+            chars[x] = Character.toLowerCase(chars[x]);
+        }
+        return String.valueOf(chars);
+    }
+
+    private String convertDate(String date){
+        date = date.split(" ")[0];
+        String month = date.split("-")[1];
+        String day = date.split("-")[0];
+        String year = date.split("-")[2];
+        month = toSentenceCase(month);
+        return day + month + year;
+    }
+
+    public void createSnaphuConfFile(Product sourceProduct) throws IOException {
+
+        //final Product sourceProduct = getSourceProduct();
 
         // prepare snaphu config file
-        final MetadataElement masterRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        final MetadataElement[] slaveRootS = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements();
+        final MetadataElement primaryRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        final MetadataElement[] secondaryS = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements();
+        Band [] phaseBands = getPhaseBands(sourceProduct);
+        Band [] coherenceBands = getCoherenceBands(sourceProduct);
+        boolean hasCoherence = coherenceBands.length > 0;
+        PrimarySecondaryBandMapping [] mappings = new PrimarySecondaryBandMapping[phaseBands.length];
+
+        // Check if we are dealing with a single primary/secondary setup
+        if (secondaryS.length == 1){
+            MetadataElement secondaryRoot = secondaryS[0];
+            final SLCImage primaryMetadata = new SLCImage(primaryRoot, sourceProduct);
+            final SLCImage secondaryMetadata = new SLCImage(secondaryRoot, sourceProduct);
+            Band phaseBand = phaseBands[0];
+            Band coherenceBand = null;
+
+            if (hasCoherence){
+                coherenceBand = coherenceBands[0];
+            }
+        }else{
+            //Potentially dealing with a multi primary multi secondary setup.
+            MetadataElement [] allRootMetadatas = new MetadataElement[secondaryS.length + 1];
+
+            for (int x = 0; x < allRootMetadatas.length; x++){
+                if (x == secondaryS.length){
+                    allRootMetadatas[x] = primaryRoot;
+                }else{
+                    allRootMetadatas[x] = secondaryS[x];
+                }
+            }
+            int count = 0;
+            for(Band phaseBand : phaseBands){
+                Band coherenceBand = getCorrespondingCoherenceBand(phaseBand, coherenceBands);
+                String primaryDate = phaseBand.getName().split("_")[2];
+                String secondaryDate = phaseBand.getName().split("_")[3];
+                MetadataElement primaryMetadata = null;
+                MetadataElement secondaryMetadata = null;
+                for (MetadataElement rootElement : allRootMetadatas){
+                    String procDate = convertDate(rootElement.getAttributeString("STATE_VECTOR_TIME"));
+                    if(procDate.equals(primaryDate)){
+                        primaryMetadata = rootElement;
+                    }else if (procDate.equals(secondaryDate)){
+                        secondaryMetadata = rootElement;
+                    }
+                }
+                PrimarySecondaryBandMapping mapping = new PrimarySecondaryBandMapping(primaryMetadata, secondaryMetadata, coherenceBand, phaseBand);
+                mappings[count] = mapping;
+                count++;
+            }
 
 
-        //final MetadataElement slaveRoot = slaveRootS[0];
-        for(MetadataElement slaveRoot : slaveRootS){
-            final SLCImage masterMetadata = new SLCImage(masterRoot, sourceProduct);
-            final SLCImage slaveMetadata = new SLCImage(slaveRoot, sourceProduct);
+        }
+        for(MetadataElement secondaryRoot : secondaryS){
+            final SLCImage primaryMetadata = new SLCImage(primaryRoot, sourceProduct);
+            final SLCImage secondaryMetadata = new SLCImage(secondaryRoot, sourceProduct);
+            final String referenceDate = secondaryRoot.getName().split("_")[secondaryRoot.getName().split("_").length - 1];
 
-            Orbit masterOrbit = null;
-            Orbit slaveOrbit = null;
+
+
+            Orbit primaryOrbit = null;
+            Orbit secondaryOrbit = null;
             try {
-                masterOrbit = new Orbit(masterRoot, 3);
-                slaveOrbit = new Orbit(slaveRoot, 3);
+                primaryOrbit = new Orbit(primaryRoot, 3);
+                secondaryOrbit = new Orbit(secondaryRoot, 3);
             } catch (Exception ignored) {
             }
 
             String cohName = null;
             String phaseName = null;
-            if(slaveRootS.length > 1){
+            if(secondaryS.length > 1){
                 for (Band band : sourceProduct.getBands()) {
                     if (band.getUnit().contains(Unit.COHERENCE)) {
                         String curCohName = band.getName();
                         String [] curSplit = curCohName.split("_");
                         if(curSplit.length >=3){
                             String date = curSplit[2];
-                            if(slaveRoot.getName().contains(date)){
+                            if(secondaryRoot.getName().contains(date)){
                                 cohName = curCohName;
                             }
                         }else{
@@ -454,7 +558,7 @@ public class SnaphuWriter extends AbstractProductWriter {
                         String [] curSplit = curPhaseName.split("_");
                         if(curSplit.length >=4){
                             String date = curSplit[3];
-                            if(slaveRoot.getName().contains(date)){
+                            if(secondaryRoot.getName().contains(date)){
                                 phaseName = curPhaseName;
                             }
                         }else{
@@ -490,18 +594,18 @@ public class SnaphuWriter extends AbstractProductWriter {
 
             SnaphuParameters parameters = new SnaphuParameters();
             String temp;
-            temp = masterRoot.getAttributeString("snaphu_cost_mode", "DEFO");
+            temp = primaryRoot.getAttributeString("snaphu_cost_mode", "DEFO");
             parameters.setUnwrapMode(temp);
 
-            temp = masterRoot.getAttributeString("snaphu_init_mode", "MST");
+            temp = primaryRoot.getAttributeString("snaphu_init_mode", "MST");
             parameters.setSnaphuInit(temp);
 
-            parameters.setnTileRow(masterRoot.getAttributeInt("snaphu_numberOfTileRows", 10));
-            parameters.setnTileCol(masterRoot.getAttributeInt("snaphu_numberOfTileCols", 10));
-            parameters.setNumProcessors(masterRoot.getAttributeInt("snaphu_numberOfProcessors", 4));
-            parameters.setRowOverlap(masterRoot.getAttributeInt("snaphu_rowOverlap", 200));
-            parameters.setColumnOverlap(masterRoot.getAttributeInt("snaphu_colOverlap", 200));
-            parameters.setTileCostThreshold(masterRoot.getAttributeInt("snaphu_tileCostThreshold", 500));
+            parameters.setnTileRow(primaryRoot.getAttributeInt("snaphu_numberOfTileRows", 10));
+            parameters.setnTileCol(primaryRoot.getAttributeInt("snaphu_numberOfTileCols", 10));
+            parameters.setNumProcessors(primaryRoot.getAttributeInt("snaphu_numberOfProcessors", 4));
+            parameters.setRowOverlap(primaryRoot.getAttributeInt("snaphu_rowOverlap", 200));
+            parameters.setColumnOverlap(primaryRoot.getAttributeInt("snaphu_colOverlap", 200));
+            parameters.setTileCostThreshold(primaryRoot.getAttributeInt("snaphu_tileCostThreshold", 500));
 
             parameters.setLogFileName("snaphu.log");
             parameters.setPhaseFileName(phaseName + SNAPHU_IMAGE_EXTENSION);
@@ -510,7 +614,7 @@ public class SnaphuWriter extends AbstractProductWriter {
 
             parameters.setOutFileName(UNWRAPPED_PREFIX + phaseName + SNAPHU_IMAGE_EXTENSION);
 
-            Window dataWindow = new Window(masterMetadata.getCurrentWindow());
+            Window dataWindow = new Window(primaryMetadata.getCurrentWindow());
             int size = 0;
             for (Band b : sourceProduct.getBands()){
                 if (b.getName().toLowerCase().contains("phase")){
@@ -520,8 +624,8 @@ public class SnaphuWriter extends AbstractProductWriter {
 
             /// initiate snaphuconfig
             try {
-                snaphuConfigFile = new SnaphuConfigFile(masterMetadata, slaveMetadata, masterOrbit, slaveOrbit, dataWindow, parameters, size);
-                if(slaveRootS.length > 1){
+                snaphuConfigFile = new SnaphuConfigFile(primaryMetadata, secondaryMetadata, primaryOrbit, secondaryOrbit, dataWindow, parameters, size);
+                if(secondaryS.length > 1){
                     snaphuConfigFile.buildConfFile(phaseName);
                 }else{
                     snaphuConfigFile.buildConfFile("");
@@ -532,13 +636,13 @@ public class SnaphuWriter extends AbstractProductWriter {
 
             // write snaphu.conf file to the target directory
             try {
-                if(slaveRootS.length > 1){
+                if(secondaryS.length > 1){
                     BufferedWriter out = new BufferedWriter(new FileWriter(_outputDir + "/" + phaseName +  SNAPHU_CONFIG_FILE));
                     out.write(snaphuConfigFile.getConfigFileBuffer().toString());
                     out.close();
                     //Write out snaphu.conf file without phase name appended to avoid breaking legacy workflows
                     snaphuConfigFile = null; // Clear reference
-                    snaphuConfigFile = new SnaphuConfigFile(masterMetadata, slaveMetadata, masterOrbit, slaveOrbit, dataWindow, parameters, size);
+                    snaphuConfigFile = new SnaphuConfigFile(primaryMetadata, secondaryMetadata, primaryOrbit, secondaryOrbit, dataWindow, parameters, size);
                     snaphuConfigFile.buildConfFile("");
                     BufferedWriter out2 = new BufferedWriter(new FileWriter(_outputDir + "/" + SNAPHU_CONFIG_FILE));
                     out2.write(snaphuConfigFile.getConfigFileBuffer().toString());
@@ -557,6 +661,21 @@ public class SnaphuWriter extends AbstractProductWriter {
             }
         }
 
+
+    }
+
+    private class PrimarySecondaryBandMapping {
+
+        public final MetadataElement primaryRoot, secondaryRoot;
+        public final Band coherenceBand, phaseBand;
+
+        public PrimarySecondaryBandMapping(MetadataElement primaryRoot, MetadataElement secondaryRoot,
+                                           Band coherenceBand, Band phaseBand){
+            this.primaryRoot = primaryRoot;
+            this.secondaryRoot = secondaryRoot;
+            this.coherenceBand = coherenceBand;
+            this.phaseBand = phaseBand;
+        }
 
     }
 
