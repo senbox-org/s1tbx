@@ -54,6 +54,11 @@
             <artifactId>jblas</artifactId>
             <version>${jblas.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-envi-reader</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

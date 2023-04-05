@@ -1,6 +1,7 @@
 package org.jlinda.nest.dataio;
 
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -44,64 +45,73 @@ public class SnaphuImportOp extends Operator {
 
         try {
 
-            final Product masterProduct;
-            final Product slaveProduct;
+            final Product primaryProduct;
+            final Product secondaryProduct;
 
             // check which one is the reference product:
             // ....check on geocodings, and pick 1st one that has them as 'master'...
             if (sourceProducts[0].getSceneGeoCoding() != null && sourceProducts[0].getSceneGeoCoding().canGetGeoPos()) {
-                masterProduct = sourceProducts[0];
-                slaveProduct = sourceProducts[1];
+                primaryProduct = sourceProducts[0];
+                secondaryProduct = sourceProducts[1];
             } else if (sourceProducts[1].getSceneGeoCoding() != null && sourceProducts[1].getSceneGeoCoding().canGetGeoPos()) {
-                masterProduct = sourceProducts[1];
-                slaveProduct = sourceProducts[0];
+                primaryProduct = sourceProducts[1];
+                secondaryProduct = sourceProducts[0];
             } else {
                 throw new OperatorException("SnaphuImportOp requires at least one product with InSAR metadata.");
             }
 
-            if (masterProduct.getSceneRasterHeight() != slaveProduct.getSceneRasterHeight()) {
+            if (primaryProduct.getSceneRasterHeight() != secondaryProduct.getSceneRasterHeight()) {
                 throw new OperatorException("SnaphuImportOp requires input products to be of the same HEIGHT dimension.");
             }
 
-            if (masterProduct.getSceneRasterWidth() != slaveProduct.getSceneRasterWidth()) {
+            if (primaryProduct.getSceneRasterWidth() != secondaryProduct.getSceneRasterWidth()) {
                 throw new OperatorException("SnaphuImportOp requires input products to be of the same WIDTH dimension.");
             }
 
             // create target product
             // ....Note: the productType of target is of slaveProduct (it's about using the metadata of master,
             //           and bands of slave product)
-            targetProduct = new Product(masterProduct.getName(),
-                    slaveProduct.getProductType(),
-                    masterProduct.getSceneRasterWidth(),
-                    masterProduct.getSceneRasterHeight());
+            targetProduct = new Product(primaryProduct.getName(),
+                    secondaryProduct.getProductType(),
+                    primaryProduct.getSceneRasterWidth(),
+                    primaryProduct.getSceneRasterHeight());
 
-            ProductUtils.copyProductNodes(masterProduct, targetProduct);
+            ProductUtils.copyProductNodes(primaryProduct, targetProduct);
 
             // add target bands to the target
             Band[] bands;
 
             if (!doNotKeepWrapped) {
-                bands = masterProduct.getBands();
+                bands = primaryProduct.getBands();
                 for (Band srcBand : bands) {
                     String sourceBandName = srcBand.getName();
-                    ProductUtils.copyBand(sourceBandName, masterProduct, sourceBandName, targetProduct, true);
+                    ProductUtils.copyBand(sourceBandName, primaryProduct, sourceBandName, targetProduct, true);
                 }
             }
 
             // assuming this is unwrapped phase result
             boolean unwrappedPhaseFound = false;
-            bands = slaveProduct.getBands();
+            bands = secondaryProduct.getBands();
             for (Band srcBand : bands) {
 
-                final String masterDate = OperatorUtils.getAcquisitionDate(AbstractMetadata.getAbstractedMetadata(masterProduct));
-                final String slaveDate = OperatorUtils.getAcquisitionDate(
-                        masterProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0]);
+                String primaryDate = OperatorUtils.getAcquisitionDate(AbstractMetadata.getAbstractedMetadata(primaryProduct));
+                String secondaryDate = "";
+                String targetBandName = "";
+                if(primaryProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements().length == 1){
+                    secondaryDate = OperatorUtils.getAcquisitionDate(
+                            primaryProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0]);
+                    targetBandName = "Unw_Phase_ifg_" + primaryDate + "_" + secondaryDate;
+                }else{
+                    // We have multiple secondary metadata objects - cannot just blindly assign the first one!
+                    targetBandName = srcBand.getName();
+                }
+
 
                 String sourceBandName = srcBand.getName();
-                final Band targetBand = ProductUtils.copyBand(sourceBandName, slaveProduct, sourceBandName, targetProduct, true);
+                final Band targetBand = ProductUtils.copyBand(sourceBandName, secondaryProduct, sourceBandName, targetProduct, true);
                 if (targetBand.getName().toLowerCase().contains("unw") || targetBand.getName().toLowerCase().contains("band")) {
                     targetBand.setUnit(Unit.ABS_PHASE); // if there is a band with "unw" set unit to ABS phase
-                    targetBand.setName("Unw_Phase_ifg_" + masterDate + "_" + slaveDate); // set the name to Unw_Phase_ifg_masterDate_slaveDate
+                    targetBand.setName(targetBandName); // set the name to Unw_Phase_ifg_masterDate_slaveDate
                     targetProduct.setQuicklookBandName(targetBand.getName());
                     unwrappedPhaseFound = true;
 
