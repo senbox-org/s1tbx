@@ -17,6 +17,7 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
@@ -525,8 +526,10 @@ public class SnaphuWriter extends AbstractProductWriter {
         // to determine what
         for(Band phaseBand : phaseBands){
             Band coherenceBand = getCorrespondingCoherenceBand(phaseBand, coherenceBands);
-            String primaryDate = phaseBand.getName().split("_")[2];
-            String secondaryDate = phaseBand.getName().split("_")[3];
+            String [] bandNameElements = phaseBand.getName().split("_");
+
+            String primaryDate = bandNameElements[bandNameElements.length - 2]; // Dates are always 2nd last and last elements.
+            String secondaryDate = bandNameElements[bandNameElements.length - 1];
             MetadataElement primaryMetadata = null;
             MetadataElement secondaryMetadata = null;
             for (MetadataElement rootElement : allRootMetadatas){
