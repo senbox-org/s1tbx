@@ -147,12 +147,24 @@ public class SnaphuConfigFile {
         formattedConfig.format("TRANSMITMODE \t" + "REPEATPASS\n");
         formattedConfig.format("\n");
         formattedConfig.format("ORBITRADIUS \t" + doubleToString(orbitRadius, format3) + "\n");
-        formattedConfig.format("EARTHRADIUS \t" + doubleToString(earthRadius, format3) + "\n");
+        try{
+            formattedConfig.format("EARTHRADIUS \t" + doubleToString(earthRadius, format3) + "\n");
+        }catch (NumberFormatException e){
+
+        }
         formattedConfig.format("\n");
         formattedConfig.format("LAMBDA \t\t\t" + doubleToString(masterSLC.getRadarWavelength(), format7) + "\n");
         formattedConfig.format("\n");
-        formattedConfig.format("BASELINE \t\t" + doubleToString(baselineTotal, format3) + "\n");
-        formattedConfig.format("BASELINEANGLE_RAD \t" + doubleToString(baselineAlpha, format3) + "\n");
+        try{
+            formattedConfig.format("BASELINE \t\t" + doubleToString(baselineTotal, format3) + "\n");
+        }catch(NumberFormatException e){
+
+        }
+        try{
+            formattedConfig.format("BASELINEANGLE_RAD \t" + doubleToString(baselineAlpha, format3) + "\n");
+        }catch(NumberFormatException e){
+
+        }
         formattedConfig.format("\n");
         formattedConfig.format("NEARRANGE \t\t" + doubleToString(rangeNear, format7) + "\n");
         formattedConfig.format("\n");
