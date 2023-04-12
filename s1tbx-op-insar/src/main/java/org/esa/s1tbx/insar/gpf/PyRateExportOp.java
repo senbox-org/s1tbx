@@ -295,7 +295,7 @@ public class PyRateExportOp extends Operator {
         }
 
         // Write out product to the snaphu processing location folder for unwrapping.
-        //ProductIO.writeProduct(product, snaphuProcessingLocation, "snaphu");
+        ProductIO.writeProduct(product, snaphuProcessingLocation, "snaphu");
 
         // Download, or locate the downloaded SNAPHU binary within the specified SNAPHU installation location.
         File snaphuBinary = downloadSnaphu(snaphuInstallLocation);
@@ -305,7 +305,7 @@ public class PyRateExportOp extends Operator {
         for(String file: files){
             File aFile = new File(snaphuProcessingLocation, file);
             if(file.endsWith("snaphu.conf") && ! file.equals("snaphu.conf")){
-                //callSnaphuUnwrap(snaphuBinary, aFile);
+                callSnaphuUnwrap(snaphuBinary, aFile);
             }
         }
 
@@ -326,7 +326,6 @@ public class PyRateExportOp extends Operator {
                 ProductUtils.copyBand(b.getName(), sourceProduct, imported, true);
             }
         }
-        int xy = 3;
 
 
 
