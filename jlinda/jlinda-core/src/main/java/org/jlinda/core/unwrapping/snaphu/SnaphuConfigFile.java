@@ -150,6 +150,7 @@ public class SnaphuConfigFile {
         try{
             formattedConfig.format("EARTHRADIUS \t" + doubleToString(earthRadius, format3) + "\n");
         }catch (NumberFormatException e){
+            System.err.println("INFO: EarthRadius is NaN. Skipping from Snaphu config file.");
 
         }
         formattedConfig.format("\n");
@@ -158,11 +159,13 @@ public class SnaphuConfigFile {
         try{
             formattedConfig.format("BASELINE \t\t" + doubleToString(baselineTotal, format3) + "\n");
         }catch(NumberFormatException e){
+            System.err.println("INFO: BaselineTotal is NaN. Skipping from Snaphu config file.");
 
         }
         try{
             formattedConfig.format("BASELINEANGLE_RAD \t" + doubleToString(baselineAlpha, format3) + "\n");
         }catch(NumberFormatException e){
+            System.err.println("INFO: BaselineAlpha is NaN. Skipping from Snaphu config file.");
 
         }
         formattedConfig.format("\n");
