@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.esa.s1tbx.commons.test.ProductValidator;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
@@ -16,13 +17,13 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.io.FileDownloader;
 import org.esa.snap.dataio.envi.EnviProductReaderPlugIn;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jlinda.nest.dataio.SnaphuExportOp;
 import org.jlinda.nest.dataio.SnaphuImportOp;
-import org.jlinda.nest.dataio.SnaphuWriter;
-import org.jlinda.nest.dataio.SnaphuWriterPlugIn;
 
 import java.io.*;
 import java.net.URL;
@@ -63,7 +64,7 @@ public class PyRateExportOp extends Operator {
 
     // For the SnaphuExportOp operator.
     @Parameter(description = "Directory to write SNAPHU configuration files and unwrapped interferograms to", defaultValue = "/tmp/snaphuProcessing")
-    private String snaphuProcessingLocation = "/tmp/snaphuProcessing";
+    private String processingLocation = "/tmp/snaphuProcessing";
 
     @Parameter(valueSet = {"TOPO", "DEFO", "SMOOTH", "NOSTATCOSTS"},
             description = "Size of coherence estimation window in Azimuth direction",
@@ -103,9 +104,52 @@ public class PyRateExportOp extends Operator {
             defaultValue = "500", label = "Tile Cost Threshold")
     private int tileCostThreshold = 500;
 
-    private String formatName = "snaphu";
+    @Override
+    public void setSourceProduct(Product sourceProduct) {
+        setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME, sourceProduct);
+        this.sourceProduct = sourceProduct;
+    }
 
+    @Override
+    public void initialize() throws OperatorException{
+        runValidationChecks();
 
+        try{
+            process();
+        }catch (Exception e){
+            throw new OperatorException(e);
+        }
+    }
+    // Product and input variable validations.
+    private void runValidationChecks() throws OperatorException {
+        if(sourceProduct == null){
+            throw new OperatorException("Source product must not be null.");
+        }
+        InputProductValidator validator = new InputProductValidator(sourceProduct);
+        validator.checkIfCoregisteredStack();
+
+        if (!Files.exists(new File(processingLocation).toPath())){
+            throw new OperatorException("Path provided for Snaphu processing location does not exist. Please provide a valid path.");
+        }
+        if (!Files.isDirectory(new File(processingLocation).toPath())){
+            throw new OperatorException("Path provided for Snaphu processing is not a folder. Please select a folder, not a file.");
+        }
+        if (!Files.exists(new File(snaphuInstallLocation).toPath())){
+            throw new OperatorException("Path provided for the Snaphu installation does not exist. Please provide an existing path.");
+        }
+        if(!Files.exists(new File(processingLocation).toPath())){
+            throw new OperatorException("Path provided for the intermediary processing does not exist. Please provide an existing path.");
+        }
+        if(!Files.isWritable(new File(processingLocation).toPath())){
+            throw new OperatorException("Path provided for intermediary processing is not writeable.");
+        }
+        if(!isSnaphuBinary(new File(snaphuInstallLocation)) && !Files.isWritable(new File(snaphuInstallLocation).toPath())){
+            throw new OperatorException("Folder provided for SNAPHU installation is not writeable.");
+
+        }
+    }
+
+    // Check to see if a passed in file is the SNAPHU executible.
     private boolean isSnaphuBinary(File file){
         if(System.getProperty("os.name").toLowerCase().startsWith("windows")){
             return ! file.isDirectory() &&
@@ -118,6 +162,7 @@ public class PyRateExportOp extends Operator {
         }
     }
 
+    // Iterate through a given directory and locate the SNAPHU binary within it.
     private File findSnaphuBinary(File rootDir){
         Collection<File> files = FileUtils.listFilesAndDirs(rootDir, TrueFileFilter.INSTANCE, DirectoryFileFilter.DIRECTORY );
         for (File file : files){
@@ -126,6 +171,54 @@ public class PyRateExportOp extends Operator {
             }
         }
         return null;
+    }
+
+    private File downloadSnaphu(String snaphuInstallLocation) throws IOException {
+        final String linuxDownloadPath = "http://step.esa.int/thirdparties/snaphu/1.4.2-2/snaphu-v1.4.2_linux.zip";
+        final String windowsDownloadPath = "http://step.esa.int/thirdparties/snaphu/2.0.4/snaphu-v2.0.4_win64.zip";
+        final String windows32DownloadPath = "http://step.esa.int/thirdparties/snaphu/1.4.2-2/snaphu-v1.4.2_win32.zip";
+
+        File snaphuInstallDir = new File(snaphuInstallLocation);
+        boolean isDownloaded;
+        File snaphuBinaryLocation;
+
+        // Check if we have just been given the path to the SNAPHU binary
+        if (isSnaphuBinary(snaphuInstallDir)){
+            isDownloaded = true;
+            snaphuBinaryLocation = snaphuInstallDir;
+        }else{ // We haven't been just given the binary location.
+
+            // Get parent dir if passed in a file somehow
+            if(! snaphuInstallDir.isDirectory()){
+                snaphuInstallDir = snaphuInstallDir.getParentFile();
+            }
+            snaphuBinaryLocation = findSnaphuBinary(snaphuInstallDir);
+            isDownloaded = snaphuBinaryLocation != null;
+        }
+        if (! isDownloaded){
+            // We have checked the passed in folder and it does not contain the SNAPHU binary.
+            String operatingSystem = System.getProperty("os.name");
+            String downloadPath;
+
+            if(operatingSystem.toLowerCase().contains("windows")){
+                // Using Windows
+                boolean bitDepth64 = System.getProperty("os.arch").equals("amd64");
+                if(bitDepth64){
+                    downloadPath = windowsDownloadPath;
+                }else{
+                    downloadPath = windows32DownloadPath;
+                }
+            }
+            else{
+                // Using MacOS or Linux
+                downloadPath = linuxDownloadPath;
+            }
+            File zipFile = FileDownloader.downloadFile(new URL(downloadPath), snaphuInstallDir, null);
+            ZipUtils.unzip(zipFile.toPath(), snaphuInstallDir.toPath(), true);
+            snaphuBinaryLocation = findSnaphuBinary(snaphuInstallDir);
+        }
+
+        return snaphuBinaryLocation;
     }
 
     private void callSnaphuUnwrap(File snaphuBinary, File configFile) throws IOException {
@@ -164,32 +257,6 @@ public class PyRateExportOp extends Operator {
         }
     }
 
-    @Override
-    public void initialize() throws OperatorException{
-        if (!Files.exists(new File(snaphuProcessingLocation).toPath())){
-            throw new OperatorException("Path provided for Snaphu processing location does not exist. Please provide a valid path.");
-        }
-        if (!Files.isDirectory(new File(snaphuProcessingLocation).toPath())){
-            throw new OperatorException("Path provided for Snaphu processing is not a folder. Please select a folder, not a file.");
-        }
-        if (!Files.exists(new File(snaphuInstallLocation).toPath())){
-            throw new OperatorException("Path provided for the Snaphu installation does not exist. Please provide an existing path.");
-        }
-        try{
-            process();
-        }catch (IOException e){
-            throw new OperatorException(e);
-        }
-
-
-    }
-
-    @Override
-    public void setSourceProduct(Product sourceProduct) {
-        setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME, sourceProduct);
-        this.sourceProduct = sourceProduct;
-    }
-
     private Product assembleUnwrappedFilesIntoSingularProduct(File directory) throws IOException {
         File [] fileNames = directory.listFiles(new FilenameFilter() {
             @Override
@@ -209,72 +276,8 @@ public class PyRateExportOp extends Operator {
         return enviProducts[0];
     }
 
-
-    // Returns the file to the binary Snaphu executible.
-    private File downloadSnaphu(String snaphuInstallLocation) {
-        final String linuxDownloadPath = "http://step.esa.int/thirdparties/snaphu/1.4.2-2/snaphu-v1.4.2_linux.zip";
-        final String windowsDownloadPath = "http://step.esa.int/thirdparties/snaphu/2.0.4/snaphu-v2.0.4_win64.zip";
-        final String windows32DownloadPath = "http://step.esa.int/thirdparties/snaphu/1.4.2-2/snaphu-v1.4.2_win32.zip";
-
-        File snaphuInstallDir = new File(snaphuInstallLocation);
-        boolean isDownloaded = snaphuInstallDir.isDirectory();
-        File snaphuBinaryLocation;
-
-        // Check if we have just been given the path to the SNAPHU binary
-        if (isSnaphuBinary(snaphuInstallDir)){
-            isDownloaded = true;
-            snaphuBinaryLocation = snaphuInstallDir;
-        }else{ // We haven't been just given the binary location.
-
-            // Get parent dir if passed in a file somehow
-            if(! snaphuInstallDir.isDirectory()){
-                snaphuInstallDir = snaphuInstallDir.getParentFile();
-            }
-            snaphuBinaryLocation = findSnaphuBinary(snaphuInstallDir);
-            isDownloaded = snaphuBinaryLocation != null;
-        }
-        if (! isDownloaded){
-            // We have checked the passed in folder and it does not contain the SNAPHU binary.
-            String operatingSystem = System.getProperty("os.name");
-            String downloadPath;
-
-            if(operatingSystem.toLowerCase().contains("windows")){
-                // Using Windows
-                boolean bitDepth64 = System.getProperty("os.arch").equals("amd64");
-                if(bitDepth64){
-                    downloadPath = windowsDownloadPath;
-                }else{
-                    downloadPath = windows32DownloadPath;
-                }
-            }
-            else{
-                // Using MacOS or Linux
-                downloadPath = linuxDownloadPath;
-            }
-            try(BufferedInputStream inputStream = new BufferedInputStream(new URL(downloadPath).openStream())){
-                FileOutputStream fileOutputStream = new FileOutputStream(new File(snaphuInstallDir, "install.zip"));
-                byte [] dataBuffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(dataBuffer, 0, 1024)) != -1) {
-                    fileOutputStream.write(dataBuffer, 0, bytesRead);
-                }
-                ZipUtils.unzip(new File(snaphuInstallDir, "install.zip").toPath(), snaphuInstallDir.toPath(), true);
-                snaphuBinaryLocation = findSnaphuBinary(snaphuInstallDir);
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-
-        return snaphuBinaryLocation;
-    }
-
-    private void process() throws IOException {
-        // Step 1: Validate input product to check if it is a multi-reference InSAR stack.
-        // Add elevation band if not already there.
-
-        // Step 2 - Run de-burst if it is a Sentinel-1 interferogram stack
-
-        // Step 3: Perform SNAPHU-Export
+    // Configure the SNAPHU Export operator in its own method to keep the processing method clean.
+    private SnaphuExportOp setupSnaphuExportOperator(){
         SnaphuExportOp snaphuExportOp = new SnaphuExportOp();
         snaphuExportOp.setParameter("statCostMode", statCostMode);
         snaphuExportOp.setParameter("initMethod", initMethod);
@@ -284,26 +287,34 @@ public class PyRateExportOp extends Operator {
         snaphuExportOp.setParameter("rowOverlap", rowOverlap);
         snaphuExportOp.setParameter("colOverlap", colOverlap);
         snaphuExportOp.setParameter("tileCostThreshold", tileCostThreshold);
-        snaphuExportOp.setParameter("targetFolder", snaphuProcessingLocation);
+        snaphuExportOp.setParameter("targetFolder", processingLocation);
         snaphuExportOp.setSourceProduct(sourceProduct);
+        return snaphuExportOp;
 
-        Product product = snaphuExportOp.getTargetProduct();
+    }
+    private void process() throws Exception {
+
+        // Perform SNAPHU-Export
+
+        Product product = setupSnaphuExportOperator().getTargetProduct();
 
         // Bands need to be read in fully  before writing out to avoid data access errors.
         for(Band b: product.getBands()){
             b.readRasterDataFully(ProgressMonitor.NULL);
         }
 
+        new File(processingLocation, "snaphu").mkdirs();
+
         // Write out product to the snaphu processing location folder for unwrapping.
-        ProductIO.writeProduct(product, snaphuProcessingLocation, "snaphu");
+        ProductIO.writeProduct(product, new File(processingLocation, "snaphu").getAbsolutePath(), "snaphu");
 
         // Download, or locate the downloaded SNAPHU binary within the specified SNAPHU installation location.
         File snaphuBinary = downloadSnaphu(snaphuInstallLocation);
 
         // Find all SNAPHU configuration files and execute them.
-        String [] files = new File(snaphuProcessingLocation).list();
+        String [] files = new File(processingLocation).list();
         for(String file: files){
-            File aFile = new File(snaphuProcessingLocation, file);
+            File aFile = new File(processingLocation, file);
             if(file.endsWith("snaphu.conf") && ! file.equals("snaphu.conf")){
                 callSnaphuUnwrap(snaphuBinary, aFile);
             }
@@ -311,7 +322,7 @@ public class PyRateExportOp extends Operator {
 
 
         // Step 5: Assemble all unwrapped interferograms into singular product
-        Product unwrappedInterferograms = assembleUnwrappedFilesIntoSingularProduct(new File(snaphuProcessingLocation));
+        Product unwrappedInterferograms = assembleUnwrappedFilesIntoSingularProduct(new File(processingLocation));
 
         // Step 6: Run SNAPHU Import, discarding unwrapped bands
         Product [] productPair = new Product[]{sourceProduct, unwrappedInterferograms};
