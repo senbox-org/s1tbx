@@ -127,6 +127,14 @@ public class PyRateExportOp extends Operator {
         }
         InputProductValidator validator = new InputProductValidator(sourceProduct);
         validator.checkIfCoregisteredStack();
+        int numPhaseBands = getNumBands(sourceProduct, Unit.PHASE);
+        int numCoherenceBands = getNumBands(sourceProduct, Unit.COHERENCE);
+        if(numPhaseBands < 2){
+            throw new OperatorException("PyRate needs more than 1 wrapped phase band.");
+        }
+        if(numPhaseBands != numCoherenceBands){
+            throw new OperatorException("Mismatch in number of phase and coherence bands.");
+        }
 
         if (!Files.exists(new File(processingLocation).toPath())){
             throw new OperatorException("Path provided for Snaphu processing location does not exist. Please provide a valid path.");
@@ -149,7 +157,19 @@ public class PyRateExportOp extends Operator {
         }
     }
 
-    // Check to see if a passed in file is the SNAPHU executible.
+
+    // Simple method to get the number of bands in a product with a specified band unit.
+    private int getNumBands(Product product, String unit){
+        int numBands = 0;
+        for (Band b: product.getBands()){
+            if(b.getUnit().contains(unit)){
+                numBands++;
+            }
+        }
+        return numBands;
+    }
+
+    // Check to see if a passed in file is the SNAPHU executable.
     private boolean isSnaphuBinary(File file){
         if(System.getProperty("os.name").toLowerCase().startsWith("windows")){
             return ! file.isDirectory() &&
@@ -163,6 +183,7 @@ public class PyRateExportOp extends Operator {
     }
 
     // Iterate through a given directory and locate the SNAPHU binary within it.
+    // Returns null if no SNAPHU binary is found.
     private File findSnaphuBinary(File rootDir){
         Collection<File> files = FileUtils.listFilesAndDirs(rootDir, TrueFileFilter.INSTANCE, DirectoryFileFilter.DIRECTORY );
         for (File file : files){
@@ -292,10 +313,10 @@ public class PyRateExportOp extends Operator {
         return snaphuExportOp;
 
     }
-    private void process() throws Exception {
 
+    // All SNAPHU export & snaphu unwrapping method calls occurs in this method.
+    private Product processSnaphu( File snaphuProcessingLocation) throws IOException {
         // Perform SNAPHU-Export
-
         Product product = setupSnaphuExportOperator().getTargetProduct();
 
         // Bands need to be read in fully  before writing out to avoid data access errors.
@@ -303,28 +324,56 @@ public class PyRateExportOp extends Operator {
             b.readRasterDataFully(ProgressMonitor.NULL);
         }
 
-        new File(processingLocation, "snaphu").mkdirs();
-
         // Write out product to the snaphu processing location folder for unwrapping.
-        ProductIO.writeProduct(product, new File(processingLocation, "snaphu").getAbsolutePath(), "snaphu");
+        ProductIO.writeProduct(product, snaphuProcessingLocation.getAbsolutePath(), "snaphu");
 
         // Download, or locate the downloaded SNAPHU binary within the specified SNAPHU installation location.
         File snaphuBinary = downloadSnaphu(snaphuInstallLocation);
 
         // Find all SNAPHU configuration files and execute them.
-        String [] files = new File(processingLocation).list();
+        String [] files = snaphuProcessingLocation.list();
         for(String file: files){
-            File aFile = new File(processingLocation, file);
+            File aFile = new File(snaphuProcessingLocation, file);
             if(file.endsWith("snaphu.conf") && ! file.equals("snaphu.conf")){
                 callSnaphuUnwrap(snaphuBinary, aFile);
             }
         }
 
+        return assembleUnwrappedFilesIntoSingularProduct(snaphuProcessingLocation);
 
-        // Step 5: Assemble all unwrapped interferograms into singular product
-        Product unwrappedInterferograms = assembleUnwrappedFilesIntoSingularProduct(new File(processingLocation));
+    }
 
-        // Step 6: Run SNAPHU Import, discarding unwrapped bands
+
+
+
+    /*
+        All main preprocessing and generation of PyRATE inputs happens within this process() method.
+
+        After product validation (Is a coregistered stack, contains ifgs, has more than 2 ifgs, the output paths are valid, etc),
+        this method is executed.
+
+        The PyRATE preparation workflow is as follows:
+
+        1) Generate SNAPHU input to unwrap each interferogram in the stack.
+        2) Download SNAPHU if it is not present in the installation location.
+        3) Loop through the SNAPHU input directory and unwrap each interferogram.
+        4) Assemble the unwrapped interferograms into one product, and then use SNAPHU Import to bring them back into the original product.
+        5) Add an elevation band if not supplied in the original product.
+        6) Write unwrapped interferograms, along with the coherence bands, to the input PyRATE directory.
+        7) Generate the needed configuration files for PyRATE.
+        8) Create a shell script that allows the user to easily execute PyRATE given the input folder of data.
+
+     */
+
+    private void process() throws Exception {
+
+        File snaphuProcessingLocation = new File(processingLocation, "snaphu");
+        snaphuProcessingLocation.mkdirs();
+
+        Product unwrappedInterferograms = processSnaphu(snaphuProcessingLocation);
+
+
+        // Run SNAPHU Import, discarding unwrapped bands
         Product [] productPair = new Product[]{sourceProduct, unwrappedInterferograms};
 
         SnaphuImportOp snaphuImportOp = new SnaphuImportOp();
