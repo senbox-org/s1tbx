@@ -4,7 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.esa.s1tbx.commons.test.ProductValidator;
+import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
@@ -28,7 +28,11 @@ import org.jlinda.nest.dataio.SnaphuImportOp;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Export products into format suitable for import to PyRate
@@ -39,7 +43,7 @@ import java.util.Collection;
         version = "1.0",
         copyright = "Copyright (C) 2023 SkyWatch Space Applications Inc.",
         autoWriteDisabled = true,
-        description = "Export data for PyRate processing")
+        description = "Export wrapped SBAS interferometric data for PyRate processing")
 
 public class PyRateExportOp extends Operator {
 
@@ -63,7 +67,7 @@ public class PyRateExportOp extends Operator {
 
 
     // For the SnaphuExportOp operator.
-    @Parameter(description = "Directory to write SNAPHU configuration files and unwrapped interferograms to", defaultValue = "/tmp/snaphuProcessing")
+    @Parameter(description = "Directory to write SNAPHU configuration files, unwrapped interferograms, and PyRate inputs to", defaultValue = "/tmp/snaphuProcessing")
     private String processingLocation = "/tmp/snaphuProcessing";
 
     @Parameter(valueSet = {"TOPO", "DEFO", "SMOOTH", "NOSTATCOSTS"},
@@ -111,7 +115,8 @@ public class PyRateExportOp extends Operator {
     }
 
     @Override
-    public void initialize() throws OperatorException{
+    public void initialize() throws OperatorException {
+
         runValidationChecks();
 
         try{
@@ -122,6 +127,8 @@ public class PyRateExportOp extends Operator {
     }
     // Product and input variable validations.
     private void runValidationChecks() throws OperatorException {
+
+        // Validate the product
         if(sourceProduct == null){
             throw new OperatorException("Source product must not be null.");
         }
@@ -132,10 +139,14 @@ public class PyRateExportOp extends Operator {
         if(numPhaseBands < 2){
             throw new OperatorException("PyRate needs more than 1 wrapped phase band.");
         }
+        if(numCoherenceBands == 0){
+            throw new OperatorException("PyRate requires coherence bands for processing.");
+        }
         if(numPhaseBands != numCoherenceBands){
-            throw new OperatorException("Mismatch in number of phase and coherence bands.");
+            throw new OperatorException("Mismatch in number of phase and coherence bands. Each interferogram needs a corresponding coherence band.");
         }
 
+        // Validate the folder locations provided
         if (!Files.exists(new File(processingLocation).toPath())){
             throw new OperatorException("Path provided for Snaphu processing location does not exist. Please provide a valid path.");
         }
@@ -153,7 +164,6 @@ public class PyRateExportOp extends Operator {
         }
         if(!isSnaphuBinary(new File(snaphuInstallLocation)) && !Files.isWritable(new File(snaphuInstallLocation).toPath())){
             throw new OperatorException("Folder provided for SNAPHU installation is not writeable.");
-
         }
     }
 
@@ -335,12 +345,51 @@ public class PyRateExportOp extends Operator {
         for(String file: files){
             File aFile = new File(snaphuProcessingLocation, file);
             if(file.endsWith("snaphu.conf") && ! file.equals("snaphu.conf")){
-                callSnaphuUnwrap(snaphuBinary, aFile);
+                //callSnaphuUnwrap(snaphuBinary, aFile);
             }
         }
 
         return assembleUnwrappedFilesIntoSingularProduct(snaphuProcessingLocation);
+    }
+    private String bandNameDateToPyRateDate(String bandNameDate){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM").withLocale(Locale.ENGLISH);
+        TemporalAccessor accessor = formatter.parse(bandNameDate.substring(2, 5));
+        int monthNumber = accessor.get(ChronoField.MONTH_OF_YEAR);
+        String month = monthNumber + "";
+        if(monthNumber < 10){
+            month = "0" + month;
+        }
+        return bandNameDate.substring(0, 2) + month + bandNameDate.substring(5);
+    }
 
+    private String writeBandsToTif(Product product, String format, String unit) throws IOException {
+        String fileNames = "";
+        int x = 0;
+        for(Band b: product.getBands()){
+            if(b.getUnit().contains(unit)){
+                Product productSingleBand = new Product(product.getName(), product.getProductType(), product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                productSingleBand.setSceneGeoCoding(product.getSceneGeoCoding());
+                b.readRasterDataFully();
+                ProductUtils.copyBand(b.getName(), product, productSingleBand, true);
+                String [] name = b.getName().split("_");
+                String firstDate = name[name.length - 2];
+                String secondDate = name[name.length - 1];
+                if(secondDate.length() > firstDate.length()){
+                    secondDate = secondDate.substring(0, firstDate.length());
+                }
+                String pyRateDate = bandNameDateToPyRateDate(firstDate) + "-" + bandNameDateToPyRateDate(secondDate);
+                String fileName = new File(processingLocation, unit + "_" + pyRateDate).getAbsolutePath();
+                ProductIO.writeProduct(productSingleBand, fileName, format);
+
+                if(format.equals("GeoTIFF")){
+                    fileName += ".tif";
+                }
+                fileNames += "\n" +fileName ;
+                x++;
+            }
+        }
+        // Cut off trailing newline character.
+        return fileNames.substring(1);
     }
 
 
@@ -366,14 +415,17 @@ public class PyRateExportOp extends Operator {
      */
 
     private void process() throws Exception {
+        processingLocation = new File(processingLocation, sourceProduct.getName()).getAbsolutePath();
+        new File(processingLocation).mkdirs();
+
+        // Create sub folder for SNAPHU processing and intermediary files.
+        new File(processingLocation, "snaphu").mkdirs();
 
         File snaphuProcessingLocation = new File(processingLocation, "snaphu");
         snaphuProcessingLocation.mkdirs();
 
+        // Unwrap interferograms and merge into one multi-band product.
         Product unwrappedInterferograms = processSnaphu(snaphuProcessingLocation);
-
-
-        // Run SNAPHU Import, discarding unwrapped bands
         Product [] productPair = new Product[]{sourceProduct, unwrappedInterferograms};
 
         SnaphuImportOp snaphuImportOp = new SnaphuImportOp();
@@ -381,20 +433,40 @@ public class PyRateExportOp extends Operator {
         snaphuImportOp.setParameter("doNotKeepWrapped", true);
 
         Product imported = snaphuImportOp.getTargetProduct();
+
+        // Importing from snaphuImportOp does not preserve the coherence bands. Copy them over from source product.
         for (Band b : sourceProduct.getBands()){
             if (b.getUnit().contains(Unit.COHERENCE)){
                 ProductUtils.copyBand(b.getName(), sourceProduct, imported, true);
             }
         }
+        imported.setSceneGeoCoding(sourceProduct.getSceneGeoCoding());
+        // Write the coherence, unwrapped phase, and elevation bands to the PyRate folder.
+
+        // Generate PyRate configuration files
+
+        PyRateConfigurationFileBuilder configBuilder = new PyRateConfigurationFileBuilder();
+        configBuilder.coherenceFileList = new File(processingLocation, "coherenceFiles.txt").getAbsolutePath();
+        configBuilder.interferogramFileList = new File(processingLocation, "ifgFiles.txt").getAbsolutePath();
+        configBuilder.outputDirectory = new File(processingLocation, "pyrateOutputs").getAbsolutePath();
+        new File(processingLocation, "pyrateOutputs").mkdirs();
+
+        String mainFileContents = configBuilder.createMainConfigFileContents();
+        FileUtils.write(new File(processingLocation, "input_parameters.conf"), mainFileContents);
+        String interferogramFiles = writeBandsToTif(imported, "GeoTIFF", Unit.PHASE);
+        String coherenceFiles = writeBandsToTif(imported, "GeoTIFF", Unit.COHERENCE);
+
+        FileUtils.write(new File(configBuilder.coherenceFileList), coherenceFiles);
+        FileUtils.write(new File(configBuilder.interferogramFileList), interferogramFiles);
 
 
 
 
 
 
-        // Step 7: Generate PyRate configuration files
+        // Set the target output product to be the product with elevation, coherence, and unwrapped phase bands.
+        setTargetProduct(imported);
 
-        // Step 8: write unwrapped phase imagery & coherence bands out to GeoTIFF for processing
 
 
     }
