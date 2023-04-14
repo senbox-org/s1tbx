@@ -415,6 +415,8 @@ public class PyRateExportOp extends Operator {
      */
 
     private void process() throws Exception {
+        // Processing location provided by user is the root directory. We want to save all data in a folder that is named
+        // the source product to avoid data overwriting with different products.
         processingLocation = new File(processingLocation, sourceProduct.getName()).getAbsolutePath();
         new File(processingLocation).mkdirs();
 
@@ -426,6 +428,9 @@ public class PyRateExportOp extends Operator {
 
         // Unwrap interferograms and merge into one multi-band product.
         Product unwrappedInterferograms = processSnaphu(snaphuProcessingLocation);
+
+        // Snaphu import takes an array of the original product with wrapped interferograms, and a product with the unwrapped
+        // interferograms. Put them into an array for input.
         Product [] productPair = new Product[]{sourceProduct, unwrappedInterferograms};
 
         SnaphuImportOp snaphuImportOp = new SnaphuImportOp();
@@ -440,34 +445,33 @@ public class PyRateExportOp extends Operator {
                 ProductUtils.copyBand(b.getName(), sourceProduct, imported, true);
             }
         }
+
+        // Preserve geocoding
         imported.setSceneGeoCoding(sourceProduct.getSceneGeoCoding());
-        // Write the coherence, unwrapped phase, and elevation bands to the PyRate folder.
+
+        new File(processingLocation, "pyrateOutputs").mkdirs();
 
         // Generate PyRate configuration files
-
         PyRateConfigurationFileBuilder configBuilder = new PyRateConfigurationFileBuilder();
+
         configBuilder.coherenceFileList = new File(processingLocation, "coherenceFiles.txt").getAbsolutePath();
         configBuilder.interferogramFileList = new File(processingLocation, "ifgFiles.txt").getAbsolutePath();
         configBuilder.outputDirectory = new File(processingLocation, "pyrateOutputs").getAbsolutePath();
-        new File(processingLocation, "pyrateOutputs").mkdirs();
 
         String mainFileContents = configBuilder.createMainConfigFileContents();
+
         FileUtils.write(new File(processingLocation, "input_parameters.conf"), mainFileContents);
+
+        // Write coherence and phase bands out to individual GeoTIFFS
         String interferogramFiles = writeBandsToTif(imported, "GeoTIFF", Unit.PHASE);
         String coherenceFiles = writeBandsToTif(imported, "GeoTIFF", Unit.COHERENCE);
 
+        // Populate files containing the coherence and interferograms.
         FileUtils.write(new File(configBuilder.coherenceFileList), coherenceFiles);
         FileUtils.write(new File(configBuilder.interferogramFileList), interferogramFiles);
 
-
-
-
-
-
         // Set the target output product to be the product with elevation, coherence, and unwrapped phase bands.
         setTargetProduct(imported);
-
-
 
     }
 }
