@@ -72,6 +72,10 @@
             <version>10.0.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

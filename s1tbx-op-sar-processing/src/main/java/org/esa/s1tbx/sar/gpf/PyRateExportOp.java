@@ -1,14 +1,13 @@
-package org.esa.s1tbx.insar.gpf;
+package org.esa.s1tbx.sar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.s1tbx.sar.gpf.geometric.RangeDopplerGeocodingOp;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -19,6 +18,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.io.FileDownloader;
 import org.esa.snap.dataio.envi.EnviProductReaderPlugIn;
+import org.esa.snap.dem.gpf.AddElevationOp;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.util.ZipUtils;
@@ -35,7 +35,8 @@ import java.util.Collection;
 import java.util.Locale;
 
 /**
- * Export products into format suitable for import to PyRate
+ * Export products into format suitable for import to PyRate.
+ * Located within s1tbx-op-sar-processing to access terrain correction.
  */
 @OperatorMetadata(alias = "PyrateExport",
         category = "Radar/Interferometric/PSI \\ SBAS",
@@ -46,6 +47,7 @@ import java.util.Locale;
         description = "Export wrapped SBAS interferometric data for PyRate processing")
 
 public class PyRateExportOp extends Operator {
+    boolean testingDisableUnwrapStep = true;
 
     @SourceProducts
     private Product [] sourceProducts;
@@ -344,8 +346,8 @@ public class PyRateExportOp extends Operator {
         String [] files = snaphuProcessingLocation.list();
         for(String file: files){
             File aFile = new File(snaphuProcessingLocation, file);
-            if(file.endsWith("snaphu.conf") && ! file.equals("snaphu.conf")){
-                //callSnaphuUnwrap(snaphuBinary, aFile);
+            if(file.endsWith("snaphu.conf") && ! file.equals("snaphu.conf") && !testingDisableUnwrapStep){
+                callSnaphuUnwrap(snaphuBinary, aFile);
             }
         }
 
@@ -359,10 +361,11 @@ public class PyRateExportOp extends Operator {
         if(monthNumber < 10){
             month = "0" + month;
         }
-        return bandNameDate.substring(0, 2) + month + bandNameDate.substring(5);
+        // Formatted as YYYYMMDD
+        return bandNameDate.substring(5) + month + bandNameDate.substring(0, 2);
     }
 
-    private String writeBandsToTif(Product product, String format, String unit) throws IOException {
+    private String writeBands(Product product, String format, String unit) throws IOException {
         String fileNames = "";
         int x = 0;
         for(Band b: product.getBands()){
@@ -372,24 +375,69 @@ public class PyRateExportOp extends Operator {
                 b.readRasterDataFully();
                 ProductUtils.copyBand(b.getName(), product, productSingleBand, true);
                 String [] name = b.getName().split("_");
-                String firstDate = name[name.length - 2];
-                String secondDate = name[name.length - 1];
-                if(secondDate.length() > firstDate.length()){
-                    secondDate = secondDate.substring(0, firstDate.length());
+                int y = 0;
+                String firstDate = "";
+                String secondDate = "";
+                for (String aname : name){
+                    if (aname.length() == 9){
+                        firstDate = aname;
+                        secondDate = name[y + 1];
+                        break;
+                    }
+                    y+= 1;
                 }
                 String pyRateDate = bandNameDateToPyRateDate(firstDate) + "-" + bandNameDateToPyRateDate(secondDate);
-                String fileName = new File(processingLocation, unit + "_" + pyRateDate).getAbsolutePath();
+                String pyRateName = pyRateDate + "_" + unit;
+                String fileName = new File(processingLocation, pyRateName).getAbsolutePath();
+                productSingleBand.setName(pyRateName);
+                productSingleBand.getBands()[0].setName(pyRateName);
+
                 ProductIO.writeProduct(productSingleBand, fileName, format);
 
                 if(format.equals("GeoTIFF")){
                     fileName += ".tif";
+                }else{
+                    adjustGammaHeader(productSingleBand, new File(processingLocation, productSingleBand.getName() + ".par"));
+                    new File(processingLocation, productSingleBand.getName() + ".rslc").delete();
                 }
-                fileNames += "\n" +fileName ;
+                fileNames += "\n" + new File(fileName).getName();
                 x++;
             }
         }
         // Cut off trailing newline character.
         return fileNames.substring(1);
+    }
+    private void writeElevationBand(Product product, String name, String format) throws IOException {
+        Product productSingleBand = new Product(product.getName(), product.getProductType(), product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        productSingleBand.setSceneGeoCoding(product.getSceneGeoCoding());
+        product.getBand("elevation").readRasterDataFully();
+        ProductUtils.copyBand("elevation", product, productSingleBand, true);
+        String fileName = new File(processingLocation, name).getAbsolutePath();
+        ProductIO.writeProduct(productSingleBand, fileName, format);
+        if(format.equals("Gamma")){
+            adjustGammaHeader(productSingleBand, new File(processingLocation, "DEM.par"));
+            new File(processingLocation, "elevation.rslc").delete();
+        }
+
+    }
+    // PyRate expects a couple extra pieces of metadata in the GAMMA headers. This method adjusts and adds these
+    // missing fields.
+    private void adjustGammaHeader(Product product, File gammaHeader) throws IOException {
+        String contents = FileUtils.readFileToString(gammaHeader, "utf-8");
+
+
+        GeoPos geoPosUpperLeft = product.getSceneGeoCoding().getGeoPos( new PixelPos(0, 0), null);
+        GeoPos geoPosLowerRight = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1, product.getSceneRasterHeight() - 1), null);
+
+        contents += "corner_lat:\t" + geoPosUpperLeft.lat + " decimal degrees";
+        contents += "\ncorner_lon:\t" + geoPosUpperLeft.lon + " decimal degrees";
+        contents += "\npost_lat:\t" + geoPosLowerRight.lat + " decimal degrees";
+        contents += "\npost_lon:\t" + geoPosLowerRight.lon + " decimal degrees";
+        contents += "\nellipsoid_name:\t WGS84";
+        FileUtils.write(gammaHeader, contents);
+
+
+
     }
 
 
@@ -449,29 +497,54 @@ public class PyRateExportOp extends Operator {
         // Preserve geocoding
         imported.setSceneGeoCoding(sourceProduct.getSceneGeoCoding());
 
+
+        // PyRATE input data needs to be projected into a geographic coordinate system. Needs terrain correction.
+        RangeDopplerGeocodingOp rangeDopplerGeocodingOp = new RangeDopplerGeocodingOp();
+        rangeDopplerGeocodingOp.setSourceProduct(imported);
+        Product terrainCorrected = rangeDopplerGeocodingOp.getTargetProduct();
+
+
+        // Set up PyRATE output directory in our processing directory.
         new File(processingLocation, "pyrateOutputs").mkdirs();
 
-        // Generate PyRate configuration files
+        // Generate PyRATE configuration files
         PyRateConfigurationFileBuilder configBuilder = new PyRateConfigurationFileBuilder();
 
-        configBuilder.coherenceFileList = new File(processingLocation, "coherenceFiles.txt").getAbsolutePath();
-        configBuilder.interferogramFileList = new File(processingLocation, "ifgFiles.txt").getAbsolutePath();
-        configBuilder.outputDirectory = new File(processingLocation, "pyrateOutputs").getAbsolutePath();
+        configBuilder.coherenceFileList = new File(processingLocation, "coherenceFiles.txt").getName();
+        configBuilder.interferogramFileList = new File(processingLocation, "ifgFiles.txt").getName();
+        configBuilder.outputDirectory = new File(processingLocation, "pyrateOutputs").getName();
 
         String mainFileContents = configBuilder.createMainConfigFileContents();
 
         FileUtils.write(new File(processingLocation, "input_parameters.conf"), mainFileContents);
 
+
+
         // Write coherence and phase bands out to individual GeoTIFFS
-        String interferogramFiles = writeBandsToTif(imported, "GeoTIFF", Unit.PHASE);
-        String coherenceFiles = writeBandsToTif(imported, "GeoTIFF", Unit.COHERENCE);
+        String interferogramFiles = writeBands(terrainCorrected, "GeoTIFF", Unit.PHASE);
+        String coherenceFiles = writeBands(terrainCorrected, "GeoTIFF", Unit.COHERENCE);
+
+        writeBands(terrainCorrected, "Gamma", Unit.PHASE);
+        writeBands(terrainCorrected, "Gamma", Unit.COHERENCE);
+
+        AddElevationOp addElevationOp = new AddElevationOp();
+        addElevationOp.setSourceProduct(terrainCorrected);
+        addElevationOp.setParameter("demName", "SRTM 3Sec");
+        Product tcWithElevation = addElevationOp.getTargetProduct();
+
+        writeElevationBand(tcWithElevation, configBuilder.demFile, "Gamma");
+        writeElevationBand(tcWithElevation, configBuilder.demFile, "GeoTIFF");
 
         // Populate files containing the coherence and interferograms.
-        FileUtils.write(new File(configBuilder.coherenceFileList), coherenceFiles);
-        FileUtils.write(new File(configBuilder.interferogramFileList), interferogramFiles);
+        FileUtils.write(new File(processingLocation, configBuilder.coherenceFileList), coherenceFiles);
+        FileUtils.write(new File(processingLocation, configBuilder.interferogramFileList), interferogramFiles);
+        FileUtils.write(new File(processingLocation, configBuilder.headerFileList),
+                coherenceFiles.replace(".tif", ".par") + "\n" +
+                        interferogramFiles.replace(".tif", ".par"));
 
-        // Set the target output product to be the product with elevation, coherence, and unwrapped phase bands.
-        setTargetProduct(imported);
+        // Set the target output product to be the terrain corrected product
+        // with elevation, coherence, and unwrapped phase bands.
+        setTargetProduct(terrainCorrected);
 
     }
 }

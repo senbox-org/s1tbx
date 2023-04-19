@@ -1,4 +1,4 @@
-package org.esa.s1tbx.insar.gpf;
+package org.esa.s1tbx.sar.gpf;
 
 import java.time.LocalDateTime;
 
@@ -68,6 +68,10 @@ public class PyRateConfigurationFileBuilder {
     public String demFile = "DEM.tif";
 
     public String coherenceFileList = "coherenceList.txt";
+
+    public String headerFileList = "headers.txt";
+
+    public String demHeaderFile = "DEM.par";
 
     public String outputDirectory = "pyrateOutput/";
 
@@ -224,6 +228,12 @@ public class PyRateConfigurationFileBuilder {
         contents += "demfile:\t\t" + demFile + "\n\n";
         contents += "# File listing the pool of available coherence files.\n";
         contents += "cohfilelist:\t" + coherenceFileList + "\n\n";
+        contents += "# File listing the pool of available header files (GAMMA: *mli.par, ROI_PAC: *.rsc)\n";
+        contents += "hdrfilelist:\t" + headerFileList + "\n\n";
+
+        contents += "# The DEM header file from GAMMA (*.par) or ROI_PAC (*.rsc).\n";
+        contents += "demHeaderFile:\t" + demHeaderFile + "\n\n";
+
         contents += "# Directory to write the outputs to\n";
         contents += "outdir:\t\t" + outputDirectory + "\n\n";
 

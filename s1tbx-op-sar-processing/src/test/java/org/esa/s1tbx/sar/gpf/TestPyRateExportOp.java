@@ -1,4 +1,4 @@
-package org.esa.s1tbx.insar.gpf;
+package org.esa.s1tbx.sar.gpf;
 
 import org.esa.s1tbx.commons.test.ProcessorTest;
 import org.esa.snap.core.dataio.ProductReader;
