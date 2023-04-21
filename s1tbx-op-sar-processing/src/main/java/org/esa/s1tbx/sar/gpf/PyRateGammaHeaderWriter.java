@@ -94,30 +94,68 @@ public class PyRateGammaHeaderWriter {
                 PyRateCommons.createTabbedVariableLine("time_of_first_state_vector", firstStateVectorTime),
                 PyRateCommons.createTabbedVariableLine("center_latitude", root.getAttributeString("centre_lat") + "\tdegrees"),
                 PyRateCommons.createTabbedVariableLine("center_longitude", root.getAttributeString("centre_lon") + "\tdegrees"),
-                
+                PyRateCommons.createTabbedVariableLine("range_pixel_spacing", root.getAttributeString("range_spacing") + "\tm"),
+                PyRateCommons.createTabbedVariableLine("azimuth_pixel_spacing", root.getAttributeString("azimuth_spacing") + "\tm"),
+                PyRateCommons.createTabbedVariableLine("incidence_angle",
+                        String.valueOf((root.getAttributeDouble("incidence_near") +
+                        root.getAttributeDouble("incidence_far")) / 2)), // Use average of near and far incidence angle.
+                PyRateCommons.createTabbedVariableLine("radar_frequency",
+                        root.getAttributeDouble("radar_frequency") * 1000000 + "\tHz"),    // Radar frequency is stored as MHz in abstracted metadata.
+                                                                                                 // Convert to Hz by multiplying by 1 million.
+                PyRateCommons.createTabbedVariableLine("adc_sampling_rate",
+                        root.getAttributeDouble("range_sampling_rate") * 1000000 + "\tHz"),// See above - conversion from MHz to Hz.
+
+                PyRateCommons.createTabbedVariableLine("chirp_bandwidth",
+                        root.getAttributeDouble("range_bandwidth") * 1000000 + "\tHz"),
+
+                PyRateCommons.createTabbedVariableLine("azimuth_proc_bandwidth",
+                        root.getAttributeString("azimuth_bandwidth")),
+
+                PyRateCommons.createTabbedVariableLine("")
+
+
+
+
+
 
         };
         for (String line : contentLines){
             contents.append(line);
         }
 
-        contents.append("heading:\t");
-        contents.append("range_pixel_spacing:\t");
-        contents.append("azimuth_pixel_spacing:\t");
-        contents.append("near_range_slc:\t");
-        contents.append("center_range_slc:\t");
-        contents.append("far_range_slc:\t");
+
+
+
+
+
+
+
+
+
+
+
+        contents.append("center_time:\t" + "\n"); // TODO calculate avg between start and end time
+
+        contents.append("image_format:\tFLOAT\n"); // Not sure if this should be constant. TODO determine if should be constant.
+
+        // TODO find equivalent metadata for these parts.
+        /*
+        contents.append("line_header_size:\t\n");
+        contents.append("range_samples:\t\n");
+        contents.append("azimuth_lines:\t\n");
+        contents.append("image_geometry:\t\n");
+        contents.append("range_scale_factor:\t\n");
+        contents.append("azimuth_scale_factor:\t\n");
+        contents.append("heading:\t"); // Degrees?
+        contents.append("near_range_slc:\t"); // meters
+        contents.append("center_range_slc:\t"); // meters
+        contents.append("far_range_slc:\t"); // meters
         contents.append("first_slant_range_polynomial:\t");
         contents.append("center_slant_range_polynomial:\t");
         contents.append("last_slant_range_polynomial:\t");
-        contents.append("incidence_angle:\t");
         contents.append("azimuth_deskew:\t");
         contents.append("azimuth_angle:\t");
-        contents.append("radar_frequency:\t");
-        contents.append("adc_sampling_rate:\t");
-        contents.append("chirp_bandwidth:\t");
         contents.append("prf:\t");
-        contents.append("azimuth_proc_bandwidth:\t");
         contents.append("doppler_polynomial:\t");
         contents.append("doppler_poly_dot:\t");
         contents.append("doppler_poly_ddot");
@@ -130,19 +168,9 @@ public class PyRateGammaHeaderWriter {
 
 
 
+         */
 
 
-        contents.append("center_time:\t" + "\n"); // TODO calculate avg between start and end time
-
-        contents.append("image_format:\tFLOAT\n"); // Not sure if this should be constant. TODO determine if should be constant.
-
-        // TODO find equivalent metadata for these parts.
-        contents.append("line_header_size:\t\n");
-        contents.append("range_samples:\t\n");
-        contents.append("azimuth_lines:\t\n");
-        contents.append("image_geometry:\t\n");
-        contents.append("range_scale_factor:\t\n");
-        contents.append("azimuth_scale_factor:\t\n");
 
 
 
