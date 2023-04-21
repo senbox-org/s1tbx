@@ -28,11 +28,7 @@ import org.jlinda.nest.dataio.SnaphuImportOp;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
-import java.util.Locale;
 
 /**
  * Export products into format suitable for import to PyRate.
@@ -353,17 +349,7 @@ public class PyRateExportOp extends Operator {
 
         return assembleUnwrappedFilesIntoSingularProduct(snaphuProcessingLocation);
     }
-    private String bandNameDateToPyRateDate(String bandNameDate){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM").withLocale(Locale.ENGLISH);
-        TemporalAccessor accessor = formatter.parse(bandNameDate.substring(2, 5));
-        int monthNumber = accessor.get(ChronoField.MONTH_OF_YEAR);
-        String month = monthNumber + "";
-        if(monthNumber < 10){
-            month = "0" + month;
-        }
-        // Formatted as YYYYMMDD
-        return bandNameDate.substring(5) + month + bandNameDate.substring(0, 2);
-    }
+
 
     private String writeBands(Product product, String format, String unit) throws IOException {
         String fileNames = "";
@@ -386,7 +372,7 @@ public class PyRateExportOp extends Operator {
                     }
                     y+= 1;
                 }
-                String pyRateDate = bandNameDateToPyRateDate(firstDate) + "-" + bandNameDateToPyRateDate(secondDate);
+                String pyRateDate = PyRateCommons.bandNameDateToPyRateDate(firstDate, false) + "-" + PyRateCommons.bandNameDateToPyRateDate(secondDate, false);
                 String pyRateName = pyRateDate + "_" + unit;
                 String fileName = new File(processingLocation, pyRateName).getAbsolutePath();
                 productSingleBand.setName(pyRateName);
