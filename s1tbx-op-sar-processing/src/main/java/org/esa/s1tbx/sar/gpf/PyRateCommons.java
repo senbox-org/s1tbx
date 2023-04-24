@@ -10,7 +10,7 @@ public class PyRateCommons {
 
     public static String bandNameDateToPyRateDate(String bandNameDate, boolean forPARFile){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM").withLocale(Locale.ENGLISH);
-        TemporalAccessor accessor = formatter.parse(bandNameDate.substring(2, 5));
+        TemporalAccessor accessor = formatter.parse(toSentenceCase(bandNameDate.substring(2, 5)));
         int monthNumber = accessor.get(ChronoField.MONTH_OF_YEAR);
         String month = monthNumber + "";
         if(monthNumber < 10){
@@ -24,5 +24,13 @@ public class PyRateCommons {
 
     public static String createTabbedVariableLine(String key, String value){
         return key + ":\t" + value + "\n";
+    }
+
+    public static String toSentenceCase(String word){
+        char [] chars = word.toUpperCase().toCharArray();
+        for (int x = 1; x < chars.length; x++){
+            chars[x] = Character.toLowerCase(chars[x]);
+        }
+        return String.valueOf(chars);
     }
 }

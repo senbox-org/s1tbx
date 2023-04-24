@@ -499,6 +499,7 @@ public class PyRateExportOp extends Operator {
         configBuilder.coherenceFileList = new File(processingLocation, "coherenceFiles.txt").getName();
         configBuilder.interferogramFileList = new File(processingLocation, "ifgFiles.txt").getName();
         configBuilder.outputDirectory = new File(processingLocation, "pyrateOutputs").getName();
+        configBuilder.parallel = false;
 
         String mainFileContents = configBuilder.createMainConfigFileContents();
 
@@ -510,8 +511,10 @@ public class PyRateExportOp extends Operator {
         String interferogramFiles = writeBands(terrainCorrected, "GeoTIFF", Unit.PHASE);
         String coherenceFiles = writeBands(terrainCorrected, "GeoTIFF", Unit.COHERENCE);
 
-        writeBands(terrainCorrected, "Gamma", Unit.PHASE);
-        writeBands(terrainCorrected, "Gamma", Unit.COHERENCE);
+        //writeBands(terrainCorrected, "Gamma", Unit.PHASE);
+        //writeBands(terrainCorrected, "Gamma", Unit.COHERENCE);
+        PyRateGammaHeaderWriter gammaHeaderWriter = new PyRateGammaHeaderWriter(terrainCorrected);
+        gammaHeaderWriter.writeHeaderFiles(new File(processingLocation), new File(processingLocation, configBuilder.headerFileList));
 
         AddElevationOp addElevationOp = new AddElevationOp();
         addElevationOp.setSourceProduct(terrainCorrected);
@@ -524,9 +527,6 @@ public class PyRateExportOp extends Operator {
         // Populate files containing the coherence and interferograms.
         FileUtils.write(new File(processingLocation, configBuilder.coherenceFileList), coherenceFiles);
         FileUtils.write(new File(processingLocation, configBuilder.interferogramFileList), interferogramFiles);
-        FileUtils.write(new File(processingLocation, configBuilder.headerFileList),
-                coherenceFiles.replace(".tif", ".par") + "\n" +
-                        interferogramFiles.replace(".tif", ".par"));
 
         // Set the target output product to be the terrain corrected product
         // with elevation, coherence, and unwrapped phase bands.
