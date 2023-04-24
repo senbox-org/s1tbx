@@ -28,6 +28,8 @@
     <!-- Common File Formats -->
     <mapID target="importPCIDSK" url="readers/ImportPCIDSK.html"/>
     <mapID target="ImportPolSARPro" url="readers/ImportPolsarPro.html"/>
+    <mapID target="ImportGamma" url="readers/ImportGamma.html"/>
+    <mapID target="ImportRAT" url="readers/ImportRAT.html"/>
     <mapID target="importGenericBinary" url="readers/ImportGenericBinary.html"/>
     <mapID target="importComplexGenericBinary" url="readers/ImportComplexGenericBinary.html"/>
 
