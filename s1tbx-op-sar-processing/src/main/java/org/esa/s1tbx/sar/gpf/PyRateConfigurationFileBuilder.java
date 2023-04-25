@@ -179,94 +179,94 @@ public class PyRateConfigurationFileBuilder {
                 "# Optional Correction ON/OFF switches - ON = 1; OFF = 0\n" +
                 "# Coherence masking (PREPIFG)\n";
 
-        contents += "cohmask:\t\t" + (coherenceMasking ? 1 : 0) + "\n\n";
-        contents += "# Orbital error correction (CORRECT)\n";
-        contents += "orbfit:\t\t" + (orbitalErrorCorrect ? 1 : 0) + "\n\n";
-        contents += "# DEM error (residual topography) correction (CORRECT)\n";
-        contents += "demerror:\t" + (demCorrect ? 1 : 0) + "\n\n";
-        contents += "# Phase Closure correction (CORRECT)\n";
-        contents += "phase_closure:\t"+(phaseClosureCorrect ? 1 : 0) + "\n\n";
-        contents += "# APS correction using spatio-temporal filter (CORRECT)\n";
-        contents += "apsest:\t\t" + (apsCorrection ? 1 : 0) + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("cohmask", coherenceMasking ? 1 : 0);
+        contents += "\n# Orbital error correction (CORRECT)\n";
+        contents += PyRateCommons.createTabbedVariableLine("orbfit",orbitalErrorCorrect ? 1 : 0);
+        contents += "\n# DEM error (residual topography) correction (CORRECT)\n";
+        contents += PyRateCommons.createTabbedVariableLine("demerror", demCorrect ? 1 : 0);
+        contents += "\n# Phase Closure correction (CORRECT)\n";
+        contents += PyRateCommons.createTabbedVariableLine("phase_closure", phaseClosureCorrect ? 1 : 0);
+        contents += "\n# APS correction using spatio-temporal filter (CORRECT)\n";
+        contents += PyRateCommons.createTabbedVariableLine("apsest", (apsCorrection ? 1 : 0));
 
-        contents += "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
+        contents += "\n#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
                 "# Integer parameters\n" +
                 "\n" +
                 "# LOS Projection of output products (MERGE)\n" +
                 "# Converts slanted (native) LOS signals to either \"pseudo-vertical\" or \"pseudo-horizontal\", \n" +
                 "# by dividing by the cosine or sine of the incidence angle for each pixel, respectively.\n" +
                 "# los_projection: 0 = LOS (no conversion); 1 = pseudo-vertical; 2 = pseudo-horizontal.\n";
-        contents += "los_projection:\t" + losProjection + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("los_projection", losProjection);
 
-        contents += "# Sign convention for phase data (MERGE)\n" +
+        contents += "\n# Sign convention for phase data (MERGE)\n" +
                 "# signal_polarity:  1 = retain sign convention of input interferograms\n" +
                 "# signal_polarity: -1 = reverse sign convention of input interferograms (default)\n";
-        contents += "signal_polarity:\t" + signalPolarity + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("signal_polarity", signalPolarity);
 
-        contents += "# Number of sigma to report velocity error. Positive integer. Default: 2 (TIMESERIES/STACK)\n";
-        contents += "velerror_nsig:\t" + velocitytError + "\n\n";
+        contents += "\n# Number of sigma to report velocity error. Positive integer. Default: 2 (TIMESERIES/STACK)\n";
+        contents += PyRateCommons.createTabbedVariableLine("velerror_nsig", velocitytError);
 
-        contents += "# Optional save of numpy array files for output products (MERGE)\n";
-        contents += "savenpy:\t\t" + savenpy + "\n\n";
+        contents += "\n# Optional save of numpy array files for output products (MERGE)\n";
+        contents += PyRateCommons.createTabbedVariableLine("savenpy", savenpy);
 
         contents += "# Optional save of incremental time series products (TIMESERIES/MERGE)\n";
-        contents += "savetsincr:\t\t" + savetsincr + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("savetsincr", savetsincr);
 
-        contents += "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
+        contents += "\n#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
                 "# Multi-threading parameters (CORRECT/TIMESERIES/STACK)\n" +
                 "# parallel: 1 = parallel, 0 = serial\n";
-        contents += "parallel:\t\t" + (parallel ? 1 : 0) + "\n";
-        contents += "# number of processes\n";
-        contents += "processes:\t\t" + numProcesses + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("parallel", parallel ? 1 : 0);
+        contents += "\n# number of processes\n";
+        contents += PyRateCommons.createTabbedVariableLine("processes", numProcesses);
 
-        contents += "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
+        contents += "\n#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
                 "# Input/Output file locations\n" +
                 "#\n" +
                 "# File containing the list of interferograms to use.\n";
-        contents += "ifgfilelist:\t" + interferogramFileList + "\n\n";
-        contents += "# The DEM file used in the InSAR processing\n";
-        contents += "demfile:\t\t" + demFile + "\n\n";
-        contents += "# File listing the pool of available coherence files.\n";
-        contents += "cohfilelist:\t" + coherenceFileList + "\n\n";
-        contents += "# File listing the pool of available header files (GAMMA: *mli.par, ROI_PAC: *.rsc)\n";
-        contents += "hdrfilelist:\t" + headerFileList + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("ifgfilelist", interferogramFileList);
+        contents += "\n# The DEM file used in the InSAR processing\n";
+        contents += PyRateCommons.createTabbedVariableLine("demfile", demFile);
+        contents += "\n# File listing the pool of available coherence files.\n";
+        contents += PyRateCommons.createTabbedVariableLine("cohfilelist", coherenceFileList);
+        contents += "\n# File listing the pool of available header files (GAMMA: *mli.par, ROI_PAC: *.rsc)\n";
+        contents += PyRateCommons.createTabbedVariableLine("hdrfilelist", headerFileList);
 
-        contents += "# The DEM header file from GAMMA (*.par) or ROI_PAC (*.rsc).\n";
-        contents += "demHeaderFile:\t" + demHeaderFile + "\n\n";
+        contents += "\n# The DEM header file from GAMMA (*.par) or ROI_PAC (*.rsc).\n";
+        contents += PyRateCommons.createTabbedVariableLine("demHeaderFile", demHeaderFile);
 
-        contents += "# Directory to write the outputs to\n";
-        contents += "outdir:\t\t" + outputDirectory + "\n\n";
+        contents += "\n# Directory to write the outputs to\n";
+        contents += PyRateCommons.createTabbedVariableLine("outdir", outputDirectory);
 
-        contents += "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
+        contents += "\n#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
                 "# PREPIFG parameters\n" +
                 "#------------------------------------\n" +
                 "# Input data format: ROI_PAC = 0, GAMMA = 1\n";
-        contents += "processor:\t" + processor + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("processor", String.valueOf(processor));
         contents += "# Coherence threshold value for masking, between 0 and 1\n";
-        contents += "cohthresh:\t" + coherenceThreshold + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("cohthresh", coherenceThreshold);
         contents += "# Multi-look/subsampling factor in east (x) and north (y) dimension\n";
-        contents += "ifglksx:\t" + ifglksx + "\n";
-        contents += "ifglksy:\t" + ifglksy + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("ifglksx", ifglksx);
+        contents += PyRateCommons.createTabbedVariableLine("ifglksy", ifglksy);
 
-        contents += "# Cropping options\n" +
+        contents += "\n# Cropping options\n" +
                 "# ifgcropopt: 1 = minimum extent 2 = maximum extent 3 = crop 4 = no cropping\n" +
                 "# ifgxfirst,ifgyfirst: longitude (x) and latitude (y) of north-west corner\n" +
                 "# ifgxlast,ifgylast: longitude (x) and latitude (y) of south-east corner\n";
-        contents += "ifgcropopt:\t" + ifgcropopt + "\n";
-        contents += "ifgxfirst:\t" + ifgxfirst + "\n";
-        contents += "ifgyfirst:\t" + ifgyfirst + "\n";
-        contents += "ifgxlast:\t" + ifgxlast + "\n";
-        contents += "ifgylast:\t" + ifgylast + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("ifgcropopt", ifgcropopt);
+        contents += PyRateCommons.createTabbedVariableLine("ifgxfirst", ifgxfirst);
+        contents += PyRateCommons.createTabbedVariableLine("ifgyfirst", ifgyfirst);
+        contents += PyRateCommons.createTabbedVariableLine("ifgxlast", ifgxlast);
+        contents += PyRateCommons.createTabbedVariableLine("ifgylast", ifgylast);
 
-        contents += "# No-data averaging threshold (0 = 0%; 1 = 100%)\n";
-        contents += "noDataAveragingThreshold:\t" + noDataAveragingThreshold + "\n\n";
+        contents += "\n# No-data averaging threshold (0 = 0%; 1 = 100%)\n";
+        contents += PyRateCommons.createTabbedVariableLine("noDataAveragingThreshold", noDataAveragingThreshold);
 
-        contents += "# The No-data value used in the interferogram files\n";
-        contents += "noDataValue:\t\t\t" + noDataValue + "\n\n";
+        contents += "\n# The No-data value used in the interferogram files\n";
+        contents += PyRateCommons.createTabbedVariableLine("noDataValue", noDataValue);
 
         contents += "# Nan conversion flag. Set to 1 if missing No-data values are to be converted to NaN\n";
-        contents += "nan_conversion:\t\t\t" + (nan_conversion ? 1 : 0) + "\n\n";
-        contents += "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
+        contents += PyRateCommons.createTabbedVariableLine("nan_conversion", nan_conversion ? 1 : 0);
+        contents += "\n#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
                 "# CORRECT parameters\n" +
                 "#------------------------------------\n" +
                 "# Reference pixel search parameters\n" +
@@ -279,33 +279,33 @@ public class PyRateConfigurationFileBuilder {
             // reference pixels are not initialized from default value. Have PyRATE calculate best pixel.
             contents += "refx:\t\nrefy:\t\n";
         }else{
-            contents += "refx:\t" + refx + "\n";
-            contents += "refy:\t" + refy + "\n";
+            contents += PyRateCommons.createTabbedVariableLine("refx", refx);
+            contents += PyRateCommons.createTabbedVariableLine("refy", refy);
         }
-        contents += "refnx:\t\t" + refnx + "\n";
-        contents += "refny:\t\t" + refny + "\n";
-        contents += "refchipsize:\t" + refchipsize + "\n";
-        contents += "refminfrac:\t\t" + refminfrac + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("refnx", refnx);
+        contents += PyRateCommons.createTabbedVariableLine("refny", refny);
+        contents += PyRateCommons.createTabbedVariableLine("refchipsize", refchipsize);
+        contents += PyRateCommons.createTabbedVariableLine("refminfrac", refminfrac);
 
-        contents += "#------------------------------------\n" +
+        contents += "\n#------------------------------------\n" +
                 "# Reference phase correction method\n" +
                 "\n" +
                 "# refest: 1 = median of the whole interferogram\n" +
                 "# refest: 2 = median within the window surrounding the chosen reference pixel\n";
-        contents += "refest:\t" + refest + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("refest", refest);
 
-        contents += "#------------------------------------\n" +
+        contents += "\n#------------------------------------\n" +
                 "# Orbital error correction parameters\n" +
                 "\n" +
                 "# orbfitmethod = 1: interferograms corrected independently; 2: network method\n" +
                 "# orbfitdegrees: Degree of polynomial surface to fit (1 = planar; 2 = quadratic; 3 = part-cubic)\n" +
                 "# orbfitlksx/y: additional multi-look factor for network orbital correction\n";
-        contents += "orbfitmethod:\t" + orbfitmethod + "\n";
-        contents += "orbfitdegrees:\t" + orbfitdegrees + "\n";
-        contents += "orbfitlksx:\t\t" + orbfitlksx + "\n";
-        contents += "orbfitlksy:\t\t" + orbfitlksy + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("orbfitmethod", orbfitmethod);
+        contents += PyRateCommons.createTabbedVariableLine("orbfitdegrees", orbfitdegrees);
+        contents += PyRateCommons.createTabbedVariableLine("orbfitlksx", orbfitlksx);
+        contents += PyRateCommons.createTabbedVariableLine("orbfitlksy", orbfitlksy);
 
-        contents += "#------------------------------------\n" +
+        contents += "\n#------------------------------------\n" +
                 "# Phase closure correction parameters\n" +
                 "\n" +
                 "# closure_thr:         Closure threshold for each pixel in multiples of pi, e.g. 0.5 = pi/2, 1 = pi.\n" +
@@ -315,13 +315,13 @@ public class PyRateConfigurationFileBuilder {
                 "# max_loop_length:     Closure loops with up to this many edges will be used.\n" +
                 "# max_loop_redundancy: A closure loop will be discarded if all constituent ifgs in that loop have\n" +
                 "#                      already contributed to a number of loops equal to this parameter.\n";
-        contents += "closure_thr:\t\t" + closureThr + "\n";
-        contents += "ifg_drop_thr:\t\t" + ifgDropThr + "\n";
-        contents += "min_loops_per_ifg:\t" + minLoopsPerIfg + "\n";
-        contents += "max_loop_length:\t\t" + maxLoopLength + "\n";
-        contents += "max_loop_redundancy:\t" + maxLoopRedundancy + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("closure_thr", closureThr);
+        contents += PyRateCommons.createTabbedVariableLine("ifg_drop_thr", ifgDropThr);
+        contents += PyRateCommons.createTabbedVariableLine("min_loops_per_ifg", minLoopsPerIfg);
+        contents += PyRateCommons.createTabbedVariableLine("max_loop_length", maxLoopLength);
+        contents += PyRateCommons.createTabbedVariableLine("max_loop_redundancy", maxLoopRedundancy);
 
-        contents += "#------------------------------------\n" +
+        contents += "\n#------------------------------------\n" +
                 "# APS filter parameters\n" +
                 "\n" +
                 "# tlpfcutoff: cutoff t0 for temporal high-pass Gaussian filter in days (int);\n" +
@@ -329,17 +329,17 @@ public class PyRateConfigurationFileBuilder {
                 "# slpfcutoff: spatial low-pass Gaussian filter cutoff in km (greater than zero).\n" +
                 "# slpfcutoff=0 triggers cutoff estimation from exponential covariance function\n";
 
-        contents += "tlpfcutoff:\t" + tlpfcutoff + "\n";
-        contents += "tlpfpthr:\t" + tlpfpthr + "\n";
-        contents += "slpfcutoff:\t" + slpfcutoff + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("tlpfcutoff", tlpfcutoff);
+        contents += PyRateCommons.createTabbedVariableLine("tlpfpthr", tlpfpthr);
+        contents += PyRateCommons.createTabbedVariableLine("slpfcutoff", slpfcutoff);
 
-        contents += "#------------------------------------\n" +
+        contents += "\n#------------------------------------\n" +
                 "# DEM error (residual topography) correction parameters\n" +
                 "\n" +
                 "# de_pthr: valid observations threshold;\n";
-        contents += "de_pthr:\t" + de_pthr +"\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("de_pthr", de_pthr);
 
-        contents += "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
+        contents += "\n#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
                 "# TIMESERIES parameters\n" +
                 "#------------------------------------\n" +
                 "\n" +
@@ -347,21 +347,21 @@ public class PyRateConfigurationFileBuilder {
                 "# smorder: order of Laplacian smoothing operator (1 = first-order difference; 2 = second-order difference)\n" +
                 "# smfactor: smoothing factor for Laplacian smoothing (value provided is converted as 10**smfactor)\n" +
                 "# ts_pthr: valid observations threshold for time series inversion\n";
-        contents += "tsmethod:\t" + tsmethod + "\n";
-        contents += "smorder:\t" + smorder + "\n";
-        contents += "smfactor:\t" + smfactor + "\n";
-        contents += "ts_pthr:\t" +tsPthr + "\n\n";
+        contents += PyRateCommons.createTabbedVariableLine("tsmethod", tsmethod);
+        contents += PyRateCommons.createTabbedVariableLine("smorder", smorder);
+        contents += PyRateCommons.createTabbedVariableLine("smfactor", smfactor);
+        contents += PyRateCommons.createTabbedVariableLine("ts_pthr", tsPthr);
 
-        contents += "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
+        contents += "\n#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n" +
                 "# STACK parameters\n" +
                 "#------------------------------------\n" +
                 "\n" +
                 "# pthr: threshold for minimum number of ifg observations for each pixel\n" +
                 "# nsig: threshold for iterative removal of observations\n" +
                 "# maxsig: maximum sigma (std dev; millimetres) used as an output masking threshold applied in Merge step. 0 = OFF.\n";
-        contents += "pthr:\t\t" + pthr + "\n";
-        contents += "nsig:\t\t" + nsig + "\n";
-        contents += "maxsig:\t" + maxsig + "\n";
+        contents += PyRateCommons.createTabbedVariableLine("pthr", pthr);
+        contents += PyRateCommons.createTabbedVariableLine("nsig", nsig);
+        contents += PyRateCommons.createTabbedVariableLine("maxsig", maxsig);
 
         return contents;
     }

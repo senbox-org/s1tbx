@@ -1,7 +1,9 @@
 package org.esa.s1tbx.sar.gpf;
 
 import org.apache.commons.io.FileUtils;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -26,6 +28,26 @@ public class PyRateGammaHeaderWriter {
         for (int x = 0; x < secondaryS.length; x++){
             roots[x + 1] = secondaryS[x];
         }
+    }
+
+     // PyRate expects a couple extra pieces of metadata in the GAMMA headers. This method adjusts and adds these
+    // missing fields.
+     public static void adjustGammaHeader(Product product, File gammaHeader) throws IOException {
+        String contents = FileUtils.readFileToString(gammaHeader, "utf-8");
+
+
+        GeoPos geoPosUpperLeft = product.getSceneGeoCoding().getGeoPos( new PixelPos(0, 0), null);
+        GeoPos geoPosLowerRight = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1, product.getSceneRasterHeight() - 1), null);
+
+        contents += "corner_lat:\t" + geoPosUpperLeft.lat + " decimal degrees";
+        contents += "\ncorner_lon:\t" + geoPosUpperLeft.lon + " decimal degrees";
+        contents += "\npost_lat:\t" + geoPosLowerRight.lat + " decimal degrees";
+        contents += "\npost_lon:\t" + geoPosLowerRight.lon + " decimal degrees";
+        contents += "\nellipsoid_name:\t WGS84";
+        FileUtils.write(gammaHeader, contents);
+
+
+
     }
 
     private Date parseDate(String utcDateString) throws ParseException {

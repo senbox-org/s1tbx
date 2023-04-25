@@ -26,6 +26,14 @@ public class PyRateCommons {
         return key + ":\t" + value + "\n";
     }
 
+    public static String createTabbedVariableLine(String key, int value){
+        return createTabbedVariableLine(key, String.valueOf(value));
+    }
+
+    public static String createTabbedVariableLine(String key, double value){
+        return createTabbedVariableLine(key, String.valueOf(value));
+    }
+
     public static String toSentenceCase(String word){
         char [] chars = word.toUpperCase().toCharArray();
         for (int x = 1; x < chars.length; x++){
