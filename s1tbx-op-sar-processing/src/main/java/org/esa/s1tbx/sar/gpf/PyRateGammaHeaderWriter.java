@@ -16,6 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+// Class & functions for writing out & modifying the GAMMA header files to work with the external PyRATE InSAR software
+// Written by Alex McVittie April 2023.
 public class PyRateGammaHeaderWriter {
 
     private final Product srcProduct;
@@ -31,7 +33,7 @@ public class PyRateGammaHeaderWriter {
     }
 
      // PyRate expects a couple extra pieces of metadata in the GAMMA headers. This method adjusts and adds these
-    // missing fields.
+     // missing fields.
      public static void adjustGammaHeader(Product product, File gammaHeader) throws IOException {
         String contents = FileUtils.readFileToString(gammaHeader, "utf-8");
 

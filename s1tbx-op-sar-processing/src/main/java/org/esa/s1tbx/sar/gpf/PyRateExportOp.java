@@ -33,6 +33,7 @@ import java.util.Collection;
 /**
  * Export products into format suitable for import to PyRate.
  * Located within s1tbx-op-sar-processing to access terrain correction.
+ * Written by Alex McVittie April 2023.
  */
 @OperatorMetadata(alias = "PyrateExport",
         category = "Radar/Interferometric/PSI \\ SBAS",
@@ -43,6 +44,8 @@ import java.util.Collection;
         description = "Export wrapped SBAS interferometric data for PyRate processing")
 
 public class PyRateExportOp extends Operator {
+    // For testing purposes. Setting to true disables the external call to Snaphu unwrapping,
+    // useful if ifgs are already unwrapped and you are just testing later stages of the integration.
     boolean testingDisableUnwrapStep = true;
 
     @SourceProducts
