@@ -12,7 +12,7 @@ public class PyRateCommons {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM").withLocale(Locale.ENGLISH);
         TemporalAccessor accessor = formatter.parse(toSentenceCase(bandNameDate.substring(2, 5)));
         int monthNumber = accessor.get(ChronoField.MONTH_OF_YEAR);
-        String month = monthNumber + "";
+        String month = String.valueOf(monthNumber);
         if(monthNumber < 10){
             month = "0" + month;
         }
@@ -34,11 +34,11 @@ public class PyRateCommons {
         return createTabbedVariableLine(key, String.valueOf(value));
     }
 
+    // Makes first character upper case and the rest lowercase.
+    // Convert string from HELLO to Hello. or hello to Hello.
     public static String toSentenceCase(String word){
-        char [] chars = word.toUpperCase().toCharArray();
-        for (int x = 1; x < chars.length; x++){
-            chars[x] = Character.toLowerCase(chars[x]);
-        }
-        return String.valueOf(chars);
+        String firstCharacter = word.substring(0, 1);
+        String rest = word.substring(1);
+        return firstCharacter.toUpperCase() + rest.toLowerCase();
     }
 }
