@@ -14,13 +14,17 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 // Class & functions for writing out & modifying the GAMMA header files to work with the external PyRATE InSAR software
 // Written by Alex McVittie April 2023.
 public class PyRateGammaHeaderWriter {
 
     private final Product srcProduct;
+
+    private ArrayList<String> bannedDates = new ArrayList<>();
     final MetadataElement[] roots;
     public PyRateGammaHeaderWriter(Product product){
         this.srcProduct = product;
@@ -99,6 +103,9 @@ public class PyRateGammaHeaderWriter {
     }
 
 
+
+
+
     // Write out the individual image metadata files as PyRate compatible metadata files,
     // store the file location in
     public File writeHeaderFiles(File destinationFolder, File headerListFile) throws ParseException, IOException {
@@ -106,12 +113,61 @@ public class PyRateGammaHeaderWriter {
             headerListFile = new File(destinationFolder.getParentFile(), "headers.txt");
         }
         StringBuilder allHeaderFiles = new StringBuilder();
+        ArrayList<MetadataElement> acceptableMetadataElements = new ArrayList<>();
+
+        // Key: range sample value. Value: # of occurrences
+        HashMap<Integer, Integer> rangeSampleCounts = new HashMap<>();
+        int mostConsistentRangeSampleValue = 0; // Most common range sample value. Don't write anything that isn't this value.
+
+        HashMap<Double, Integer> rangePixelSpacingCounts = new HashMap<>();
+        double mostConsistentRangePixelSpacingCountValue = 0;
+
         for(MetadataElement root : roots){
+            int rangeSample = root.getAttributeInt("num_samples_per_line");
+            if(rangeSampleCounts.containsKey(rangeSample)){
+                rangeSampleCounts.replace(rangeSample, rangeSampleCounts.get(rangeSample) + 1);
+            }else{
+                rangeSampleCounts.put(rangeSample, 1);
+            }
+
+            double rangePixelSpacing = root.getAttributeDouble("range_spacing");
+            if(rangePixelSpacingCounts.containsKey(rangePixelSpacing)){
+                rangePixelSpacingCounts.replace(rangePixelSpacing, rangePixelSpacingCounts.get(rangePixelSpacing) + 1);
+            }else{
+                rangePixelSpacingCounts.put(rangePixelSpacing, 1);
+            }
+        }
+        int x = 0;
+        for(double key : rangePixelSpacingCounts.keySet()){
+            if(rangePixelSpacingCounts.get(key) > x){
+                mostConsistentRangePixelSpacingCountValue = key;
+                x = rangePixelSpacingCounts.get(key);
+            }
+        }
+        x = 0;
+        for(int key : rangeSampleCounts.keySet()){
+            if(rangeSampleCounts.get(key) > x){
+                mostConsistentRangeSampleValue = key;
+                x = rangeSampleCounts.get(key);
+            }
+        }
+
+        for(MetadataElement root : roots){
+            if (root.getAttributeInt("num_samples_per_line") == mostConsistentRangeSampleValue &&
+                root.getAttributeDouble("range_spacing") == mostConsistentRangePixelSpacingCountValue){
+                acceptableMetadataElements.add(root);
+            }else{
+                bannedDates.add(PyRateCommons.bandNameDateToPyRateDate(root.getAttributeString("first_line_time").split(" ")[0].replace("-", ""), false));
+            }
+
+        }
+
+        for(MetadataElement root : acceptableMetadataElements){
             String contents = convertMetadataRootToPyRateGamma(root);
             String fileNameDate = PyRateCommons.bandNameDateToPyRateDate(root.getAttributeString("first_line_time").split(" ")[0].replace("-", ""), false);
             String fileName = fileNameDate + ".par";
             FileUtils.write(new File(destinationFolder, fileName), contents);
-            allHeaderFiles.append(fileName + "\n");
+            allHeaderFiles.append(destinationFolder.getName() + "/" + fileName + "\n");
 
         }
         FileUtils.write(headerListFile, allHeaderFiles.toString());
@@ -251,4 +307,7 @@ public class PyRateGammaHeaderWriter {
     }
 
 
+    public ArrayList<String> getBannedDates() {
+        return bannedDates;
+    }
 }

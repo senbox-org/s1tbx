@@ -28,6 +28,7 @@ import org.jlinda.nest.dataio.SnaphuImportOp;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -228,6 +229,10 @@ public class PyRateExportOp extends Operator {
         // Preserve geocoding
         imported.setSceneGeoCoding(sourceProduct.getSceneGeoCoding());
 
+        // Some products may be undesireable in PyRate processing. Store all dates that are undesireable in here
+        // to prevent writing out and mucking up PyRate processing.
+        ArrayList<String> bannedDates = new ArrayList<>();
+
 
         // PyRATE input data needs to be projected into a geographic coordinate system. Needs terrain correction.
         RangeDopplerGeocodingOp rangeDopplerGeocodingOp = new RangeDopplerGeocodingOp();
@@ -241,10 +246,18 @@ public class PyRateExportOp extends Operator {
         // Generate PyRATE configuration files
         PyRateConfigurationFileBuilder configBuilder = new PyRateConfigurationFileBuilder();
 
+        File geoTiffs = new File(processingLocation, "geoTiffs");
+        geoTiffs.mkdirs();
+
         configBuilder.coherenceFileList = new File(processingLocation, "coherenceFiles.txt").getName();
+
         configBuilder.interferogramFileList = new File(processingLocation, "ifgFiles.txt").getName();
+
         configBuilder.outputDirectory = new File(processingLocation, "pyrateOutputs").getName();
         configBuilder.parallel = false;
+
+        File headerFileFolder = new File(processingLocation, "headers");
+
 
         String mainFileContents = configBuilder.createMainConfigFileContents();
 
@@ -252,13 +265,17 @@ public class PyRateExportOp extends Operator {
 
 
 
-        // Write coherence and phase bands out to individual GeoTIFFS
-        String interferogramFiles = writeBands(terrainCorrected, "GeoTIFF", Unit.PHASE);
-        String coherenceFiles = writeBands(terrainCorrected, "GeoTIFF", Unit.COHERENCE);
-
+        headerFileFolder.mkdirs();
         // PyRATE requires individual headers for each source image that goes into an interferogram image pair.
         PyRateGammaHeaderWriter gammaHeaderWriter = new PyRateGammaHeaderWriter(terrainCorrected);
-        gammaHeaderWriter.writeHeaderFiles(new File(processingLocation), new File(processingLocation, configBuilder.headerFileList));
+        gammaHeaderWriter.writeHeaderFiles(headerFileFolder, new File(processingLocation, configBuilder.headerFileList));
+        bannedDates = gammaHeaderWriter.getBannedDates();
+
+        // Write coherence and phase bands out to individual GeoTIFFS
+        String interferogramFileList = writeBands(terrainCorrected, "GeoTIFF", Unit.PHASE, bannedDates);
+        String coherenceFiles = writeBands(terrainCorrected, "GeoTIFF", Unit.COHERENCE, bannedDates);
+
+
 
         AddElevationOp addElevationOp = new AddElevationOp();
         addElevationOp.setSourceProduct(terrainCorrected);
@@ -273,7 +290,7 @@ public class PyRateExportOp extends Operator {
 
         // Populate files containing the coherence and interferograms.
         FileUtils.write(new File(processingLocation, configBuilder.coherenceFileList), coherenceFiles);
-        FileUtils.write(new File(processingLocation, configBuilder.interferogramFileList), interferogramFiles);
+        FileUtils.write(new File(processingLocation, configBuilder.interferogramFileList), interferogramFileList);
 
         // Set the target output product to be the terrain corrected product
         // with elevation, coherence, and unwrapped phase bands.
@@ -398,10 +415,7 @@ public class PyRateExportOp extends Operator {
         }
         return null;
     }
-
-
-
-
+    
     // Simple method to get the number of bands in a product with a specified band unit.
     private int getNumBands(Product product, String unit){
         int numBands = 0;
@@ -469,7 +483,7 @@ public class PyRateExportOp extends Operator {
         return enviProducts[0];
     }
 
-    private String writeBands(Product product, String format, String unit) throws IOException {
+    private String writeBands(Product product, String format, String unit, ArrayList<String> bannedDates) throws IOException {
         String fileNames = "";
         int x = 0;
         for(Band b: product.getBands()){
@@ -490,9 +504,18 @@ public class PyRateExportOp extends Operator {
                     }
                     y+= 1;
                 }
+                int firstDateNum = Integer.parseInt(PyRateCommons.bandNameDateToPyRateDate(firstDate, false));
+                int secondDateNum = Integer.parseInt(PyRateCommons.bandNameDateToPyRateDate(secondDate, false));
+                // Secondary date cannot be before primary date. Don't write out band if so. Also do not write any ifg pairs
+                // that have been deemed as containing bad metadata.
+                if(secondDateNum < firstDateNum ||
+                        bannedDates.contains(PyRateCommons.bandNameDateToPyRateDate(firstDate, false)) ||
+                        bannedDates.contains(PyRateCommons.bandNameDateToPyRateDate(secondDate, false))){
+                    continue;
+                }
                 String pyRateDate = PyRateCommons.bandNameDateToPyRateDate(firstDate, false) + "-" + PyRateCommons.bandNameDateToPyRateDate(secondDate, false);
                 String pyRateName = pyRateDate + "_" + unit;
-                String fileName = new File(processingLocation, pyRateName).getAbsolutePath();
+                String fileName = new File(new File(processingLocation, "geoTiffs"), pyRateName).getAbsolutePath();
                 productSingleBand.setName(pyRateName);
                 productSingleBand.getBands()[0].setName(pyRateName);
 
@@ -501,10 +524,10 @@ public class PyRateExportOp extends Operator {
                 if(format.equals("GeoTIFF")){
                     fileName += ".tif";
                 }else{
-                    PyRateGammaHeaderWriter.adjustGammaHeader(productSingleBand, new File(processingLocation, productSingleBand.getName() + ".par"));
+                    PyRateGammaHeaderWriter.adjustGammaHeader(productSingleBand, new File(new File(processingLocation, "geoTiffs"), productSingleBand.getName() + ".par"));
                     new File(processingLocation, productSingleBand.getName() + ".rslc").delete();
                 }
-                fileNames += "\n" + new File(fileName).getName();
+                fileNames += "\n" + new File(fileName).getParentFile().getName() + "/" + new File(fileName).getName();
                 x++;
             }
         }

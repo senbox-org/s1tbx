@@ -16,7 +16,7 @@ public class TestPyRateExportOp extends ProcessorTest  {
         PyRateExportOp pyRateExportOp = new PyRateExportOp();
         DimapProductReaderPlugIn productReaderPlugIn = new DimapProductReaderPlugIn();
         ProductReader reader = productReaderPlugIn.createReaderInstance();
-        Product product = reader.readProductNodes(new File("C:\\Users\\alex\\Documents\\data\\pyrateprocessing\\subset_0_of_S1B_IW_SLC__1SSV_20170514T122459_20170514T122524_005594_009CC4_39A6_Orb_Stack_mmifg_deb.dim"), null);
+        Product product = reader.readProductNodes(new File("C:\\Users\\alex\\Downloads\\gis\\subset_2_of_S1B_IW_SLC__1SSV_20161209T122500_20161209T122524_003319_005AA1_5E64_Orb_Stack_mmifg_flt.dim"), null);
         pyRateExportOp.setSourceProduct(product);
         pyRateExportOp.setParameter("processingLocation", "C:/tmp/pyrateProcessing" );
         pyRateExportOp.setParameter("snaphuInstallLocation", "C:/tmp/pyrateDownload");
