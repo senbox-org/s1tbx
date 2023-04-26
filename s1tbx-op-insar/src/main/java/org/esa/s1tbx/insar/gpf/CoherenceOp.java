@@ -89,6 +89,9 @@ public class CoherenceOp extends Operator {
     @Parameter(defaultValue = "false", label = "Subtract flat-earth phase in coherence phase")
     private boolean subtractFlatEarthPhase = false;
 
+    @Parameter(defaultValue = "false", label = "Output flat-earth phase")
+    private boolean OUTPUT_PHASE = false;
+
     @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8"},
             description = "Order of 'Flat earth phase' polynomial",
             defaultValue = "5",
@@ -101,7 +104,7 @@ public class CoherenceOp extends Operator {
             label = "Number of \"Flat Earth\" estimation points")
     private int srpNumberPoints = 501;
 
-    @Parameter(valueSet = {"1", "2", "3", "4", "5"},
+    @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
             description = "Degree of orbit (polynomial) interpolator",
             defaultValue = "3",
             label = "Orbit interpolation degree")
@@ -174,7 +177,6 @@ public class CoherenceOp extends Operator {
 
     private static final int ORBIT_DEGREE = 3; // hardcoded
     private static final String PRODUCT_SUFFIX = "_Coh";
-    private static final boolean OUTPUT_PHASE = false;
     private static final String FLAT_EARTH_PHASE = "flat_earth_phase";
     private static final String TOPO_PHASE = "topo_phase";
 
