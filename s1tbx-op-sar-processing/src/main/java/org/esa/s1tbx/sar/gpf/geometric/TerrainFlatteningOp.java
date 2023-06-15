@@ -563,10 +563,10 @@ public final class TerrainFlatteningOp extends Operator {
 
             final double extralat = 20 * demResolution;
             final double extralon = 20 * demResolution;
-            final double latMin = latLonMinMax[0] - extralat;
-            final double latMax = latLonMinMax[1] + extralat;
-            final double lonMin = latLonMinMax[2] - extralon;
-            final double lonMax = latLonMinMax[3] + extralon;
+            final double latMin = Math.floor((latLonMinMax[0] - extralat) / demResolution) * demResolution;
+            final double latMax = Math.ceil((latLonMinMax[1] + extralat) /demResolution) * demResolution;
+            final double lonMin = Math.floor((latLonMinMax[2] - extralon) / demResolution) * demResolution;
+            final double lonMax = Math.ceil((latLonMinMax[3] + extralon) / demResolution) * demResolution;
 
             final int rows = (int) Math.round((latMax - latMin) / demResolution);
             final int cols = (int) Math.round((lonMax - lonMin) / demResolution);
