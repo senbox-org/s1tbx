@@ -27,11 +27,8 @@ import org.esa.snap.engine_utilities.util.Maths;
 
 import java.io.*;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Kompsat-5 POD Orbit File
@@ -40,7 +37,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
 
     public final static String PRECISE = "Kompsat5 Precise";
 
-    private final static String remoteURL = "ftp://aopod-ftp.kasi.re.kr/kompsat5rt/level1b/leoOrb/";
+    public final static String remoteURL = "ftp://aopod-ftp.kasi.re.kr/kompsat5rt/level1b/leoOrb/";
 
     private final int polyDegree;
     private final DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -68,8 +65,9 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
         if (orbitFile == null) {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
             final File destFolder = getDestFolder(orbitType, year, month);
-            throw new IOException("No valid orbit file found for " + timeStr +
-                    "\nOrbit files may be downloaded from " + remoteURL
+            throw new IOException("No valid orbit file found for " + timeStr
+                    // not working remoteURL
+                    // + "\nOrbit files may be downloaded from " + remoteURL
                     + "\nand placed in " + destFolder.getAbsolutePath());
         }
 
@@ -82,7 +80,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
     private static File getDestFolder(final String orbitType, final int year, final int month) {
         //final String prefOrbitPath = Settings.getPath("OrbitFiles.k5POEOrbitPath");
 
-        return SystemUtils.getAuxDataPath().resolve("Orbits").resolve("K5").resolve("POEORB").toFile();
+        return SystemUtils.getAuxDataPath().resolve("Orbits").resolve("K5").resolve("POEORB").resolve(String.valueOf(year)).resolve(String.valueOf(month)).toFile();
     }
 
     private File findOrbitFile(final String orbitType,
@@ -255,9 +253,33 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
         int day = Integer.parseInt(tokenizer.nextToken());
         int hour = Integer.parseInt(tokenizer.nextToken());
         int minute = Integer.parseInt(tokenizer.nextToken());
+        int second = (int) Double.parseDouble(tokenizer.nextToken());
 
-        String date = "" + year +'-'+ month +'-'+ day +' '+ hour +':'+ minute +':' + 0;
-        return ProductData.UTC.parse(date, orbitDateFormat);
+        //String date = "" + year +'-'+ month +'-'+ day +' '+ hour +':'+ minute +':' + 0;
+        //String date = "" + year +'-'+ month +'-'+ day +' '+ hour +':'+ minute +':' + second;
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = formatter.parse("" + year +'-'+ month +'-'+ day +' '+ hour +':'+ minute +':' + second);
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+
+        //set gps time
+        Integer subSeconds = -18;
+        Date startSix = formatter.parse("2012-07-01 00:00:00");
+        Date startSeven = formatter.parse("2015-07-01 00:00:00");
+        Date startEight = formatter.parse("2016-12-31 00:00:00");
+
+        if (date.after(startSix) && date.before(startSeven)){
+            subSeconds = -16;
+        }else if (date.after(startSeven) && date.before(startEight)){
+            subSeconds = -17;
+        }
+
+        c.add(Calendar.SECOND, subSeconds);
+        Date gpsTime = c.getTime();
+
+        return ProductData.UTC.parse(formatter.format(gpsTime), orbitDateFormat);
     }
 
     private static void parsePosition(final String line, final Orbits.OrbitVector orbitVector) {
