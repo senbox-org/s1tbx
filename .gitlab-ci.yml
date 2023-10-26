@@ -1,6 +1,6 @@
 # included templates
 include:
-  - 'https://gitlab.com/senbox-org/snap-engine/raw/master/.gitlab-ci.yml'
+  - 'https://gitlab.com/senbox-org/snap-engine/raw/9.0.6-reference/.gitlab-ci.yml'
 
 mvn-build:
   artifacts:
