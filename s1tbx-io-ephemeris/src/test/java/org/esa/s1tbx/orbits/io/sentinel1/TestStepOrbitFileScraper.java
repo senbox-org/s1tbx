@@ -72,7 +72,7 @@ public class TestStepOrbitFileScraper {
         final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.RESTITUTED);
 
         OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1A", 2016, 2);
-        assertEquals(591, orbitFiles.length);
+        assertEquals(413, orbitFiles.length);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class TestStepOrbitFileScraper {
         final OrbitFileScraper scraper = new OrbitFileScraper.Step(SentinelPODOrbitFile.RESTITUTED);
 
         OrbitFileScraper.RemoteOrbitFile[] orbitFiles = scraper.getFileURLs("S1B", 2016, 7);
-        assertEquals(592, orbitFiles.length);
+        assertEquals(437, orbitFiles.length);
     }
 
     @Test

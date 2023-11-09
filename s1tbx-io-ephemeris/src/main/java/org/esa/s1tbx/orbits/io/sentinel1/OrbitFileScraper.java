@@ -131,10 +131,10 @@ abstract class OrbitFileScraper {
     private void findLinks(final String remotePath, final Element elem, final List<RemoteOrbitFile> fileList) {
         Elements addrs = elem.getElementsByTag("a");
         for (Element addr : addrs) {
-            String link = addr.text();
+            String link = addr.attr("href");
             for(String ext : EXTS) {
                 if (link.toLowerCase().endsWith(ext)) {
-                    fileList.add(new RemoteOrbitFile(remotePath, addr.text()));
+                    fileList.add(new RemoteOrbitFile(remotePath, addr.attr("href")));
                 }
             }
         }
