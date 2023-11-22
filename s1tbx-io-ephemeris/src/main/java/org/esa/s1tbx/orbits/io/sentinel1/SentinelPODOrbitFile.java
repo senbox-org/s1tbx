@@ -81,15 +81,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         if (orbitFile == null) {
             try {
-                final GnssOrbitFileDownloader gnssOrbitFileDownloader = new GnssOrbitFileDownloader();
-                orbitFile = gnssOrbitFileDownloader.download(localFolder, "Sentinel-1", missionPrefix,
-                        orbitType, year, month, day, stateVectorTime);
-            } catch(Exception e) {
-                // try next
-            }
-        }
-        if (orbitFile == null) {
-            try {
                 final OrbitFileScraper scraper = new OrbitFileScraper.Step(orbitType);
                 orbitFile = scraper.download(localFolder, missionPrefix, orbitType, year, month, day, stateVectorTime);
             } catch(Exception e) {
