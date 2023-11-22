@@ -1,4 +1,7 @@
 
+#Update 9.0.4
+https://senbox.atlassian.net/projects/SNAP/versions/12829/tab/release-report-all-issues
+
 #Update 9.0.3
 https://senbox.atlassian.net/projects/SNAP/versions/12822/tab/release-report-all-issues
 
