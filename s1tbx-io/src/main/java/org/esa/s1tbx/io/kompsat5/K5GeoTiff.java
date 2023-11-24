@@ -624,11 +624,8 @@ public class K5GeoTiff implements K5Format {
         return bandElem;
     }
 
-    public void close() {
-        if (product != null) {
-            product.dispose();
-            product = null;
-        }
+    public void close() throws IOException {
+        geoTiffReader.close();
     }
 
     public void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,

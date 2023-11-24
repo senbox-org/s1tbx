@@ -136,9 +136,7 @@ public class K5HDF implements K5Format {
     }
 
     public void close() throws IOException {
-        if (product != null) {
-            product.dispose();
-            product = null;
+        if (netcdfFile != null) {
             variableMap.clear();
             variableMap = null;
             netcdfFile.close();
