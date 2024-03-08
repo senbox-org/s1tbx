@@ -269,7 +269,7 @@ public class IceyeSLCProductReader extends SARReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, ProductData.UTC.parse(netcdfFile.getRootGroup().findVariable(IceyeXConstants.PROC_TIME_UTC).readScalarString(), standardDateFormat));
 
 
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, IceyeXConstants.ICEYE_PROCESSOR_NAME_PREFIX + netcdfFile.getRootGroup().findVariable(IceyeXConstants.PROCESSING_SYSTEM_IDENTIFIER).readScalarFloat());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, IceyeXConstants.ICEYE_PROCESSOR_NAME_PREFIX + netcdfFile.getRootGroup().findVariable(IceyeXConstants.PROCESSING_SYSTEM_IDENTIFIER).readScalarString());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.CYCLE, netcdfFile.getRootGroup().findVariable(IceyeXConstants.CYCLE).readScalarInt());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.REL_ORBIT, netcdfFile.getRootGroup().findVariable(IceyeXConstants.REL_ORBIT).readScalarInt());
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, netcdfFile.getRootGroup().findVariable(IceyeXConstants.ABS_ORBIT).readScalarInt());
