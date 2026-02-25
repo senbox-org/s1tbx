@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Copyright (C) 2026 by Microwave Remote Sensing Lab, IITBombay http://www.mrslab.in -->
+<html>
+<head>
+    <title>Help - Dual-pol Scattering Powers (Factorization)</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Dual-pol Scattering Powers (Factorization) Generation</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<h3>Dual-pol Scattering Powers (Factorization)</h3>
+<hr><br>
+<p align="right"><img src="images/MRSLABlogo.png"></p>
+<p align="right">Microwave Remote Sensing Lab (MRSLab)</p>
+<p align="right">Indian Institute of Technology Bombay, India</p>
+<p align="right">Contributors: Dr. Abhinav Verma et al.</p>
+<p align="right">Tel: +91-22-2576-7677</p>
+<p align="right">Date: 02 Feb 2026</p>
+<p align="right">E-mail: mrscsre@gmail.com; averma.iirs@gmail.com</p>
+<p align="right">URL: http://www.mrslab.in
+</p>
+
+
+<h3>1. Dual-pol Scattering Powers Formulation (Factorization method) </h3>
+<p>The dual-pol scattering powers (factorization method) are calculated from the processed dual-pol 2x2 wave covariance C2 matrix.</p>
+<p>This method is based on the two dual-pol indices: DpRBI and DpRSI. Once the two indices are computed, they are employed in the Scattering Power Factorization Framework (SPFF) proposed in [1] to obtain three dual-pol scattering power components: "Dihedral-like" (P<sub>d-l</sub>),
+"Surface-like" (P<sub>s-l</sub>), and a residue (P<sub>u</sub>) [2].</p>
+<p>It is important to note that hills or mountains facing the radar produce strong backscatter and are often confused with built-up areas, resulting in high DpRBI values. 
+Therefore, we employ a slope layer to mask such areas to avoid misinterpretations over such areas. 
+Please include a slope layer along with the C2 matrix (Raster -> DEM Tools -> Compute Slope and Aspect). </p>
+
+<p align="center"><img src="images/DpFactformulation.PNG" width="900"></p>
+
+<h3>2. Dual-pol Scattering Powers Flowchart (Factorization method) </h3>
+<p>A schematic flowchart to compute dual-pol scattering power components using factorization method is shown below [2]:</p>
+<p align="center"><img src="images/DpFactflowchart.PNG" width="1300"></p>
+
+
+<p> Reference:&nbsp;</p>
+
+<p>[1] Ratha, D., Pottier, E., Bhattacharya, A., and Frery, A.C. A PolSAR Scattering Power Factorization Framework and Novel Roll-invariant Parameter Based
+Unsupervised Classification Scheme Using a Geodesic Distance.
+IEEE Transactions on Geoscience and Remote Sensing, vol. 58, no. 5, pp. 3509-3525 </p>
+<p>[2] Verma, A., Bhattacharya, A., Dey, S., Lopez-Martinez, C., and Gamba, P., 2024. Scattering Power Componenets from Dual-pol Sentinel-1 SLC and GRD SAR Data. 
+ ISPRS Journal of Photogrammetry and Remote Sensing, 212, p.289-305.</p>	
+		
+<hr>
+</body>
+</html>

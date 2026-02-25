@@ -11,3 +11,7 @@ org.csa.rstb.polarimetric.gpf.FaradayRotationCorrectionOp$Spi
 org.csa.rstb.polarimetric.gpf.RVIOp$Spi
 org.csa.rstb.polarimetric.gpf.CPRVIOp$Spi
 org.csa.rstb.polarimetric.gpf.GRVIOp$Spi
+org.csa.rstb.polarimetric.gpf.DPRBIOp$Spi
+org.csa.rstb.polarimetric.gpf.DPRSIOp$Spi
+org.csa.rstb.polarimetric.gpf.DpDecompositionOp$Spi
+org.csa.rstb.polarimetric.gpf.DpFactorizationOp$Spi

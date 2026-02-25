@@ -19,6 +19,10 @@
 				<tocitem text="Dual-pol Radar Vegetation Index" target="RVIOp"/>
 				<tocitem text="Compact-pol Radar Vegetation Index" target="CPRVIOp"/>
 				<tocitem text="Generalized Radar Vegetation Index" target="GRVIOp"/>
+                                <tocitem text="Dual-pol Radar Built-up Index" target="DPRBIOp"/>
+                                <tocitem text="Dual-pol Radar Surface Index" target="DPRSIOp"/>
+                                <tocitem text="Dual-pol Scattering Powers (Decomposition)" target="DpDecompositionOp"/>
+                                <tocitem text="Dual-pol Scattering Powers (Factorization)" target="DpFactorizationOp"/>
             </tocitem>
         </tocitem>
     </tocitem>

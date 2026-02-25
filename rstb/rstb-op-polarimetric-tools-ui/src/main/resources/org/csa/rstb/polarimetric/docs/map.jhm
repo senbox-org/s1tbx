@@ -14,4 +14,8 @@
     <mapID target="PolarimetricDecompositionOp" url="operators/PolarimetricDecompositionOp.html"/>
     <mapID target="PolarimetricSpeckleFilterOp" url="operators/PolarimetricSpeckleFilterOp.html"/>
     <mapID target="OrientationAngleCorrectionOp" url="operators/OrientationAngleCorrectionOp.html"/>
+    <mapID target="DPRBIOp" url="operators/DPRBIOp.html"/>
+    <mapID target="DPRSIOp" url="operators/DPRSIOp.html"/>
+    <mapID target="DpDecompositionOp" url="operators/DpDecompositionOp.html"/>
+    <mapID target="DpFactorizationOp" url="operators/DpFactorizationOp.html"/>
 </map>
