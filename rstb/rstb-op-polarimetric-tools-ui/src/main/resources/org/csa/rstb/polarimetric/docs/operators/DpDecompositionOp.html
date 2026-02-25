@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Copyright (C) 2026 by Microwave Remote Sensing Lab, IITBombay http://www.mrslab.in -->
+<html>
+<head>
+    <title>Help - Dual-pol Scattering Powers (Decomposition)</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Dual-pol Scattering Powers (Decomposition) Generation</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<h3>Dual-pol Scattering Powers (Decomposition)</h3>
+<hr><br>
+<p align="right"><img src="images/MRSLABlogo.png"></p>
+<p align="right">Microwave Remote Sensing Lab (MRSLab)</p>
+<p align="right">Indian Institute of Technology Bombay, India</p>
+<p align="right">Contributors: Dr. Abhinav Verma et al.</p>
+<p align="right">Tel: +91-22-2576-7677</p>
+<p align="right">Date: 02 Feb 2026</p>
+<p align="right">E-mail: mrscsre@gmail.com; averma.iirs@gmail.com</p>
+<p align="right">URL: http://www.mrslab.in
+</p>
+
+
+<h3>1. Dual-pol Scattering Powers Formulation (Decomposition method) </h3>
+<p>The dual-pol scattering powers (decomposition method) are calculated from the processed dual-pol 2x2 wave covariance C2 matrix.</p>
+<p>This method is based on the two dual-pol indices: DpRBI and DpRSI. First, a dual-pol target characteristic parameter is computed using DpRBI and DpRSI.
+It varies between 0° and 90°, with low values close to 0° indicating "surface-like" targets, high values close to 90° describing "dihedral-like", and intermediate
+values close to 45° representing mixed targets [1].</p>
+<p> Subsequently, the degree of polarization and target characteristic parameter are together employed to split the total power into "Dihedral-like" (P<sub>d-l</sub>),
+"Surface-like" (P<sub>s-l</sub>), unpolarized (P<sub>u</sub>) component as shown in the figure below and in [1].</p>
+<p>It is important to note that hills or mountains facing the radar produce strong backscatter and are often confused with built-up areas, resulting in high DpRBI values. 
+Therefore, we employ a slope layer to mask such areas to avoid misinterpretations over such areas. 
+Please include a slope layer along with the C2 matrix (Raster -> DEM Tools -> Compute Slope and Aspect). </p>
+
+<p align="center"><img src="images/DpDcmpformulation.PNG" width="900"></p>
+
+<h3>2. Dual-pol Scattering Powers Flowchart (Decomposition method) </h3>
+<p>A schematic flowchart to compute dual-pol scattering power components using decomposition method is shown below [1]:</p>
+<p align="center"><img src="images/DpDcmpflowchart.PNG" width="1300"></p>
+
+
+<p> Reference:&nbsp;</p>
+
+<p>[1] Verma, A., Bhattacharya, A., Dey, S., Marino, A., and Gamba, P., 2024. Target Characterization and Scattering Power Components From Dual-Pol Sentinel-1 SAR Data.
+IEEE Transactions on Geoscience and Remote Sensing, vol. 62, pp. 1-19, 2024, Art no. 5222619. </p>	
+		
+<hr>
+</body>
+</html>
